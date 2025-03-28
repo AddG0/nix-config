@@ -90,6 +90,11 @@
       inputs.nixpkgs.follows = "nixpkgs";
     };
 
+    nur = {
+      url = "github:nix-community/NUR";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
+
     nur-ryan4yin.url = "github:ryan4yin/nur-packages";
     nur-ataraxiasjel.url = "github:AtaraxiaSjel/nur";
 
