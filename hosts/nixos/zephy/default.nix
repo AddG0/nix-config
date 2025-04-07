@@ -46,7 +46,7 @@
       "common/optional/nixos/services/vscode-server.nix"
       # "common/optional/nixos/services/home-assistant.nix"
       # "common/optional/nixos/virtualisation/docker.nix" # docker
-      # "common/optional/nixos/pterodactyl" # pterodactyl
+      # "common/optional/nixos/services/pterodactyl" # pterodactyl
       # "common/optional/nixos/plymouth.nix" # fancy boot screen
 
       #################### Desktop ####################
@@ -55,6 +55,7 @@
       "common/optional/nixos/file-managers/dolphin.nix" # file manager
       "common/optional/nixos/vlc.nix" # media player
       "common/optional/nixos/wayland.nix" # wayland components and pkgs not available in home-manager
+      # "common/optional/nixos/desktops/plasma"
     ])
   ];
 
@@ -168,6 +169,8 @@
   #  wayland.windowManager.hyprland.settings.general."col.active_border" = lib.mkForce "rgb(${config.stylix.base16Scheme.base0E});
 
   system.stateVersion = config.hostSpec.system.stateVersion;
+
+
 
   services.automatic-timezoned.enable = true;
 

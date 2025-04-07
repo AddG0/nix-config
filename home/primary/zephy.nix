@@ -10,7 +10,7 @@
     #################### Host-specific Optional Configs ####################
     common/optional/helper-scripts
     common/optional/jupyter-notebook
-    common/optional/nixos/desktops/hyprland # default is hyprland
+    # common/optional/nixos/desktops/hyprland # default is hyprland
     common/optional/development/ide.nix
     common/optional/secrets/sops.nix
     common/optional/secrets/kubeconfig.nix
@@ -32,15 +32,15 @@
     homeDirectory = lib.custom.getHomeDirectory config.hostSpec.username;
   };
 
-  modules.desktop.hyprland = {
-    enable = true;
-    nvidia = true;
-    settings = {
-      workspace = [
-        "1,monitor:desc:AU Optronics 0x8E9D"
-      ];
-    };
-  };
+  # modules.desktop.hyprland = {
+  #   enable = true;
+  #   nvidia = true;
+  #   settings = {
+  #     workspace = [
+  #       "1,monitor:desc:AU Optronics 0x8E9D"
+  #     ];
+  #   };
+  # };
 
   xdg.mimeApps = {
     enable = true;
