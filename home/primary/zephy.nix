@@ -10,7 +10,7 @@
     #################### Host-specific Optional Configs ####################
     common/optional/helper-scripts
     common/optional/jupyter-notebook
-    # common/optional/nixos/desktops/hyprland # default is hyprland
+    common/optional/nixos/desktops/hyprland # default is hyprland
     common/optional/development/ide.nix
     common/optional/secrets/sops.nix
     common/optional/secrets/kubeconfig.nix
