@@ -28,10 +28,11 @@
 
   sops.secrets.cloudflare = {
     format = "binary";
+
     sopsFile = "${nix-secrets}/secrets/cloudflare.env.enc";
     mode = "0400";
     owner = "root";
   };
 
-  security.firewall.allowedTCPPorts = [ 80, 443 ];
+  security.firewall.allowedTCPPorts = [80 443];
 }

@@ -2,12 +2,14 @@
   config,
   lib,
   nix-secrets,
+  hostSpec,
   ...
 }: {
   sops.secrets = {
     kube_config = {
       format = "binary";
       sopsFile = "${nix-secrets}/secrets/kube.yaml.enc";
+      mode = "0600";
       path = "${config.home.homeDirectory}/.kube/config-home";
     };
   };
