@@ -25,6 +25,7 @@
     #    };
 
     ghostty = inputs.ghostty.packages.${prev.system}.default;
+    zen-browser = inputs.zen-browser.packages.${prev.system}.default;
   };
 
   stable-packages = final: _prev: {

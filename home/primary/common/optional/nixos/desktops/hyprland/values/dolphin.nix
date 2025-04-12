@@ -14,6 +14,7 @@
     kdePackages.ffmpegthumbs # Thumbnail support
     kdePackages.kio-extras-kf5 # Additional KIO protocols
     kdePackages.kdegraphics-thumbnailers # Additional thumbnail support
+    kdePackages.solid
     udisks2 # For disk management
   ];
 }

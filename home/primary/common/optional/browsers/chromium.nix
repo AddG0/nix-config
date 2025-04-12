@@ -17,6 +17,7 @@
       {id = "aeblfdkhhhdcdjpifhhbdiojplfjncoa";} # 1password
       {id = "aefkmifgmaafnojlojpnekbpbmjiiogg";} # Popup Blocker (strict)
       {id = "kdbmhfkmnlmbkgbabkdealhhbfhlmmon";} # SteamDB
+      {id = "alageihdeogmjlkgifaeefodfbdbljjf";} # Youtube Auto Quality
     ];
   };
 

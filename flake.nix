@@ -72,6 +72,11 @@
       url = "github:ghostty-org/ghostty";
     };
 
+    zen-browser = {
+      url = "github:MarceColl/zen-browser-flake";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
+
     # vim4LMFQR!
     nixvim = {
       #url = "github:nix-community/nixvim/nixos-24.05";

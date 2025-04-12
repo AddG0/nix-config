@@ -19,7 +19,7 @@
       name = "Adwaita";
       package = pkgs.adwaita-icon-theme;
       size = "48x48"; # Increased icon size for better visibility
-    };
+    }; 
     settings = {
       global = {
         # Allow a small subset of html markup:<b></b>, <i></i>, <s></s>, and <u></u>.
