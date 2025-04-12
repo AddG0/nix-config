@@ -32,4 +32,6 @@
     mode = "0400";
     owner = "root";
   };
+
+  security.firewall.allowedTCPPorts = [ 80, 443 ];
 }
