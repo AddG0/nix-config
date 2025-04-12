@@ -59,7 +59,7 @@
     virtualHosts."pterodactyl-eu.addg0.com" = {
       useACMEHost = "addg0.com";
       forceSSL = true;
-      
+
       root = "${config.services.pterodactyl.panel.dataDir}/public";
       locations."/" = {
         index = "index.php";
@@ -77,7 +77,7 @@
 
   networking.hosts = {
     "127.0.0.1" = ["pterodactyl-eu.addg0.com" "wings-eu.addg0.com"];
-  }; 
+  };
 
   sops.secrets = {
     pterodactylAdminPassword = {

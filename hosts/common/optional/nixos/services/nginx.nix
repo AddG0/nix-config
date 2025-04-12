@@ -1,4 +1,8 @@
-{ config, nix-secrets, ...}: {
+{
+  config,
+  nix-secrets,
+  ...
+}: {
   services.nginx = {
     enable = true;
     recommendedProxySettings = true;
@@ -18,7 +22,7 @@
       environmentFile = config.sops.secrets.cloudflare.path;
       group = "nginx";
       postRun = "systemctl --no-block reload nginx.service";
-      extraDomainNames = [ "*.addg0.com" ];
+      extraDomainNames = ["*.addg0.com"];
     };
   };
 

@@ -50,11 +50,4 @@
   services.supergfxd.enable = true;
 
   services.xserver.videoDrivers = ["nvidia"];
-
-  services = {
-    asusd = {
-      enable = lib.mkDefault true;
-      enableUserService = true;
-    };
-  };
 }
