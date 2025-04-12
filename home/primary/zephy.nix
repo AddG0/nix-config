@@ -1,9 +1,13 @@
 {
   config,
+  inputs,
+  pkgs,
   lib,
   ...
 }: {
   imports = [
+    inputs.stylix.homeManagerModules.stylix
+
     #################### Required Configs ####################
     common/core # required
 
@@ -47,6 +51,29 @@
     defaultApplications = {
       "inode/directory" = "org.kde.dolphin.desktop";
     };
+  };
+
+  stylix = {
+    enable = true;
+    image = pkgs.fetchurl {
+      url = "https://unsplash.com/photos/3l3RwQdHRHg/download?ixid=M3wxMjA3fDB8MXxhbGx8fHx8fHx8fHwxNzM2NTE4NDQ2fA&force=true";
+      sha256 = "LtdnBAxruHKYE/NycsA614lL6qbGBlkrlj3EPNZ/phU=";
+    };
+    base16Scheme = "${pkgs.base16-schemes}/share/themes/catppuccin-mocha.yaml";
+    cursor = {
+      package = pkgs.catppuccin-cursors.mochaDark;
+      name = "Catppuccin-Mocha-Dark";
+      size = 24; # or 16, 20, 32, etc. — whatever looks right on your display
+    };
+        opacity = {
+      applications = 1.0;
+      terminal = 1.0;
+      desktop = 1.0;
+      popups = 0.8;
+    };
+    polarity = "dark";
+
+
   };
   
   #

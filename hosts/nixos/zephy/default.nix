@@ -31,7 +31,6 @@
     # }
 
     #################### Misc Inputs ####################
-    inputs.stylix.nixosModules.stylix
 
     (map lib.custom.relativeToHosts [
       #################### Required Configs ####################
@@ -121,50 +120,7 @@
   #   cryptvms UUID=ce5f47f8-d5df-4c96-b2a8-766384780a91 /luks-secondary-unlock.key
   # '';
 
-  #TODO:(stylix) move this stuff to separate file but define theme itself per host
-  # host-wide styling
-  stylix = {
-    enable = true;
-    image = pkgs.fetchurl {
-      url = "https://unsplash.com/photos/3l3RwQdHRHg/download?ixid=M3wxMjA3fDB8MXxhbGx8fHx8fHx8fHwxNzM2NTE4NDQ2fA&force=true";
-      sha256 = "LtdnBAxruHKYE/NycsA614lL6qbGBlkrlj3EPNZ/phU=";
-    };
-    base16Scheme = "${pkgs.base16-schemes}/share/themes/catppuccin-mocha.yaml";
-    cursor = {
-      package = pkgs.catppuccin-cursors.mochaDark;
-      name = "Catppuccin-Mocha-Dark";
-      size = 24; # or 16, 20, 32, etc. — whatever looks right on your display
-    };
-    #     fonts = {
-    #monospace = {
-    #    package = pkgs.foo;
-    #    name = "";
-    #};
-    #sanSerif = {
-    #    package = pkgs.foo;
-    #    name = "";
-    #};
-    #serif = {
-    #    package = pkgs.foo;
-    #    name = "";
-    #};
-    #    sizes = {
-    #        applications = 12;
-    #        terminal = 12;
-    #        desktop = 12;
-    #        popups = 10;
-    #    };
-    #};
-    opacity = {
-      applications = 1.0;
-      terminal = 1.0;
-      desktop = 1.0;
-      popups = 0.8;
-    };
-    polarity = "dark";
-    # program specific exclusions
-    #targets.foo.enable = false;
-  };
+
   #hyprland border override example
   #  wayland.windowManager.hyprland.settings.general."col.active_border" = lib.mkForce "rgb(${config.stylix.base16Scheme.base0E});
 
