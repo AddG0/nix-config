@@ -22,7 +22,6 @@
     nativeBuildInputs = builtins.attrValues {
       inherit
         (pkgs)
-        nix
         home-manager
         git
         just

@@ -44,8 +44,8 @@
       "common/optional/nixos/services/vscode-server.nix"
       # "common/optional/nixos/services/home-assistant.nix"
       "common/optional/nixos/virtualisation/docker.nix" # docker
-      # "common/optional/nixos/services/pterodactyl" # pterodactyl
-      # "common/optional/nixos/services/nginx.nix"
+      "common/optional/nixos/services/pterodactyl" # pterodactyl
+      "common/optional/nixos/services/nginx.nix"
       # "common/optional/nixos/plymouth.nix" # fancy boot screen
 
       #################### Desktop ####################

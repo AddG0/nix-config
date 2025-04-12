@@ -163,6 +163,13 @@ in {
               cp -L "${generatedConfigFile}" "${cfg.settings.system.root_directory}/wings.yaml"
             fi
           '')
+          # We need this since the panel will update the url to 443 since we're most likely using nginx
+          ''
+            if [ -f "${cfg.settings.system.root_directory}/wings.yaml" ]; then
+              echo "Ensuring Wings config is reset to port ${toString cfg.settings.api.port}"
+              ${pkgs.yq-go}/bin/yq -i '.api.port = ${toString cfg.settings.api.port}' "${cfg.settings.system.root_directory}/wings.yaml"
+            fi
+          ''
         ];
         serviceConfig = {
           User = "root";
