@@ -11,4 +11,12 @@
       {id = "kdbmhfkmnlmbkgbabkdealhhbfhlmmon";} # SteamDB
     ];
   };
+
+  xdg.mimeApps = {
+    defaultApplications = {
+      "text/html" = "chromium.desktop";
+      "x-scheme-handler/http" = "chromium.desktop";
+      "x-scheme-handler/https" = "chromium.desktop";
+    };
+  };
 }

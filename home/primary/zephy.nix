@@ -27,7 +27,6 @@
     common/optional/development/aws.nix
     common/optional/nixos/gpg-agent.nix
     common/optional/media/spicetify.nix
-    common/optional/screenshot/flameshot.nix
     # common/optional/remote-desktop/rustdesk.nix
   ];
 
@@ -45,13 +44,6 @@
   #     ];
   #   };
   # };
-
-  xdg.mimeApps = {
-    enable = true;
-    defaultApplications = {
-      "inode/directory" = "org.kde.dolphin.desktop";
-    };
-  };
 
   stylix = {
     enable = true;

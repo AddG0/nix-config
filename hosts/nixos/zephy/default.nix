@@ -41,7 +41,6 @@
       "common/optional/nixos/nvtop.nix" # GPU monitor (not available in home-manager)
       "common/optional/nixos/audio.nix" # pipewire and cli controls
       "common/optional/nixos/gaming.nix" # steam, gamescope, gamemode, and related hardware
-      "common/optional/nixos/hyprland.nix" # window manager
       "common/optional/nixos/services/vscode-server.nix"
       # "common/optional/nixos/services/home-assistant.nix"
       # "common/optional/nixos/virtualisation/docker.nix" # docker
@@ -49,12 +48,9 @@
       # "common/optional/nixos/plymouth.nix" # fancy boot screen
 
       #################### Desktop ####################
+      "common/optional/nixos/desktops/wayland" # window manager
       "common/optional/nixos/services/greetd.nix" # display manager
-      "common/optional/nixos/hyprland.nix" # window manager
-      "common/optional/nixos/file-managers/dolphin.nix" # file manager
       "common/optional/nixos/vlc.nix" # media player
-      "common/optional/nixos/wayland.nix" # wayland components and pkgs not available in home-manager
-      # "common/optional/nixos/desktops/plasma"
     ])
   ];
 
@@ -70,14 +66,6 @@
   };
 
   services.dbus.enable = true;
-
-  xdg.portal = {
-    enable = true;
-    wlr.enable = true; # for Wayland compositors like Hyprland
-    extraPortals = with pkgs; [
-      xdg-desktop-portal-wlr
-    ];
-  };
 
   security.firewall.enable = true;
 
