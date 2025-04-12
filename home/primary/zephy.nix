@@ -65,17 +65,15 @@
       name = "Catppuccin-Mocha-Dark";
       size = 24; # or 16, 20, 32, etc. — whatever looks right on your display
     };
-        opacity = {
+    opacity = {
       applications = 1.0;
       terminal = 1.0;
       desktop = 1.0;
       popups = 0.8;
     };
     polarity = "dark";
-
-
   };
-  
+
   #
   # ========== Host-specific Monitor Spec ==========
   #

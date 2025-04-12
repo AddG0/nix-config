@@ -1,6 +1,9 @@
-{ config, lib, pkgs, ... }:
-
 {
+  config,
+  lib,
+  pkgs,
+  ...
+}: {
   # Enable Plasma desktop environment
   services.xserver = {
     enable = true;
@@ -44,6 +47,6 @@
   # Enable XDG portal for screen sharing
   xdg.portal = {
     enable = true;
-    extraPortals = [ pkgs.kdePackages.xdg-desktop-portal-kde ];
+    extraPortals = [pkgs.kdePackages.xdg-desktop-portal-kde];
   };
-} 
+}

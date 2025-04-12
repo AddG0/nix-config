@@ -69,11 +69,11 @@
     timeout = 3;
   };
 
-    services.dbus.enable = true;
+  services.dbus.enable = true;
 
   xdg.portal = {
     enable = true;
-    wlr.enable = true;  # for Wayland compositors like Hyprland
+    wlr.enable = true; # for Wayland compositors like Hyprland
     extraPortals = with pkgs; [
       xdg-desktop-portal-wlr
     ];
@@ -120,13 +120,10 @@
   #   cryptvms UUID=ce5f47f8-d5df-4c96-b2a8-766384780a91 /luks-secondary-unlock.key
   # '';
 
-
   #hyprland border override example
   #  wayland.windowManager.hyprland.settings.general."col.active_border" = lib.mkForce "rgb(${config.stylix.base16Scheme.base0E});
 
   system.stateVersion = config.hostSpec.system.stateVersion;
-
-
 
   services.automatic-timezoned.enable = true;
 
