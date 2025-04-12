@@ -43,9 +43,9 @@
       "common/optional/nixos/gaming.nix" # steam, gamescope, gamemode, and related hardware
       "common/optional/nixos/services/vscode-server.nix"
       # "common/optional/nixos/services/home-assistant.nix"
-      # "common/optional/nixos/virtualisation/docker.nix" # docker
-      "common/optional/nixos/services/pterodactyl" # pterodactyl
-      "common/optional/nixos/services/nginx.nix"
+      "common/optional/nixos/virtualisation/docker.nix" # docker
+      # "common/optional/nixos/services/pterodactyl" # pterodactyl
+      # "common/optional/nixos/services/nginx.nix"
       # "common/optional/nixos/plymouth.nix" # fancy boot screen
 
       #################### Desktop ####################
@@ -117,4 +117,13 @@
     os-prober
     # other packages...
   ];
+
+  systemd.user.services."asus-keyboard-light" = {
+    description = "Set ASUS keyboard lights at startup";
+    wantedBy = [ "default.target" ];
+    serviceConfig = {
+      ExecStart = "${pkgs.asusctl}/bin/asusctl -k high && ${pkgs.asusctl}/bin/asusctl aura rainbow-wave";
+    };
+  };
+
 }
