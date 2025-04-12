@@ -33,6 +33,8 @@ in {
         "SDL_VIDEODRIVER,wayland"
         "GDK_BACKEND,wayland"
         "OGL_DEDICATED_HW_STATE_PER_CONTEXT,ENABLE_ROBUST"
+        # fix https://github.com/hyprwm/Hyprland/issues/1520 laggy mouse
+        "WLR_NO_HARDWARE_CURSORS,1"
       ];
 
       cursor = {

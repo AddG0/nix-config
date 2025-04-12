@@ -36,8 +36,6 @@ in {
         else "/dev/dri/card0"
       }"
       "__GLX_VENDOR_LIBRARY_NAME,nvidia"
-      # fix https://github.com/hyprwm/Hyprland/issues/1520 laggy mouse
-      "WLR_NO_HARDWARE_CURSORS,1"
     ];
   };
 }

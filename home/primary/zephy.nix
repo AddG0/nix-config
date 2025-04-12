@@ -15,13 +15,13 @@
     common/optional/helper-scripts
     common/optional/jupyter-notebook
     common/optional/nixos/desktops/hyprland # default is hyprland
+    common/optional/browsers
     common/optional/development/ide.nix
     common/optional/secrets/sops.nix
     common/optional/secrets/kubeconfig.nix
     common/optional/gaming/minecraft.nix
     common/optional/gaming/steam.nix
     common/optional/comms
-    common/optional/browsers
     common/optional/ghostty
     common/optional/nixos/1password.nix
     common/optional/development/aws.nix
@@ -82,7 +82,7 @@
   monitors = [
     {
       name = "desc:AU Optronics 0x8E9D";
-      # use_nwg = true;
+      use_nwg = true;
       width = 2560;
       height = 1600;
       resolution = "2560x1600@165.04";

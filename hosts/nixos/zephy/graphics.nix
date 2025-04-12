@@ -50,4 +50,11 @@
   services.supergfxd.enable = true;
 
   services.xserver.videoDrivers = ["nvidia"];
+
+  environment.systemPackages = with pkgs; [
+    vdpauinfo
+    nvidia-vaapi-driver
+    libva
+    libva-utils
+  ];
 }
