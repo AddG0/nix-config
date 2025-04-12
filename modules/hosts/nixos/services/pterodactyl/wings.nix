@@ -172,6 +172,7 @@ in {
           ExecStart = "${cfg.package}/bin/wings --config \"${cfg.settings.system.root_directory}/wings.yaml\"";
           Restart = "on-failure";
           RestartSec = "5s";
+          SuccessExitStatus = "0 1 2";
         };
       };
     };

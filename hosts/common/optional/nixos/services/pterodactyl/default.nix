@@ -9,17 +9,30 @@
     settings = {
       api = {
         ssl.enabled = false;
-        port = 8983;
+        port = 8080;
       };
-      remote = "http://${config.services.pterodactyl.panel.domain}";
+      remote = "wings-eu.addg0.com";
+    };
+  };
+
+  services.nginx.virtualHosts."wings-eu.addg0.com" = {
+    forceSSL = true;
+    useACMEHost = "addg0.com";
+
+    locations."/" = {
+      proxyPass = "http://127.0.0.1:8080";
+      proxyWebsockets = true;
+      extraConfig = ''
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto https;
+      '';
     };
   };
 
   services.pterodactyl.panel = {
     enable = true;
-
-    domain = "panel.local"; # or your actual domain
-    ssl = false; # set to true if using ACME (Let's Encrypt)
+    ssl = true;
     users = {
       primary = {
         email = config.hostSpec.email.user;
@@ -42,9 +55,29 @@
     };
   };
 
-  networking.hosts = {
-    "127.0.0.1" = ["panel.local"];
+  services.nginx = {
+    virtualHosts."pterodactyl-eu.addg0.com" = {
+      useACMEHost = "addg0.com";
+      forceSSL = true;
+      
+      root = "${config.services.pterodactyl.panel.dataDir}/public";
+      locations."/" = {
+        index = "index.php";
+        tryFiles = "$uri $uri/ /index.php?$query_string";
+      };
+      locations."~ \\.php$" = {
+        extraConfig = ''
+          include ${pkgs.nginx}/conf/fastcgi_params;
+          fastcgi_pass unix:/run/phpfpm/pterodactyl.sock;
+          fastcgi_param SCRIPT_FILENAME $document_root$fastcgi_script_name;
+        '';
+      };
+    };
   };
+
+  networking.hosts = {
+    "127.0.0.1" = ["pterodactyl-eu.addg0.com" "wings-eu.addg0.com"];
+  }; 
 
   sops.secrets = {
     pterodactylAdminPassword = {

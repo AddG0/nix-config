@@ -63,26 +63,6 @@ in
 
     services.redis.servers."".enable = true;
 
-    services.nginx = {
-      enable = true;
-      virtualHosts.${cfg.domain} = {
-        root = "${cfg.dataDir}/public";
-        enableACME = cfg.ssl;
-        forceSSL = cfg.ssl;
-        locations."/" = {
-          index = "index.php";
-          tryFiles = "$uri $uri/ /index.php?$query_string";
-        };
-        locations."~ \\.php$" = {
-          extraConfig = ''
-            include ${pkgs.nginx}/conf/fastcgi_params;
-            fastcgi_pass unix:/run/phpfpm/pterodactyl.sock;
-            fastcgi_param SCRIPT_FILENAME $document_root$fastcgi_script_name;
-          '';
-        };
-      };
-    };
-
     services.phpfpm.pools.pterodactyl = {
       user = cfg.user;
       group = cfg.group;

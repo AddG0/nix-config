@@ -15,11 +15,6 @@ with lib; {
       description = "Group under which the panel will run.";
     };
 
-    domain = mkOption {
-      type = types.str;
-      description = "Domain name to serve the panel.";
-    };
-
     dataDir = mkOption {
       type = types.path;
       default = "/var/www/pterodactyl";

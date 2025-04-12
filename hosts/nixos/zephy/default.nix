@@ -12,12 +12,12 @@
   ...
 }: {
   imports = lib.flatten [
+    (lib.custom.scanPaths ./.)
+
     #################### Hardware ####################
-    ./hardware-configuration.nix
     inputs.hardware.nixosModules.common-cpu-amd
     inputs.hardware.nixosModules.common-pc-ssd
     inputs.hardware.nixosModules.asus-battery
-    ./graphics.nix
 
     #################### Disk Layout ####################
     # inputs.disko.nixosModules.disko
@@ -44,7 +44,8 @@
       "common/optional/nixos/services/vscode-server.nix"
       # "common/optional/nixos/services/home-assistant.nix"
       # "common/optional/nixos/virtualisation/docker.nix" # docker
-      # "common/optional/nixos/services/pterodactyl" # pterodactyl
+      "common/optional/nixos/services/pterodactyl" # pterodactyl
+      "common/optional/nixos/services/nginx.nix"
       # "common/optional/nixos/plymouth.nix" # fancy boot screen
 
       #################### Desktop ####################
@@ -68,10 +69,6 @@
   services.dbus.enable = true;
 
   security.firewall.enable = true;
-
-  # services.xserver.enable = true;
-  # services.xserver.displayManager.lightdm.enable = true;
-  # services.xserver.desktopManager.cinnamon.enable = true;
 
   boot.initrd = {
     systemd.enable = true;
