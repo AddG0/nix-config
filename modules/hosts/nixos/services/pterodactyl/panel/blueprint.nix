@@ -9,17 +9,17 @@ with lib; let
   pterodactylCfg = config.services.pterodactyl.panel;
 in {
   options.services.pterodactyl.panel.blueprint = {
-    enable = mkEnableOption "Enable Blueprint framework for Pterodactyl panel";
+    enable = mkEnableOption "Blueprint framework for Pterodactyl panel";
 
     webUser = mkOption {
       type = types.str;
-      default = "www-data";
+      default = pterodactylCfg.user;
       description = "Web server user for Blueprint";
     };
 
     ownership = mkOption {
       type = types.str;
-      default = "www-data:www-data";
+      default = "${pterodactylCfg.user}:${pterodactylCfg.group}";
       description = "File ownership for Blueprint files";
     };
 
@@ -33,31 +33,31 @@ in {
   config = mkIf (pterodactylCfg.enable && cfg.enable) {
     environment.systemPackages = [pkgs.blueprint];
 
-    systemd.services.blueprint-setup = {
-      description = "Setup Blueprint for Pterodactyl Panel";
-      after = ["pterodactyl-panel-setup.service"];
+    systemd.services.pterodactyl-blueprint = {
+      description = "Blueprint framework for Pterodactyl panel";
       wantedBy = ["multi-user.target"];
-      serviceConfig = {
-        Type = "oneshot";
-        User = pterodactylCfg.user;
-        Group = pterodactylCfg.group;
-        WorkingDirectory = pterodactylCfg.dataDir;
-      };
+      after = ["pterodactyl-panel.service"];
+      path = with pkgs; [nodejs yarn zip unzip git curl wget];
+
       script = ''
         # Create .blueprintrc configuration
-        cat > .blueprintrc <<EOF
+        cat > ${pterodactylCfg.dataDir}/.blueprintrc << EOF
         WEBUSER="${cfg.webUser}";
         OWNERSHIP="${cfg.ownership}";
         USERSHELL="${cfg.userShell}";
         EOF
 
-        # Copy Blueprint files to panel directory
-        cp -r ${pkgs.blueprint}/* .
-        chmod +x blueprint.sh
-
-        # Run Blueprint setup
-        ./blueprint.sh
+        # Set ownership of the configuration file
+        chown ${cfg.ownership} ${pterodactylCfg.dataDir}/.blueprintrc
       '';
+
+      serviceConfig = {
+        Type = "oneshot";
+        RemainAfterExit = true;
+        User = pterodactylCfg.user;
+        Group = pterodactylCfg.group;
+        WorkingDirectory = pterodactylCfg.dataDir;
+      };
     };
   };
 }

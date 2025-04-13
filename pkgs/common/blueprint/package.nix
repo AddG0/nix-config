@@ -2,9 +2,9 @@
   lib,
   stdenv,
   fetchFromGitHub,
-  unzip,
   nodejs,
   yarn,
+  ncurses,
 }:
 stdenv.mkDerivation rec {
   pname = "blueprint";
@@ -13,19 +13,15 @@ stdenv.mkDerivation rec {
   src = fetchFromGitHub {
     owner = "BlueprintFramework";
     repo = "framework";
-    rev = "latest";
-    sha256 = "0000000000000000000000000000000000000000000000000000"; # This will be updated by nix-prefetch-url
+    rev = "main";
+    sha256 = "sha256-9gTKMhgcH55/PxfmLF0sPifDool16pj20AfjBas5Ses="; # This will be updated by nix-prefetch-url
   };
 
-  nativeBuildInputs = [unzip nodejs yarn];
-
-  buildPhase = ''
-    unzip $src
-  '';
+  nativeBuildInputs = [nodejs yarn ncurses];
 
   installPhase = ''
     mkdir -p $out
-    cp -r * $out/
+    cp -r $src/* $out/
     chmod +x $out/blueprint.sh
   '';
 
