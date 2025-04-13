@@ -33,6 +33,9 @@
   services.pterodactyl.panel = {
     enable = true;
     ssl = true;
+    blueprint = {
+      enable = true;
+    };
     users = {
       primary = {
         email = config.hostSpec.email.user;
