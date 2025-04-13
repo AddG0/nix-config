@@ -45,16 +45,13 @@
     enable = true;
     # needed by nvidia-docker
     enable32Bit = true;
+    extraPackages = with pkgs; [
+      vaapiVdpau
+      libvdpau-va-gl
+    ];
   };
 
   services.supergfxd.enable = true;
 
   services.xserver.videoDrivers = ["nvidia"];
-
-  environment.systemPackages = with pkgs; [
-    vdpauinfo
-    nvidia-vaapi-driver
-    libva
-    libva-utils
-  ];
 }

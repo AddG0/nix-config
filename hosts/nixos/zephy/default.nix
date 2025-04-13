@@ -83,19 +83,32 @@
   # services.printing.enable = true;
 
   # # Enable sound with pipewire.
-  # security.rtkit.enable = true;
+  security.rtkit.enable = true;
   services.pipewire = {
     enable = true;
     alsa.enable = true;
     alsa.support32Bit = true;
     pulse.enable = true;
-    # If you want to use JACK applications, uncomment this
-    #jack.enable = true;
+    # Uncomment if you use JACK applications
+    # jack.enable = true;
 
-    # use the example session manager (no others are packaged yet so this is enabled by default,
-    # no need to redefine it in your config for now)
-    #media-session.enable = true;
+    # Configure PipeWire to support high sample rates
+    extraConfig.pipewire."99-hifi.conf" = {
+      "context.properties" = {
+        "default.clock.rate" = 96000;
+        "default.clock.allowed-rates" = [44100 48000 88200 96000 192000];
+        "resample.quality" = 10;
+      };
+    };
   };
+
+  xdg.portal = {
+    enable = true;
+    extraPortals = [pkgs.kdePackages.xdg-desktop-portal-kde];
+    config.common.default = "kde";
+  };
+
+  services.upower.enable = true;
 
   # needed unlock LUKS on secondary drives
   # use partition UUID

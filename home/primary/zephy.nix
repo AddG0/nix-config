@@ -27,6 +27,8 @@
     common/optional/development/aws.nix
     common/optional/nixos/gpg-agent.nix
     common/optional/media/spicetify.nix
+    common/optional/media/tidal.nix
+    common/optional/media
     # common/optional/remote-desktop/rustdesk.nix
   ];
 

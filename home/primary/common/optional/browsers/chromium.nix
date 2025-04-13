@@ -21,6 +21,7 @@
     ];
   };
 
+  nixpkgs.config.chromium.enableWidevine = true;
 
   xdg.mimeApps = {
     defaultApplications = {
