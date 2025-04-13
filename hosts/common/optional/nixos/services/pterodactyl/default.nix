@@ -45,6 +45,7 @@
       jude = {
         inherit (nix-secrets.pterodactyl.users.jude) email username firstName lastName;
         passwordFile = config.sops.secrets.judePassword.path;
+        isAdmin = true;
       };
     };
     locations = {
@@ -92,5 +93,5 @@
     };
   };
 
-  security.firewall.allowedTCPPorts = [80 443 8983 2022 25565 25566];
+  security.firewall.allowedTCPPorts = [80 443 8983 2022 25565 25566 24454 24455 24456];
 }
