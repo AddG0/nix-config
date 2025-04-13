@@ -2,6 +2,7 @@
   pkgs,
   config,
   nix-secrets,
+  lib,
   ...
 }: {
   services.pterodactyl.wings = {
@@ -34,7 +35,14 @@
     enable = true;
     ssl = true;
     blueprint = {
-      enable = true;
+      enable = false;
+      extensions = {
+        "modpack-downloader" = {
+          name = "modpack-downloader";
+          version = "1.0.0";
+          source = ./extensions/modpack-downloader.zip;
+        };
+      };
     };
     users = {
       primary = {
