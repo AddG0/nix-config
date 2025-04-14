@@ -15,7 +15,6 @@
   inherit (inputs.nixpkgs) lib;
   inherit (self) outputs;
 
-  config = lib.config;
   # Extend the nixpkgs lib with custom lib
   extendLibWithCustom = isDarwin:
     nixpkgs.lib.extend (self: super: {
@@ -25,99 +24,21 @@
       };
     });
 
-  #
-  # ========= Host Config Functions =========
-  #
-  # Handle a given host config based on whether its underlying system is nixos or darwin
-  mkHost = host: isDarwin: {
-    ${host} = let
-      func =
-        if isDarwin
-        then inputs.nix-darwin.lib.darwinSystem
-        else lib.nixosSystem;
-      systemFunc = func;
-    in
-      systemFunc {
-        specialArgs = {
-          inherit
-            inputs
-            outputs
-            isDarwin
-            nix-secrets
-            ;
+  # Helper function to generate a set of attributes for each system
+  forAllSystems = nixpkgs.lib.genAttrs [
+    "x86_64-linux"
+    "x86_64-darwin"
+    "aarch64-darwin"
+  ];
 
-          # ========== Extend lib with lib.custom ==========
-          # NOTE: This approach allows lib.custom to propagate into hm
-          # see: https://github.com/nix-community/home-manager/pull/3454
-          lib = extendLibWithCustom isDarwin;
-        };
-        modules =
-          [
-            ../hosts/${
-              if isDarwin
-              then "darwin"
-              else "nixos"
-            }/${host}
-          ]
-          ++ lib.optionals (!isDarwin) [
-            # Add nixos-generators configuration for NixOS hosts
-            {
-              virtualisation.diskSize = 20 * 1024;
-              nix.registry.nixpkgs.flake = nixpkgs;
-              # Make sure nixos-generators is available
-              nixpkgs.overlays = [
-                (final: prev: {
-                  nixos-generators = inputs.nixos-generators.packages.${final.system}.default;
-                })
-              ];
-            }
-          ];
-      };
-  };
-
-  # Generate ISO configuration for a NixOS host
-  mkIso = host: system: {
-    ${host} = nixos-generators.nixosGenerate {
-      inherit system;
-      specialArgs = {
-        inherit inputs outputs;
-        isDarwin = false;
-        lib = extendLibWithCustom false;
-      };
-      modules = [
-        ../hosts/nixos/${host}
-        {
-          virtualisation.diskSize = 20 * 1024;
-          nix.registry.nixpkgs.flake = nixpkgs;
-        }
-      ];
-      format = "iso";
-    };
-  };
-
-  # Generate a format-specific configuration for a NixOS host
-  mkFormat = format: host: system: {
-    ${host} = nixos-generators.nixosGenerate {
-      inherit system format;
-      specialArgs = {
-        inherit inputs outputs;
-        isDarwin = false;
-        lib = extendLibWithCustom false;
-      };
-      modules = [
-        ../hosts/nixos/${host}
-        {
-          virtualisation.diskSize = 20 * 1024;
-          nix.registry.nixpkgs.flake = nixpkgs;
-        }
-      ];
-    };
-  };
-
-  # Invoke mkHost for each host config that is declared for either nixos or darwin
-  mkHostConfigs = hosts: isDarwin: lib.foldl (acc: set: acc // set) {} (lib.map (host: mkHost host isDarwin) hosts);
-  # Generate format-specific configs for each NixOS host
-  mkFormatConfigs = format: hosts: system: lib.foldl (acc: set: acc // set) {} (lib.map (host: mkFormat format host system) hosts);
+  # Packages, checks, devShells and formatter for all systems
+  packages = forAllSystems (system: let
+    pkgs = nixpkgs.legacyPackages.${system};
+  in {
+    checks = import ../checks {inherit inputs system pkgs;};
+    devShells = import ./devshell.nix {inherit self nixpkgs;} system;
+    formatter = pkgs.alejandra;
+  });
 
   # List of all available formats
   formats = [
@@ -155,31 +76,86 @@
     "vmware"
   ];
 
-  # Return the hosts declared in the given directory
-  readHosts = folder: lib.attrNames (builtins.readDir ../hosts/${folder});
+  # Generate a format-specific configuration for a NixOS host
+  mkFormat = format: host: system: {
+    ${host} = nixos-generators.nixosGenerate {
+      inherit system format;
+      specialArgs = {
+        inherit inputs outputs;
+        isDarwin = false;
+        lib = extendLibWithCustom false;
+      };
+      modules = [
+        ../hosts/nixos/${host}
+        {
+          virtualisation.diskSize = 20 * 1024;
+          nix.registry.nixpkgs.flake = nixpkgs;
+        }
+      ];
+    };
+  };
 
-  # Helper function to generate a set of attributes for each system
-  forAllSystems = nixpkgs.lib.genAttrs [
-    "x86_64-linux"
-    "x86_64-darwin"
-    "aarch64-darwin"
-  ];
-
-  # Packages, checks, devShells and formatter for all systems
-  packages = forAllSystems (system: let
-    pkgs = nixpkgs.legacyPackages.${system};
-  in {
-    checks = import ../checks {inherit inputs system pkgs;};
-    devShells = import ./devshell.nix {inherit self nixpkgs;} system;
-    formatter = pkgs.alejandra;
-  });
+  # Generate format-specific configs for each NixOS host
+  mkFormatConfigs = format: hosts: system: lib.foldl (acc: set: acc // set) {} (lib.map (host: mkFormat format host system) hosts);
 in {
   #
   # ========= Host Configurations =========
   #
   # Building configurations is available through `just rebuild` or `nixos-rebuild --flake .#hostname`
-  nixosConfigurations = mkHostConfigs (readHosts "nixos") false;
-  darwinConfigurations = mkHostConfigs (readHosts "darwin") true;
+  nixosConfigurations = builtins.listToAttrs (
+    map (host: {
+      name = host;
+      value = nixpkgs.lib.nixosSystem {
+        specialArgs = {
+          inherit inputs outputs;
+          isDarwin = false;
+          nix-secrets = inputs.nix-secrets;
+          lib = extendLibWithCustom false;
+        };
+        modules = [
+          ../hosts/nixos/${host}
+          {
+            virtualisation.diskSize = 20 * 1024;
+            nix.registry.nixpkgs.flake = nixpkgs;
+            nixpkgs.overlays = [
+              (final: prev: {
+                nixos-generators = inputs.nixos-generators.packages.${final.system}.default;
+              })
+            ];
+          }
+        ];
+      };
+    }) (builtins.attrNames (builtins.readDir ../hosts/nixos))
+  );
+
+  darwinConfigurations = builtins.listToAttrs (
+    map (host: {
+      name = host;
+      value = nix-darwin.lib.darwinSystem {
+        specialArgs = {
+          inherit inputs outputs;
+          isDarwin = true;
+          nix-secrets = inputs.nix-secrets;
+          lib = extendLibWithCustom true;
+        };
+        modules = [../hosts/darwin/${host}];
+      };
+    }) (builtins.attrNames (builtins.readDir ../hosts/darwin))
+  );
+
+  # Generate format-specific configurations for each format
+  formatConfigurations = builtins.listToAttrs (
+    map (format: {
+      name = format;
+      value = builtins.listToAttrs (
+        map (host: {
+          name = host;
+          value = mkFormat format host "x86_64-linux";
+        }) (builtins.attrNames (builtins.readDir ../hosts/nixos))
+      );
+    })
+    formats
+  );
 
   #
   # ========= Overlays =========
