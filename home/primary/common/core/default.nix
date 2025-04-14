@@ -27,7 +27,7 @@ in {
 
   home = {
     username = lib.mkDefault hostSpec.username;
-    homeDirectory = lib.mkDefault (lib.custom.getHomeDirectory config.home.username);
+    homeDirectory = lib.mkDefault hostSpec.home;
     stateVersion = lib.mkDefault hostSpec.system.stateVersion;
     sessionPath = [
       "$HOME/.local/bin"

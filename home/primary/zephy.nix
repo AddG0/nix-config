@@ -32,11 +32,6 @@
     # common/optional/remote-desktop/rustdesk.nix
   ];
 
-  home = {
-    username = config.hostSpec.username;
-    homeDirectory = lib.custom.getHomeDirectory config.hostSpec.username;
-  };
-
   # modules.desktop.hyprland = {
   #   enable = true;
   #   nvidia = true;

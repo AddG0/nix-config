@@ -21,8 +21,8 @@
   ];
 
   home = {
-    username = config.hostSpec.username;
-    homeDirectory = lib.custom.getHomeDirectory config.hostSpec.username;
+    username = lib.mkDefault config.hostSpec.username;
+    homeDirectory = lib.mkDefault config.hostSpec.home;
   };
 
   modules.desktop.hyprland = {

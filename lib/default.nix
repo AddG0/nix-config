@@ -1,9 +1,4 @@
-{
-  lib,
-  pkgs ? {},
-  isDarwin,
-  ...
-}: {
+{lib, ...}: {
   macosSystem = import ./macosSystem.nix;
   nixosSystem = import ./nixosSystem.nix;
 
@@ -16,11 +11,6 @@
   relativeToRoot = lib.path.append ../.;
   relativeToHome = lib.path.append ../home;
   relativeToHosts = lib.path.append ../hosts;
-  # Function to get the home directory based on the OS
-  getHomeDirectory = username:
-    if isDarwin
-    then "/Users/${username}"
-    else "/home/${username}";
 
   scanPaths = path:
     builtins.map (f: (path + "/${f}")) (

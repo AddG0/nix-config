@@ -12,17 +12,12 @@
   spicetify-nix,
   ...
 } @ inputs: let
-  inherit (inputs.nixpkgs) lib;
   inherit (self) outputs;
 
-  # Extend the nixpkgs lib with custom lib
-  extendLibWithCustom = isDarwin:
-    nixpkgs.lib.extend (self: super: {
-      custom = import ../lib {
-        inherit (nixpkgs) lib;
-        inherit isDarwin;
-      };
-    });
+  # ========== Extend lib with lib.custom ==========
+  # NOTE: This approach allows lib.custom to propagate into hm
+  # see: https://github.com/nix-community/home-manager/pull/3454
+  lib = nixpkgs.lib.extend (self: super: {custom = import ../lib {inherit (nixpkgs) lib;};});
 
   # Helper function to generate a set of attributes for each system
   forAllSystems = nixpkgs.lib.genAttrs [
@@ -81,9 +76,8 @@
     ${host} = nixos-generators.nixosGenerate {
       inherit system format;
       specialArgs = {
-        inherit inputs outputs;
+        inherit inputs outputs lib;
         isDarwin = false;
-        lib = extendLibWithCustom false;
       };
       modules = [
         ../hosts/nixos/${host}
@@ -107,10 +101,9 @@ in {
       name = host;
       value = nixpkgs.lib.nixosSystem {
         specialArgs = {
-          inherit inputs outputs;
+          inherit inputs outputs lib;
           isDarwin = false;
           nix-secrets = inputs.nix-secrets;
-          lib = extendLibWithCustom false;
         };
         modules = [
           ../hosts/nixos/${host}
@@ -133,10 +126,9 @@ in {
       name = host;
       value = nix-darwin.lib.darwinSystem {
         specialArgs = {
-          inherit inputs outputs;
+          inherit inputs outputs lib;
           isDarwin = true;
           nix-secrets = inputs.nix-secrets;
-          lib = extendLibWithCustom true;
         };
         modules = [../hosts/darwin/${host}];
       };

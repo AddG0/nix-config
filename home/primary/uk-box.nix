@@ -13,9 +13,4 @@
 
     #################### Host-specific Optional Configs ####################
   ];
-
-  home = {
-    username = config.hostSpec.username;
-    homeDirectory = lib.custom.getHomeDirectory config.hostSpec.username;
-  };
 }

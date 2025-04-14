@@ -20,7 +20,7 @@
   # Base user configuration common across all systems
   baseUserConfig = lib.recursiveUpdate commonConfig {
     users.users.${user} = {
-      home = lib.mkIf (user != "root") (lib.custom.getHomeDirectory user);
+      home = lib.mkIf (user != "root") hostSpec.home;
       shell = pkgs.zsh;
       openssh.authorizedKeys.keys = pubKeys;
     };
@@ -50,7 +50,7 @@
   darwinUserConfig = lib.recursiveUpdate darwinConfig {
     users.users.${user} = {
       name = user;
-      home = lib.custom.getHomeDirectory user;
+      home = hostSpec.home;
     };
   };
 

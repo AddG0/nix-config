@@ -62,7 +62,7 @@
   };
 
   hostSpec = {
-    hostName = "zephy";
+    hostName = "uk-box";
     hostPlatform = "x86_64-linux";
   };
 
