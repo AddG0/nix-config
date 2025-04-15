@@ -62,7 +62,7 @@
   };
 
   networking.hosts = {
-    "127.0.0.1" = ["pterodactyl-eu.addg0.com" "wings-eu.addg0.com"];
+    "127.0.0.1" = ["pterodactyl-eu.addg0.com"];
   };
 
   sops.secrets = {

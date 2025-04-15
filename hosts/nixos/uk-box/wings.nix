@@ -12,7 +12,7 @@
         ssl.enabled = false;
         port = 8080;
       };
-      remote = "wings-eu.addg0.com";
+      remote = "https://wings-eu.addg0.com";
     };
   };
 
@@ -29,6 +29,10 @@
         proxy_set_header X-Forwarded-Proto https;
       '';
     };
+  };
+
+  networking.hosts = {
+    "127.0.0.1" = ["wings-eu.addg0.com"];
   };
 
   security.firewall.allowedTCPPorts = [2022 25565 25566 25567 25568 25569 25570 24454 24455 24456];
