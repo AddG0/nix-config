@@ -12,7 +12,7 @@
         ssl.enabled = false;
         port = 8080;
       };
-      remote = "https://wings-eu.addg0.com";
+      remote = "https://pterodactyl-eu.addg0.com";
     };
   };
 
