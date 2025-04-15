@@ -15,7 +15,7 @@
     (lib.custom.scanPaths ./.)
 
     #################### Hardware ####################
-    inputs.hardware.nixosModules.common-cpu-amd
+    inputs.hardware.nixosModules.common-cpu-intel
     inputs.hardware.nixosModules.common-pc-ssd
 
     #################### Disk Layout ####################
