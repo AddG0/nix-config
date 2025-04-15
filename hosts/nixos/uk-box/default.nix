@@ -17,7 +17,6 @@
     #################### Hardware ####################
     inputs.hardware.nixosModules.common-cpu-amd
     inputs.hardware.nixosModules.common-pc-ssd
-    inputs.hardware.nixosModules.asus-battery
 
     #################### Disk Layout ####################
     # inputs.disko.nixosModules.disko
