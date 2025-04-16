@@ -98,7 +98,5 @@ eval "$CMD print | fzf \
     --preview-window=wrap \
     --header '$HEADER' \
     --header-first \
-    --header-border \
-    --header-label \"Help\" \
     $FZF_BINDS
 "

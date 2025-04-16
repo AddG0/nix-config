@@ -24,6 +24,7 @@
     fluxcd
     argocd
     telepresence2 # Local development against remote Kubernetes cluster
+    mirrord # Debug Kubernetes applications locally
 
     ko # build go project to container image
 
