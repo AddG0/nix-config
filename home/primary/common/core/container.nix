@@ -25,6 +25,7 @@
     argocd
     telepresence2 # Local development against remote Kubernetes cluster
     mirrord # Debug Kubernetes applications locally
+    kubefwd
 
     ko # build go project to container image
 
