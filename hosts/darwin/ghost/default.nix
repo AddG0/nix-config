@@ -25,7 +25,6 @@
   ];
 
   time.timeZone = "America/Chicago";
-  # time.timeZone = "Europe/London";
 
   hostSpec = {
     hostName = "ghost";
