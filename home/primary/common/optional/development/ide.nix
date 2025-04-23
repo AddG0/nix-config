@@ -3,6 +3,7 @@
     [
       jetbrains.idea-ultimate
       jetbrains.pycharm-professional
+      jetbrains.phpstorm
       vscode
     ]
     ++ (
