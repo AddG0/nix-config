@@ -51,7 +51,7 @@ in {
             then "${
               if m.resolution != null
               then m.resolution
-              else "${toString m.width}x${toString m.height}@${toString m.refreshRate}"
+              else "${toString m.width}x${toString m.height}@${toString m.refreshRate}.0"
             },${
               if m.position != null
               then m.position
