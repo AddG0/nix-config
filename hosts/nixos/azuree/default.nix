@@ -99,12 +99,12 @@
     };
   };
 
-  xdg.portal = {
-    enable = true;
-    extraPortals = [pkgs.kdePackages.xdg-desktop-portal-kde];
-    wlr.enable = true;
-    config.common.default = "kde";
-  };
+  # xdg.portal = {
+  #   enable = true;
+  #   extraPortals = [pkgs.kdePackages.xdg-desktop-portal-kde];
+  #   wlr.enable = true;
+  #   config.common.default = "kde";
+  # };
 
   # services.upower.enable = true;
 
