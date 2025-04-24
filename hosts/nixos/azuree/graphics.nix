@@ -93,4 +93,10 @@
     # Optionally, you may need to select the appropriate driver version for your specific GPU.
     package = config.boot.kernelPackages.nvidiaPackages.stable;
   };
+
+  environment.systemPackages = with pkgs; [
+    vulkan-tools
+    vulkan-loader
+    vulkan-validation-layers
+  ];
 }
