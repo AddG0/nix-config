@@ -25,10 +25,6 @@ in {
   # };
 
   config = mkIf (cfg.enable && cfg.nvidia) {
-    home.packages = with pkgs; [
-      libnvidia-egl-wayland1
-    ];
-
     wayland.windowManager.hyprland.settings.env = [
       # for hyprland with nvidia gpu, ref https://wiki.hyprland.org/Nvidia/
       "LIBVA_DRIVER_NAME,nvidia"
