@@ -9,7 +9,7 @@
     ++ (
       if pkgs.stdenv.isLinux
       then [
-        code-cursor
+        stable.code-cursor
       ]
       else []
     );
