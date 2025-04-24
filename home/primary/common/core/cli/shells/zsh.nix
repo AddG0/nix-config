@@ -79,7 +79,7 @@ in {
       enable = true;
     };
 
-    initExtra = ''
+    initContent = ''
       _fzf_comprun() {
           local command=$1
           shift

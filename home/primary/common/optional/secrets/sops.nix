@@ -25,7 +25,7 @@
     tavily_api_key = {};
   };
 
-  programs.zsh.initExtra = ''
+  programs.zsh.initContent = ''
     export GITHUB_TOKEN=$(cat ${config.sops.secrets.addg_github_token.path})
     export SOPS_AGE_KEY_FILE=~/.config/sops-nix/age/keys.txt
     export OPENAI_API_KEY=$(cat ${config.sops.secrets.openai_api_key.path})
