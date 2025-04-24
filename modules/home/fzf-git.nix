@@ -60,7 +60,7 @@ in {
         perl
       ];
 
-    programs.zsh.initExtra = mkIf cfg.enableZshIntegration ''
+    programs.zsh.initContent = mkIf cfg.enableZshIntegration ''
       source ${cfg.package}/share/fzf-git/fzf-git.sh
     '';
 

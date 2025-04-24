@@ -14,7 +14,7 @@
     };
   };
 
-  programs.zsh.initExtra = ''
+  programs.zsh.initContent = ''
     export KUBECONFIG=${config.home.homeDirectory}/.kube/config:${config.sops.secrets.kube_config.path}
   '';
 }
