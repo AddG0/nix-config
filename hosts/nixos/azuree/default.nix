@@ -63,8 +63,6 @@
     timeout = 3;
   };
 
-  services.dbus.enable = true;
-
   security.firewall.enable = true;
 
   boot.initrd = {
