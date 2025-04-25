@@ -102,10 +102,4 @@
   system.stateVersion = config.hostSpec.system.stateVersion;
 
   time.timeZone = "America/Chicago";
-
-  # Add this to your system packages
-  environment.systemPackages = with pkgs; [
-    os-prober
-    # other packages...
-  ];
 }
