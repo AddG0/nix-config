@@ -32,6 +32,54 @@
     # common/optional/remote-desktop/rustdesk.nix
   ];
 
+  services.easyeffects = {
+    enable = true;
+    # preset = {
+    # input = {
+    #   "input" = {
+    #     blocklist = [];
+    #     plugins_order = [
+    #       "stereo_tools#0"
+    #       "rnnoise#0"
+    #     ];
+    #     plugins = {
+    #       "rnnoise#0" = {
+    #         bypass = false;
+    #         "enable-vad" = true;
+    #         "input-gain" = 0.0;
+    #         "model-name" = "";
+    #         "output-gain" = 0.0;
+    #         release = 20.0;
+    #         "vad-thres" = 50.0;
+    #         wet = 0.0;
+    #       };
+    #       "stereo_tools#0" = {
+    #         "balance-in" = 0.0;
+    #         "balance-out" = 0.0;
+    #         bypass = false;
+    #         delay = 0.0;
+    #         "input-gain" = 0.0;
+    #         "middle-level" = 0.0;
+    #         "middle-panorama" = 0.0;
+    #         mode = "LR > RR (Mono Right Channel)";
+    #         mutel = false;
+    #         muter = false;
+    #         "output-gain" = 0.0;
+    #         phasel = false;
+    #         phaser = false;
+    #         "sc-level" = 1.0;
+    #         "side-balance" = 0.0;
+    #         "side-level" = 0.0;
+    #         softclip = false;
+    #         "stereo-base" = 0.0;
+    #         "stereo-phase" = 0.0;
+    #       };
+    #     };
+    #   };
+    # };
+    # };
+  };
+
   # modules.desktop.hyprland = {
   #   enable = true;
   #   nvidia = true;
