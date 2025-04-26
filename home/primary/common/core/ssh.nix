@@ -79,6 +79,12 @@ in {
       }
       // vanillaHostsConfig;
   };
+
+  programs.zsh.oh-my-zsh.plugins = [
+    "ssh-agent"
+    "ssh"
+  ];
+
   home.file =
     {
       ".ssh/config.d/.keep".text = "# Managed by Home Manager";

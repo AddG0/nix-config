@@ -21,5 +21,6 @@
     common/optional/secrets/cachix.nix
     common/optional/development/go.nix
     common/optional/media/spicetify.nix
+    common/optional/development/virtualization
   ];
 }
