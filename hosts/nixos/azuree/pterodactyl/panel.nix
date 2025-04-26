@@ -27,11 +27,6 @@
         passwordFile = config.sops.secrets.pterodactylAdminPassword.path;
         isAdmin = true;
       };
-      jude = {
-        inherit (nix-secrets.pterodactyl.users.jude) email username firstName lastName;
-        passwordFile = config.sops.secrets.judePassword.path;
-        isAdmin = true;
-      };
     };
     locations = {
       uk = {
@@ -42,7 +37,7 @@
   };
 
   services.nginx = {
-    virtualHosts."pterodactyl-eu.addg0.com" = {
+    virtualHosts."pterodactyl-local.addg0.com" = {
       useACMEHost = "addg0.com";
       forceSSL = true;
 
@@ -62,7 +57,7 @@
   };
 
   networking.hosts = {
-    "127.0.0.1" = ["pterodactyl-eu.addg0.com"];
+    "127.0.0.1" = ["pterodactyl-local.addg0.com"];
   };
 
   sops.secrets = {

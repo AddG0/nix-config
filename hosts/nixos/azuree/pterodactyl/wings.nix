@@ -12,11 +12,11 @@
         ssl.enabled = false;
         port = 8080;
       };
-      remote = "https://pterodactyl-eu.addg0.com";
+      remote = "https://pterodactyl-local.addg0.com";
     };
   };
 
-  services.nginx.virtualHosts."wings-eu.addg0.com" = {
+  services.nginx.virtualHosts."wings-local.addg0.com" = {
     forceSSL = true;
     useACMEHost = "addg0.com";
 
@@ -32,7 +32,7 @@
   };
 
   networking.hosts = {
-    "127.0.0.1" = ["wings-eu.addg0.com"];
+    "127.0.0.1" = ["wings-local.addg0.com"];
   };
 
   security.firewall.allowedTCPPorts = [2022 25565 25566 25567 25568 25569 25570 24454 24455 24456];

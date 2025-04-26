@@ -44,6 +44,7 @@
       # "common/optional/nixos/services/home-assistant.nix"
       "common/optional/nixos/virtualisation/docker.nix" # docker
       # "common/optional/nixos/plymouth.nix" # fancy boot screen
+      # "common/optional/nixos/services/nginx.nix" # nginx
 
       #################### Desktop ####################
       "common/optional/nixos/desktops/wayland" # window manager
