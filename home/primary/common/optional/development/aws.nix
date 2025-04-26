@@ -8,8 +8,11 @@
   home.packages = with pkgs; [
     awscli2
     ssm-session-manager-plugin
+
+    # Saml2aws
     saml2aws
-    playwright-driver
+    chromium
+    chromedriver
   ];
 
   sops.secrets = {
@@ -25,8 +28,16 @@
     };
   };
 
+  programs.zsh.oh-my-zsh.plugins = [
+    "aws"
+  ];
+
   home.sessionVariables = {
     AWS_PAGER = "bat --paging=always --language=json";
     PLAYWRIGHT_BROWSERS_PATH = "${pkgs.playwright-driver.browsers}";
+
+    # Added these
+    CHROME_PATH = "${pkgs.chromium}/bin/chromium";
+    CHROMEDRIVER_PATH = "${pkgs.chromedriver}/bin/chromedriver";
   };
 }

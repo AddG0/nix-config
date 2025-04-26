@@ -84,4 +84,12 @@ in {
     renovate # Dependency update tool.
     devcontainer # Dev Container CLI.
   ];
+
+  programs.zsh.oh-my-zsh.plugins = [
+    "git"
+    "git-auto-fetch"
+    "github"
+    "gitignore"
+    "gh"
+  ];
 }

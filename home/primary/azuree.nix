@@ -30,6 +30,7 @@
     common/optional/media/tidal.nix
     common/optional/media
     # common/optional/remote-desktop/rustdesk.nix
+    common/optional/development/virtualization
   ];
 
   services.easyeffects = {
