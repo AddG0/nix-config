@@ -4,6 +4,7 @@
     python3Packages.pip
     python3Packages.virtualenv
     poetry
+    uv
   ];
 
   programs.zsh.oh-my-zsh.plugins = [
