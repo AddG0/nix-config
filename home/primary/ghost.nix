@@ -17,7 +17,7 @@
     common/optional/development/misc-language-servers.nix
     common/optional/secrets/ssh/server.nix
     common/optional/ghostty
-    common/optional/secrets/sops.nix
+    common/optional/secrets
     common/optional/secrets/cachix.nix
     common/optional/development/go.nix
     common/optional/media/spicetify.nix

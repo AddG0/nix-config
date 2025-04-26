@@ -50,6 +50,7 @@
       "common/optional/nixos/desktops/wayland" # window manager
       "common/optional/nixos/services/greetd.nix" # display manager
       "common/optional/nixos/vlc.nix" # media player
+      "common/optional/nixos/services/bluetooth.nix"
     ])
   ];
 
@@ -97,8 +98,6 @@
       };
     };
   };
-
-  hardware.bluetooth.enable = true;
 
   system.stateVersion = config.hostSpec.system.stateVersion;
 

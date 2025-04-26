@@ -7,11 +7,11 @@
     zen-browser
   ];
 
-  # xdg.mimeApps = {
-  #   defaultApplications = {
-  #     "text/html" = "zen-browser.desktop";
-  #     "x-scheme-handler/http" = "zen-browser.desktop";
-  #     "x-scheme-handler/https" = "zen-browser.desktop";
-  #   };
-  # };
+  xdg.mimeApps = {
+    defaultApplications = {
+      "text/html" = "zen-browser.desktop";
+      "x-scheme-handler/http" = "zen-browser.desktop";
+      "x-scheme-handler/https" = "zen-browser.desktop";
+    };
+  };
 }
