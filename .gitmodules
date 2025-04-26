@@ -1,3 +1,6 @@
 [submodule "templates"]
 	path = templates
 	url = git@github.com:AddG0/nix-templates.git
+[submodule "hosts/nixos/azuree/pterodactyl/addons"]
+	path = hosts/nixos/azuree/pterodactyl/addons
+	url = git@github.com:AddG0/pterodactyl-addons.git
