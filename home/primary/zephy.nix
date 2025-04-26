@@ -17,7 +17,7 @@
     common/optional/nixos/desktops/hyprland # default is hyprland
     common/optional/browsers
     common/optional/development/ide.nix
-    common/optional/secrets/sops.nix
+    common/optional/secrets
     common/optional/secrets/kubeconfig.nix
     common/optional/gaming/minecraft.nix
     common/optional/gaming/steam.nix
