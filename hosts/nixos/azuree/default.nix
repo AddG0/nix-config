@@ -46,7 +46,7 @@
       "common/optional/nixos/virtualisation/docker.nix" # docker
       # "common/optional/nixos/plymouth.nix" # fancy boot screen
       # "common/optional/nixos/services/nginx.nix" # nginx
-
+      "common/optional/nixos/obs.nix" # obs
       #################### Desktop ####################
       "common/optional/nixos/desktops/wayland" # window manager
       "common/optional/nixos/services/greetd.nix" # display manager
@@ -103,10 +103,7 @@
     ];
   };
 
-  #   # Enable CUPS to print documents.
-  # services.printing.enable = true;
-
-  # # Enable sound with pipewire.
+  # Enable sound with pipewire.
   security.rtkit.enable = true;
   services.pipewire = {
     enable = true;
