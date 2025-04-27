@@ -3,6 +3,8 @@
   inputs,
   pkgs,
   lib,
+  hostSpec,
+  desktops,
   ...
 }: {
   imports = [
@@ -32,7 +34,10 @@
     # common/optional/remote-desktop/rustdesk.nix
     common/optional/development/virtualization
     common/optional/development/virtualization/lens.nix
+    common/optional/nixos/vlc.nix
   ];
+
+  home.file."videos".source = config.lib.file.mkOutOfStoreSymlink "/mnt/videos";
 
   services.easyeffects = {
     enable = true;

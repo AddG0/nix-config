@@ -42,22 +42,13 @@ in {
       # };
       # extract password/username to /run/secrets-for-users/ so it can be used to create the user
       "password" = {
-        sopsFile = "${sopsFolder}/users/${config.hostSpec.username}.yaml";
+        sopsFile = "${sopsFolder}/users/${config.hostSpec.username}/secrets.yaml";
         neededForUsers = true;
       };
       # "passwords/msmtp" = {
       #   sopsFile = "${sopsFolder}/shared.yaml";
       # };
     }
-    # only reference borg password if host is using backup
-    # (lib.mkIf config.services.backup.enable {
-    #   "passwords/borg" = {
-    #     owner = "root";
-    #     group = if pkgs.stdenv.isLinux then "root" else "wheel";
-    #     mode = "0600";
-    #     path = "/etc/borg/passphrase";
-    #   };
-    # })
   ];
   # The containing folders are created as root and if this is the first ~/.config/ entry,
   # the ownership is busted and home-manager can't target because it can't write into .config...
