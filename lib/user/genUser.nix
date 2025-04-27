@@ -67,9 +67,7 @@
         imports =
           if (!hostSpec.isMinimal)
           then [
-            (import (lib.custom.relativeToRoot "home/${userDir}/${hostSpec.hostName}.nix") {
-              inherit pkgs inputs config lib;
-            })
+            (import (lib.custom.relativeToRoot "home/${userDir}/${hostSpec.hostName}.nix"))
           ]
           else [];
       };

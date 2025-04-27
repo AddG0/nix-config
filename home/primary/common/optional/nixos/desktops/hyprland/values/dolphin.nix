@@ -5,16 +5,27 @@
     };
   };
 
+  # Fix for empty "Open With" menu in Dolphin when running under Hyprland
+  xdg.configFile."menus/applications.menu".source = "${pkgs.kdePackages.plasma-workspace}/etc/xdg/menus/plasma-applications.menu";
+
   home.packages = with pkgs; [
+    # Dolphin and required dependencies
     kdePackages.dolphin
-    kdePackages.qtwayland # Wayland support
-    kdePackages.qtsvg # SVG icon support
-    kdePackages.kio-fuse # Mount remote filesystems via FUSE
-    kdePackages.kio-extras # Extra protocols support (sftp, fish etc)
-    kdePackages.ffmpegthumbs # Thumbnail support
-    kdePackages.kio-extras-kf5 # Additional KIO protocols
-    kdePackages.kdegraphics-thumbnailers # Additional thumbnail support
-    kdePackages.solid
-    udisks2 # For disk management
+    kdePackages.kio
+    kdePackages.kdf
+    kdePackages.kio-fuse
+    kdePackages.kio-extras
+    kdePackages.kio-admin
+    kdePackages.qtwayland
+    kdePackages.plasma-integration
+    kdePackages.kdegraphics-thumbnailers
+    kdePackages.breeze-icons
+    kdePackages.qtsvg
+    kdePackages.kservice
+    kdePackages.ffmpegthumbs # Video thumbnail support
+    shared-mime-info
+
+    # Additional KDE-specific packages
+    kdePackages.kate
   ];
 }

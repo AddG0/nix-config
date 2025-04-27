@@ -6,6 +6,7 @@
 ###############################################################
 {
   inputs,
+  nix-secrets,
   lib,
   config,
   pkgs,
@@ -49,7 +50,6 @@
       #################### Desktop ####################
       "common/optional/nixos/desktops/wayland" # window manager
       "common/optional/nixos/services/greetd.nix" # display manager
-      "common/optional/nixos/vlc.nix" # media player
       "common/optional/nixos/services/bluetooth.nix"
     ])
   ];
@@ -74,6 +74,33 @@
   hostSpec = {
     hostName = "azuree";
     hostPlatform = "x86_64-linux";
+  };
+
+  environment.systemPackages = with pkgs; [
+    cifs-utils
+  ];
+
+  sops.secrets = {
+    "nas-credentials" = {
+      sopsFile = "${nix-secrets}/secrets/users/${config.hostSpec.username}/nas-credentials.enc";
+      format = "binary";
+      neededForUsers = true;
+    };
+  };
+
+  fileSystems."/mnt/videos" = {
+    device = "//10.10.15.252/videos";
+    fsType = "cifs";
+    options = [
+      "x-systemd.automount"
+      "noauto"
+      "x-systemd.idle-timeout=60"
+      "x-systemd.device-timeout=5s"
+      "x-systemd.mount-timeout=5s"
+      "uid=${toString config.users.users.${config.hostSpec.username}.uid}"
+      "gid=${toString config.users.users.${config.hostSpec.username}.group}"
+      "credentials=${config.sops.secrets.nas-credentials.path}"
+    ];
   };
 
   #   # Enable CUPS to print documents.
