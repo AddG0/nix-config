@@ -78,6 +78,7 @@
 
   environment.systemPackages = with pkgs; [
     cifs-utils
+    v4l-utils # For OBSBOT camera
   ];
 
   sops.secrets = {
