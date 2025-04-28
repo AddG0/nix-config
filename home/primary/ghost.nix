@@ -22,5 +22,6 @@
     common/optional/development/go.nix
     common/optional/media/spicetify.nix
     common/optional/development/virtualization
+    common/optional/remote-desktop/mouseshare/lan-mouse.nix
   ];
 }
