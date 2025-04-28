@@ -35,6 +35,7 @@
     common/optional/development/virtualization
     common/optional/development/virtualization/lens.nix
     common/optional/nixos/vlc.nix
+    common/optional/remote-desktop/mouseshare/lan-mouse.nix
   ];
 
   home.file."videos".source = config.lib.file.mkOutOfStoreSymlink "/mnt/videos";
