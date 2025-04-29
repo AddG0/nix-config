@@ -37,6 +37,10 @@ in {
         else "/dev/dri/card0"
       }"
       "__GLX_VENDOR_LIBRARY_NAME,nvidia"
+
+      # Optional: Enable additional NVIDIA settings for Hyprland, based on your configuration
+      "NVIDIA_DISABLE_DRI3=1" # Disables DRI3, might help with some graphical glitches
+      "LIBGL_ALWAYS_INDIRECT=1" # Forces indirect rendering (helpful in some setups)
     ];
   };
 }

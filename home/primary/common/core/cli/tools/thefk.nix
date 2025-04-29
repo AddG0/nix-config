@@ -4,7 +4,7 @@
     enable = true;
     enableZshIntegration = true;
     enableBashIntegration = true;
-    enableInstantMode = true;
+    # enableInstantMode = true;
   };
 
   home.shellAliases = {
