@@ -19,46 +19,6 @@
   # Load nvidia driver for Xorg and Wayland
   services.xserver.videoDrivers = ["nvidia"];
 
-  # # https://wiki.hyprland.org/Nvidia/
-  # boot.kernelParams = [
-  #   "nvidia.NVreg_PreserveVideoMemoryAllocations=1"
-  #   # Since NVIDIA does not load kernel mode setting by default,
-  #   # enabling it is required to make Wayland compositors function properly.
-  #   "nvidia-drm.fbdev=1"
-  # ];
-
-  # boot.kernelModules = ["nvidia" "nvidia_modeset" "nvidia_uvm" "nvidia_drm"];
-
-  # boot.extraModprobeConfig = ''
-  #   options nvidia_drm modeset=1
-  # '';
-
-  # hardware.nvidia = {
-  #   open = true;
-  #   prime = {
-  #     offload = {
-  #       enable = false;
-  #     };
-
-  #     nvidiaBusId = "PCI:1:0:0";
-  #   };
-  #   powerManagement.enable = false;
-  #   modesetting.enable = true;
-  # };
-
-  # hardware.nvidia-container-toolkit.enable = true;
-  # hardware.graphics = {
-  #   enable = true;
-  #   # needed by nvidia-docker
-  #   enable32Bit = true;
-  #   extraPackages = with pkgs; [
-  #     vaapiVdpau
-  #     libvdpau-va-gl
-  #   ];
-  # };
-
-  # services.supergfxd.enable = true;
-
   hardware.nvidia = {
     # Modesetting is required.
     modesetting.enable = true;

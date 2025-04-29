@@ -66,6 +66,7 @@
   };
 
   security.firewall.enable = true;
+  security.firewall.allowedTCPPorts = [4242]; # Lan mouse temporarily here, will move later
 
   boot.initrd = {
     systemd.enable = true;

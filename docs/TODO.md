@@ -7,3 +7,5 @@ Theme dolphin
 Make dolphin png open correctly
 
 Add easyeffects input
+
+Flickering of apps on hyprland
