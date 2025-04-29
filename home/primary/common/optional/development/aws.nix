@@ -11,8 +11,6 @@
 
     # Saml2aws
     saml2aws
-    chromium
-    chromedriver
   ];
 
   sops.secrets = {
@@ -35,9 +33,5 @@
   home.sessionVariables = {
     AWS_PAGER = "bat --paging=always --language=json";
     PLAYWRIGHT_BROWSERS_PATH = "${pkgs.playwright-driver.browsers}";
-
-    # Added these
-    CHROME_PATH = "${pkgs.chromium}/bin/chromium";
-    CHROMEDRIVER_PATH = "${pkgs.chromedriver}/bin/chromedriver";
   };
 }
