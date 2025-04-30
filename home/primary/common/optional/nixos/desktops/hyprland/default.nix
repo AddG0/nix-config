@@ -38,5 +38,7 @@ in {
     };
   };
 
-  config.wayland.windowManager.hyprland.settings = mkIf cfg.enable cfg.settings;
+  config = mkIf cfg.enable {
+    wayland.windowManager.hyprland.settings = cfg.settings;
+  };
 }
