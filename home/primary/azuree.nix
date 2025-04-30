@@ -38,65 +38,59 @@
     common/optional/remote-desktop/mouseshare/lan-mouse.nix
   ];
 
-  home.file."videos".source = config.lib.file.mkOutOfStoreSymlink "/mnt/videos";
+  home.file."Movies".source = config.lib.file.mkOutOfStoreSymlink "/mnt/videos";
 
   services.easyeffects = {
     enable = true;
-    # preset = {
-    # input = {
-    #   "input" = {
-    #     blocklist = [];
-    #     plugins_order = [
-    #       "stereo_tools#0"
-    #       "rnnoise#0"
-    #     ];
-    #     plugins = {
-    #       "rnnoise#0" = {
-    #         bypass = false;
-    #         "enable-vad" = true;
-    #         "input-gain" = 0.0;
-    #         "model-name" = "";
-    #         "output-gain" = 0.0;
-    #         release = 20.0;
-    #         "vad-thres" = 50.0;
-    #         wet = 0.0;
-    #       };
-    #       "stereo_tools#0" = {
-    #         "balance-in" = 0.0;
-    #         "balance-out" = 0.0;
-    #         bypass = false;
-    #         delay = 0.0;
-    #         "input-gain" = 0.0;
-    #         "middle-level" = 0.0;
-    #         "middle-panorama" = 0.0;
-    #         mode = "LR > RR (Mono Right Channel)";
-    #         mutel = false;
-    #         muter = false;
-    #         "output-gain" = 0.0;
-    #         phasel = false;
-    #         phaser = false;
-    #         "sc-level" = 1.0;
-    #         "side-balance" = 0.0;
-    #         "side-level" = 0.0;
-    #         softclip = false;
-    #         "stereo-base" = 0.0;
-    #         "stereo-phase" = 0.0;
-    #       };
-    #     };
-    #   };
-    # };
-    # };
+    preset = "input/default";
   };
 
-  # modules.desktop.hyprland = {
-  #   enable = true;
-  #   nvidia = true;
-  #   settings = {
-  #     workspace = [
-  #       "1,monitor:desc:AU Optronics 0x8E9D"
-  #     ];
-  #   };
-  # };
+  # Create the EasyEffects preset file
+  xdg.configFile."easyeffects/input/default.json".text = builtins.toJSON {
+    input = {
+      blocklist = [];
+      plugins_order = [
+        "stereo_tools#0"
+        "rnnoise#0"
+      ];
+      "rnnoise#0" = {
+        bypass = false;
+        enable-vad = true;
+        input-gain = 0.0;
+        model-name = "";
+        output-gain = 0.0;
+        release = 20.0;
+        "vad-thres" = 50.0;
+        wet = -3.469446951953614e-18;
+      };
+      "stereo_tools#0" = {
+        "balance-in" = 0.03;
+        "balance-out" = 0.0;
+        bypass = false;
+        delay = 0.0;
+        "input-gain" = 0.0;
+        "middle-level" = 2.7755575615628914e-17;
+        "middle-panorama" = 0.0;
+        mode = "LR > RR (Mono Right Channel)";
+        mutel = false;
+        muter = false;
+        "output-gain" = 17.5;
+        phasel = false;
+        phaser = false;
+        "sc-level" = 1.0;
+        "side-balance" = 0.0;
+        "side-level" = 0.0;
+        softclip = false;
+        "stereo-base" = 0.0;
+        "stereo-phase" = 0.0;
+      };
+    };
+  };
+
+  modules.desktop.hyprland = {
+    enable = true;
+    nvidia = true;
+  };
 
   stylix = {
     enable = true;
