@@ -5,6 +5,10 @@
   lib,
   ...
 }: {
+  imports = [
+    "${nix-secrets}/secrets/shipperhq"
+  ];
+
   home.packages = with pkgs; [
     awscli2
     ssm-session-manager-plugin
