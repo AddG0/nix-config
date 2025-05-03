@@ -19,7 +19,7 @@
     defaults.email = config.hostSpec.email.user;
     certs."addg0.com" = {
       dnsProvider = "cloudflare";
-      environmentFile = config.sops.secrets.cloudflare.path;
+      credentialsFile = config.sops.secrets.cloudflare.path;
       group = "nginx";
       postRun = "systemctl --no-block reload nginx.service";
       extraDomainNames = ["*.addg0.com"];
@@ -28,7 +28,6 @@
 
   sops.secrets.cloudflare = {
     format = "binary";
-
     sopsFile = "${nix-secrets}/secrets/cloudflare.env.enc";
     mode = "0400";
     owner = "root";
