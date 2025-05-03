@@ -45,8 +45,9 @@
       # "common/optional/nixos/services/home-assistant.nix"
       "common/optional/nixos/virtualisation/docker.nix" # docker
       # "common/optional/nixos/plymouth.nix" # fancy boot screen
-      # "common/optional/nixos/services/nginx.nix" # nginx
+      "common/optional/nixos/services/nginx.nix" # nginx
       "common/optional/nixos/obs.nix" # obs
+      "common/optional/nixos/hardware/openrazer.nix" # openrazer
       #################### Desktop ####################
       "common/optional/nixos/desktops/wayland" # window manager
       "common/optional/nixos/services/greetd.nix" # display manager
@@ -103,26 +104,6 @@
       "gid=${toString config.users.users.${config.hostSpec.username}.group}"
       "credentials=${config.sops.secrets.nas-credentials.path}"
     ];
-  };
-
-  # Enable sound with pipewire.
-  security.rtkit.enable = true;
-  services.pipewire = {
-    enable = true;
-    alsa.enable = true;
-    alsa.support32Bit = true;
-    pulse.enable = true;
-    # Uncomment if you use JACK applications
-    # jack.enable = true;
-
-    # Configure PipeWire to support high sample rates
-    extraConfig.pipewire."99-hifi.conf" = {
-      "context.properties" = {
-        "default.clock.rate" = 96000;
-        "default.clock.allowed-rates" = [44100 48000 88200 96000 192000];
-        "resample.quality" = 10;
-      };
-    };
   };
 
   system.stateVersion = config.hostSpec.system.stateVersion;
