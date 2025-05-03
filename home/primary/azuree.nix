@@ -113,6 +113,8 @@
     polarity = "dark";
   };
 
+  programs.btop.enable = lib.mkForce true;
+
   #
   # ========== Host-specific Monitor Spec ==========
   #
