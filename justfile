@@ -16,7 +16,7 @@ check-pre:
     echo "$(tput setaf 3)Warning: On Darwin systems, only Darwin-specific configurations can be validated. Linux-specific packages and configurations will error out.$(tput sgr0)"; \
   fi
 
-rebuild-pre: update-nix-secrets && pre
+rebuild-pre: pre && update-nix-secrets
 
 rebuild-post:
   just check-sops
