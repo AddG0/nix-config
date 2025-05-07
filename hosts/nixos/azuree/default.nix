@@ -81,10 +81,6 @@
   environment.systemPackages = with pkgs; [
     cifs-utils
     v4l-utils # For OBSBOT camera
-
-    xdg-desktop-portal
-    xdg-desktop-portal-gtk
-    xdg-desktop-portal-hyprland
   ];
 
   sops.secrets = {
