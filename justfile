@@ -16,7 +16,7 @@ check-pre:
     echo "$(tput setaf 3)Warning: On Darwin systems, only Darwin-specific configurations can be validated. Linux-specific packages and configurations will error out.$(tput sgr0)"; \
   fi
 
-rebuild-pre: pre && update-nix-secrets
+rebuild-pre: pre && update-personal-repos
 
 rebuild-post:
   just check-sops
@@ -94,9 +94,10 @@ rekey:
 check-sops:
   scripts/check-sops.sh
 
-update-nix-secrets:
+update-personal-repos:
   (cd {{NIX_SECRETS_DIR}} && git fetch && git rebase) || true
   nix flake update nix-secrets || true
+  nix flake update pterodactyl-addons || true
 
 iso:
   # If we dont remove this folder, libvirtd VM doesnt run with the new iso...

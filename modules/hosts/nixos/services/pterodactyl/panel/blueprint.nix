@@ -3,11 +3,12 @@
   lib,
   pkgs,
   ...
-}:
-with lib; let
+}: let
+  inherit (lib) mkEnableOption mkOption mkIf types concatStringsSep mapAttrsToList;
   cfg = config.services.pterodactyl.panel.blueprint;
   pterodactylCfg = config.services.pterodactyl.panel;
 in {
+  #### ── interface ─────────────────────────────────────────────────────────────
   options.services.pterodactyl.panel.blueprint = {
     enable = mkEnableOption "Blueprint framework for Pterodactyl panel";
 
@@ -20,7 +21,7 @@ in {
           };
           version = mkOption {
             type = types.str;
-            description = "Version of the theme to install";
+            description = "Version of the theme";
           };
           source = mkOption {
             type = types.either types.str types.path;
@@ -41,7 +42,7 @@ in {
           };
           version = mkOption {
             type = types.str;
-            description = "Version of the extension to install";
+            description = "Version of the extension";
           };
           source = mkOption {
             type = types.either types.str types.path;
@@ -54,6 +55,7 @@ in {
     };
   };
 
+  #### ── implementation ────────────────────────────────────────────────────────
   config = mkIf (pterodactylCfg.enable && cfg.enable) {
     environment.systemPackages = [pkgs.blueprint];
 
@@ -61,12 +63,15 @@ in {
       description = "Blueprint framework for Pterodactyl panel";
       wantedBy = ["multi-user.target"];
       after = ["pterodactyl-panel.service"];
+
+      # runtime tools Blueprint CLI calls
       path = with pkgs; [nodejs yarn zip unzip git curl wget];
 
+      # ---------------- Script helpers ----------------
       script = let
         extractArchive = source: target: ''
           if [[ "${source}" == *.zip ]]; then
-            unzip -q "${source}" -d "${target}"
+            unzip -o -q "${source}" -d "${target}"
           elif [[ "${source}" == *.tar.gz ]] || [[ "${source}" == *.tgz ]]; then
             tar xzf "${source}" -C "${target}" --strip-components=1
           else
@@ -80,10 +85,12 @@ in {
           mkdir -p ${pterodactylCfg.dataDir}/themes/${name}
           ${
             if lib.isString theme.source && (builtins.match "https?://.*" theme.source != null)
-            then ''              tmpfile=$(mktemp)
-                           curl -L "${theme.source}" -o "$tmpfile"
-                           ${extractArchive "$tmpfile" "${pterodactylCfg.dataDir}/themes/${name}"}
-                           rm "$tmpfile"''
+            then ''
+              tmpfile=$(mktemp)
+              curl -L "${theme.source}" -o "$tmpfile"
+              ${extractArchive "$tmpfile" "${pterodactylCfg.dataDir}/themes/${name}"}
+              rm "$tmpfile"
+            ''
             else ''${extractArchive "${theme.source}" "${pterodactylCfg.dataDir}/themes/${name}"}''
           }
           chown -R ${pterodactylCfg.user}:${pterodactylCfg.group} ${pterodactylCfg.dataDir}/themes/${name}
@@ -94,44 +101,53 @@ in {
           mkdir -p ${pterodactylCfg.dataDir}/extensions/${name}
           ${
             if lib.isString extension.source && (builtins.match "https?://.*" extension.source != null)
-            then ''              tmpfile=$(mktemp)
-                           curl -L "${extension.source}" -o "$tmpfile"
-                           ${extractArchive "$tmpfile" "${pterodactylCfg.dataDir}/extensions/${name}"}
-                           rm "$tmpfile"''
+            then ''
+              tmpfile=$(mktemp)
+              curl -L "${extension.source}" -o "$tmpfile"
+              ${extractArchive "$tmpfile" "${pterodactylCfg.dataDir}/extensions/${name}"}
+              rm "$tmpfile"
+            ''
             else ''${extractArchive "${extension.source}" "${pterodactylCfg.dataDir}/extensions/${name}"}''
           }
           chown -R ${pterodactylCfg.user}:${pterodactylCfg.group} ${pterodactylCfg.dataDir}/extensions/${name}
+
+          # register extension with Blueprint CLI
+          ${pkgs.blueprint}/bin/blueprint install "${name}"
         '';
       in ''
-        # Create .blueprintrc configuration
-        cat > ${pterodactylCfg.dataDir}/.blueprintrc << EOF
+                # ------------------------------------------------------------------
+                # .blueprintrc (Blueprint runtime config)
+                # ------------------------------------------------------------------
+                cat > ${pterodactylCfg.dataDir}/.blueprintrc <<EOF
         WEBUSER="${pterodactylCfg.user}";
         OWNERSHIP="${pterodactylCfg.user}:${pterodactylCfg.group}";
         USERSHELL="/bin/bash";
         EOF
+                chown ${pterodactylCfg.user}:${pterodactylCfg.group} \
+                      ${pterodactylCfg.dataDir}/.blueprintrc
 
-        # Set ownership of the configuration file
-        chown ${pterodactylCfg.user}:${pterodactylCfg.group} ${pterodactylCfg.dataDir}/.blueprintrc
+                # ensure themes/extensions dirs exist
+                mkdir -p ${pterodactylCfg.dataDir}/{themes,extensions}
+                chown ${pterodactylCfg.user}:${pterodactylCfg.group} \
+                      ${pterodactylCfg.dataDir}/{themes,extensions}
 
-        # Create themes and extensions directories
-        mkdir -p ${pterodactylCfg.dataDir}/themes
-        mkdir -p ${pterodactylCfg.dataDir}/extensions
-        chown ${pterodactylCfg.user}:${pterodactylCfg.group} ${pterodactylCfg.dataDir}/themes
-        chown ${pterodactylCfg.user}:${pterodactylCfg.group} ${pterodactylCfg.dataDir}/extensions
-
-        # Install themes
-        ${concatStringsSep "\n" (mapAttrsToList installTheme cfg.themes)}
-
-        # Install extensions
-        ${concatStringsSep "\n" (mapAttrsToList installExtension cfg.extensions)}
+                # install themes & extensions
+                ${concatStringsSep "\n" (mapAttrsToList installTheme cfg.themes)}
+                ${concatStringsSep "\n" (mapAttrsToList installExtension cfg.extensions)}
       '';
 
+      # ---------------- Service settings ----------------
       serviceConfig = {
         Type = "oneshot";
         RemainAfterExit = true;
         User = pterodactylCfg.user;
         Group = pterodactylCfg.group;
         WorkingDirectory = pterodactylCfg.dataDir;
+
+        # keep tput happy & point Blueprint at writable workdir
+        Environment = [
+          "TERM=dumb"
+        ];
       };
     };
   };

@@ -1046,11 +1046,11 @@
         "nixpkgs": "nixpkgs_3"
       },
       "locked": {
-        "lastModified": 1746223459,
-        "narHash": "sha256-qhO1M3Gxx6bTosIF6TD08EHL4NaMjHnQJtnDo7oq52w=",
+        "lastModified": 1746498271,
+        "narHash": "sha256-CzHy2HHxiVggIl+QpbXKWDJnqJFSHVZBUYcg19RTuA0=",
         "ref": "main",
-        "rev": "bd700b59cb9fa4337ad126ec0a2f8a461af98cff",
-        "revCount": 103,
+        "rev": "cbbe4a73890bb7f08d9611f39d0af4560ff0fb07",
+        "revCount": 106,
         "type": "git",
         "url": "ssh://git@github.com/addg0/nix-secrets.git"
       },
@@ -1393,11 +1393,11 @@
     },
     "nixpkgs_3": {
       "locked": {
-        "lastModified": 1746141548,
-        "narHash": "sha256-IgBWhX7A2oJmZFIrpRuMnw5RAufVnfvOgHWgIdds+hc=",
+        "lastModified": 1746328495,
+        "narHash": "sha256-uKCfuDs7ZM3QpCE/jnfubTg459CnKnJG/LwqEVEdEiw=",
         "owner": "NixOS",
         "repo": "nixpkgs",
-        "rev": "f02fddb8acef29a8b32f10a335d44828d7825b78",
+        "rev": "979daf34c8cacebcd917d540070b52a3c2b9b16e",
         "type": "github"
       },
       "original": {
@@ -1751,6 +1751,23 @@
         "type": "github"
       }
     },
+    "pterodactyl-addons": {
+      "flake": false,
+      "locked": {
+        "lastModified": 1745074832,
+        "narHash": "sha256-cRGNQLy3MVH/bC+AlnTvKpEkV42N4r3jiO86fJkpWYk=",
+        "ref": "main",
+        "rev": "567e74f82e20f5db0b5d57c351f7ba8887b5d8b7",
+        "revCount": 1,
+        "type": "git",
+        "url": "ssh://git@github.com/addg0/pterodactyl-addons.git"
+      },
+      "original": {
+        "ref": "main",
+        "type": "git",
+        "url": "ssh://git@github.com/addg0/pterodactyl-addons.git"
+      }
+    },
     "root": {
       "inputs": {
         "base16": "base16",
@@ -1774,6 +1791,7 @@
         "nur-ataraxiasjel": "nur-ataraxiasjel",
         "nur-ryan4yin": "nur-ryan4yin",
         "pre-commit-hooks": "pre-commit-hooks_3",
+        "pterodactyl-addons": "pterodactyl-addons",
         "sops-nix": "sops-nix",
         "spicetify-nix": "spicetify-nix",
         "stylix": "stylix",

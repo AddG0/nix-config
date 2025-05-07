@@ -6,19 +6,19 @@
   lib,
   ...
 }: let
-  # pterodactyl-addons = inputs.pterodactyl-addons;
+  pterodactyl-addons = inputs.pterodactyl-addons;
 in {
   services.pterodactyl.panel = {
     enable = true;
     ssl = true;
     blueprint = {
-      enable = true;
+      enable = false;
       extensions = {
-        # "modpack-downloader" = {
-        #   name = "modpack-downloader";
-        #   version = "1.0.0";
-        #   source = "${pterodactyl-addons}/modpack-installer.zip";
-        # };
+        "modpack-downloader" = {
+          name = "modpack-downloader";
+          version = "1.0.0";
+          source = "${pterodactyl-addons}/modpack-installer.zip";
+        };
       };
     };
     users = {
