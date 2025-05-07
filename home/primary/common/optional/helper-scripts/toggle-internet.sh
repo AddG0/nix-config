@@ -15,12 +15,14 @@ toggle_all_services() {
 
 # Function to flush DNS cache and renew DHCP lease
 flush_network() {
+	echo "Restarting mDNSResponder..."
+	if ! sudo killall -HUP mDNSResponder; then
+		echo "Failed to restart mDNSResponder, continuing..."
+	fi
+
 	echo "Flushing DNS cache..."
 	if ! sudo dscacheutil -flushcache; then
 		echo "Failed to flush DNS cache, continuing..."
-	fi
-	if ! sudo killall -HUP mDNSResponder; then
-		echo "Failed to restart mDNSResponder, continuing..."
 	fi
 	echo "Flushing complete."
 
