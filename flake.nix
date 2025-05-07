@@ -138,9 +138,9 @@
       url = "git+ssh://git@github.com/addg0/nix-secrets.git?&ref=main";
     };
 
-    # pterodactyl-addons = {
-    #   url = "git+ssh://git@github.com/addg0/pterodactyl-addons.git?ref=main";
-    #   flake = false;
-    # };
+    pterodactyl-addons = {
+      url = "git+ssh://git@github.com/addg0/pterodactyl-addons.git?ref=main";
+      flake = false;
+    };
   };
 }

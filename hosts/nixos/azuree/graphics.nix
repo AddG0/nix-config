@@ -58,5 +58,17 @@
     vulkan-tools
     vulkan-loader
     vulkan-validation-layers
+
+    libva-utils
+    vdpauinfo
+    vulkan-tools
+    vulkan-validation-layers
+    libvdpau-va-gl
+    egl-wayland
+    wgpu-utils
+    mesa
+    libglvnd
+    nvitop
+    libGL
   ];
 }
