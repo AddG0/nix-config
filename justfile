@@ -72,6 +72,9 @@ update *ARGS:
 
 rebuild-update: update && rebuild
 
+update-packages *ARGS:
+  scripts/update-packages.sh {{ARGS}}
+
 alias d := diff
 
 diff:
