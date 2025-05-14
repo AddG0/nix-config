@@ -11,4 +11,6 @@
       extraArgs = "--keep 5 --keep-since 3d";
     };
   };
+
+  nix.gc.automatic = false;
 }
