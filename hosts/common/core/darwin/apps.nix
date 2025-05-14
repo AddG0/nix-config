@@ -180,7 +180,6 @@ in {
         # Development
         "mitmproxy" # HTTP/HTTPS traffic inspector
         # "insomnia" # REST client
-        "postman"
 
         # "jdk-mission-control" # Java Mission Control
         # "google-cloud-sdk" # Google Cloud SDK
