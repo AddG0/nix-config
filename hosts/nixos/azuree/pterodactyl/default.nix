@@ -1,3 +1,3 @@
 {lib, ...}: {
-  imports = lib.custom.scanPaths ./.;
+  # imports = libcustom.scanPaths ./.;
 }

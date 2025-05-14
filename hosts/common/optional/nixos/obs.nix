@@ -40,4 +40,16 @@
       fi
     '';
   };
+
+  # Launch OBS in replay-buffer mode as soon as your graphical session starts.
+  systemd.user.services.obs-replaybuffer = {
+    description = "OBS Replay Buffer (auto-start)";
+    after = ["graphical-session.target"];
+    wantedBy = ["graphical-session.target"];
+    serviceConfig = {
+      # start OBS keeping the ring buffer in memory & minimize to tray
+      ExecStart = "${pkgs.obs-studio}/bin/obs --startreplaybuffer --minimize-to-tray";
+      Restart = "on-failure";
+    };
+  };
 }

@@ -5,13 +5,13 @@
 }:
 buildGoModule rec {
   pname = "kubevpn";
-  version = "2.7.6";
+  version = "2.7.8";
 
   src = fetchFromGitHub {
     owner = "KubeNetworks";
     repo = "kubevpn";
     rev = "v${version}";
-    hash = "sha256-2LDV2aVdGuclVmOgIIwMYRKTMVLzlmNFI6xHFpxMRJw=";
+    hash = "sha256-T5mYB2eygH60MrJmwY90K0NwVEnPcYxMOTFZWxnSbAo=";
   };
 
   vendorHash = null;
@@ -24,6 +24,5 @@ buildGoModule rec {
     description = "Create a VPN and connect to Kubernetes cluster network, access resources, and more";
     homepage = "https://github.com/KubeNetworks/kubevpn";
     license = licenses.mit;
-    maintainers = with maintainers; [addg0];
   };
 }

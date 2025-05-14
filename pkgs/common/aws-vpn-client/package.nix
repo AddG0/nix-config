@@ -19,6 +19,8 @@ stdenv.mkDerivation {
     hash = "sha256-8PalV5/pQxV3RS6KrAckHDbLNMKz8Cjf3Qf0HQD/gNg=";
   };
 
+  passthru.updateScript = null;
+
   meta =
     meta
     // {

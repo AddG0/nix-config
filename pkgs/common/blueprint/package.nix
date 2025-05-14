@@ -15,13 +15,13 @@
 }:
 stdenv.mkDerivation rec {
   pname = "blueprint";
-  version = "unstable-2024-04-13";
+  version = "unstable";
 
   src = fetchFromGitHub {
     owner = "BlueprintFramework";
     repo = "framework";
     rev = "main";
-    sha256 = "sha256-z0Z9eGSuivph4pbWDHTp/3rNtl2oategppWDh4Zt0TI="; # updated via nix-prefetch-url
+    sha256 = "sha256-S5Bwyvouce/90IOMNxNx2zlQ6ePkMkzkWsLyrhko2y4="; # updated via nix-prefetch-url
   };
 
   nativeBuildInputs = [makeWrapper];
@@ -67,6 +67,12 @@ stdenv.mkDerivation rec {
         --subst-var-by REPO "$out/libexec/blueprint"
       chmod +x $out/bin/blueprint
   '';
+
+  passthru = {
+    updateScript = {
+      command = "nix-update blueprint --version=unstable";
+    };
+  };
 
   meta = with lib; {
     description = "A framework for Pterodactyl panel extensions";

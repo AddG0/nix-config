@@ -47,7 +47,7 @@
       # "common/optional/nixos/plymouth.nix" # fancy boot screen
 
       #################### Desktop ####################
-      "common/optional/nixos/desktops/wayland" # window manager
+      "common/optional/nixos/desktops/hyprland" # window manager
       "common/optional/nixos/services/greetd.nix" # display manager
       "common/optional/nixos/vlc.nix" # media player
     ])

@@ -1,6 +1,58 @@
 #!/usr/bin/env bash
 set -eo pipefail
 
+### Logging helpers
+
+# Color codes
+RED='\033[0;31m'
+GREEN='\033[0;32m'
+YELLOW='\033[0;33m'
+BLUE='\033[0;34m'
+NC='\033[0m' # No Color
+
+# Debug flag - can be set via -v argument
+DEBUG_MODE=false
+
+# Function to handle verbose flag
+handle_verbose_flag() {
+	while getopts "v" opt; do
+		case "$opt" in
+		v) DEBUG_MODE=true ;;
+		esac
+	done
+	shift $((OPTIND - 1))
+}
+
+function log_debug() {
+	if [ "$DEBUG_MODE" = true ]; then
+		echo -e "${BLUE}[$(date '+%Y-%m-%d %H:%M:%S')] [DEBUG] $1${NC}"
+		if [ -n "${2-}" ]; then
+			echo -e "${BLUE}[$(date '+%Y-%m-%d %H:%M:%S')] [DEBUG] $($2)${NC}"
+		fi
+	fi
+}
+
+function log_info() {
+	echo -e "${GREEN}[$(date '+%Y-%m-%d %H:%M:%S')] [INFO] $1${NC}"
+	if [ -n "${2-}" ]; then
+		echo -e "${GREEN}[$(date '+%Y-%m-%d %H:%M:%S')] [INFO] $($2)${NC}"
+	fi
+}
+
+function log_warning() {
+	echo -e "${YELLOW}[$(date '+%Y-%m-%d %H:%M:%S')] [WARNING] $1${NC}"
+	if [ -n "${2-}" ]; then
+		echo -e "${YELLOW}[$(date '+%Y-%m-%d %H:%M:%S')] [WARNING] $($2)${NC}"
+	fi
+}
+
+function log_error() {
+	echo -e "${RED}[$(date '+%Y-%m-%d %H:%M:%S')] [ERROR] $1${NC}"
+	if [ -n "${2-}" ]; then
+		echo -e "${RED}[$(date '+%Y-%m-%d %H:%M:%S')] [ERROR] $($2)${NC}"
+	fi
+}
+
 ### UX helpers
 
 function red() {
@@ -33,7 +85,7 @@ function yellow() {
 
 # Ask yes or no, with yes being the default
 function yes_or_no() {
-	echo -en "\x1B[34m[?] $* [y/n] (default: y): \x1B[0m"
+	echo -en "${BLUE}[$(date '+%Y-%m-%d %H:%M:%S')] [INFO] $* [y/n] (default: y): ${NC}"
 	while true; do
 		read -rp "" yn
 		yn=${yn:-y}
@@ -46,7 +98,7 @@ function yes_or_no() {
 
 # Ask yes or no, with no being the default
 function no_or_yes() {
-	echo -en "\x1B[34m[?] $* [y/n] (default: n): \x1B[0m"
+	echo -en "${BLUE}[$(date '+%Y-%m-%d %H:%M:%S')] [INFO] $* [y/n] (default: n): ${NC}"
 	while true; do
 		read -rp "" yn
 		yn=${yn:-n}
@@ -167,7 +219,7 @@ function sops_setup_user_age_key() {
 		sops --config "$config" -e "$secret_file" >"$secret_file.enc"
 		mv "$secret_file.enc" "$secret_file"
 	fi
-	if ! sops --config "$config" -d --extract '["keys]["age"]' "$secret_file" >/dev/null 2>&1; then
+	if ! sops --config "$config" -d --extract '["keys"]["age"]' "$secret_file" >/dev/null 2>&1; then
 		if [ -z "$age_secret_key" ]; then
 			sops_generate_user_age_key "${target_user}" "${target_hostname}"
 		fi
