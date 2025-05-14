@@ -16,7 +16,7 @@
     #################### Host-specific Optional Configs ####################
     common/optional/helper-scripts
     common/optional/jupyter-notebook
-    common/optional/nixos/desktops/hyprland # default is hyprland
+    common/optional/nixos/desktops/hyprland
     common/optional/browsers
     common/optional/development/ide.nix
     common/optional/secrets
@@ -36,9 +36,10 @@
     common/optional/development/virtualization/lens.nix
     common/optional/nixos/vlc.nix
     common/optional/remote-desktop/mouseshare/lan-mouse.nix
+    common/optional/development/postman.nix
   ];
 
-  home.file."Movies".source = config.lib.file.mkOutOfStoreSymlink "/mnt/videos";
+  home.file."Videos/Movies".source = config.lib.file.mkOutOfStoreSymlink "/mnt/videos";
 
   services.easyeffects = {
     enable = true;
@@ -91,6 +92,12 @@
     enable = true;
     nvidia = true;
   };
+
+  wayland.windowManager.hyprland.extraConfig = ''
+    # This is because I use a kvm and I want to persist the workspaces
+    # apply persistence to every workspace
+    workspace = , persistent:true
+  '';
 
   stylix = {
     enable = true;

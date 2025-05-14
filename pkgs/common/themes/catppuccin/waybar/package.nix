@@ -24,6 +24,5 @@ stdenv.mkDerivation rec {
     homepage = "https://github.com/catppuccin/waybar";
     license = licenses.mit;
     platforms = platforms.linux;
-    maintainers = [];
   };
 }

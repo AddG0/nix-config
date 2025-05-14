@@ -11,13 +11,13 @@ check_package_version() {
 	local pkg_file="$package/package.nix"
 
 	if [ ! -f "$pkg_file" ]; then
-		red "Package file not found: $pkg_file"
+		log_error "Package file not found: $pkg_file"
 		return 1
 	fi
 
 	# Extract current version from package.nix
 	local current_version=$(grep -m 1 "version = " "$pkg_file" | sed 's/.*version = "\(.*\)";/\1/')
-	blue "Current version of $(basename "$package"): $current_version"
+	log_debug "Current version of $(basename "$package"): $current_version"
 
 	# For GitHub-based packages, check for new releases
 	if grep -q "fetchFromGitHub" "$pkg_file"; then
@@ -25,12 +25,12 @@ check_package_version() {
 		local repo=$(grep -m 1 "repo = " "$pkg_file" | sed 's/.*repo = "\(.*\)";/\1/')
 
 		if [ -n "$owner" ] && [ -n "$repo" ]; then
-			blue "Checking GitHub releases for $owner/$repo..."
+			log_debug "Checking GitHub releases for $owner/$repo..."
 			# Use nix-update to check for updates
 			if nix-update "$(basename "$package")" --version=stable; then
-				green "New version available for $(basename "$package")"
+				log_info "New version available for $(basename "$package")"
 			else
-				yellow "No new version available for $(basename "$package")"
+				log_warning "No new version available for $(basename "$package")"
 			fi
 		fi
 	fi
@@ -40,20 +40,23 @@ check_package_version() {
 update_package() {
 	local package=$1
 	local pkg_name=$(basename "$package")
-	blue "Updating $pkg_name..."
+	log_debug "Updating $pkg_name..."
 
 	# First check if there's a new version
 	check_package_version "$package"
 
 	# Then try to update using nix-update
 	if nix-update "$pkg_name" --commit --version=stable; then
-		green "Successfully updated $pkg_name"
+		log_info "Successfully updated $pkg_name"
 	else
-		red "Failed to update $pkg_name"
+		log_error "Failed to update $pkg_name"
 	fi
 }
 
-# Parse command line arguments
+# Handle verbose flag first
+handle_verbose_flag "$@"
+
+# Parse remaining options
 CHECK_ONLY=false
 while getopts "c" opt; do
 	case "$opt" in
@@ -61,8 +64,9 @@ while getopts "c" opt; do
 	*) usage ;;
 	esac
 done
+shift $((OPTIND - 1))
 
-green "Starting package updates..."
+log_info "Starting package updates..."
 
 # Find all package.nix files recursively in pkgs directory
 while IFS= read -r -d '' pkg_file; do
@@ -75,11 +79,11 @@ while IFS= read -r -d '' pkg_file; do
 done < <(find pkgs -name "package.nix" -print0)
 
 # Update nixpkgs itself
-blue "Updating nixpkgs..."
+log_debug "Updating nixpkgs..."
 if nix-channel --update; then
-	green "Successfully updated nixpkgs"
+	log_info "Successfully updated nixpkgs"
 else
-	red "Failed to update nixpkgs"
+	log_error "Failed to update nixpkgs"
 fi
 
-green "All updates completed!"
+log_info "All updates completed!"

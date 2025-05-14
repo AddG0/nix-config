@@ -49,7 +49,7 @@
       "common/optional/nixos/obs.nix" # obs
       "common/optional/nixos/hardware/openrazer.nix" # openrazer
       #################### Desktop ####################
-      "common/optional/nixos/desktops/wayland" # window manager
+      "common/optional/nixos/desktops/hyprland" # window manager
       "common/optional/nixos/services/greetd.nix" # display manager
       "common/optional/nixos/services/bluetooth.nix"
     ])

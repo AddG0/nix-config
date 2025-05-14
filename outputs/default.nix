@@ -4,12 +4,9 @@
   pre-commit-hooks,
   home-manager,
   nix-darwin,
-  nur-ryan4yin,
-  nix-homebrew,
   nix-secrets,
   sops-nix,
   nixos-generators,
-  spicetify-nix,
   ...
 } @ inputs: let
   inherit (self) outputs;
@@ -28,10 +25,13 @@
 
   # Packages, checks, devShells and formatter for all systems
   packages = forAllSystems (system: let
-    pkgs = nixpkgs.legacyPackages.${system};
+    pkgs = import nixpkgs {
+      inherit system;
+      overlays = [self.overlays.default];
+    };
   in {
     checks = import ../checks {inherit inputs system pkgs;};
-    devShells = import ./devshell.nix {inherit self nixpkgs;} system;
+    devShells = import ./devshell.nix {inherit self nixpkgs inputs;} system;
     formatter = pkgs.alejandra;
   });
 
@@ -161,18 +161,18 @@ in {
   # ========= Packages =========
   #
   # Add custom packages to be shared or upstreamed.
-  # packages = forAllSystems (
-  #   system: let
-  #     pkgs = import nixpkgs {
-  #       inherit system;
-  #       overlays = [self.overlays.default];
-  #     };
-  #   in
-  #     lib.packagesFromDirectoryRecursive {
-  #       callPackage = lib.callPackageWith pkgs;
-  #       directory = ../pkgs/common;
-  #     }
-  # );
+  packages = forAllSystems (
+    system: let
+      pkgs = import nixpkgs {
+        inherit system;
+        overlays = [self.overlays.default];
+      };
+    in
+      lib.packagesFromDirectoryRecursive {
+        callPackage = lib.callPackageWith pkgs;
+        directory = ../pkgs/common;
+      }
+  );
 
   # # Colmena - remote deployment via SSH
   # colmena =

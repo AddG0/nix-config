@@ -7,7 +7,7 @@
   nodePackages,
 }: let
   pname = "better-discord";
-  version = "v1.12.1";
+  version = "canary";
 in
   stdenv.mkDerivation {
     inherit pname version;
@@ -16,7 +16,7 @@ in
       owner = "BetterDiscord";
       repo = "BetterDiscord";
       rev = version;
-      sha256 = "sha256-aiW+H9Asz79CwyhKPWKYhmmj+eOXvnkB40nX3KOaMSI"; # Replace with actual hash
+      sha256 = "sha256-gWtgZg/V6EdXcokjjjLtqUuhLqdZ7HzhHAV7yIjQna0="; # Replace with actual hash
     };
 
     nativeBuildInputs = [
@@ -46,6 +46,5 @@ in
       homepage = "https://github.com/BetterDiscord/BetterDiscord";
       license = licenses.mit;
       platforms = platforms.all;
-      maintainers = [addg0];
     };
   }
