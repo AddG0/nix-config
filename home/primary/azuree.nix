@@ -36,7 +36,7 @@
     common/optional/development/virtualization/lens.nix
     common/optional/nixos/vlc.nix
     common/optional/remote-desktop/mouseshare/lan-mouse.nix
-    common/optional/development/postman.nix
+    # common/optional/development/postman.nix
   ];
 
   home.file."Videos/Movies".source = config.lib.file.mkOutOfStoreSymlink "/mnt/videos";
