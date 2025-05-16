@@ -93,12 +93,6 @@
     nvidia = true;
   };
 
-  wayland.windowManager.hyprland.extraConfig = ''
-    # This is because I use a kvm and I want to persist the workspaces
-    # apply persistence to every workspace
-    workspace = , persistent:true
-  '';
-
   stylix = {
     enable = true;
     image = pkgs.fetchurl {
