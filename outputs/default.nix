@@ -70,31 +70,11 @@
     "vm-nogui"
     "vmware"
   ];
-
-  # Generate a format-specific configuration for a NixOS host
-  mkFormat = format: host: system: {
-    ${host} = nixos-generators.nixosGenerate {
-      inherit system format;
-      specialArgs = {
-        inherit inputs outputs lib;
-        isDarwin = false;
-      };
-      modules = [
-        ../hosts/nixos/${host}
-        {
-          virtualisation.diskSize = 20 * 1024;
-          nix.registry.nixpkgs.flake = nixpkgs;
-        }
-      ];
-    };
-  };
-
-  # Generate format-specific configs for each NixOS host
-  mkFormatConfigs = format: hosts: system: lib.foldl (acc: set: acc // set) {} (lib.map (host: mkFormat format host system) hosts);
 in {
   #
   # ========= Host Configurations =========
   #
+
   # Building configurations is available through `just rebuild` or `nixos-rebuild --flake .#hostname`
   nixosConfigurations = builtins.listToAttrs (
     map (host: {
@@ -135,19 +115,23 @@ in {
     }) (builtins.attrNames (builtins.readDir ../hosts/darwin))
   );
 
-  # Generate format-specific configurations for each format
-  formatConfigurations = builtins.listToAttrs (
-    map (format: {
-      name = format;
-      value = builtins.listToAttrs (
-        map (host: {
-          name = host;
-          value = mkFormat format host "x86_64-linux";
-        }) (builtins.attrNames (builtins.readDir ../hosts/nixos))
-      );
-    })
-    formats
-  );
+  # Generate a format-specific configuration for a NixOS host
+  mkFormat = format: host: system: {
+    ${host} = nixos-generators.nixosGenerate {
+      inherit system format;
+      specialArgs = {
+        inherit inputs outputs lib;
+        isDarwin = false;
+      };
+      modules = [
+        ../hosts/nixos/${host}
+        {
+          virtualisation.diskSize = 20 * 1024;
+          nix.registry.nixpkgs.flake = nixpkgs;
+        }
+      ];
+    };
+  };
 
   #
   # ========= Overlays =========
@@ -169,7 +153,7 @@ in {
       };
     in
       lib.packagesFromDirectoryRecursive {
-        callPackage = lib.callPackageWith pkgs;
+        inherit (pkgs) callPackage;
         directory = ../pkgs/common;
       }
   );
