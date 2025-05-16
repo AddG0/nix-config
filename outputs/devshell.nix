@@ -19,7 +19,7 @@ in {
         nixos-generators
         nix-update
       ]
-      ++ [
+      ++ lib.optional (pkgs.stdenv.isLinux) [
         inputs.nixpkgs-update.packages.${system}.nixpkgs-update
       ];
     name = "dots";
