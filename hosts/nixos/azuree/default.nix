@@ -81,7 +81,20 @@
   environment.systemPackages = with pkgs; [
     cifs-utils
     v4l-utils # For OBSBOT camera
+    mysql80 # MySQL client tools
   ];
+
+  services.mysql = {
+    ensureDatabases = ["shipperhq_dev"];
+    ensureUsers = [
+      {
+        name = config.hostSpec.username;
+        ensurePermissions = {
+          "shipperhq_dev.*" = "ALL PRIVILEGES";
+        };
+      }
+    ];
+  };
 
   sops.secrets = {
     "nas-credentials" = {

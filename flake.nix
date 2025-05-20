@@ -30,7 +30,7 @@
     nixpkgs.url = "github:NixOS/nixpkgs/nixos-unstable";
     # The next two are for pinning to stable vs unstable regardless of what the above is set to
     # See also 'stable-packages' and 'unstable-packages' overlays at 'overlays/default.nix"
-    nixpkgs-stable.url = "github:NixOS/nixpkgs/nixos-24.11";
+    nixpkgs-stable.url = "github:NixOS/nixpkgs/nixos-25.05";
     nixpkgs-unstable.url = "github:NixOS/nixpkgs/nixos-unstable";
     nixpkgs-darwin.url = "github:nixos/nixpkgs/nixpkgs-unstable";
     nix-darwin = {
@@ -145,6 +145,7 @@
     # Authenticate via ssh and use shallow clone
     nix-secrets = {
       url = "git+ssh://git@github.com/addg0/nix-secrets.git?&ref=main";
+      inputs.nixpkgs.follows = "nixpkgs";
     };
 
     pterodactyl-addons = {
