@@ -68,6 +68,8 @@ in {
     rsync
   ];
 
+  system.primaryUser = config.hostSpec.username;
+
   users.users.${config.hostSpec.username} = {
     description = config.hostSpec.userFullName;
     # Public Keys that can be used to login to all my PCs, Macbooks, and servers.

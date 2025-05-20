@@ -32,14 +32,17 @@
   system = {
     # activationScripts are executed every time you boot the system or run `nixos-rebuild` / `darwin-rebuild`.
     activationScripts = {
-      postUserActivation.text = ''
-        # Apply the double-click title bar behavior (fill, zoom, or minimize)
-        defaults write -g AppleActionOnDoubleClick -string "fill"
+      applyUserSettings = {
+        enable = true;
+        text = ''
+          # Apply the double-click title bar behavior (fill, zoom, or minimize)
+          sudo -u ${config.system.primaryUser} defaults write -g AppleActionOnDoubleClick -string "fill"
 
-        # activateSettings -u will reload the settings from the database and apply them to the current session,
-        # so we do not need to logout and login again to make the changes take effect.
-        /System/Library/PrivateFrameworks/SystemAdministration.framework/Resources/activateSettings -u
-      '';
+          # activateSettings -u will reload the settings from the database and apply them to the current session,
+          # so we do not need to logout and login again to make the changes take effect.
+          sudo -u ${config.system.primaryUser} /System/Library/PrivateFrameworks/SystemAdministration.framework/Resources/activateSettings -u
+        '';
+      };
 
       # Create aliases for system applications
       applications.text = let
@@ -77,7 +80,7 @@
         AppleKeyboardUIMode = 3; # Mode 3 enables full keyboard control.
         ApplePressAndHoldEnabled = true; # enable press and hold
 
-        # If you press and hold certain keyboard keys when in a text area, the key’s character begins to repeat.
+        # If you press and hold certain keyboard keys when in a text area, the key's character begins to repeat.
         # This is very useful for vim users, they use `hjkl` to move cursor.
         # sets how long it takes before it starts repeating.
         InitialKeyRepeat = 15; # normal minimum is 15 (225 ms), maximum is 120 (1800 ms)
@@ -142,13 +145,13 @@
         # Prevent Photos from opening automatically when devices are plugged in
         "com.apple.ImageCapture".disableHotPlug = true;
         # "com.apple.Safari" = {
-        #   # Privacy: don’t send search queries to Apple
+        #   # Privacy: don't send search queries to Apple
         #   UniversalSearchEnabled = false;
         #   SuppressSearchSuggestions = true;
         #   # Press Tab to highlight each item on a web page
         #   WebKitTabToLinksPreferenceKey = true;
         #   ShowFullURLInSmartSearchField = true;
-        #   # Prevent Safari from opening ‘safe’ files automatically after downloading
+        #   # Prevent Safari from opening 'safe' files automatically after downloading
         #   AutoOpenSafeDownloads = false;
         #   ShowFavoritesBar = false;
         #   IncludeInternalDebugMenu = true;
