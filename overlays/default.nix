@@ -13,6 +13,10 @@
     prev.lib.mkIf final.stdenv.isLinux {
     };
 
+  darwinModifications = final: prev:
+    prev.lib.mkIf final.stdenv.isDarwin {
+    };
+
   modifications = final: prev: {
     # example = prev.example.overrideAttrs (oldAttrs: let ... in {
     # ...
@@ -73,6 +77,7 @@ in {
     (additions final prev)
     // (modifications final prev)
     // (linuxModifications final prev)
+    // (darwinModifications final prev)
     // (stable-packages final prev)
     // (unstable-packages final prev)
     // (nur final prev);
