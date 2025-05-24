@@ -6,7 +6,7 @@
   ...
 }: {
   imports = [
-    inputs.stylix.homeManagerModules.stylix
+    inputs.stylix.homeModules.stylix
 
     #################### Required Configs ####################
     common/core # required
