@@ -24,8 +24,8 @@
     (lib.custom.relativeToHosts "common/disks/dual-boot-disk.nix")
     {
       _module.args = {
-        # Use the full model name disk ID
-        disk = "/dev/disk/by-id/nvme-SAMSUNG_MZVL22T0HBLB-00B00_S677NF0RC06854";
+        # Use the full model name disk ID for the Crucial 4TB NVMe drive
+        disk = "/dev/disk/by-id/nvme-CT4000P3PSSD8_2323E6E05060";
         withSwap = false;
       };
     }
