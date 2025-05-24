@@ -6,7 +6,7 @@
   ...
 }: {
   imports = [
-    inputs.stylix.homeManagerModules.stylix
+    inputs.stylix.homeModules.stylix
 
     #################### Required Configs ####################
     common/core # required
@@ -29,6 +29,7 @@
     common/optional/media/spicetify.nix
     common/optional/media/tidal.nix
     common/optional/media
+    common/optional/nixos/vlc.nix
     # common/optional/remote-desktop/rustdesk.nix
   ];
 

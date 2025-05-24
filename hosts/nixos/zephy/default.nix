@@ -49,7 +49,6 @@
       #################### Desktop ####################
       "common/optional/nixos/desktops/hyprland" # window manager
       "common/optional/nixos/services/greetd.nix" # display manager
-      "common/optional/nixos/vlc.nix" # media player
     ])
   ];
 
