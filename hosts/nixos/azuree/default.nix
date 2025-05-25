@@ -20,15 +20,15 @@
     inputs.hardware.nixosModules.common-pc-ssd
 
     #################### Disk Layout ####################
-    inputs.disko.nixosModules.disko
-    (lib.custom.relativeToHosts "common/disks/dual-boot-disk.nix")
-    {
-      _module.args = {
-        # Use the full model name disk ID for the Crucial 4TB NVMe drive
-        disk = "/dev/disk/by-id/nvme-CT4000P3PSSD8_2323E6E05060";
-        withSwap = false;
-      };
-    }
+    # inputs.disko.nixosModules.disko
+    # (lib.custom.relativeToHosts "common/disks/dual-boot-disk.nix")
+    # {
+    #   _module.args = {
+    #     # Use the full model name disk ID for the Crucial 4TB NVMe drive
+    #     disk = "/dev/disk/by-id/nvme-CT4000P3PSSD8_2323E6E05060";
+    #     withSwap = false;
+    #   };
+    # }
 
     #################### Misc Inputs ####################
 
