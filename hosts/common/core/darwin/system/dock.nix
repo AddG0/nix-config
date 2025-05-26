@@ -20,7 +20,7 @@
     wvous-br-corner = 13; # bottom-right - Lock Screen
 
     persistent-apps = [
-      "/Applications/Zen.app"
+      "/Applications/Arc.app"
       "${pkgs.jetbrains.idea-ultimate}/Applications/IntelliJ IDEA.app"
       "/Applications/Cursor.app"
       "${pkgs.postman}/Applications/Postman.app"
