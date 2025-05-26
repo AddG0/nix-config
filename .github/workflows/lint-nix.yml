@@ -17,6 +17,6 @@ jobs:
       - name: Install statix and nixpkgs-fmt
         run: nix-env -iA nixpkgs.statix
       - name: Run nixpkgs-fmt
-        run: nixpkgs-fmt ./
+        run: ale ./
       - name: Run nix-linter
         run: nix-linter ./
