@@ -20,15 +20,15 @@
     inputs.hardware.nixosModules.common-pc-ssd
 
     #################### Disk Layout ####################
-    # inputs.disko.nixosModules.disko
-    # (lib.custom.relativeToHosts "common/disks/dual-boot-disk.nix")
-    # {
-    #   _module.args = {
-    #     # Use the full model name disk ID for the Crucial 4TB NVMe drive
-    #     disk = "/dev/disk/by-id/nvme-CT4000P3PSSD8_2323E6E05060";
-    #     withSwap = false;
-    #   };
-    # }
+    inputs.disko.nixosModules.disko
+    (lib.custom.relativeToHosts "common/disks/btrfs-disk.nix")
+    {
+      _module.args = {
+        # Use the full model name disk ID for the 2TB NVMe drive
+        disk = "/dev/disk/by-id/nvme-Acer_SSD_N5000_2TB_ASBJ53410202076";
+        withSwap = false;
+      };
+    }
 
     #################### Misc Inputs ####################
 
@@ -38,26 +38,17 @@
 
       #################### Host-specific Optional Configs ####################
       "common/optional/nixos/services/openssh.nix" # allow remote SSH access
-      "common/optional/nixos/nvtop.nix" # GPU monitor (not available in home-manager)
-      "common/optional/nixos/audio.nix" # pipewire and cli controls
-      "common/optional/nixos/gaming.nix" # steam, gamescope, gamemode, and related hardware
-      "common/optional/nixos/services/vscode-server.nix"
-      # "common/optional/nixos/services/home-assistant.nix"
-      "common/optional/nixos/virtualisation/docker.nix" # docker
-      # "common/optional/nixos/plymouth.nix" # fancy boot screen
+      "common/optional/nixos/services/home-assistant.nix"
       "common/optional/nixos/services/nginx.nix" # nginx
-      "common/optional/nixos/obs.nix" # obs
-      "common/optional/nixos/hardware/openrazer.nix" # openrazer
       #################### Desktop ####################
       "common/optional/nixos/desktops/hyprland" # window manager
       "common/optional/nixos/services/greetd.nix" # display manager
-      "common/optional/nixos/services/bluetooth.nix"
     ])
   ];
 
   networking = {
     networkmanager.enable = true;
-    enableIPv6 = false;
+    enableIPv6 = true;
   };
 
   boot.loader = {
