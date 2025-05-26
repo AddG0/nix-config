@@ -4,7 +4,6 @@
   disk ? "/dev/vda",
   withSwap ? false,
   swapSize,
-  config,
   ...
 }: {
   disko.devices = {
@@ -38,13 +37,6 @@
                 subvolumes = {
                   "@root" = {
                     mountpoint = "/";
-                    mountOptions = [
-                      "compress=zstd"
-                      "noatime"
-                    ];
-                  };
-                  "@persist" = {
-                    mountpoint = "${config.hostSpec.persistFolder}";
                     mountOptions = [
                       "compress=zstd"
                       "noatime"
