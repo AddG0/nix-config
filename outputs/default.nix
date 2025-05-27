@@ -170,14 +170,14 @@ in {
     };
   } // builtins.mapAttrs (name: config: {
     deployment = {
-      targetHost = if config.config.hostSpec.colmena.targetHost != "" 
-                   then config.config.hostSpec.colmena.targetHost 
+      targetHost = if config.config.hostSpec.colmena.targetHost != ""
+                   then config.config.hostSpec.colmena.targetHost
                    else config.config.hostSpec.hostName;
       targetUser = "root";
     };
     imports = config._module.args.modules;
-  }) (lib.filterAttrs (name: value: 
-    value.config.nixpkgs.hostPlatform.system == "x86_64-linux" && 
+  }) (lib.filterAttrs (name: value:
+    value.config.nixpkgs.hostPlatform.system == "x86_64-linux" &&
     value.config.hostSpec.colmena.enable
   ) self.nixosConfigurations);
 
