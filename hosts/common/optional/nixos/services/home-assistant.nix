@@ -58,8 +58,4 @@
       }
     ];
   };
-
-  networking.hosts = {
-    "127.0.0.1" = ["home-assistant.addg0.com"];
-  };
 }
