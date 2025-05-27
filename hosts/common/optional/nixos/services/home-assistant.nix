@@ -11,6 +11,8 @@
       # Recommended for fast zlib compression
       # https://www.home-assistant.io/integrations/isal
       "isal"
+
+      "lifx"
     ];
     extraPackages = ps: with ps; [psycopg2];
     config = {
