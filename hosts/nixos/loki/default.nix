@@ -64,6 +64,9 @@
   hostSpec = {
     hostName = "loki";
     hostPlatform = "x86_64-linux";
+    colmena = {
+      enable = true;
+    };
   };
 
   environment.systemPackages = with pkgs; [

@@ -90,6 +90,18 @@
       default = false;
       description = "Used to disable sops for the host";
     };
+    colmena = {
+      enable = lib.mkOption {
+        type = lib.types.bool;
+        default = false;
+        description = "Enable deployment via Colmena";
+      };
+      targetHost = lib.mkOption {
+        type = lib.types.str;
+        default = "";
+        description = "The target hostname or IP address for Colmena deployment";
+      };
+    };
     # Sometimes we can't use pkgs.stdenv.isLinux due to infinite recursion
     isDarwin = lib.mkOption {
       type = lib.types.bool;
