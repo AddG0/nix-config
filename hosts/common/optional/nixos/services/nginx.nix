@@ -15,8 +15,8 @@
 
     virtualHosts = {
       "block-default" = {
-        default = true; # ← makes this the default_server
-        listen = [":80" "[::]:80"]; # ← HTTP on all interfaces
+        default = true;
+        listenAddresses = ["0.0.0.0" "::"]; # <— list of strings is allowed here
         extraConfig = ''
           server_name "";
           return 444;
