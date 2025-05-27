@@ -16,7 +16,6 @@
     virtualHosts = {
       "block-default" = {
         default = true;
-        listenAddresses = ["0.0.0.0" "::"]; # <— list of strings is allowed here
         extraConfig = ''
           server_name "";
           return 444;
