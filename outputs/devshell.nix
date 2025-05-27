@@ -18,6 +18,7 @@ in {
         colmena
         nixos-generators
         nix-update
+        colmena
       ]
       ++ lib.optional (pkgs.stdenv.isLinux) [
         inputs.nixpkgs-update.packages.${system}.nixpkgs-update

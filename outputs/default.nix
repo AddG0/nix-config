@@ -159,27 +159,33 @@ in {
   );
 
   # Colmena - remote deployment via SSH
-  colmena = {
-    meta = {
-      nixpkgs = import nixpkgs { system = "x86_64-linux"; };
-      specialArgs = {
-        inherit inputs outputs lib;
-        isDarwin = false;
-        nix-secrets = inputs.nix-secrets;
+  colmena =
+    {
+      meta = {
+        nixpkgs = import nixpkgs {system = "x86_64-linux";};
+        specialArgs = {
+          inherit inputs outputs lib;
+          isDarwin = false;
+          nix-secrets = inputs.nix-secrets;
+        };
       };
-    };
-  } // builtins.mapAttrs (name: config: {
-    deployment = {
-      targetHost = if config.config.hostSpec.colmena.targetHost != ""
-                   then config.config.hostSpec.colmena.targetHost
-                   else config.config.hostSpec.hostName;
-      targetUser = "root";
-    };
-    imports = config._module.args.modules;
-  }) (lib.filterAttrs (name: value:
-    value.config.nixpkgs.hostPlatform.system == "x86_64-linux" &&
-    value.config.hostSpec.colmena.enable
-  ) self.nixosConfigurations);
+    }
+    // builtins.mapAttrs (name: config: {
+      deployment = {
+        targetHost =
+          if config.config.hostSpec.colmena.targetHost != ""
+          then config.config.hostSpec.colmena.targetHost
+          else config.config.hostSpec.hostName;
+        targetUser = "addg";
+      };
+      imports = config._module.args.modules;
+    }) (lib.filterAttrs (
+        name: value:
+          value.config.nixpkgs.hostPlatform.system
+          == "x86_64-linux"
+          && value.config.hostSpec.colmena.enable
+      )
+      self.nixosConfigurations);
 
   # Eval Tests for all NixOS & darwin systems.
   # evalTests = lib.lists.all (it: it.evalTests == {}) allSystemValues;
