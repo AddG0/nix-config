@@ -88,10 +88,10 @@
     };
   };
 
-  # modules.desktop.hyprland = {
-  #   enable = true;
-  #   nvidia = true;
-  # };
+  modules.desktop.hyprland = {
+    enable = true;
+    nvidia = true;
+  };
 
   stylix = {
     enable = true;
