@@ -12,6 +12,17 @@
 
     # ACME + DNS challenge via Cloudflare
     clientMaxBodySize = "50m";
+
+    virtualHosts = {
+      "block-default" = {
+        default = true; # ← makes this the default_server
+        listen = [":80" "[::]:80"]; # ← HTTP on all interfaces
+        extraConfig = ''
+          server_name "";
+          return 444;
+        '';
+      };
+    };
   };
 
   security.acme = {
