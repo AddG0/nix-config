@@ -18,7 +18,11 @@ in {
     settings = {
       # Harden
       PasswordAuthentication = false;
-      PermitRootLogin = "no";
+      # Conditional root login based on Colmena enable flag
+      PermitRootLogin =
+        if config.hostSpec.colmena.enable
+        then "prohibit-password"
+        else "no";
       # Automatically remove stale sockets
       StreamLocalBindUnlink = "yes";
       # Allow forwarding ports to everywhere

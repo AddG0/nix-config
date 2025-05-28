@@ -21,6 +21,8 @@
       min-free = 128000000; # 128MB
       max-free = 1000000000; # 1GB
 
+      trusted-users = [config.hostSpec.username];
+
       experimental-features = [
         "nix-command"
         "flakes"
