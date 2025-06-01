@@ -42,6 +42,7 @@
           "docker"
           "git"
           "networkmanager"
+          "libvirtd"
         ];
     };
   };
