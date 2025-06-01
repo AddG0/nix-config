@@ -6,7 +6,7 @@
     #################### Host-specific Optional Configs ####################
     common/optional/helper-scripts
     # common/optional/development/java.nix
-    # common/optional/jupyter-notebook
+    common/optional/jupyter-notebook
     common/optional/secrets/kubeconfig.nix
     common/optional/comms
     common/optional/development

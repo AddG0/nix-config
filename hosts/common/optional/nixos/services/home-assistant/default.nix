@@ -14,7 +14,7 @@
       # https://www.home-assistant.io/integrations/isal
       "isal"
 
-      "lifx"
+      "lifx" # TODO: Check working
     ];
     extraPackages = ps: with ps; [psycopg2];
     config = {
@@ -30,6 +30,20 @@
         trusted_proxies = ["::1"];
         use_x_forwarded_for = true;
       };
+
+      homeassistant = {
+        # MUST be at the top or will break entire configuration
+        customize = {
+          # Declare all "entity_id" objects here at this level to customize them
+          "lifx.name" = {
+            # Custom name however you want the entity to appear in the GUI
+            friendly_name = "Uplift Light Strip";
+            # See https://www.home-assistant.io/docs/configuration/customizing-devices/#icon for documentation
+            icon = "mdi:lightbulb";
+          };
+        };
+      };
+
 
       # Import the ui configurations
       # "automation ui" = "!include automations.yaml";
