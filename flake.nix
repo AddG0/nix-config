@@ -64,8 +64,8 @@
       inputs.nixpkgs.follows = "nixpkgs";
     };
 
-    haumea = {
-      url = "github:nix-community/haumea/v0.2.2";
+    nixvirt = {
+      url = "https://flakehub.com/f/AshleyYakeley/NixVirt/*.tar.gz";
       inputs.nixpkgs.follows = "nixpkgs";
     };
 

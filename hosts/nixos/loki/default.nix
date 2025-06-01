@@ -38,15 +38,14 @@
 
       #################### Host-specific Optional Configs ####################
       "common/optional/nixos/services/openssh.nix" # allow remote SSH access
-      "common/optional/nixos/services/home-assistant.nix"
+      "common/optional/nixos/services/home-assistant-oci.nix"
       "common/optional/nixos/services/nginx.nix" # nginx
-      "common/optional/nixos/services/vscode-server.nix"
     ])
   ];
 
   networking = {
     networkmanager.enable = true;
-    enableIPv6 = true;
+    enableIPv6 = false;
   };
 
   boot.loader = {
@@ -68,10 +67,6 @@
       enable = true;
     };
   };
-
-  environment.systemPackages = with pkgs; [
-    cifs-utils
-  ];
 
   system.stateVersion = config.hostSpec.system.stateVersion;
 

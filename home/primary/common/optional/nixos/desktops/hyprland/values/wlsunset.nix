@@ -6,7 +6,7 @@
     sunset = "18:00";
     temperature = {
       day = 4000;
-      night = 2800;
+      night = 2400;
     };
   };
 }

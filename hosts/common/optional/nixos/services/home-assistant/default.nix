@@ -1,4 +1,6 @@
-{
+{lib, ...}: {
+  imports = lib.custom.scanPaths ./.;
+
   services.home-assistant = {
     enable = true;
     extraComponents = [
@@ -20,7 +22,7 @@
       # https://www.home-assistant.io/integrations/default_config/
       default_config = {};
 
-      recorder.db_url = "postgresql://@/hass";
+      lifx = {};
 
       # Setup home assistant for nginx reverse proxy
       http = {
@@ -33,6 +35,19 @@
       # "automation ui" = "!include automations.yaml";
       # "scene ui" = "!include scenes.yaml";
       # "script ui" = "!include scripts.yaml";
+      homeassistant = {
+        customize = {
+          # Declare all "entity_id" objects here at this level to customize them
+          "lifx.name" = {
+            # Custom name however you want the entity to appear in the GUI
+            friendly_name = "Add's Uplift Light Strip";
+            # See https://www.home-assistant.io/integrations/binary_sensor/ for documentation
+            device_class = "deviceclass";
+            # See https://www.home-assistant.io/docs/configuration/customizing-devices/#icon for documentation
+            icon = "mdi:iconname";
+          };
+        };
+      };
     };
   };
 
@@ -46,16 +61,5 @@
       proxyPass = "http://[::1]:8123";
       proxyWebsockets = true;
     };
-  };
-
-  services.postgresql = {
-    enable = true;
-    ensureDatabases = ["hass"];
-    ensureUsers = [
-      {
-        name = "hass";
-        ensureDBOwnership = true;
-      }
-    ];
   };
 }

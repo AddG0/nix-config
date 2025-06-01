@@ -84,6 +84,7 @@ in {
           inherit inputs outputs lib;
           isDarwin = false;
           nix-secrets = inputs.nix-secrets;
+          nixvirt = inputs.nix-secrets;
         };
         modules = [
           ../hosts/nixos/${host}
@@ -176,7 +177,7 @@ in {
           if config.config.hostSpec.colmena.targetHost != ""
           then config.config.hostSpec.colmena.targetHost
           else config.config.hostSpec.hostName;
-        targetUser = "addg";
+        targetUser = "root";
       };
       imports = config._module.args.modules;
     }) (lib.filterAttrs (
