@@ -123,14 +123,18 @@ in {
       "terraform"
       # "terraformer"
 
-      "tomcat@8" # TODO: Delete this after java 8 is no longer needed
+      "podman"
+      "podman-compose"
+
+      "nginx"
+      "certbot"
     ];
 
     # `brew install --cask`
     casks =
       [
         "arc"
-        "zen-browser"
+        # "zen-browser"
         "firefox@developer-edition"
         "synology-drive"
         "openvpn-connect"
@@ -143,6 +147,8 @@ in {
         "lens" # preview kubernetes resources
 
         "balenaetcher"
+
+        "podman-desktop"
 
         "bartender" # tool to manage the menu bar
         "cleanshot" # screenshot tool
