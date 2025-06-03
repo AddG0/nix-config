@@ -12,5 +12,16 @@
     gc = {
       options = "--delete-older-than 10d";
     };
+
+    distributedBuilds = true;
+
+    buildMachines = [
+      {
+        hostName = "loki";
+        system = "x86_64-linux";
+        sshUser = config.hostSpec.username;
+        sshKey = config.hostSpec.home + "/.ssh/id_ed25519";
+      }
+    ];
   };
 }

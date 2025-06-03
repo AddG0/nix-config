@@ -1,4 +1,4 @@
-{lib, ...}: {
+{lib, nix-secrets, ...}: {
   imports = [
     #################### Required Configs ####################
     common/core
@@ -24,4 +24,10 @@
     common/optional/development/virtualization
     common/optional/remote-desktop/mouseshare/lan-mouse.nix
   ];
+
+  sops.secrets.cloudflare = {
+    format = "binary";
+    sopsFile = "${nix-secrets}/secrets/cloudflare.env.enc";
+    mode = "0400";
+  };
 }
