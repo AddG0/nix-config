@@ -16,7 +16,6 @@ in {
 
     # nix search tool with TUI
     nix-search-tv # nix search tool with TUI
-    ns # nix search tool with TUI
   ];
 
   home.shellAliases = {
