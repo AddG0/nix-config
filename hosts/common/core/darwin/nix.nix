@@ -3,6 +3,7 @@
   config,
   outputs,
   lib,
+  pkgs,
   ...
 }: {
   nix = {
@@ -24,4 +25,8 @@
       }
     ];
   };
+
+  environment.systemPackages = with pkgs; [
+    nh
+  ];
 }

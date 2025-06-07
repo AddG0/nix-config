@@ -68,13 +68,16 @@ rebuild_darwin() {
 	fi
 
 	log_info "====== REBUILD ======"
-	if ! command_exists darwin-rebuild; then
-		log_debug "darwin-rebuild not found; using 'nix run nix-darwin'"
-		sudo nix run nix-darwin -- switch ${switch_args}
-	else
+	if command_exists nh; then
+		log_debug "Using nh darwin command for rebuild"
+		nh darwin switch . -- --show-trace
+	elif command_exists darwin-rebuild; then
 		log_debug "Using darwin-rebuild with arguments: ${switch_args}"
 		# Run darwin-rebuild with sudo as required by the new activation model
 		sudo darwin-rebuild ${switch_args}
+	else
+		log_debug "darwin-rebuild not found; using 'nix run nix-darwin'"
+		sudo nix run nix-darwin -- switch ${switch_args}
 	fi
 }
 

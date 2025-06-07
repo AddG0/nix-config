@@ -6,7 +6,7 @@
   ...
 }: {
   imports = [
-    "${nix-secrets}/secrets/shipperhq"
+    "${nix-secrets}/modules/shipperhq"
   ];
 
   home.packages = with pkgs; [
