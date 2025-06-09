@@ -12,7 +12,7 @@
     common/optional/development
     common/optional/development/ide.nix
     common/optional/development/tilt.nix
-    # common/optional/development/node.nix
+    common/optional/development/node.nix
     common/optional/development/aws.nix
     # common/optional/development/misc-language-servers.nix
     common/optional/secrets/ssh/server.nix
