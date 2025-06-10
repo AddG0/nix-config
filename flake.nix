@@ -1,8 +1,6 @@
 {
   description = "Add's nix configuration for both NixOS & macOS";
 
-  outputs = inputs: import ./outputs inputs;
-
   # the nixConfig here only affects the flake itself, not the system configuration!
   # for more information, see:
   #     https://nixos-and-flakes.thiscute.world/nix-store/add-binary-cache-servers
@@ -25,23 +23,30 @@
   };
 
   inputs = {
-    #################### Official NixOS and HM Package Sources ####################
-
+    #################### Core Dependencies (Minimal) ####################
+    
+    # Primary nixpkgs - this is all packages need
     nixpkgs.url = "github:NixOS/nixpkgs/master";
+    
+    # Flake-parts for modular organization  
+    flake-parts.url = "github:hercules-ci/flake-parts";
+
+    #################### Host Configuration Dependencies ####################
+
     # The next two are for pinning to stable vs unstable regardless of what the above is set to
     # See also 'stable-packages' and 'unstable-packages' overlays at 'overlays/default.nix"
     nixpkgs-stable.url = "github:NixOS/nixpkgs/nixos-25.05";
     nixpkgs-unstable.url = "github:NixOS/nixpkgs/nixos-unstable";
     nixpkgs-darwin.url = "github:nixos/nixpkgs/nixpkgs-unstable";
+    
     nix-darwin = {
       url = "github:lnl7/nix-darwin";
       inputs.nixpkgs.follows = "nixpkgs-darwin";
     };
 
     hardware.url = "github:nixos/nixos-hardware";
+    
     home-manager = {
-      #url = "github:nix-community/home-manager/release-24.05";
-      #inputs.nixpkgs.follows = "nixpkgs-stable";
       url = "github:nix-community/home-manager";
       inputs.nixpkgs.follows = "nixpkgs";
     };
@@ -85,8 +90,6 @@
 
     # vim4LMFQR!
     nixvim = {
-      #url = "github:nix-community/nixvim/nixos-24.05";
-      #inputs.nixpkgs.follows = "nixpkgs";
       url = "github:nix-community/nixvim";
       inputs.nixpkgs.follows = "nixpkgs-unstable";
     };
@@ -152,4 +155,33 @@
       flake = false;
     };
   };
+
+  outputs = inputs@{ flake-parts, ... }:
+    flake-parts.lib.mkFlake { inherit inputs; } {
+      imports = [
+        # Clean packages module - only depends on nixpkgs
+        ./parts/packages.nix
+        
+        # Host configurations module - depends on all inputs
+        ./parts/hosts.nix
+        
+        # Development environment
+        ./parts/devshell.nix
+        
+        # Overlays
+        ./parts/overlays.nix
+      ];
+
+      # Define supported systems
+      systems = [
+        "x86_64-linux"
+        "x86_64-darwin" 
+        "aarch64-darwin"
+      ];
+
+      # Ensure parts directory is included in flake
+      flake = {
+        # Add any top-level flake attributes here if needed
+      };
+    };
 }
