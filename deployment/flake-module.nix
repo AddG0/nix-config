@@ -2,7 +2,7 @@
 {inputs, lib, ...}: {
   flake = {
     # Colmena - remote deployment via SSH
-    colmena = 
+    colmena =
       {
         meta = {
           nixpkgs = import inputs.nixpkgs {system = "x86_64-linux";};

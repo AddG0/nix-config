@@ -25,7 +25,7 @@ Complete setup guide for new users including:
 Comprehensive guide to project automation with detailed recipe documentation:
 - **🔍 Validation** - Configuration checking and validation
 - **🖥️ System** - Core system rebuilding and management
-- **🧹 Maintenance** - Cleanup and maintenance tasks  
+- **🧹 Maintenance** - Cleanup and maintenance tasks
 - **🔧 Development** - Development and debugging tools
 - **📦 Dependencies** - Package and dependency management
 - **🔐 Secrets** - SOPS secrets management
@@ -39,7 +39,7 @@ System-level configuration documentation:
 - Hardware configurations
 - Adding new hosts
 
-### 🧩 [Modules](modules/README.md)  
+### 🧩 [Modules](modules/README.md)
 Custom module documentation and guides:
 - Available modules by category
 - Module development guidelines
@@ -56,7 +56,7 @@ Remote deployment and multi-host management:
 ### 📖 [Just Features](justfile-features.md)
 Deep dive into Just command runner capabilities:
 - Recipe syntax and variables
-- Built-in functions and attributes  
+- Built-in functions and attributes
 - Platform-specific recipes
 - Error handling and debugging
 - Best practices
@@ -153,4 +153,4 @@ When adding new features:
 
 ---
 
-*This documentation is built with [MkDocs Material](https://squidfunk.github.io/mkdocs-material/) and served via `nix run .#docs`* 
+*This documentation is built with [MkDocs Material](https://squidfunk.github.io/mkdocs-material/) and served via `nix run .#docs`*

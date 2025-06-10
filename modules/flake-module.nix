@@ -2,16 +2,16 @@
 {inputs, lib, ...}: let
   # Get available systems from flake inputs
   supportedSystems = lib.systems.flakeExposed;
-  
-  # Check if we have any Linux systems (for NixOS modules) 
-  hasLinux = builtins.any (system: 
-    lib.hasPrefix "x86_64-linux" system || 
+
+  # Check if we have any Linux systems (for NixOS modules)
+  hasLinux = builtins.any (system:
+    lib.hasPrefix "x86_64-linux" system ||
     lib.hasPrefix "aarch64-linux" system
   ) supportedSystems;
-  
+
   # Check if we have any Darwin systems (for Darwin modules)
-  hasDarwin = builtins.any (system: 
-    lib.hasPrefix "x86_64-darwin" system || 
+  hasDarwin = builtins.any (system:
+    lib.hasPrefix "x86_64-darwin" system ||
     lib.hasPrefix "aarch64-darwin" system
   ) supportedSystems;
 in {
@@ -31,7 +31,7 @@ in {
 
     # Darwin modules - only expose if we have Darwin systems
     darwinModules = lib.mkIf hasDarwin {
-      # Default includes common modules + Darwin-specific modules  
+      # Default includes common modules + Darwin-specific modules
       default = {
         imports = [
           ./common
