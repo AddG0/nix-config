@@ -9,7 +9,7 @@
 
 <div align="center">
   <h1>
-    <img width=600" src="docs/nixos.svg" /><br />
+    <img width=600" src="assets/icons/nixos.svg" /><br />
     Add's Nix-Config
   </h1>
 
