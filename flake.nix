@@ -1,7 +1,19 @@
 {
   description = "Add's nix configuration for both NixOS & macOS";
 
-  outputs = inputs: import ./outputs inputs;
+  outputs = inputs:
+    inputs.flake-parts.lib.mkFlake {inherit inputs;} {
+      systems = ["x86_64-linux" "x86_64-darwin" "aarch64-darwin"];
+
+      imports = [
+        ./parts/lib.nix
+        ./parts/overlays.nix
+        ./parts/packages.nix
+        ./parts/hosts.nix
+        ./parts/deployment.nix
+        ./parts/development.nix
+      ];
+    };
 
   # the nixConfig here only affects the flake itself, not the system configuration!
   # for more information, see:
@@ -27,6 +39,7 @@
   inputs = {
     #################### Official NixOS and HM Package Sources ####################
 
+    flake-parts.url = "github:hercules-ci/flake-parts";
     nixpkgs.url = "github:NixOS/nixpkgs/master";
     # The next two are for pinning to stable vs unstable regardless of what the above is set to
     # See also 'stable-packages' and 'unstable-packages' overlays at 'overlays/default.nix"
