@@ -3,7 +3,7 @@
 # down the road. Noted in long term roadmap.
 {
   input,
-  outputs,
+  self,
   lib,
   ...
 }: {

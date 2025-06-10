@@ -32,14 +32,14 @@ rebuild-post:
 [group('validation')]
 [doc("Check flake configuration with pre-validation warnings")]
 check: check-pre && pre
-  nix flake check --impure --keep-going
-  # cd nixos-installer && nix flake check --impure --keep-going
+  nix flake check --keep-going
+  # cd nixos-installer && nix flake check --keep-going
 
 [group('validation')]
 [doc("Check flake configuration with detailed trace output")]
 check-trace: check-pre && pre
-  nix flake check --impure --show-trace
-  cd nixos-installer && nix flake check --impure --show trace
+  nix flake check --show-trace
+  cd nixos-installer && nix flake check --show trace
 
 alias r := rebuild
 

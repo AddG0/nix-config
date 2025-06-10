@@ -868,11 +868,11 @@
         ]
       },
       "locked": {
-        "lastModified": 1749512616,
-        "narHash": "sha256-YS9laGMsaks2sR9CirlAfbFyH1tGD848bh4wAoiRNmk=",
+        "lastModified": 1749581462,
+        "narHash": "sha256-cXOr3/9Ophsn/o16xdYAuEFYNu/k3e424wbGhu+UkYo=",
         "ref": "main",
-        "rev": "75c2ade10ab1ac1ff15f55be97f45bdd5bd57f0d",
-        "revCount": 154,
+        "rev": "1e0053dcca00dcb3b45829c973531a54f2fa11f7",
+        "revCount": 155,
         "type": "git",
         "url": "ssh://git@github.com/addg0/nix-secrets.git"
       },
@@ -1392,6 +1392,7 @@
         "sops-nix": "sops-nix",
         "spicetify-nix": "spicetify-nix",
         "stylix": "stylix",
+        "treefmt-nix": "treefmt-nix_4",
         "tt-schemes": "tt-schemes",
         "vscode-server": "vscode-server",
         "zen-browser": "zen-browser"
@@ -1729,6 +1730,26 @@
         "owner": "numtide",
         "repo": "treefmt-nix",
         "rev": "49717b5af6f80172275d47a418c9719a31a78b53",
+        "type": "github"
+      },
+      "original": {
+        "owner": "numtide",
+        "repo": "treefmt-nix",
+        "type": "github"
+      }
+    },
+    "treefmt-nix_4": {
+      "inputs": {
+        "nixpkgs": [
+          "nixpkgs"
+        ]
+      },
+      "locked": {
+        "lastModified": 1749194973,
+        "narHash": "sha256-eEy8cuS0mZ2j/r/FE0/LYBSBcIs/MKOIVakwHVuqTfk=",
+        "owner": "numtide",
+        "repo": "treefmt-nix",
+        "rev": "a05be418a1af1198ca0f63facb13c985db4cb3c5",
         "type": "github"
       },
       "original": {

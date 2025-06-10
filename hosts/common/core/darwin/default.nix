@@ -2,7 +2,7 @@
   config,
   lib,
   inputs,
-  outputs,
+  self,
   pkgs,
   ...
 }: let
@@ -10,6 +10,7 @@
 in {
   imports = lib.flatten [
     (lib.custom.scanPaths ./.)
+    self.darwinModules.default
     nix-homebrew.darwinModules.nix-homebrew
     {
       nix-homebrew = {

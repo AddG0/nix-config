@@ -1,16 +1,14 @@
-# parts/deployment.nix - Colmena deployment configuration
-{inputs, ...}: {
+# deployment/flake-module.nix - Colmena deployment configuration
+{inputs, lib, ...}: {
   flake = {
     # Colmena - remote deployment via SSH
-    colmena = let
-      lib = inputs.self.lib;
-    in
+    colmena = 
       {
         meta = {
           nixpkgs = import inputs.nixpkgs {system = "x86_64-linux";};
           specialArgs = {
             inherit inputs;
-            outputs = inputs.self;
+            self = inputs.self;
             lib = inputs.self.lib;
             isDarwin = false;
             nix-secrets = inputs.nix-secrets;
@@ -28,8 +26,7 @@
         imports = config._module.args.modules;
       }) (lib.filterAttrs (
           name: value:
-            value.config.nixpkgs.hostPlatform.system
-            == "x86_64-linux"
+            value.config.nixpkgs.hostPlatform.system == "x86_64-linux"
             && value.config.hostSpec.colmena.enable
         )
         inputs.self.nixosConfigurations);

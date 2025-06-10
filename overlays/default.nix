@@ -10,14 +10,18 @@
     };
 
   linuxModifications = final: prev:
-    if prev.stdenv.isLinux then {
+    if prev.stdenv.isLinux
+    then {
       # Linux-specific packages here
-    } else {};
+    }
+    else {};
 
   darwinModifications = final: prev:
-    if prev.stdenv.isDarwin then {
+    if prev.stdenv.isDarwin
+    then {
       # Darwin-specific packages here
-    } else {};
+    }
+    else {};
 
   modifications = final: prev: {
     # example = prev.example.overrideAttrs (oldAttrs: let ... in {

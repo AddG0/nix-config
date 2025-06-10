@@ -1,20 +1,6 @@
 {
   description = "Add's nix configuration for both NixOS & macOS";
 
-  outputs = inputs:
-    inputs.flake-parts.lib.mkFlake {inherit inputs;} {
-      systems = ["x86_64-linux" "x86_64-darwin" "aarch64-darwin"];
-
-      imports = [
-        ./parts/lib.nix
-        ./parts/overlays.nix
-        ./parts/packages.nix
-        ./parts/hosts.nix
-        ./parts/deployment.nix
-        ./parts/development.nix
-      ];
-    };
-
   # the nixConfig here only affects the flake itself, not the system configuration!
   # for more information, see:
   #     https://nixos-and-flakes.thiscute.world/nix-store/add-binary-cache-servers
@@ -114,6 +100,11 @@
       inputs.nixpkgs.follows = "nixpkgs";
     };
 
+    treefmt-nix = {
+      url = "github:numtide/treefmt-nix";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
+
     nur = {
       url = "github:nix-community/NUR";
       inputs.nixpkgs.follows = "nixpkgs";
@@ -165,4 +156,25 @@
       flake = false;
     };
   };
+
+  outputs = inputs:
+    inputs.flake-parts.lib.mkFlake {inherit inputs;} {
+      systems = ["x86_64-linux" "x86_64-darwin" "aarch64-darwin"];
+
+      imports = [
+        ./lib/flake-module.nix
+        ./overlays/flake-module.nix
+        ./pkgs/flake-module.nix
+        ./modules/flake-module.nix
+        ./home/flake-module.nix
+        ./hosts/flake-module.nix
+        ./deployment/flake-module.nix
+        ./checks/flake-module.nix
+      ];
+
+      perSystem = {pkgs, ...}: {
+        # Development shell
+        devShells = import ./shell.nix {inherit pkgs;};
+      };
+    };
 }

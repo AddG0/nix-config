@@ -3,7 +3,7 @@
   lib,
   config,
   inputs,
-  outputs,
+  self,
   isDarwin,
   ...
 }: let
@@ -18,10 +18,6 @@ in {
     inputs.sops-nix.${platformModules}.sops
 
     (lib.custom.scanPaths ./.)
-    (map lib.custom.relativeToRoot [
-      "modules/common"
-      "modules/hosts/${platform}"
-    ])
     ./${platform}
     ../users/primary
   ];
@@ -87,7 +83,7 @@ in {
 
   home-manager = {
     extraSpecialArgs = {
-      inherit inputs outputs;
+      inherit inputs self;
     };
     backupFileExtension = "backup";
   };
