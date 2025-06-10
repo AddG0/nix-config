@@ -38,7 +38,7 @@
       nixosHosts = readHosts ./nixos;
       mkNixOSConfig = host: {
         name = host;
-        value = lib.nixosSystem {
+        value = inputs.nixpkgs.lib.nixosSystem {
           specialArgs = commonSpecialArgs // {
             isDarwin = false;
             nixvirt = inputs.nixvirt;
