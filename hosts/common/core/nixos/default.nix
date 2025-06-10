@@ -1,12 +1,13 @@
 {
   inputs,
-  outputs,
+  self,
   config,
   lib,
   ...
 }: {
   imports = lib.flatten [
     (lib.custom.scanPaths ./.)
+    self.nixosModules.default
     inputs.nixvirt.nixosModules.default
     ../../users/root
   ];

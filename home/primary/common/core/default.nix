@@ -2,7 +2,7 @@
   config,
   lib,
   pkgs,
-  outputs,
+  self,
   inputs,
   nix-secrets,
   hostSpec,
@@ -15,11 +15,7 @@
 in {
   imports = lib.flatten [
     (lib.custom.scanPaths ./.)
-    (map lib.custom.relativeToRoot [
-      "modules/common/host-spec.nix"
-      "modules/common/desktops.nix"
-      "modules/home"
-    ])
+    self.homeModules.default
     ./${platform}
   ];
 
@@ -115,7 +111,7 @@ in {
   ];
 
   nixpkgs = {
-    overlays = builtins.attrValues outputs.overlays;
+    overlays = builtins.attrValues self.overlays;
     config = {
       allowUnfree = true;
       # Workaround for https://github.com/nix-community/home-manager/issues/2942

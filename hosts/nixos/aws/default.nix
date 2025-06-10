@@ -53,14 +53,14 @@
   # Required for AWS EC2 instances
   boot = {
     loader.grub = {
-      enable = true;
+      enable = lib.mkDefault true;
       # Let disko handle the device configuration
-      device = lib.mkForce "nodev";
-      efiSupport = false;
-      useOSProber = false;
+      device = lib.mkDefault "nodev";
+      efiSupport = lib.mkDefault false;
+      useOSProber = lib.mkDefault false;
     };
     initrd = {
-      systemd.enable = true;
+      systemd.enable = lib.mkDefault true;
     };
   };
 

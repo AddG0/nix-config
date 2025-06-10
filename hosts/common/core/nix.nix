@@ -1,7 +1,7 @@
 {
   inputs,
   config,
-  outputs,
+  self,
   lib,
   ...
 }: {
@@ -53,7 +53,7 @@
   nixpkgs = {
     # you can add global overlays here
     overlays = [
-      outputs.overlays.default
+      self.overlays.default
     ];
     # Allow unfree packages
     config = {

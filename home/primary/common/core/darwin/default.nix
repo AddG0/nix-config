@@ -2,13 +2,11 @@
   config,
   lib,
   pkgs,
+  self,
   ...
 }: {
   imports = lib.flatten [
     (lib.custom.scanPaths ./.)
-    (map lib.custom.relativeToRoot [
-      "modules/common/darwin/desktops.nix"
-    ])
   ];
 
   # Install MacOS applications to the user environment if the targetPlatform is Darwin

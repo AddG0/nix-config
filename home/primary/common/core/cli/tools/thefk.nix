@@ -1,12 +1,11 @@
 {pkgs, ...}: {
-  programs.thefuck = {
+  programs.pay-respects = {
     enable = true;
     enableZshIntegration = true;
     enableBashIntegration = true;
-    enableInstantMode = true;
   };
 
   home.shellAliases = {
-    fk = "fuck";
+    fk = "f";
   };
 }

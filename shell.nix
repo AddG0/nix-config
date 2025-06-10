@@ -27,6 +27,7 @@
         just
         age
         ssh-to-age
+        colmena
         sops
         ;
     };

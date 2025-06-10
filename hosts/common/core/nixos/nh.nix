@@ -13,4 +13,6 @@
   };
 
   nix.gc.automatic = false;
+
+  nix.settings.accept-flake-config = true;
 }
