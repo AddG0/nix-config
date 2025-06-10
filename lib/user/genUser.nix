@@ -56,11 +56,11 @@
   };
 
   # Helper to build home configuration for a user
-  buildHomeConfig = 
+  buildHomeConfig =
     let
       homeConfigs = inputs.self.homeConfigurations or {};
-      configKey = if user == hostSpec.username 
-                 then hostSpec.hostName 
+      configKey = if user == hostSpec.username
+                 then hostSpec.hostName
                  else "${user}@${hostSpec.hostName}";
     in
     if hostSpec.isMinimal then {
@@ -70,14 +70,14 @@
     }
     else if builtins.hasAttr configKey homeConfigs then
       let configInfo = homeConfigs.${configKey}; in
-      if configInfo._placeholder or false 
+      if configInfo._placeholder or false
       then {
         # Import discovered home configuration
         home.stateVersion = hostSpec.system.stateVersion;
         imports = [ configInfo.configPath ];
       }
       else configInfo
-    else 
+    else
       throw "No home configuration found for user '${user}' on host '${hostSpec.hostName}'. Expected: home/${userDir}/${hostSpec.hostName}.nix";
 
   # Home Manager configuration
