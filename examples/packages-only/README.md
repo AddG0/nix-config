@@ -7,7 +7,7 @@ This example demonstrates how to use packages from this nix-config repository wi
 ### Before (Monolithic Flake)
 When someone wanted to use your packages, they had to import:
 - nixpkgs
-- home-manager  
+- home-manager
 - nix-darwin
 - sops-nix
 - hardware
@@ -57,9 +57,9 @@ nix build github:addg0/nix-config#package-name
 ```
 parts/
 ├── packages.nix    # 📦 Clean packages (nixpkgs only)
-├── overlays.nix    # 🔧 Package overlays  
+├── overlays.nix    # 🔧 Package overlays
 ├── hosts.nix       # 🏠 System configs (all deps)
 └── devshell.nix    # 🛠️ Development environment
 ```
 
-Only `packages.nix` and `overlays.nix` are needed for package consumers! 
+Only `packages.nix` and `overlays.nix` are needed for package consumers!

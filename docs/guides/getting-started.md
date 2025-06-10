@@ -39,4 +39,4 @@ just rekey       # Update encryption keys
 ```bash
 just check-trace     # Detailed error output
 just clean && rebuild # Clean rebuild
-``` 
+```

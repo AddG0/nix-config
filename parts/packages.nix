@@ -4,7 +4,7 @@
 {
   # Only import nixpkgs - no other heavy dependencies
   perSystem = { pkgs, lib, system, ... }: {
-    # Custom packages from pkgs/common directory  
+    # Custom packages from pkgs/common directory
     packages = lib.packagesFromDirectoryRecursive {
       inherit (pkgs) callPackage;
       directory = ../pkgs/common;
@@ -26,4 +26,4 @@
     # Usage: nix build .#package-name
     # Or from another flake: inputs.your-flake.packages.${system}.package-name
   };
-} 
+}

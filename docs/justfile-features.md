@@ -216,7 +216,7 @@ greeting := if os() == "windows" { "Hello from Windows!" } else { "Hello from Un
 build_command := if os() == "linux" {
   "make linux"
 } else if os() == "macos" {
-  "make macos"  
+  "make macos"
 } else {
   "make generic"
 }
@@ -409,7 +409,7 @@ setup-development-environment:
 docker-build:
   docker build .
 
-[group('docker')]  
+[group('docker')]
 docker-run:
   docker run my-app
 ```
@@ -503,4 +503,4 @@ docker-run:
   docker run --rm -it -p 8080:8080 myapp:dev
 ```
 
-This covers the major features of Just. It's a powerful tool that bridges the gap between simple shell scripts and complex build systems, providing just the right amount of structure and features for most project automation needs. 
+This covers the major features of Just. It's a powerful tool that bridges the gap between simple shell scripts and complex build systems, providing just the right amount of structure and features for most project automation needs.

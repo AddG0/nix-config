@@ -44,7 +44,7 @@ let
 in {
   options.services.mymodule = {
     enable = mkEnableOption "My custom module";
-    
+
     setting = mkOption {
       type = types.str;
       default = "default-value";
@@ -77,4 +77,4 @@ in {
 
 - [System Configuration](../system/README.md)
 - [Getting Started](../guides/getting-started.md)
-- [Justfile Automation](../automation/justfile.md) 
+- [Justfile Automation](../automation/justfile.md)

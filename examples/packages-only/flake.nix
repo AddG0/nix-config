@@ -18,7 +18,7 @@
     # Use packages from addg's config
     packages.${system} = {
       # Example: inherit specific packages you want
-      inherit (addg-packages.packages.${system}) 
+      inherit (addg-packages.packages.${system})
         # Add your package names here
         # themes
         # or whatever packages you expose
@@ -39,4 +39,4 @@
       ];
     };
   };
-} 
+}

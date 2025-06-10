@@ -3,7 +3,7 @@
 
 let
   inherit (inputs) nixpkgs home-manager nix-darwin;
-  
+
   # Extended lib with custom functions
   lib = nixpkgs.lib.extend (self: super: {
     custom = import ../lib { inherit (nixpkgs) lib; };
@@ -41,7 +41,7 @@ in
       }) (builtins.attrNames (builtins.readDir ../hosts/nixos))
     );
 
-    # Darwin system configurations  
+    # Darwin system configurations
     darwinConfigurations = builtins.listToAttrs (
       map (host: {
         name = host;
@@ -63,7 +63,7 @@ in
     );
 
     # Colmena deployment configurations
-    colmena = 
+    colmena =
       {
         meta = {
           nixpkgs = import nixpkgs { system = "x86_64-linux"; };
@@ -131,4 +131,4 @@ in
       # inherit (inputs.self.nixosConfigurations) iso;
     };
   };
-} 
+}

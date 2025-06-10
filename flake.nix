@@ -24,11 +24,11 @@
 
   inputs = {
     #################### Core Dependencies (Minimal) ####################
-    
+
     # Primary nixpkgs - this is all packages need
     nixpkgs.url = "github:NixOS/nixpkgs/master";
-    
-    # Flake-parts for modular organization  
+
+    # Flake-parts for modular organization
     flake-parts.url = "github:hercules-ci/flake-parts";
 
     #################### Host Configuration Dependencies ####################
@@ -38,14 +38,14 @@
     nixpkgs-stable.url = "github:NixOS/nixpkgs/nixos-25.05";
     nixpkgs-unstable.url = "github:NixOS/nixpkgs/nixos-unstable";
     nixpkgs-darwin.url = "github:nixos/nixpkgs/nixpkgs-unstable";
-    
+
     nix-darwin = {
       url = "github:lnl7/nix-darwin";
       inputs.nixpkgs.follows = "nixpkgs-darwin";
     };
 
     hardware.url = "github:nixos/nixos-hardware";
-    
+
     home-manager = {
       url = "github:nix-community/home-manager";
       inputs.nixpkgs.follows = "nixpkgs";
@@ -161,13 +161,13 @@
       imports = [
         # Clean packages module - only depends on nixpkgs
         ./parts/packages.nix
-        
+
         # Host configurations module - depends on all inputs
         ./parts/hosts.nix
-        
+
         # Development environment
         ./parts/devshell.nix
-        
+
         # Overlays
         ./parts/overlays.nix
       ];
@@ -175,7 +175,7 @@
       # Define supported systems
       systems = [
         "x86_64-linux"
-        "x86_64-darwin" 
+        "x86_64-darwin"
         "aarch64-darwin"
       ];
 

@@ -11,4 +11,4 @@
 in {
   # Export catppuccin themes
   inherit catppuccin;
-} 
+}
