@@ -44,7 +44,6 @@
         };
       };
 
-
       # Import the ui configurations
       # "automation ui" = "!include automations.yaml";
       # "scene ui" = "!include scenes.yaml";

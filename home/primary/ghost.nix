@@ -1,4 +1,8 @@
-{lib, nix-secrets, ...}: {
+{
+  lib,
+  nix-secrets,
+  ...
+}: {
   imports = [
     #################### Required Configs ####################
     common/core
