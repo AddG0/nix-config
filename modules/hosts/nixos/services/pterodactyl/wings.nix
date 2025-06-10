@@ -168,6 +168,7 @@ in {
             if [ -f "${cfg.settings.system.root_directory}/wings.yaml" ]; then
               echo "Ensuring Wings config is reset to port ${toString cfg.settings.api.port}"
               ${pkgs.yq-go}/bin/yq -i '.api.port = ${toString cfg.settings.api.port}' "${cfg.settings.system.root_directory}/wings.yaml"
+              ${pkgs.yq-go}/bin/yq -i '.api.ssl.enabled = false' "${cfg.settings.system.root_directory}/wings.yaml"
             fi
           ''
         ];
