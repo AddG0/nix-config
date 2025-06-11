@@ -39,10 +39,12 @@
       mkNixOSConfig = host: {
         name = host;
         value = inputs.nixpkgs.lib.nixosSystem {
-          specialArgs = commonSpecialArgs // {
-            isDarwin = false;
-            nixvirt = inputs.nixvirt;
-          };
+          specialArgs =
+            commonSpecialArgs
+            // {
+              isDarwin = false;
+              nixvirt = inputs.nixvirt;
+            };
           modules = [./nixos/${host}] ++ commonNixOSModules;
         };
       };
@@ -56,9 +58,11 @@
       mkDarwinConfig = host: {
         name = host;
         value = inputs.nix-darwin.lib.darwinSystem {
-          specialArgs = commonSpecialArgs // {
-            isDarwin = true;
-          };
+          specialArgs =
+            commonSpecialArgs
+            // {
+              isDarwin = true;
+            };
           modules = [./darwin/${host}];
         };
       };
@@ -135,13 +139,16 @@
     # Only generate formats for x86_64-linux (most formats are Linux-specific)
     formatPackages =
       if system == "x86_64-linux"
-      then builtins.listToAttrs (
-        lib.flatten (
-          map (format:
-            map (mkFormat format) nixosHosts
-          ) formats
+      then
+        builtins.listToAttrs (
+          lib.flatten (
+            map (
+              format:
+                map (mkFormat format) nixosHosts
+            )
+            formats
+          )
         )
-      )
       else {};
   in {
     packages = formatPackages;

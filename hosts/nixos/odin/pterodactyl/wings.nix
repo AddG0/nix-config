@@ -35,5 +35,5 @@
     "127.0.0.1" = ["wings.addg0.com"];
   };
 
-  security.firewall.allowedTCPPorts = [2022 25565 25566 25567 25568 25569 25570 24454 24455 24456];
+  networking.firewall.allowedTCPPorts = [2022 25565 25566 25567 25568 25569 25570 24454 24455 24456];
 }

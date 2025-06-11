@@ -1,8 +1,4 @@
-{
-  lib,
-  ...
-}: let
-
+{lib, ...}: let
 in {
   imports = lib.flatten [
     ../common
