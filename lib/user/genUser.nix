@@ -56,29 +56,31 @@
   };
 
   # Helper to build home configuration for a user
-  buildHomeConfig =
-    let
-      homeConfigs = inputs.self.homeConfigurations or {};
-      configKey = if user == hostSpec.username
-                 then hostSpec.hostName
-                 else "${user}@${hostSpec.hostName}";
-    in
-    if hostSpec.isMinimal then {
+  buildHomeConfig = let
+    homeConfigs = inputs.self.homeConfigurations or {};
+    configKey =
+      if user == hostSpec.username
+      then hostSpec.hostName
+      else "${user}@${hostSpec.hostName}";
+  in
+    if hostSpec.isMinimal
+    then {
       # Minimal configuration for lightweight hosts
       home.stateVersion = hostSpec.system.stateVersion;
       programs.home-manager.enable = true;
     }
-    else if builtins.hasAttr configKey homeConfigs then
-      let configInfo = homeConfigs.${configKey}; in
+    else if builtins.hasAttr configKey homeConfigs
+    then let
+      configInfo = homeConfigs.${configKey};
+    in
       if configInfo._placeholder or false
       then {
         # Import discovered home configuration
         home.stateVersion = hostSpec.system.stateVersion;
-        imports = [ configInfo.configPath ];
+        imports = [configInfo.configPath];
       }
       else configInfo
-    else
-      throw "No home configuration found for user '${user}' on host '${hostSpec.hostName}'. Expected: home/${userDir}/${hostSpec.hostName}.nix";
+    else throw "No home configuration found for user '${user}' on host '${hostSpec.hostName}'. Expected: home/${userDir}/${hostSpec.hostName}.nix";
 
   # Home Manager configuration
   homeManagerUserConfig = lib.recursiveUpdate homeManagerConfig {

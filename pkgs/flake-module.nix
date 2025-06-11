@@ -1,5 +1,10 @@
 # pkgs/flake-module.nix - Custom packages
-{inputs, self, lib, ...}: {
+{
+  inputs,
+  self,
+  lib,
+  ...
+}: {
   perSystem = {
     pkgs,
     lib,
@@ -36,13 +41,18 @@
           directory = ./common;
         };
         # Only include packages that are derivations at the top level and compatible with current system
-        topLevelPackages = lib.filterAttrs (name: value:
-          lib.isDerivation value &&
-          # Check if package is supported on current platform
-          (!(value ? meta.platforms) || lib.any (p: p == system) value.meta.platforms) &&
-          # Check if package is not in badPlatforms for current system
-          (!(value ? meta.badPlatforms) || !lib.any (p: p == system) value.meta.badPlatforms)
-        ) allPackages;
+        topLevelPackages =
+          lib.filterAttrs (
+            name: value:
+              lib.isDerivation value
+              &&
+              # Check if package is supported on current platform
+              (!(value ? meta.platforms) || lib.any (p: p == system) value.meta.platforms)
+              &&
+              # Check if package is not in badPlatforms for current system
+              (!(value ? meta.badPlatforms) || !lib.any (p: p == system) value.meta.badPlatforms)
+          )
+          allPackages;
       in
         topLevelPackages;
     in

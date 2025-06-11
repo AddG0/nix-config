@@ -1,5 +1,9 @@
 # deployment/flake-module.nix - Colmena deployment configuration
-{inputs, lib, ...}: {
+{
+  inputs,
+  lib,
+  ...
+}: {
   flake = {
     # Colmena - remote deployment via SSH
     colmena =
@@ -26,7 +30,8 @@
         imports = config._module.args.modules;
       }) (lib.filterAttrs (
           name: value:
-            value.config.nixpkgs.hostPlatform.system == "x86_64-linux"
+            value.config.nixpkgs.hostPlatform.system
+            == "x86_64-linux"
             && value.config.hostSpec.colmena.enable
         )
         inputs.self.nixosConfigurations);

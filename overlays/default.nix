@@ -73,6 +73,8 @@
               // {
                 pterodactyl-wings = importedNur.repos.xddxdd.pterodactyl-wings.overrideAttrs (old: {
                   doCheck = false;
+                  # Fix hash mismatch for go modules
+                  vendorHash = "sha256-tfv3jUoIQxFVshooe1f9K2v6vxXx8C02QdP/dcwz8vE=";
                 });
               };
           };
