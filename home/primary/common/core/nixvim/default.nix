@@ -43,7 +43,7 @@
       wrap = false; # Don't wrap lines
       linebreak = true; # Wrap lines at convenient points
       # ========= Font =========
-      guifont = "NotoSansMono:h9"; # fontname:fontsize
+      guifont = lib.mkForce "NotoSansMono:h9"; # fontname:fontsize
       # ========= Cursor =========
       guicursor = "n-v-c-sm:block,i-ci-ve:ver25,r-cr-o:hor20,n-v-i:blinkon0";
       # ========= Redirect Temp Files =========
