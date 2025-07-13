@@ -11,7 +11,7 @@ stdenv.mkDerivation rec {
     owner = "catppuccin";
     repo = "ghostty";
     rev = "main";
-    sha256 = "sha256-RlgTeBkjEvZpkZbhIss3KxQcvt0goy4WU+w9d2XCOnw=";
+    sha256 = "sha256-zJrL3ndgUJ8E8O5RpJf5VAmnDMcOrMdnHDQE5DQyIO4=";
   };
 
   installPhase = ''

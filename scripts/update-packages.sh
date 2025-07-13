@@ -46,7 +46,7 @@ update_package() {
 	check_package_version "$package"
 
 	# Then try to update using nix-update
-	if nix-update "$pkg_name" --commit --version=stable; then
+	if nix-update --flake "$pkg_name" --commit --version=stable; then
 		log_info "Successfully updated $pkg_name"
 	else
 		log_error "Failed to update $pkg_name"

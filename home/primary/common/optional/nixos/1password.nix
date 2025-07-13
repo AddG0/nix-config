@@ -1,5 +1,5 @@
 {pkgs, ...}: {
   home.packages = with pkgs; [
-    _1password-gui
+    unstable._1password-gui
   ];
 }
