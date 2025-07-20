@@ -67,7 +67,6 @@
         #   windowDecoration = "sharp";
         # };
       };
-
     };
 
     # Custom keyboard shortcuts
@@ -162,13 +161,13 @@
         location = "top";
         height = 26;
         widgets = [
-           
-           {applicationTitleBar = {
+          {
+            applicationTitleBar = {
               behavior = {
                 activeTaskSource = "activeTask";
               };
               layout = {
-                elements = [ "windowTitle" ];
+                elements = ["windowTitle"];
                 horizontalAlignment = "left";
                 showDisabledElements = "deactivated";
                 verticalAlignment = "center";
@@ -202,7 +201,7 @@
                 source = "appName";
               };
             };
-          }          
+          }
           "org.kde.plasma.appmenu"
           "org.kde.plasma.panelspacer"
           {
@@ -310,7 +309,6 @@
 
     # Additional KDE configuration files
     configFile = {
-
       klaunchrc.FeedbackStyle = {
         BusyCursor = false;
         TaskbarButton = false;
