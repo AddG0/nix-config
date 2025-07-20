@@ -83,6 +83,7 @@ in {
     github-cli # GitHub CLI.
     stable.renovate # Dependency update tool.
     devcontainer # Dev Container CLI.
+    gitkraken # Git GUI.
   ];
 
   programs.zsh.oh-my-zsh.plugins = [

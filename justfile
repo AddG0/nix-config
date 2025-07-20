@@ -107,8 +107,6 @@ rebuild-update: update && rebuild
 update-packages *ARGS:
   scripts/update-packages.sh {{ARGS}}
 
-alias d := diff
-
 [group('development')]
 [doc("Show git diff excluding flake.lock")]
 diff:
@@ -203,6 +201,36 @@ nixos-anywhere HOSTNAME IP USER="root" SSH_OPTS="": rebuild-pre
     --generate-hardware-config nixos-generate-config ./hosts/nixos/{{HOSTNAME}}/hardware-configuration.nix \
     --option accept-flake-config true --debug \
     --flake .#{{HOSTNAME}} {{USER}}@{{IP}} {{SSH_OPTS}}
+
+# Colmena deployment commands
+alias d := deploy
+
+[group('deployment')]
+[doc("Deploy using colmena (specify hostname or deploys to all, use --dry for dry-run)")]
+deploy hostname="" dry="false": rebuild-pre
+  colmena apply --impure {{ if hostname != "" { "--on " + hostname } else { "" } }} {{ if dry == "true" { "dry-activate" } else { "" } }}
+
+[group('deployment')]
+[doc("Build configuration without deploying (specify hostname or builds all)")]
+deploy-build hostname="":
+  colmena build --impure {{ if hostname != "" { "--on " + hostname } else { "" } }}
+
+[group('deployment')]
+[doc("Upload keys (specify hostname or uploads to all)")]
+deploy-keys hostname="":
+  colmena upload-keys --impure {{ if hostname != "" { "--on " + hostname } else { "" } }}
+
+[group('deployment')]
+[doc("List all available colmena hosts")]
+deploy-list:
+  @nix eval .#colmena --apply 'x: builtins.filter (n: n != "meta") (builtins.attrNames x)' --json | jq -r '.[]'
+
+[group('deployment')]
+[doc("Execute command via colmena (specify hostname or executes on all)")]
+deploy-exec cmd="" hostname="":
+  @{{ if cmd == "" { error("cmd parameter is required") } else { "" } }}
+  colmena exec --impure {{ if hostname != "" { "--on " + hostname } else { "" } }} -- {{cmd}}
+
 
 # Below is random commands incase I forget
 

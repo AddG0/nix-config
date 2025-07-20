@@ -5,7 +5,10 @@
   system,
   ...
 }: {
-  imports = lib.custom.scanPaths ./.;
+  imports = lib.flatten [
+    inputs.plasma-manager.homeManagerModules.plasma-manager
+    (lib.custom.scanPaths ./.)
+  ];
 
   home.packages = with pkgs; [
   ];
