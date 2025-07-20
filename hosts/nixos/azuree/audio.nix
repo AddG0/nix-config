@@ -46,7 +46,7 @@
           "resample.quality" = 10;
         };
       };
-      "99-rnnoise.conf" = {
+      "99-input-denoising.conf" = {
         "context.modules" = [
           {
             name = "libpipewire-module-filter-chain";
@@ -61,7 +61,7 @@
                     plugin = "${pkgs.rnnoise-plugin}/lib/ladspa/librnnoise_ladspa.so";
                     label = "noise_suppressor_mono";
                     control = {
-                      "VAD Threshold (%)" = 80.0;
+                      "VAD Threshold (%)" = 85.0;
                       "VAD Grace Period (ms)" = 200;
                       "Retroactive VAD Grace (ms)" = 0;
                     };
@@ -81,6 +81,17 @@
             };
           }
         ];
+      };
+    };
+
+    wireplumber.extraConfig = {
+      "99-auto-connect-rnnoise.lua" = {
+        text = ''
+          table.insert(links, {
+            out_node = "alsa_input.usb-Focusrite_Scarlett_Solo_4th_Gen_S1YE3VE3790E29-00.analog-surround-40",
+            in_node  = "capture.rnnoise_source",
+          })
+        '';
       };
     };
   };

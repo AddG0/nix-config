@@ -30,4 +30,10 @@
   #     "x-scheme-handler/https" = "chromium.desktop";
   #   };
   # };
+
+  home.packages = with pkgs; [
+    # https://www.reddit.com/r/kde/comments/1gjcfpp/window_title_bar_not_fully_maximizing_and_or/
+    # chrome://flags enable ozone platform wayland to fix window title bar glitch
+    google-chrome
+  ];
 }

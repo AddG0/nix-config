@@ -26,7 +26,7 @@
     #################### Official NixOS and HM Package Sources ####################
 
     flake-parts.url = "github:hercules-ci/flake-parts";
-    nixpkgs.url = "github:NixOS/nixpkgs/nixos-25.05";
+    nixpkgs.url = "github:NixOS/nixpkgs/nixos-unstable";
     # The next two are for pinning to stable vs unstable regardless of what the above is set to
     # See also 'stable-packages' and 'unstable-packages' overlays at 'overlays/default.nix"
     nixpkgs-stable.url = "github:NixOS/nixpkgs/nixos-25.05";
@@ -39,9 +39,9 @@
 
     hardware.url = "github:nixos/nixos-hardware";
     home-manager = {
-      url = "github:nix-community/home-manager/release-25.05";
+      # url = "github:nix-community/home-manager/release-25.05";
       #inputs.nixpkgs.follows = "nixpkgs-stable";
-      #url = "github:nix-community/home-manager";
+      url = "github:nix-community/home-manager";
       inputs.nixpkgs.follows = "nixpkgs";
     };
 
@@ -77,8 +77,8 @@
       url = "github:ghostty-org/ghostty";
     };
 
-    zen-browser = {
-      url = "github:MarceColl/zen-browser-flake";
+    firefox-addons = {
+      url = "gitlab:rycee/nur-expressions?dir=pkgs/firefox-addons";
       inputs.nixpkgs.follows = "nixpkgs";
     };
 
@@ -88,6 +88,12 @@
       #inputs.nixpkgs.follows = "nixpkgs";
       url = "github:nix-community/nixvim";
       inputs.nixpkgs.follows = "nixpkgs";
+    };
+
+    plasma-manager = {
+      url = "github:nix-community/plasma-manager";
+      inputs.nixpkgs.follows = "nixpkgs";
+      inputs.home-manager.follows = "home-manager";
     };
 
     nixos-generators = {
@@ -118,7 +124,7 @@
     #################### Theming ####################
 
     stylix = {
-      url = "github:danth/stylix/release-25.05";
+      url = "github:danth/stylix";
     };
 
     # Add base16.nix, base16 schemes and

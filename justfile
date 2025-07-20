@@ -46,8 +46,8 @@ alias r := rebuild
 # Add --option eval-cache false if you end up caching a failure you can't get around
 [group('system')]
 [doc("Rebuild system configuration for specified hostname")]
-rebuild hostname="": rebuild-pre
-  scripts/rebuild.sh {{hostname}}
+rebuild hostname="" use-nh="true": rebuild-pre
+  USE_NH={{use-nh}} scripts/rebuild.sh {{hostname}}
 
 alias rf := rebuild-full
 
