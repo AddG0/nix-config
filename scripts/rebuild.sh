@@ -68,7 +68,7 @@ rebuild_darwin() {
 	fi
 
 	log_info "====== REBUILD ======"
-	if command_exists nh; then
+	if command_exists nh && [ "${USE_NH:-true}" = "true" ]; then
 		log_debug "Using nh darwin command for rebuild"
 		nh darwin switch . -- --show-trace
 	elif command_exists darwin-rebuild; then
@@ -85,7 +85,7 @@ rebuild_darwin() {
 rebuild_linux() {
 	log_info "Starting Linux rebuild"
 	log_info "====== REBUILD ======"
-	if command_exists nh; then
+	if command_exists nh && [ "${USE_NH:-true}" = "true" ]; then
 		log_debug "Using nh command for rebuild"
 		nh os switch . -- --show-trace
 	else

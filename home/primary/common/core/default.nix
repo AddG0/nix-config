@@ -90,15 +90,15 @@ in {
     fzf # Interactively filter its input using fuzzy searching, not limit to filenames.
     # fd and ripgrep are already included above
 
-    lnav # log file viewer
+    # lnav # log file viewer
 
     sad # CLI search and replace, just like sed, but with diff preview.
     yq-go # yaml processor https://github.com/mikefarah/yq
     just # a command runner like make, but simpler
-    delta # A viewer for git and diff output
-    hyperfine # command-line benchmarking tool
-    gping # ping, but with a graph(TUI)
-    doggo # DNS client for humans
+    # delta # A viewer for git and diff output
+    # hyperfine # command-line benchmarking tool
+    # gping # ping, but with a graph(TUI)
+    # doggo # DNS client for humans
     duf # Disk Usage/Free Utility - a better 'df' alternative
     du-dust # A more intuitive version of `du` in rust
     gdu # disk usage analyzer(replacement of `du`)

@@ -35,7 +35,56 @@
     #    };
 
     ghostty = inputs.ghostty.packages.${prev.system}.default;
-    zen-browser = inputs.zen-browser.packages.${prev.system}.default;
+    firefox-addons = import inputs.firefox-addons {
+      inherit (prev) fetchurl lib stdenv;
+    };
+
+    # Cursor with fixed StartupWMClass
+    code-cursor = prev.cursor.overrideAttrs (oldAttrs: {
+      postInstall = (oldAttrs.postInstall or "") + ''
+        # Fix StartupWMClass to match actual window class
+        sed -i 's/StartupWMClass=cursor/StartupWMClass=Cursor/' $out/share/applications/cursor.desktop
+      '';
+    });
+
+    # Legcord with Discord branding
+    discord-legcord = prev.symlinkJoin {
+      name = "discord";
+      paths = [prev.legcord];
+      buildInputs = [prev.makeWrapper];
+      postBuild = ''
+                # Create a discord symlink to legcord binary
+                if [ -f "$out/bin/legcord" ]; then
+                  ln -sf "$out/bin/legcord" "$out/bin/discord"
+                fi
+
+                # Copy Discord icons over Legcord icons
+                for size in 16 32 48 64 128 256 512 1024; do
+                  icon_dir="$out/share/icons/hicolor/''${size}x''${size}/apps"
+                  if [ -d "$icon_dir" ] && [ -f "${prev.discord}/share/icons/hicolor/''${size}x''${size}/apps/discord.png" ]; then
+                    rm -f "$icon_dir/legcord.png"
+                    cp "${prev.discord}/share/icons/hicolor/''${size}x''${size}/apps/discord.png" "$icon_dir/legcord.png"
+                    # Also create discord.png symlink
+                    ln -sf "$icon_dir/legcord.png" "$icon_dir/discord.png"
+                  fi
+                done
+
+                # Create a new desktop file with Discord branding
+                if [ -f "$out/share/applications/legcord.desktop" ]; then
+                  rm -f "$out/share/applications/legcord.desktop"
+                  cat > "$out/share/applications/discord.desktop" << EOF
+        [Desktop Entry]
+        Name=Discord
+        Comment=All-in-one voice and text chat for gamers
+        Exec=discord
+        Icon=discord
+        Type=Application
+        Categories=Network;InstantMessaging;
+        StartupWMClass=legcord
+        EOF
+                fi
+      '';
+    };
   };
 
   stable-packages = final: _prev: {

@@ -81,7 +81,7 @@ in {
   home.packages = with pkgs; [
     lazygit # Git terminal UI.
     github-cli # GitHub CLI.
-    renovate # Dependency update tool.
+    stable.renovate # Dependency update tool.
     devcontainer # Dev Container CLI.
   ];
 
