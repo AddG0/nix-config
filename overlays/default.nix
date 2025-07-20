@@ -41,10 +41,12 @@
 
     # Cursor with fixed StartupWMClass
     code-cursor = prev.cursor.overrideAttrs (oldAttrs: {
-      postInstall = (oldAttrs.postInstall or "") + ''
-        # Fix StartupWMClass to match actual window class
-        sed -i 's/StartupWMClass=cursor/StartupWMClass=Cursor/' $out/share/applications/cursor.desktop
-      '';
+      postInstall =
+        (oldAttrs.postInstall or "")
+        + ''
+          # Fix StartupWMClass to match actual window class
+          sed -i 's/StartupWMClass=cursor/StartupWMClass=Cursor/' $out/share/applications/cursor.desktop
+        '';
     });
 
     # Legcord with Discord branding
