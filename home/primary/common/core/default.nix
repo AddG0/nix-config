@@ -43,7 +43,6 @@ in {
 
   home.packages = with pkgs; [
     # stable.llm
-    unstable.claude-code # chat with claude
     # Packages that don't have custom configs go here
     coreutils # basic gnu utils
     fd # tree style ls
