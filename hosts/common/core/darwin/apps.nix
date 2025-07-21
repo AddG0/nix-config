@@ -93,6 +93,7 @@ in {
       "hashicorp/tap"
       "nikitabobko/tap" # aerospace - an i3-like tiling window manager for macOS
       "FelixKratz/formulae" # janky borders - highlight active window borders
+      "deskflow/homebrew-tap" # Deskflow - cross-platform keyboard and mouse sharing
     ];
 
     brews = [
@@ -128,6 +129,7 @@ in {
 
       "nginx"
       "certbot"
+
     ];
 
     # `brew install --cask`
@@ -140,7 +142,7 @@ in {
         "openvpn-connect"
         "1password"
         "orbstack"
-        "docker" # Docker Desktop needed for vscode devcontainers
+        # "docker" # Docker Desktop needed for vscode devcontainers
         "sharemouse"
         "caffeine"
         "notchnook" # Dynamic island for macos
@@ -149,6 +151,9 @@ in {
         "balenaetcher"
 
         "podman-desktop"
+
+              "deskflow" # Cross-platform keyboard and mouse sharing
+
 
         "bartender" # tool to manage the menu bar
         "cleanshot" # screenshot tool

@@ -97,6 +97,9 @@
 
         # Hide the menu bar
         _HIHideMenuBar = lib.mkDefault false;
+
+        # Allow dragging windows on cmd + ctrl + left click
+        NSWindowShouldDragOnGesture = true;
       };
 
       # customize settings that not supported by nix-darwin directly
