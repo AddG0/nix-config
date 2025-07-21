@@ -84,7 +84,6 @@ in {
     stable.renovate # Dependency update tool.
     devcontainer # Dev Container CLI.
     gitkraken # Git GUI.
-    # gitkraken-cli # Git CLI.
   ];
 
   programs.zsh.oh-my-zsh.plugins = [
