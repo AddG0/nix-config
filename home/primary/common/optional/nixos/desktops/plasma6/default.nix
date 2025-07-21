@@ -133,7 +133,6 @@
               # ];
             };
           }
-          "org.kde.plasma.notifications"
           {
             digitalClock = {
               time.format = "12h";
