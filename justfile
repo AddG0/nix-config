@@ -1,6 +1,7 @@
 NIX_SECRETS_DIR := "../nix-secrets"
 SOPS_FILE := "{{NIX_SECRETS_DIR}}/secrets.yaml"
 IS_DARWIN := if os() == "macos" { "true" } else { "false" }
+USE_NH_DEFAULT := if os() == "linux" { "true" } else { "false" }
 DEFAULT_USER := "addg"
 
 # default recipe to display help information
@@ -46,7 +47,7 @@ alias r := rebuild
 # Add --option eval-cache false if you end up caching a failure you can't get around
 [group('system')]
 [doc("Rebuild system configuration for specified hostname")]
-rebuild hostname="" use-nh="true": rebuild-pre
+rebuild hostname="" use-nh=USE_NH_DEFAULT: rebuild-pre
   USE_NH={{use-nh}} scripts/rebuild.sh {{hostname}}
 
 alias rf := rebuild-full
