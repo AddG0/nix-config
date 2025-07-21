@@ -46,7 +46,6 @@
       # "common/optional/nixos/virtualisation/docker.nix" # docker
       # "common/optional/nixos/plymouth.nix" # fancy boot screen
       "common/optional/nixos/services/nginx.nix" # nginx
-      "common/optional/nixos/services/n8n.nix" # n8n
       "common/optional/nixos/obs.nix" # obs
       "common/optional/nixos/hardware/openrazer.nix" # openrazer
       #################### Desktop ####################
