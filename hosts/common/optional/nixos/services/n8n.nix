@@ -2,6 +2,10 @@
   services.n8n = {
     enable = true;
     openFirewall = true;
+    settings = {    
+      host = "0.0.0.0";
+      ai.enabled = true;
+    };
   };
 
   services.nginx.virtualHosts."n8n.addg0.com" = {
