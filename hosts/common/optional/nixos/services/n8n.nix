@@ -6,6 +6,9 @@
       host = "0.0.0.0";
       ai.enabled = true;
     };
+    webhookUrl = "https://n8n.addg0.com/";
+    environmentVariables = {
+    };
   };
 
   services.nginx.virtualHosts."n8n.addg0.com" = {
