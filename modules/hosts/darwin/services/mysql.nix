@@ -667,8 +667,8 @@ in
     # Note: On Darwin, users and groups need to be created manually or through system preferences
     # The MySQL service will run as the current user for simplicity
 
-    environment.systemPackages = [ 
-      cfg.package 
+    environment.systemPackages = [
+      cfg.package
       # Add MySQL service management scripts
       (pkgs.writeShellScriptBin "mysql-start" ''
         echo "Starting MySQL service..."
@@ -736,11 +736,11 @@ in
       let
         initAndStartScript = pkgs.writeShellScript "mysql-init-and-start" ''
           set -euo pipefail
-          
+
           log() {
             echo "[$(date '+%Y-%m-%d %H:%M:%S')] $*" >&2
           }
-          
+
           cleanup() {
             if [[ -n "''${MYSQL_PID:-}" ]] && kill -0 "$MYSQL_PID" 2>/dev/null; then
               log "Shutting down MySQL (PID: $MYSQL_PID)"
@@ -756,23 +756,23 @@ in
             log "This should have been created by the system activation script."
             exit 1
           fi
-          
+
           # Ensure proper ownership and permissions
           chown ${cfg.user}:${cfg.group} "${cfg.dataDir}" 2>/dev/null || true
           chmod 700 "${cfg.dataDir}" 2>/dev/null || true
 
           # Initialize database if needed
           INIT_MARKER="${cfg.dataDir}/.mysql_initialized"
-          
+
           if [[ ! -d "${cfg.dataDir}/mysql" ]] || [[ ! -f "$INIT_MARKER" ]]; then
             log "Initializing MySQL database..."
-            
+
             # Clean up any partial initialization
             if [[ -d "${cfg.dataDir}/mysql" ]] && [[ ! -f "$INIT_MARKER" ]]; then
               log "Cleaning up partial initialization..."
               rm -rf "${cfg.dataDir}/mysql" "${cfg.dataDir}"/*.log "${cfg.dataDir}"/*.pid 2>/dev/null || true
             fi
-            
+
             log "Running mysql_install_db with detailed output..."
             ${if isMariaDB then ''
               log "Command: ${cfg.package}/bin/mysql_install_db --defaults-file=${cfg.configFile} ${mysqldOptions} --user=${cfg.user}"
@@ -789,17 +789,17 @@ in
                 exit 1
               fi
             ''}
-            
+
             # Verify the initialization worked
             if [[ ! -d "${cfg.dataDir}/mysql" ]]; then
               log "ERROR: mysql directory was not created after initialization"
               exit 1
             fi
-            
+
             # Mark as needing post-initialization setup
             log "Creating setup marker for post-initialization configuration"
             touch "${cfg.dataDir}/.mysql_needs_setup"
-            
+
             # Mark as initialized
             echo "$(date): Database initialized successfully" > "$INIT_MARKER"
             log "Database initialization completed successfully"
