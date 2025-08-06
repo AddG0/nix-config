@@ -38,17 +38,17 @@ A Nix-Darwin module that provides a system-wide MySQL/MariaDB service for macOS.
 ```nix
 services.mysql = {
   enable = true;
-  
+
   # Database package (MariaDB or MySQL)
   package = pkgs.mariadb;  # default: pkgs.mariadb
-  
+
   # User and group (defaults to your username)
   user = "your-username";   # default: config.hostSpec.username
   group = "staff";          # default: "staff"
-  
+
   # Data directory
   dataDir = "/opt/mysql";   # default: "/opt/mysql"
-  
+
   # Database settings
   settings = {
     mysqld = {
@@ -57,10 +57,10 @@ services.mysql = {
       # Add any MySQL/MariaDB configuration here
     };
   };
-  
+
   # Ensure these databases exist
   ensureDatabases = [ "myapp" "dev_db" ];
-  
+
   # Ensure these users exist with permissions
   ensureUsers = [
     {
@@ -78,7 +78,7 @@ services.mysql = {
       };
     }
   ];
-  
+
   # Run SQL script on first startup
   initialScript = pkgs.writeText "mysql-init.sql" ''
     SET PASSWORD FOR 'admin'@'localhost' = PASSWORD('your-password');
@@ -303,10 +303,10 @@ services.mysql.settings = {
   mysqld = {
     # Memory settings
     innodb_buffer_pool_size = "1G";
-    
+
     # Connection settings
     max_connections = 100;
-    
+
     # Logging
     slow_query_log = 1;
     slow_query_log_file = "/opt/mysql/slow.log";
@@ -374,11 +374,11 @@ services.mysql = {
       # Security
       bind-address = "127.0.0.1";
       skip-networking = false;
-      
+
       # Performance
       innodb_buffer_pool_size = "2G";
       max_connections = 200;
-      
+
       # Logging
       log-error = "/opt/mysql/error.log";
       slow_query_log = 1;
