@@ -111,7 +111,7 @@ in {
       # "tailscale" # tailscale
 
       # https://github.com/rgcr/m-cli
-      "m-cli" #  Swiss Army Knife for macOS
+      "m-cli" #  Swiss Army Knife for macOS
       # "proxychains-ng"
       # "bettercap"
 
@@ -129,7 +129,6 @@ in {
 
       "nginx"
       "certbot"
-
     ];
 
     # `brew install --cask`
@@ -152,8 +151,7 @@ in {
 
         "podman-desktop"
 
-              "deskflow" # Cross-platform keyboard and mouse sharing
-
+        "deskflow" # Cross-platform keyboard and mouse sharing
 
         "bartender" # tool to manage the menu bar
         "cleanshot" # screenshot tool
@@ -195,6 +193,9 @@ in {
         # "jdk-mission-control" # Java Mission Control
         # "google-cloud-sdk" # Google Cloud SDK
         "miniforge" # Miniconda's community-driven distribution
+        "gitkraken-cli"
+
+        "google-chrome"
       ]
       ++ (
         if config.hostSpec.darwin.isAarch64
