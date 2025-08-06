@@ -12,6 +12,8 @@
   ...
 }: {
   imports = lib.flatten [
+    ./databases.nix
+
     (map lib.custom.relativeToHosts [
       #################### Required Configs ####################
       "common/core"
