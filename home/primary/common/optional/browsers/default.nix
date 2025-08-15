@@ -3,6 +3,6 @@
     # ./brave.nix
     ./chromium.nix
     # ./firefox.nix
-    ./floorp.nix
+    # ./floorp.nix
   ];
 }

@@ -288,6 +288,13 @@
           productId = "009f";
           accelerationProfile = "none";
         }
+        {
+          enable = true;
+          name = "Razer Viper Mini Signature Edition";
+          vendorId = "1532";
+          productId = "009f";
+          accelerationProfile = "none";
+        }
       ];
     };
 
