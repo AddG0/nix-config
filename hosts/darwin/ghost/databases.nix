@@ -300,12 +300,12 @@
       done
 
       # Check if user already exists
-      if ! ${pkgs.postgresql}/bin/psql -U postgres -d postgres -tAc "SELECT 1 FROM pg_roles WHERE rolname='${config.home.username}'" | grep -q 1; then
+      if ! ${pkgs.postgresql}/bin/psql -U postgres -d postgres -tAc "SELECT 1 FROM pg_roles WHERE rolname='${config.hostSpec.username}'" | grep -q 1; then
         # Create user role
-        ${pkgs.postgresql}/bin/psql -U postgres -c "CREATE ROLE ${config.home.username} WITH LOGIN SUPERUSER;"
+        ${pkgs.postgresql}/bin/psql -U postgres -c "CREATE ROLE ${config.hostSpec.username} WITH LOGIN SUPERUSER;"
 
         # Create user database
-        ${pkgs.postgresql}/bin/psql -U postgres -c "CREATE DATABASE ${config.home.username} OWNER ${config.home.username};"
+        ${pkgs.postgresql}/bin/psql -U postgres -c "CREATE DATABASE ${config.hostSpec.username} OWNER ${config.hostSpec.username};"
 
         # Create additional databases if needed
         ${pkgs.postgresql}/bin/psql -U postgres -c "CREATE DATABASE IF NOT EXISTS shipperhq_dev;"

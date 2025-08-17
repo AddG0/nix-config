@@ -23,6 +23,7 @@
     openai_api_key = {};
     langchain_api_key = {};
     tavily_api_key = {};
+    anthropic_api_key = {};
   };
 
   programs.zsh.initContent = ''
@@ -31,6 +32,7 @@
     export OPENAI_API_KEY=$(cat ${config.sops.secrets.openai_api_key.path})
     export LANGCHAIN_API_KEY=$(cat ${config.sops.secrets.langchain_api_key.path})
     export TAVILY_API_KEY=$(cat ${config.sops.secrets.tavily_api_key.path})
+    export ANTHROPIC_API_KEY=$(cat ${config.sops.secrets.anthropic_api_key.path})
   '';
 
   # This is so I can use sops in the shell anywhere
