@@ -78,6 +78,7 @@ in {
     masApps =
       {
         # Xcode = 497799835;
+        "Magnet" = 441258766;
       }
       // (
         if config.hostSpec.darwin.hasPaidApps
@@ -147,9 +148,9 @@ in {
         "notchnook" # Dynamic island for macos
         "lens" # preview kubernetes resources
 
-        "balenaetcher"
+        # "balenaetcher"
 
-        "podman-desktop"
+        # "podman-desktop"
 
         "deskflow" # Cross-platform keyboard and mouse sharing
 
@@ -194,6 +195,8 @@ in {
         # "google-cloud-sdk" # Google Cloud SDK
         "miniforge" # Miniconda's community-driven distribution
         "gitkraken-cli"
+
+        "ollama"
 
         "google-chrome"
       ]

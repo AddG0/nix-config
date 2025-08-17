@@ -11,7 +11,7 @@
 in {
   programs.git = {
     enable = true;
-    package = pkgs.gitAndTools.gitFull;
+    # package = pkgs.gitAndTools.gitFull;
     lfs.enable = true;
     userName = handle;
     userEmail = publicGitEmail;
