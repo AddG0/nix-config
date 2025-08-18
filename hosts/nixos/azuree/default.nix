@@ -54,33 +54,7 @@
       "common/optional/nixos/services/bluetooth.nix"
     ])
   ];
-  services.wyoming.faster-whisper = {
-    # optional: override the package (defaults to pkgs.wyoming-faster-whisper)
-    # package = pkgs.wyoming-faster-whisper;
 
-    servers."whisper-local" = {
-      enable = true;
-      # bind address/port (Home Assistant discovers this)
-      uri = "tcp://0.0.0.0:10300";
-
-      # model can be one of the built-ins (tiny/base/small/medium/large, *-int8, distil-*, turbo)
-      # or a HF model ID (and even a local path). Default is "tiny-int8".
-      model = "tiny-int8";
-
-      # device: "cpu" | "cuda" | "auto"  (default "cpu")
-      device = "auto";
-
-      # optional tuning
-      language = "en";
-      beamSize = 5;                # set 0 to auto-pick
-      initialPrompt = "";          # prime the first window, optional
-    };
-  };
-  systemd.services."wyoming-faster-whisper-whisper-local".environment = {
-    HF_HOME = "/var/lib/wyoming/faster-whisper";
-    HF_HUB_CACHE = lib.mkForce "/var/lib/wyoming/faster-whisper";
-    TRANSFORMERS_CACHE = "/var/lib/wyoming/faster-whisper";
-  };
   networking = {
     networkmanager.enable = true;
     enableIPv6 = false;
