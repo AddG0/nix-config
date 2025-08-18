@@ -2,7 +2,9 @@
   lib,
   buildNpmPackage,
   fetchFromGitHub,
-  nodejs,
+  nodejs_20,
+  python3,
+  stdenv,
 }: 
   buildNpmPackage {
     pname = "claude-flow";
@@ -12,19 +14,35 @@
       owner = "ruvnet";
       repo = "claude-flow";
       rev = "main";
-      sha256 = "1abrnr7b1z7ww1wfwnmhzanp03fwfb42lfp9hla4aslayb4b97rq";
+      sha256 = "sha256-u02Xqj6wWxqTtpSOWEfuPBbYUl4bBPJNvGgA5WZKPaw=";
     };
 
     npmDepsHash = "sha256-Gpuvl8o8vvQd8uKJRte3YqY3ZzIyvXnTyC0iVDzWUMQ=";
 
-    nativeBuildInputs = [ nodejs ];
+    nodejs = nodejs_20;
+
+    nativeBuildInputs = [ 
+      nodejs_20 
+      python3
+    ] ++ lib.optionals stdenv.isDarwin [
+      stdenv.cc
+    ];
 
     # Skip Puppeteer download during npm install
     PUPPETEER_SKIP_DOWNLOAD = true;
 
+    # Environment variables for node-gyp
+    npm_config_build_from_source = true;
+
     # Skip the build phase since TypeScript compilation is failing
     # and we'll use the existing lib directory
     dontNpmBuild = true;
+
+    # Configure npm to handle native dependencies properly
+    makeCacheWritable = true;
+    
+    # Override problematic modules during install
+    npmFlags = [ "--ignore-scripts" ];
 
     installPhase = ''
       mkdir -p $out/bin
@@ -37,10 +55,10 @@
       chmod +x $out/bin/claude-flow
       
       # Patch the shebang to use nix's node
-      sed -i "1s|.*|#!${nodejs}/bin/node|" $out/bin/claude-flow
+      sed -i "1s|.*|#!${nodejs_20}/bin/node|" $out/bin/claude-flow
       
       # Also patch the spawn call to use the full node path
-      sed -i "s|spawn('node'|spawn('${nodejs}/bin/node'|g" $out/bin/claude-flow
+      sed -i "s|spawn('node'|spawn('${nodejs_20}/bin/node'|g" $out/bin/claude-flow
       
       # Fix the require('fs') issue in ES module
       sed -i "s|require('fs').readFileSync|import('fs').then(fs => fs.readFileSync)|g" $out/src/cli/simple-commands/swarm.js
