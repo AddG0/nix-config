@@ -13,15 +13,17 @@
   ...
 }: {
   imports = lib.flatten [
+    ./databases.nix
+
     (map lib.custom.relativeToHosts [
       #################### Required Configs ####################
       "common/core"
 
       #################### Host-specific Optional Configs ####################
-      "common/optional/darwin/ghostty"
 
       #################### Optional Applications ####################
       "common/optional/darwin/applications/jprofiler.nix"
+      "common/optional/darwin/applications/ghostty"
 
       #################### Desktop ####################
     ])
