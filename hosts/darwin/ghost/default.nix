@@ -21,6 +21,26 @@
       #################### Host-specific Optional Configs ####################
       "common/optional/darwin/ghostty"
       "common/optional/darwin/vban-walkie.nix"
+      
+      #################### Optional Applications ####################
+      "common/optional/darwin/applications/1password.nix"
+      "common/optional/darwin/applications/autodesk-fusion.nix"
+      "common/optional/darwin/applications/bartender.nix"
+      "common/optional/darwin/applications/browsers.nix"
+      "common/optional/darwin/applications/deskflow.nix"
+      "common/optional/darwin/applications/docker.nix"
+      "common/optional/darwin/applications/gitkraken.nix"
+      "common/optional/darwin/applications/hovrly.nix"
+      "common/optional/darwin/applications/jprofiler.nix"
+      "common/optional/darwin/applications/lens.nix"
+      "common/optional/darwin/applications/motion.nix"
+      "common/optional/darwin/applications/notchnook.nix"
+      "common/optional/darwin/applications/notion-calendar.nix"
+      "common/optional/darwin/applications/obsidian.nix"
+      "common/optional/darwin/applications/ollama.nix"
+      "common/optional/darwin/applications/synology.nix"
+      "common/optional/darwin/applications/tencent-lemon.nix"
+      "common/optional/darwin/applications/vpn.nix"
 
       #################### Desktop ####################
     ])

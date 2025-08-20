@@ -3,8 +3,11 @@
     [
       stable.jetbrains.idea-ultimate
       jetbrains.pycharm-professional
+      jetbrains.datagrip
+      jetbrains.webstorm
+
       # jetbrains.phpstorm
-      vscode
+      # vscode
     ]
     ++ (
       if pkgs.stdenv.isLinux

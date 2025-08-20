@@ -78,12 +78,12 @@ in {
     masApps =
       {
         # Xcode = 497799835;
-        "Magnet" = 441258766;
       }
       // (
         if config.hostSpec.darwin.hasPaidApps
         then {
           # "Yoink" = 457622435;
+          "Magnet" = 441258766;
         }
         else {}
       );
@@ -94,7 +94,6 @@ in {
       "hashicorp/tap"
       "nikitabobko/tap" # aerospace - an i3-like tiling window manager for macOS
       "FelixKratz/formulae" # janky borders - highlight active window borders
-      "deskflow/homebrew-tap" # Deskflow - cross-platform keyboard and mouse sharing
     ];
 
     brews = [
@@ -125,9 +124,6 @@ in {
       "terraform"
       # "terraformer"
 
-      "podman"
-      "podman-compose"
-
       "nginx"
       "certbot"
     ];
@@ -135,70 +131,23 @@ in {
     # `brew install --cask`
     casks =
       [
-        "arc"
         # "zen-browser"
-        "firefox@developer-edition"
-        "synology-drive"
-        "openvpn-connect"
-        "1password"
-        "orbstack"
         # "docker" # Docker Desktop needed for vscode devcontainers
-        "sharemouse"
+        # "sharemouse"
         "caffeine"
-        "notchnook" # Dynamic island for macos
-        "lens" # preview kubernetes resources
+
+        "fleet"
 
         # "balenaetcher"
 
-        # "podman-desktop"
-
-        "deskflow" # Cross-platform keyboard and mouse sharing
-
-        "bartender" # tool to manage the menu bar
         "cleanshot" # screenshot tool
-        # "menubarx" # browser in the menu bar
-        "hovrly" # show different time zones in menu bar
-        "imageoptim" # strip metadata from images
-
+        # "imageoptim" # strip metadata from images
         # "parallels" # Get version 19 from here: https://www.parallels.com/products/desktop/download/
-
         "amazon-q"
-        "aws-vpn-client"
-
         "flux" # blue light filter
-
-        "notion-calendar"
-        "motion"
         # "lens"
         "cursor"
-
-        "autodesk-fusion"
-
-        "langgraph-studio"
-
-        # Misc
-        # "shadowsocksx-ng" # proxy tool
-        "iina" # video player
-        # "raycast" # (HotKey: alt/option + space)search, calculate and run scripts(with many plugins)
         "stats" # beautiful system status monitor in menu bar
-        "aerospace" # an i3-like tiling window manager for macOS
-        # "reaper"  # audio editor
-        # "sonic-pi" # music programming
-        "tencent-lemon" # macOS cleaner
-        # "blender@lts" # 3D creation suite
-
-        # Development
-        "mitmproxy" # HTTP/HTTPS traffic inspector
-        # "insomnia" # REST client
-
-        # "jdk-mission-control" # Java Mission Control
-        # "google-cloud-sdk" # Google Cloud SDK
-        "miniforge" # Miniconda's community-driven distribution
-        "gitkraken-cli"
-
-        "ollama"
-
-        "google-chrome"
       ]
       ++ (
         if config.hostSpec.darwin.isAarch64
