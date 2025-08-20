@@ -40,7 +40,7 @@
       "common/optional/darwin/applications/synology.nix"
       "common/optional/darwin/applications/tencent-lemon.nix"
       "common/optional/darwin/applications/vpn.nix"
-      "common/optional/darwin/applications/ghostty"
+      "common/optional/darwin/applications/ghostty.nix"
 
       #################### Desktop ####################
     ])
