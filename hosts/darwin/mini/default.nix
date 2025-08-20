@@ -19,7 +19,7 @@
 
       #################### Host-specific Optional Configs ####################
       "common/optional/darwin/ghostty"
-      
+
       #################### Optional Applications ####################
       "common/optional/darwin/applications/jprofiler.nix"
 

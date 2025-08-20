@@ -21,7 +21,7 @@
       #################### Host-specific Optional Configs ####################
       "common/optional/darwin/ghostty"
       "common/optional/darwin/vban-walkie.nix"
-      
+
       #################### Optional Applications ####################
       "common/optional/darwin/applications/1password.nix"
       "common/optional/darwin/applications/autodesk-fusion.nix"
