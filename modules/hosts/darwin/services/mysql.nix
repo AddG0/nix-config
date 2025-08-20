@@ -230,7 +230,7 @@ in
 
       dataDir = lib.mkOption {
         type = lib.types.path;
-        default = "/opt/mysql";
+        default = "/var/lib/mysql";
         example = "/var/lib/mysql";
         description = ''
           The data directory for MySQL.
@@ -723,12 +723,14 @@ in
 
     environment.etc."my.cnf".source = clientConfigFile;
 
-    # Ensure data directory exists during system activation
-    system.activationScripts.mysql.text = ''
+    # Create data directory during system activation (runs as root)
+    system.activationScripts.extraActivation.text = lib.mkAfter ''
       if [[ ! -d "${cfg.dataDir}" ]]; then
+        echo "Creating MySQL data directory ${cfg.dataDir}..."
         mkdir -p "${cfg.dataDir}"
         chown ${cfg.user}:${cfg.group} "${cfg.dataDir}"
         chmod 700 "${cfg.dataDir}"
+        echo "MySQL directory created successfully"
       fi
     '';
 
@@ -750,7 +752,7 @@ in
           }
           trap cleanup EXIT INT TERM
 
-          # Ensure proper ownership and permissions
+          # Verify data directory exists (should be created by system activation)
           if [[ ! -d "${cfg.dataDir}" ]]; then
             log "ERROR: MySQL data directory ${cfg.dataDir} does not exist!"
             log "This should have been created by the system activation script."
