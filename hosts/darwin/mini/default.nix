@@ -23,7 +23,7 @@
 
       #################### Optional Applications ####################
       "common/optional/darwin/applications/jprofiler.nix"
-      "common/optional/darwin/applications/ghostty"
+      "common/optional/darwin/applications/ghostty.nix"
 
       #################### Desktop ####################
     ])
