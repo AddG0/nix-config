@@ -19,7 +19,6 @@
       "common/core"
 
       #################### Host-specific Optional Configs ####################
-      "common/optional/darwin/ghostty"
       "common/optional/darwin/vban-walkie.nix"
 
       #################### Optional Applications ####################
@@ -41,6 +40,7 @@
       "common/optional/darwin/applications/synology.nix"
       "common/optional/darwin/applications/tencent-lemon.nix"
       "common/optional/darwin/applications/vpn.nix"
+      "common/optional/darwin/applications/ghostty"
 
       #################### Desktop ####################
     ])
