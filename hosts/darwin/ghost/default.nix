@@ -13,6 +13,7 @@
 }: {
   imports = lib.flatten [
     ./databases.nix
+    ./monitoring.nix
 
     (map lib.custom.relativeToHosts [
       #################### Required Configs ####################
@@ -36,7 +37,7 @@
       "common/optional/darwin/applications/notchnook.nix"
       "common/optional/darwin/applications/notion-calendar.nix"
       "common/optional/darwin/applications/obsidian.nix"
-      "common/optional/darwin/applications/ollama.nix"
+      # "common/optional/darwin/applications/ollama.nix"
       "common/optional/darwin/applications/synology.nix"
       "common/optional/darwin/applications/tencent-lemon.nix"
       "common/optional/darwin/applications/vpn.nix"
