@@ -1,6 +1,6 @@
 {
   services.libinput.mouse = {
     accelProfile = "flat"; # disables acceleration
-    accelSpeed = "0.0"; # neutral speed (like Windows 6/11)
+    accelSpeed = "0.0"; # neutral speed (like Windows 11)
   };
 }

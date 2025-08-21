@@ -206,25 +206,17 @@ in
 
       user = lib.mkOption {
         type = lib.types.str;
-        default = config.hostSpec.username;
+        default = "_mysql";
         description = ''
           User account under which MySQL runs.
-
-          ::: {.note}
-          On Darwin, this should be set to your username to avoid permission issues.
-          :::
         '';
       };
 
       group = lib.mkOption {
         type = lib.types.str;
-        default = "staff";
+        default = "_mysql";
         description = ''
           Group account under which MySQL runs.
-
-          ::: {.note}
-          On Darwin, this defaults to "staff" which is a standard system group.
-          :::
         '';
       };
 
@@ -664,8 +656,19 @@ in
       })
     ];
 
-    # Note: On Darwin, users and groups need to be created manually or through system preferences
-    # The MySQL service will run as the current user for simplicity
+    users.users._mysql = {
+      home = cfg.dataDir;
+      createHome = true;
+      shell = "/usr/bin/false";
+      description = "System user for MySQL";
+    };
+
+    users.groups._mysql = {
+      description = "System group for MySQL";
+    };
+
+    users.knownGroups = [ "_mysql" ];
+    users.knownUsers = [ "_mysql" ];
 
     environment.systemPackages = [
       cfg.package
@@ -723,16 +726,17 @@ in
 
     environment.etc."my.cnf".source = clientConfigFile;
 
-    # Create data directory during system activation (runs as root)
-    system.activationScripts.extraActivation.text = lib.mkAfter ''
-      if [[ ! -d "${cfg.dataDir}" ]]; then
-        echo "Creating MySQL data directory ${cfg.dataDir}..."
-        mkdir -p "${cfg.dataDir}"
-        chown ${cfg.user}:${cfg.group} "${cfg.dataDir}"
-        chmod 700 "${cfg.dataDir}"
-        echo "MySQL directory created successfully"
-      fi
-    '';
+    # Ensure MySQL data directory permissions (directory created by user home)
+    system.activationScripts.mysqlActivation = {
+      enable = true;
+      text = ''
+        if [[ -d "${cfg.dataDir}" ]]; then
+          echo "Setting MySQL directory permissions..."
+          chown ${cfg.user}:${cfg.group} "${cfg.dataDir}"
+          chmod 700 "${cfg.dataDir}"
+        fi
+      '';
+    };
 
     launchd.daemons.mysql =
       let
@@ -752,16 +756,12 @@ in
           }
           trap cleanup EXIT INT TERM
 
-          # Verify data directory exists (should be created by system activation)
+          # Verify data directory exists (should be created by user home)
           if [[ ! -d "${cfg.dataDir}" ]]; then
             log "ERROR: MySQL data directory ${cfg.dataDir} does not exist!"
-            log "This should have been created by the system activation script."
+            log "This should have been created by the system user home."
             exit 1
           fi
-
-          # Ensure proper ownership and permissions
-          chown ${cfg.user}:${cfg.group} "${cfg.dataDir}" 2>/dev/null || true
-          chmod 700 "${cfg.dataDir}" 2>/dev/null || true
 
           # Initialize database if needed
           INIT_MARKER="${cfg.dataDir}/.mysql_initialized"

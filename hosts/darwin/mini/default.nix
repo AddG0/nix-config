@@ -29,6 +29,10 @@
     ])
   ];
 
+  services.prometheus.exporters.node = {
+    enable = true;
+  };
+
   time.timeZone = "America/Chicago";
 
   hostSpec = {

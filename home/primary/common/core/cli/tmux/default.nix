@@ -31,37 +31,54 @@ in {
       {
         plugin = catppuccin;
         extraConfig = ''
-          set -g @catppuccin_flavour 'mocha'
-          set -g @catppuccin_window_status_style "rounded"
-
           set -g @catppuccin_window_left_separator ""
           set -g @catppuccin_window_right_separator " "
           set -g @catppuccin_window_middle_separator " █"
-          set -g @catppuccin_window_number_position "right"
 
-          set -g @catppuccin_status_modules_right "directory user host session"
-          set -g @catppuccin_status_left_separator  " "
-          set -g @catppuccin_status_right_separator ""
+
+          set -g @catppuccin_window_number_position "right"
+          set -g @catppuccin_window_default_fill "number"
+          set -g @catppuccin_window_default_text "#W"
+          set -g @catppuccin_window_current_fill "number"
+          set -g @catppuccin_window_current_text "#W#{?window_zoomed_flag,(),}"
+          set -g @catppuccin_status_modules_right "directory date_time"
+          set -g @catppuccin_status_modules_left "session"
           set -g @catppuccin_status_right_separator_inverse "no"
           set -g @catppuccin_status_fill "icon"
           set -g @catppuccin_status_connect_separator "no"
-          set -g @catppuccin_status_modules_right "application session date_time"
+          set -g @catppuccin_directory_text "#{b:pane_current_path}"
+
+          set -g @catppuccin_date_time_text "%H:%M"
+
+          # set -g @catppuccin_flavour 'mocha'
+          # set -g @catppuccin_window_status_style "rounded"
+
+          # 
+          # set -g @catppuccin_window_number_position "right"
+
+          # set -g @catppuccin_status_modules_right "directory user host session"
+          set -g @catppuccin_status_left_separator  " "
+          set -g @catppuccin_status_right_separator ""
+          # set -g @catppuccin_status_right_separator_inverse "no"
+          # set -g @catppuccin_status_fill "icon"
+          # set -g @catppuccin_status_connect_separator "no"
+          # set -g @catppuccin_status_modules_right "application session date_time"
 
           # Set the window name to the current path if it is zsh, otherwise set it to the window name
-          set -g @catppuccin_window_default_fill "number"
-          set -g @catppuccin_window_default_text "#{?#{==:#{window_name},zsh},#{b:pane_current_path},#{?window_name,#{window_name},#{b:pane_current_path}}}"
+          # set -g @catppuccin_window_default_fill "number"
+          # set -g @catppuccin_window_default_text "#{?#{==:#{window_name},zsh},#{b:pane_current_path},#{?window_name,#{window_name},#{b:pane_current_path}}}"
 
-          set -g @catppuccin_window_current_fill "number"
-          set -g @catppuccin_window_current_text "#{?#{==:#{window_name},zsh},#{b:pane_current_path},#{?window_name,#{window_name},#{b:pane_current_path}}}"
+          # set -g @catppuccin_window_current_fill "number"
+          # set -g @catppuccin_window_current_text "#{?#{==:#{window_name},zsh},#{b:pane_current_path},#{?window_name,#{window_name},#{b:pane_current_path}}}"
         '';
       }
-      {
-        plugin = resurrect;
-        extraConfig = ''
-          set -g @resurrect-strategy-nvim 'session'
-          set -g @resurrect-capture-pane-contents 'on'
-        '';
-      }
+      # {
+      #   plugin = resurrect;
+      #   extraConfig = ''
+      #     set -g @resurrect-strategy-nvim 'session'
+      #     set -g @resurrect-capture-pane-contents 'on'
+      #   '';
+      # }
       {
         plugin = continuum;
         extraConfig = ''
@@ -70,12 +87,8 @@ in {
       }
     ];
     extraConfig = ''
-      set -g @floax-width '80%'
-      set -g @floax-height '80%'
-      set -g @floax-border-color 'magenta'
-      set -g @floax-text-color 'blue'
-      set -g @floax-bind 'p'
-      set -g @floax-change-path 'true'
+      set -g pane-active-border-style 'fg=magenta,bg=default'
+      set -g pane-border-style 'fg=brightblack,bg=default'
 
       set -g base-index 1              # start indexing windows at 1 instead of 0
       set -g detach-on-destroy off     # don't exit from tmux when closing a session
