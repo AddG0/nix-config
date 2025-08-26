@@ -1980,13 +1980,14 @@ in
     ];
 
     users.users._prometheus = {
-      home = cfg.dataDir;
-      createHome = true;
+      uid = config.ids.uids._prometheus;
+      gid = config.ids.gids._prometheus;
       shell = "/usr/bin/false";
       description = "System user for Prometheus";
     };
 
     users.groups._prometheus = {
+      gid = config.ids.gids._prometheus;
       description = "System group for Prometheus";
     };
 
@@ -2040,18 +2041,13 @@ in
       source = prometheusYml;
     };
 
-    # Create Prometheus data subdirectory
-    system.activationScripts.prometheusActivation = {
-      enable = true;
-      text = ''
-        if [ ! -d "${cfg.dataDir}/data" ]; then
-          echo "creating Prometheus data subdirectory..."
-          mkdir -p ${cfg.dataDir}/data
-          chown -R ${cfg.user}:${cfg.group} ${cfg.dataDir}/data
-          chmod -R 755 ${cfg.dataDir}/data
-        fi
-      '';
-    };
+    # Create Prometheus data directory
+    system.activationScripts.extraActivation.text = lib.mkAfter ''
+      echo "creating Prometheus directory..."
+      mkdir -p ${cfg.dataDir}
+      chown -R ${cfg.user}:${cfg.group} ${cfg.dataDir}
+      chmod -R 755 ${cfg.dataDir}
+    '';
 
     launchd.daemons.prometheus =
       let

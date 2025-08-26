@@ -105,13 +105,14 @@ in
     ];
 
     users.users._loki = {
-      home = cfg.dataDir;
-      createHome = true;
+      uid = config.ids.uids._loki;
+      gid = config.ids.gids._loki;
       shell = "/usr/bin/false";
       description = "System user for Loki";
     };
 
     users.groups._loki = {
+      gid = config.ids.gids._loki;
       description = "System group for Loki";
     };
 
@@ -163,23 +164,13 @@ in
       '')
     ];
 
-    # Create Loki subdirectories
-    system.activationScripts.lokiActivation = {
-      enable = true;
-      text = ''
-        if [ ! -d "${cfg.dataDir}/chunks" ]; then
-          echo "creating Loki subdirectories..."
-          mkdir -p ${cfg.dataDir}/chunks
-          mkdir -p ${cfg.dataDir}/wal
-          mkdir -p ${cfg.dataDir}/rules
-          mkdir -p ${cfg.dataDir}/boltdb-shipper-active
-          mkdir -p ${cfg.dataDir}/boltdb-shipper-cache
-          mkdir -p ${cfg.dataDir}/boltdb-shipper-compactor
-          chown -R ${cfg.user}:${cfg.group} ${cfg.dataDir}/chunks ${cfg.dataDir}/wal ${cfg.dataDir}/rules ${cfg.dataDir}/boltdb-shipper-active ${cfg.dataDir}/boltdb-shipper-cache ${cfg.dataDir}/boltdb-shipper-compactor
-          chmod -R 755 ${cfg.dataDir}/chunks ${cfg.dataDir}/wal ${cfg.dataDir}/rules ${cfg.dataDir}/boltdb-shipper-active ${cfg.dataDir}/boltdb-shipper-cache ${cfg.dataDir}/boltdb-shipper-compactor
-        fi
-      '';
-    };
+    # Create Loki directory
+    system.activationScripts.extraActivation.text = lib.mkAfter ''
+      echo "creating Loki directory..."
+      mkdir -p ${cfg.dataDir}
+      chown -R ${cfg.user}:${cfg.group} ${cfg.dataDir}
+      chmod -R 755 ${cfg.dataDir}
+    '';
 
     launchd.daemons.loki =
       let

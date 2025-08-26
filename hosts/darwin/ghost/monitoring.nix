@@ -37,7 +37,7 @@
       {
         job_name = "grafana";
         static_configs = [{
-          targets = [ "127.0.0.1:3000" ];
+          targets = [ "127.0.0.1:3080" ];
           labels = {
             alias = "grafana";
           };
@@ -53,7 +53,18 @@
           };
         }];
       }
-      
+      {
+        job_name = "load-test-shipperws";
+        static_configs = [{
+          targets = [ "192.168.50.213:8080" ];
+          labels = {
+            alias = "load-test-shipperws";
+          };
+        }];
+        metrics_path = "/shipperhq-ws/actuator/prometheus";
+        scrape_interval = "500ms";
+      }
+
       # Node exporter for system metrics
       {
         job_name = "node";
@@ -112,15 +123,15 @@
     settings = {
       server = {
         http_addr = "127.0.0.1";
-        http_port = 3000;
+        http_port = 3080;
         domain = "localhost";
-        root_url = "http://localhost:3000/";
+        root_url = "http://localhost:3080/";
         serve_from_sub_path = false;
       };
       
       database = {
         type = "sqlite3";
-        path = "/opt/grafana/data/grafana.db";
+        path = "/var/lib/grafana/data/grafana.db";
       };
       
       analytics = {
@@ -131,7 +142,6 @@
       
       security = {
         admin_user = "admin";
-        admin_password = "$__file{/opt/grafana/admin-password}";
         disable_gravatar = true;
         cookie_secure = false;
         cookie_samesite = "lax";
@@ -141,7 +151,8 @@
         allow_sign_up = false;
         allow_org_create = false;
         auto_assign_org = true;
-        auto_assign_org_role = "Viewer";
+        auto_assign_org_role = "Editor";
+        viewers_can_edit = true;
       };
       
       auth = {
@@ -151,7 +162,7 @@
       "auth.anonymous" = {
         enabled = true;
         org_name = "Main Org.";
-        org_role = "Viewer";
+        org_role = "Editor";
       };
       
       log = {
@@ -200,7 +211,7 @@
           {
             name = "Default";
             type = "file";
-            options.path = "/opt/grafana/dashboards";
+            options.path = "/var/lib/grafana/dashboards";
           }
         ];
       };
@@ -211,7 +222,10 @@
       grafana-piechart-panel
       grafana-clock-panel
       grafana-worldmap-panel
-    ];
+      volkovlabs-variable-panel
+    ] ++ (with pkgs.grafana-plugins; [
+      marcusolsson-gantt-panel
+    ]);
   };
   
   services.loki = {
@@ -224,16 +238,25 @@
       auth_enabled = false;
       
       server = {
+        http_listen_address = "0.0.0.0";
         http_listen_port = 3100;
         grpc_listen_port = 9096;
+        
+        # High throughput server settings
+        http_server_read_timeout = "5m";
+        http_server_write_timeout = "5m";
+        grpc_server_max_recv_msg_size = 104857600; # 100MB
+        grpc_server_max_send_msg_size = 104857600; # 100MB
+        grpc_server_max_concurrent_streams = 1000;
+        log_level = "warn"; # Reduce log noise under heavy load
       };
       
       common = {
-        path_prefix = "/opt/loki";
+        path_prefix = "/var/lib/loki";
         storage = {
           filesystem = {
-            chunks_directory = "/opt/loki/chunks";
-            rules_directory = "/opt/loki/rules";
+            chunks_directory = "/var/lib/loki/chunks";
+            rules_directory = "/var/lib/loki/rules";
           };
         };
         replication_factor = 1;
@@ -262,12 +285,12 @@
       
       storage_config = {
         boltdb_shipper = {
-          active_index_directory = "/opt/loki/boltdb-shipper-active";
-          cache_location = "/opt/loki/boltdb-shipper-cache";
+          active_index_directory = "/var/lib/loki/boltdb-shipper-active";
+          cache_location = "/var/lib/loki/boltdb-shipper-cache";
           cache_ttl = "24h";
         };
         filesystem = {
-          directory = "/opt/loki/chunks";
+          directory = "/var/lib/loki/chunks";
         };
       };
       
@@ -282,17 +305,62 @@
           };
           final_sleep = "0s";
         };
-        chunk_idle_period = "5m";
-        chunk_retain_period = "30s";
+        
+        # High throughput ingestion settings
+        chunk_idle_period = "10s";  # Flush chunks faster
+        chunk_retain_period = "5s"; # Reduce retention for faster processing
+        chunk_block_size = 2097152; # 2MB blocks for high throughput
+        chunk_target_size = 16777216; # 16MB target size
+        max_chunk_age = "2m"; # Age out chunks faster
+        
+        # WAL settings for high throughput
         wal = {
-          dir = "/opt/loki/wal";
+          dir = "/var/lib/loki/wal";
+          replay_memory_ceiling = "1GB"; # Increase WAL replay memory
         };
+        
+        # Concurrent processing
+        concurrent_flushes = 16;
+        flush_check_period = "10s";
+        
+        # Memory settings for high load
+        max_returned_stream_errors = 100;
       };
       
       limits_config = {
         retention_period = "744h";
-        reject_old_samples = true;
-        reject_old_samples_max_age = "168h";
+        reject_old_samples = false;
+        allow_structured_metadata = false;
+        
+        # Massive line size limits
+        max_line_size = "10MB";
+        max_line_size_truncate = false;
+        
+        # Ultra high ingestion rates for millions per second
+        ingestion_rate_mb = 10000;
+        ingestion_burst_size_mb = 50000;
+        
+        # Massive stream limits
+        max_streams_per_user = 1000000;
+        max_global_streams_per_user = 5000000;
+        
+        # High query limits
+        max_query_length = "12000h";
+        max_query_parallelism = 32;
+        max_query_series = 100000;
+        
+        # Large chunk limits for high throughput
+        max_chunks_per_query = 2000000;
+        max_entries_limit_per_query = 10000000;
+        
+        # Per-tenant rate limits (set very high)
+        per_stream_rate_limit = "100MB";
+        per_stream_rate_limit_burst = "500MB";
+        
+        # Cardinality limits
+        max_label_name_length = 1024;
+        max_label_value_length = 4096;
+        max_label_names_per_series = 30;
       };
       
       
@@ -302,27 +370,19 @@
       };
       
       compactor = {
-        working_directory = "/opt/loki/boltdb-shipper-compactor";
+        working_directory = "/var/lib/loki/boltdb-shipper-compactor";
       };
     };
   };
   
-  # Create Grafana admin password and dashboard
+  # Create Grafana dashboard
   system.activationScripts.extraActivation.text = lib.mkAfter ''
-    # Create Grafana admin password file if it doesn't exist
-    if [ ! -f "/opt/grafana/admin-password" ]; then
-      echo "creating Grafana admin password file..."
-      echo "admin" > /opt/grafana/admin-password
-      chmod 600 /opt/grafana/admin-password
-      chown ${config.services.grafana.user}:${config.services.grafana.group} /opt/grafana/admin-password
-    fi
-    
-    # Create directories for dashboard provisioning
-    mkdir -p /opt/grafana/dashboards
-    chown -R ${config.services.grafana.user}:${config.services.grafana.group} /opt/grafana/dashboards
+    # Create directories for dashboard provisioning  
+    mkdir -p /var/lib/grafana/dashboards
+    chown -R ${config.services.grafana.user}:${config.services.grafana.group} /var/lib/grafana/dashboards
     
     # Create a basic system dashboard
-    cat > /opt/grafana/dashboards/system.json << 'EOF'
+    cat > /var/lib/grafana/dashboards/system.json << 'EOF'
 {
   "id": null,
   "uid": "system-overview",
@@ -408,7 +468,7 @@
     ]
 }
 EOF
-    chown ${config.services.grafana.user}:${config.services.grafana.group} /opt/grafana/dashboards/system.json
+    chown ${config.services.grafana.user}:${config.services.grafana.group} /var/lib/grafana/dashboards/system.json
   '';
   
   # Add helpful aliases for monitoring
@@ -435,5 +495,5 @@ EOF
   };
   
   # Open ports in firewall (if using one)
-  # networking.firewall.allowedTCPPorts = [ 3000 3100 9090 ];
+  # networking.firewall.allowedTCPPorts = [ 3080 3100 9090 ];
 }
