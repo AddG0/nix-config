@@ -2081,33 +2081,27 @@ in
     ];
 
     users.users._grafana = {
-      home = cfg.dataDir;
-      createHome = true;
+      uid = config.ids.uids._grafana;
+      gid = config.ids.gids._grafana;
       shell = "/usr/bin/false";
       description = "System user for Grafana";
     };
 
     users.groups._grafana = {
+      gid = config.ids.gids._grafana;
       description = "System group for Grafana";
     };
 
     users.knownGroups = [ "_grafana" ];
     users.knownUsers = [ "_grafana" ];
 
-    # Create Grafana subdirectories
-    system.activationScripts.grafanaActivation = {
-      enable = true;
-      text = ''
-        if [ ! -d "${cfg.dataDir}/data" ]; then
-          echo "creating Grafana subdirectories..."
-          mkdir -p ${cfg.dataDir}/data
-          mkdir -p ${cfg.dataDir}/logs
-          mkdir -p ${cfg.dataDir}/plugins
-          chown -R ${cfg.user}:${cfg.group} ${cfg.dataDir}/data ${cfg.dataDir}/logs ${cfg.dataDir}/plugins
-          chmod -R 755 ${cfg.dataDir}/data ${cfg.dataDir}/logs ${cfg.dataDir}/plugins
-        fi
-      '';
-    };
+    # Create Grafana directory
+    system.activationScripts.extraActivation.text = lib.mkAfter ''
+      echo "creating Grafana directory..."
+      mkdir -p ${cfg.dataDir}
+      chown -R ${cfg.user}:${cfg.group} ${cfg.dataDir}
+      chmod -R 755 ${cfg.dataDir}
+    '';
 
     launchd.daemons.grafana =
       let

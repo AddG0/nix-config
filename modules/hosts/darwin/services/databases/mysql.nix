@@ -47,6 +47,11 @@ let
         echo "MySQL daemon not yet started. Waiting for 1 second..."
         sleep 1
     done
+    
+    # Fix socket permissions so all users can connect
+    echo "Fixing MySQL socket permissions..."
+    chmod 755 "${cfg.dataDir}"  # Allow access to directory
+    chmod 666 "${cfg.dataDir}/mysql.sock"  # Allow socket connections
 
     ${lib.optionalString isMariaDB ''
       # If MariaDB is used in an Galera cluster, we have to check if the sync is done
@@ -657,13 +662,14 @@ in
     ];
 
     users.users._mysql = {
-      home = cfg.dataDir;
-      createHome = true;
+      uid = config.ids.uids._mysql;
+      gid = config.ids.gids._mysql;
       shell = "/usr/bin/false";
       description = "System user for MySQL";
     };
 
     users.groups._mysql = {
+      gid = config.ids.gids._mysql;
       description = "System group for MySQL";
     };
 
@@ -726,17 +732,15 @@ in
 
     environment.etc."my.cnf".source = clientConfigFile;
 
-    # Ensure MySQL data directory permissions (directory created by user home)
-    system.activationScripts.mysqlActivation = {
-      enable = true;
-      text = ''
-        if [[ -d "${cfg.dataDir}" ]]; then
-          echo "Setting MySQL directory permissions..."
-          chown ${cfg.user}:${cfg.group} "${cfg.dataDir}"
-          chmod 700 "${cfg.dataDir}"
-        fi
-      '';
-    };
+    # Create MySQL data directory
+    system.activationScripts.extraActivation.text = lib.mkAfter ''
+      if [[ ! -d "${cfg.dataDir}" ]]; then
+        echo "Creating MySQL data directory..."
+        mkdir -p "${cfg.dataDir}"
+        chown ${cfg.user}:${cfg.group} "${cfg.dataDir}"
+        chmod 700 "${cfg.dataDir}"
+      fi
+    '';
 
     launchd.daemons.mysql =
       let

@@ -3,10 +3,8 @@
   services.mysql = {
     enable = true;
 
-    # NixOS-style configuration
     ensureDatabases = [ "shipperhq_dev" ];
 
-    # Create an admin user with full privileges
     ensureUsers = [
       {
         name = "root";
