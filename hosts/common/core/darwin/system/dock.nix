@@ -24,10 +24,12 @@
       "${pkgs.jetbrains.idea-ultimate}/Applications/IntelliJ IDEA.app"
       "/Applications/Cursor.app"
       "${pkgs.postman}/Applications/Postman.app"
+      "/Applications/Ghostty.app"
       "${pkgs.slack}/Applications/Slack.app"
       "${pkgs.discord}/Applications/Discord.app"
       "${pkgs.lens}/Applications/Lens.app"
       "/Users/${config.hostSpec.username}/Applications/Home Manager Apps/Spotify.app"
+      "${pkgs.notion-app}/Applications/Notion.app"
     ];
   };
 }
