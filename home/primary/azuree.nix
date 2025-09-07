@@ -23,7 +23,7 @@
     common/optional/gaming/steam.nix
     common/optional/comms
     common/optional/ghostty
-    common/optional/nixos/1password.nix
+    common/optional/secrets/1password.nix
     # common/optional/development/aws.nix
     common/optional/nixos/gpg-agent.nix
     common/optional/media/spicetify.nix

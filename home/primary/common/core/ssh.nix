@@ -46,11 +46,7 @@
 in {
   programs.ssh = {
     enable = true;
-
-    # FIXME: This should probably be for git systems only?
-    controlMaster = "auto";
-    controlPath = "~/.ssh/sockets/S.%r@%h:%p";
-    controlPersist = "10m";
+    enableDefaultConfig = false;
 
     # req'd for enabling yubikey-agent
     extraConfig = ''
@@ -61,6 +57,12 @@ in {
 
     matchBlocks =
       {
+        "*" = {
+          controlMaster = "auto";
+          controlPath = "~/.ssh/sockets/S.%r@%h:%p";
+          controlPersist = "10m";
+        };
+
         # Not all of this systems I have access to can use yubikey.
         "ssh-hosts" = lib.hm.dag.entryAfter ["*"] {
           host = "${hostString}";

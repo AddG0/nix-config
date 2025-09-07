@@ -5,10 +5,6 @@
   services.prometheus = {
     enable = true;
     
-    # Enable node exporter for system metrics
-    exporters.node = {
-      enable = true;
-    };
     port = 9090;
     listenAddress = "127.0.0.1";
     
@@ -54,27 +50,37 @@
         }];
       }
       {
-        job_name = "load-test-shipperws";
+        job_name = "shipperws";
         static_configs = [{
-          targets = [ "192.168.50.213:8080" ];
+          targets = [ "localhost:8080" ];
           labels = {
-            alias = "load-test-shipperws";
+            alias = "shipperws";
           };
         }];
         metrics_path = "/shipperhq-ws/actuator/prometheus";
         scrape_interval = "500ms";
       }
-
-      # Node exporter for system metrics
       {
-        job_name = "node";
+        job_name = "shipperws-jo";
         static_configs = [{
-          targets = [ "127.0.0.1:9100" ];
+        targets = [ "192.168.68.119:8080" ];
           labels = {
-            alias = "ghost-system";
+            alias = "shipperws-jo";
           };
         }];
+        metrics_path = "/shipperhq-ws/actuator/prometheus";
+        scrape_interval = "500ms";
       }
+      # Node exporter for system metrics
+      # {
+      #   job_name = "node";
+      #   static_configs = [{
+      #     targets = [ "127.0.0.1:9100" ];
+      #     labels = {
+      #       alias = "ghost-system";
+      #     };
+      #   }];
+      # }
     ];
     
     # Configure alerting rules

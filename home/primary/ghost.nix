@@ -27,6 +27,7 @@
     common/optional/media/spicetify.nix
     common/optional/development/virtualization
     common/optional/development/tools.nix
+    common/optional/secrets/1password.nix
   ];
 
   sops.secrets.cloudflare = {
