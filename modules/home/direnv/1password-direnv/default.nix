@@ -10,7 +10,7 @@ in {
   meta.maintainers = [];
   meta.doc = ''
     1Password helpers for direnv configuration.
-    
+
     Based on https://github.com/tmatilai/direnv-1password
     MIT licence - Copyright (c) 2022 Teemu Matilainen and contributors
   '';

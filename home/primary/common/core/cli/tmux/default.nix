@@ -53,7 +53,7 @@ in {
           # set -g @catppuccin_flavour 'mocha'
           # set -g @catppuccin_window_status_style "rounded"
 
-          # 
+          #
           # set -g @catppuccin_window_number_position "right"
 
           # set -g @catppuccin_status_modules_right "directory user host session"
