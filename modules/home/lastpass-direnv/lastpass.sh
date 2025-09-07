@@ -82,7 +82,7 @@ from_lpass() {
         if [[ "$line" =~ ^([^=]+)=(.+)$ ]]; then
             local var_name="${BASH_REMATCH[1]}"
             local secret_name="${BASH_REMATCH[2]}"
-            
+
             # Get password from LastPass
             local secret_value
             if secret_value="$(lpass show --password "$secret_name" 2>/dev/null)" && [[ -n "$secret_value" ]]; then

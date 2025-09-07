@@ -119,7 +119,7 @@ in
     users.knownGroups = [ "_loki" ];
     users.knownUsers = [ "_loki" ];
 
-    environment.systemPackages = [ 
+    environment.systemPackages = [
       cfg.package # logcli
       # Add Loki service management scripts
       (pkgs.writeShellScriptBin "loki-start" ''

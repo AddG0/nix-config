@@ -139,9 +139,9 @@ in {
         "fleet"
 
         # "balenaetcher"
-        
+
         "termius"
-        
+
         "cleanshot" # screenshot tool
         # "imageoptim" # strip metadata from images
         # "parallels" # Get version 19 from here: https://www.parallels.com/products/desktop/download/
@@ -161,7 +161,7 @@ in {
       ++ (
         if config.hostSpec.darwin.hasPaidApps
         then [
-          
+
         ]
         else []
       );

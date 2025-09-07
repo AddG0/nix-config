@@ -10,7 +10,7 @@ in {
   meta.maintainers = [];
   meta.doc = ''
     LastPass helpers for direnv configuration.
-    
+
     Provides integration between direnv and LastPass CLI for loading secrets.
   '';
 

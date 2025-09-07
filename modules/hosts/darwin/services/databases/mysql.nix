@@ -47,7 +47,7 @@ let
         echo "MySQL daemon not yet started. Waiting for 1 second..."
         sleep 1
     done
-    
+
     # Fix socket permissions so all users can connect
     echo "Fixing MySQL socket permissions..."
     chmod 755 "${cfg.dataDir}"  # Allow access to directory
