@@ -3,7 +3,7 @@
 {
   # Enable monitoring services
   services.prometheus = {
-    enable = true;
+    enable = false;
 
     port = 9090;
     listenAddress = "127.0.0.1";
@@ -124,7 +124,7 @@
   };
 
   services.grafana = {
-    enable = true;
+    enable = false;
 
     settings = {
       server = {
@@ -235,7 +235,7 @@
   };
 
   services.loki = {
-    enable = true;
+    enable = false;
 
     # Skip validation to avoid issues with config format
     extraFlags = [ "-config.expand-env=true" ];
