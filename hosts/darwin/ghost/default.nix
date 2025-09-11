@@ -43,7 +43,7 @@
       "common/optional/darwin/applications/claude.nix"
       "common/optional/darwin/applications/vpn.nix"
       "common/optional/darwin/applications/ghostty.nix"
-
+      "common/optional/darwin/applications/bleunlock.nix"
       #################### Desktop ####################
     ])
   ];
