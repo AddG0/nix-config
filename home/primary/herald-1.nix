@@ -18,5 +18,5 @@
     common/optional/nixos/desktops/plasma6
     common/optional/helper-scripts
   ];
-  programs.btop.enable = lib.mkForce true;
+  programs.btop.enable = lib.mkForce false;
 }
