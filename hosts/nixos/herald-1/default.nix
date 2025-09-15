@@ -64,7 +64,6 @@
   # Signage Player Configuration
   services.signage-player = {
     enable = true;
-    workingDir = "/opt/signage-player";
     homeDir = "/opt/signage-player";
     cdnBaseUrl = "http://localhost:9000"; # Using local CDN service
     tenantId = "acme-inc";
@@ -74,14 +73,34 @@
     updateIntervalMin = 5;
   };
 
-  # Headless signage setup - auto-login for signage user
-  services.getty.autologinUser = "signage";
-
-  # Ensure X11 is available for Chromium
+  # X11 kiosk setup using recommended NixOS approach
   services.xserver = {
     enable = true;
-    displayManager.startx.enable = true;
+    displayManager.lightdm.enable = true;
+    windowManager.openbox.enable = true;
   };
+
+  services.displayManager = {
+    defaultSession = "none+openbox";
+    autoLogin = {
+      enable = true;
+      user = "lumenboard-player";
+    };
+  };
+
+  # Hide mouse cursor for kiosk mode and disable screen power management
+  services.xserver.displayManager.sessionCommands = ''
+    ${pkgs.xorg.xsetroot}/bin/xsetroot -cursor_name left_ptr
+    ${pkgs.unclutter-xfixes}/bin/unclutter --timeout 1 --jitter 0 --ignore-scrolling --start-hidden --fork
+    ${pkgs.xorg.xset}/bin/xset s off -dpms
+  '';
+
+  # Install kiosk tools
+  environment.systemPackages = with pkgs; [
+    unclutter-xfixes
+    xorg.xsetroot
+    xorg.xset
+  ];
 
   boot.initrd = {
     systemd.enable = true;
@@ -90,6 +109,9 @@
   hostSpec = {
     hostName = "herald-1";
     hostPlatform = "x86_64-linux";
+    colmena = {
+      enable = true;
+    };
   };
 
   system.stateVersion = config.hostSpec.system.stateVersion;
