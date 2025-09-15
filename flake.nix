@@ -161,6 +161,11 @@
       url = "git+ssh://git@github.com/addg0/pterodactyl-addons.git?ref=main";
       flake = false;
     };
+
+    lumenboard-player = {
+      url = "git+https://github.com/AddG0/lumenboard-player.git?ref=tmp";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
   };
 
   outputs = inputs:

@@ -14,6 +14,7 @@
 }: {
   imports = lib.flatten [
     inputs.stylix.nixosModules.stylix
+    inputs.lumenboard-player.nixosModules.signage-player
     ./hardware-configuration.nix
     (lib.custom.scanPaths ./.)
     #################### Hardware ####################
@@ -42,8 +43,8 @@
       "common/optional/nixos/nvtop.nix" # GPU monitor (not available in home-manager)
       # "common/optional/nixos/audio.nix" # pipewire and cli controls - using local audio.nix instead
       #################### Desktop ####################
-      "common/optional/nixos/desktops/plasma6" # window manager
-      "common/optional/nixos/services/greetd.nix" # display manager
+      # "common/optional/nixos/desktops/plasma6" # window manager - disabled for signage-only setup
+      # "common/optional/nixos/services/greetd.nix" # display manager - disabled for headless signage
     ])
   ];
 
@@ -60,6 +61,27 @@
 
   security.firewall.enable = true;
 
+  # Signage Player Configuration
+  services.signage-player = {
+    enable = true;
+    workingDir = "/opt/signage-player";
+    homeDir = "/opt/signage-player";
+    cdnBaseUrl = "http://localhost:9000"; # Using local CDN service
+    tenantId = "acme-inc";
+    screenId = "herald-1";
+    browserCmd = "chromium";
+    port = 8080;
+    updateIntervalMin = 5;
+  };
+
+  # Headless signage setup - auto-login for signage user
+  services.getty.autologinUser = "signage";
+  
+  # Ensure X11 is available for Chromium
+  services.xserver = {
+    enable = true;
+    displayManager.startx.enable = true;
+  };
 
   boot.initrd = {
     systemd.enable = true;
