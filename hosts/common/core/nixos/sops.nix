@@ -7,7 +7,8 @@
   ...
 }: let
   sopsFolder = builtins.toString inputs.nix-secrets + "/secrets";
-in if (config.hostSpec.disableSops == false) then {
+  hasSops = config.hostSpec.disableSops == false;
+in if hasSops then {
   #the import for inputs.sops-nix.nixosModules.sops is handled in hosts/common/core/default.nix so that it can be dynamically input according to the platform
 
   sops = {
