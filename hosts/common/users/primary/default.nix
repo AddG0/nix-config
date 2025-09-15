@@ -18,11 +18,11 @@
         git
       ];
     };
-    linuxConfig = {
+    linuxConfig = if (config.hostSpec.disableSops == false) then {
       users.users.${config.hostSpec.username} = {
         hashedPasswordFile = sopsHashedPasswordFile;
       };
-    };
+    } else {};
     pubKeys = lib.lists.forEach (lib.filesystem.listFilesRecursive ./keys) (key: builtins.readFile key);
   };
 in {
