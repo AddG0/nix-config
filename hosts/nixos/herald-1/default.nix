@@ -14,7 +14,7 @@
 }: {
   imports = lib.flatten [
     inputs.stylix.nixosModules.stylix
-    inputs.lumenboard-player.nixosModules.signage-player
+    inputs.lumenboard-player.nixosModules.lumenboard-player
     ./hardware-configuration.nix
     (lib.custom.scanPaths ./.)
     #################### Hardware ####################
@@ -62,10 +62,9 @@
   security.firewall.enable = true;
 
   # Signage Player Configuration
-  services.signage-player = {
+  services.lumenboard-player = {
     enable = true;
-    homeDir = "/opt/signage-player";
-    cdnBaseUrl = "http://localhost:9000"; # Using local CDN service
+    cdnBaseUrl = "http://localhost:9000";
     tenantId = "acme-inc";
     screenId = "herald-1";
     browserCmd = "chromium";
