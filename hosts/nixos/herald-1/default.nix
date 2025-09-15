@@ -67,7 +67,6 @@
   hostSpec = {
     hostName = "herald-1";
     hostPlatform = "x86_64-linux";
-    disableSops = true;
   };
 
   system.stateVersion = config.hostSpec.system.stateVersion;

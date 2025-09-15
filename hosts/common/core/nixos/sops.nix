@@ -7,8 +7,7 @@
   ...
 }: let
   sopsFolder = builtins.toString inputs.nix-secrets + "/secrets";
-  hasSops = config.hostSpec.disableSops == false;
-in if hasSops then {
+in {
   #the import for inputs.sops-nix.nixosModules.sops is handled in hosts/common/core/default.nix so that it can be dynamically input according to the platform
 
   sops = {
@@ -62,5 +61,4 @@ in if hasSops then {
     mkdir -p ${ageFolder} || true
     chown -R ${user}:${group} ${config.hostSpec.home}/.config
   '';
-} else {}
-
+}
