@@ -75,7 +75,10 @@
   # X11 kiosk setup using recommended NixOS approach
   services.xserver = {
     enable = true;
-    displayManager.lightdm.enable = true;
+    displayManager.lightdm = {
+      enable = true;
+      background = "#000000";
+    };
     windowManager.openbox.enable = true;
   };
 
