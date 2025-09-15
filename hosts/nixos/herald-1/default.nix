@@ -14,6 +14,7 @@
 }: {
   imports = lib.flatten [
     inputs.stylix.nixosModules.stylix
+    ./hardware-configuration.nix
     (lib.custom.scanPaths ./.)
     #################### Hardware ####################
     inputs.hardware.nixosModules.common-cpu-intel
