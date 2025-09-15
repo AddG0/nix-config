@@ -10,7 +10,7 @@
   username = hostSpec.username;
 in {
   programs.git = {
-    enable = true;
+    enable = false;
     # package = pkgs.gitAndTools.gitFull;
     lfs.enable = true;
     userName = handle;
