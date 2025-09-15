@@ -76,7 +76,7 @@
 
   # Headless signage setup - auto-login for signage user
   services.getty.autologinUser = "signage";
-  
+
   # Ensure X11 is available for Chromium
   services.xserver = {
     enable = true;
