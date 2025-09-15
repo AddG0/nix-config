@@ -144,7 +144,7 @@ check-sops:
 update-personal-repos:
   (cd {{NIX_SECRETS_DIR}} && git fetch && git rebase) || true
   nix flake update nix-secrets || true
-  nix flake update pterodactyl-addons || true
+  nix flake update pterodactyl-addons lumenboard-player || true
 
 [group('installation')]
 [doc("Build NixOS ISO image")]
