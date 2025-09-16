@@ -62,14 +62,26 @@
   security.firewall.enable = true;
 
   # Signage Player Configuration
-  services.lumenboard-player = {
-    enable = true;
-    cdnBaseUrl = "http://localhost:9000";
-    tenantId = "acme-inc";
-    screenId = "herald-1";
-    browserCmd = "chromium";
-    port = 8080;
-    updateIntervalMin = 5;
+  services.lumenboard-player.instances = {
+    tv-1 = {
+      enable = true;
+      cdnBaseUrl = "http://localhost:9000";
+      tenantId = "acme-inc";
+      screenId = "herald-1";
+      environment.extra = {
+        DISPLAY = ":1";
+      };
+    };
+    tv-2 = {
+      enable = true;
+      cdnBaseUrl = "http://localhost:9000";
+      tenantId = "acme-inc";
+      screenId = "herald-2";
+      port = 8089;
+      environment.extra = {
+        DISPLAY = ":0";
+      };
+    };
   };
 
   # X11 kiosk setup using recommended NixOS approach
@@ -80,6 +92,8 @@
       background = "#000000";
     };
     windowManager.openbox.enable = true;
+    # Configure for dual display
+    xrandrHeads = [ "DP-1" "HDMI-A-1" ];
   };
 
   services.displayManager = {
@@ -92,6 +106,8 @@
 
   # Hide mouse cursor for kiosk mode and disable screen power management
   services.xserver.displayManager.sessionCommands = ''
+    # Configure dual display layout
+    ${pkgs.xorg.xrandr}/bin/xrandr --output DP-1 --auto --output HDMI-A-1 --auto --right-of DP-1
     ${pkgs.xorg.xsetroot}/bin/xsetroot -cursor_name left_ptr
     ${pkgs.unclutter-xfixes}/bin/unclutter --timeout 1 --jitter 0 --ignore-scrolling --start-hidden --fork
     ${pkgs.xorg.xset}/bin/xset s off -dpms
@@ -102,6 +118,7 @@
     unclutter-xfixes
     xorg.xsetroot
     xorg.xset
+    xorg.xrandr
   ];
 
   boot.initrd = {
