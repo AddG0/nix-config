@@ -69,7 +69,7 @@
       tenantId = "acme-inc";
       screenId = "herald-1";
       environment.extra = {
-        DISPLAY = ":1";
+        DISPLAY = ":0";
       };
     };
     tv-2 = {
@@ -77,6 +77,7 @@
       cdnBaseUrl = "http://localhost:9000";
       tenantId = "acme-inc";
       screenId = "herald-2";
+      windowX = 3840;
       port = 8089;
       environment.extra = {
         DISPLAY = ":0";
@@ -120,6 +121,15 @@
     xorg.xset
     xorg.xrandr
   ];
+
+  # Ensure lightdm auth file is readable by lumenboard-player user
+  # systemd.services.fix-lightdm-auth = {
+  #   description = "Make lightdm auth file readable";
+  #   after = [ "display-manager.service" ];
+  #   wantedBy = [ "multi-user.target" ];
+  #   serviceConfig.Type = "oneshot";
+  #   script = ''chmod 644 /var/run/lightdm/root/:0 || true'';
+  # };
 
   boot.initrd = {
     systemd.enable = true;
