@@ -90,6 +90,7 @@ in {
       set -g pane-active-border-style 'fg=magenta,bg=default'
       set -g pane-border-style 'fg=brightblack,bg=default'
 
+      set -g mode-keys vi              # enable vi mode keys for copy mode
       set -g base-index 1              # start indexing windows at 1 instead of 0
       set -g detach-on-destroy off     # don't exit from tmux when closing a session
       set -g escape-time 0             # zero-out escape time delay
