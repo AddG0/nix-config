@@ -21,6 +21,8 @@ in {
       better-mouse-mode
       yank
       tmux-thumbs
+      cpu
+      battery
       {
         plugin = tmux-fzf;
         extraConfig = ''
@@ -31,45 +33,29 @@ in {
       {
         plugin = catppuccin;
         extraConfig = ''
-          set -g @catppuccin_window_left_separator ""
-          set -g @catppuccin_window_right_separator " "
-          set -g @catppuccin_window_middle_separator " █"
-
-
-          set -g @catppuccin_window_number_position "right"
-          set -g @catppuccin_window_default_fill "number"
-          set -g @catppuccin_window_default_text "#W"
-          set -g @catppuccin_window_current_fill "number"
-          set -g @catppuccin_window_current_text "#W#{?window_zoomed_flag,(),}"
-          set -g @catppuccin_status_modules_right "directory date_time"
-          set -g @catppuccin_status_modules_left "session"
-          set -g @catppuccin_status_right_separator_inverse "no"
-          set -g @catppuccin_status_fill "icon"
-          set -g @catppuccin_status_connect_separator "no"
-          set -g @catppuccin_directory_text "#{b:pane_current_path}"
-
-          set -g @catppuccin_date_time_text "%H:%M"
-
           set -g @catppuccin_flavour 'mocha'
           set -g @catppuccin_window_status_style "rounded"
 
-          #
-          # set -g @catppuccin_window_number_position "right"
+          # Fix to show the window name by default
+          set -g @catppuccin_window_default_text "#W"
+          set -g @catppuccin_window_text "#W"
+          # This will show a magnifying glass icon when the window is zoomed
+          set -g @catppuccin_window_current_text "#W#{?window_zoomed_flag,(),}"
 
-          # set -g @catppuccin_status_modules_right "directory user host session"
-          set -g @catppuccin_status_left_separator  " "
-          set -g @catppuccin_status_right_separator ""
-          # set -g @catppuccin_status_right_separator_inverse "no"
-          # set -g @catppuccin_status_fill "icon"
-          # set -g @catppuccin_status_connect_separator "no"
-          # set -g @catppuccin_status_modules_right "application session date_time"
+          # Left Status Modules
+          set -g @catppuccin_status_modules_left "session"
 
-          # Set the window name to the current path if it is zsh, otherwise set it to the window name
-          # set -g @catppuccin_window_default_fill "number"
-          # set -g @catppuccin_window_default_text "#{?#{==:#{window_name},zsh},#{b:pane_current_path},#{?window_name,#{window_name},#{b:pane_current_path}}}"
+          # Right Status Modules
+          set -g status-right-length 100
+          set -g status-left-length 100
+          set -g status-right "#{E:@catppuccin_status_application}"
+          set -agF status-right "#{E:@catppuccin_status_cpu}"
+          set -ag status-right "#{E:@catppuccin_status_date_time}"
+          set -agF status-right "#{E:@catppuccin_status_battery}"
+          set -agF status-right "#{@catppuccin_status_gitmux}"
 
-          # set -g @catppuccin_window_current_fill "number"
-          # set -g @catppuccin_window_current_text "#{?#{==:#{window_name},zsh},#{b:pane_current_path},#{?window_name,#{window_name},#{b:pane_current_path}}}"
+          set -g @catppuccin_directory_text "#{b:pane_current_path}"
+          set -g @catppuccin_date_time_text " %I:%M %p %d/%m/%y "
         '';
       }
       # {
@@ -115,6 +101,9 @@ in {
       }
     '';
   };
+  home.packages = with pkgs; [
+    gitmux
+  ];
   home.shellAliases = shellAliases;
   programs.zsh.initContent = ''
     function default_tmux_session() {
@@ -124,3 +113,4 @@ in {
     }
   '';
 }
+
