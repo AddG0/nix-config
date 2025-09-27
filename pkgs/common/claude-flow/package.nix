@@ -14,10 +14,10 @@
       owner = "ruvnet";
       repo = "claude-flow";
       rev = "main";
-      sha256 = "sha256-u02Xqj6wWxqTtpSOWEfuPBbYUl4bBPJNvGgA5WZKPaw=";
+      sha256 = "sha256-HFIY9uAdOBRiwOHPrWduCfUAidHEtt3OZMT+GcXdY2s=";
     };
 
-    npmDepsHash = "sha256-Gpuvl8o8vvQd8uKJRte3YqY3ZzIyvXnTyC0iVDzWUMQ=";
+    npmDepsHash = "sha256-C74Gv6Xtr+Hl06mxxTCoWaif5UIE5kZatcjoBUCKQHY";
 
     nodejs = nodejs_20;
 
