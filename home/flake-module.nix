@@ -55,15 +55,6 @@
     userDirs
   );
 
-  # Function to determine system architecture for a host
-  getSystemForHost = hostName: let
-    nixosHostExists = builtins.pathExists (../hosts/nixos + "/${hostName}");
-    darwinHostExists = builtins.pathExists (../hosts/darwin + "/${hostName}");
-  in
-    if nixosHostExists then "x86_64-linux"
-    else if darwinHostExists then "aarch64-darwin"
-    else "x86_64-linux"; # Default to x86_64-linux
-
   # Build actual home-manager configurations
   homeConfigurations = builtins.listToAttrs (
     builtins.concatMap (
@@ -78,59 +69,28 @@
             then hostName
             else "${user}@${hostName}";
           configPath = ./. + "/${user}/${hostFile}";
-          system = getSystemForHost hostName;
         in {
           name = configName;
-          value = let
-            # Extend both nixpkgs lib and home-manager lib
-            extendedLib = inputs.nixpkgs.lib.extend (self: super: {
-              custom = import ../lib/default.nix {inherit (inputs.nixpkgs) lib;};
-              hm = inputs.home-manager.lib.hm;
-            });
-          in inputs.home-manager.lib.homeManagerConfiguration {
-            pkgs = inputs.nixpkgs.legacyPackages.${system};
+          value = inputs.home-manager.lib.homeManagerConfiguration {
+            pkgs = inputs.nixpkgs.legacyPackages.x86_64-linux;
             extraSpecialArgs = {
               inherit inputs;
-              inherit self;
-              lib = extendedLib;
               # Add common special args that home configs might need
               hostSpec = {
                 hostName = hostName;
                 username = user;
-                handle = user;
                 # Default values that can be overridden
                 isMinimal = false;
-                disableSops = true; # Disable sops for standalone home configs
                 system = {
                   stateVersion = "24.05";
                 };
                 home = "/home/${user}";
-                isDarwin = system == "aarch64-darwin" || system == "x86_64-darwin";
-                hostPlatform = system;
-                domain = "example.com";
-                email = {
-                  personal = "user@example.com";
-                  work = "user@work.example.com";
-                };
-                userFullName = "Example User";
-                githubEmail = "user@example.com";
-                networking = {
-                  prefixLength = 24;
-                  ports.tcp.ssh = 22;
-                  ssh = {
-                    extraConfig = "";
-                  };
-                };
               };
               desktops = {};
               nix-secrets = inputs.nix-secrets;
               nur-ryan4yin = inputs.nur-ryan4yin;
             };
             modules = [
-              # Pass lib to modules
-              {
-                _module.args.lib = extendedLib;
-              }
               configPath
               # Include any common modules
               {
@@ -148,33 +108,11 @@
     )
     userDirs
   );
-
-  # Also keep placeholders for backward compatibility with genUser
-  homeConfigPlaceholders = builtins.listToAttrs (
-    builtins.concatMap (
-      user: let
-        userPath = ./. + "/${user}";
-        hostConfigs = getHostConfigs userPath;
-      in
-        builtins.map (hostFile: {
-          name =
-            if user == "primary"
-            then builtins.replaceStrings [".nix"] [""] hostFile
-            else "${user}@${builtins.replaceStrings [".nix"] [""] hostFile}";
-          value = {
-            _placeholder = true;
-            user = user;
-            hostFile = hostFile;
-            configPath = ./. + "/${user}/${hostFile}";
-          };
-        })
-        hostConfigs
-    )
-    userDirs
-  );
 in {
-  # Use home-manager's flake module to define homeConfigurations
-  flake.homeConfigurations = homeConfigurations;
+  # Export as proper top-level flake outputs
+  flake = {
+    homeConfigurations = homeConfigurations;
+  };
 
   # Also export metadata and helpers in legacyPackages
   perSystem = {

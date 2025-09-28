@@ -5,32 +5,36 @@
   lib,
   ...
 }: {
-  imports = [
+  imports = lib.flatten [
     inputs.stylix.homeModules.stylix
-
-    #################### Required Configs ####################
-    common/core # required
-
-    #################### Host-specific Optional Configs ####################
-    common/optional/helper-scripts
-    common/optional/jupyter-notebook
-    common/optional/nixos/desktops/hyprland # default is hyprland
-    common/optional/browsers
-    common/optional/development/ide.nix
-    common/optional/secrets
-    common/optional/secrets/kubeconfig.nix
-    common/optional/gaming/minecraft.nix
-    common/optional/gaming/steam.nix
-    common/optional/comms
-    common/optional/ghostty
-    common/optional/secrets/1password.nix
-    common/optional/development/aws.nix
-    common/optional/nixos/gpg-agent.nix
-    common/optional/media/spicetify.nix
-    common/optional/media/tidal.nix
-    common/optional/media
-    common/optional/nixos/vlc.nix
-    # common/optional/remote-desktop/rustdesk.nix
+    (map lib.custom.relativeToHome (
+      [
+        #################### Required Configs ####################
+        "common/core" # required
+      ]
+      ++ (map (f: "common/optional/${f}") [
+        #################### Host-specific Optional Configs ####################
+        "helper-scripts"
+        "jupyter-notebook"
+        "nixos/desktops/hyprland" # default is hyprland
+        "browsers"
+        "development/ide.nix"
+        "secrets"
+        "secrets/kubeconfig.nix"
+        "gaming/minecraft.nix"
+        "gaming/steam.nix"
+        "comms"
+        "ghostty"
+        "secrets/1password.nix"
+        "development/aws.nix"
+        "nixos/gpg-agent.nix"
+        "media/spicetify.nix"
+        "media/tidal.nix"
+        "media"
+        "nixos/vlc.nix"
+        # "remote-desktop/rustdesk.nix"
+      ])
+    ))
   ];
 
   # modules.desktop.hyprland = {
