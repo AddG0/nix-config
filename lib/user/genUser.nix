@@ -61,7 +61,7 @@
       if user == hostSpec.username
       then hostSpec.hostName
       else "${user}@${hostSpec.hostName}";
-    configPath = ../home + "/${userDir}/${hostSpec.hostName}.nix";
+    configPath = ../../home + "/${userDir}/${hostSpec.hostName}.nix";
   in
     if hostSpec.isMinimal
     then {

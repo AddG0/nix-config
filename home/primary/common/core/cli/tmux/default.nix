@@ -60,16 +60,16 @@ in {
           set -g status-right-length 100
           set -g status-left-length 100
           set -g status-right "#{E:@catppuccin_status_application}"
-          set -ag status-right "#{E:@catppuccin_status_cpu}"
+          set -agF status-right "#{E:@catppuccin_status_cpu}"
           set -ag status-right "#{E:@catppuccin_status_date_time}"
-          set -ag status-right "#{E:@catppuccin_status_battery}"
-          set -ag status-right "#{E:@catppuccin_status_gitmux}"
+          set -agF status-right "#{E:@catppuccin_status_battery}"
+          set -agF status-right "#{@catppuccin_status_gitmux}"
 
           set -g @catppuccin_status_connect_separator "no"
           set -g @catppuccin_window_left_separator ""
           # set -g @catppuccin_window_right_separator " "
           set -g @catppuccin_window_middle_separator " █"
-          set -g @catppuccin_status_left_separator  "  "
+          set -g @catppuccin_status_left_separator  " "
           set -g @catppuccin_status_right_separator ""
           # set -g @catppuccin_status_right_separator_inverse "no"
           set -g @catppuccin_window_number_position "right"
