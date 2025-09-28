@@ -28,7 +28,7 @@
     isDarwin = false;
     isMinimal = true;
     disableSops = true;
-  }
+  };
 
   programs.btop.enable = lib.mkForce true;
 }
