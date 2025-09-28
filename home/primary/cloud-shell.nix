@@ -21,13 +21,11 @@
     ))
   ];
 
-  hostSpec = {
-    username = "addg0_personal";
-    hostName = "gcloud-shell";
-    handle = "addg";
-    isDarwin = false;
-    isMinimal = true;
-    disableSops = true;
+  # Override home configuration for cloud shell
+  home = {
+    username = lib.mkForce "addg0_personal";
+    homeDirectory = lib.mkForce "/home/addg0_personal";
+    stateVersion = "24.05";
   };
 
   programs.btop.enable = lib.mkForce true;

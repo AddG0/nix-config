@@ -84,12 +84,12 @@
               inherit self;
               # Use the extended lib with custom functions
               lib = extendedLib;
-              # Add common special args that home configs might need
+              # Provide basic hostSpec - modules can override specific values
               hostSpec = {
                 hostName = hostName;
                 username = user;
                 handle = user;
-                # Default values that can be overridden
+                home = "/home/${user}";
                 isMinimal = false;
                 isDarwin = false;
                 disableSops = true;
@@ -97,7 +97,6 @@
                 system = {
                   stateVersion = "24.05";
                 };
-                home = "/home/${user}";
                 domain = "example.com";
                 email = {
                   personal = "user@example.com";
@@ -123,15 +122,6 @@
                 _module.args.lib = extendedLib;
               }
               configPath
-              # Include any common modules
-              {
-                home = {
-                  username = user;
-                  homeDirectory = "/home/${user}";
-                  stateVersion = "24.05";
-                };
-                programs.home-manager.enable = true;
-              }
             ];
           };
         })
