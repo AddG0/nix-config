@@ -1,7 +1,11 @@
-{config, ...}: {
-  imports = [
+{
+  lib,
+  config,
+  ...
+}: {
+  imports = map lib.custom.relativeToHome [
     #################### Required Configs ####################
-    common/core # required
+    "common/core" # required
 
     #################### Host-specific Optional Configs ####################
   ];

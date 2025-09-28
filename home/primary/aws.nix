@@ -1,10 +1,17 @@
-{config, ...}: {
-  imports = [
-    #################### Required Configs ####################
-    common/core # required
-
-    #################### Host-specific Optional Configs ####################
-    common/optional/helper-scripts
-    common/optional/jupyter-notebook
-  ];
+{
+  lib,
+  config,
+  ...
+}: {
+  imports = map lib.custom.relativeToHome (
+    [
+      #################### Required Configs ####################
+      "common/core" # required
+    ]
+    ++ (map (f: "common/optional/${f}") [
+      #################### Host-specific Optional Configs ####################
+      "helper-scripts"
+      "jupyter-notebook"
+    ])
+  );
 }

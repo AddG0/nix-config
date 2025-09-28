@@ -7,37 +7,42 @@
   desktops,
   ...
 }: {
-  imports = [
+  imports = lib.flatten [
     inputs.stylix.homeModules.stylix
-    #################### Required Configs ####################
-    common/core # required
 
-    #################### Host-specific Optional Configs ####################
-    # common/optional/helper-scripts
-    # common/optional/jupyter-notebook
-    common/optional/browsers
-    common/optional/development/ide.nix
-    # common/optional/secrets
-    # common/optional/secrets/kubeconfig.nix
-    common/optional/gaming/minecraft.nix
-    common/optional/gaming/steam.nix
-    common/optional/comms
-    common/optional/ghostty
-    common/optional/secrets/1password.nix
-    # common/optional/development/aws.nix
-    common/optional/nixos/gpg-agent.nix
-    common/optional/media/spicetify.nix
-    common/optional/media/tidal.nix
-    common/optional/media
-    common/optional/nixos/desktops/plasma6
-    # common/optional/remote-desktop/rustdesk.nix
-    # common/optional/development/virtualization
-    # common/optional/development/virtualization/lens.nix
-    common/optional/nixos/vlc.nix
-    # common/optional/remote-desktop/mouseshare/lan-mouse.nix
-    common/optional/development/tools.nix
-    common/optional/development/postman.nix
-    common/optional/helper-scripts
+    (map lib.custom.relativeToHome (
+      [
+        #################### Required Configs ####################
+        "common/core" # required
+      ]
+      ++ (map (f: "common/optional/${f}") [
+        # "helper-scripts"
+        # "jupyter-notebook"
+        "browsers"
+        "development/ide.nix"
+        # "secrets"
+        # "secrets/kubeconfig.nix"
+        "gaming/minecraft.nix"
+        "gaming/steam.nix"
+        "comms"
+        "ghostty"
+        "secrets/1password.nix"
+        # "development/aws.nix"
+        "nixos/gpg-agent.nix"
+        "media/spicetify.nix"
+        "media/tidal.nix"
+        "media"
+        "nixos/desktops/plasma6"
+        # "remote-desktop/rustdesk.nix"
+        # "development/virtualization"
+        # "development/virtualization/lens.nix"
+        "nixos/vlc.nix"
+        # "remote-desktop/mouseshare/lan-mouse.nix"
+        "development/tools.nix"
+        "development/postman.nix"
+        "helper-scripts"
+      ])
+    ))
   ];
 
   home.file."Videos/Movies".source = config.lib.file.mkOutOfStoreSymlink "/mnt/videos";

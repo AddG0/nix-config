@@ -1,17 +1,20 @@
 {lib, ...}: {
-  imports = [
-    #################### Required Configs ####################
-    common/core
-
-    #################### Host-specific Optional Configs ####################
-    common/optional/helper-scripts
-    common/optional/development/java.nix
-    common/optional/jupyter-notebook
-    common/optional/comms
-    common/optional/development/ide.nix
-    common/optional/development/tilt.nix
-    common/optional/development/node.nix
-    common/optional/development/misc-language-servers.nix
-    common/optional/ghostty
-  ];
+  imports = map lib.custom.relativeToHome (
+    [
+      #################### Required Configs ####################
+      "common/core"
+    ]
+    ++ (map (f: "common/optional/${f}") [
+      #################### Host-specific Optional Configs ####################
+      "helper-scripts"
+      "development/java.nix"
+      "jupyter-notebook"
+      "comms"
+      "development/ide.nix"
+      "development/tilt.nix"
+      "development/node.nix"
+      "development/misc-language-servers.nix"
+      "ghostty"
+    ])
+  );
 }
