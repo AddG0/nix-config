@@ -31,6 +31,17 @@ in {
         '';
       }
       {
+        plugin = tmux-floax;
+        extraConfig = ''
+          set -g @floax-width '80%'
+          set -g @floax-height '80%'
+          set -g @floax-border-color 'magenta'
+          set -g @floax-text-color 'blue'
+          set -g @floax-bind 'p'
+          set -g @floax-change-path 'true'
+        '';
+      }
+      {
         plugin = catppuccin;
         extraConfig = ''
           set -g @catppuccin_flavour 'mocha'
@@ -49,10 +60,20 @@ in {
           set -g status-right-length 100
           set -g status-left-length 100
           set -g status-right "#{E:@catppuccin_status_application}"
-          set -agF status-right "#{E:@catppuccin_status_cpu}"
+          set -ag status-right "#{E:@catppuccin_status_cpu}"
           set -ag status-right "#{E:@catppuccin_status_date_time}"
-          set -agF status-right "#{E:@catppuccin_status_battery}"
-          set -agF status-right "#{@catppuccin_status_gitmux}"
+          set -ag status-right "#{E:@catppuccin_status_battery}"
+          set -ag status-right "#{E:@catppuccin_status_gitmux}"
+
+          set -g @catppuccin_status_connect_separator "no"
+          set -g @catppuccin_window_left_separator ""
+          # set -g @catppuccin_window_right_separator " "
+          set -g @catppuccin_window_middle_separator " █"
+          set -g @catppuccin_status_left_separator  "  "
+          set -g @catppuccin_status_right_separator ""
+          # set -g @catppuccin_status_right_separator_inverse "no"
+          set -g @catppuccin_window_number_position "right"
+
 
           set -g @catppuccin_directory_text "#{b:pane_current_path}"
           set -g @catppuccin_date_time_text " %I:%M %p %d/%m/%y "
@@ -101,9 +122,6 @@ in {
       }
     '';
   };
-  home.packages = with pkgs; [
-    gitmux
-  ];
   home.shellAliases = shellAliases;
   programs.zsh.initContent = ''
     function default_tmux_session() {

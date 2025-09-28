@@ -75,7 +75,7 @@
   perSystem = {system, ...}: let
     # Currently enabled formats (others commented out for faster evaluation)
     formats = [
-      "amazon"
+      # "amazon"
       # "azure"
       # "cloudstack"
       # "do"
