@@ -64,6 +64,7 @@
   };
 
   programs.btop.enable = lib.mkForce true;
+  services.safeeyes.enable = true;
 
   #
   # ========== Host-specific Monitor Spec ==========

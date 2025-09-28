@@ -173,6 +173,7 @@
       systems = ["x86_64-linux" "x86_64-darwin" "aarch64-darwin"];
 
       imports = [
+        inputs.home-manager.flakeModules.home-manager
         ./lib/flake-module.nix
         ./overlays/flake-module.nix
         ./pkgs/flake-module.nix
