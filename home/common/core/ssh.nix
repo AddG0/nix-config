@@ -71,6 +71,16 @@ in {
           identityFile = lib.lists.forEach identityFiles (file: "${config.home.homeDirectory}/.ssh/${file}");
         };
 
+        "gitlab-personal" = {
+          host = "gitlab-personal";
+          hostname = "gitlab.com";
+          user = "git";
+          forwardAgent = false;
+          identitiesOnly = true;
+          identityFile = "${config.home.homeDirectory}/.ssh/id_ed25519_server";
+          identityAgent = "none";
+        };
+
         "git" = {
           host = "gitlab.com github.com";
           user = "git";
