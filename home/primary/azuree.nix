@@ -36,6 +36,7 @@
         # "remote-desktop/rustdesk.nix"
         # "development/virtualization"
         # "development/virtualization/lens.nix"
+        "development/gcloud.nix"
         "nixos/vlc.nix"
         # "remote-desktop/mouseshare/lan-mouse.nix"
         "development/tools.nix"

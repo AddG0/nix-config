@@ -93,6 +93,12 @@ in {
         ZSH_AUTOSUGGEST_DISABLE="true"
         source "''${HOME}/Library/Application Support/amazon-q/shell/zshrc.post.zsh"
       fi
+
+      # Load gdcloud completion for current session
+      if command -v gdcloud >/dev/null 2>&1; then
+        source <(gdcloud completion zsh)
+        compdef _gdcloud gdcloud
+      fi
     '';
   };
 }
