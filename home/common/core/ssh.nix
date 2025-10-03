@@ -79,6 +79,8 @@ in {
           identitiesOnly = true;
           identityFile = "${config.home.homeDirectory}/.ssh/id_ed25519_server";
           identityAgent = "none";
+          controlMaster = "no";
+          controlPath = "none";
         };
 
         "git" = {
