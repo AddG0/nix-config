@@ -4,6 +4,10 @@
   pkgs,
   ...
 }: {
+  # Plasma Monitor Configuration:
+  # - Use `kscreen-doctor -o` to list monitors
+  # - Set primary monitor: `kscreen-doctor output.3.primary` (replace 3 with output number)
+
   programs.plasma = {
     enable = true;
 
@@ -69,6 +73,24 @@
       name = "Launch Ghostty";
       key = "Meta+Alt+K";
       command = "ghostty";
+    };
+
+    hotkeys.commands."save-replay" = {
+      name = "Save Replay (Last 60s)";
+      key = "Meta+X";
+      command = "save-gsr-replay";
+    };
+
+    hotkeys.commands."stop-replay-buffer" = {
+      name = "Stop GPU Screen Recorder Replay Buffer";
+      key = "Meta+F10";
+      command = "systemctl --user stop gpu-screen-recorder-replay.service";
+    };
+
+    hotkeys.commands."start-replay-buffer" = {
+      name = "Start GPU Screen Recorder Replay Buffer";
+      key = "Meta+F11";
+      command = "systemctl --user start gpu-screen-recorder-replay.service";
     };
 
     # Panel configuration
