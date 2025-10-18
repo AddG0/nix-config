@@ -4,6 +4,7 @@
       (pkgs)
       ffmpeg
       vlc
+      losslesscut
       ;
     inherit
       (pkgs.stable)

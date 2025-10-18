@@ -72,6 +72,11 @@
   programs.btop.enable = lib.mkForce true;
   services.safeeyes.enable = true;
 
+  services.gpu-screen-recorder = {
+    enable = true;
+    display = "DP-5";
+  };
+
   #
   # ========== Host-specific Monitor Spec ==========
   #
@@ -87,37 +92,33 @@
   #  ------   ------   ------
   monitors = [
     {
-      name = "DP-1";
-      use_nwg = false;
-      width = 3440;
-      height = 1440;
-      # resolution = "2560x1600@165.04";
-      refreshRate = 180;
-      x = 3840;
-      y = 218;
-      vrr = 1;
-      primary = true;
-    }
-    {
-      name = "DP-2";
+      name = "DP-3";
       width = 3840;
       height = 2160;
       refreshRate = 144;
       vrr = 0;
       x = 0;
       y = 0;
-      # workspace = "0";
     }
     {
-      name = "DP-3";
-      width = 1920;
-      height = 1080;
+      name = "DP-4";
+      width = 1080;
+      height = 1920;
       refreshRate = 60;
       transform = 3;
       vrr = 0;
-      x = 7280;
+      x = 7680;
+      y = 240;
+    }
+    {
+      name = "DP-5";
+      width = 3840;
+      height = 2160;
+      refreshRate = 240;
+      vrr = 0;
+      x = 3840;
       y = 0;
-      # workspace = "0";
+      primary = true;
     }
     {
       name = "";

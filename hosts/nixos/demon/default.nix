@@ -55,10 +55,14 @@
     ])
   ];
 
+  programs.gpu-screen-recorder.enable = true;
+
   networking = {
     networkmanager.enable = true;
     enableIPv6 = false;
   };
+
+  boot.kernelPackages = pkgs.linuxPackages_latest;
 
   boot.loader = {
     systemd-boot.enable = true;
