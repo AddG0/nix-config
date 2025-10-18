@@ -77,7 +77,7 @@ in {
           user = "git";
           forwardAgent = false;
           identitiesOnly = true;
-          identityFile = "${config.home.homeDirectory}/.ssh/id_ed25519_server";
+          identityFile = "${config.home.homeDirectory}/.ssh/id_ed25519_personal";
           identityAgent = "none";
           controlMaster = "no";
           controlPath = "none";

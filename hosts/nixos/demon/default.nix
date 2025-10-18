@@ -40,7 +40,7 @@
       "common/optional/nixos/services/openssh.nix" # allow remote SSH access
       "common/optional/nixos/nvtop.nix" # GPU monitor (not available in home-manager)
       # "common/optional/nixos/audio.nix" # pipewire and cli controls - using local audio.nix instead
-      "common/optional/nixos/gaming.nix" # steam, gamescope, gamemode, and related hardware
+       "common/optional/nixos/gaming.nix" # steam, gamescope, gamemode, and related hardware
       # "common/optional/nixos/services/vscode-server.nix"
       # "common/optional/nixos/services/home-assistant"
       "common/optional/nixos/virtualisation/docker.nix" # docker
@@ -70,7 +70,7 @@
 
   services.deskflow-client = {
     enable = true;
-    clientName = "azuree";
+    clientName = "demon";
     serverAddress = "192.168.110.160:24800";
   };
 
@@ -90,9 +90,11 @@
   };
 
   hostSpec = {
-    hostName = "azuree";
+    hostName = "demon";
     hostPlatform = "x86_64-linux";
   };
+
+  hardware.xone.enable = true;
 
   environment.systemPackages = with pkgs; [
     cifs-utils
