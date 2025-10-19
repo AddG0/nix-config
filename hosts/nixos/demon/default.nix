@@ -46,7 +46,7 @@
       "common/optional/nixos/virtualisation/docker.nix" # docker
       # "common/optional/nixos/plymouth.nix" # fancy boot screen
       "common/optional/nixos/services/nginx.nix" # nginx
-      "common/optional/nixos/obs.nix" # obs
+      # "common/optional/nixos/obs.nix" # obs
       "common/optional/nixos/hardware/openrazer.nix" # openrazer
       #################### Desktop ####################
       "common/optional/nixos/desktops/plasma6" # window manager
@@ -120,8 +120,10 @@
       "x-systemd.automount"
       "noauto"
       "x-systemd.idle-timeout=60"
-      "x-systemd.device-timeout=5s"
-      "x-systemd.mount-timeout=5s"
+      "vers=3.1.1"
+      "soft"
+      "timeo=5"
+      "retry=0"
       "uid=${toString config.users.users.${config.hostSpec.username}.uid}"
       "gid=${toString config.users.users.${config.hostSpec.username}.group}"
       "credentials=${config.sops.secrets.nas-credentials.path}"
