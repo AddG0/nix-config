@@ -117,16 +117,16 @@
     device = "//10.10.15.252/videos";
     fsType = "cifs";
     options = [
-      "x-systemd.automount"
-      "noauto"
-      "x-systemd.idle-timeout=60"
-      "vers=3.1.1"
-      "soft"
-      "timeo=5"
-      "retry=0"
-      "uid=${toString config.users.users.${config.hostSpec.username}.uid}"
-      "gid=${toString config.users.users.${config.hostSpec.username}.group}"
-      "credentials=${config.sops.secrets.nas-credentials.path}"
+        "x-systemd.automount"
+        "noauto"
+        "x-systemd.idle-timeout=60"
+        "uid=${toString config.users.users.${config.hostSpec.username}.uid}"
+        "gid=${toString config.users.users.${config.hostSpec.username}.group}"
+        "credentials=${config.sops.secrets.nas-credentials.path}"
+        "_netdev"
+        "soft"
+        "vers=3.1.1"
+        "echo_interval=10"
     ];
   };
 
