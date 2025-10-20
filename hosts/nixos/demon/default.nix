@@ -89,6 +89,8 @@
     };
   };
 
+  security.allow-poweroff.enable = true;
+
   boot.initrd = {
     systemd.enable = true;
   };
