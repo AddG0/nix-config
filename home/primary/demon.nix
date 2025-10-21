@@ -42,6 +42,8 @@
         "development/tools.nix"
         "development/postman.nix"
         "helper-scripts"
+        "development/terraform.nix"
+        "development/virtualization/kubernetes.nix"
       ])
     ))
   ];
