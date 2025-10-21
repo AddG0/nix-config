@@ -2,16 +2,13 @@
   config,
   pkgs,
   ...
-}: let
-  shellAliases = {
-    k = "kubectl";
-
-    urldecode = "${pkgs.python3Packages.urllib3}/bin/urllib3 -c 'import sys, urllib.parse as ul; print(ul.unquote_plus(sys.stdin.read()))'";
-    urlencode = "${pkgs.python3Packages.urllib3}/bin/urllib3 -c 'import sys, urllib.parse as ul; print(ul.quote_plus(sys.stdin.read()))'";
-  };
-in {
+}: {
   programs.zsh = {
     enable = true;
+    shellAliases = {
+      urldecode = "${pkgs.python3Packages.urllib3}/bin/urllib3 -c 'import sys, urllib.parse as ul; print(ul.unquote_plus(sys.stdin.read()))'";
+      urlencode = "${pkgs.python3Packages.urllib3}/bin/urllib3 -c 'import sys, urllib.parse as ul; print(ul.quote_plus(sys.stdin.read()))'";
+    };
 
     plugins = [
       # {
