@@ -92,7 +92,7 @@
         force_xwayland = false; # Better Wayland support
 
         # Browser for opening urls in context menu
-        browser = "${pkgs.zen-browser}/bin/zen-browser";
+        # browser = "${pkgs.zen-browser}/bin/zen-browser";
 
         # Enable mouse actions
         mouse_left_click = "do_action";

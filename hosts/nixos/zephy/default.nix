@@ -41,13 +41,13 @@
       "common/optional/nixos/nvtop.nix" # GPU monitor (not available in home-manager)
       "common/optional/nixos/audio.nix" # pipewire and cli controls
       "common/optional/nixos/gaming.nix" # steam, gamescope, gamemode, and related hardware
-      "common/optional/nixos/services/vscode-server.nix"
+      # "common/optional/nixos/services/vscode-server.nix"
       # "common/optional/nixos/services/home-assistant.nix"
       "common/optional/nixos/virtualisation/docker.nix" # docker
       # "common/optional/nixos/plymouth.nix" # fancy boot screen
 
       #################### Desktop ####################
-      "common/optional/nixos/desktops/hyprland" # window manager
+      "common/optional/nixos/desktops/plasma6" # window manager
       "common/optional/nixos/services/greetd.nix" # display manager
     ])
   ];

@@ -5,7 +5,6 @@
 }: {
   programs.rofi = {
     enable = true;
-    package = pkgs.rofi-wayland;
     terminal = "${pkgs.ghostty}/bin/ghostty";
     theme = lib.mkForce "${pkgs.rofi-presets}/share/rofi-presets/launchers/type-7/style-2.rasi";
     extraConfig = {

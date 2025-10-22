@@ -16,17 +16,17 @@
         #################### Host-specific Optional Configs ####################
         "helper-scripts"
         "jupyter-notebook"
-        "nixos/desktops/hyprland" # default is hyprland
+        "nixos/desktops/plasma6"
         "browsers"
         "development/ide.nix"
-        "secrets"
-        "secrets/kubeconfig.nix"
+        # "secrets"
+        # "secrets/kubeconfig.nix"
         "gaming/minecraft.nix"
         "gaming/steam.nix"
         "comms"
         "ghostty"
         "secrets/1password.nix"
-        "development/aws.nix"
+        # "development/aws.nix"
         "nixos/gpg-agent.nix"
         "media/spicetify.nix"
         "media/tidal.nix"
@@ -48,7 +48,7 @@
   # };
 
   stylix = {
-    enable = true;
+    enable = false;
     image = pkgs.fetchurl {
       url = "https://unsplash.com/photos/3l3RwQdHRHg/download?ixid=M3wxMjA3fDB8MXxhbGx8fHx8fHx8fHwxNzM2NTE4NDQ2fA&force=true";
       sha256 = "LtdnBAxruHKYE/NycsA614lL6qbGBlkrlj3EPNZ/phU=";
