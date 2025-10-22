@@ -30,6 +30,7 @@
       "development/virtualization"
       "development/tools.nix"
       "secrets/1password.nix"
+      "development/gcloud.nix"
     ])
   );
 
