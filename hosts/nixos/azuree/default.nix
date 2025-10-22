@@ -41,7 +41,6 @@
       "common/optional/nixos/nvtop.nix" # GPU monitor (not available in home-manager)
       # "common/optional/nixos/audio.nix" # pipewire and cli controls - using local audio.nix instead
       "common/optional/nixos/gaming.nix" # steam, gamescope, gamemode, and related hardware
-      # "common/optional/nixos/services/vscode-server.nix"
       # "common/optional/nixos/services/home-assistant"
       "common/optional/nixos/virtualisation/docker.nix" # docker
       # "common/optional/nixos/plymouth.nix" # fancy boot screen
