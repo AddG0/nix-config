@@ -718,11 +718,11 @@
         ]
       },
       "locked": {
-        "lastModified": 1758815710,
-        "narHash": "sha256-lGRqSarit3tyfmmRofP6BpvcgqWwjZmFqcd405tejII=",
+        "lastModified": 1761149281,
+        "narHash": "sha256-3BT/LfJ0/ZSDSUmqBMM5tL3eMrlUq/KEfd4KFxRIQ0I=",
         "ref": "tmp",
-        "rev": "6644ff1ea1b9ad74a06a6ddb6bfdf559edd9e166",
-        "revCount": 61,
+        "rev": "58d0bb36449b9ef728b2a9e0237efd2d0740a12e",
+        "revCount": 62,
         "type": "git",
         "url": "https://github.com/AddG0/lumenboard-player.git"
       },
@@ -845,11 +845,11 @@
         ]
       },
       "locked": {
-        "lastModified": 1760670925,
-        "narHash": "sha256-pDpQVjl6F2aU4uNVJl6cAsac8nMhgP/RT0WY+24fD1E=",
+        "lastModified": 1761151144,
+        "narHash": "sha256-e3QsedFEVl5vpl267YqVcKL9xPzWKTWTiYV981yBxlM=",
         "ref": "main",
-        "rev": "9e8a6da476ce77241c6e4dcede48289a7bf022c7",
-        "revCount": 192,
+        "rev": "4143eb2423d285edbaf0f1ea4579c4536580f628",
+        "revCount": 193,
         "type": "git",
         "url": "ssh://git@github.com/addg0/nix-secrets.git"
       },

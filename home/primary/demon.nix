@@ -44,6 +44,7 @@
         "helper-scripts"
         "development/terraform.nix"
         "development/virtualization/kubernetes.nix"
+        "nixos/services/vscode-server.nix"
       ])
     ))
   ];
