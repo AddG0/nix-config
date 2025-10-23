@@ -14,6 +14,8 @@
     # xserver.enable = true;
   };
 
+  services.greetd.sessionCommand = lib.mkDefault "${pkgs.kdePackages.plasma-workspace}/bin/startplasma-wayland";
+
   security.pam.services = {
     sddm.kwallet.enable = lib.mkIf config.services.displayManager.sddm.enable true;
     greetd.kwallet.enable = lib.mkIf config.services.greetd.enable true;

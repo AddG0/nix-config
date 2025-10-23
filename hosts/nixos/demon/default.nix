@@ -49,7 +49,7 @@
       "common/optional/nixos/hardware/openrazer.nix" # openrazer
       #################### Desktop ####################
       "common/optional/nixos/desktops/plasma6" # window manager
-      "common/optional/nixos/services/greetd.nix" # display manager
+      # "common/optional/nixos/services/greetd.nix" # display manager
       "common/optional/nixos/services/bluetooth.nix"
     ])
   ];

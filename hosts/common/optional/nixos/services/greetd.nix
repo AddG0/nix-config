@@ -8,34 +8,46 @@
   lib,
   ...
 }: let
-  cfg = config.autoLogin;
+  cfg = config.services.greetd;
 in {
-  # Declare custom options for conditionally enabling auto login
-  options.autoLogin = {
-    enable = lib.mkEnableOption "Enable automatic login";
+  options.services.greetd = {
+    sessionCommand = lib.mkOption {
+      type = lib.types.str;
+      default = "${pkgs.hyprland}/bin/Hyprland";
+      description = "Command to run for session";
+    };
 
     username = lib.mkOption {
       type = lib.types.str;
-      default = "guest";
-      description = "User to automatically login";
+      default = config.hostSpec.username;
+      description = "Username for greetd session";
+    };
+
+    autoLogin = {
+      enable = lib.mkEnableOption "Enable automatic login";
+
+      username = lib.mkOption {
+        type = lib.types.str;
+        default = config.services.greetd.username;
+        description = "User to automatically login";
+      };
     };
   };
 
   config = {
-    #    environment.systemPackages = [ pkgs.tuigreet ];
     services.greetd = {
       enable = true;
 
       restart = true;
       settings = {
         default_session = {
-          command = "${pkgs.tuigreet}/bin/tuigreet --asterisks --time --time-format '%I:%M %p | %a • %h | %F' --cmd Hyprland";
-          user = config.hostSpec.username;
+          command = "${pkgs.tuigreet}/bin/tuigreet --asterisks --time --time-format '%I:%M %p | %a • %h | %F' --cmd ${cfg.sessionCommand}";
+          user = cfg.username;
         };
 
-        initial_session = lib.mkIf cfg.enable {
-          command = "${pkgs.hyprland}/bin/Hyprland";
-          user = "${cfg.username}";
+        initial_session = lib.mkIf cfg.autoLogin.enable {
+          command = cfg.sessionCommand;
+          user = cfg.autoLogin.username;
         };
       };
     };
