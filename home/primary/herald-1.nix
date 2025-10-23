@@ -22,6 +22,7 @@
         "ghostty"
         # "nixos/desktops/plasma6"  # disabled for signage-only setup
         "helper-scripts"
+        "nixos/services/vscode-server.nix"
       ])
     ))
   ];
