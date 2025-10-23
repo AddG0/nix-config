@@ -27,7 +27,6 @@
         "ghostty"
         "secrets/1password.nix"
         # "development/aws.nix"
-        "nixos/gpg-agent.nix"
         "media/spicetify.nix"
         "media/tidal.nix"
         "media"

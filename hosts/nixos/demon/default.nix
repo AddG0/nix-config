@@ -99,6 +99,7 @@
     hostPlatform = "x86_64-linux";
   };
 
+  # Xbox One Controller Wired Support
   hardware.xone.enable = true;
 
   environment.systemPackages = with pkgs; [
