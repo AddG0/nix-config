@@ -10,30 +10,6 @@
 }: let
   cfg = config.services.greetd;
 in {
-  options.services.greetd = {
-    sessionCommand = lib.mkOption {
-      type = lib.types.str;
-      default = "${pkgs.hyprland}/bin/Hyprland";
-      description = "Command to run for session";
-    };
-
-    username = lib.mkOption {
-      type = lib.types.str;
-      default = config.hostSpec.username;
-      description = "Username for greetd session";
-    };
-
-    autoLogin = {
-      enable = lib.mkEnableOption "Enable automatic login";
-
-      username = lib.mkOption {
-        type = lib.types.str;
-        default = config.services.greetd.username;
-        description = "User to automatically login";
-      };
-    };
-  };
-
   config = {
     services.greetd = {
       enable = true;

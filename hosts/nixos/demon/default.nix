@@ -49,7 +49,7 @@
       "common/optional/nixos/hardware/openrazer.nix" # openrazer
       #################### Desktop ####################
       "common/optional/nixos/desktops/plasma6" # window manager
-      # "common/optional/nixos/services/greetd.nix" # display manager
+      "common/optional/nixos/services/greetd.nix" # display manager
       "common/optional/nixos/services/bluetooth.nix"
     ])
   ];
@@ -79,7 +79,7 @@
 
   services.obsbot-camera = {
     enable = true;
-    devicePath = "/dev/video0";
+    devicePaths = [ "/dev/video0" ];
     settings = {
       pan_absolute = 20000;
       tilt_absolute = -50000;
