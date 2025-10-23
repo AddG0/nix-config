@@ -3,10 +3,14 @@
   config,
   ...
 }: {
-  imports = map lib.custom.relativeToHome [
-    #################### Required Configs ####################
-    "common/core" # required
+  imports = lib.flatten [
+    ./common
 
-    #################### Host-specific Optional Configs ####################
+    (map lib.custom.relativeToHome [
+      #################### Required Configs ####################
+      "common/core" # required
+
+      #################### Host-specific Optional Configs ####################
+    ])
   ];
 }

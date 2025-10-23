@@ -1,9 +1,12 @@
 {lib, ...}: {
-  imports = map lib.custom.relativeToHome (
-    [
-      #################### Required Configs ####################
-      "common/core"
-    ]
+  imports = lib.flatten [
+    ./common
+
+    (map lib.custom.relativeToHome (
+      [
+        #################### Required Configs ####################
+        "common/core"
+      ]
     ++ (map (f: "common/optional/${f}") [
       #################### Host-specific Optional Configs ####################
       "helper-scripts"
@@ -16,5 +19,6 @@
       "development/misc-language-servers.nix"
       "ghostty"
     ])
-  );
+    ))
+  ];
 }

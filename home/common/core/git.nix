@@ -16,14 +16,6 @@ in {
     userName = handle;
     userEmail = publicGitEmail;
 
-    includes = [
-      {
-        # use different email & name for work
-        path = "${config.home.homeDirectory}/home/ShipperHQ/.gitconfig";
-        condition = "gitdir:${config.home.homeDirectory}/home/ShipperHQ/**";
-      }
-    ];
-
     extraConfig = {
       log.showSignature = "true";
       trim.bases = "develop,master,main"; # for git-trim
