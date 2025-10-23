@@ -14,6 +14,12 @@
     # xserver.enable = true;
   };
 
+  security.pam.services = {
+    sddm.kwallet.enable = lib.mkIf config.services.displayManager.sddm.enable true;
+    greetd.kwallet.enable = lib.mkIf config.services.greetd.enable true;
+    kscreenlocker.kwallet.enable = lib.mkIf config.services.desktopManager.plasma6.enable true;
+  };
+
   environment.systemPackages = with pkgs; [
     kdePackages.kcalc # Calculator
     kdePackages.kcharselect # Tool to select and copy special characters from all installed fonts
