@@ -3,11 +3,14 @@
   nix-secrets,
   ...
 }: {
-  imports = map lib.custom.relativeToHome (
-    [
-      #################### Required Configs ####################
-      "common/core"
-    ]
+  imports = lib.flatten [
+    ./common
+
+    (map lib.custom.relativeToHome (
+      [
+        #################### Required Configs ####################
+        "common/core"
+      ]
     ++ (map (f: "common/optional/${f}") [
       #################### Host-specific Optional Configs ####################
       "helper-scripts"
@@ -27,5 +30,6 @@
       "development/tools.nix"
       "secrets/1password.nix"
     ])
-  );
+    ))
+  ];
 }
