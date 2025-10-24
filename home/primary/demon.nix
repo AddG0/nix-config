@@ -35,7 +35,7 @@
         "nixos/desktops/plasma6"
         # "remote-desktop/rustdesk.nix"
         # "development/virtualization"
-        # "development/virtualization/lens.nix"
+        "development/virtualization/lens.nix"
         "development/gcloud.nix"
         "nixos/vlc.nix"
         # "remote-desktop/mouseshare/lan-mouse.nix"
