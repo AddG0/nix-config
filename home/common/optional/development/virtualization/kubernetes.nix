@@ -6,10 +6,11 @@
     # kubebuilder
     # kubevpn
     helmfile
+    kubernetes-helm
+
     # istioctl
     # clusterctl # for kubernetes cluster-api
     # kubevirt # virtctl
-    # kubernetes-helm
     # fluxcd
     argocd
     # telepresence2 # Local development against remote Kubernetes cluster
