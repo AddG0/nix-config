@@ -13,14 +13,11 @@
       style = "numbers,changes,header";
       theme = lib.mkDefault "catppuccin-mocha";
     };
-    extraPackages = builtins.attrValues {
-      inherit
-        (pkgs.bat-extras)
-        batgrep # search through and highlight files using ripgrep
-        batdiff # Diff a file against the current git index, or display the diff between to files
-        batman
-        ; # read manpages using bat as the formatter
-    };
+    extraPackages = [
+      pkgs.bat-extras.batdiff # Diff a file against the current git index, or display the diff between to files
+      pkgs.bat-extras.batman # read manpages using bat as the formatter
+      pkgs.stable.bat-extras.batgrep # search through and highlight files using ripgrep
+    ];
     themes = {
       # https://raw.githubusercontent.com/catppuccin/bat/main/Catppuccin-mocha.tmTheme
       catppuccin-mocha = {
