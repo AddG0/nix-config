@@ -35,7 +35,6 @@
     hardinfo2 # System information and benchmarks for Linux systems
     wayland-utils # Wayland utilities
     wl-clipboard # Command-line copy/paste utilities for Wayland
-    kdePackages.xwaylandvideobridge # Wayland video bridge for X11
     kdePackages.spectacle # Screenshot tool
   ];
 }
