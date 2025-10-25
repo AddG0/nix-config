@@ -20,8 +20,8 @@
   #   Main Input Mixer → Main Input (main_input) ← Use this in Discord/apps
   # ============================================================================
 
-  # Shell alias for soundboard command
-  # 50% volume keeps it just quieter than my mic
+  # Shell alias for soundboard (use: soundboard file.mp3 [--volume=N])
+  # Default 50% volume, override with: soundboard file.mp3 --volume=80
   environment.shellAliases = {
     soundboard = "${pkgs.mpv}/bin/mpv --no-video --audio-device=pipewire/soundboard_sink --volume=50";
   };
