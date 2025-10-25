@@ -1,4 +1,8 @@
-{ pkgs, ... }: {
+{ pkgs, ... }:
+let
+  micDevice = "alsa_input.usb-Focusrite_Scarlett_Solo_4th_Gen_S1YE3VE3790E29-00.HiFi__Mic2__source";
+  headsetDevice = "alsa_output.usb-Chord_Electronics_Ltd_HugoTT2_413-001-01.analog-stereo";
+in {
   # ============================================================================
   # PipeWire Audio Configuration
   # ============================================================================
@@ -81,7 +85,7 @@
                 "node.name" = "capture.gate_source";
                 "node.passive" = true;
                 "audio.rate" = 48000;
-                "node.target" = "alsa_input.usb-Focusrite_Scarlett_Solo_4th_Gen_S1YE3VE3790E29-00.HiFi__Mic2__source";
+                "node.target" = micDevice;
               };
               "playback.props" = {
                 "node.name" = "gate_source";
@@ -150,7 +154,7 @@
         "99-auto-connect.lua" = {
           text = ''
             table.insert(links, {
-              out_node = "alsa_input.usb-Focusrite_Scarlett_Solo_4th_Gen_S1YE3VE3790E29-00.HiFi__Mic2__source",
+              out_node = "${micDevice}",
               in_node  = "capture.gate_source",
             })
           '';
@@ -199,8 +203,8 @@
         ${pkgs.pipewire}/bin/pw-link soundboard_source:capture_2 main_input_sink:playback_MONO || true
 
         # Also link soundboard to default speakers (HugoTT2) so you can hear it
-        ${pkgs.pipewire}/bin/pw-link soundboard_source:capture_1 alsa_output.usb-Chord_Electronics_Ltd_HugoTT2_413-001-01.analog-stereo:playback_FL || true
-        ${pkgs.pipewire}/bin/pw-link soundboard_source:capture_2 alsa_output.usb-Chord_Electronics_Ltd_HugoTT2_413-001-01.analog-stereo:playback_FR || true
+        ${pkgs.pipewire}/bin/pw-link soundboard_source:capture_1 ${headsetDevice}:playback_FL || true
+        ${pkgs.pipewire}/bin/pw-link soundboard_source:capture_2 ${headsetDevice}:playback_FR || true
       '';
     };
   };
