@@ -40,7 +40,7 @@
       "common/optional/nixos/services/openssh.nix" # allow remote SSH access
       "common/optional/nixos/nvtop.nix" # GPU monitor (not available in home-manager)
       # "common/optional/nixos/audio.nix" # pipewire and cli controls - using local audio.nix instead
-       "common/optional/nixos/gaming.nix" # steam, gamescope, gamemode, and related hardware
+      "common/optional/nixos/gaming.nix" # steam, gamescope, gamemode, and related hardware
       # "common/optional/nixos/services/home-assistant"
       "common/optional/nixos/virtualisation/docker.nix" # docker
       # "common/optional/nixos/plymouth.nix" # fancy boot screen
@@ -79,7 +79,7 @@
 
   services.obsbot-camera = {
     enable = true;
-    devicePaths = [ "/dev/video0" ];
+    devicePaths = ["/dev/video0"];
     settings = {
       pan_absolute = 20000;
       tilt_absolute = -50000;
@@ -119,16 +119,16 @@
     device = "//10.10.15.252/videos";
     fsType = "cifs";
     options = [
-        "x-systemd.automount"
-        "noauto"
-        "x-systemd.idle-timeout=60"
-        "uid=${toString config.users.users.${config.hostSpec.username}.uid}"
-        "gid=${toString config.users.users.${config.hostSpec.username}.group}"
-        "credentials=${config.sops.secrets.nas-credentials.path}"
-        "_netdev"
-        "soft"
-        "vers=3.1.1"
-        "echo_interval=10"
+      "x-systemd.automount"
+      "noauto"
+      "x-systemd.idle-timeout=60"
+      "uid=${toString config.users.users.${config.hostSpec.username}.uid}"
+      "gid=${toString config.users.users.${config.hostSpec.username}.group}"
+      "credentials=${config.sops.secrets.nas-credentials.path}"
+      "_netdev"
+      "soft"
+      "vers=3.1.1"
+      "echo_interval=10"
     ];
   };
 

@@ -12,7 +12,6 @@
   ...
 }: {
   imports = lib.flatten [
-
     (map lib.custom.relativeToHosts [
       #################### Required Configs ####################
       "common/core"

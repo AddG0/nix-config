@@ -1,9 +1,4 @@
-{
-    config,
-    ...
-}: 
-
-{
+{config, ...}: {
   programs.git = {
     includes = [
       {

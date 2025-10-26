@@ -1,9 +1,13 @@
-{ config, lib, pkgs, ... }:
-let
+{
+  config,
+  lib,
+  pkgs,
+  ...
+}: let
   cfg = config.services.obsbot-camera;
 
   settingsPairs = lib.mapAttrsToList (n: v: "${n}=${toString v}") cfg.settings;
-  settingsCSV   = lib.concatStringsSep "," settingsPairs;
+  settingsCSV = lib.concatStringsSep "," settingsPairs;
   settingsSpace = lib.concatStringsSep " " settingsPairs;
 
   applyScript = pkgs.writeShellScript "obsbot-apply.sh" ''
@@ -63,14 +67,13 @@ let
       fi
     done
   '';
-in
-{
+in {
   options.services.obsbot-camera = {
     enable = lib.mkEnableOption "Obsbot camera auto-configuration (on first open)";
 
     devicePaths = lib.mkOption {
       type = lib.types.listOf lib.types.str;
-      default = [ "/dev/video0" ]; # your PTZ node
+      default = ["/dev/video0"]; # your PTZ node
       description = "V4L device nodes to watch for OPEN events.";
     };
 
@@ -112,8 +115,8 @@ in
     # Watcher that triggers apply on first OPEN
     systemd.user.services.obsbot-watch = {
       description = "Watch V4L devices and apply Obsbot controls on first open";
-      wantedBy = [ "default.target" ];
-      after = [ "default.target" ];
+      wantedBy = ["default.target"];
+      after = ["default.target"];
       serviceConfig = {
         Restart = "always";
         RestartSec = 2;

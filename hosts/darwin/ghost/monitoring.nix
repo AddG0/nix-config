@@ -1,6 +1,9 @@
-{ config, pkgs, lib, ... }:
-
 {
+  config,
+  pkgs,
+  lib,
+  ...
+}: {
   # Enable monitoring services
   services.prometheus = {
     enable = false;
@@ -22,52 +25,62 @@
     scrapeConfigs = [
       {
         job_name = "prometheus";
-        static_configs = [{
-          targets = [ "127.0.0.1:9090" ];
-          labels = {
-            alias = "prometheus";
-          };
-        }];
+        static_configs = [
+          {
+            targets = ["127.0.0.1:9090"];
+            labels = {
+              alias = "prometheus";
+            };
+          }
+        ];
       }
 
       {
         job_name = "grafana";
-        static_configs = [{
-          targets = [ "127.0.0.1:3080" ];
-          labels = {
-            alias = "grafana";
-          };
-        }];
+        static_configs = [
+          {
+            targets = ["127.0.0.1:3080"];
+            labels = {
+              alias = "grafana";
+            };
+          }
+        ];
       }
 
       {
         job_name = "loki";
-        static_configs = [{
-          targets = [ "127.0.0.1:3100" ];
-          labels = {
-            alias = "loki";
-          };
-        }];
+        static_configs = [
+          {
+            targets = ["127.0.0.1:3100"];
+            labels = {
+              alias = "loki";
+            };
+          }
+        ];
       }
       {
         job_name = "shipperws";
-        static_configs = [{
-          targets = [ "localhost:8080" ];
-          labels = {
-            alias = "shipperws";
-          };
-        }];
+        static_configs = [
+          {
+            targets = ["localhost:8080"];
+            labels = {
+              alias = "shipperws";
+            };
+          }
+        ];
         metrics_path = "/shipperhq-ws/actuator/prometheus";
         scrape_interval = "500ms";
       }
       {
         job_name = "shipperws-jo";
-        static_configs = [{
-        targets = [ "192.168.68.119:8080" ];
-          labels = {
-            alias = "shipperws-jo";
-          };
-        }];
+        static_configs = [
+          {
+            targets = ["192.168.68.119:8080"];
+            labels = {
+              alias = "shipperws-jo";
+            };
+          }
+        ];
         metrics_path = "/shipperhq-ws/actuator/prometheus";
         scrape_interval = "500ms";
       }
@@ -224,21 +237,23 @@
     };
 
     # Install useful plugins
-    declarativePlugins = with pkgs.grafanaPlugins; [
-      grafana-piechart-panel
-      grafana-clock-panel
-      grafana-worldmap-panel
-      volkovlabs-variable-panel
-    ] ++ (with pkgs.grafana-plugins; [
-      marcusolsson-gantt-panel
-    ]);
+    declarativePlugins = with pkgs.grafanaPlugins;
+      [
+        grafana-piechart-panel
+        grafana-clock-panel
+        grafana-worldmap-panel
+        volkovlabs-variable-panel
+      ]
+      ++ (with pkgs.grafana-plugins; [
+        marcusolsson-gantt-panel
+      ]);
   };
 
   services.loki = {
     enable = false;
 
     # Skip validation to avoid issues with config format
-    extraFlags = [ "-config.expand-env=true" ];
+    extraFlags = ["-config.expand-env=true"];
 
     configuration = {
       auth_enabled = false;
@@ -313,7 +328,7 @@
         };
 
         # High throughput ingestion settings
-        chunk_idle_period = "10s";  # Flush chunks faster
+        chunk_idle_period = "10s"; # Flush chunks faster
         chunk_retain_period = "5s"; # Reduce retention for faster processing
         chunk_block_size = 2097152; # 2MB blocks for high throughput
         chunk_target_size = 16777216; # 16MB target size
@@ -369,7 +384,6 @@
         max_label_names_per_series = 30;
       };
 
-
       table_manager = {
         retention_deletes_enabled = false;
         retention_period = "0s";
@@ -383,98 +397,98 @@
 
   # Create Grafana dashboard
   system.activationScripts.extraActivation.text = lib.mkAfter ''
-    # Create directories for dashboard provisioning
-    mkdir -p /var/lib/grafana/dashboards
-    chown -R ${config.services.grafana.user}:${config.services.grafana.group} /var/lib/grafana/dashboards
+        # Create directories for dashboard provisioning
+        mkdir -p /var/lib/grafana/dashboards
+        chown -R ${config.services.grafana.user}:${config.services.grafana.group} /var/lib/grafana/dashboards
 
-    # Create a basic system dashboard
-    cat > /var/lib/grafana/dashboards/system.json << 'EOF'
-{
-  "id": null,
-  "uid": "system-overview",
-  "title": "System Overview",
-    "tags": ["system"],
-    "timezone": "browser",
-    "schemaVersion": 16,
-    "version": 0,
-    "refresh": "30s",
-    "panels": [
-      {
-        "id": 1,
-        "gridPos": {"h": 8, "w": 12, "x": 0, "y": 0},
-        "type": "graph",
-        "title": "CPU Usage",
-        "datasource": "Prometheus",
-        "targets": [
+        # Create a basic system dashboard
+        cat > /var/lib/grafana/dashboards/system.json << 'EOF'
+    {
+      "id": null,
+      "uid": "system-overview",
+      "title": "System Overview",
+        "tags": ["system"],
+        "timezone": "browser",
+        "schemaVersion": 16,
+        "version": 0,
+        "refresh": "30s",
+        "panels": [
           {
-            "expr": "100 - (avg by(instance) (rate(node_cpu_seconds_total{mode=\"idle\"}[5m])) * 100)",
-            "legendFormat": "CPU Usage %",
-            "refId": "A"
-          }
-        ],
-        "yaxes": [
-          {
-            "format": "percent",
-            "min": 0,
-            "max": 100
+            "id": 1,
+            "gridPos": {"h": 8, "w": 12, "x": 0, "y": 0},
+            "type": "graph",
+            "title": "CPU Usage",
+            "datasource": "Prometheus",
+            "targets": [
+              {
+                "expr": "100 - (avg by(instance) (rate(node_cpu_seconds_total{mode=\"idle\"}[5m])) * 100)",
+                "legendFormat": "CPU Usage %",
+                "refId": "A"
+              }
+            ],
+            "yaxes": [
+              {
+                "format": "percent",
+                "min": 0,
+                "max": 100
+              },
+              {
+                "format": "short"
+              }
+            ]
           },
           {
-            "format": "short"
-          }
-        ]
-      },
-      {
-        "id": 2,
-        "gridPos": {"h": 8, "w": 12, "x": 12, "y": 0},
-        "type": "graph",
-        "title": "Memory Usage",
-        "datasource": "Prometheus",
-        "targets": [
-          {
-            "expr": "(1 - (node_memory_MemAvailable_bytes / node_memory_MemTotal_bytes)) * 100",
-            "legendFormat": "Memory Usage %",
-            "refId": "A"
-          }
-        ],
-        "yaxes": [
-          {
-            "format": "percent",
-            "min": 0,
-            "max": 100
+            "id": 2,
+            "gridPos": {"h": 8, "w": 12, "x": 12, "y": 0},
+            "type": "graph",
+            "title": "Memory Usage",
+            "datasource": "Prometheus",
+            "targets": [
+              {
+                "expr": "(1 - (node_memory_MemAvailable_bytes / node_memory_MemTotal_bytes)) * 100",
+                "legendFormat": "Memory Usage %",
+                "refId": "A"
+              }
+            ],
+            "yaxes": [
+              {
+                "format": "percent",
+                "min": 0,
+                "max": 100
+              },
+              {
+                "format": "short"
+              }
+            ]
           },
           {
-            "format": "short"
+            "id": 3,
+            "gridPos": {"h": 8, "w": 24, "x": 0, "y": 8},
+            "type": "graph",
+            "title": "Disk Usage",
+            "datasource": "Prometheus",
+            "targets": [
+              {
+                "expr": "100 - ((node_filesystem_avail_bytes{fstype!~\"tmpfs|fuse.lxcfs|squashfs|vfat\"} / node_filesystem_size_bytes{fstype!~\"tmpfs|fuse.lxcfs|squashfs|vfat\"}) * 100)",
+                "legendFormat": "{{mountpoint}} Usage %",
+                "refId": "A"
+              }
+            ],
+            "yaxes": [
+              {
+                "format": "percent",
+                "min": 0,
+                "max": 100
+              },
+              {
+                "format": "short"
+              }
+            ]
           }
         ]
-      },
-      {
-        "id": 3,
-        "gridPos": {"h": 8, "w": 24, "x": 0, "y": 8},
-        "type": "graph",
-        "title": "Disk Usage",
-        "datasource": "Prometheus",
-        "targets": [
-          {
-            "expr": "100 - ((node_filesystem_avail_bytes{fstype!~\"tmpfs|fuse.lxcfs|squashfs|vfat\"} / node_filesystem_size_bytes{fstype!~\"tmpfs|fuse.lxcfs|squashfs|vfat\"}) * 100)",
-            "legendFormat": "{{mountpoint}} Usage %",
-            "refId": "A"
-          }
-        ],
-        "yaxes": [
-          {
-            "format": "percent",
-            "min": 0,
-            "max": 100
-          },
-          {
-            "format": "short"
-          }
-        ]
-      }
-    ]
-}
-EOF
-    chown ${config.services.grafana.user}:${config.services.grafana.group} /var/lib/grafana/dashboards/system.json
+    }
+    EOF
+        chown ${config.services.grafana.user}:${config.services.grafana.group} /var/lib/grafana/dashboards/system.json
   '';
 
   # Add helpful aliases for monitoring

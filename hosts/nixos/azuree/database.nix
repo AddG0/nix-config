@@ -1,10 +1,13 @@
-{ config, lib, pkgs, ... }:
-
 {
+  config,
+  lib,
+  pkgs,
+  ...
+}: {
   services.postgresql = {
     enable = true;
     package = pkgs.postgresql_16;
-    ensureDatabases = [ "chatbot" ];
+    ensureDatabases = ["chatbot"];
     ensureUsers = [
       {
         name = "addg";

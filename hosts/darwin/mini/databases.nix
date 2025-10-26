@@ -1,16 +1,20 @@
-{pkgs, config, ...}: {
+{
+  pkgs,
+  config,
+  ...
+}: {
   # Enable MySQL service (MariaDB as the backend)
   services.mysql = {
     enable = true;
 
     # NixOS-style configuration
-    ensureDatabases = [ "shipperhq_dev" ];
+    ensureDatabases = ["shipperhq_dev"];
 
     # Create an admin user with full privileges
     ensureUsers = [
       {
         name = "root";
-        authentication = "password";  # Use password authentication instead of socket
+        authentication = "password"; # Use password authentication instead of socket
         ensurePermissions = {
           "*.*" = "ALL PRIVILEGES";
         };
@@ -34,8 +38,8 @@
       mysqld = {
         # Memory settings - using ~40% of total RAM for buffer pool
         innodb_buffer_pool_size = "48G";
-        innodb_buffer_pool_instances = 48;  # 1GB per instance for better concurrency
-        innodb_log_file_size = "4G";  # Larger logs for better write performance
+        innodb_buffer_pool_instances = 48; # 1GB per instance for better concurrency
+        innodb_log_file_size = "4G"; # Larger logs for better write performance
         innodb_log_buffer_size = "256M";
 
         # Connection settings
@@ -43,7 +47,7 @@
         back_log = 500;
 
         # Thread settings for high concurrency
-        innodb_thread_concurrency = 0;  # Let InnoDB manage
+        innodb_thread_concurrency = 0; # Let InnoDB manage
         innodb_read_io_threads = 16;
         innodb_write_io_threads = 16;
         innodb_purge_threads = 8;
@@ -72,8 +76,8 @@
 
         # InnoDB optimizations
         innodb_flush_method = "O_DIRECT_NO_FSYNC";
-        innodb_doublewrite = 0;  # Disable for speed (less safe)
-        innodb_flush_log_at_trx_commit = 2;  # Fast but less durable
+        innodb_doublewrite = 0; # Disable for speed (less safe)
+        innodb_flush_log_at_trx_commit = 2; # Fast but less durable
         innodb_io_capacity = 10000;
         innodb_io_capacity_max = 20000;
         innodb_lru_scan_depth = 4000;

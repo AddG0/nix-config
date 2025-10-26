@@ -159,7 +159,6 @@ in {
       ++ (
         if config.hostSpec.darwin.hasPaidApps
         then [
-
         ]
         else []
       );

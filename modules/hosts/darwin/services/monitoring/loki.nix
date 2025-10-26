@@ -3,10 +3,9 @@
   lib,
   pkgs,
   ...
-}:
-
-let
-  inherit (lib)
+}: let
+  inherit
+    (lib)
     escapeShellArgs
     mkEnableOption
     mkIf
@@ -16,14 +15,11 @@ let
 
   cfg = config.services.loki;
 
-  prettyJSON =
-    conf:
-    pkgs.runCommand "loki-config.json" { } ''
+  prettyJSON = conf:
+    pkgs.runCommand "loki-config.json" {} ''
       echo '${builtins.toJSON conf}' | ${pkgs.jq}/bin/jq 'del(._module)' > $out
     '';
-
-in
-{
+in {
   options.services.loki = {
     enable = mkEnableOption "loki";
 
@@ -35,7 +31,7 @@ in
       '';
     };
 
-    package = lib.mkPackageOption pkgs "grafana-loki" { };
+    package = lib.mkPackageOption pkgs "grafana-loki" {};
 
     group = mkOption {
       type = types.str;
@@ -59,8 +55,8 @@ in
     };
 
     configuration = mkOption {
-      type = (pkgs.formats.json { }).type;
-      default = { };
+      type = (pkgs.formats.json {}).type;
+      default = {};
       description = ''
         Specify the configuration for Loki in Nix.
       '';
@@ -76,8 +72,8 @@ in
 
     extraFlags = mkOption {
       type = types.listOf types.str;
-      default = [ ];
-      example = [ "--server.http-listen-port=3101" ];
+      default = [];
+      example = ["--server.http-listen-port=3101"];
       description = ''
         Specify a list of additional command line flags,
         which get escaped and are then passed to Loki.
@@ -89,8 +85,8 @@ in
     assertions = [
       {
         assertion = (
-          (cfg.configuration == { } -> cfg.configFile != null)
-          && (cfg.configFile != null -> cfg.configuration == { })
+          (cfg.configuration == {} -> cfg.configFile != null)
+          && (cfg.configFile != null -> cfg.configuration == {})
         );
         message = ''
           Please specify either
@@ -116,8 +112,8 @@ in
       description = "System group for Loki";
     };
 
-    users.knownGroups = [ "_loki" ];
-    users.knownUsers = [ "_loki" ];
+    users.knownGroups = ["_loki"];
+    users.knownUsers = ["_loki"];
 
     environment.systemPackages = [
       cfg.package # logcli
@@ -172,96 +168,92 @@ in
       chmod -R 755 ${cfg.dataDir}
     '';
 
-    launchd.daemons.loki =
-      let
-        conf =
-          if cfg.configFile == null then
-            # Config validation may fail when using extraFlags = [ "-config.expand-env=true" ].
-            # To work around this, we simply skip it when extraFlags is not empty.
-            if cfg.extraFlags == [ ] then
-              validateConfig (prettyJSON cfg.configuration)
-            else
-              prettyJSON cfg.configuration
-          else
-            cfg.configFile;
-        validateConfig =
-          file:
-          pkgs.runCommand "validate-loki-conf"
-            {
-              nativeBuildInputs = [ cfg.package ];
-            }
-            ''
-              loki -verify-config -config.file "${file}"
-              ln -s "${file}" "$out"
-            '';
-        lokiScript = pkgs.writeShellScript "loki-daemon" ''
-          set -euo pipefail
+    launchd.daemons.loki = let
+      conf =
+        if cfg.configFile == null
+        then
+          # Config validation may fail when using extraFlags = [ "-config.expand-env=true" ].
+          # To work around this, we simply skip it when extraFlags is not empty.
+          if cfg.extraFlags == []
+          then validateConfig (prettyJSON cfg.configuration)
+          else prettyJSON cfg.configuration
+        else cfg.configFile;
+      validateConfig = file:
+        pkgs.runCommand "validate-loki-conf"
+        {
+          nativeBuildInputs = [cfg.package];
+        }
+        ''
+          loki -verify-config -config.file "${file}"
+          ln -s "${file}" "$out"
+        '';
+      lokiScript = pkgs.writeShellScript "loki-daemon" ''
+        set -euo pipefail
 
-          log() {
-            echo "[$(date '+%Y-%m-%d %H:%M:%S')] $*" >&2
-          }
+        log() {
+          echo "[$(date '+%Y-%m-%d %H:%M:%S')] $*" >&2
+        }
 
-          cleanup() {
-            if [[ -n "''${LOKI_PID:-}" ]] && kill -0 "$LOKI_PID" 2>/dev/null; then
-              log "Shutting down Loki (PID: $LOKI_PID)"
-              kill "$LOKI_PID"
-              wait "$LOKI_PID" 2>/dev/null || true
-            fi
-          }
-          trap cleanup EXIT INT TERM
+        cleanup() {
+          if [[ -n "''${LOKI_PID:-}" ]] && kill -0 "$LOKI_PID" 2>/dev/null; then
+            log "Shutting down Loki (PID: $LOKI_PID)"
+            kill "$LOKI_PID"
+            wait "$LOKI_PID" 2>/dev/null || true
+          fi
+        }
+        trap cleanup EXIT INT TERM
 
-          # Verify data directory exists
-          if [[ ! -d "${cfg.dataDir}" ]]; then
-            log "ERROR: Loki data directory ${cfg.dataDir} does not exist!"
+        # Verify data directory exists
+        if [[ ! -d "${cfg.dataDir}" ]]; then
+          log "ERROR: Loki data directory ${cfg.dataDir} does not exist!"
+          exit 1
+        fi
+
+        # Start Loki in background
+        log "Starting Loki daemon..."
+        log "Command: ${cfg.package}/bin/loki --config.file=${conf} ${escapeShellArgs cfg.extraFlags}"
+        ${cfg.package}/bin/loki --config.file=${conf} ${escapeShellArgs cfg.extraFlags} &
+        LOKI_PID=$!
+        log "Loki daemon started with PID: $LOKI_PID"
+
+        # Wait for Loki to be ready
+        log "Waiting for Loki to be ready..."
+        TIMEOUT=30
+        COUNTER=0
+        # Loki exposes a /ready endpoint when it's ready to receive traffic
+        while ! curl -s "http://127.0.0.1:3100/ready" > /dev/null 2>&1; do
+          if ! kill -0 $LOKI_PID 2>/dev/null; then
+            log "ERROR: Loki daemon (PID: $LOKI_PID) exited unexpectedly"
             exit 1
           fi
+          if [ $COUNTER -ge $TIMEOUT ]; then
+            log "ERROR: Loki failed to start within $TIMEOUT seconds"
+            exit 1
+          fi
+          sleep 1
+          COUNTER=$((COUNTER + 1))
+        done
+        log "Loki is ready at http://127.0.0.1:3100"
 
-          # Start Loki in background
-          log "Starting Loki daemon..."
-          log "Command: ${cfg.package}/bin/loki --config.file=${conf} ${escapeShellArgs cfg.extraFlags}"
-          ${cfg.package}/bin/loki --config.file=${conf} ${escapeShellArgs cfg.extraFlags} &
-          LOKI_PID=$!
-          log "Loki daemon started with PID: $LOKI_PID"
-
-          # Wait for Loki to be ready
-          log "Waiting for Loki to be ready..."
-          TIMEOUT=30
-          COUNTER=0
-          # Loki exposes a /ready endpoint when it's ready to receive traffic
-          while ! curl -s "http://127.0.0.1:3100/ready" > /dev/null 2>&1; do
-            if ! kill -0 $LOKI_PID 2>/dev/null; then
-              log "ERROR: Loki daemon (PID: $LOKI_PID) exited unexpectedly"
-              exit 1
-            fi
-            if [ $COUNTER -ge $TIMEOUT ]; then
-              log "ERROR: Loki failed to start within $TIMEOUT seconds"
-              exit 1
-            fi
-            sleep 1
-            COUNTER=$((COUNTER + 1))
-          done
-          log "Loki is ready at http://127.0.0.1:3100"
-
-          # Wait for Loki daemon to finish
-          log "Loki service is running. Waiting for shutdown signal..."
-          wait $LOKI_PID
-        '';
-      in
-      {
-        script = "${lokiScript}";
-        serviceConfig = {
-          KeepAlive = true;
-          RunAtLoad = true;
-          ProcessType = "Background";
-          StandardOutPath = "${cfg.dataDir}/loki.log";
-          StandardErrorPath = "${cfg.dataDir}/loki.error.log";
-          UserName = cfg.user;
-          GroupName = cfg.group;
-          WorkingDirectory = cfg.dataDir;
-          EnvironmentVariables = {
-            HOME = cfg.dataDir;
-          };
+        # Wait for Loki daemon to finish
+        log "Loki service is running. Waiting for shutdown signal..."
+        wait $LOKI_PID
+      '';
+    in {
+      script = "${lokiScript}";
+      serviceConfig = {
+        KeepAlive = true;
+        RunAtLoad = true;
+        ProcessType = "Background";
+        StandardOutPath = "${cfg.dataDir}/loki.log";
+        StandardErrorPath = "${cfg.dataDir}/loki.error.log";
+        UserName = cfg.user;
+        GroupName = cfg.group;
+        WorkingDirectory = cfg.dataDir;
+        EnvironmentVariables = {
+          HOME = cfg.dataDir;
         };
       };
+    };
   };
 }

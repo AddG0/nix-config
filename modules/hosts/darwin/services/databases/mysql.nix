@@ -3,9 +3,7 @@
   lib,
   pkgs,
   ...
-}:
-let
-
+}: let
   cfg = config.services.mysql;
 
   isMariaDB = lib.getName cfg.package == lib.getName pkgs.mariadb;
@@ -13,7 +11,7 @@ let
 
   mysqldOptions = "--datadir=${cfg.dataDir} --basedir=${cfg.package}";
 
-  format = pkgs.formats.ini { listsAsDuplicateKeys = true; };
+  format = pkgs.formats.ini {listsAsDuplicateKeys = true;};
   serverConfigFile = format.generate "mysqld.cnf" cfg.settings;
   clientConfigFile = format.generate "my.cnf" {
     client.socket = "${cfg.dataDir}/mysql.sock";
@@ -29,8 +27,8 @@ let
         "?gmcast.seg=1:''${config.services.mysql.galeraCluster.clusterPassword}"
   '';
   generateClusterAddress =
-    if (cfg.galeraCluster.nodeAddresses == [ ]) then
-      ""
+    if (cfg.galeraCluster.nodeAddresses == [])
+    then ""
     else
       "gcomm://${builtins.concatStringsSep "," cfg.galeraCluster.nodeAddresses}"
       + lib.optionalString (
@@ -84,86 +82,95 @@ let
         ) | ${cfg.package}/bin/mysql -u ${superUser} -S "${cfg.dataDir}/mysql.sock" -N
 
         ${lib.concatMapStrings (database: ''
-          # Create initial databases
-          if ! test -e "${cfg.dataDir}/${database.name}"; then
-              echo "Creating initial database: ${database.name}"
-              ( echo 'CREATE DATABASE IF NOT EXISTS `${database.name}`;'
+        # Create initial databases
+        if ! test -e "${cfg.dataDir}/${database.name}"; then
+            echo "Creating initial database: ${database.name}"
+            ( echo 'CREATE DATABASE IF NOT EXISTS `${database.name}`;'
 
-                ${lib.optionalString (database.schema != null) ''
-                  echo 'USE `${database.name}`;'
+              ${lib.optionalString (database.schema != null) ''
+          echo 'USE `${database.name}`;'
 
-                  if [ -f "${database.schema}" ]
-                  then
-                      cat ${database.schema}
-                  elif [ -d "${database.schema}" ]
-                  then
-                      cat ${database.schema}/mysql-databases/*.sql
-                  fi
-                ''}
-              ) | ${cfg.package}/bin/mysql -u ${superUser} -S "${cfg.dataDir}/mysql.sock" -N
+          if [ -f "${database.schema}" ]
+          then
+              cat ${database.schema}
+          elif [ -d "${database.schema}" ]
+          then
+              cat ${database.schema}/mysql-databases/*.sql
           fi
-        '') cfg.initialDatabases}
+        ''}
+            ) | ${cfg.package}/bin/mysql -u ${superUser} -S "${cfg.dataDir}/mysql.sock" -N
+        fi
+      '')
+      cfg.initialDatabases}
 
         ${lib.optionalString (cfg.replication.role == "master") ''
-          # Set up the replication master
-          ( echo "USE mysql;"
-            echo "CREATE USER '${cfg.replication.masterUser}'@'${cfg.replication.slaveHost}' IDENTIFIED WITH mysql_native_password;"
-            echo "SET PASSWORD FOR '${cfg.replication.masterUser}'@'${cfg.replication.slaveHost}' = PASSWORD('${cfg.replication.masterPassword}');"
-            echo "GRANT REPLICATION SLAVE ON *.* TO '${cfg.replication.masterUser}'@'${cfg.replication.slaveHost}';"
-          ) | ${cfg.package}/bin/mysql -u ${superUser} -S "${cfg.dataDir}/mysql.sock" -N
-        ''}
+      # Set up the replication master
+      ( echo "USE mysql;"
+        echo "CREATE USER '${cfg.replication.masterUser}'@'${cfg.replication.slaveHost}' IDENTIFIED WITH mysql_native_password;"
+        echo "SET PASSWORD FOR '${cfg.replication.masterUser}'@'${cfg.replication.slaveHost}' = PASSWORD('${cfg.replication.masterPassword}');"
+        echo "GRANT REPLICATION SLAVE ON *.* TO '${cfg.replication.masterUser}'@'${cfg.replication.slaveHost}';"
+      ) | ${cfg.package}/bin/mysql -u ${superUser} -S "${cfg.dataDir}/mysql.sock" -N
+    ''}
 
         ${lib.optionalString (cfg.replication.role == "slave") ''
-          # Set up the replication slave
-          ( echo "STOP SLAVE;"
-            echo "CHANGE MASTER TO MASTER_HOST='${cfg.replication.masterHost}', MASTER_USER='${cfg.replication.masterUser}', MASTER_PASSWORD='${cfg.replication.masterPassword}';"
-            echo "START SLAVE;"
-          ) | ${cfg.package}/bin/mysql -u ${superUser} -S "${cfg.dataDir}/mysql.sock" -N
-        ''}
+      # Set up the replication slave
+      ( echo "STOP SLAVE;"
+        echo "CHANGE MASTER TO MASTER_HOST='${cfg.replication.masterHost}', MASTER_USER='${cfg.replication.masterUser}', MASTER_PASSWORD='${cfg.replication.masterPassword}';"
+        echo "START SLAVE;"
+      ) | ${cfg.package}/bin/mysql -u ${superUser} -S "${cfg.dataDir}/mysql.sock" -N
+    ''}
 
         ${lib.optionalString (cfg.initialScript != null) ''
-          # Execute initial script
-          cat ${toString cfg.initialScript} | ${cfg.package}/bin/mysql -u ${superUser} -S "${cfg.dataDir}/mysql.sock" -N
-        ''}
+      # Execute initial script
+      cat ${toString cfg.initialScript} | ${cfg.package}/bin/mysql -u ${superUser} -S "${cfg.dataDir}/mysql.sock" -N
+    ''}
 
         rm ${cfg.dataDir}/.mysql_needs_setup
     fi
 
-    ${lib.optionalString (cfg.ensureDatabases != [ ]) ''
+    ${lib.optionalString (cfg.ensureDatabases != []) ''
       (
       ${lib.concatMapStrings (database: ''
-        echo "CREATE DATABASE IF NOT EXISTS \`${database}\`;"
-      '') cfg.ensureDatabases}
+          echo "CREATE DATABASE IF NOT EXISTS \`${database}\`;"
+        '')
+        cfg.ensureDatabases}
       ) | ${cfg.package}/bin/mysql -S "${cfg.dataDir}/mysql.sock" -N
     ''}
 
     ${lib.concatMapStrings (user: ''
-      ${if user.authentication == "socket" then ''
-        ( echo "CREATE USER IF NOT EXISTS '${user.name}'@'localhost' IDENTIFIED WITH ${
-          if isMariaDB then "unix_socket" else "auth_socket"
-        };"
-          ${lib.concatStringsSep "\n" (
-            lib.mapAttrsToList (database: permission: ''
-              echo "GRANT ${permission} ON ${database} TO '${user.name}'@'localhost';"
-            '') user.ensurePermissions
-          )}
-          echo "FLUSH PRIVILEGES;"
-        ) | ${cfg.package}/bin/mysql -S "${cfg.dataDir}/mysql.sock" -N
-      '' else ''
-        ( echo "CREATE USER IF NOT EXISTS '${user.name}'@'localhost' IDENTIFIED BY 'changeme';"
-          ${lib.concatStringsSep "\n" (
-            lib.mapAttrsToList (database: permission: ''
-              echo "GRANT ${permission} ON ${database} TO '${user.name}'@'localhost';"
-            '') user.ensurePermissions
-          )}
-          echo "FLUSH PRIVILEGES;"
-        ) | ${cfg.package}/bin/mysql -S "${cfg.dataDir}/mysql.sock" -N
-      ''}
-    '') cfg.ensureUsers}
+        ${
+          if user.authentication == "socket"
+          then ''
+            ( echo "CREATE USER IF NOT EXISTS '${user.name}'@'localhost' IDENTIFIED WITH ${
+              if isMariaDB
+              then "unix_socket"
+              else "auth_socket"
+            };"
+              ${lib.concatStringsSep "\n" (
+              lib.mapAttrsToList (database: permission: ''
+                echo "GRANT ${permission} ON ${database} TO '${user.name}'@'localhost';"
+              '')
+              user.ensurePermissions
+            )}
+              echo "FLUSH PRIVILEGES;"
+            ) | ${cfg.package}/bin/mysql -S "${cfg.dataDir}/mysql.sock" -N
+          ''
+          else ''
+            ( echo "CREATE USER IF NOT EXISTS '${user.name}'@'localhost' IDENTIFIED BY 'changeme';"
+              ${lib.concatStringsSep "\n" (
+              lib.mapAttrsToList (database: permission: ''
+                echo "GRANT ${permission} ON ${database} TO '${user.name}'@'localhost';"
+              '')
+              user.ensurePermissions
+            )}
+              echo "FLUSH PRIVILEGES;"
+            ) | ${cfg.package}/bin/mysql -S "${cfg.dataDir}/mysql.sock" -N
+          ''
+        }
+      '')
+      cfg.ensureUsers}
   '';
-in
-
-{
+in {
   imports = [
     (lib.mkRemovedOptionModule [
       "services"
@@ -195,9 +202,7 @@ in
   ###### interface
 
   options = {
-
     services.mysql = {
-
       enable = lib.mkEnableOption "MySQL server";
 
       package = lib.mkOption {
@@ -263,7 +268,7 @@ in
 
       settings = lib.mkOption {
         type = format.type;
-        default = { };
+        default = {};
         description = ''
           MySQL configuration. Refer to
           <https://dev.mysql.com/doc/refman/5.7/en/server-system-variables.html>,
@@ -314,7 +319,7 @@ in
             };
           }
         );
-        default = [ ];
+        default = [];
         description = ''
           List of database names and their initial schemas that should be used to create databases on the first startup
           of MySQL. The schema attribute is optional: If not specified, an empty database is created.
@@ -335,7 +340,7 @@ in
 
       ensureDatabases = lib.mkOption {
         type = lib.types.listOf lib.types.str;
-        default = [ ];
+        default = [];
         description = ''
           Ensures that the specified databases exist.
           This option will never delete existing databases, especially not when the value of this
@@ -359,7 +364,7 @@ in
                 '';
               };
               authentication = lib.mkOption {
-                type = lib.types.enum [ "socket" "password" ];
+                type = lib.types.enum ["socket" "password"];
                 default = "socket";
                 description = ''
                   Authentication method for the user.
@@ -369,7 +374,7 @@ in
               };
               ensurePermissions = lib.mkOption {
                 type = lib.types.attrsOf lib.types.str;
-                default = { };
+                default = {};
                 description = ''
                   Permissions to ensure for the user, specified as attribute set.
                   The attribute names specify the database and tables to grant the permissions for,
@@ -392,7 +397,7 @@ in
             };
           }
         );
-        default = [ ];
+        default = [];
         description = ''
           Ensures that the specified users exist and have at least the ensured permissions.
           By default, users are created with socket authentication, but this can be changed
@@ -508,7 +513,7 @@ in
           type = lib.types.listOf lib.types.str;
           description = "IP addresses or hostnames of all nodes in the cluster, including this node. This is used to construct the default clusterAddress connection string.";
           example = lib.literalExpression ''["10.0.0.10" "10.0.0.20" "10.0.0.30"]'';
-          default = [ ];
+          default = [];
         };
 
         clusterPassword = lib.mkOption {
@@ -525,10 +530,8 @@ in
           default = ""; # will be evaluate by generateClusterAddress
           defaultText = lib.literalExpression generateClusterAddressExpr;
         };
-
       };
     };
-
   };
 
   ###### implementation
@@ -569,8 +572,9 @@ in
       ++ lib.optionals cfg.galeraCluster.enable [
         {
           assertion =
-            cfg.galeraCluster.localAddress != ""
-            && (cfg.galeraCluster.nodeAddresses != [ ] || cfg.galeraCluster.clusterAddress != "");
+            cfg.galeraCluster.localAddress
+            != ""
+            && (cfg.galeraCluster.nodeAddresses != [] || cfg.galeraCluster.clusterAddress != "");
           message = "mariadb galera cluster is enabled but the localAddress and (nodeAddresses or clusterAddress) are not set";
         }
         {
@@ -578,7 +582,7 @@ in
           message = "mariadb galera clusterPassword is set but overwritten by clusterAddress";
         }
         {
-          assertion = cfg.galeraCluster.nodeAddresses != [ ] || cfg.galeraCluster.clusterAddress != "";
+          assertion = cfg.galeraCluster.nodeAddresses != [] || cfg.galeraCluster.clusterAddress != "";
           message = "When services.mysql.galeraCluster.clusterAddress is set, setting services.mysql.galeraCluster.nodeAddresses is redundant and will be overwritten by clusterAddress. Choose one approach.";
         }
         {
@@ -621,7 +625,7 @@ in
       })
       (lib.mkIf (!isMariaDB) {
         mysqld = {
-          plugin-load-add = [ "auth_socket.so" ];
+          plugin-load-add = ["auth_socket.so"];
         };
       })
       (lib.mkIf cfg.galeraCluster.enable {
@@ -643,10 +647,9 @@ in
 
           wsrep_cluster_name = cfg.galeraCluster.name;
           wsrep_cluster_address =
-            if (cfg.galeraCluster.clusterAddress != "") then
-              cfg.galeraCluster.clusterAddress
-            else
-              generateClusterAddress;
+            if (cfg.galeraCluster.clusterAddress != "")
+            then cfg.galeraCluster.clusterAddress
+            else generateClusterAddress;
 
           wsrep_node_address = cfg.galeraCluster.localAddress;
           wsrep_node_name = "${cfg.galeraCluster.localName}";
@@ -673,8 +676,8 @@ in
       description = "System group for MySQL";
     };
 
-    users.knownGroups = [ "_mysql" ];
-    users.knownUsers = [ "_mysql" ];
+    users.knownGroups = ["_mysql"];
+    users.knownUsers = ["_mysql"];
 
     environment.systemPackages = [
       cfg.package
@@ -742,128 +745,130 @@ in
       fi
     '';
 
-    launchd.daemons.mysql =
-      let
-        initAndStartScript = pkgs.writeShellScript "mysql-init-and-start" ''
-          set -euo pipefail
+    launchd.daemons.mysql = let
+      initAndStartScript = pkgs.writeShellScript "mysql-init-and-start" ''
+        set -euo pipefail
 
-          log() {
-            echo "[$(date '+%Y-%m-%d %H:%M:%S')] $*" >&2
-          }
+        log() {
+          echo "[$(date '+%Y-%m-%d %H:%M:%S')] $*" >&2
+        }
 
-          cleanup() {
-            if [[ -n "''${MYSQL_PID:-}" ]] && kill -0 "$MYSQL_PID" 2>/dev/null; then
-              log "Shutting down MySQL (PID: $MYSQL_PID)"
-              kill "$MYSQL_PID"
-              wait "$MYSQL_PID" 2>/dev/null || true
+        cleanup() {
+          if [[ -n "''${MYSQL_PID:-}" ]] && kill -0 "$MYSQL_PID" 2>/dev/null; then
+            log "Shutting down MySQL (PID: $MYSQL_PID)"
+            kill "$MYSQL_PID"
+            wait "$MYSQL_PID" 2>/dev/null || true
+          fi
+        }
+        trap cleanup EXIT INT TERM
+
+        # Verify data directory exists (should be created by user home)
+        if [[ ! -d "${cfg.dataDir}" ]]; then
+          log "ERROR: MySQL data directory ${cfg.dataDir} does not exist!"
+          log "This should have been created by the system user home."
+          exit 1
+        fi
+
+        # Initialize database if needed
+        INIT_MARKER="${cfg.dataDir}/.mysql_initialized"
+
+        if [[ ! -d "${cfg.dataDir}/mysql" ]] || [[ ! -f "$INIT_MARKER" ]]; then
+          log "Initializing MySQL database..."
+
+          # Clean up any partial initialization
+          if [[ -d "${cfg.dataDir}/mysql" ]] && [[ ! -f "$INIT_MARKER" ]]; then
+            log "Cleaning up partial initialization..."
+            rm -rf "${cfg.dataDir}/mysql" "${cfg.dataDir}"/*.log "${cfg.dataDir}"/*.pid 2>/dev/null || true
+          fi
+
+          log "Running mysql_install_db with detailed output..."
+          ${
+          if isMariaDB
+          then ''
+            log "Command: ${cfg.package}/bin/mysql_install_db --defaults-file=${cfg.configFile} ${mysqldOptions} --user=${cfg.user}"
+            if ! ${cfg.package}/bin/mysql_install_db --defaults-file=${cfg.configFile} ${mysqldOptions} --user=${cfg.user}; then
+              log "ERROR: mysql_install_db failed with exit code $?"
+              log "Check the output above for specific error details"
+              exit 1
             fi
-          }
-          trap cleanup EXIT INT TERM
+          ''
+          else ''
+            log "Command: ${cfg.package}/bin/mysqld --defaults-file=${cfg.configFile} ${mysqldOptions} --initialize-insecure --user=${cfg.user}"
+            if ! ${cfg.package}/bin/mysqld --defaults-file=${cfg.configFile} ${mysqldOptions} --initialize-insecure --user=${cfg.user}; then
+              log "ERROR: mysqld --initialize-insecure failed with exit code $?"
+              log "Check the output above for specific error details"
+              exit 1
+            fi
+          ''
+        }
 
-          # Verify data directory exists (should be created by user home)
-          if [[ ! -d "${cfg.dataDir}" ]]; then
-            log "ERROR: MySQL data directory ${cfg.dataDir} does not exist!"
-            log "This should have been created by the system user home."
+          # Verify the initialization worked
+          if [[ ! -d "${cfg.dataDir}/mysql" ]]; then
+            log "ERROR: mysql directory was not created after initialization"
             exit 1
           fi
 
-          # Initialize database if needed
-          INIT_MARKER="${cfg.dataDir}/.mysql_initialized"
+          # Mark as needing post-initialization setup
+          log "Creating setup marker for post-initialization configuration"
+          touch "${cfg.dataDir}/.mysql_needs_setup"
 
-          if [[ ! -d "${cfg.dataDir}/mysql" ]] || [[ ! -f "$INIT_MARKER" ]]; then
-            log "Initializing MySQL database..."
+          # Mark as initialized
+          echo "$(date): Database initialized successfully" > "$INIT_MARKER"
+          log "Database initialization completed successfully"
+        fi
 
-            # Clean up any partial initialization
-            if [[ -d "${cfg.dataDir}/mysql" ]] && [[ ! -f "$INIT_MARKER" ]]; then
-              log "Cleaning up partial initialization..."
-              rm -rf "${cfg.dataDir}/mysql" "${cfg.dataDir}"/*.log "${cfg.dataDir}"/*.pid 2>/dev/null || true
-            fi
+        # Start MySQL daemon in background
+        log "Starting MySQL daemon..."
+        ${cfg.package}/bin/mysqld --defaults-file=${cfg.configFile} ${mysqldOptions} &
+        MYSQL_PID=$!
+        log "MySQL daemon started with PID: $MYSQL_PID"
 
-            log "Running mysql_install_db with detailed output..."
-            ${if isMariaDB then ''
-              log "Command: ${cfg.package}/bin/mysql_install_db --defaults-file=${cfg.configFile} ${mysqldOptions} --user=${cfg.user}"
-              if ! ${cfg.package}/bin/mysql_install_db --defaults-file=${cfg.configFile} ${mysqldOptions} --user=${cfg.user}; then
-                log "ERROR: mysql_install_db failed with exit code $?"
-                log "Check the output above for specific error details"
-                exit 1
-              fi
-            '' else ''
-              log "Command: ${cfg.package}/bin/mysqld --defaults-file=${cfg.configFile} ${mysqldOptions} --initialize-insecure --user=${cfg.user}"
-              if ! ${cfg.package}/bin/mysqld --defaults-file=${cfg.configFile} ${mysqldOptions} --initialize-insecure --user=${cfg.user}; then
-                log "ERROR: mysqld --initialize-insecure failed with exit code $?"
-                log "Check the output above for specific error details"
-                exit 1
-              fi
-            ''}
-
-            # Verify the initialization worked
-            if [[ ! -d "${cfg.dataDir}/mysql" ]]; then
-              log "ERROR: mysql directory was not created after initialization"
-              exit 1
-            fi
-
-            # Mark as needing post-initialization setup
-            log "Creating setup marker for post-initialization configuration"
-            touch "${cfg.dataDir}/.mysql_needs_setup"
-
-            # Mark as initialized
-            echo "$(date): Database initialized successfully" > "$INIT_MARKER"
-            log "Database initialization completed successfully"
-          fi
-
-          # Start MySQL daemon in background
-          log "Starting MySQL daemon..."
-          ${cfg.package}/bin/mysqld --defaults-file=${cfg.configFile} ${mysqldOptions} &
-          MYSQL_PID=$!
-          log "MySQL daemon started with PID: $MYSQL_PID"
-
-          # Wait for MySQL to be ready with timeout
-          log "Waiting for MySQL to be ready..."
-          TIMEOUT=30
-          COUNTER=0
-          while [ ! -e "${cfg.dataDir}/mysql.sock" ]; do
-            if ! kill -0 $MYSQL_PID 2>/dev/null; then
-              log "ERROR: MySQL daemon (PID: $MYSQL_PID) exited unexpectedly"
-              log "Check ${cfg.dataDir}/mysql.error.log for details"
-              exit 1
-            fi
-            if [ $COUNTER -ge $TIMEOUT ]; then
-              log "ERROR: MySQL failed to start within $TIMEOUT seconds"
-              log "Check ${cfg.dataDir}/mysql.error.log for details"
-              exit 1
-            fi
-            sleep 1
-            COUNTER=$((COUNTER + 1))
-          done
-          log "MySQL is ready (socket: ${cfg.dataDir}/mysql.sock)"
-
-          # Run post-start configuration
-          log "Running post-start configuration..."
-          if ! ${postStartScript}; then
-            log "ERROR: Post-start configuration failed"
+        # Wait for MySQL to be ready with timeout
+        log "Waiting for MySQL to be ready..."
+        TIMEOUT=30
+        COUNTER=0
+        while [ ! -e "${cfg.dataDir}/mysql.sock" ]; do
+          if ! kill -0 $MYSQL_PID 2>/dev/null; then
+            log "ERROR: MySQL daemon (PID: $MYSQL_PID) exited unexpectedly"
+            log "Check ${cfg.dataDir}/mysql.error.log for details"
             exit 1
           fi
-          log "Post-start configuration completed"
+          if [ $COUNTER -ge $TIMEOUT ]; then
+            log "ERROR: MySQL failed to start within $TIMEOUT seconds"
+            log "Check ${cfg.dataDir}/mysql.error.log for details"
+            exit 1
+          fi
+          sleep 1
+          COUNTER=$((COUNTER + 1))
+        done
+        log "MySQL is ready (socket: ${cfg.dataDir}/mysql.sock)"
 
-          # Wait for MySQL daemon to finish
-          log "MySQL service is running. Waiting for shutdown signal..."
-          wait $MYSQL_PID
-        '';
-      in
-      {
-        script = "${initAndStartScript}";
-        serviceConfig = {
-          KeepAlive = true;
-          RunAtLoad = true;
-          ProcessType = "Background";
-          StandardOutPath = "${cfg.dataDir}/mysql.log";
-          StandardErrorPath = "${cfg.dataDir}/mysql.error.log";
-          UserName = cfg.user;
-          GroupName = cfg.group;
-          WorkingDirectory = cfg.dataDir;
-        };
+        # Run post-start configuration
+        log "Running post-start configuration..."
+        if ! ${postStartScript}; then
+          log "ERROR: Post-start configuration failed"
+          exit 1
+        fi
+        log "Post-start configuration completed"
+
+        # Wait for MySQL daemon to finish
+        log "MySQL service is running. Waiting for shutdown signal..."
+        wait $MYSQL_PID
+      '';
+    in {
+      script = "${initAndStartScript}";
+      serviceConfig = {
+        KeepAlive = true;
+        RunAtLoad = true;
+        ProcessType = "Background";
+        StandardOutPath = "${cfg.dataDir}/mysql.log";
+        StandardErrorPath = "${cfg.dataDir}/mysql.error.log";
+        UserName = cfg.user;
+        GroupName = cfg.group;
+        WorkingDirectory = cfg.dataDir;
       };
+    };
   };
 
-  meta.maintainers = [ lib.maintainers._6543 ];
+  meta.maintainers = [lib.maintainers._6543];
 }

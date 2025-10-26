@@ -3,7 +3,6 @@
   stdenv,
   fetchzip,
 }:
-
 stdenv.mkDerivation rec {
   pname = "marcusolsson-gantt-panel";
   version = "0.8.1";
@@ -32,7 +31,7 @@ stdenv.mkDerivation rec {
     '';
     homepage = "https://github.com/marcusolsson/grafana-gantt-panel";
     license = licenses.asl20;
-    maintainers = [ ];
+    maintainers = [];
     platforms = platforms.all;
   };
 }

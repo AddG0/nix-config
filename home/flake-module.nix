@@ -77,53 +77,54 @@
               custom = import ../lib/default.nix {inherit (inputs.nixpkgs) lib;};
               hm = inputs.home-manager.lib.hm;
             });
-          in inputs.home-manager.lib.homeManagerConfiguration {
-            pkgs = inputs.nixpkgs.legacyPackages.x86_64-linux;
-            extraSpecialArgs = {
-              inherit inputs;
-              inherit self;
-              # Use the extended lib with custom functions
-              lib = extendedLib;
-              # Provide basic hostSpec - modules can override specific values
-              hostSpec = {
-                hostName = hostName;
-                username = user;
-                handle = user;
-                home = "/home/${user}";
-                isMinimal = false;
-                isDarwin = false;
-                disableSops = true;
-                hostPlatform = "x86_64-linux";
-                system = {
-                  stateVersion = "24.05";
-                };
-                domain = "example.com";
-                email = {
-                  personal = "user@example.com";
-                  work = "user@work.example.com";
-                };
-                userFullName = "Example User";
-                githubEmail = "user@example.com";
-                networking = {
-                  prefixLength = 24;
-                  ports.tcp.ssh = 22;
-                  ssh = {
-                    extraConfig = "";
+          in
+            inputs.home-manager.lib.homeManagerConfiguration {
+              pkgs = inputs.nixpkgs.legacyPackages.x86_64-linux;
+              extraSpecialArgs = {
+                inherit inputs;
+                inherit self;
+                # Use the extended lib with custom functions
+                lib = extendedLib;
+                # Provide basic hostSpec - modules can override specific values
+                hostSpec = {
+                  hostName = hostName;
+                  username = user;
+                  handle = user;
+                  home = "/home/${user}";
+                  isMinimal = false;
+                  isDarwin = false;
+                  disableSops = true;
+                  hostPlatform = "x86_64-linux";
+                  system = {
+                    stateVersion = "24.05";
+                  };
+                  domain = "example.com";
+                  email = {
+                    personal = "user@example.com";
+                    work = "user@work.example.com";
+                  };
+                  userFullName = "Example User";
+                  githubEmail = "user@example.com";
+                  networking = {
+                    prefixLength = 24;
+                    ports.tcp.ssh = 22;
+                    ssh = {
+                      extraConfig = "";
+                    };
                   };
                 };
+                desktops = {};
+                nix-secrets = inputs.nix-secrets;
+                nur-ryan4yin = inputs.nur-ryan4yin;
               };
-              desktops = {};
-              nix-secrets = inputs.nix-secrets;
-              nur-ryan4yin = inputs.nur-ryan4yin;
+              modules = [
+                # Pass the extended lib to modules
+                {
+                  _module.args.lib = extendedLib;
+                }
+                configPath
+              ];
             };
-            modules = [
-              # Pass the extended lib to modules
-              {
-                _module.args.lib = extendedLib;
-              }
-              configPath
-            ];
-          };
         })
         hostConfigs
     )

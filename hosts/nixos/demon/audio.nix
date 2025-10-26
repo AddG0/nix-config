@@ -1,5 +1,4 @@
-{ pkgs, ... }:
-let
+{pkgs, ...}: let
   micDevice = "alsa_input.usb-Focusrite_Scarlett_Solo_4th_Gen_S1YE3VE3790E29-00.HiFi__Mic2__source";
   headsetDevice = "alsa_output.usb-Chord_Electronics_Ltd_HugoTT2_413-001-01.analog-stereo";
 in {
@@ -32,10 +31,30 @@ in {
 
   # Grant audio group real-time priority and unlimited memory lock for low-latency audio
   security.pam.loginLimits = [
-    { domain = "@audio"; type = "soft"; item = "rtprio"; value = "95"; }
-    { domain = "@audio"; type = "hard"; item = "rtprio"; value = "99"; }
-    { domain = "@audio"; type = "soft"; item = "memlock"; value = "unlimited"; }
-    { domain = "@audio"; type = "hard"; item = "memlock"; value = "unlimited"; }
+    {
+      domain = "@audio";
+      type = "soft";
+      item = "rtprio";
+      value = "95";
+    }
+    {
+      domain = "@audio";
+      type = "hard";
+      item = "rtprio";
+      value = "99";
+    }
+    {
+      domain = "@audio";
+      type = "soft";
+      item = "memlock";
+      value = "unlimited";
+    }
+    {
+      domain = "@audio";
+      type = "hard";
+      item = "memlock";
+      value = "unlimited";
+    }
   ];
 
   security.rtkit.enable = true;
@@ -52,7 +71,7 @@ in {
       "99-hifi.conf" = {
         "context.properties" = {
           "default.clock.rate" = 96000;
-          "default.clock.allowed-rates" = [ 44100 48000 88200 96000 192000 ];
+          "default.clock.allowed-rates" = [44100 48000 88200 96000 192000];
           "resample.quality" = 10;
         };
       };
@@ -75,8 +94,8 @@ in {
                     plugin = "${pkgs.zam-plugins}/lib/ladspa/ZamGate-ladspa.so";
                     label = "ZamGate";
                     control = {
-                      "Threshold" = -60.0;  # Audio below this level is muted
-                      "Makeup" = 2.3;        # Boost because my mic is quiet (≈1.3x volume)
+                      "Threshold" = -60.0; # Audio below this level is muted
+                      "Makeup" = 2.3; # Boost because my mic is quiet (≈1.3x volume)
                     };
                   }
                 ];
@@ -128,18 +147,18 @@ in {
             name = "libpipewire-module-loopback";
             args = {
               "node.description" = "Main Input";
-              "audio.position" = [ "MONO" ];
+              "audio.position" = ["MONO"];
               "capture.props" = {
                 "media.class" = "Audio/Sink";
                 "node.name" = "main_input_sink";
                 "stream.dont-remix" = true;
-                "node.passive" = true;  # Don't generate silence when nothing connected
+                "node.passive" = true; # Don't generate silence when nothing connected
               };
               "playback.props" = {
                 "media.class" = "Audio/Source";
                 "node.name" = "main_input";
                 "stream.dont-remix" = true;
-                "node.passive" = true;  # Don't generate silence when nothing connected
+                "node.passive" = true; # Don't generate silence when nothing connected
               };
             };
           }
@@ -172,7 +191,7 @@ in {
       };
 
       # Make ZamGate plugin available to PipeWire
-      extraLv2Packages = [ pkgs.zam-plugins ];
+      extraLv2Packages = [pkgs.zam-plugins];
     };
   };
 
@@ -184,9 +203,9 @@ in {
   #   - soundboard_source:capture_2 → main_input_sink:playback_MONO
   systemd.user.services.pipewire-link-main-input = {
     description = "Auto-link gate_source and soundboard to main_input";
-    after = [ "pipewire.service" "wireplumber.service" ];
-    wants = [ "pipewire.service" "wireplumber.service" ];
-    wantedBy = [ "pipewire.service" ];
+    after = ["pipewire.service" "wireplumber.service"];
+    wants = ["pipewire.service" "wireplumber.service"];
+    wantedBy = ["pipewire.service"];
     serviceConfig = {
       Type = "oneshot";
       RemainAfterExit = true;

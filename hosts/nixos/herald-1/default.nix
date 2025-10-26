@@ -94,7 +94,7 @@
     };
     windowManager.openbox.enable = true;
     # Configure for dual display
-    xrandrHeads = [ "DP-1" "HDMI-A-1" ];
+    xrandrHeads = ["DP-1" "HDMI-A-1"];
   };
 
   services.displayManager = {

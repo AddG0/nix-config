@@ -11,11 +11,11 @@
         #################### Required Configs ####################
         "common/core" # required
       ]
-    ++ (map (f: "common/optional/${f}") [
-      #################### Host-specific Optional Configs ####################
-      "helper-scripts"
-      "jupyter-notebook"
-    ])
+      ++ (map (f: "common/optional/${f}") [
+        #################### Host-specific Optional Configs ####################
+        "helper-scripts"
+        "jupyter-notebook"
+      ])
     ))
   ];
 }

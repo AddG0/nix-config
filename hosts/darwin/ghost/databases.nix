@@ -1,14 +1,18 @@
-{pkgs, config, ...}: {
+{
+  pkgs,
+  config,
+  ...
+}: {
   # Enable MySQL service (MariaDB as the backend)
   services.mysql = {
     enable = true;
 
-    ensureDatabases = [ "shipperhq_dev" ];
+    ensureDatabases = ["shipperhq_dev"];
 
     ensureUsers = [
       {
         name = "root";
-        authentication = "password";  # Use password authentication instead of socket
+        authentication = "password"; # Use password authentication instead of socket
         ensurePermissions = {
           "*.*" = "ALL PRIVILEGES";
         };
@@ -32,8 +36,8 @@
       mysqld = {
         # Memory settings - using ~40% of total RAM for buffer pool
         innodb_buffer_pool_size = "48G";
-        innodb_buffer_pool_instances = 48;  # 1GB per instance for better concurrency
-        innodb_log_file_size = "4G";  # Larger logs for better write performance
+        innodb_buffer_pool_instances = 48; # 1GB per instance for better concurrency
+        innodb_log_file_size = "4G"; # Larger logs for better write performance
         innodb_log_buffer_size = "256M";
 
         # Connection settings
@@ -41,7 +45,7 @@
         back_log = 500;
 
         # Thread settings for high concurrency
-        innodb_thread_concurrency = 0;  # Let InnoDB manage
+        innodb_thread_concurrency = 0; # Let InnoDB manage
         innodb_read_io_threads = 16;
         innodb_write_io_threads = 16;
         innodb_purge_threads = 8;
@@ -70,8 +74,8 @@
 
         # InnoDB optimizations
         innodb_flush_method = "O_DIRECT_NO_FSYNC";
-        innodb_doublewrite = 0;  # Disable for speed (less safe)
-        innodb_flush_log_at_trx_commit = 2;  # Fast but less durable
+        innodb_doublewrite = 0; # Disable for speed (less safe)
+        innodb_flush_log_at_trx_commit = 2; # Fast but less durable
         innodb_io_capacity = 10000;
         innodb_io_capacity_max = 20000;
         innodb_lru_scan_depth = 4000;
@@ -111,10 +115,10 @@
     # High-performance settings optimized for 128GB RAM
     settings = {
       # Memory settings - PostgreSQL can use more aggressive memory settings than MySQL
-      shared_buffers = "32GB";              # 25% of RAM
-      effective_cache_size = "96GB";        # 75% of RAM (OS + PG cache)
-      work_mem = "256MB";                   # Per-operation memory
-      maintenance_work_mem = "8GB";         # For VACUUM, CREATE INDEX, etc.
+      shared_buffers = "32GB"; # 25% of RAM
+      effective_cache_size = "96GB"; # 75% of RAM (OS + PG cache)
+      work_mem = "256MB"; # Per-operation memory
+      maintenance_work_mem = "8GB"; # For VACUUM, CREATE INDEX, etc.
 
       # WAL settings for performance
       wal_buffers = "64MB";
@@ -143,20 +147,20 @@
       autovacuum_vacuum_cost_limit = 3000;
 
       # Query planner settings
-      random_page_cost = 1.1;              # Assume fast SSD storage
+      random_page_cost = 1.1; # Assume fast SSD storage
       seq_page_cost = 1.0;
       cpu_tuple_cost = 0.01;
       cpu_index_tuple_cost = 0.005;
       cpu_operator_cost = 0.0025;
 
       # Logging and monitoring
-      log_statement = "none";               # Disable for performance
+      log_statement = "none"; # Disable for performance
       log_duration = false;
       log_checkpoints = true;
       log_connections = false;
       log_disconnections = false;
       log_lock_waits = true;
-      log_temp_files = 0;                   # Log all temp files
+      log_temp_files = 0; # Log all temp files
 
       # Performance monitoring
       track_activity_query_size = 4096;
@@ -171,10 +175,10 @@
       huge_pages = "try";
 
       # Synchronous commit for durability vs performance trade-off
-      synchronous_commit = "on";            # Change to "off" for maximum speed
+      synchronous_commit = "on"; # Change to "off" for maximum speed
 
       # Full page writes (can disable for performance on reliable storage)
-      full_page_writes = true;              # Set to false for speed on good storage
+      full_page_writes = true; # Set to false for speed on good storage
 
       # Effective IO concurrency (must be 0 on macOS - lacks posix_fadvise)
       effective_io_concurrency = 0;
@@ -182,7 +186,7 @@
 
       # Lock timeout
       lock_timeout = "30s";
-      statement_timeout = 0;                # No query timeout
+      statement_timeout = 0; # No query timeout
       idle_in_transaction_session_timeout = "10min";
     };
 

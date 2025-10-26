@@ -27,7 +27,7 @@
         "gaming/steam.nix"
         "comms"
         "ghostty"
-       "secrets/1password.nix"
+        "secrets/1password.nix"
         # "development/aws.nix"
         "media/spicetify.nix"
         "media/tidal.nix"

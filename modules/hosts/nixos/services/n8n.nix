@@ -1,9 +1,12 @@
-{ lib, config, ... }:
 {
+  lib,
+  config,
+  ...
+}: {
   options.services.n8n = {
     environmentVariables = lib.mkOption {
       type = lib.types.attrsOf lib.types.str;
-      default = { };
+      default = {};
       description = ''
         Additional environment variables to set for the n8n service.
       '';
