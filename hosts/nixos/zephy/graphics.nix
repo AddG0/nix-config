@@ -1,8 +1,6 @@
 {
   pkgs,
-  lib,
   inputs,
-  config,
   ...
 }: {
   # https://medium.com/@notquitethereyet_/gaming-on-nixos-%EF%B8%8F-f98506351a24

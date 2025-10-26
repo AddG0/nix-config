@@ -55,7 +55,7 @@ in {
     };
 
     configuration = mkOption {
-      type = (pkgs.formats.json {}).type;
+      inherit ((pkgs.formats.json {})) type;
       default = {};
       description = ''
         Specify the configuration for Loki in Nix.
@@ -84,10 +84,8 @@ in {
   config = mkIf cfg.enable {
     assertions = [
       {
-        assertion = (
-          (cfg.configuration == {} -> cfg.configFile != null)
-          && (cfg.configFile != null -> cfg.configuration == {})
-        );
+        assertion = (cfg.configuration == {} -> cfg.configFile != null)
+          && (cfg.configFile != null -> cfg.configuration == {});
         message = ''
           Please specify either
           'services.loki.configuration' or

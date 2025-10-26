@@ -14,9 +14,9 @@
     # Common special arguments for all systems
     commonSpecialArgs = {
       inherit inputs;
-      self = inputs.self;
-      lib = inputs.self.lib;
-      nix-secrets = inputs.nix-secrets;
+      inherit (inputs) self;
+      inherit (inputs.self) lib;
+      inherit (inputs) nix-secrets;
     };
 
     # Common modules for NixOS systems
@@ -25,7 +25,7 @@
         virtualisation.diskSize = 20 * 1024;
         nix.registry.nixpkgs.flake = inputs.nixpkgs;
         nixpkgs.overlays = [
-          (final: prev: {
+          (final: _prev: {
             nixos-generators = inputs.nixos-generators.packages.${final.system}.default;
           })
         ];
@@ -43,7 +43,7 @@
             commonSpecialArgs
             // {
               isDarwin = false;
-              nixvirt = inputs.nixvirt;
+              inherit (inputs) nixvirt;
             };
           modules = [./nixos/${host}] ++ commonNixOSModules;
         };
@@ -116,8 +116,8 @@
         inherit system format;
         specialArgs = {
           inherit inputs;
-          self = inputs.self;
-          lib = inputs.self.lib;
+          inherit (inputs) self;
+          inherit (inputs.self) lib;
           isDarwin = false;
         };
         modules = [

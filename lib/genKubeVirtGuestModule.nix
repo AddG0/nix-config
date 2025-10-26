@@ -1,5 +1,4 @@
 {
-  pkgs,
   hostName,
   networking,
   config,

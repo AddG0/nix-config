@@ -3,8 +3,6 @@
 #
 {
   pkgs,
-  lib,
-  config,
   ...
 }: let
   # FIXME

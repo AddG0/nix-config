@@ -1,8 +1,6 @@
 {
   lib,
   pkgs,
-  inputs,
-  system,
   ...
 }: {
   imports = lib.flatten [

@@ -36,7 +36,7 @@
   vanillaHostsConfig = lib.attrsets.mergeAttrsList (
     lib.lists.map (host: {
       "${host}" = lib.hm.dag.entryAfter ["ssh-hosts"] {
-        host = host;
+        inherit host;
         hostname = "${host}.${hostSpec.domain}";
         port = hostSpec.networking.ports.tcp.ssh;
       };

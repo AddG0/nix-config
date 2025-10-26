@@ -12,14 +12,14 @@
           nixpkgs = import inputs.nixpkgs {system = "x86_64-linux";};
           specialArgs = {
             inherit inputs;
-            self = inputs.self;
-            lib = inputs.self.lib;
+            inherit (inputs) self;
+            inherit (inputs.self) lib;
             isDarwin = false;
-            nix-secrets = inputs.nix-secrets;
+            inherit (inputs) nix-secrets;
           };
         };
       }
-      // builtins.mapAttrs (name: config: {
+      // builtins.mapAttrs (_name: config: {
         deployment = {
           targetHost =
             if config.config.hostSpec.colmena.targetHost != ""
@@ -29,7 +29,7 @@
         };
         imports = config._module.args.modules;
       }) (lib.filterAttrs (
-          name: value:
+          _name: value:
             value.config.nixpkgs.hostPlatform.system
             == "x86_64-linux"
             && value.config.hostSpec.colmena.enable

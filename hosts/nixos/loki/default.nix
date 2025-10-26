@@ -6,10 +6,8 @@
 ###############################################################
 {
   inputs,
-  nix-secrets,
   lib,
   config,
-  pkgs,
   ...
 }: {
   imports = lib.flatten [

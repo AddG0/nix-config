@@ -4,11 +4,7 @@
 #
 ###############################################################
 {
-  inputs,
   lib,
-  config,
-  pkgs,
-  isDarwin,
   ...
 }: {
   imports = lib.flatten [

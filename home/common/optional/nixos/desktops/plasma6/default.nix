@@ -1,6 +1,4 @@
 {
-  config,
-  lib,
   pkgs,
   ...
 }: {
@@ -91,6 +89,12 @@
       name = "Start GPU Screen Recorder Replay Buffer";
       key = "Meta+F11";
       command = "systemctl --user start gpu-screen-recorder-replay.service";
+    };
+
+    hotkeys.commands."mic-toggle" = {
+      name = "Toggle Microphone Mute";
+      key = "Meta+M";
+      command = "mic-toggle";
     };
 
     # Panel configuration

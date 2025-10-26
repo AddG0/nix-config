@@ -1,5 +1,5 @@
 # checks/packages.nix - Package build validation
-{...}: {
+_: {
   perSystem = {
     self',
     lib,

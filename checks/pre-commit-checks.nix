@@ -2,7 +2,6 @@
 {inputs, ...}: {
   perSystem = {
     system,
-    pkgs,
     ...
   }: {
     checks = {

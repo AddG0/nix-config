@@ -15,7 +15,7 @@
 
     minimalSpecialArgs = isDarwin: {
       inherit inputs outputs;
-      lib = nixpkgs.lib.extend (self: super: {
+      lib = nixpkgs.lib.extend (_self: _super: {
         custom = import ../lib {
           inherit (nixpkgs) lib;
           inherit isDarwin;

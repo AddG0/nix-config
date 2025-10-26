@@ -1,8 +1,4 @@
-{
-  config,
-  lib,
-  ...
-}: {
+_: {
   homebrew.casks = [
     "balenaetcher"
   ];

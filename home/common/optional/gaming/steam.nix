@@ -4,7 +4,6 @@
   pkgs,
   config,
   lib,
-  nix-gaming,
   ...
 }: let
   monitor = lib.head (lib.filter (m: m.primary) config.monitors);

@@ -12,25 +12,6 @@ with lib; let
 
   workingDir = cfg.dataDir;
 
-  triggerReload = pkgs.writeShellScriptBin "trigger-reload-prometheus" ''
-    PATH="${makeBinPath (with pkgs; [coreutils])}"
-    if pgrep -f "prometheus" > /dev/null; then
-      pkill -HUP -f "prometheus"
-    fi
-  '';
-
-  reload = pkgs.writeShellScriptBin "reload-prometheus" ''
-    PATH="${
-      makeBinPath (
-        with pkgs; [
-          coreutils
-          gnugrep
-        ]
-      )
-    }"
-    pkill -HUP -f "prometheus"
-  '';
-
   # a wrapper that verifies that the configuration is valid
   promtoolCheck = what: name: file:
     if checkConfigEnabled
@@ -54,7 +35,7 @@ with lib; let
     scrape_configs = filterValidPrometheus cfg.scrapeConfigs;
     remote_write = filterValidPrometheus cfg.remoteWrite;
     remote_read = filterValidPrometheus cfg.remoteRead;
-    rule_files = optionals (!(cfg.enableAgentMode)) (
+    rule_files = optionals (!cfg.enableAgentMode) (
       map (promtoolCheck "check rules" "rules") (
         cfg.ruleFiles
         ++ [
@@ -89,7 +70,7 @@ with lib; let
       "--web.listen-address=${cfg.listenAddress}:${builtins.toString cfg.port}"
     ]
     ++ (
-      if (cfg.enableAgentMode)
+      if cfg.enableAgentMode
       then [
         "--enable-feature=agent"
       ]
@@ -140,7 +121,7 @@ with lib; let
     mkOption {
       type = types.nullOr type;
       default = null;
-      description = description;
+      inherit description;
     };
 
   mkSdConfigModule = extraOptions:

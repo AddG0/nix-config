@@ -2,7 +2,6 @@
   pkgs,
   nix-secrets,
   config,
-  lib,
   ...
 }: {
   imports = [

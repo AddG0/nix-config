@@ -1,11 +1,7 @@
 {
   self,
   nixpkgs,
-  pre-commit-hooks,
-  home-manager,
   nix-darwin,
-  nix-secrets,
-  sops-nix,
   nixos-generators,
   ...
 } @ inputs: let
@@ -14,7 +10,7 @@
   # ========== Extend lib with lib.custom ==========
   # NOTE: This approach allows lib.custom to propagate into hm
   # see: https://github.com/nix-community/home-manager/pull/3454
-  lib = nixpkgs.lib.extend (self: super: {custom = import ../lib {inherit (nixpkgs) lib;};});
+  lib = nixpkgs.lib.extend (_self: _super: {custom = import ../lib {inherit (nixpkgs) lib;};});
 
   # Helper function to generate a set of attributes for each system
   forAllSystems = nixpkgs.lib.genAttrs [
@@ -36,40 +32,6 @@
   });
 
   # List of all available formats
-  formats = [
-    # "amazon"
-    # "azure"
-    # "cloudstack"
-    # "do"
-    # "docker"
-    # "gce"
-    # "hyperv"
-    # "install-iso"
-    # "install-iso-hyperv"
-    # "iso"
-    # "kexec"
-    # "kexec-bundle"
-    # "kubevirt"
-    # "linode"
-    # "lxc"
-    # "lxc-metadata"
-    # "openstack"
-    # "proxmox"
-    # "proxmox-lxc"
-    # "qcow"
-    # "qcow-efi"
-    # "raw"
-    # "raw-efi"
-    # "sd-aarch64"
-    # "sd-aarch64-installer"
-    # "sd-x86_64"
-    # "vagrant-virtualbox"
-    # "virtualbox"
-    # "vm"
-    # "vm-bootloader"
-    # "vm-nogui"
-    # "vmware"
-  ];
 in {
   #
   # ========= Host Configurations =========
@@ -83,7 +45,7 @@ in {
         specialArgs = {
           inherit inputs outputs lib;
           isDarwin = false;
-          nix-secrets = inputs.nix-secrets;
+          inherit (inputs) nix-secrets;
           nixvirt = inputs.nix-secrets;
         };
         modules = [
@@ -92,7 +54,7 @@ in {
             virtualisation.diskSize = 20 * 1024;
             nix.registry.nixpkgs.flake = nixpkgs;
             nixpkgs.overlays = [
-              (final: prev: {
+              (final: _prev: {
                 nixos-generators = inputs.nixos-generators.packages.${final.system}.default;
               })
             ];
@@ -109,7 +71,7 @@ in {
         specialArgs = {
           inherit inputs outputs lib;
           isDarwin = true;
-          nix-secrets = inputs.nix-secrets;
+          inherit (inputs) nix-secrets;
         };
         modules = [../hosts/darwin/${host}];
       };
@@ -167,11 +129,11 @@ in {
         specialArgs = {
           inherit inputs outputs lib;
           isDarwin = false;
-          nix-secrets = inputs.nix-secrets;
+          inherit (inputs) nix-secrets;
         };
       };
     }
-    // builtins.mapAttrs (name: config: {
+    // builtins.mapAttrs (_name: config: {
       deployment = {
         targetHost =
           if config.config.hostSpec.colmena.targetHost != ""
@@ -181,7 +143,7 @@ in {
       };
       imports = config._module.args.modules;
     }) (lib.filterAttrs (
-        name: value:
+        _name: value:
           value.config.nixpkgs.hostPlatform.system
           == "x86_64-linux"
           && value.config.hostSpec.colmena.enable

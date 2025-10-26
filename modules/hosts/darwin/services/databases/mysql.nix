@@ -7,7 +7,6 @@
   cfg = config.services.mysql;
 
   isMariaDB = lib.getName cfg.package == lib.getName pkgs.mariadb;
-  isOracle = lib.getName cfg.package == lib.getName pkgs.mysql80;
 
   mysqldOptions = "--datadir=${cfg.dataDir} --basedir=${cfg.package}";
 
@@ -267,7 +266,7 @@ in {
       };
 
       settings = lib.mkOption {
-        type = format.type;
+        inherit (format) type;
         default = {};
         description = ''
           MySQL configuration. Refer to

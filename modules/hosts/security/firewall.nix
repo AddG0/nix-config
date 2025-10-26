@@ -98,8 +98,8 @@ in {
         networking.firewall = {
           enable = true;
           allowPing = cfg.allowICMP;
-          allowedTCPPorts = cfg.allowedTCPPorts;
-          allowedUDPPorts = cfg.allowedUDPPorts;
+          inherit (cfg) allowedTCPPorts;
+          inherit (cfg) allowedUDPPorts;
           extraCommands = lib.concatStringsSep "\n" (
             map (ip: "iptables -A OUTPUT -d ${ip} -j DROP") cfg.denyOutboundIPs
           );

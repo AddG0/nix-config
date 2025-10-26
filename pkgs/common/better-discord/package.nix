@@ -16,7 +16,7 @@ in
       owner = "BetterDiscord";
       repo = "BetterDiscord";
       rev = version;
-      sha256 = "sha256-gWtgZg/V6EdXcokjjjLtqUuhLqdZ7HzhHAV7yIjQna0="; # Replace with actual hash
+      sha256 = "sha256-oKXNw8vD8xRje07XRoAIdWNYC0mJJS/0lWB/OT9HnwQ="; # Replace with actual hash
     };
 
     nativeBuildInputs = [

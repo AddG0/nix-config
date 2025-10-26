@@ -17,7 +17,7 @@
   # Helper function to escape single quotes for SQL
   escapeSQL = str: builtins.replaceStrings ["'"] ["''"] str;
 
-  mkInsertOrUpdate = name: loc: let
+  mkInsertOrUpdate = _name: loc: let
     short = escapeSQL loc.short;
     long = escapeSQL loc.long;
   in ''

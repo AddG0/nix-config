@@ -2,8 +2,6 @@
   lib,
   stdenv,
   fetchFromGitHub,
-  xorg,
-  python3,
 }:
 stdenv.mkDerivation rec {
   pname = "vimix-cursors";

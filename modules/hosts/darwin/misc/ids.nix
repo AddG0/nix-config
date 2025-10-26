@@ -7,11 +7,8 @@
 # files.
 {
   lib,
-  config,
   ...
-}: let
-  inherit (lib) types;
-in {
+}: {
   # options = {
   #   ids.uids = lib.mkOption {
   #     internal = true;

@@ -1,5 +1,5 @@
 # checks/devshells.nix - Development shell validation
-{...}: {
+_: {
   perSystem = {
     self',
     lib,

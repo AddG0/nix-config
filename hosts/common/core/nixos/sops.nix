@@ -1,6 +1,5 @@
 # hosts level sops. see home/[user]/common/optional/sops.nix for home/user level
 {
-  pkgs,
   lib,
   inputs,
   config,
@@ -56,7 +55,7 @@ in {
   system.activationScripts.sopsSetAgeKeyOwnership = let
     ageFolder = "${config.hostSpec.home}/.config/sops/age";
     user = config.users.users.${config.hostSpec.username}.name;
-    group = config.users.users.${config.hostSpec.username}.group;
+    inherit (config.users.users.${config.hostSpec.username}) group;
   in ''
     mkdir -p ${ageFolder} || true
     chown -R ${user}:${group} ${config.hostSpec.home}/.config

@@ -127,15 +127,15 @@ in {
     };
   };
 
-  config = lib.mkIf (cfg.enable) {
+  config = lib.mkIf cfg.enable {
     virtualisation.docker.enable = true;
     users.groups."${cfg.group}".name = cfg.group;
     users.users.pterodactyl = {
       isSystemUser = true;
-      group = cfg.group;
+      inherit (cfg) group;
       extraGroups = ["docker"];
     };
-    networking.firewall = lib.mkIf (cfg.openFirewall) {
+    networking.firewall = lib.mkIf cfg.openFirewall {
       allowedTCPPorts = [cfg.settings.api.port cfg.settings.system.sftp.bind_port] ++ cfg.allocatedTCPPorts;
       allowedUDPPorts = cfg.allocatedUDPPorts;
     };

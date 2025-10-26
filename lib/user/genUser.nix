@@ -13,8 +13,8 @@
   lib,
   ...
 }: let
-  hostSpec = config.hostSpec;
-  desktops = config.desktops;
+  inherit (config) hostSpec;
+  inherit (config) desktops;
   ifTheyExist = groups: builtins.filter (group: builtins.hasAttr group config.users.groups) groups;
 
   # Base user configuration common across all systems
@@ -51,16 +51,12 @@
   darwinUserConfig = lib.recursiveUpdate darwinConfig {
     users.users.${user} = {
       name = user;
-      home = hostSpec.home;
+      inherit (hostSpec) home;
     };
   };
 
   # Helper to build home configuration for a user
   buildHomeConfig = let
-    configKey =
-      if user == hostSpec.username
-      then hostSpec.hostName
-      else "${user}@${hostSpec.hostName}";
     configPath = ../../home + "/${userDir}/${hostSpec.hostName}.nix";
   in
     if hostSpec.isMinimal
@@ -82,8 +78,8 @@
     home-manager = {
       extraSpecialArgs = {
         inherit pkgs inputs hostSpec desktops;
-        nix-secrets = inputs.nix-secrets;
-        nur-ryan4yin = inputs.nur-ryan4yin;
+        inherit (inputs) nix-secrets;
+        inherit (inputs) nur-ryan4yin;
       };
       users.${user} = buildHomeConfig;
     };

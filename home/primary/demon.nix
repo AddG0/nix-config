@@ -3,8 +3,6 @@
   inputs,
   pkgs,
   lib,
-  hostSpec,
-  desktops,
   ...
 }: {
   imports = lib.flatten [

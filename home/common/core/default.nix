@@ -1,10 +1,8 @@
 {
-  config,
   lib,
   pkgs,
   self,
   inputs,
-  nix-secrets,
   hostSpec,
   ...
 }: let

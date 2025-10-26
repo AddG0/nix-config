@@ -1,8 +1,6 @@
 {
   config,
-  lib,
   pkgs,
-  nix-secrets,
   ...
 }: {
   home.packages = with pkgs; [

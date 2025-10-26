@@ -1,6 +1,5 @@
 {
   config,
-  lib,
   nix-secrets,
   inputs,
   ...
