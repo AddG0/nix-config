@@ -15,7 +15,7 @@ stdenv.mkDerivation rec {
   # No source needed, we're just creating a wrapper
   dontUnpack = true;
 
-  nativeBuildInputs = [ makeWrapper ];
+  nativeBuildInputs = [makeWrapper];
 
   installPhase = ''
     runHook preInstall
@@ -28,7 +28,7 @@ stdenv.mkDerivation rec {
       --add-flags "--python ${python312}/bin/python3.12" \
       --add-flags "--from openhands-ai" \
       --add-flags "openhands" \
-      --prefix LD_LIBRARY_PATH : "${lib.makeLibraryPath [ stdenv.cc.cc.lib ]}"
+      --prefix LD_LIBRARY_PATH : "${lib.makeLibraryPath [stdenv.cc.cc.lib]}"
 
     runHook postInstall
   '';

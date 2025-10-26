@@ -2,7 +2,7 @@
   services.n8n = {
     enable = true;
     openFirewall = true;
-    settings = {    
+    settings = {
       host = "0.0.0.0";
       ai.enabled = true;
     };

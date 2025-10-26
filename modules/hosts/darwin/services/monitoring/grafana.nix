@@ -5,18 +5,16 @@
   pkgs,
   ...
 }:
-
-with lib;
-
-let
+with lib; let
   cfg = config.services.grafana;
   opt = options.services.grafana;
-  provisioningSettingsFormat = pkgs.formats.yaml { };
+  provisioningSettingsFormat = pkgs.formats.yaml {};
   declarativePlugins = pkgs.linkFarm "grafana-plugins" (
     builtins.map (pkg: {
       name = pkg.pname;
       path = pkg;
-    }) cfg.declarativePlugins
+    })
+    cfg.declarativePlugins
   );
   useMysql = cfg.settings.database.type == "mysql";
   usePostgresql = cfg.settings.database.type == "postgres";
@@ -32,98 +30,95 @@ let
   #
   # [0]: https://github.com/grafana/grafana/blob/main/conf/defaults.ini
   settingsFormatIni = pkgs.formats.ini {
-    listToValue = concatMapStringsSep " " (generators.mkValueStringDefault { });
+    listToValue = concatMapStringsSep " " (generators.mkValueStringDefault {});
     mkKeyValue = generators.mkKeyValueDefault {
-      mkValueString = v: if v == null then "" else generators.mkValueStringDefault { } v;
+      mkValueString = v:
+        if v == null
+        then ""
+        else generators.mkValueStringDefault {} v;
     } "=";
   };
   configFile = settingsFormatIni.generate "config.ini" cfg.settings;
 
-  mkProvisionCfg =
-    name: attr: provisionCfg:
-    if provisionCfg.path != null then
-      provisionCfg.path
+  mkProvisionCfg = name: attr: provisionCfg:
+    if provisionCfg.path != null
+    then provisionCfg.path
     else
       provisioningSettingsFormat.generate "${name}.yaml" (
-        if provisionCfg.settings != null then
-          provisionCfg.settings
-        else
-          {
-            apiVersion = 1;
-            ${attr} = [ ];
-          }
+        if provisionCfg.settings != null
+        then provisionCfg.settings
+        else {
+          apiVersion = 1;
+          ${attr} = [];
+        }
       );
 
   datasourceFileOrDir = mkProvisionCfg "datasource" "datasources" cfg.provision.datasources;
   dashboardFileOrDir = mkProvisionCfg "dashboard" "providers" cfg.provision.dashboards;
 
-  generateAlertingProvisioningYaml =
-    x:
-    if (cfg.provision.alerting."${x}".path == null) then
-      provisioningSettingsFormat.generate "${x}.yaml" cfg.provision.alerting."${x}".settings
-    else
-      cfg.provision.alerting."${x}".path;
+  generateAlertingProvisioningYaml = x:
+    if (cfg.provision.alerting."${x}".path == null)
+    then provisioningSettingsFormat.generate "${x}.yaml" cfg.provision.alerting."${x}".settings
+    else cfg.provision.alerting."${x}".path;
   rulesFileOrDir = generateAlertingProvisioningYaml "rules";
   contactPointsFileOrDir = generateAlertingProvisioningYaml "contactPoints";
   policiesFileOrDir = generateAlertingProvisioningYaml "policies";
   templatesFileOrDir = generateAlertingProvisioningYaml "templates";
   muteTimingsFileOrDir = generateAlertingProvisioningYaml "muteTimings";
 
-  ln =
-    {
-      src,
-      dir,
-      filename,
-    }:
-    ''
-      if [[ -d "${src}" ]]; then
-        pushd $out/${dir} &>/dev/null
-          lndir "${src}"
-        popd &>/dev/null
-      else
-        ln -sf ${src} $out/${dir}/${filename}.yaml
-      fi
-    '';
+  ln = {
+    src,
+    dir,
+    filename,
+  }: ''
+    if [[ -d "${src}" ]]; then
+      pushd $out/${dir} &>/dev/null
+        lndir "${src}"
+      popd &>/dev/null
+    else
+      ln -sf ${src} $out/${dir}/${filename}.yaml
+    fi
+  '';
   provisionConfDir =
-    pkgs.runCommand "grafana-provisioning" { nativeBuildInputs = [ pkgs.xorg.lndir ]; }
-      ''
-        mkdir -p $out/{alerting,datasources,dashboards,plugins}
-        ${ln {
-          src = datasourceFileOrDir;
-          dir = "datasources";
-          filename = "datasource";
-        }}
-        ${ln {
-          src = dashboardFileOrDir;
-          dir = "dashboards";
-          filename = "dashboard";
-        }}
-        ${ln {
-          src = rulesFileOrDir;
-          dir = "alerting";
-          filename = "rules";
-        }}
-        ${ln {
-          src = contactPointsFileOrDir;
-          dir = "alerting";
-          filename = "contactPoints";
-        }}
-        ${ln {
-          src = policiesFileOrDir;
-          dir = "alerting";
-          filename = "policies";
-        }}
-        ${ln {
-          src = templatesFileOrDir;
-          dir = "alerting";
-          filename = "templates";
-        }}
-        ${ln {
-          src = muteTimingsFileOrDir;
-          dir = "alerting";
-          filename = "muteTimings";
-        }}
-      '';
+    pkgs.runCommand "grafana-provisioning" {nativeBuildInputs = [pkgs.xorg.lndir];}
+    ''
+      mkdir -p $out/{alerting,datasources,dashboards,plugins}
+      ${ln {
+        src = datasourceFileOrDir;
+        dir = "datasources";
+        filename = "datasource";
+      }}
+      ${ln {
+        src = dashboardFileOrDir;
+        dir = "dashboards";
+        filename = "dashboard";
+      }}
+      ${ln {
+        src = rulesFileOrDir;
+        dir = "alerting";
+        filename = "rules";
+      }}
+      ${ln {
+        src = contactPointsFileOrDir;
+        dir = "alerting";
+        filename = "contactPoints";
+      }}
+      ${ln {
+        src = policiesFileOrDir;
+        dir = "alerting";
+        filename = "policies";
+      }}
+      ${ln {
+        src = templatesFileOrDir;
+        dir = "alerting";
+        filename = "templates";
+      }}
+      ${ln {
+        src = muteTimingsFileOrDir;
+        dir = "alerting";
+        filename = "muteTimings";
+      }}
+    '';
 
   # Get a submodule without any embedded metadata:
   _filter = x: filterAttrs (k: v: k != "_module") x;
@@ -204,197 +199,237 @@ let
       };
     };
   };
-in
-{
+in {
   imports = [
-    (mkRemovedOptionModule [ "services" "grafana" "provision" "notifiers" ] ''
+    (mkRemovedOptionModule ["services" "grafana" "provision" "notifiers"] ''
       Notifiers (services.grafana.provision.notifiers) were removed in Grafana 11.
     '')
 
-    (mkRenamedOptionModule
-      [ "services" "grafana" "protocol" ]
-      [ "services" "grafana" "settings" "server" "protocol" ]
+    (
+      mkRenamedOptionModule
+      ["services" "grafana" "protocol"]
+      ["services" "grafana" "settings" "server" "protocol"]
     )
-    (mkRenamedOptionModule
-      [ "services" "grafana" "addr" ]
-      [ "services" "grafana" "settings" "server" "http_addr" ]
+    (
+      mkRenamedOptionModule
+      ["services" "grafana" "addr"]
+      ["services" "grafana" "settings" "server" "http_addr"]
     )
-    (mkRenamedOptionModule
-      [ "services" "grafana" "port" ]
-      [ "services" "grafana" "settings" "server" "http_port" ]
+    (
+      mkRenamedOptionModule
+      ["services" "grafana" "port"]
+      ["services" "grafana" "settings" "server" "http_port"]
     )
-    (mkRenamedOptionModule
-      [ "services" "grafana" "domain" ]
-      [ "services" "grafana" "settings" "server" "domain" ]
+    (
+      mkRenamedOptionModule
+      ["services" "grafana" "domain"]
+      ["services" "grafana" "settings" "server" "domain"]
     )
-    (mkRenamedOptionModule
-      [ "services" "grafana" "rootUrl" ]
-      [ "services" "grafana" "settings" "server" "root_url" ]
+    (
+      mkRenamedOptionModule
+      ["services" "grafana" "rootUrl"]
+      ["services" "grafana" "settings" "server" "root_url"]
     )
-    (mkRenamedOptionModule
-      [ "services" "grafana" "staticRootPath" ]
-      [ "services" "grafana" "settings" "server" "static_root_path" ]
+    (
+      mkRenamedOptionModule
+      ["services" "grafana" "staticRootPath"]
+      ["services" "grafana" "settings" "server" "static_root_path"]
     )
-    (mkRenamedOptionModule
-      [ "services" "grafana" "certFile" ]
-      [ "services" "grafana" "settings" "server" "cert_file" ]
+    (
+      mkRenamedOptionModule
+      ["services" "grafana" "certFile"]
+      ["services" "grafana" "settings" "server" "cert_file"]
     )
-    (mkRenamedOptionModule
-      [ "services" "grafana" "certKey" ]
-      [ "services" "grafana" "settings" "server" "cert_key" ]
+    (
+      mkRenamedOptionModule
+      ["services" "grafana" "certKey"]
+      ["services" "grafana" "settings" "server" "cert_key"]
     )
-    (mkRenamedOptionModule
-      [ "services" "grafana" "socket" ]
-      [ "services" "grafana" "settings" "server" "socket" ]
+    (
+      mkRenamedOptionModule
+      ["services" "grafana" "socket"]
+      ["services" "grafana" "settings" "server" "socket"]
     )
-    (mkRenamedOptionModule
-      [ "services" "grafana" "database" "type" ]
-      [ "services" "grafana" "settings" "database" "type" ]
+    (
+      mkRenamedOptionModule
+      ["services" "grafana" "database" "type"]
+      ["services" "grafana" "settings" "database" "type"]
     )
-    (mkRenamedOptionModule
-      [ "services" "grafana" "database" "host" ]
-      [ "services" "grafana" "settings" "database" "host" ]
+    (
+      mkRenamedOptionModule
+      ["services" "grafana" "database" "host"]
+      ["services" "grafana" "settings" "database" "host"]
     )
-    (mkRenamedOptionModule
-      [ "services" "grafana" "database" "name" ]
-      [ "services" "grafana" "settings" "database" "name" ]
+    (
+      mkRenamedOptionModule
+      ["services" "grafana" "database" "name"]
+      ["services" "grafana" "settings" "database" "name"]
     )
-    (mkRenamedOptionModule
-      [ "services" "grafana" "database" "user" ]
-      [ "services" "grafana" "settings" "database" "user" ]
+    (
+      mkRenamedOptionModule
+      ["services" "grafana" "database" "user"]
+      ["services" "grafana" "settings" "database" "user"]
     )
-    (mkRenamedOptionModule
-      [ "services" "grafana" "database" "password" ]
-      [ "services" "grafana" "settings" "database" "password" ]
+    (
+      mkRenamedOptionModule
+      ["services" "grafana" "database" "password"]
+      ["services" "grafana" "settings" "database" "password"]
     )
-    (mkRenamedOptionModule
-      [ "services" "grafana" "database" "path" ]
-      [ "services" "grafana" "settings" "database" "path" ]
+    (
+      mkRenamedOptionModule
+      ["services" "grafana" "database" "path"]
+      ["services" "grafana" "settings" "database" "path"]
     )
-    (mkRenamedOptionModule
-      [ "services" "grafana" "database" "connMaxLifetime" ]
-      [ "services" "grafana" "settings" "database" "conn_max_lifetime" ]
+    (
+      mkRenamedOptionModule
+      ["services" "grafana" "database" "connMaxLifetime"]
+      ["services" "grafana" "settings" "database" "conn_max_lifetime"]
     )
-    (mkRenamedOptionModule
-      [ "services" "grafana" "security" "adminUser" ]
-      [ "services" "grafana" "settings" "security" "admin_user" ]
+    (
+      mkRenamedOptionModule
+      ["services" "grafana" "security" "adminUser"]
+      ["services" "grafana" "settings" "security" "admin_user"]
     )
-    (mkRenamedOptionModule
-      [ "services" "grafana" "security" "adminPassword" ]
-      [ "services" "grafana" "settings" "security" "admin_password" ]
+    (
+      mkRenamedOptionModule
+      ["services" "grafana" "security" "adminPassword"]
+      ["services" "grafana" "settings" "security" "admin_password"]
     )
-    (mkRenamedOptionModule
-      [ "services" "grafana" "security" "secretKey" ]
-      [ "services" "grafana" "settings" "security" "secret_key" ]
+    (
+      mkRenamedOptionModule
+      ["services" "grafana" "security" "secretKey"]
+      ["services" "grafana" "settings" "security" "secret_key"]
     )
-    (mkRenamedOptionModule
-      [ "services" "grafana" "server" "serveFromSubPath" ]
-      [ "services" "grafana" "settings" "server" "serve_from_sub_path" ]
+    (
+      mkRenamedOptionModule
+      ["services" "grafana" "server" "serveFromSubPath"]
+      ["services" "grafana" "settings" "server" "serve_from_sub_path"]
     )
-    (mkRenamedOptionModule
-      [ "services" "grafana" "smtp" "enable" ]
-      [ "services" "grafana" "settings" "smtp" "enabled" ]
+    (
+      mkRenamedOptionModule
+      ["services" "grafana" "smtp" "enable"]
+      ["services" "grafana" "settings" "smtp" "enabled"]
     )
-    (mkRenamedOptionModule
-      [ "services" "grafana" "smtp" "user" ]
-      [ "services" "grafana" "settings" "smtp" "user" ]
+    (
+      mkRenamedOptionModule
+      ["services" "grafana" "smtp" "user"]
+      ["services" "grafana" "settings" "smtp" "user"]
     )
-    (mkRenamedOptionModule
-      [ "services" "grafana" "smtp" "password" ]
-      [ "services" "grafana" "settings" "smtp" "password" ]
+    (
+      mkRenamedOptionModule
+      ["services" "grafana" "smtp" "password"]
+      ["services" "grafana" "settings" "smtp" "password"]
     )
-    (mkRenamedOptionModule
-      [ "services" "grafana" "smtp" "fromAddress" ]
-      [ "services" "grafana" "settings" "smtp" "from_address" ]
+    (
+      mkRenamedOptionModule
+      ["services" "grafana" "smtp" "fromAddress"]
+      ["services" "grafana" "settings" "smtp" "from_address"]
     )
-    (mkRenamedOptionModule
-      [ "services" "grafana" "users" "allowSignUp" ]
-      [ "services" "grafana" "settings" "users" "allow_sign_up" ]
+    (
+      mkRenamedOptionModule
+      ["services" "grafana" "users" "allowSignUp"]
+      ["services" "grafana" "settings" "users" "allow_sign_up"]
     )
-    (mkRenamedOptionModule
-      [ "services" "grafana" "users" "allowOrgCreate" ]
-      [ "services" "grafana" "settings" "users" "allow_org_create" ]
+    (
+      mkRenamedOptionModule
+      ["services" "grafana" "users" "allowOrgCreate"]
+      ["services" "grafana" "settings" "users" "allow_org_create"]
     )
-    (mkRenamedOptionModule
-      [ "services" "grafana" "users" "autoAssignOrg" ]
-      [ "services" "grafana" "settings" "users" "auto_assign_org" ]
+    (
+      mkRenamedOptionModule
+      ["services" "grafana" "users" "autoAssignOrg"]
+      ["services" "grafana" "settings" "users" "auto_assign_org"]
     )
-    (mkRenamedOptionModule
-      [ "services" "grafana" "users" "autoAssignOrgRole" ]
-      [ "services" "grafana" "settings" "users" "auto_assign_org_role" ]
+    (
+      mkRenamedOptionModule
+      ["services" "grafana" "users" "autoAssignOrgRole"]
+      ["services" "grafana" "settings" "users" "auto_assign_org_role"]
     )
-    (mkRenamedOptionModule
-      [ "services" "grafana" "auth" "disableLoginForm" ]
-      [ "services" "grafana" "settings" "auth" "disable_login_form" ]
+    (
+      mkRenamedOptionModule
+      ["services" "grafana" "auth" "disableLoginForm"]
+      ["services" "grafana" "settings" "auth" "disable_login_form"]
     )
-    (mkRenamedOptionModule
-      [ "services" "grafana" "auth" "anonymous" "enable" ]
-      [ "services" "grafana" "settings" "auth.anonymous" "enabled" ]
+    (
+      mkRenamedOptionModule
+      ["services" "grafana" "auth" "anonymous" "enable"]
+      ["services" "grafana" "settings" "auth.anonymous" "enabled"]
     )
-    (mkRenamedOptionModule
-      [ "services" "grafana" "auth" "anonymous" "org_name" ]
-      [ "services" "grafana" "settings" "auth.anonymous" "org_name" ]
+    (
+      mkRenamedOptionModule
+      ["services" "grafana" "auth" "anonymous" "org_name"]
+      ["services" "grafana" "settings" "auth.anonymous" "org_name"]
     )
-    (mkRenamedOptionModule
-      [ "services" "grafana" "auth" "anonymous" "org_role" ]
-      [ "services" "grafana" "settings" "auth.anonymous" "org_role" ]
+    (
+      mkRenamedOptionModule
+      ["services" "grafana" "auth" "anonymous" "org_role"]
+      ["services" "grafana" "settings" "auth.anonymous" "org_role"]
     )
-    (mkRenamedOptionModule
-      [ "services" "grafana" "auth" "azuread" "enable" ]
-      [ "services" "grafana" "settings" "auth.azuread" "enabled" ]
+    (
+      mkRenamedOptionModule
+      ["services" "grafana" "auth" "azuread" "enable"]
+      ["services" "grafana" "settings" "auth.azuread" "enabled"]
     )
-    (mkRenamedOptionModule
-      [ "services" "grafana" "auth" "azuread" "allowSignUp" ]
-      [ "services" "grafana" "settings" "auth.azuread" "allow_sign_up" ]
+    (
+      mkRenamedOptionModule
+      ["services" "grafana" "auth" "azuread" "allowSignUp"]
+      ["services" "grafana" "settings" "auth.azuread" "allow_sign_up"]
     )
-    (mkRenamedOptionModule
-      [ "services" "grafana" "auth" "azuread" "clientId" ]
-      [ "services" "grafana" "settings" "auth.azuread" "client_id" ]
+    (
+      mkRenamedOptionModule
+      ["services" "grafana" "auth" "azuread" "clientId"]
+      ["services" "grafana" "settings" "auth.azuread" "client_id"]
     )
-    (mkRenamedOptionModule
-      [ "services" "grafana" "auth" "azuread" "allowedDomains" ]
-      [ "services" "grafana" "settings" "auth.azuread" "allowed_domains" ]
+    (
+      mkRenamedOptionModule
+      ["services" "grafana" "auth" "azuread" "allowedDomains"]
+      ["services" "grafana" "settings" "auth.azuread" "allowed_domains"]
     )
-    (mkRenamedOptionModule
-      [ "services" "grafana" "auth" "azuread" "allowedGroups" ]
-      [ "services" "grafana" "settings" "auth.azuread" "allowed_groups" ]
+    (
+      mkRenamedOptionModule
+      ["services" "grafana" "auth" "azuread" "allowedGroups"]
+      ["services" "grafana" "settings" "auth.azuread" "allowed_groups"]
     )
-    (mkRenamedOptionModule
-      [ "services" "grafana" "auth" "google" "enable" ]
-      [ "services" "grafana" "settings" "auth.google" "enabled" ]
+    (
+      mkRenamedOptionModule
+      ["services" "grafana" "auth" "google" "enable"]
+      ["services" "grafana" "settings" "auth.google" "enabled"]
     )
-    (mkRenamedOptionModule
-      [ "services" "grafana" "auth" "google" "allowSignUp" ]
-      [ "services" "grafana" "settings" "auth.google" "allow_sign_up" ]
+    (
+      mkRenamedOptionModule
+      ["services" "grafana" "auth" "google" "allowSignUp"]
+      ["services" "grafana" "settings" "auth.google" "allow_sign_up"]
     )
-    (mkRenamedOptionModule
-      [ "services" "grafana" "auth" "google" "clientId" ]
-      [ "services" "grafana" "settings" "auth.google" "client_id" ]
+    (
+      mkRenamedOptionModule
+      ["services" "grafana" "auth" "google" "clientId"]
+      ["services" "grafana" "settings" "auth.google" "client_id"]
     )
-    (mkRenamedOptionModule
-      [ "services" "grafana" "analytics" "reporting" "enable" ]
-      [ "services" "grafana" "settings" "analytics" "reporting_enabled" ]
+    (
+      mkRenamedOptionModule
+      ["services" "grafana" "analytics" "reporting" "enable"]
+      ["services" "grafana" "settings" "analytics" "reporting_enabled"]
     )
 
-    (mkRemovedOptionModule [ "services" "grafana" "database" "passwordFile" ] ''
+    (mkRemovedOptionModule ["services" "grafana" "database" "passwordFile"] ''
       This option has been removed. Use 'services.grafana.settings.database.password' with file provider instead.
     '')
-    (mkRemovedOptionModule [ "services" "grafana" "security" "adminPasswordFile" ] ''
+    (mkRemovedOptionModule ["services" "grafana" "security" "adminPasswordFile"] ''
       This option has been removed. Use 'services.grafana.settings.security.admin_password' with file provider instead.
     '')
-    (mkRemovedOptionModule [ "services" "grafana" "security" "secretKeyFile" ] ''
+    (mkRemovedOptionModule ["services" "grafana" "security" "secretKeyFile"] ''
       This option has been removed. Use 'services.grafana.settings.security.secret_key' with file provider instead.
     '')
-    (mkRemovedOptionModule [ "services" "grafana" "smtp" "passwordFile" ] ''
+    (mkRemovedOptionModule ["services" "grafana" "smtp" "passwordFile"] ''
       This option has been removed. Use 'services.grafana.settings.smtp.password' with file provider instead.
     '')
-    (mkRemovedOptionModule [ "services" "grafana" "auth" "azuread" "clientSecretFile" ] ''
+    (mkRemovedOptionModule ["services" "grafana" "auth" "azuread" "clientSecretFile"] ''
       This option has been removed. Use 'services.grafana.settings.azuread.client_secret' with file provider instead.
     '')
-    (mkRemovedOptionModule [ "services" "grafana" "auth" "google" "clientSecretFile" ] ''
+    (mkRemovedOptionModule ["services" "grafana" "auth" "google" "clientSecretFile"] ''
       This option has been removed. Use 'services.grafana.settings.google.client_secret' with file provider instead.
     '')
-    (mkRemovedOptionModule [ "services" "grafana" "extraOptions" ] ''
+    (mkRemovedOptionModule ["services" "grafana" "extraOptions"] ''
       This option has been removed. Use 'services.grafana.settings' instead. For a detailed migration guide, please
       review the release notes of NixOS 22.11.
     '')
@@ -419,10 +454,13 @@ in
       # Make sure each plugin is added only once; otherwise building
       # the link farm fails, since the same path is added multiple
       # times.
-      apply = x: if isList x then lib.unique x else x;
+      apply = x:
+        if isList x
+        then lib.unique x
+        else x;
     };
 
-    package = mkPackageOption pkgs "grafana" { };
+    package = mkPackageOption pkgs "grafana" {};
 
     user = mkOption {
       type = types.str;
@@ -451,7 +489,7 @@ in
         Grafana settings. See <https://grafana.com/docs/grafana/latest/setup-grafana/configure-grafana/>
         for available options. INI format is used.
       '';
-      default = { };
+      default = {};
       type = types.submodule {
         freeformType = settingsFormatIni.type;
 
@@ -459,7 +497,10 @@ in
           paths = {
             plugins = mkOption {
               description = "Directory where grafana will automatically scan and look for plugins";
-              default = if (cfg.declarativePlugins == null) then "${cfg.dataDir}/plugins" else declarativePlugins;
+              default =
+                if (cfg.declarativePlugins == null)
+                then "${cfg.dataDir}/plugins"
+                else declarativePlugins;
               defaultText = literalExpression "if (cfg.declarativePlugins == null) then \"\${cfg.dataDir}/plugins\" else declarativePlugins";
               type = types.path;
             };
@@ -899,7 +940,7 @@ in
                 Format: `ip_or_domain:port` separated by spaces.
                 PostgreSQL, MySQL, and MSSQL data sources do not use the proxy and are therefore unaffected by this setting.
               '';
-              default = [ ];
+              default = [];
               type = types.oneOf [
                 types.str
                 (types.listOf types.str)
@@ -1035,7 +1076,7 @@ in
                 List of additional allowed URLs to pass by the CSRF check.
                 Suggested when authentication comes from an IdP.
               '';
-              default = [ ];
+              default = [];
               type = types.oneOf [
                 types.str
                 (types.listOf types.str)
@@ -1047,7 +1088,7 @@ in
                 List of allowed headers to be set by the user.
                 Suggested to use for if authentication lives behind reverse proxies.
               '';
-              default = [ ];
+              default = [];
               type = types.oneOf [
                 types.str
                 (types.listOf types.str)
@@ -1311,7 +1352,7 @@ in
         description = ''
           Declaratively provision Grafana's datasources.
         '';
-        default = { };
+        default = {};
         type = types.submodule {
           options.settings = mkOption {
             description = ''
@@ -1332,13 +1373,13 @@ in
 
                   datasources = mkOption {
                     description = "List of datasources to insert/update.";
-                    default = [ ];
+                    default = [];
                     type = types.listOf grafanaTypes.datasourceConfig;
                   };
 
                   deleteDatasources = mkOption {
                     description = "List of datasources that should be deleted from the database.";
-                    default = [ ];
+                    default = [];
                     type = types.listOf (
                       types.submodule {
                         options.name = mkOption {
@@ -1389,7 +1430,7 @@ in
         description = ''
           Declaratively provision Grafana's dashboards.
         '';
-        default = { };
+        default = {};
         type = types.submodule {
           options.settings = mkOption {
             description = ''
@@ -1409,7 +1450,7 @@ in
 
                 options.providers = mkOption {
                   description = "List of dashboards to insert/update.";
-                  default = [ ];
+                  default = [];
                   type = types.listOf grafanaTypes.dashboardConfig;
                 };
               }
@@ -1469,7 +1510,7 @@ in
 
                   groups = mkOption {
                     description = "List of rule groups to import or update.";
-                    default = [ ];
+                    default = [];
                     type = types.listOf (
                       types.submodule {
                         freeformType = provisioningSettingsFormat.type;
@@ -1494,7 +1535,7 @@ in
 
                   deleteRules = mkOption {
                     description = "List of alert rule UIDs that should be deleted.";
-                    default = [ ];
+                    default = [];
                     type = types.listOf (
                       types.submodule {
                         options.orgId = mkOption {
@@ -1599,7 +1640,7 @@ in
 
                   contactPoints = mkOption {
                     description = "List of contact points to import or update.";
-                    default = [ ];
+                    default = [];
                     type = types.listOf (
                       types.submodule {
                         freeformType = provisioningSettingsFormat.type;
@@ -1614,7 +1655,7 @@ in
 
                   deleteContactPoints = mkOption {
                     description = "List of receivers that should be deleted.";
-                    default = [ ];
+                    default = [];
                     type = types.listOf (
                       types.submodule {
                         options.orgId = mkOption {
@@ -1686,7 +1727,7 @@ in
 
                   policies = mkOption {
                     description = "List of contact points to import or update.";
-                    default = [ ];
+                    default = [];
                     type = types.listOf (
                       types.submodule {
                         freeformType = provisioningSettingsFormat.type;
@@ -1696,7 +1737,7 @@ in
 
                   resetPolicies = mkOption {
                     description = "List of orgIds that should be reset to the default policy.";
-                    default = [ ];
+                    default = [];
                     type = types.listOf types.int;
                   };
                 };
@@ -1760,7 +1801,7 @@ in
 
                   templates = mkOption {
                     description = "List of templates to import or update.";
-                    default = [ ];
+                    default = [];
                     type = types.listOf (
                       types.submodule {
                         freeformType = provisioningSettingsFormat.type;
@@ -1780,7 +1821,7 @@ in
 
                   deleteTemplates = mkOption {
                     description = "List of alert rule UIDs that should be deleted.";
-                    default = [ ];
+                    default = [];
                     type = types.listOf (
                       types.submodule {
                         options.orgId = mkOption {
@@ -1848,7 +1889,7 @@ in
 
                   muteTimes = mkOption {
                     description = "List of mute time intervals to import or update.";
-                    default = [ ];
+                    default = [];
                     type = types.listOf (
                       types.submodule {
                         freeformType = provisioningSettingsFormat.type;
@@ -1863,7 +1904,7 @@ in
 
                   deleteMuteTimes = mkOption {
                     description = "List of mute time intervals that should be deleted.";
-                    default = [ ];
+                    default = [];
                     type = types.listOf (
                       types.submodule {
                         options.orgId = mkOption {
@@ -1928,51 +1969,49 @@ in
   };
 
   config = mkIf cfg.enable {
-    warnings =
-      let
-        doesntUseFileProvider =
-          opt: defaultValue:
-          let
-            regex = "${
-              optionalString (defaultValue != null) "^${defaultValue}$|"
-            }^\\$__(file|env)\\{.*}$|^\\$[^_\\$][^ ]+$";
-          in
-          builtins.match regex opt == null;
-
-        # Ensure that no custom credentials are leaked into the Nix store. Unless the default value
-        # is specified, this can be achieved by using the file/env provider:
-        # https://grafana.com/docs/grafana/latest/setup-grafana/configure-grafana/#variable-expansion
-        passwordWithoutFileProvider =
-          optional
-            (
-              doesntUseFileProvider cfg.settings.database.password ""
-              || doesntUseFileProvider cfg.settings.security.admin_password "admin"
-            )
-            ''
-              Grafana passwords will be stored as plaintext in the Nix store!
-              Use file provider or an env-var instead.
-            '';
-
-        # Ensure that `secureJsonData` of datasources provisioned via `datasources.settings`
-        # only uses file/env providers.
-        secureJsonDataWithoutFileProvider =
-          optional
-            (
-              let
-                datasourcesToCheck = optionals (
-                  cfg.provision.datasources.settings != null
-                ) cfg.provision.datasources.settings.datasources;
-                declarationUnsafe =
-                  { secureJsonData, ... }:
-                  secureJsonData != null && any (flip doesntUseFileProvider null) (attrValues secureJsonData);
-              in
-              any declarationUnsafe datasourcesToCheck
-            )
-            ''
-              Declarations in the `secureJsonData`-block of a datasource will be leaked to the
-              Nix store unless a file-provider or an env-var is used!
-            '';
+    warnings = let
+      doesntUseFileProvider = opt: defaultValue: let
+        regex = "${
+          optionalString (defaultValue != null) "^${defaultValue}$|"
+        }^\\$__(file|env)\\{.*}$|^\\$[^_\\$][^ ]+$";
       in
+        builtins.match regex opt == null;
+
+      # Ensure that no custom credentials are leaked into the Nix store. Unless the default value
+      # is specified, this can be achieved by using the file/env provider:
+      # https://grafana.com/docs/grafana/latest/setup-grafana/configure-grafana/#variable-expansion
+      passwordWithoutFileProvider =
+        optional
+        (
+          doesntUseFileProvider cfg.settings.database.password ""
+          || doesntUseFileProvider cfg.settings.security.admin_password "admin"
+        )
+        ''
+          Grafana passwords will be stored as plaintext in the Nix store!
+          Use file provider or an env-var instead.
+        '';
+
+      # Ensure that `secureJsonData` of datasources provisioned via `datasources.settings`
+      # only uses file/env providers.
+      secureJsonDataWithoutFileProvider =
+        optional
+        (
+          let
+            datasourcesToCheck =
+              optionals (
+                cfg.provision.datasources.settings != null
+              )
+              cfg.provision.datasources.settings.datasources;
+            declarationUnsafe = {secureJsonData, ...}:
+              secureJsonData != null && any (flip doesntUseFileProvider null) (attrValues secureJsonData);
+          in
+            any declarationUnsafe datasourcesToCheck
+        )
+        ''
+          Declarations in the `secureJsonData`-block of a datasource will be leaked to the
+          Nix store unless a file-provider or an env-var is used!
+        '';
+    in
       passwordWithoutFileProvider ++ secureJsonDataWithoutFileProvider;
 
     environment.systemPackages = [
@@ -2030,12 +2069,18 @@ in
         message = "Cannot set both datasources settings and datasources path";
       }
       {
-        assertion =
-          let
-            prometheusIsNotDirect =
-              opt: all ({ type, access, ... }: type == "prometheus" -> access != "direct") opt;
-          in
-          cfg.provision.datasources.settings == null
+        assertion = let
+          prometheusIsNotDirect = opt:
+            all ({
+              type,
+              access,
+              ...
+            }:
+              type == "prometheus" -> access != "direct")
+            opt;
+        in
+          cfg.provision.datasources.settings
+          == null
           || prometheusIsNotDirect cfg.provision.datasources.settings.datasources;
         message = "For datasources of type `prometheus`, the `direct` access mode is not supported anymore (since Grafana 9.2.0)";
       }
@@ -2050,7 +2095,8 @@ in
       }
       {
         assertion =
-          cfg.provision.alerting.contactPoints.settings == null
+          cfg.provision.alerting.contactPoints.settings
+          == null
           || cfg.provision.alerting.contactPoints.path == null;
         message = "Cannot set both contact points settings and contact points path";
       }
@@ -2066,7 +2112,8 @@ in
       }
       {
         assertion =
-          cfg.provision.alerting.muteTimings.settings == null
+          cfg.provision.alerting.muteTimings.settings
+          == null
           || cfg.provision.alerting.muteTimings.path == null;
         message = "Cannot set both mute timings settings and mute timings path";
       }
@@ -2092,8 +2139,8 @@ in
       description = "System group for Grafana";
     };
 
-    users.knownGroups = [ "_grafana" ];
-    users.knownUsers = [ "_grafana" ];
+    users.knownGroups = ["_grafana"];
+    users.knownUsers = ["_grafana"];
 
     # Create Grafana directory
     system.activationScripts.extraActivation.text = lib.mkAfter ''
@@ -2103,78 +2150,76 @@ in
       chmod -R 755 ${cfg.dataDir}
     '';
 
-    launchd.daemons.grafana =
-      let
-        grafanaScript = pkgs.writeShellScript "grafana-daemon" ''
-          set -euo pipefail
+    launchd.daemons.grafana = let
+      grafanaScript = pkgs.writeShellScript "grafana-daemon" ''
+        set -euo pipefail
 
-          log() {
-            echo "[$(date '+%Y-%m-%d %H:%M:%S')] $*" >&2
-          }
+        log() {
+          echo "[$(date '+%Y-%m-%d %H:%M:%S')] $*" >&2
+        }
 
-          cleanup() {
-            if [[ -n "''${GRAFANA_PID:-}" ]] && kill -0 "$GRAFANA_PID" 2>/dev/null; then
-              log "Shutting down Grafana (PID: $GRAFANA_PID)"
-              kill "$GRAFANA_PID"
-              wait "$GRAFANA_PID" 2>/dev/null || true
-            fi
-          }
-          trap cleanup EXIT INT TERM
+        cleanup() {
+          if [[ -n "''${GRAFANA_PID:-}" ]] && kill -0 "$GRAFANA_PID" 2>/dev/null; then
+            log "Shutting down Grafana (PID: $GRAFANA_PID)"
+            kill "$GRAFANA_PID"
+            wait "$GRAFANA_PID" 2>/dev/null || true
+          fi
+        }
+        trap cleanup EXIT INT TERM
 
-          # Verify data directory exists
-          if [[ ! -d "${cfg.dataDir}" ]]; then
-            log "ERROR: Grafana data directory ${cfg.dataDir} does not exist!"
+        # Verify data directory exists
+        if [[ ! -d "${cfg.dataDir}" ]]; then
+          log "ERROR: Grafana data directory ${cfg.dataDir} does not exist!"
+          exit 1
+        fi
+
+        # Create symlinks for static content
+        ln -sf ${cfg.package}/share/grafana/conf ${cfg.dataDir}/
+        ln -sf ${cfg.package}/share/grafana/tools ${cfg.dataDir}/
+
+        # Start Grafana in background
+        log "Starting Grafana daemon..."
+        log "Command: ${cfg.package}/bin/grafana server -homepath ${cfg.dataDir} -config ${configFile}"
+        ${cfg.package}/bin/grafana server -homepath ${cfg.dataDir} -config ${configFile} &
+        GRAFANA_PID=$!
+        log "Grafana daemon started with PID: $GRAFANA_PID"
+
+        # Wait for Grafana to be ready
+        log "Waiting for Grafana to be ready..."
+        TIMEOUT=30
+        COUNTER=0
+        while ! curl -s "http://${cfg.settings.server.http_addr}:${toString cfg.settings.server.http_port}/api/health" > /dev/null 2>&1; do
+          if ! kill -0 $GRAFANA_PID 2>/dev/null; then
+            log "ERROR: Grafana daemon (PID: $GRAFANA_PID) exited unexpectedly"
             exit 1
           fi
+          if [ $COUNTER -ge $TIMEOUT ]; then
+            log "ERROR: Grafana failed to start within $TIMEOUT seconds"
+            exit 1
+          fi
+          sleep 1
+          COUNTER=$((COUNTER + 1))
+        done
+        log "Grafana is ready at http://${cfg.settings.server.http_addr}:${toString cfg.settings.server.http_port}"
 
-          # Create symlinks for static content
-          ln -sf ${cfg.package}/share/grafana/conf ${cfg.dataDir}/
-          ln -sf ${cfg.package}/share/grafana/tools ${cfg.dataDir}/
-
-          # Start Grafana in background
-          log "Starting Grafana daemon..."
-          log "Command: ${cfg.package}/bin/grafana server -homepath ${cfg.dataDir} -config ${configFile}"
-          ${cfg.package}/bin/grafana server -homepath ${cfg.dataDir} -config ${configFile} &
-          GRAFANA_PID=$!
-          log "Grafana daemon started with PID: $GRAFANA_PID"
-
-          # Wait for Grafana to be ready
-          log "Waiting for Grafana to be ready..."
-          TIMEOUT=30
-          COUNTER=0
-          while ! curl -s "http://${cfg.settings.server.http_addr}:${toString cfg.settings.server.http_port}/api/health" > /dev/null 2>&1; do
-            if ! kill -0 $GRAFANA_PID 2>/dev/null; then
-              log "ERROR: Grafana daemon (PID: $GRAFANA_PID) exited unexpectedly"
-              exit 1
-            fi
-            if [ $COUNTER -ge $TIMEOUT ]; then
-              log "ERROR: Grafana failed to start within $TIMEOUT seconds"
-              exit 1
-            fi
-            sleep 1
-            COUNTER=$((COUNTER + 1))
-          done
-          log "Grafana is ready at http://${cfg.settings.server.http_addr}:${toString cfg.settings.server.http_port}"
-
-          # Wait for Grafana daemon to finish
-          log "Grafana service is running. Waiting for shutdown signal..."
-          wait $GRAFANA_PID
-        '';
-      in
-      {
-        script = "${grafanaScript}";
-        serviceConfig = {
-          KeepAlive = true;
-          RunAtLoad = true;
-          ProcessType = "Background";
-          StandardOutPath = "${cfg.dataDir}/grafana.log";
-          StandardErrorPath = "${cfg.dataDir}/grafana.error.log";
-          UserName = cfg.user;
-          GroupName = cfg.group;
-          WorkingDirectory = cfg.dataDir;
-        };
+        # Wait for Grafana daemon to finish
+        log "Grafana service is running. Waiting for shutdown signal..."
+        wait $GRAFANA_PID
+      '';
+    in {
+      script = "${grafanaScript}";
+      serviceConfig = {
+        KeepAlive = true;
+        RunAtLoad = true;
+        ProcessType = "Background";
+        StandardOutPath = "${cfg.dataDir}/grafana.log";
+        StandardErrorPath = "${cfg.dataDir}/grafana.error.log";
+        UserName = cfg.user;
+        GroupName = cfg.group;
+        WorkingDirectory = cfg.dataDir;
       };
+    };
   };
 
-  meta.maintainers = [ ];
+  meta.maintainers = [];
 }

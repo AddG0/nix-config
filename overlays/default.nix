@@ -24,7 +24,6 @@
     else {};
 
   modifications = final: prev: {
-
     # example = prev.example.overrideAttrs (oldAttrs: let ... in {
     # ...
     # });
@@ -52,20 +51,22 @@
 
     # LosslessCut with desktop entry
     losslesscut = prev.losslesscut-bin.overrideAttrs (oldAttrs: {
-      postInstall = (oldAttrs.postInstall or "") + ''
-        mkdir -p $out/share/applications
-        cat > $out/share/applications/losslesscut.desktop << EOF
-[Desktop Entry]
-Name=LosslessCut
-Comment=Swiss army knife of lossless video/audio editing
-Exec=$out/bin/losslesscut %F
-Icon=losslesscut
-Type=Application
-Categories=AudioVideo;Video;AudioVideoEditing;
-MimeType=video/mp4;video/x-matroska;video/webm;video/quicktime;
-StartupWMClass=LosslessCut
-EOF
-      '';
+      postInstall =
+        (oldAttrs.postInstall or "")
+        + ''
+                  mkdir -p $out/share/applications
+                  cat > $out/share/applications/losslesscut.desktop << EOF
+          [Desktop Entry]
+          Name=LosslessCut
+          Comment=Swiss army knife of lossless video/audio editing
+          Exec=$out/bin/losslesscut %F
+          Icon=losslesscut
+          Type=Application
+          Categories=AudioVideo;Video;AudioVideoEditing;
+          MimeType=video/mp4;video/x-matroska;video/webm;video/quicktime;
+          StartupWMClass=LosslessCut
+          EOF
+        '';
     });
 
     # Legcord with Discord branding
@@ -109,13 +110,15 @@ EOF
 
     # Lens with custom icon
     lens = prev.lens.overrideAttrs (oldAttrs: {
-      postInstall = (oldAttrs.postInstall or "") + ''
-        # Replace the icon with the custom one
-        ${prev.imagemagick}/bin/convert ${prev.fetchurl {
-          url = "https://k8slens.dev/apple-icon1.png?85effbc6ebf0dbe5";
-          sha256 = "0frva3inbw35ym19wjsgblbas4c47dpjq9qmsv8l9ijndiq3d3db";
-        }} -resize 512x512 $out/share/icons/hicolor/512x512/apps/lens-desktop.png
-      '';
+      postInstall =
+        (oldAttrs.postInstall or "")
+        + ''
+          # Replace the icon with the custom one
+          ${prev.imagemagick}/bin/convert ${prev.fetchurl {
+            url = "https://k8slens.dev/apple-icon1.png?85effbc6ebf0dbe5";
+            sha256 = "0frva3inbw35ym19wjsgblbas4c47dpjq9qmsv8l9ijndiq3d3db";
+          }} -resize 512x512 $out/share/icons/hicolor/512x512/apps/lens-desktop.png
+        '';
     });
   };
 

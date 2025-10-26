@@ -1,6 +1,9 @@
-{ config, pkgs, lib, ... }:
-
 {
+  config,
+  pkgs,
+  lib,
+  ...
+}: {
   services.postgresql = {
     enable = true;
     package = pkgs.postgresql_16;
@@ -65,14 +68,14 @@
       log_line_prefix = "%t [%p]: [%l-1] user=%u,db=%d,app=%a,client=%h ";
 
       # Enhanced logging for security monitoring
-      log_min_duration_statement = 0;  # Log all statements
+      log_min_duration_statement = 0; # Log all statements
       log_checkpoints = true;
       log_lock_waits = true;
       log_temp_files = 0;
       log_autovacuum_min_duration = 0;
 
       # Connection limits
-      max_connections = 20;  # Conservative limit for local use
+      max_connections = 20; # Conservative limit for local use
       superuser_reserved_connections = 3;
 
       # Timeout settings
@@ -84,7 +87,7 @@
       wal_level = "replica";
       archive_mode = "on";
       archive_command = "test ! -f /var/lib/postgresql/archive/%f && cp %p /var/lib/postgresql/archive/%f";
-      max_wal_senders = 0;  # No replication needed for local setup
+      max_wal_senders = 0; # No replication needed for local setup
 
       # Data integrity
       fsync = true;
@@ -136,8 +139,8 @@
 
   # Ensure PostgreSQL starts after network is ready
   systemd.services.postgresql = {
-    wants = [ "network-online.target" ];
-    after = [ "network-online.target" ];
+    wants = ["network-online.target"];
+    after = ["network-online.target"];
 
     # Service hardening
     serviceConfig = {
@@ -154,15 +157,15 @@
       RestrictNamespaces = true;
       LockPersonality = true;
       MemoryDenyWriteExecute = true;
-      RestrictAddressFamilies = [ "AF_UNIX" "AF_INET" "AF_INET6" ];
-      SystemCallFilter = [ "@system-service" "~@privileged" "~@resources" ];
+      RestrictAddressFamilies = ["AF_UNIX" "AF_INET" "AF_INET6"];
+      SystemCallFilter = ["@system-service" "~@privileged" "~@resources"];
 
       # File system permissions
-      ReadWritePaths = [ "/var/lib/postgresql" ];
-      ReadOnlyPaths = [ "/nix/store" ];
+      ReadWritePaths = ["/var/lib/postgresql"];
+      ReadOnlyPaths = ["/nix/store"];
 
       # User and group isolation
-      DynamicUser = false;  # PostgreSQL needs consistent UID
+      DynamicUser = false; # PostgreSQL needs consistent UID
       User = "postgres";
       Group = "postgres";
 
@@ -212,8 +215,8 @@
     startAt = "02:00";
 
     # Ensure PostgreSQL is running
-    wants = [ "postgresql.service" ];
-    after = [ "postgresql.service" ];
+    wants = ["postgresql.service"];
+    after = ["postgresql.service"];
   };
 
   # Enable backup timer

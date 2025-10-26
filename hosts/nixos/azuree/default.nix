@@ -75,7 +75,7 @@
 
   services.obsbot-camera = {
     enable = true;
-    devicePaths = [ "/dev/video0" ];
+    devicePaths = ["/dev/video0"];
     settings = {
       pan_absolute = 20000;
       tilt_absolute = -50000;

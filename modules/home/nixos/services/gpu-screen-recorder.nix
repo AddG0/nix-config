@@ -3,8 +3,7 @@
   lib,
   pkgs,
   ...
-}:
-let
+}: let
   cfg = config.services.gpu-screen-recorder;
 
   saveReplayScript = pkgs.writeShellScriptBin "save-gsr-replay" ''
@@ -52,7 +51,7 @@ in {
       description = "List of audio devices to record. Use | to merge multiple sources into one track.";
     };
   };
-  
+
   config = lib.mkIf cfg.enable {
     systemd.user.services.gpu-screen-recorder-replay = {
       Unit = {
@@ -85,6 +84,6 @@ in {
       };
     };
 
-    home.packages = [ saveReplayScript ];
+    home.packages = [saveReplayScript];
   };
 }
