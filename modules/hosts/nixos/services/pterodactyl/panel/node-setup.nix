@@ -26,9 +26,6 @@
   # Create or update a node
   mkNodeUpsert = name: node: let
     # Get location ID for this node
-    locationIdQuery = ''
-      SELECT id FROM locations WHERE short = '${escapeSQL node.location}' LIMIT 1;
-    '';
 
     # Escape all string values
     nodeName = escapeSQL node.name;
@@ -101,11 +98,8 @@
   '';
 
   # Process allocations for a node
-  mkAllocationSetup = name: node: let
+  mkAllocationSetup = _name: node: let
     # Get node ID for this node
-    nodeIdQuery = ''
-      SELECT id FROM nodes WHERE name = '${escapeSQL node.name}' LIMIT 1;
-    '';
 
     # Delete allocations that are no longer declared for this node
     deleteAllocationsQuery = ''

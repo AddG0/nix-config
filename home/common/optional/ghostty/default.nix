@@ -1,7 +1,6 @@
 {
   pkgs,
   lib,
-  desktops,
   ...
 }: {
   xdg.configFile."ghostty/config".source = pkgs.writeText "ghostty-config" ''

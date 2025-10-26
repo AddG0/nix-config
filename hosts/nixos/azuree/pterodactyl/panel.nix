@@ -3,10 +3,9 @@
   config,
   nix-secrets,
   inputs,
-  lib,
   ...
 }: let
-  pterodactyl-addons = inputs.pterodactyl-addons;
+  inherit (inputs) pterodactyl-addons;
 in {
   services.pterodactyl.panel = {
     enable = true;
@@ -24,7 +23,7 @@ in {
     users = {
       primary = {
         email = config.hostSpec.email.user;
-        username = config.hostSpec.username;
+        inherit (config.hostSpec) username;
         firstName = config.hostSpec.username;
         lastName = "G";
         passwordFile = config.sops.secrets.pterodactylAdminPassword.path;

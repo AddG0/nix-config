@@ -16,7 +16,7 @@
   disableFlannel ? true,
   ...
 }: let
-  lib = pkgs.lib;
+  inherit (pkgs) lib;
   package = pkgs.k3s;
 in {
   environment.systemPackages = with pkgs; [

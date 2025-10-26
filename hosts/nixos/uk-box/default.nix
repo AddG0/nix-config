@@ -8,7 +8,6 @@
   inputs,
   lib,
   config,
-  pkgs,
   ...
 }: {
   imports = lib.flatten [

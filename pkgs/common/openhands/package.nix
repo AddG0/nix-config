@@ -4,8 +4,6 @@
   uv,
   python312,
   makeWrapper,
-  gcc-unwrapped,
-  autoPatchelfHook,
   ...
 }:
 stdenv.mkDerivation rec {

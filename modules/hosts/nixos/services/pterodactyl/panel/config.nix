@@ -8,7 +8,6 @@
 
   # Move reusable derivations into their own bindings
   php = pkgs.php.withExtensions ({
-    enabled,
     all,
   }:
     with all; [
@@ -37,12 +36,11 @@
   userCreationScript = import ./user-setup.nix {inherit lib pkgs php cfg;};
   panelSetupScript = import ./panel-setup.nix {inherit pkgs php composer cfg;};
   locationSetupScript = import ./location-setup.nix {inherit pkgs lib cfg;};
-  nodeSetupScript = import ./node-setup.nix {inherit pkgs lib cfg;};
 in
   lib.mkIf cfg.enable {
     users.users.${cfg.user} = {
       isSystemUser = true;
-      group = cfg.group;
+      inherit (cfg) group;
     };
 
     users.groups.${cfg.group} = {};
@@ -64,8 +62,8 @@ in
     services.redis.servers."".enable = true;
 
     services.phpfpm.pools.pterodactyl = {
-      user = cfg.user;
-      group = cfg.group;
+      inherit (cfg) user;
+      inherit (cfg) group;
       phpPackage = php;
       settings = {
         listen = "/run/phpfpm/pterodactyl.sock";

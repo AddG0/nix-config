@@ -1,7 +1,6 @@
 # pkgs/flake-module.nix - Custom packages
 {
   inputs,
-  self,
   lib,
   ...
 }: {
@@ -25,7 +24,7 @@
       };
 
       # Darwin-specific packages
-      darwinPackages = lib.optionalAttrs (pkgs.stdenv.hostPlatform.isDarwin) {
+      darwinPackages = lib.optionalAttrs pkgs.stdenv.hostPlatform.isDarwin {
         # Add macOS-specific packages here
         # Example: macos-tool = pkgs.callPackage ./macos-tool { };
       };
@@ -43,7 +42,7 @@
         # Only include packages that are derivations at the top level and compatible with current system
         topLevelPackages =
           lib.filterAttrs (
-            name: value:
+            _name: value:
               lib.isDerivation value
               &&
               # Check if package is supported on current platform

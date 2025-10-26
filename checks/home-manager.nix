@@ -1,5 +1,5 @@
 # checks/home-manager.nix - Home-manager configuration validation
-{...}: {
+_: {
   perSystem = {
     self',
     lib,

@@ -143,7 +143,7 @@
         message = "isWork is true but no work attribute set is provided";
       }
       {
-        assertion = !isImpermanent || (isImpermanent && !("${config.hostSpec.persistFolder}" == ""));
+        assertion = !isImpermanent || (isImpermanent && "${config.hostSpec.persistFolder}" != "");
         message = "config.system.impermanence.enable is true but no persistFolder path is provided";
       }
     ];

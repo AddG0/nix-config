@@ -1,13 +1,10 @@
 {
   pkgs,
-  lib,
-  config,
   hostSpec,
   ...
 }: let
-  handle = hostSpec.handle;
+  inherit (hostSpec) handle;
   publicGitEmail = hostSpec.githubEmail;
-  username = hostSpec.username;
 in {
   programs.git = {
     enable = true;
@@ -129,7 +126,7 @@ in {
       local ref
       for ref in refs/{heads,remotes/{origin,upstream}}/{main,trunk,mainline,default,stable,master}; do
         if command git show-ref -q --verify $ref; then
-          echo ${ref:t}
+          echo ${"ref:t"}
           return 0
         fi
       done

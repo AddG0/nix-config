@@ -1,4 +1,4 @@
-{pkgs, ...}: {
+_: {
   # customize trackpad
   system.defaults.trackpad = {
     # tap - 轻触触摸板, click - 点击触摸板

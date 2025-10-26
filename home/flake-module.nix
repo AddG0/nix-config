@@ -45,7 +45,7 @@
             then builtins.replaceStrings [".nix"] [""] hostFile
             else "${user}@${builtins.replaceStrings [".nix"] [""] hostFile}";
           value = {
-            user = user;
+            inherit user;
             host = builtins.replaceStrings [".nix"] [""] hostFile;
             path = ./. + "/${user}/${hostFile}";
           };
@@ -73,9 +73,9 @@
           name = configName;
           value = let
             # Extend lib with custom functions
-            extendedLib = inputs.nixpkgs.lib.extend (self: super: {
+            extendedLib = inputs.nixpkgs.lib.extend (_self: _super: {
               custom = import ../lib/default.nix {inherit (inputs.nixpkgs) lib;};
-              hm = inputs.home-manager.lib.hm;
+              inherit (inputs.home-manager.lib) hm;
             });
           in
             inputs.home-manager.lib.homeManagerConfiguration {
@@ -87,7 +87,7 @@
                 lib = extendedLib;
                 # Provide basic hostSpec - modules can override specific values
                 hostSpec = {
-                  hostName = hostName;
+                  inherit hostName;
                   username = user;
                   handle = user;
                   home = "/home/${user}";
@@ -114,8 +114,8 @@
                   };
                 };
                 desktops = {};
-                nix-secrets = inputs.nix-secrets;
-                nur-ryan4yin = inputs.nur-ryan4yin;
+                inherit (inputs) nix-secrets;
+                inherit (inputs) nur-ryan4yin;
               };
               modules = [
                 # Pass the extended lib to modules
@@ -133,13 +133,11 @@
 in {
   # Export as proper top-level flake outputs
   flake = {
-    homeConfigurations = homeConfigurations;
+    inherit homeConfigurations;
   };
 
   # Also export metadata and helpers in legacyPackages
   perSystem = {
-    config,
-    pkgs,
     lib,
     ...
   }: {

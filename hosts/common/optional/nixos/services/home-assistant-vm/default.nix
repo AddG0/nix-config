@@ -1,13 +1,8 @@
 {
   config,
-  pkgs,
-  lib,
   inputs,
   ...
-}: let
-  haosFile = /home/ashley/VM-Storage/haos.qcow2;
-  storageDir = "${config.hostSpec.home}/VM-Storage";
-in {
+}: {
   virtualisation.libvirt.enable = true;
   virtualisation.libvirt.swtpm.enable = true;
   virtualisation.libvirt.connections."qemu:///system".pools = [

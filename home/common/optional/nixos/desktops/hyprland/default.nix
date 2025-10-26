@@ -1,8 +1,6 @@
 {
-  pkgs,
   config,
   lib,
-  anyrun,
   ...
 } @ args:
 with lib; let

@@ -93,7 +93,7 @@ in {
     {
       programs.plasma.workspace.cursor = {
         theme = currentVariant.themeName;
-        size = cfg.size;
+        inherit (cfg) size;
       };
     }
   ];

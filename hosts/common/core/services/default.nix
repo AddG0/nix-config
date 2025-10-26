@@ -2,8 +2,6 @@
 # from default.nix in the parent directory. Could be trouble when debugging
 # down the road. Noted in long term roadmap.
 {
-  input,
-  self,
   lib,
   ...
 }: {

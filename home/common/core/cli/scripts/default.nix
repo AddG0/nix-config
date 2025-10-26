@@ -1,6 +1,5 @@
 # TODO: add more scripts here
 {
-  self,
   pkgs,
   ...
 }: let

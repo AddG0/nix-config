@@ -1,6 +1,5 @@
 # modules/flake-module.nix - Custom NixOS, Darwin, and Home-manager modules
 {
-  inputs,
   lib,
   ...
 }: let

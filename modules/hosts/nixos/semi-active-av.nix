@@ -12,15 +12,15 @@
   ];
   all-normal-users =
     lib.attrsets.filterAttrs (
-      username: config: config.isNormalUser
+      _username: config: config.isNormalUser
     )
     config.users.users;
   all-sus-dirs =
     builtins.concatMap (
-      dir: lib.attrsets.mapAttrsToList (username: config: config.home + "/" + dir) all-normal-users
+      dir: lib.attrsets.mapAttrsToList (_username: config: config.home + "/" + dir) all-normal-users
     )
     sus-user-dirs;
-  all-user-folders = lib.attrsets.mapAttrsToList (username: config: config.home) all-normal-users;
+  all-user-folders = lib.attrsets.mapAttrsToList (_username: config: config.home) all-normal-users;
   all-system-folders = [
     "/boot"
     "/etc"

@@ -1,8 +1,4 @@
-{
-  lib,
-  config,
-  ...
-}: {
+_: {
   system.defaults = {
     CustomSystemPreferences = {
       # check daily, install critical updates, disable macos updates

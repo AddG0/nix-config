@@ -20,7 +20,7 @@ in {
         nix-update
         colmena
       ]
-      ++ lib.optional (pkgs.stdenv.isLinux) [
+      ++ lib.optional pkgs.stdenv.isLinux [
         inputs.nixpkgs-update.packages.${system}.nixpkgs-update
       ];
     name = "dots";

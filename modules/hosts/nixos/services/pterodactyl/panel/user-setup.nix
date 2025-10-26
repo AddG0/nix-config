@@ -11,7 +11,7 @@ pkgs.writeShellScript "pterodactyl-user-setup" ''
 
   ${
     lib.concatStringsSep "\n" (
-      lib.mapAttrsToList (name: userCfg: ''
+      lib.mapAttrsToList (_name: userCfg: ''
         echo "[+] Creating ${userCfg.username}..."
         PASSWORD=$(cat ${userCfg.passwordFile} | tr -d '\r\n')
 

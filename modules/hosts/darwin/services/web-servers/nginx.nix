@@ -121,7 +121,7 @@ with lib; let
           "max_size=${proxyCachePath.maxSize}"
         ]
       };
-    '') (filterAttrs (name: conf: conf.enable) cfg.proxyCachePath)
+    '') (filterAttrs (_name: conf: conf.enable) cfg.proxyCachePath)
   );
 
   toUpstreamParameter = key: value:
@@ -595,10 +595,8 @@ with lib; let
 
   # Note: Certificate ownership assertion removed for Darwin
 
-  oldHTTP2 = (
-    versionOlder cfg.package.version "1.25.1"
-    && !(cfg.package.pname == "angie" || cfg.package.pname == "angieQuic")
-  );
+  oldHTTP2 = versionOlder cfg.package.version "1.25.1"
+    && !(cfg.package.pname == "angie" || cfg.package.pname == "angieQuic");
 in {
   options = {
     services.nginx = {
@@ -1030,7 +1028,7 @@ in {
       };
 
       mapHashBucketSize = mkOption {
-        type = types.nullOr (types.ints.positive);
+        type = types.nullOr types.ints.positive;
         default = null;
         description = ''
           Sets the bucket size for the map variables hash tables. Default
@@ -1085,7 +1083,7 @@ in {
       proxyCachePath = mkOption {
         type = types.attrsOf (
           types.submodule (
-            {...}: {
+            _: {
               options = {
                 enable = mkEnableOption "this proxy cache path entry";
 
@@ -1353,7 +1351,7 @@ in {
 
   config = mkIf cfg.enable {
     warnings = let
-      deprecatedSSL = name: config:
+      deprecatedSSL = _name: config:
         optional config.enableSSL ''
           config.services.nginx.virtualHosts.<name>.enableSSL is deprecated,
           use config.services.nginx.virtualHosts.<name>.onlySSL instead.
@@ -1412,7 +1410,7 @@ in {
 
       {
         assertion =
-          cfg.package.pname != "nginxQuic" && cfg.package.pname != "angieQuic" -> !(cfg.enableQuicBPF);
+          cfg.package.pname != "nginxQuic" && cfg.package.pname != "angieQuic" -> !cfg.enableQuicBPF;
         message = ''
           services.nginx.enableQuicBPF requires using nginxQuic package,
           which can be achieved by setting `services.nginx.package = pkgs.nginxQuic;` or

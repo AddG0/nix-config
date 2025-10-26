@@ -9,21 +9,21 @@
       directory = ../pkgs/common;
     };
 
-  linuxModifications = final: prev:
+  linuxModifications = _final: prev:
     if prev.stdenv.isLinux
     then {
       # Linux-specific packages here
     }
     else {};
 
-  darwinModifications = final: prev:
+  darwinModifications = _final: prev:
     if prev.stdenv.isDarwin
     then {
       # Darwin-specific packages here
     }
     else {};
 
-  modifications = final: prev: {
+  modifications = _final: prev: {
     # example = prev.example.overrideAttrs (oldAttrs: let ... in {
     # ...
     # });
@@ -155,7 +155,7 @@
             xddxdd =
               importedNur.repos.xddxdd
               // {
-                pterodactyl-wings = importedNur.repos.xddxdd.pterodactyl-wings.overrideAttrs (old: {
+                pterodactyl-wings = importedNur.repos.xddxdd.pterodactyl-wings.overrideAttrs (_old: {
                   doCheck = false;
                   # Fix hash mismatch for go modules
                   vendorHash = "sha256-tfv3jUoIQxFVshooe1f9K2v6vxXx8C02QdP/dcwz8vE=";

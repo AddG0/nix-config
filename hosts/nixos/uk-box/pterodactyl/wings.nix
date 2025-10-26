@@ -1,10 +1,4 @@
-{
-  pkgs,
-  config,
-  nix-secrets,
-  lib,
-  ...
-}: {
+_: {
   services.pterodactyl.wings = {
     enable = true;
     settings = {

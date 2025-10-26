@@ -1,8 +1,6 @@
 {
   config,
-  lib,
   nix-secrets,
-  hostSpec,
   ...
 }: {
   sops.secrets = {

@@ -16,8 +16,6 @@ with lib; let
     })
     cfg.declarativePlugins
   );
-  useMysql = cfg.settings.database.type == "mysql";
-  usePostgresql = cfg.settings.database.type == "postgres";
 
   # Prefer using the values from the default config file[0] directly. This way,
   # people reading the NixOS manual can see them without cross-referencing the
@@ -121,7 +119,6 @@ with lib; let
     '';
 
   # Get a submodule without any embedded metadata:
-  _filter = x: filterAttrs (k: v: k != "_module") x;
 
   # https://grafana.com/docs/grafana/latest/administration/provisioning/#datasources
   grafanaTypes.datasourceConfig = types.submodule {

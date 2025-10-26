@@ -1,3 +1,3 @@
-{pkgs, ...}: {
+_: {
   virtualisation.docker.enable = true;
 }

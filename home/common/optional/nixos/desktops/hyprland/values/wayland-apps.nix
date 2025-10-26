@@ -1,4 +1,4 @@
-{pkgs, ...}: {
+_: {
   home.packages = [
     # pkgs.firefox-wayland
     # pkgs.firefox

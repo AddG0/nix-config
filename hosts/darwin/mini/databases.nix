@@ -1,6 +1,5 @@
 {
   pkgs,
-  config,
   ...
 }: {
   # Enable MySQL service (MariaDB as the backend)

@@ -1,8 +1,4 @@
-{
-  config,
-  lib,
-  ...
-}: {
+_: {
   programs.nh = {
     enable = true;
     clean = {

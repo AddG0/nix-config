@@ -2,7 +2,6 @@
   pkgs,
   config,
   nix-secrets,
-  lib,
   ...
 }: {
   services.pterodactyl.panel = {
@@ -21,7 +20,7 @@
     users = {
       primary = {
         email = config.hostSpec.email.user;
-        username = config.hostSpec.username;
+        inherit (config.hostSpec) username;
         firstName = config.hostSpec.username;
         lastName = "G";
         passwordFile = config.sops.secrets.pterodactylAdminPassword.path;

@@ -1,7 +1,5 @@
 # Nix related packages
-{pkgs, ...}: let
-  ns = pkgs.writeShellScriptBin "ns" (builtins.readFile ./cli/scripts/nixpkgs.sh);
-in {
+{pkgs, ...}: {
   home.packages = with pkgs; [
     fh # The official nix flake hub
     nix-output-monitor # it provides the command `nom` works just like `nix with more details log output
