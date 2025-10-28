@@ -123,6 +123,8 @@ in {
 
       "nginx"
       "certbot"
+
+      "helmfile"
     ];
 
     # `brew install --cask`
