@@ -74,10 +74,10 @@ rebuild_darwin() {
   elif command_exists darwin-rebuild; then
     log_debug "Using darwin-rebuild with arguments: ${switch_args}"
     # Run darwin-rebuild with sudo as required by the new activation model
-    sudo darwin-rebuild "${switch_args}"
+    sudo darwin-rebuild ${switch_args}
   else
     log_debug "darwin-rebuild not found; using 'nix run nix-darwin'"
-    sudo nix run nix-darwin -- switch "${switch_args}"
+    sudo nix run nix-darwin -- switch ${switch_args}
   fi
 }
 
@@ -90,7 +90,7 @@ rebuild_linux() {
     nh os switch . -- --show-trace
   else
     log_debug "Using sudo nixos-rebuild with arguments: ${switch_args}"
-    sudo nixos-rebuild "${switch_args}"
+    sudo nixos-rebuild ${switch_args}
   fi
 }
 
