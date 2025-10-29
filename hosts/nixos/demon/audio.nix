@@ -43,7 +43,7 @@ in {
         exit 1
       fi
       ${pkgs.wireplumber}/bin/wpctl set-mute "$ID" 1
-      ${pkgs.pipewire}/bin/pw-play --target=${headsetDevice} ${muteSound} &
+      ${pkgs.pipewire}/bin/pw-play --volume=0.2 --target=${headsetDevice} ${muteSound} &
     '')
     (pkgs.writeShellScriptBin "mic-unmute" ''
       # Get main_input ID dynamically
@@ -53,7 +53,7 @@ in {
         exit 1
       fi
       ${pkgs.wireplumber}/bin/wpctl set-mute "$ID" 0
-      ${pkgs.pipewire}/bin/pw-play --target=${headsetDevice} ${unmuteSound} &
+      ${pkgs.pipewire}/bin/pw-play --volume=0.2 --target=${headsetDevice} ${unmuteSound} &
     '')
     (pkgs.writeShellScriptBin "mic-toggle" ''
       # Get main_input ID dynamically
@@ -72,10 +72,10 @@ in {
       # Play appropriate sound based on new state (opposite of current)
       if [ -z "$current_state" ]; then
         # Was unmuted, now muted
-        ${pkgs.pipewire}/bin/pw-play --target=${headsetDevice} ${muteSound} &
+        ${pkgs.pipewire}/bin/pw-play --volume=0.2 --target=${headsetDevice} ${muteSound} &
       else
         # Was muted, now unmuted
-        ${pkgs.pipewire}/bin/pw-play --target=${headsetDevice} ${unmuteSound} &
+        ${pkgs.pipewire}/bin/pw-play --volume=0.2 --target=${headsetDevice} ${unmuteSound} &
       fi
     '')
     (pkgs.writeShellScriptBin "soundboard" ''

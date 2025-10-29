@@ -15,7 +15,7 @@
         #################### Host-specific Optional Configs ####################
         "helper-scripts"
         # "development/java.nix"
-        "jupyter-notebook"
+        "development/jupyter-notebook.nix"
         "secrets/kubeconfig.nix"
         "comms"
         "development"
