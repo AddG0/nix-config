@@ -332,6 +332,18 @@
         squash.enable = true;
         kzone.enable = true;
       };
+      nightLight = {
+        enable = true;
+        mode = "times";
+        temperature = {
+          night = 2700;
+          day = 4000;
+        };
+        time = {
+          evening = "18:00";
+          morning = "08:00";
+        };
+      };
     };
 
     # Additional KDE configuration files

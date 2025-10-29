@@ -1,4 +1,5 @@
 # https://github.com/NixOS/nixpkgs/blob/master/pkgs/applications/networking/cluster/k3s/README.md
+{ config, pkgs, ... }:
 {
   networking.firewall.allowedTCPPorts = [
     6443 # k3s: required so that pods can reach the API server (running on port 6443 by default)
@@ -8,6 +9,7 @@
   networking.firewall.allowedUDPPorts = [
     # 8472 # k3s, flannel: required if using multi-node for inter-node networking
   ];
+
   services.k3s.enable = true;
   services.k3s.role = "server";
   services.k3s.extraFlags = toString [
@@ -16,4 +18,10 @@
     "--disable=metrics-server"
     "--disable=local-storage"
   ];
+
+  environment.systemPackages = [ pkgs.nfs-utils ];
+  services.openiscsi = {
+    enable = true;
+    name = "${config.networking.hostName}-initiatorhost";
+  };
 }

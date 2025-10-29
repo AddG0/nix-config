@@ -50,6 +50,16 @@ alias r := rebuild
 rebuild hostname="" use-nh=USE_NH_DEFAULT: rebuild-pre
   USE_NH={{use-nh}} scripts/rebuild.sh {{hostname}}
 
+[group('system')]
+[doc("Rollback to previous generation or specific generation number")]
+rollback generation="":
+  scripts/rollback.sh {{generation}}
+
+[group('system')]
+[doc("List system generations")]
+list-generations:
+  nixos-rebuild list-generations
+
 alias rf := rebuild-full
 
 # Requires sops to be running and you must have reboot after initial rebuild

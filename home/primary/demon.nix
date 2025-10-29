@@ -28,6 +28,7 @@
         "secrets/1password.nix"
         # "development/aws.nix"
         "media/spicetify.nix"
+        "development/jupyter-notebook.nix"
         "media/tidal.nix"
         "media"
         "nixos/desktops/plasma6"
