@@ -1,7 +1,7 @@
 #############################################################
 #
-#  zephy - Main Desktop
-#  NixOS running on Ryzen 5 3600X, Radeon RX 5700 XT, 64GB RAM
+#  demon - Main Desktop
+#  NixOS running on Ryzen 9 9900X3D, GTX 5090, 128B RAM
 #
 ###############################################################
 {
