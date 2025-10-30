@@ -22,7 +22,6 @@
       #################### Optional Applications ####################
       "common/optional/darwin/applications/1password.nix"
       "common/optional/darwin/applications/autodesk-fusion.nix"
-      "common/optional/darwin/applications/bartender.nix"
       "common/optional/darwin/applications/browsers.nix"
       "common/optional/darwin/applications/deskflow.nix"
       "common/optional/darwin/applications/docker.nix"
