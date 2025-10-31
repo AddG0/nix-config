@@ -54,6 +54,9 @@
     ])
   ];
 
+  # AWS VPN Client with SAML support
+  programs.awsvpnclient.enable = true;
+
   programs.gpu-screen-recorder.enable = true;
 
   networking = {
