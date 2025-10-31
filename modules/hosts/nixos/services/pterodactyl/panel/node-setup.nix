@@ -26,7 +26,6 @@
   # Create or update a node
   mkNodeUpsert = name: node: let
     # Get location ID for this node
-
     # Escape all string values
     nodeName = escapeSQL node.name;
     nodeDesc = escapeSQL node.description;
@@ -100,7 +99,6 @@
   # Process allocations for a node
   mkAllocationSetup = _name: node: let
     # Get node ID for this node
-
     # Delete allocations that are no longer declared for this node
     deleteAllocationsQuery = ''
       DELETE FROM allocations

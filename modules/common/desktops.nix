@@ -1,7 +1,4 @@
-{
-  lib,
-  ...
-}: {
+{lib, ...}: {
   options.desktops = {
     catppuccin = {
       flavor = lib.mkOption {

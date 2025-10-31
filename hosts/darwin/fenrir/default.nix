@@ -3,10 +3,7 @@
 #  fenrir - VM MacOS Server
 #
 ###############################################################
-{
-  lib,
-  ...
-}: {
+{lib, ...}: {
   imports = lib.flatten [
     (map lib.custom.relativeToHosts [
       #################### Required Configs ####################

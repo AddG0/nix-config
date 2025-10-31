@@ -1,8 +1,5 @@
 # TODO: add more scripts here
-{
-  pkgs,
-  ...
-}: let
+{pkgs, ...}: let
   ns = pkgs.writeShellApplication {
     name = "ns";
     runtimeInputs = with pkgs; [

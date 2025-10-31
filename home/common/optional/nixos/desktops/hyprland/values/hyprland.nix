@@ -59,7 +59,8 @@ in {
             },1,transform,${toString m.transform},vrr,${toString m.vrr}"
             else "disable"
           }"
-        ) config.monitors
+        )
+        config.monitors
       );
 
       #

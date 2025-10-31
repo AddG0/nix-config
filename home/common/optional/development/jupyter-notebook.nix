@@ -1,7 +1,4 @@
-{
-  pkgs,
-  ...
-}: let
+{pkgs, ...}: let
   create-jupyter-kernel = pkgs.writeShellApplication {
     name = "jupyter-create-kernel";
     text = ''

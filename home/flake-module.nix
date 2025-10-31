@@ -137,10 +137,7 @@ in {
   };
 
   # Also export metadata and helpers in legacyPackages
-  perSystem = {
-    lib,
-    ...
-  }: {
+  perSystem = {lib, ...}: {
     legacyPackages = {
       homeConfigurationMetadata = getAvailableConfigs;
       listHomeConfigurations = lib.attrNames getAvailableConfigs;

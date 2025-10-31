@@ -1,9 +1,6 @@
 # checks/pre-commit-checks.nix - Pre-commit hooks validation
 {inputs, ...}: {
-  perSystem = {
-    system,
-    ...
-  }: {
+  perSystem = {system, ...}: {
     checks = {
       pre-commit-check = inputs.pre-commit-hooks.lib.${system}.run {
         src = ./.;
