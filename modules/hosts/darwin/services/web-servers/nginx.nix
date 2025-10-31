@@ -595,7 +595,8 @@ with lib; let
 
   # Note: Certificate ownership assertion removed for Darwin
 
-  oldHTTP2 = versionOlder cfg.package.version "1.25.1"
+  oldHTTP2 =
+    versionOlder cfg.package.version "1.25.1"
     && !(cfg.package.pname == "angie" || cfg.package.pname == "angieQuic");
 in {
   options = {

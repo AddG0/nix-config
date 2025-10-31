@@ -30,7 +30,6 @@
     devShells = import ./devshell.nix {inherit self nixpkgs inputs;} system;
     formatter = pkgs.alejandra;
   });
-
   # List of all available formats
 in {
   #

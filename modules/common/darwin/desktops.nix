@@ -1,7 +1,4 @@
-{
-  lib,
-  ...
-}: {
+{lib, ...}: {
   options.desktops = {
     appearance = lib.mkOption {
       type = lib.types.enum ["default" "linux-esque"];

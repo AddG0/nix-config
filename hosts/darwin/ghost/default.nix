@@ -4,10 +4,7 @@
 #  MacOS running on M4 Max, 128GB RAM
 #
 ###############################################################
-{
-  lib,
-  ...
-}: {
+{lib, ...}: {
   imports = lib.flatten [
     ./databases.nix
     ./monitoring.nix

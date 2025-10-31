@@ -7,9 +7,7 @@
   cfg = config.services.pterodactyl.panel;
 
   # Move reusable derivations into their own bindings
-  php = pkgs.php.withExtensions ({
-    all,
-  }:
+  php = pkgs.php.withExtensions ({all}:
     with all; [
       bcmath
       curl

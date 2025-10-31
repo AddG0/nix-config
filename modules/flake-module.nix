@@ -1,8 +1,5 @@
 # modules/flake-module.nix - Custom NixOS, Darwin, and Home-manager modules
-{
-  lib,
-  ...
-}: let
+{lib, ...}: let
   # Get available systems from flake inputs
   supportedSystems = lib.systems.flakeExposed;
 

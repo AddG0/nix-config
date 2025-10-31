@@ -1,7 +1,4 @@
-{
-  pkgs,
-  ...
-}: {
+{pkgs, ...}: {
   home.file.".config/sketchybar".source = ./config;
 
   home.packages = [

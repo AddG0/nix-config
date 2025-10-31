@@ -1,7 +1,4 @@
-{
-  pkgs,
-  ...
-}: {
+{pkgs, ...}: {
   # Enable MySQL service (MariaDB as the backend)
   services.mysql = {
     enable = true;

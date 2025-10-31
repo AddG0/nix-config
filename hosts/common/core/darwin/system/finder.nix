@@ -1,7 +1,4 @@
-{
-  config,
-  ...
-}: {
+{config, ...}: {
   # customize finder
   system.defaults.finder = {
     _FXSortFoldersFirst = true; # sort folders first
