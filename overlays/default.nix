@@ -85,9 +85,7 @@
                   icon_dir="$out/share/icons/hicolor/''${size}x''${size}/apps"
                   if [ -d "$icon_dir" ] && [ -f "${prev.discord}/share/icons/hicolor/''${size}x''${size}/apps/discord.png" ]; then
                     rm -f "$icon_dir/legcord.png"
-                    cp "${prev.discord}/share/icons/hicolor/''${size}x''${size}/apps/discord.png" "$icon_dir/legcord.png"
-                    # Also create discord.png symlink
-                    ln -sf "$icon_dir/legcord.png" "$icon_dir/discord.png"
+                    cp "${prev.discord}/share/icons/hicolor/''${size}x''${size}/apps/discord.png" "$icon_dir/discord.png"
                   fi
                 done
 
