@@ -52,11 +52,11 @@
   watchScript = pkgs.writeShellScript "obsbot-watch.sh" ''
     #!/bin/sh
     set -eu
-    PATH=${pkgs.inotifyTools}/bin:${pkgs.coreutils}/bin:${pkgs.systemd}/bin:$PATH
+    PATH=${pkgs.inotify-tools}/bin:${pkgs.coreutils}/bin:${pkgs.systemd}/bin:$PATH
     COOLDOWN=8
     declare -A LAST=()
 
-    ${pkgs.inotifyTools}/bin/inotifywait -m -e open ${lib.concatStringsSep " " cfg.devicePaths} 2>/dev/null |
+    ${pkgs.inotify-tools}/bin/inotifywait -m -e open ${lib.concatStringsSep " " cfg.devicePaths} 2>/dev/null |
     while read -r DEV _ _; do
       base="$(${pkgs.coreutils}/bin/basename "$DEV")"
       now="$(${pkgs.coreutils}/bin/date +%s)"
