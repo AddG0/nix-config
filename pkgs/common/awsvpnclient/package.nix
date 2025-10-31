@@ -217,8 +217,9 @@
     name = pname;
     desktopName = "AWS VPN Client";
     exec = "${(guiFHS versionInfo).name} %u";
-    icon = "${deb}/usr/share/pixmaps/acvc-64.png";
+    icon = "awsvpnclient";
     categories = ["Network" "X-VPN"];
+    startupWMClass = "awsvpnclient";
   });
 
   guiFHS = versionInfo: let
@@ -251,6 +252,10 @@
 
         mkdir -p "$out/share/applications"
         cp "${desktopItem}/share/applications/${pname}.desktop" "$out/share/applications/${pname}.desktop"
+
+        # Install icon to standard location
+        mkdir -p "$out/share/pixmaps"
+        cp "${deb}/usr/share/pixmaps/acvc-64.png" "$out/share/pixmaps/awsvpnclient.png"
       '';
     };
 
