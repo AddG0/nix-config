@@ -38,7 +38,7 @@
 
       #################### Host-specific Optional Configs ####################
       "common/optional/nixos/services/openssh.nix" # allow remote SSH access
-      "common/optional/nixos/nvtop.nix" # GPU monitor (not available in home-manager)
+      # "common/optional/nixos/nvtop.nix" # GPU monitor (not available in home-manager)
       "common/optional/nixos/audio.nix" # pipewire and cli controls
       "common/optional/nixos/gaming.nix" # steam, gamescope, gamemode, and related hardware
       # "common/optional/nixos/services/vscode-server.nix"
@@ -51,6 +51,8 @@
       "common/optional/nixos/services/greetd.nix" # display manager
     ])
   ];
+
+  programs.awsvpnclient.enable = true;
 
   networking = {
     networkmanager.enable = true;

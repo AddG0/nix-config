@@ -16,7 +16,9 @@
       ++ (map (f: "common/optional/${f}") [
         #################### Host-specific Optional Configs ####################
         "helper-scripts"
-        "jupyter-notebook"
+        "development/jupyter-notebook.nix"
+        "development/tools.nix"
+        "development/virtualization/kubernetes.nix"
         "nixos/desktops/plasma6"
         "browsers"
         "development/ide.nix"
