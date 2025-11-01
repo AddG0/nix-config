@@ -51,6 +51,7 @@
       "common/optional/nixos/desktops/plasma6" # window manager
       "common/optional/nixos/services/greetd.nix" # display manager
       "common/optional/nixos/services/bluetooth.nix"
+      "common/optional/nixos/secureboot.nix"
     ])
   ];
 
