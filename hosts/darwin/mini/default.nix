@@ -8,18 +8,21 @@
   imports = lib.flatten [
     ./databases.nix
 
-    (map lib.custom.relativeToHosts [
-      #################### Required Configs ####################
-      "common/core"
+    (map lib.custom.relativeToHosts (
+      [
+        #################### Required Configs ####################
+        "common/core" # required
+      ]
+      ++ (map (f: "common/optional/${f}") [
+        #################### Host-specific Optional Configs ####################
 
-      #################### Host-specific Optional Configs ####################
+        #################### Optional Applications ####################
+        "darwin/applications/jprofiler.nix"
+        "darwin/applications/ghostty.nix"
 
-      #################### Optional Applications ####################
-      "common/optional/darwin/applications/jprofiler.nix"
-      "common/optional/darwin/applications/ghostty.nix"
-
-      #################### Desktop ####################
-    ])
+        #################### Desktop ####################
+      ])
+    ))
   ];
 
   services.prometheus.exporters.node = {

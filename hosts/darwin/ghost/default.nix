@@ -9,36 +9,39 @@
     ./databases.nix
     ./monitoring.nix
 
-    (map lib.custom.relativeToHosts [
-      #################### Required Configs ####################
-      "common/core"
+    (map lib.custom.relativeToHosts (
+      [
+        #################### Required Configs ####################
+        "common/core" # required
+      ]
+      ++ (map (f: "common/optional/${f}") [
+        #################### Host-specific Optional Configs ####################
+        "darwin/vban-walkie.nix"
 
-      #################### Host-specific Optional Configs ####################
-      "common/optional/darwin/vban-walkie.nix"
-
-      #################### Optional Applications ####################
-      "common/optional/darwin/applications/1password.nix"
-      "common/optional/darwin/applications/autodesk-fusion.nix"
-      "common/optional/darwin/applications/browsers.nix"
-      "common/optional/darwin/applications/deskflow.nix"
-      "common/optional/darwin/applications/docker.nix"
-      "common/optional/darwin/applications/gitkraken.nix"
-      "common/optional/darwin/applications/hovrly.nix"
-      "common/optional/darwin/applications/jprofiler.nix"
-      "common/optional/darwin/applications/lens.nix"
-      "common/optional/darwin/applications/motion.nix"
-      "common/optional/darwin/applications/notchnook.nix"
-      "common/optional/darwin/applications/notion-calendar.nix"
-      "common/optional/darwin/applications/obsidian.nix"
-      # "common/optional/darwin/applications/ollama.nix"
-      "common/optional/darwin/applications/synology.nix"
-      # "common/optional/darwin/applications/tencent-lemon.nix"
-      "common/optional/darwin/applications/claude.nix"
-      "common/optional/darwin/applications/vpn.nix"
-      "common/optional/darwin/applications/ghostty.nix"
-      "common/optional/darwin/applications/bleunlock.nix"
-      #################### Desktop ####################
-    ])
+        #################### Optional Applications ####################
+        "darwin/applications/1password.nix"
+        "darwin/applications/autodesk-fusion.nix"
+        "darwin/applications/browsers.nix"
+        "darwin/applications/deskflow.nix"
+        "darwin/applications/docker.nix"
+        "darwin/applications/gitkraken.nix"
+        "darwin/applications/hovrly.nix"
+        "darwin/applications/jprofiler.nix"
+        "darwin/applications/lens.nix"
+        "darwin/applications/motion.nix"
+        "darwin/applications/notchnook.nix"
+        "darwin/applications/notion-calendar.nix"
+        "darwin/applications/obsidian.nix"
+        # "darwin/applications/ollama.nix"
+        "darwin/applications/synology.nix"
+        # "darwin/applications/tencent-lemon.nix"
+        "darwin/applications/claude.nix"
+        "darwin/applications/vpn.nix"
+        "darwin/applications/ghostty.nix"
+        "darwin/applications/bleunlock.nix"
+        #################### Desktop ####################
+      ])
+    ))
   ];
 
   time.timeZone = "America/Chicago";

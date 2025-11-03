@@ -5,17 +5,20 @@
 ###############################################################
 {lib, ...}: {
   imports = lib.flatten [
-    (map lib.custom.relativeToHosts [
-      #################### Required Configs ####################
-      "common/core"
+    (map lib.custom.relativeToHosts (
+      [
+        #################### Required Configs ####################
+        "common/core" # required
+      ]
+      ++ (map (f: "common/optional/${f}") [
+        #################### Host-specific Optional Configs ####################
 
-      #################### Host-specific Optional Configs ####################
+        #################### Optional Applications ####################
+        "darwin/applications/ghostty.nix"
 
-      #################### Optional Applications ####################
-      "common/optional/darwin/applications/ghostty.nix"
-
-      #################### Desktop ####################
-    ])
+        #################### Desktop ####################
+      ])
+    ))
   ];
 
   time.timeZone = "America/Chicago";

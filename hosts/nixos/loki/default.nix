@@ -30,16 +30,19 @@
 
     #################### Misc Inputs ####################
 
-    (map lib.custom.relativeToHosts [
-      #################### Required Configs ####################
-      "common/core"
-
-      #################### Host-specific Optional Configs ####################
-      "common/optional/nixos/services/openssh.nix" # allow remote SSH access
-      "common/optional/nixos/services/home-assistant-oci.nix"
-      "common/optional/nixos/services/nginx.nix" # nginx
-      "common/optional/nixos/services/n8n.nix" # n8n
-    ])
+    (map lib.custom.relativeToHosts (
+      [
+        #################### Required Configs ####################
+        "common/core" # required
+      ]
+      ++ (map (f: "common/optional/${f}") [
+        #################### Host-specific Optional Configs ####################
+        "nixos/services/openssh.nix" # allow remote SSH access
+        "nixos/services/home-assistant-oci.nix"
+        "nixos/services/nginx.nix" # nginx
+        "nixos/services/n8n.nix" # n8n
+      ])
+    ))
   ];
 
   networking = {

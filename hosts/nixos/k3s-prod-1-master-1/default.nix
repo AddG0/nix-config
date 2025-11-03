@@ -30,14 +30,17 @@
     }
 
     #################### Misc Inputs ####################
-    (map lib.custom.relativeToHosts [
-      #################### Required Configs ####################
-      "common/core"
-
-      #################### Host-specific Optional Configs ####################
-      "common/optional/nixos/services/openssh.nix" # allow remote SSH access
-      "common/optional/nixos/nvtop.nix" # GPU monitor (not available in home-manager)
-    ])
+    (map lib.custom.relativeToHosts (
+      [
+        #################### Required Configs ####################
+        "common/core" # required
+      ]
+      ++ (map (f: "common/optional/${f}") [
+        #################### Host-specific Optional Configs ####################
+        "nixos/services/openssh.nix" # allow remote SSH access
+        "nixos/nvtop.nix" # GPU monitor (not available in home-manager)
+      ])
+    ))
   ];
 
   hostSpec = {
