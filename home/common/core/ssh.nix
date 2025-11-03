@@ -61,6 +61,11 @@ in {
           controlMaster = "auto";
           controlPath = "~/.ssh/sockets/S.%r@%h:%p";
           controlPersist = "10m";
+          serverAliveInterval = 60;
+          serverAliveCountMax = 3;
+          extraOptions = {
+            TCPKeepAlive = "yes";
+          };
         };
 
         # Not all of this systems I have access to can use yubikey.

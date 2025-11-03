@@ -25,7 +25,6 @@
         "nixos/desktops/plasma6"
         "browsers"
         "development/ide.nix"
-        # "secrets"
         # "secrets/kubeconfig.nix"
         "gaming/minecraft.nix"
         "gaming/steam.nix"
