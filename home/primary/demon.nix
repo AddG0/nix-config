@@ -38,7 +38,7 @@
         "development/gcloud.nix"
         "nixos/vlc.nix"
         # "remote-desktop/mouseshare/lan-mouse.nix"
-        "development/tools.nix"
+        "development/ai"
         "development/postman.nix"
         "helper-scripts"
         "development/terraform.nix"

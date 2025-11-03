@@ -31,7 +31,7 @@
         # "development/go.nix"
         "media/spicetify.nix"
         "development/virtualization"
-        "development/tools.nix"
+        "development/ai"
         "secrets/1password.nix"
         "development/gcloud.nix"
       ])
