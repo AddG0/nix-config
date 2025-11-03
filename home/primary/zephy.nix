@@ -17,9 +17,11 @@
         #################### Host-specific Optional Configs ####################
         "helper-scripts"
         "development/jupyter-notebook.nix"
-        "development/tools.nix"
+        "development/ai"
         "development/virtualization/kubernetes.nix"
         "development/virtualization/lens.nix"
+        "secrets"
+        "development/aws.nix"
         "nixos/desktops/plasma6"
         "browsers"
         "development/ide.nix"
