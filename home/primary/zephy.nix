@@ -19,6 +19,7 @@
         "development/jupyter-notebook.nix"
         "development/tools.nix"
         "development/virtualization/kubernetes.nix"
+        "development/virtualization/lens.nix"
         "nixos/desktops/plasma6"
         "browsers"
         "development/ide.nix"
@@ -37,6 +38,18 @@
         # "remote-desktop/rustdesk.nix"
       ])
     ))
+  ];
+
+  programs.plasma.input.mice = [
+   {
+      enable = true;
+      name = "ASUE140F:00 04F3:31F7 Mouse";
+      vendorId = "04F3";
+      productId = "31F7";
+      accelerationProfile = "none";
+      naturalScroll = false;
+      scrollSpeed = 0.2;
+    }
   ];
 
   # modules.desktop.hyprland = {

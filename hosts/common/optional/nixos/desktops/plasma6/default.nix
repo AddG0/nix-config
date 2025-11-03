@@ -35,5 +35,6 @@
     wayland-utils # Wayland utilities
     wl-clipboard # Command-line copy/paste utilities for Wayland
     kdePackages.spectacle # Screenshot tool
+    kdePackages.plasma-nm # NetworkManager integration for Plasma (includes captive portal handler)
   ];
 }
