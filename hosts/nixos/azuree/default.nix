@@ -32,26 +32,29 @@
 
     #################### Misc Inputs ####################
 
-    (map lib.custom.relativeToHosts [
-      #################### Required Configs ####################
-      "common/core"
-
-      #################### Host-specific Optional Configs ####################
-      "common/optional/nixos/services/openssh.nix" # allow remote SSH access
-      "common/optional/nixos/nvtop.nix" # GPU monitor (not available in home-manager)
-      # "common/optional/nixos/audio.nix" # pipewire and cli controls - using local audio.nix instead
-      "common/optional/nixos/gaming.nix" # steam, gamescope, gamemode, and related hardware
-      # "common/optional/nixos/services/home-assistant"
-      "common/optional/nixos/virtualisation/docker.nix" # docker
-      # "common/optional/nixos/plymouth.nix" # fancy boot screen
-      "common/optional/nixos/services/nginx.nix" # nginx
-      "common/optional/nixos/obs.nix" # obs
-      "common/optional/nixos/hardware/openrazer.nix" # openrazer
-      #################### Desktop ####################
-      "common/optional/nixos/desktops/plasma6" # window manager
-      "common/optional/nixos/services/greetd.nix" # display manager
-      "common/optional/nixos/services/bluetooth.nix"
-    ])
+    (map lib.custom.relativeToHosts (
+      [
+        #################### Required Configs ####################
+        "common/core" # required
+      ]
+      ++ (map (f: "common/optional/${f}") [
+        #################### Host-specific Optional Configs ####################
+        "nixos/services/openssh.nix" # allow remote SSH access
+        "nixos/nvtop.nix" # GPU monitor (not available in home-manager)
+        # "nixos/audio.nix" # pipewire and cli controls - using local audio.nix instead
+        "nixos/gaming.nix" # steam, gamescope, gamemode, and related hardware
+        # "nixos/services/home-assistant"
+        "nixos/virtualisation/docker.nix" # docker
+        # "nixos/plymouth.nix" # fancy boot screen
+        "nixos/services/nginx.nix" # nginx
+        "nixos/obs.nix" # obs
+        "nixos/hardware/openrazer.nix" # openrazer
+        #################### Desktop ####################
+        "nixos/desktops/plasma6" # window manager
+        "nixos/services/greetd.nix" # display manager
+        "nixos/services/bluetooth.nix"
+      ])
+    ))
   ];
 
   networking = {
