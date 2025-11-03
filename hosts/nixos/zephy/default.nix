@@ -55,7 +55,15 @@
   programs.awsvpnclient.enable = true;
 
   networking = {
-    networkmanager.enable = true;
+    networkmanager = {
+      enable = true;
+      # Enable captive portal detection
+      connectionConfig = {
+        "connectivity.enabled" = true;
+        "connectivity.uri" = "http://nmcheck.gnome.org/check_network_status.txt";
+        "connectivity.interval" = 300;
+      };
+    };
     enableIPv6 = false;
   };
 
@@ -99,32 +107,9 @@
     };
   };
 
-  xdg.portal = {
-    enable = true;
-    extraPortals = [pkgs.kdePackages.xdg-desktop-portal-kde];
-    config.common.default = "kde";
-  };
-
   services.upower.enable = true;
-
-  # needed unlock LUKS on secondary drives
-  # use partition UUID
-  # https://wiki.nixos.org/wiki/Full_Disk_Encryption#Unlocking_secondary_drives
-  # environment.etc.crypttab.text = lib.optionalString (!config.hostSpec.isMinimal) ''
-  #   cryptextra UUID=d90345b2-6673-4f8e-a5ef-dc764958ea14 /luks-secondary-unlock.key
-  #   cryptvms UUID=ce5f47f8-d5df-4c96-b2a8-766384780a91 /luks-secondary-unlock.key
-  # '';
-
-  #hyprland border override example
-  #  wayland.windowManager.hyprland.settings.general."col.active_border" = lib.mkForce "rgb(${config.stylix.base16Scheme.base0E});
 
   system.stateVersion = config.hostSpec.system.stateVersion;
 
   services.automatic-timezoned.enable = true;
-
-  # Add this to your system packages
-  environment.systemPackages = with pkgs; [
-    os-prober
-    # other packages...
-  ];
 }

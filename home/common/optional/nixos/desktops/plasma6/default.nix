@@ -304,7 +304,7 @@
     # Input device configuration
     input = {
       mice = [
-        {
+        { # The Razer mice is my shared one
           enable = true;
           name = "Razer Razer Viper Mini Signature Edition";
           vendorId = "1532";

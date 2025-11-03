@@ -18,6 +18,7 @@
     # kubefwd
 
     minikube # local kubernetes
+    kind
   ];
 
   home.shellAliases = {
