@@ -113,7 +113,8 @@
 
   services.upower.enable = true;
 
-  system.stateVersion = config.hostSpec.system.stateVersion;
+  # Enable IP-based automatic timezone detection
+  services.ip-timezone.enable = true;
 
-  services.automatic-timezoned.enable = true;
+  system.stateVersion = config.hostSpec.system.stateVersion;
 }
