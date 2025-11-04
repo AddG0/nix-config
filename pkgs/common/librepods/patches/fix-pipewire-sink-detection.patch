@@ -1,0 +1,33 @@
+--- mediacontroller.cpp.orig	2025-11-04 21:13:31.945893054 +1300
++++ mediacontroller.cpp	2025-11-04 21:20:09.232658944 +1300
+@@ -77,15 +77,8 @@
+ 
+   if (shouldPause && isActiveOutputDeviceAirPods())
+   {
+-    QProcess process;
+-    process.start("playerctl", QStringList() << "status");
+-    process.waitForFinished();
+-    QString playbackStatus = process.readAllStandardOutput().trimmed();
+-    LOG_DEBUG("Playback status: " << playbackStatus);
+-    if (playbackStatus == "Playing")
+-    {
+-      pause();
+-    }
++    LOG_INFO("Should pause - calling pause()");
++    pause();
+   }
+ 
+   // Then handle device profile switching
+@@ -141,8 +134,10 @@
+   process.start("pactl", QStringList() << "get-default-sink");
+   process.waitForFinished();
+   QString output = process.readAllStandardOutput().trimmed();
+-  LOG_DEBUG("Default sink: " << output);
+-  return output.contains(connectedDeviceMacAddress);
++  LOG_INFO("Checking if AirPods active - Default sink: '" << output << "', MAC: '" << connectedDeviceMacAddress << "'");
++  bool result = output.toLower().contains(connectedDeviceMacAddress.toLower());
++  LOG_INFO("isActiveOutputDeviceAirPods result: " << result);
++  return result;
+ }
+ 
+ void MediaController::handleConversationalAwareness(const QByteArray &data) {
