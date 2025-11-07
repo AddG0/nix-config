@@ -58,6 +58,11 @@
 
   programs.awsvpnclient.enable = true;
 
+  services.bt-proximity = {
+    enable = true;
+    deviceFile = "${config.hostSpec.home}/.config/sops/whoop_file"; # TODO: move to actual secret
+  };
+
   networking = {
     networkmanager.enable = true;
     enableIPv6 = false;
