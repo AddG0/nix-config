@@ -44,7 +44,7 @@ in {
     shared-mime-info
 
     # For editing text
-    kdePackages.kate
+    # kdePackages.kate
 
     # <-- add Ark so we can extract archives
     kdePackages.ark

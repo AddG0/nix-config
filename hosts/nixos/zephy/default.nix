@@ -59,16 +59,13 @@
   programs.awsvpnclient.enable = true;
 
   networking = {
-    networkmanager = {
-      enable = true;
-      # Enable captive portal detection
-      connectionConfig = {
-        "connectivity.enabled" = true;
-        "connectivity.uri" = "http://nmcheck.gnome.org/check_network_status.txt";
-        "connectivity.interval" = 300;
-      };
-    };
+    networkmanager.enable = true;
     enableIPv6 = false;
+  };
+
+  programs.captive-browser = {
+    enable = true;
+    interface = "wlp4s0";
   };
 
   boot.loader = {

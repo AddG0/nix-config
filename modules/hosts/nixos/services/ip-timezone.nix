@@ -30,6 +30,8 @@ in {
     # Create a working IP-based timezone detection service
     systemd.services.ip-timezone = {
       description = "Update timezone based on IP geolocation";
+      after = ["network-online.target"];
+      wants = ["network-online.target"];
       serviceConfig = {
         Type = "oneshot";
         ExecStart = pkgs.writeShellScript "update-timezone" ''
@@ -67,7 +69,7 @@ in {
       description = "Periodically update timezone based on location";
       wantedBy = ["timers.target"];
       timerConfig = {
-        OnBootSec = "1min";
+        OnBootSec = "10s";
         OnUnitActiveSec = cfg.interval;
         Unit = "ip-timezone.service";
       };

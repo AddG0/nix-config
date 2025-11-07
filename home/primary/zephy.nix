@@ -22,6 +22,7 @@
         "development/virtualization/lens.nix"
         "development/ide.nix"
         "development/gcloud.nix"
+        "development/terraform.nix"
         "secrets"
         "development/aws.nix"
         "nixos/desktops/plasma6"
