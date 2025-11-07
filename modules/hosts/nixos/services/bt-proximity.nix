@@ -39,7 +39,7 @@ in {
     # Timing settings
     proximityTimeout = mkOption {
       type = types.float;
-      default = 20.0;
+      default = 25.0;
       description = "Grace period in seconds before marking device as 'away'";
     };
 
