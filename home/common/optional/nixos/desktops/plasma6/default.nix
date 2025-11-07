@@ -3,6 +3,9 @@
   # - Use `kscreen-doctor -o` to list monitors
   # - Set primary monitor: `kscreen-doctor output.3.primary` (replace 3 with output number)
 
+  # Install Noir Splash 6 theme
+  xdg.dataFile."plasma/look-and-feel/Noir-Splash-6".source = "${pkgs.themes.plasma.noir-splash-6}/share/plasma/look-and-feel/Noir-Splash-6";
+
   programs.plasma = {
     enable = true;
 
@@ -40,6 +43,9 @@
       # General appearance and behavior
       clickItemTo = "select";
       lookAndFeel = "org.kde.breezedark.desktop";
+      splashScreen = {
+        theme = "Noir-Splash-6";
+      };
       wallpaper = "${pkgs.kdePackages.plasma-workspace-wallpapers}/share/wallpapers/Patak/contents/images/5120x2880.png";
 
       # Styling configuration
