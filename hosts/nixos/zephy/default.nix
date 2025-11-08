@@ -51,7 +51,7 @@
 
         #################### Desktop ####################
         "nixos/desktops/plasma6" # window manager
-        "nixos/services/greetd.nix" # display manager
+        # "nixos/services/greetd.nix" # display manager
       ])
     ))
   ];

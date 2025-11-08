@@ -34,6 +34,23 @@
     #      ];
     #    };
 
+    # Fix SDDM Wayland session bug where command is passed as single quoted string
+    # Without this sddm will not work properly in wayland sessions.
+    kdePackages = prev.kdePackages.overrideScope (kfinal: kprev: {
+      sddm = kprev.sddm.override {
+        unwrapped = kprev.sddm.unwrapped.overrideAttrs (oldAttrs: {
+          postInstall =
+            (oldAttrs.postInstall or "")
+            + ''
+              # Fix wayland-session script to handle SDDM passing command as single string
+              substituteInPlace $out/share/sddm/scripts/wayland-session \
+                --replace-warn 'exec $@' \
+                  $'# Handle SDDM bug where command is passed as single quoted string\nif [ $# -eq 1 ]; then\n  # Use sh -c to properly parse single argument (SDDM Wayland bug workaround)\n  exec sh -c "$1"\nelse\n  exec "$@"\nfi'
+            '';
+        });
+      };
+    });
+
     ghostty = inputs.ghostty.packages.${prev.system}.default;
     firefox-addons = import inputs.firefox-addons {
       inherit (prev) fetchurl lib stdenv;
