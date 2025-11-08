@@ -10,8 +10,8 @@ stdenvNoCC.mkDerivation rec {
   src = fetchFromGitHub {
     owner = "EliverLara";
     repo = "Sweet";
-    rev = "2bed089534dd21d5da9b9c47193a85f58658e3d3";
-    sha256 = "sha256-hPLgUVD9I9jcG40GmQwvA7RkSs3mq0lApOz1m/nDpL8=";
+    rev = "f865a47ed41a870d278fcd47fdb0300fdeaa0c01"; # nova branch
+    sha256 = "sha256-ohiZkwY3ii2JSxZFM2vTSNovar4QxQjDh/tO41Rm138=";
   };
 
   dontBuild = true;
@@ -20,11 +20,11 @@ stdenvNoCC.mkDerivation rec {
   installPhase = ''
     runHook preInstall
 
-    mkdir -p $out/share/aurorae/themes/Sweet
+    mkdir -p $out/share/aurorae/themes
 
-    # Copy metacity-1 theme files for use with Aurorae
-    # Aurorae can use metacity themes
-    cp -r $src/metacity-1/* $out/share/aurorae/themes/Sweet/
+    # Copy KDE Aurorae themes from the nova branch
+    # The nova branch contains proper Aurorae SVG themes
+    cp -r $src/kde/aurorae/* $out/share/aurorae/themes/
 
     runHook postInstall
   '';

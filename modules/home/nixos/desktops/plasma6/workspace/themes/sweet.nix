@@ -29,21 +29,30 @@ in {
         # Window decorations - use Aurorae if enabled, otherwise use Breeze
         windowDecorations = mkIf cfg.useAuroraeDecoration (mkDefault {
           library = "org.kde.kwin.aurorae";
-          theme = "__aurorae__svg__Sweet";
+          theme = "__aurorae__svg__Sweet-Dark";
         });
       };
     };
 
     # Symlink theme files to where KDE expects them
-    xdg.dataFile = {
-      # Color scheme
-      "color-schemes/Sweet.colors".source = "${pkgs.themes.plasma.sweet-kde}/share/color-schemes/Sweet.colors";
+    xdg.dataFile = mkMerge [
+      {
+        # Color scheme
+        "color-schemes/Sweet.colors".source = "${pkgs.themes.plasma.sweet-kde}/share/color-schemes/Sweet.colors";
 
-      # Desktop theme (Plasma theme)
-      "plasma/desktoptheme/Sweet".source = "${pkgs.themes.plasma.sweet-kde}/share/plasma/desktoptheme/Sweet";
+        # Desktop theme (Plasma theme)
+        "plasma/desktoptheme/Sweet".source = "${pkgs.themes.plasma.sweet-kde}/share/plasma/desktoptheme/Sweet";
+      }
 
-      # Aurorae window decoration
-      "aurorae/themes/Sweet".source = mkIf cfg.useAuroraeDecoration "${pkgs.themes.plasma.sweet-aurorae}/share/aurorae/themes/Sweet";
-    };
+      # Aurorae window decorations (only if enabled)
+      (mkIf cfg.useAuroraeDecoration (
+        let
+          auroraeSrc = "${pkgs.themes.plasma.sweet-aurorae}/share/aurorae/themes";
+        in {
+          "aurorae/themes/Sweet-Dark".source = "${auroraeSrc}/Sweet-Dark";
+          "aurorae/themes/Sweet-Dark-transparent".source = "${auroraeSrc}/Sweet-Dark-transparent";
+        }
+      ))
+    ];
   };
 }
