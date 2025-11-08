@@ -42,31 +42,34 @@
     workspace = {
       # General appearance and behavior
       clickItemTo = "select";
-      lookAndFeel = "org.kde.breezedark.desktop";
+
       splashScreen = {
         theme = "Noir-Splash-6";
       };
+
       wallpaper = "${pkgs.kdePackages.plasma-workspace-wallpapers}/share/wallpapers/Patak/contents/images/5120x2880.png";
 
-      # Styling configuration
-      styling = {
-        # Icon theme
-        icons.theme = "papirus-dark";
+      # Icon theme
+      iconTheme = "Papirus-Dark";
 
-        # Cursor theme
-        cursors = {
-          theme = "vimix";
-          variant = "dark";
-          size = 24;
-        };
-
-        # WhiteSur theme
-        # themes.whitesur = {
-        #   enable = true;
-        #   variant = "dark";
-        #   windowDecoration = "sharp";
-        # };
+      # Cursor theme
+      cursor = {
+        theme = "Vimix-cursors";
+        size = 24;
       };
+
+      # Theme configuration
+      themes.sweet = {
+        enable = true;
+        useAuroraeDecoration = true;
+      };
+
+      # Alternative themes
+      # themes.whitesur = {
+      #   enable = true;
+      #   variant = "dark";
+      #   windowDecoration = "sharp";
+      # };
     };
 
     # Custom keyboard shortcuts
