@@ -3,9 +3,6 @@
   # - Use `kscreen-doctor -o` to list monitors
   # - Set primary monitor: `kscreen-doctor output.3.primary` (replace 3 with output number)
 
-  # Install Noir Splash 6 theme
-  xdg.dataFile."plasma/look-and-feel/Noir-Splash-6".source = "${pkgs.themes.plasma.noir-splash-6}/share/plasma/look-and-feel/Noir-Splash-6";
-
   programs.plasma = {
     enable = true;
 
@@ -58,13 +55,6 @@
         size = 24;
       };
 
-      # Theme configuration
-      themes.sweet = {
-        enable = true;
-        useAuroraeDecoration = true;
-      };
-
-      # Alternative themes
       # themes.whitesur = {
       #   enable = true;
       #   variant = "dark";
