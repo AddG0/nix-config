@@ -5,49 +5,47 @@
   ...
 }:
 with lib; let
-  cfg = config.programs.plasma.workspace.styling.themes;
+  cfg = config.programs.plasma.workspace.themes.whitesur;
 in {
-  options.programs.plasma.workspace.styling.themes = {
-    whitesur = {
-      enable = mkEnableOption "WhiteSur KDE theme";
+  options.programs.plasma.workspace.themes.whitesur = {
+    enable = mkEnableOption "WhiteSur KDE theme";
 
-      variant = mkOption {
-        type = types.enum ["standard" "alt" "dark"];
-        default = "standard";
-        description = "WhiteSur theme variant to use";
-      };
+    variant = mkOption {
+      type = types.enum ["standard" "alt" "dark"];
+      default = "standard";
+      description = "WhiteSur theme variant to use";
+    };
 
-      windowDecoration = mkOption {
-        type = types.enum ["default" "sharp" "opaque"];
-        default = "default";
-        description = "Window decoration style";
-      };
+    windowDecoration = mkOption {
+      type = types.enum ["default" "sharp" "opaque"];
+      default = "default";
+      description = "Window decoration style";
     };
   };
 
-  config = mkIf cfg.whitesur.enable {
+  config = mkIf cfg.enable {
     programs.plasma = {
       workspace = {
         lookAndFeel = mkDefault (
-          if cfg.whitesur.variant == "dark"
+          if cfg.variant == "dark"
           then "com.github.vinceliuice.WhiteSur-dark"
-          else if cfg.whitesur.variant == "alt"
+          else if cfg.variant == "alt"
           then "com.github.vinceliuice.WhiteSur-alt"
           else "com.github.vinceliuice.WhiteSur"
         );
 
         colorScheme = mkDefault (
-          if cfg.whitesur.variant == "dark"
+          if cfg.variant == "dark"
           then "WhiteSurDark"
-          else if cfg.whitesur.variant == "alt"
+          else if cfg.variant == "alt"
           then "WhiteSurAlt"
           else "WhiteSur"
         );
 
         theme = mkDefault (
-          if cfg.whitesur.variant == "dark"
+          if cfg.variant == "dark"
           then "WhiteSur-dark"
-          else if cfg.whitesur.variant == "alt"
+          else if cfg.variant == "alt"
           then "WhiteSur-alt"
           else "WhiteSur"
         );
@@ -58,26 +56,26 @@ in {
     programs.plasma.configFile.kwinrc."org.kde.kdecoration2" = mkDefault {
       library = let
         decorationName =
-          if cfg.whitesur.variant == "dark"
+          if cfg.variant == "dark"
           then "WhiteSur-dark"
           else "WhiteSur";
         windowStyle =
-          if cfg.whitesur.windowDecoration == "sharp"
+          if cfg.windowDecoration == "sharp"
           then "-sharp"
-          else if cfg.whitesur.windowDecoration == "opaque"
+          else if cfg.windowDecoration == "opaque"
           then "-opaque"
           else "";
       in "org.kde.kwin.aurorae__aurorae__svg__${decorationName}${windowStyle}";
       theme = "__aurorae__svg__${
         let
           decorationName =
-            if cfg.whitesur.variant == "dark"
+            if cfg.variant == "dark"
             then "WhiteSur-dark"
             else "WhiteSur";
           windowStyle =
-            if cfg.whitesur.windowDecoration == "sharp"
+            if cfg.windowDecoration == "sharp"
             then "-sharp"
-            else if cfg.whitesur.windowDecoration == "opaque"
+            else if cfg.windowDecoration == "opaque"
             then "-opaque"
             else "";
         in "${decorationName}${windowStyle}"

@@ -62,6 +62,8 @@
     enable = true;
     deviceFile = "${config.hostSpec.home}/.config/sops/whoop_file"; # TODO: move to actual secret
   };
+  
+  programs.kdeconnect.enable = true;
 
   networking = {
     networkmanager.enable = true;
