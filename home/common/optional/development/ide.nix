@@ -12,7 +12,7 @@
     ++ (
       if pkgs.stdenv.isLinux
       then [
-        unstable.code-cursor
+        code-cursor
         android-studio
       ]
       else []

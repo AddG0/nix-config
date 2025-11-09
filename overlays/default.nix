@@ -57,12 +57,17 @@
     };
 
     # Cursor with fixed StartupWMClass
-    code-cursor = prev.cursor.overrideAttrs (oldAttrs: {
-      postInstall =
-        (oldAttrs.postInstall or "")
+    code-cursor = prev.code-cursor.overrideAttrs (oldAttrs: {
+      postFixup =
+        (oldAttrs.postFixup or "")
         + ''
-          # Fix StartupWMClass to match actual window class
-          sed -i 's/StartupWMClass=cursor/StartupWMClass=Cursor/' $out/share/applications/cursor.desktop
+          # Fix StartupWMClass to match actual window class in both desktop files
+          if [ -f "$out/share/applications/cursor.desktop" ]; then
+            sed -i 's/StartupWMClass=cursor/StartupWMClass=Cursor/' $out/share/applications/cursor.desktop
+          fi
+          if [ -f "$out/share/applications/cursor-url-handler.desktop" ]; then
+            sed -i 's/StartupWMClass=cursor/StartupWMClass=Cursor/' $out/share/applications/cursor-url-handler.desktop
+          fi
         '';
     });
 
