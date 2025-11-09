@@ -17,6 +17,8 @@ from typing import Optional, List
 from bleak import BleakScanner
 from bleak.backends.device import BLEDevice
 from bleak.backends.scanner import AdvertisementData
+from bleak.backends.bluezdbus.manager import get_global_bluez_manager
+from bleak.exc import BleakError
 from pydantic import model_validator
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
@@ -115,51 +117,119 @@ class ContinuousScanner:
         self.settings = settings
         self.scanner: Optional[BleakScanner] = None
         self._running = False
+        self._watchdog_task: Optional[asyncio.Task] = None
 
-    async def start(self) -> None:
-        """Start continuous scanning"""
+    async def _check_adapter_available(self) -> bool:
+        """Check if a powered Bluetooth adapter is available"""
+        try:
+            manager = await get_global_bluez_manager()
+            manager.get_default_adapter()
+            return True
+        except BleakError:
+            return False
+
+    async def _adapter_watchdog(self) -> None:
+        """Monitor adapter availability and signal if adapter disappears"""
+        while self._running:
+            await asyncio.sleep(5)  # Check every 5 seconds
+            if not await self._check_adapter_available():
+                logger.warning("⚠️  Bluetooth adapter became unavailable")
+                self._running = False
+                break
+
+    async def start(self) -> bool:
+        """Start continuous scanning. Returns True on success, False if BT unavailable"""
         if self._running:
-            return
+            return True
 
-        # Log startup configuration
-        logger.info("=== Bluetooth Proximity Monitor ===")
-        logger.info(f"Device: {self.target_mac}")
-        logger.info(f"Lock threshold: {self.settings.lock_threshold} dBm")
-        logger.info(f"Unlock threshold: {self.settings.unlock_threshold} dBm")
-        logger.info(f"RSSI averaging: {self.settings.rssi_samples} samples")
-        logger.info(f"Proximity timeout: {self.settings.proximity_timeout}s")
-        logger.info("=" * 36)
+        # Log startup configuration (only on first attempt)
+        if not hasattr(self, '_config_logged'):
+            logger.info("=== Bluetooth Proximity Monitor ===")
+            logger.info(f"Device: {self.target_mac}")
+            logger.info(f"Lock threshold: {self.settings.lock_threshold} dBm")
+            logger.info(f"Unlock threshold: {self.settings.unlock_threshold} dBm")
+            logger.info(f"RSSI averaging: {self.settings.rssi_samples} samples")
+            logger.info(f"Proximity timeout: {self.settings.proximity_timeout}s")
+            logger.info("=" * 36)
+            self._config_logged = True
+
+        # Check if adapter is available before attempting to start
+        if not await self._check_adapter_available():
+            logger.warning("⚠️  Bluetooth adapter is disabled or not available")
+            logger.warning("Waiting for Bluetooth to become available...")
+            return False
 
         logger.info(f"Starting continuous BLE scanner for {self.target_mac}")
 
-        self.scanner = BleakScanner(detection_callback=self._detection_callback)
-        await self.scanner.start()
-        self._running = True
+        try:
+            self.scanner = BleakScanner(detection_callback=self._detection_callback)
+            await self.scanner.start()
+            self._running = True
 
-        # Give scanner time to initialize
-        await asyncio.sleep(0.5)
-        logger.info("Scanner started successfully")
+            # Give scanner time to initialize
+            await asyncio.sleep(0.5)
+            logger.info("Scanner started successfully")
 
-        # Start initial lock timer (will lock if device never detected)
-        self._start_lock_timer()
+            # Start initial lock timer (will lock if device never detected)
+            self._start_lock_timer()
+
+            # Start watchdog to monitor adapter availability
+            self._watchdog_task = asyncio.create_task(self._adapter_watchdog())
+
+            return True
+        except BleakError as e:
+            logger.warning(f"⚠️  Failed to start scanner: {e}")
+            self.scanner = None  # Clean up on failure
+            return False
 
     async def stop(self) -> None:
         """Stop scanning"""
-        if not self._running or not self.scanner:
+        if not self._running and not self.scanner:
             return
 
         logger.info("Stopping scanner...")
-        await self.scanner.stop()
         self._running = False
+
+        # Cancel watchdog
+        if self._watchdog_task and not self._watchdog_task.done():
+            self._watchdog_task.cancel()
+            try:
+                await self._watchdog_task
+            except asyncio.CancelledError:
+                pass
+
+        # Stop scanner
+        if self.scanner:
+            try:
+                await self.scanner.stop()
+            except Exception as e:
+                logger.debug(f"Error stopping scanner: {e}")
+            finally:
+                self.scanner = None
+
         logger.info("Scanner stopped")
 
     async def run(self) -> None:
-        """Run the monitor (event-driven, sleeps forever)"""
-        await self.start()
+        """Run the monitor (event-driven with auto-restart on BT disconnect)"""
         try:
-            # Just wait forever - all logic is event-driven
             while True:
-                await asyncio.sleep(3600)  # Sleep 1 hour, doesn't matter
+                # Try to start scanner (with retry if BT unavailable)
+                while True:
+                    success = await self.start()
+                    if success:
+                        break
+                    # Wait 10 seconds before retrying if BT is unavailable
+                    await asyncio.sleep(10)
+
+                # Scanner running - wait for it to stop (either gracefully or from watchdog)
+                while self._running:
+                    await asyncio.sleep(1)
+
+                # Scanner stopped (BT went down) - clean up and retry
+                logger.info("Scanner stopped, will retry in 10 seconds...")
+                await self.stop()
+                await asyncio.sleep(10)
+
         except Exception as e:
             logger.error(f"Monitor error: {e}", exc_info=True)
         finally:
