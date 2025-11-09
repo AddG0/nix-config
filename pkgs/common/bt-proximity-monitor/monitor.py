@@ -239,6 +239,13 @@ class ContinuousScanner:
         """Called whenever a BLE advertisement is detected"""
         if device.address.upper() == self.target_mac:
             rssi = advertisement.rssi
+
+            # Filter out invalid RSSI sentinel values
+            # -127 is commonly sent when Bluetooth is disconnecting/disabled
+            if rssi <= -127:
+                logger.debug(f"Ignoring invalid RSSI value: {rssi} dBm (likely BT disconnect)")
+                return
+
             self.rssi_tracker.add_sample(rssi)
             avg_rssi = self.rssi_tracker.get_averaged_rssi()
             logger.info(f"Device detected: RSSI {rssi} dBm (avg: {avg_rssi} dBm)")
