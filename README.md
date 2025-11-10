@@ -53,7 +53,6 @@ This is my personal NixOS configuration that I use to manage my systems. It's no
 ```sh
 .
 ├── flake.nix          # Flake inputs and configuration
-├── outputs/           # Flake outputs and system configurations
 ├── hosts/
 │   ├── common/        # Shared configurations
 │   │   ├── core/      # Essential system configs
