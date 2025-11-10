@@ -56,11 +56,18 @@
     ))
   ];
 
+  services.system-git-sync = {
+    enable = true;
+    notifications.enable = true;
+  };
+
   programs.awsvpnclient.enable = true;
 
   services.bt-proximity = {
     enable = true;
     deviceFile = "${config.hostSpec.home}/.config/sops/whoop_file"; # TODO: move to actual secret
+    lockThreshold = -85;    # Lock when signal drops below -85 dBm (weaker/further)
+    unlockThreshold = -60;  # Unlock when signal rises above -60 dBm (stronger/closer)
   };
   
   programs.kdeconnect.enable = true;
