@@ -11,7 +11,7 @@ in {
   programs.tmux = {
     enable = true;
     tmuxinator.enable = true;
-    tmuxp.enable = true;
+    tmuxp.enable = false;
     mouse = true;
     clock24 = false;
     shell = "${config.home.homeDirectory}/.nix-profile/bin/zsh";
