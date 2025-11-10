@@ -270,26 +270,28 @@ class ContinuousScanner:
             await self.stop()
 
     def _matches_device(self, device: BLEDevice, advertisement: AdvertisementData) -> bool:
-        """Check if device matches any configured identification method"""
-        # Method 1: Match by MAC address
+        """Check if device matches ALL configured identification criteria (AND logic)"""
+        # Method 1: Match by MAC address (if configured, must match)
         if self.settings.device_mac_address:
-            if device.address.upper() == self.settings.device_mac_address.upper():
-                return True
+            if device.address.upper() != self.settings.device_mac_address.upper():
+                return False
 
-        # Method 2: Match by device name
+        # Method 2: Match by device name (if configured, must match)
         if self.settings.device_name:
-            if device.name and device.name == self.settings.device_name:
-                return True
+            if not device.name or device.name != self.settings.device_name:
+                return False
 
-        # Method 3: Match by service UUID (most reliable for BLE)
+        # Method 3: Match by service UUID (if configured, must match)
         if self.settings.device_service_uuid:
             service_uuid = self.settings.device_service_uuid.lower()
-            if advertisement.service_uuids:
-                # Check if any advertised service UUID matches
-                if service_uuid in [uuid.lower() for uuid in advertisement.service_uuids]:
-                    return True
+            if not advertisement.service_uuids:
+                return False
+            # Check if any advertised service UUID matches
+            if service_uuid not in [uuid.lower() for uuid in advertisement.service_uuids]:
+                return False
 
-        return False
+        # All configured criteria matched
+        return True
 
     def _detection_callback(self, device: BLEDevice, advertisement: AdvertisementData) -> None:
         """Called whenever a BLE advertisement is detected"""

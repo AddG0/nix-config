@@ -45,13 +45,13 @@
         "nixos/gaming.nix" # steam, gamescope, gamemode, and related hardware
         # "nixos/services/vscode-server.nix"
         # "nixos/services/home-assistant.nix"
-        "nixos/virtualisation/docker.nix" # docker
+        "nixos/virtualisation/docker.nix"
         # "nixos/plymouth.nix" # fancy boot screen
         "nixos/services/bluetooth.nix"
+        "nixos/services/bt-proximity.nix"
 
         #################### Desktop ####################
-        "nixos/desktops/plasma6" # window manager
-        # "nixos/services/greetd.nix" # display manager
+        "nixos/desktops/plasma6"
       ])
     ))
   ];
@@ -63,11 +63,7 @@
 
   programs.awsvpnclient.enable = true;
 
-  services.bt-proximity = {
-    enable = true;
-    deviceServiceUuidFile = "${config.hostSpec.home}/.config/sops/whoop_file"; # TODO: move to actual secret
-  };
-  
+
   programs.kdeconnect.enable = true;
 
   networking = {

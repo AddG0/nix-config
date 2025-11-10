@@ -114,11 +114,8 @@ def create_table() -> Table:
 
         # Format service UUIDs
         if service_uuids:
-            # Show first UUID, or count if multiple
-            if len(service_uuids) == 1:
-                uuid_str = service_uuids[0]
-            else:
-                uuid_str = f"{service_uuids[0]} +{len(service_uuids)-1}"
+            # Show all UUIDs, separated by newlines
+            uuid_str = "\n".join(service_uuids)
         else:
             uuid_str = ""
 
