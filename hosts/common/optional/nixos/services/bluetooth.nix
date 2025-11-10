@@ -7,5 +7,4 @@ _: {
       Experimental = true; # Enables better codec support
     };
   };
-  services.blueman.enable = true;
 }
