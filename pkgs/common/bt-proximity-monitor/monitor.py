@@ -40,8 +40,13 @@ class Settings(BaseSettings):
     """Configuration from environment variables"""
     model_config = SettingsConfigDict(env_prefix='BT_')
 
-    device: Optional[str] = None
-    device_file: Optional[Path] = None
+    device_mac_address: Optional[str] = None
+    device_mac_address_file: Optional[Path] = None
+    device_name: Optional[str] = None
+    device_name_file: Optional[Path] = None
+    device_service_uuid: Optional[str] = None
+    device_service_uuid_file: Optional[Path] = None
+
     lock_cmd: str = "loginctl lock-session"
     unlock_cmd: str = "loginctl unlock-session"
 
@@ -56,16 +61,38 @@ class Settings(BaseSettings):
     rssi_samples: int = 2  # Small buffer for slow advertisers (2 × 10s = 20s max)
 
     @model_validator(mode='after')
-    def load_device_and_validate(self) -> 'Settings':
-        """Load device MAC from file if device_file is set"""
-        if self.device is None and self.device_file is not None:
-            if not self.device_file.exists():
-                logger.error(f"Device file not found: {self.device_file}")
+    def load_from_files_and_validate(self) -> 'Settings':
+        """Load device identification from files if file paths are set"""
+        # Load MAC address from file
+        if self.device_mac_address is None and self.device_mac_address_file is not None:
+            if not self.device_mac_address_file.exists():
+                logger.error(f"Device MAC address file not found: {self.device_mac_address_file}")
                 sys.exit(1)
-            self.device = self.device_file.read_text().strip()
+            self.device_mac_address = self.device_mac_address_file.read_text().strip()
 
-        if not self.device:
-            logger.error("No device specified. Set BT_DEVICE or BT_DEVICE_FILE")
+        # Load device name from file
+        if self.device_name is None and self.device_name_file is not None:
+            if not self.device_name_file.exists():
+                logger.error(f"Device name file not found: {self.device_name_file}")
+                sys.exit(1)
+            self.device_name = self.device_name_file.read_text().strip()
+
+        # Load service UUID from file
+        if self.device_service_uuid is None and self.device_service_uuid_file is not None:
+            if not self.device_service_uuid_file.exists():
+                logger.error(f"Device service UUID file not found: {self.device_service_uuid_file}")
+                sys.exit(1)
+            self.device_service_uuid = self.device_service_uuid_file.read_text().strip()
+
+        # Require at least one identification method
+        if not any([self.device_mac_address, self.device_name, self.device_service_uuid]):
+            logger.error("No device identification specified. Set at least one of:")
+            logger.error("  BT_DEVICE_MAC_ADDRESS (MAC address)")
+            logger.error("  BT_DEVICE_MAC_ADDRESS_FILE (path to file with MAC address)")
+            logger.error("  BT_DEVICE_NAME (device name)")
+            logger.error("  BT_DEVICE_NAME_FILE (path to file with device name)")
+            logger.error("  BT_DEVICE_SERVICE_UUID (service UUID - most reliable)")
+            logger.error("  BT_DEVICE_SERVICE_UUID_FILE (path to file with service UUID)")
             sys.exit(1)
 
         return self
@@ -104,13 +131,11 @@ class ContinuousScanner:
 
     def __init__(
         self,
-        target_mac: str,
         rssi_tracker: RSSITracker,
         state_machine: 'ProximityStateMachine',
         timers: 'TimerManager',
         settings: 'Settings'
     ):
-        self.target_mac = target_mac.upper()
         self.rssi_tracker = rssi_tracker
         self.state_machine = state_machine
         self.timers = timers
@@ -118,6 +143,7 @@ class ContinuousScanner:
         self.scanner: Optional[BleakScanner] = None
         self._running = False
         self._watchdog_task: Optional[asyncio.Task] = None
+        self._detected_device_address: Optional[str] = None  # Store matched device address
 
     async def _check_adapter_available(self) -> bool:
         """Check if a powered Bluetooth adapter is available"""
@@ -145,7 +171,15 @@ class ContinuousScanner:
         # Log startup configuration (only on first attempt)
         if not hasattr(self, '_config_logged'):
             logger.info("=== Bluetooth Proximity Monitor ===")
-            logger.info(f"Device: {self.target_mac}")
+
+            # Show all configured identification methods
+            if self.settings.device_mac_address:
+                logger.info(f"Device MAC: {self.settings.device_mac_address}")
+            if self.settings.device_name:
+                logger.info(f"Device Name: {self.settings.device_name}")
+            if self.settings.device_service_uuid:
+                logger.info(f"Service UUID: {self.settings.device_service_uuid}")
+
             logger.info(f"Lock threshold: {self.settings.lock_threshold} dBm")
             logger.info(f"Unlock threshold: {self.settings.unlock_threshold} dBm")
             logger.info(f"RSSI averaging: {self.settings.rssi_samples} samples")
@@ -159,7 +193,7 @@ class ContinuousScanner:
             logger.warning("Waiting for Bluetooth to become available...")
             return False
 
-        logger.info(f"Starting continuous BLE scanner for {self.target_mac}")
+        logger.info(f"Starting continuous BLE scanner...")
 
         try:
             self.scanner = BleakScanner(detection_callback=self._detection_callback)
@@ -235,21 +269,60 @@ class ContinuousScanner:
         finally:
             await self.stop()
 
+    def _matches_device(self, device: BLEDevice, advertisement: AdvertisementData) -> bool:
+        """Check if device matches any configured identification method"""
+        # Method 1: Match by MAC address
+        if self.settings.device_mac_address:
+            if device.address.upper() == self.settings.device_mac_address.upper():
+                return True
+
+        # Method 2: Match by device name
+        if self.settings.device_name:
+            if device.name and device.name == self.settings.device_name:
+                return True
+
+        # Method 3: Match by service UUID (most reliable for BLE)
+        if self.settings.device_service_uuid:
+            service_uuid = self.settings.device_service_uuid.lower()
+            if advertisement.service_uuids:
+                # Check if any advertised service UUID matches
+                if service_uuid in [uuid.lower() for uuid in advertisement.service_uuids]:
+                    return True
+
+        return False
+
     def _detection_callback(self, device: BLEDevice, advertisement: AdvertisementData) -> None:
         """Called whenever a BLE advertisement is detected"""
-        if device.address.upper() == self.target_mac:
-            rssi = advertisement.rssi
+        if not self._matches_device(device, advertisement):
+            return
 
-            # Filter out invalid RSSI sentinel values
-            # -127 is commonly sent when Bluetooth is disconnecting/disabled
-            if rssi <= -127:
-                logger.debug(f"Ignoring invalid RSSI value: {rssi} dBm (likely BT disconnect)")
-                return
+        # Store detected device address for logging
+        if not self._detected_device_address:
+            self._detected_device_address = device.address
+            match_method = []
+            if self.settings.device_mac_address and device.address.upper() == self.settings.device_mac_address.upper():
+                match_method.append("MAC")
+            if self.settings.device_name and device.name:
+                match_method.append("Name")
+            if self.settings.device_service_uuid:
+                match_method.append("Service UUID")
+            logger.info(f"✓ Device matched via: {', '.join(match_method)}")
+            logger.info(f"  Address: {device.address}")
+            if device.name:
+                logger.info(f"  Name: {device.name}")
 
-            self.rssi_tracker.add_sample(rssi)
-            avg_rssi = self.rssi_tracker.get_averaged_rssi()
-            logger.info(f"Device detected: RSSI {rssi} dBm (avg: {avg_rssi} dBm)")
-            self._handle_detection(rssi)
+        rssi = advertisement.rssi
+
+        # Filter out invalid RSSI sentinel values
+        # -127 is commonly sent when Bluetooth is disconnecting/disabled
+        if rssi <= -127:
+            logger.debug(f"Ignoring invalid RSSI value: {rssi} dBm (likely BT disconnect)")
+            return
+
+        self.rssi_tracker.add_sample(rssi)
+        avg_rssi = self.rssi_tracker.get_averaged_rssi()
+        logger.info(f"Device detected: RSSI {rssi} dBm (avg: {avg_rssi} dBm)")
+        self._handle_detection(rssi)
 
     def _handle_detection(self, rssi: int) -> None:
         """Handle device detection - purely event-driven"""
@@ -367,7 +440,6 @@ def main() -> None:
 
     # Create scanner (all logic is event-driven via callbacks and timers)
     scanner = ContinuousScanner(
-        target_mac=settings.device,
         rssi_tracker=rssi_tracker,
         state_machine=state_machine,
         timers=timers,

@@ -12,7 +12,7 @@ import urllib.request
 import json
 
 console = Console()
-devices_data = {}  # {mac: (name, rssi, last_seen)}
+devices_data = {}  # {mac: (name, rssi, last_seen, service_uuids)}
 oui_cache = {}  # {oui: manufacturer}
 device_colors = {}  # {mac: color}
 
@@ -68,6 +68,7 @@ def create_table() -> Table:
     table.add_column("RSSI", justify="right", style="magenta")
     table.add_column("Signal", justify="center")
     table.add_column("Name")
+    table.add_column("Service UUIDs", style="dim")
     table.add_column("Last Seen", justify="right", style="dim")
 
     # Sort by RSSI (strongest first)
@@ -77,7 +78,7 @@ def create_table() -> Table:
         reverse=True
     )
 
-    for mac, (name, rssi, last_seen) in sorted_devices:
+    for mac, (name, rssi, last_seen, service_uuids) in sorted_devices:
         # Signal strength indicator
         if rssi is None:
             signal = "❓"
@@ -111,11 +112,22 @@ def create_table() -> Table:
             manufacturer = get_manufacturer(mac)
             display_name = f"[{color} dim]{manufacturer}[/{color} dim]"
 
+        # Format service UUIDs
+        if service_uuids:
+            # Show first UUID, or count if multiple
+            if len(service_uuids) == 1:
+                uuid_str = service_uuids[0]
+            else:
+                uuid_str = f"{service_uuids[0]} +{len(service_uuids)-1}"
+        else:
+            uuid_str = ""
+
         table.add_row(
             f"[{color}]{mac}[/{color}]",
             rssi_str,
             signal,
             display_name,
+            uuid_str,
             last_seen_str
         )
 
@@ -127,7 +139,8 @@ def detection_callback(device: BLEDevice, advertisement: AdvertisementData):
     devices_data[device.address] = (
         device.name,
         advertisement.rssi,
-        datetime.now()
+        datetime.now(),
+        advertisement.service_uuids if advertisement.service_uuids else []
     )
 
 
