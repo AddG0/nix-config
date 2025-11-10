@@ -30,10 +30,26 @@ in {
     };
 
     interval = mkOption {
-      type = types.str;
-      default = "1day";
-      description = "How often to check for updates";
-      example = "5min";
+      type = types.nullOr types.str;
+      default = null;
+      description = ''
+        How often to check for updates (relative to last run).
+        Examples: "30min", "1h", "1day"
+        Mutually exclusive with schedule.
+      '';
+      example = "30min";
+    };
+
+    schedule = mkOption {
+      type = types.nullOr types.str;
+      default = "03:00";
+      description = ''
+        When to check for updates (calendar-based, like cron).
+        Uses systemd OnCalendar syntax.
+        Examples: "daily" (midnight), "03:00" (3 AM daily), "Mon 10:00" (Mondays at 10 AM)
+        Mutually exclusive with interval.
+      '';
+      example = "Mon 10:00";
     };
 
     rebuildCommand = mkOption {
@@ -108,6 +124,10 @@ in {
       {
         assertion = cfg.notifications.enable -> cfg.notifications.notifyUser != null;
         message = "services.system-git-sync.notifications.notifyUser must be set when notifications are enabled";
+      }
+      {
+        assertion = (cfg.interval != null) != (cfg.schedule != null);
+        message = "services.system-git-sync: exactly one of 'interval' or 'schedule' must be set";
       }
     ];
 
@@ -248,10 +268,16 @@ in {
       description = "Periodically sync and rebuild NixOS configuration from Git";
       wantedBy = ["timers.target"];
       timerConfig = {
-        OnBootSec = "5min";
-        OnUnitActiveSec = cfg.interval;
         Unit = "system-git-sync.service";
-      };
+        Persistent = true;  # Run on boot if missed while system was off
+      } // (
+        if cfg.schedule != null then {
+          OnCalendar = cfg.schedule;
+        } else {
+          OnBootSec = "5min";
+          OnUnitActiveSec = cfg.interval;
+        }
+      );
     };
   };
 }
