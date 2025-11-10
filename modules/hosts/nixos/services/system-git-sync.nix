@@ -255,8 +255,8 @@ in {
       };
     in {
       description = "Automatic NixOS configuration sync from Git";
-      after = ["network-online.target"];
-      wants = ["network-online.target"];
+      after = ["network-online.target" "nss-lookup.target"];
+      wants = ["network-online.target" "nss-lookup.target"];
 
       serviceConfig = {
         Type = "oneshot";
