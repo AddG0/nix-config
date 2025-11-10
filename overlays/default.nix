@@ -51,7 +51,7 @@
       };
     });
 
-    ghostty = inputs.ghostty.packages.${prev.system}.default;
+    ghostty = inputs.ghostty.packages.${prev.stdenv.hostPlatform.system}.default;
     firefox-addons = import inputs.firefox-addons {
       inherit (prev) fetchurl lib stdenv;
     };
@@ -144,7 +144,7 @@
 
   stable-packages = final: _prev: {
     stable = import inputs.nixpkgs-stable {
-      inherit (final) system;
+      system = final.stdenv.hostPlatform.system;
       config.allowUnfree = true;
       #      overlays = [
       #     ];
@@ -153,7 +153,7 @@
 
   unstable-packages = final: _prev: {
     unstable = import inputs.nixpkgs-unstable {
-      inherit (final) system;
+      system = final.stdenv.hostPlatform.system;
       config.allowUnfree = true;
       #      overlays = [
       #     ];

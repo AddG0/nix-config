@@ -19,5 +19,5 @@
     };
   };
 
-  xdg.configFile."yazi/theme.toml".source = lib.mkDefault "${nur-ryan4yin.packages.${pkgs.system}.catppuccin-yazi}/mocha.toml";
+  xdg.configFile."yazi/theme.toml".source = lib.mkDefault "${nur-ryan4yin.packages.${pkgs.stdenv.hostPlatform.system}.catppuccin-yazi}/mocha.toml";
 }

@@ -3,6 +3,10 @@
   # - Use `kscreen-doctor -o` to list monitors
   # - Set primary monitor: `kscreen-doctor output.3.primary` (replace 3 with output number)
 
+  # Symlink timezone-hover plasmoid to XDG data directory so Plasma can find it
+  xdg.dataFile."plasma/plasmoids/com.github.timezonehover".source =
+    "${pkgs.timezone-hover}/share/plasma/plasmoids/com.github.timezonehover";
+
   programs.plasma = {
     enable = true;
 
@@ -143,6 +147,9 @@
           "org.kde.plasma.panelspacer"
           {
             systemTray.items = {
+              shown = [
+                "com.github.timezonehover"
+              ];
               # We explicitly show bluetooth and battery
               # shown = [
               #   "org.kde.plasma.battery"
