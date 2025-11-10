@@ -12,7 +12,7 @@
       web-devicons.enable = true; # Required for plugins.alpha
       alpha = {
         enable = true;
-        layout = [
+        settings.layout = [
           {
             type = "padding";
             val = 2;

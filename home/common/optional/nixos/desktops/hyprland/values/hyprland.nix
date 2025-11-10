@@ -16,7 +16,7 @@ in {
     enable = true;
     settings = {
       source = lib.flatten [
-        "${nur-ryan4yin.packages.${pkgs.system}.catppuccin-hyprland}/themes/mocha.conf"
+        "${nur-ryan4yin.packages.${pkgs.stdenv.hostPlatform.system}.catppuccin-hyprland}/themes/mocha.conf"
         (lib.optionals (builtins.head config.monitors).use_nwg [
           "~/.config/hypr/monitors.conf"
           "~/.config/hypr/workspaces.conf"

@@ -1,0 +1,22 @@
+{
+    "KPlugin": {
+        "Authors": [
+            {
+                "Name": "TimeZone Hover"
+            }
+        ],
+        "Category": "Date and Time",
+        "Description": "Interactive timezone viewer with timeline hover",
+        "Icon": "preferences-system-time",
+        "Id": "com.github.timezonehover",
+        "License": "GPL-2.0+",
+        "Name": "TimeZone Hover",
+        "Version": "1.0",
+        "Website": ""
+    },
+    "KPackageStructure": "Plasma/Applet",
+    "X-Plasma-API-Minimum-Version": "6.0",
+    "X-Plasma-API": "declarativeappletscript",
+    "X-Plasma-NotificationArea": true,
+    "X-Plasma-NotificationAreaCategory": "SystemServices"
+}

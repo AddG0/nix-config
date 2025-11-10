@@ -21,7 +21,7 @@
     themes = {
       # https://raw.githubusercontent.com/catppuccin/bat/main/Catppuccin-mocha.tmTheme
       catppuccin-mocha = {
-        src = nur-ryan4yin.packages.${pkgs.system}.catppuccin-bat;
+        src = nur-ryan4yin.packages.${pkgs.stdenv.hostPlatform.system}.catppuccin-bat;
         file = "Catppuccin-mocha.tmTheme";
       };
     };

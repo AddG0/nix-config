@@ -259,6 +259,7 @@ restart-plasma:
     pkill plasmashell && sleep 2 && plasmashell > /dev/null 2>&1 & \
     echo "Plasma shell restarted"; \
   else \
-    echo "Plasma shell is not running"; \
-    exit 1; \
+    echo "Plasma shell is not running, starting it..."; \
+    plasmashell > /dev/null 2>&1 & \
+    echo "Plasma shell started"; \
   fi
