@@ -249,3 +249,16 @@ deploy-exec cmd="" hostname="":
 [doc("Manually create systemd temporary files")]
 tmpfiles-create:
   sudo systemd-tmpfiles --create
+
+[group('system')]
+[doc("Restart Plasma shell (KDE Plasma desktop)")]
+restart-plasma:
+  #!/usr/bin/env bash
+  if pgrep plasmashell > /dev/null; then \
+    echo "Restarting Plasma shell..."; \
+    pkill plasmashell && sleep 2 && plasmashell > /dev/null 2>&1 & \
+    echo "Plasma shell restarted"; \
+  else \
+    echo "Plasma shell is not running"; \
+    exit 1; \
+  fi
