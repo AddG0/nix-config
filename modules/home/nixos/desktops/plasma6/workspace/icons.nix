@@ -15,7 +15,10 @@ with lib; let
   };
 
   # Get the package for the configured icon theme
-  selectedIconPackage = iconThemePackages.${cfg.iconTheme} or null;
+  selectedIconPackage =
+    if cfg.iconTheme != null
+    then iconThemePackages.${cfg.iconTheme} or null
+    else null;
 in {
   config = mkIf (cfg.iconTheme != null && selectedIconPackage != null) {
     # Symlink to XDG location
