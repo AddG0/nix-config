@@ -1,5 +1,11 @@
-# Nix related packages
-{pkgs, hostSpec, ...}: {
+{
+  pkgs, 
+  hostSpec, 
+  self, 
+  lib, 
+  inputs,
+  ...
+}: {
   home.packages = with pkgs; [
     fh # The official nix flake hub
     nix-output-monitor # it provides the command `nom` works just like `nix with more details log output
