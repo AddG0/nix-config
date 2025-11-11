@@ -2,6 +2,13 @@
 BARE_MODE=false
 KUBECTL_ARGS=()
 
+# Packages to install in bare mode
+# shellcheck disable=SC2034
+BARE_NIX_PACKAGES=(
+  "nixpkgs#iputils"
+  "nixpkgs#bind"
+)
+
 for arg in "$@"; do
   if [ "$arg" = "--bare" ]; then
     BARE_MODE=true
@@ -13,6 +20,9 @@ done
 # Generate unique pod name
 POD_NAME="nix-cloud-shell-$(date +%s)"
 
+# Expand BARE_NIX_PACKAGES array into a space-separated string for use in the command
+BARE_PACKAGES_STR="${BARE_NIX_PACKAGES[*]}"
+
 echo "Starting pod $POD_NAME..."
 echo "Type 'exit' to leave the pod. The pod will be deleted automatically."
 
@@ -23,6 +33,7 @@ kubectl "${KUBECTL_ARGS[@]}" run "$POD_NAME" --rm -it --restart=Never \
   --env="HOME=/home/addg" \
   --env="USER=addg" \
   --env="BARE_MODE=$BARE_MODE" \
+  --env="BARE_PACKAGES_STR=$BARE_PACKAGES_STR" \
   --overrides='{"spec":{"activeDeadlineSeconds":21600}}' \
   -- sh -c "
     set -e
@@ -44,7 +55,7 @@ kubectl "${KUBECTL_ARGS[@]}" run "$POD_NAME" --rm -it --restart=Never \
 
       # Install zsh, oh-my-zsh, syntax highlighting, and autosuggestions using nix profile
       # Note: glibc provides iconv command needed by oh-my-zsh
-      nix profile install nixpkgs#zsh nixpkgs#oh-my-zsh nixpkgs#zsh-syntax-highlighting nixpkgs#zsh-autosuggestions nixpkgs#glibc nixpkgs#coreutils
+      nix profile install nixpkgs#zsh nixpkgs#oh-my-zsh nixpkgs#zsh-syntax-highlighting nixpkgs#zsh-autosuggestions nixpkgs#glibc nixpkgs#coreutils \$BARE_PACKAGES_STR 
 
       # Set up minimal zshrc with oh-my-zsh, syntax highlighting, and autosuggestions
       echo \"export ZSH=\$HOME/.nix-profile/share/oh-my-zsh\" > ~/.zshrc
