@@ -18,12 +18,9 @@ spec:
         - |
           set -e
 
-          # Enable flakes and nix-command, and accept flake config automatically
+          # Enable flakes and nix-command (minimal config needed for initial setup)
           mkdir -p ~/.config/nix
-          {
-            echo "experimental-features = nix-command flakes"
-            echo "accept-flake-config = true"
-          } > ~/.config/nix/nix.conf
+          echo "experimental-features = nix-command flakes" > ~/.config/nix/nix.conf
 
           # Create necessary profile directories
           mkdir -p ~/.local/state/nix/profiles
