@@ -102,7 +102,7 @@ QtObject {
 
     // Validate if a timezone is supported
     function isValidTimezone(timezone) {
-        return timezoneOffsets.hasOwnProperty(timezone)
+        return timezone === "LOCAL" || timezoneOffsets.hasOwnProperty(timezone)
     }
 
     // Get all supported timezones
@@ -112,6 +112,14 @@ QtObject {
 
     // Get timezone offset (static offsets, no DST support due to QML limitations)
     function getOffset(timezone, date) {
+        // Handle special "LOCAL" timezone - use system's current timezone
+        if (timezone === "LOCAL") {
+            let refDate = date || new Date()
+            // getTimezoneOffset returns minutes WEST of UTC (opposite sign convention)
+            // So we negate it to get minutes EAST of UTC (our convention)
+            return -refDate.getTimezoneOffset()
+        }
+
         // Validate timezone is in our database
         if (timezoneOffsets[timezone] === undefined) {
             console.error("Unknown timezone:", timezone, "- Using UTC offset")

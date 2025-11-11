@@ -323,11 +323,8 @@ PlasmoidItem {
                             let ratio = mouseX / width
                             let minutes = Math.floor(ratio * 1440)
                             minutes = Math.max(0, Math.min(1439, minutes))
-                            // Use first timezone as reference for time travel
-                            let firstEntry = timezoneModel.getEntry(0)
-                            if (firstEntry) {
-                                hoverState.activate(minutes, firstEntry.timezone)
-                            }
+                            // Use LOCAL system timezone as reference for timeline
+                            hoverState.activate(minutes, "LOCAL")
                         }
                     }
 
