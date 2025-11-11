@@ -11,7 +11,7 @@
     alejandra # nix formatter
     nixd # nix language server
 
-  ] ++ lib.optionals hostSpec.isServer [
+  ] ++ lib.optionals (!hostSpec.isServer) [
     nix-tree # nix package tree viewer
     # nix search tool with TUI
     nix-search-tv # nix search tool with TUI
