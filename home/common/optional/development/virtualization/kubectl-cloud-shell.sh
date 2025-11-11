@@ -20,7 +20,10 @@ spec:
 
           # Enable flakes and nix-command (minimal config needed for initial setup)
           mkdir -p ~/.config/nix
-          echo "experimental-features = nix-command flakes" > ~/.config/nix/nix.conf
+          {
+            echo "experimental-features = nix-command flakes"
+            echo "accept-flake-config = true"
+          } > ~/.config/nix/nix.conf
 
           # Create necessary profile directories
           mkdir -p ~/.local/state/nix/profiles
@@ -28,12 +31,17 @@ spec:
           echo "Activating cloud-shell home-manager configuration..."
           nix run home-manager/master -- switch --impure --flake "git+https://github.com/AddG0/nix-config?ref=main#cloud-shell" -b backup
 
-          # Start an interactive shell
+          # Start an interactive shell with home-manager environment
           echo "====================================="
           echo "Welcome to cloud-shell environment!"
           echo "Configuration: AddG0/nix-config"
           echo "====================================="
-          exec bash
+
+          # Change to home directory
+          cd "\$HOME"
+
+          # Start zsh with environment properly set up
+          exec env PATH="\$HOME/.nix-profile/bin:\$PATH" zsh -l
       stdin: true
       tty: true
       env:
