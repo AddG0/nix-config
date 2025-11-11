@@ -1,10 +1,18 @@
-{pkgs, ...}: {
+{pkgs, inputs, ...}: {
+  imports = [
+    inputs.ai-toolkit.homeModules.ai-toolkit
+  ];
+  
   home.packages = with pkgs; [
     # Development tools
     claude-code-router
     # claude-flow
     repomix
   ];
+
+  ai-toolkit = {
+    enable = true;
+  };
 
   programs.claude-code = {
     enable = true;

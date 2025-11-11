@@ -174,7 +174,12 @@
     };
 
     lumenboard-player = {
-      url = "git+https://github.com/AddG0/lumenboard-player.git?ref=tmp";
+      url = "git+https://github.com/addg0/lumenboard-player.git?ref=tmp";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
+
+    ai-toolkit = {
+      url = "git+https://github.com/addg0/ai-toolkit.git?ref=main";
       inputs.nixpkgs.follows = "nixpkgs";
     };
   };
