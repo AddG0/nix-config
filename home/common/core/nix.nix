@@ -1,5 +1,5 @@
 # Nix related packages
-{pkgs, ...}: {
+{pkgs, hostSpec, ...}: {
   home.packages = with pkgs; [
     fh # The official nix flake hub
     nix-output-monitor # it provides the command `nom` works just like `nix with more details log output
@@ -8,12 +8,14 @@
     nix-init # generate nix derivation from url
     nix-melt # A TUI flake.lock viewer
     nixpkgs-fmt # formatter for nixpkgs
-    nix-tree # nix package tree viewer
     alejandra # nix formatter
     nixd # nix language server
 
+  ] ++ lib.optionals hostSpec.isServer [
+    nix-tree # nix package tree viewer
     # nix search tool with TUI
     nix-search-tv # nix search tool with TUI
+
   ];
 
   home.shellAliases = {

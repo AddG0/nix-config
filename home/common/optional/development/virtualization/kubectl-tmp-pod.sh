@@ -29,7 +29,7 @@ spec:
           mkdir -p ~/.local/state/nix/profiles
 
           echo "Activating cloud-shell home-manager configuration..."
-          nix run home-manager/master -- switch --flake "git+https://github.com/AddG0/nix-config?ref=main#cloud-shell" -b backup
+          nix run home-manager/master -- switch --impure --flake "git+https://github.com/AddG0/nix-config?ref=main#cloud-shell" -b backup
 
           # Start an interactive shell
           echo "====================================="
