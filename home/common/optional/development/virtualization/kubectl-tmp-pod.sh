@@ -29,7 +29,7 @@ spec:
           mkdir -p ~/.local/state/nix/profiles
 
           echo "Activating cloud-shell home-manager configuration..."
-          nix run home-manager/master -- switch --flake "git+https://github.com/AddG0/nix-config?ref=main#cloud-shell"
+          nix run home-manager/master -- switch --flake "git+https://github.com/AddG0/nix-config?ref=main#cloud-shell" -b backup
 
           # Start an interactive shell
           echo "====================================="
@@ -41,9 +41,9 @@ spec:
       tty: true
       env:
         - name: HOME
-          value: /home/addg0_personal
+          value: /home/addg
         - name: USER
-          value: addg0_personal
+          value: addg
 EOF
 
 echo "Waiting for pod $POD_NAME to be ready..."

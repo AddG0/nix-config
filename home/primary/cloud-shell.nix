@@ -18,10 +18,10 @@
     ))
   ];
 
-  # Override home configuration for cloud shell
+  # Override home configuration for cloud shell using environment variables
   home = {
-    username = lib.mkForce "addg0_personal";
-    homeDirectory = lib.mkForce "/home/addg0_personal";
+    username = lib.mkForce (builtins.getEnv "USER");
+    homeDirectory = lib.mkForce (builtins.getEnv "HOME");
     stateVersion = "24.05";
   };
 

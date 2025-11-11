@@ -71,11 +71,12 @@ in {
   };
 
   home.packages = with pkgs; [
+  ] ++ lib.optionals (!hostSpec.isServer) [
     lazygit # Git terminal UI.
-    github-cli # GitHub CLI.
     renovate # Dependency update tool.
-    devcontainer # Dev Container CLI.
     gitkraken # Git GUI.
+    devcontainer # Dev Container CLI.
+    github-cli # GitHub CLI.
   ];
 
   programs.zsh.oh-my-zsh.plugins = [
