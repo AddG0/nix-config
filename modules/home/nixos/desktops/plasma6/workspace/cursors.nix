@@ -23,15 +23,13 @@ with lib; let
     then cursorThemePackages.${cfg.theme} or null
     else null;
 in {
-  config = mkIf (cfg.theme != null && selectedCursorPackage != null) {
-    # Symlink to XDG location
-    xdg.dataFile = listToAttrs [
-      {
-        name = "icons/${cfg.theme}";
-        value = {
-          source = "${selectedCursorPackage}/share/icons/${cfg.theme}";
-        };
-      }
-    ];
-  };
+  config = mkIf (cfg.theme != null && selectedCursorPackage != null) (
+    let
+      attrName = "icons/${cfg.theme}";
+      sourcePath = "${selectedCursorPackage}/share/icons/${cfg.theme}";
+    in {
+      # Symlink to XDG location
+      xdg.dataFile.${attrName}.source = sourcePath;
+    }
+  );
 }
