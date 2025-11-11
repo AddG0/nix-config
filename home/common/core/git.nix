@@ -1,10 +1,10 @@
 {
   pkgs,
-  hostSpec,
+  config,
   ...
 }: let
-  inherit (hostSpec) handle;
-  publicGitEmail = hostSpec.githubEmail;
+  inherit (config.hostSpec) handle;
+  publicGitEmail = config.hostSpec.githubEmail;
 in {
   programs.git = {
     enable = true;
@@ -71,7 +71,7 @@ in {
   };
 
   home.packages = with pkgs; [
-  ] ++ lib.optionals (!hostSpec.isServer) [
+  ] ++ lib.optionals (!config.hostSpec.isServer) [
     lazygit # Git terminal UI.
     renovate # Dependency update tool.
     gitkraken # Git GUI.
