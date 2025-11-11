@@ -18,7 +18,10 @@ with lib; let
   };
 
   # Get the package for the configured cursor theme
-  selectedCursorPackage = cursorThemePackages.${cfg.theme} or null;
+  selectedCursorPackage =
+    if cfg.theme != null
+    then cursorThemePackages.${cfg.theme} or null
+    else null;
 in {
   config = mkIf (cfg.theme != null && selectedCursorPackage != null) {
     # Symlink to XDG location

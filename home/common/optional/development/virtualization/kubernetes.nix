@@ -1,4 +1,10 @@
-{pkgs, ...}: {
+{pkgs, ...}: let
+  kubectl-tmp-pod = pkgs.writeShellApplication {
+    name = "kubectl-tmp-pod";
+    runtimeInputs = [ pkgs.kubectl ];
+    text = builtins.readFile ./kubectl-tmp-pod.sh;
+  };
+in {
   home.packages = with pkgs; [
     kubectl
     kustomize_4
@@ -19,6 +25,9 @@
 
     minikube # local kubernetes
     kind
+
+    # Custom scripts
+    kubectl-tmp-pod
   ];
 
   home.shellAliases = {

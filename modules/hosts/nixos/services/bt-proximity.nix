@@ -127,6 +127,21 @@ in {
       wants = ["bluetooth.target"];
       wantedBy = ["default.target"];
 
+      restartTriggers = [
+        cfg.lockCommand
+        cfg.unlockCommand
+        cfg.proximityTimeout
+        cfg.lockThreshold
+        cfg.unlockThreshold
+        cfg.rssiSamples
+        cfg.deviceMacAddress
+        cfg.deviceMacAddressFile
+        cfg.deviceName
+        cfg.deviceNameFile
+        cfg.deviceServiceUuid
+        cfg.deviceServiceUuidFile
+      ];
+
       serviceConfig = {
         Type = "simple";
         Restart = "always";
