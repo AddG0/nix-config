@@ -29,8 +29,9 @@ spec:
           mkdir -p ~/.local/state/nix/profiles
 
           # Build and activate the cloud-shell home-manager configuration directly from GitHub
+          # Using git+https to ensure fresh fetch
           echo "Activating cloud-shell home-manager configuration..."
-          nix run home-manager/master -- switch --flake github:AddG0/nix-config#cloud-shell
+          nix run home-manager/master -- switch --flake "git+https://github.com/AddG0/nix-config?ref=main#cloud-shell"
 
           # Start an interactive shell
           echo "====================================="

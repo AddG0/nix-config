@@ -18,10 +18,15 @@ with lib; let
     then splashScreenPackages.${cfg.theme} or null
     else null;
 in {
-  config = {
+  config = mkIf (cfg.theme != null && selectedSplashPackage != null) {
     # Symlink splash screen to XDG location
-    xdg.dataFile = optionalAttrs (cfg.theme != null && selectedSplashPackage != null) {
-      "plasma/look-and-feel/${cfg.theme}".source = "${selectedSplashPackage}/share/plasma/look-and-feel/${cfg.theme}";
-    };
+    xdg.dataFile = listToAttrs [
+      {
+        name = "plasma/look-and-feel/${cfg.theme}";
+        value = {
+          source = "${selectedSplashPackage}/share/plasma/look-and-feel/${cfg.theme}";
+        };
+      }
+    ];
   };
 }
