@@ -70,26 +70,15 @@ in {
 
     wget # downloader
     zip # zip compression
-    sops
-    age
     # Misc
 
     tldr
     gnupg
     gnumake
-    ngrok
-    mailsy # create and send emails from the terminal
     # llm # chat with llm's from the terminal
-    cpulimit # limit the cpu usage of a process
 
     # Modern cli tools, replacement of grep/sed/...
 
-    fzf # Interactively filter its input using fuzzy searching, not limit to filenames.
-    # fd and ripgrep are already included above
-
-    # lnav # log file viewer
-
-    sad # CLI search and replace, just like sed, but with diff preview.
     yq-go # yaml processor https://github.com/mikefarah/yq
     just # a command runner like make, but simpler
     # delta # A viewer for git and diff output
@@ -102,7 +91,6 @@ in {
 
     # productivity
 
-    caddy # A webserver with automatic HTTPS via Let's Encrypt(replacement of nginx)
     croc # File transfer between computers securely and easily
     # ncdu is already included above
   ];
