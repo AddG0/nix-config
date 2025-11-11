@@ -43,6 +43,8 @@ in {
     # stable.llm
     # Packages that don't have custom configs go here
     coreutils # basic gnu utils
+    gawk
+    gnused
     fd # tree style ls
     findutils # find
     jq # JSON pretty printer and manipulator
