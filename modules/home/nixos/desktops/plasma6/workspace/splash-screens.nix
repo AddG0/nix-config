@@ -13,7 +13,10 @@ with lib; let
   };
 
   # Get the package for the configured splash screen
-  selectedSplashPackage = splashScreenPackages.${cfg.theme} or null;
+  selectedSplashPackage =
+    if cfg.theme != null
+    then splashScreenPackages.${cfg.theme} or null
+    else null;
 in {
   config = mkIf (cfg.theme != null && selectedSplashPackage != null) {
     # Symlink splash screen to XDG location
