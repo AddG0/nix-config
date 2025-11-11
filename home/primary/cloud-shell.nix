@@ -28,8 +28,5 @@
   # Mark this as a server to avoid installing GUI tools
   hostSpec.isServer = lib.mkForce true;
 
-  # Ensure basic utilities are available for shell initialization
-  home.packages = with lib; [ pkgs.coreutils pkgs.gawk pkgs.gnused ];
-
   programs.btop.enable = lib.mkForce true;
 }
