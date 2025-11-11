@@ -44,7 +44,8 @@ spec:
             echo "====================================="
 
             # Install zsh and oh-my-zsh using nix profile
-            nix profile install nixpkgs#zsh nixpkgs#oh-my-zsh nixpkgs#libiconv nixpkgs#coreutils
+            # Note: glibc provides iconv command needed by oh-my-zsh
+            nix profile install nixpkgs#zsh nixpkgs#oh-my-zsh nixpkgs#glibc nixpkgs#coreutils
 
             # Set up minimal zshrc with oh-my-zsh
             echo 'export ZSH=\$HOME/.nix-profile/share/oh-my-zsh' > ~/.zshrc
