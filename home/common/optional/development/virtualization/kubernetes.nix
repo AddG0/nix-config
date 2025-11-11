@@ -1,8 +1,8 @@
 {pkgs, ...}: let
-  kubectl-tmp-pod = pkgs.writeShellApplication {
-    name = "kubectl-tmp-pod";
+  kubectl-cloud-shell = pkgs.writeShellApplication {
+    name = "kubectl-cloud-shell";
     runtimeInputs = [ pkgs.kubectl ];
-    text = builtins.readFile ./kubectl-tmp-pod.sh;
+    text = builtins.readFile ./kubectl-cloud-shell.sh;
   };
 in {
   home.packages = with pkgs; [
@@ -27,7 +27,7 @@ in {
     kind
 
     # Custom scripts
-    kubectl-tmp-pod
+    kubectl-cloud-shell
   ];
 
   home.shellAliases = {
