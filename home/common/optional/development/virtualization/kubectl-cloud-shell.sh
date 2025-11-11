@@ -1,8 +1,20 @@
+# Check for --bare flag
+BARE_MODE=false
+KUBECTL_ARGS=()
+
+for arg in "$@"; do
+  if [ "$arg" = "--bare" ]; then
+    BARE_MODE=true
+  else
+    KUBECTL_ARGS+=("$arg")
+  fi
+done
+
 # Generate unique pod name
 POD_NAME="nix-cloud-shell-$(date +%s)"
 
 # Create pod manifest
-cat <<EOF | kubectl "$@" apply -f -
+cat <<EOF | kubectl "${KUBECTL_ARGS[@]}" apply -f -
 apiVersion: v1
 kind: Pod
 metadata:
@@ -18,30 +30,48 @@ spec:
         - |
           set -e
 
-          # Enable flakes and nix-command (minimal config needed for initial setup)
+          # Enable flakes and nix-command
           mkdir -p ~/.config/nix
           {
             echo "experimental-features = nix-command flakes"
             echo "accept-flake-config = true"
           } > ~/.config/nix/nix.conf
 
-          # Create necessary profile directories
-          mkdir -p ~/.local/state/nix/profiles
+          if [ "$BARE_MODE" = "true" ]; then
+            # Bare mode - nix with zsh and oh-my-zsh, no home-manager
+            echo "====================================="
+            echo "Bare Nix Shell (zsh + oh-my-zsh)"
+            echo "====================================="
 
-          echo "Activating cloud-shell home-manager configuration..."
-          nix run home-manager/master -- switch --impure --flake "git+https://github.com/AddG0/nix-config?ref=main#cloud-shell" -b backup
+            # Install zsh and oh-my-zsh using nix profile
+            nix profile install nixpkgs#zsh nixpkgs#oh-my-zsh nixpkgs#libiconv nixpkgs#coreutils
 
-          # Start an interactive shell with home-manager environment
-          echo "====================================="
-          echo "Welcome to cloud-shell environment!"
-          echo "Configuration: AddG0/nix-config"
-          echo "====================================="
+            # Set up minimal zshrc with oh-my-zsh
+            echo 'export ZSH=\$HOME/.nix-profile/share/oh-my-zsh' > ~/.zshrc
+            echo 'ZSH_THEME="robbyrussell"' >> ~/.zshrc
+            echo 'plugins=(git)' >> ~/.zshrc
+            echo 'source \$ZSH/oh-my-zsh.sh' >> ~/.zshrc
 
-          # Change to home directory
-          cd "\$HOME"
+            cd "\$HOME"
 
-          # Start zsh with environment properly set up
-          exec env PATH="\$HOME/.nix-profile/bin:\$PATH" zsh -l
+            # Add nix profile to PATH and start zsh
+            export PATH="\$HOME/.nix-profile/bin:\$PATH"
+            exec zsh
+          else
+            # Full mode with home-manager
+            mkdir -p ~/.local/state/nix/profiles
+
+            echo "Activating cloud-shell home-manager configuration..."
+            nix run home-manager/master -- switch --impure --flake "git+https://github.com/AddG0/nix-config?ref=main#cloud-shell" -b backup
+
+            echo "====================================="
+            echo "Welcome to cloud-shell environment!"
+            echo "Configuration: AddG0/nix-config"
+            echo "====================================="
+
+            cd "\$HOME"
+            exec env PATH="\$HOME/.nix-profile/bin:\$PATH" zsh -l
+          fi
       stdin: true
       tty: true
       env:
@@ -49,16 +79,18 @@ spec:
           value: /home/addg
         - name: USER
           value: addg
+        - name: BARE_MODE
+          value: "$BARE_MODE"
 EOF
 
 echo "Waiting for pod $POD_NAME to be ready..."
-kubectl "$@" wait --for=condition=Ready "pod/$POD_NAME" --timeout=120s
+kubectl "${KUBECTL_ARGS[@]}" wait --for=condition=Ready "pod/$POD_NAME" --timeout=120s
 
 echo "Attaching to pod $POD_NAME..."
 echo "Type 'exit' to leave the pod. The pod will be deleted automatically."
 
 # Attach to the pod, and delete it when done
-kubectl "$@" attach -it "$POD_NAME" || true
+kubectl "${KUBECTL_ARGS[@]}" attach -it "$POD_NAME" || true
 
 echo "Deleting pod $POD_NAME..."
-kubectl "$@" delete pod "$POD_NAME" --wait=false
+kubectl "${KUBECTL_ARGS[@]}" delete pod "$POD_NAME" --wait=false
