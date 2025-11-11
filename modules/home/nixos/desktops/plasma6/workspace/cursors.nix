@@ -18,18 +18,10 @@ with lib; let
   };
 
   # Get the package for the configured cursor theme
-  selectedCursorPackage =
-    if cfg.theme != null
-    then cursorThemePackages.${cfg.theme} or null
-    else null;
+  selectedCursorPackage = cursorThemePackages.${cfg.theme} or null;
 in {
-  config = mkIf (cfg.theme != null && selectedCursorPackage != null) (
-    let
-      attrName = "icons/${cfg.theme}";
-      sourcePath = "${selectedCursorPackage}/share/icons/${cfg.theme}";
-    in {
-      # Symlink to XDG location
-      xdg.dataFile.${attrName}.source = sourcePath;
-    }
-  );
+  config = mkIf (config.programs.plasma.enable && cfg.theme != null && selectedCursorPackage != null) {
+    # Symlink to XDG location
+    xdg.dataFile."icons/${cfg.theme}".source = "${selectedCursorPackage}/share/icons/${cfg.theme}";
+  };
 }

@@ -15,18 +15,10 @@ with lib; let
   };
 
   # Get the package for the configured icon theme
-  selectedIconPackage =
-    if cfg.iconTheme != null
-    then iconThemePackages.${cfg.iconTheme} or null
-    else null;
+  selectedIconPackage = iconThemePackages.${cfg.iconTheme} or null;
 in {
-  config = mkIf (cfg.iconTheme != null && selectedIconPackage != null) (
-    let
-      attrName = "icons/${cfg.iconTheme}";
-      sourcePath = "${selectedIconPackage}/share/icons/${cfg.iconTheme}";
-    in {
-      # Symlink to XDG location
-      xdg.dataFile.${attrName}.source = sourcePath;
-    }
-  );
+  config = mkIf (config.programs.plasma.enable && cfg.iconTheme != null && selectedIconPackage != null) {
+    # Symlink to XDG location
+    xdg.dataFile."icons/${cfg.iconTheme}".source = "${selectedIconPackage}/share/icons/${cfg.iconTheme}";
+  };
 }

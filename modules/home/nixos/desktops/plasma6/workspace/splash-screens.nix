@@ -13,18 +13,10 @@ with lib; let
   };
 
   # Get the package for the configured splash screen
-  selectedSplashPackage =
-    if cfg.theme != null
-    then splashScreenPackages.${cfg.theme} or null
-    else null;
+  selectedSplashPackage = splashScreenPackages.${cfg.theme} or null;
 in {
-  config = mkIf (cfg.theme != null && selectedSplashPackage != null) (
-    let
-      attrName = "plasma/look-and-feel/${cfg.theme}";
-      sourcePath = "${selectedSplashPackage}/share/plasma/look-and-feel/${cfg.theme}";
-    in {
-      # Symlink splash screen to XDG location
-      xdg.dataFile.${attrName}.source = sourcePath;
-    }
-  );
+  config = mkIf (config.programs.plasma.enable && cfg.theme != null && selectedSplashPackage != null) {
+    # Symlink splash screen to XDG location
+    xdg.dataFile."plasma/look-and-feel/${cfg.theme}".source = "${selectedSplashPackage}/share/plasma/look-and-feel/${cfg.theme}";
+  };
 }
