@@ -20,8 +20,10 @@ with lib; let
     then iconThemePackages.${cfg.iconTheme} or null
     else null;
 in {
-  config = mkIf (cfg.iconTheme != null && selectedIconPackage != null) {
+  config = {
     # Symlink to XDG location
-    xdg.dataFile."icons/${cfg.iconTheme}".source = "${selectedIconPackage}/share/icons/${cfg.iconTheme}";
+    xdg.dataFile = optionalAttrs (cfg.iconTheme != null && selectedIconPackage != null) {
+      "icons/${cfg.iconTheme}".source = "${selectedIconPackage}/share/icons/${cfg.iconTheme}";
+    };
   };
 }
