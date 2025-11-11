@@ -23,8 +23,10 @@
     username = lib.mkForce (builtins.getEnv "USER");
     homeDirectory = lib.mkForce (builtins.getEnv "HOME");
     stateVersion = "24.05";
-    isServer = true;
   };
+
+  # Mark this as a server to avoid installing GUI tools
+  hostSpec.isServer = lib.mkForce true;
 
   programs.btop.enable = lib.mkForce true;
 }
