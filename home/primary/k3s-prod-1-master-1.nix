@@ -1,6 +1,6 @@
 {lib, ...}: {
   imports = lib.flatten [
-    ./common
+    ./common/core
 
     (map lib.custom.relativeToHome [
       #################### Required Configs ####################

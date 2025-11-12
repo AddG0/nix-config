@@ -5,7 +5,7 @@
 }: {
   imports = lib.flatten [
     inputs.stylix.homeModules.stylix
-    ./common
+    ./common/core
 
     (map lib.custom.relativeToHome (
       [

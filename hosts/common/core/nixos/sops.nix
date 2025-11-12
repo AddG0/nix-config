@@ -4,14 +4,12 @@
   inputs,
   config,
   ...
-}: let
-  sopsFolder = builtins.toString inputs.nix-secrets + "/secrets";
-in {
+}: {
   #the import for inputs.sops-nix.nixosModules.sops is handled in hosts/common/core/default.nix so that it can be dynamically input according to the platform
 
   sops = {
     #    defaultSopsFile = "${secretsFile}";
-    defaultSopsFile = "${sopsFolder}/secrets.yaml";
+    # defaultSopsFile = "${inputs.nix-secrets}/secrets/secrets.yaml";
     validateSopsFiles = false;
     age = {
       # automatically import host SSH keys as age keys
@@ -41,7 +39,7 @@ in {
       # };
       # extract password/username to /run/secrets-for-users/ so it can be used to create the user
       "password" = {
-        sopsFile = "${sopsFolder}/users/${config.hostSpec.username}/secrets.yaml";
+        sopsFile = "${inputs.nix-secrets}/users/${config.hostSpec.username}/password.yaml";
         neededForUsers = true;
       };
       # "passwords/msmtp" = {

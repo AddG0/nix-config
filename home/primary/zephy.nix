@@ -6,7 +6,10 @@
 }: {
   imports = lib.flatten [
     inputs.stylix.homeModules.stylix
-    ./common
+    ./common/core
+    (map (f: ./common/optional/${f}) [
+      "development/aws.nix"
+    ])
 
     (map lib.custom.relativeToHome (
       [
@@ -24,7 +27,6 @@
         "development/gcloud.nix"
         "development/terraform.nix"
         "secrets"
-        "development/aws.nix"
         "nixos/desktops/plasma6"
         "browsers"
         # "secrets/kubeconfig.nix"
@@ -33,7 +35,6 @@
         "comms"
         "ghostty"
         "secrets/1password.nix"
-        # "development/aws.nix"
         "media/spicetify.nix"
         "media/tidal.nix"
         "media"
