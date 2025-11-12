@@ -1,6 +1,6 @@
 {lib, ...}: {
   imports = lib.flatten [
-    ./common
+    ./common/core
 
     (map lib.custom.relativeToHome (
       [
@@ -17,7 +17,6 @@
         "development/ide.nix"
         "development/tilt.nix"
         "development/node.nix"
-        "development/aws.nix"
         # "development/misc-language-servers.nix"
         "ghostty"
         # "development/go.nix"

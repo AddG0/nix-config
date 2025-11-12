@@ -116,7 +116,7 @@
 
   sops.secrets = {
     "nas-credentials" = {
-      sopsFile = "${nix-secrets}/secrets/users/${config.hostSpec.username}/nas-credentials.enc";
+      sopsFile = "${nix-secrets}/users/${config.hostSpec.username}/nas-credentials.enc";
       format = "binary";
       neededForUsers = true;
     };

@@ -10,10 +10,6 @@
     repomix
   ];
 
-  ai-toolkit = {
-    enable = true;
-  };
-
   programs.claude-code = {
     enable = true;
     agents = {

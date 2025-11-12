@@ -7,7 +7,7 @@
 }: {
   imports = lib.flatten [
     inputs.stylix.homeModules.stylix
-    ./common
+    ./common/core
 
     (map lib.custom.relativeToHome (
       [
@@ -26,7 +26,6 @@
         "comms"
         "ghostty"
         "secrets/1password.nix"
-        # "development/aws.nix"
         "media/spicetify.nix"
         "development/jupyter-notebook.nix"
         "media/tidal.nix"

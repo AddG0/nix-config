@@ -1,6 +1,7 @@
 {
   config,
   pkgs,
+  nix-secrets,
   ...
 }: {
   home.packages = with pkgs; [
@@ -8,10 +9,12 @@
   ];
 
   sops.secrets = {
-    cachix_auth_token = {};
+    "cachix/auth_token" = {
+      sopsFile = "${nix-secrets}/global/api-keys/development.yaml";
+    };
   };
 
   programs.zsh.initContent = ''
-    export CACHIX_AUTH_TOKEN=$(cat ${config.sops.secrets.cachix_auth_token.path})
+    export CACHIX_AUTH_TOKEN=$(cat ${config.sops.secrets."cachix/auth_token".path})
   '';
 }

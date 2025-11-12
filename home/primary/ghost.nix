@@ -4,7 +4,10 @@
   ...
 }: {
   imports = lib.flatten [
-    ./common
+    ./common/core
+    (map (f: ./common/optional/${f}) [
+      "development/aws.nix"
+    ])
 
     (map lib.custom.relativeToHome (
       [
@@ -22,7 +25,6 @@
         "development/ide.nix"
         "development/tilt.nix"
         "development/node.nix"
-        "development/aws.nix"
         # "development/misc-language-servers.nix"
         "secrets/ssh/server.nix"
         "ghostty"
@@ -37,10 +39,4 @@
       ])
     ))
   ];
-
-  sops.secrets.cloudflare = {
-    format = "binary";
-    sopsFile = "${nix-secrets}/secrets/cloudflare.env.enc";
-    mode = "0400";
-  };
 }
