@@ -26,6 +26,7 @@
         "development/ide.nix"
         "development/gcloud.nix"
         "development/terraform.nix"
+        "development/postman.nix"
         "secrets"
         "nixos/desktops/plasma6"
         "browsers"
