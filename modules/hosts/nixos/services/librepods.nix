@@ -39,7 +39,7 @@ in {
 
       serviceConfig = {
         Type = "simple";
-        ExecStart = "${cfg.package}/bin/librepods";
+        ExecStart = "${cfg.package}/bin/librepods --hide";
         Restart = "on-failure";
         RestartSec = 5;
       };
