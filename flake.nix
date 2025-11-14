@@ -182,6 +182,11 @@
       url = "git+https://github.com/addg0/ai-toolkit.git?ref=main";
       inputs.nixpkgs.follows = "nixpkgs";
     };
+
+    asus-numberpad-driver = {
+      url = "github:asus-linux-drivers/asus-numberpad-driver";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
   };
 
   outputs = inputs:

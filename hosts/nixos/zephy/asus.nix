@@ -16,5 +16,10 @@
       enable = lib.mkDefault true;
       enableUserService = true;
     };
+
+    asus-numberpad-driver = {
+      enable = true;
+      layout = "gx551"; # Layout for Zephyrus Duo models
+    };
   };
 }

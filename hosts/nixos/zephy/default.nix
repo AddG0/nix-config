@@ -18,6 +18,7 @@
     inputs.hardware.nixosModules.common-cpu-amd
     inputs.hardware.nixosModules.common-pc-ssd
     inputs.hardware.nixosModules.asus-battery
+    inputs.asus-numberpad-driver.nixosModules.default
 
     #################### Disk Layout ####################
     # inputs.disko.nixosModules.disko
