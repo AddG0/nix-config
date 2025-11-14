@@ -25,6 +25,26 @@
         "url": "https://github.com/addg0/ai-toolkit.git"
       }
     },
+    "asus-numberpad-driver": {
+      "inputs": {
+        "nixpkgs": [
+          "nixpkgs"
+        ]
+      },
+      "locked": {
+        "lastModified": 1763050369,
+        "narHash": "sha256-bHf8baCYAP+pbAjT0x8PINNdy7hxKCgtHaHb1zK0WoA=",
+        "owner": "asus-linux-drivers",
+        "repo": "asus-numberpad-driver",
+        "rev": "c3d7a234221bf089e87eb3d3b4625062363ddb50",
+        "type": "github"
+      },
+      "original": {
+        "owner": "asus-linux-drivers",
+        "repo": "asus-numberpad-driver",
+        "type": "github"
+      }
+    },
     "base16": {
       "inputs": {
         "fromYaml": "fromYaml"
@@ -1900,6 +1920,7 @@
     "root": {
       "inputs": {
         "ai-toolkit": "ai-toolkit",
+        "asus-numberpad-driver": "asus-numberpad-driver",
         "base16": "base16",
         "base16-vim": "base16-vim",
         "base16-zathura": "base16-zathura",

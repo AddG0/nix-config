@@ -40,7 +40,7 @@ in {
           # Helper function for logging
           log() {
             echo "[$(date '+%Y-%m-%d %H:%M:%S')] $*"
-            logger -t ip-timezone "$*"
+            ${pkgs.util-linux}/bin/logger -t ip-timezone "$*"
           }
 
           ${lib.custom.mkNetworkWaitScript { inherit pkgs; }}

@@ -26,7 +26,7 @@
         nix.registry.nixpkgs.flake = inputs.nixpkgs;
         nixpkgs.overlays = [
           (final: _prev: {
-            nixos-generators = inputs.nixos-generators.packages.${final.system}.default;
+            nixos-generators = inputs.nixos-generators.packages.${final.stdenv.hostPlatform.system}.default;
           })
         ];
       }

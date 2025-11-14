@@ -1,7 +1,8 @@
 #!/usr/bin/env python3
 """
-Bluetooth Proximity Monitor with Continuous Scanning
-Uses always-on passive scanning with callbacks - never misses advertisements!
+Bluetooth Proximity Monitor with Continuous Passive Scanning
+Uses always-on passive scanning with service UUID filtering to minimize interference
+with audio devices (A2DP) while maintaining reliable proximity detection.
 """
 
 import asyncio
@@ -18,6 +19,7 @@ from bleak import BleakScanner
 from bleak.backends.device import BLEDevice
 from bleak.backends.scanner import AdvertisementData
 from bleak.backends.bluezdbus.manager import get_global_bluez_manager
+from bleak.backends.bluezdbus.scanner import BlueZScannerArgs
 from bleak.exc import BleakError
 from pydantic import model_validator
 from pydantic_settings import BaseSettings, SettingsConfigDict
@@ -193,10 +195,23 @@ class ContinuousScanner:
             logger.warning("Waiting for Bluetooth to become available...")
             return False
 
-        logger.info(f"Starting continuous BLE scanner...")
+        logger.info(f"Starting continuous BLE scanner in passive mode...")
 
         try:
-            self.scanner = BleakScanner(detection_callback=self._detection_callback)
+            # Use passive scanning with service UUID filter to reduce interference with audio devices
+            scanner_kwargs = {
+                "detection_callback": self._detection_callback,
+                "scanning_mode": "passive",  # Passive mode: no scan requests, reduces interference
+            }
+
+            # Add service UUID filter if configured (more efficient, less interference)
+            if self.settings.device_service_uuid:
+                logger.info(f"Filtering for service UUID: {self.settings.device_service_uuid}")
+                scanner_kwargs["bluez"] = BlueZScannerArgs(
+                    filters={"UUIDs": [self.settings.device_service_uuid]}
+                )
+
+            self.scanner = BleakScanner(**scanner_kwargs)
             await self.scanner.start()
             self._running = True
 
