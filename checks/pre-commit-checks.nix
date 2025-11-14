@@ -25,14 +25,15 @@
             types = ["directory"];
           };
 
-          destroyed-symlinks = {
-            enable = true;
-            name = "destroyed-symlinks";
-            description = "detects symlinks which are changed to regular files with a content of a path which that symlink was pointing to.";
-            package = inputs.pre-commit-hooks.checks.${system}.pre-commit-hooks;
-            entry = "${inputs.pre-commit-hooks.checks.${system}.pre-commit-hooks}/bin/destroyed-symlinks";
-            types = ["symlink"];
-          };
+          # disabled because of typesfmt is no longer maintained
+          # destroyed-symlinks = {
+          #   enable = true;
+          #   name = "destroyed-symlinks";
+          #   description = "detects symlinks which are changed to regular files with a content of a path which that symlink was pointing to.";
+          #   package = inputs.pre-commit-hooks.checks.${system}.pre-commit-hooks;
+          #   entry = "${inputs.pre-commit-hooks.checks.${system}.pre-commit-hooks}/bin/destroyed-symlinks";
+          #   types = ["symlink"];
+          # };
 
           alejandra.enable = true;
           shfmt.enable = true;
