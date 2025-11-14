@@ -22,11 +22,31 @@
         "bluez5.enable-hw-volume" = true;
         "bluez5.roles" = ["a2dp_sink" "a2dp_source" "hsp_hs" "hsp_ag" "hfp_hf" "hfp_ag"];
       };
+      ## Fix: Auto-connect A2DP profile when Bluetooth devices connect (prevents "off" profile issue)
+      ## Documented at: https://pipewire.pages.freedesktop.org/wireplumber/daemon/configuration/bluetooth.html
+      "monitor.bluez.rules" = [
+        {
+          matches = [
+            {
+              ## Match all bluez devices
+              "device.name" = "~bluez_card.*";
+            }
+          ];
+          actions = {
+            update-props = {
+              ## Auto-connect A2DP and HFP profiles on startup
+              "bluez5.auto-connect" = ["a2dp_sink" "hfp_hf"];
+              ## Set default initial profile to high-quality A2DP
+              "device.profile" = "a2dp-sink";
+            };
+          };
+        }
+      ];
     };
   };
 
   environment.systemPackages = [
-    pkgs.playerctl # cli utility and lib for controlling media players
+    # pkgs.playerctl # cli utility and lib for controlling media players
     # pkgs.pamixer # cli pulseaudio sound mixer
   ];
 }
