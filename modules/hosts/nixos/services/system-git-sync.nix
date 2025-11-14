@@ -143,6 +143,7 @@ in {
           gawk
           sudo
           util-linux
+          iputils  # For ping command in network check
         ] ++ optionals cfg.notifications.enable [
           libnotify
         ];
@@ -190,6 +191,8 @@ in {
 
         # Validate git repository
         [ -d .git ] || { log "ERROR: $REPO is not a git repository"; exit 1; }
+
+        ${lib.custom.mkNetworkWaitScript { host = "github.com"; }}
 
         # Fetch and check for changes
         log "Fetching from ${cfg.remote}/${cfg.branch}..."
@@ -255,8 +258,8 @@ in {
       };
     in {
       description = "Automatic NixOS configuration sync from Git";
-      after = ["network-online.target" "nss-lookup.target"];
-      wants = ["network-online.target" "nss-lookup.target"];
+      after = ["network-online.target"];
+      wants = ["network-online.target"];
 
       serviceConfig = {
         Type = "oneshot";

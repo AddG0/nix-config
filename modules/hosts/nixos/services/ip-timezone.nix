@@ -30,14 +30,23 @@ in {
     # Create a working IP-based timezone detection service
     systemd.services.ip-timezone = {
       description = "Update timezone based on IP geolocation";
-      after = ["network-online.target" "nss-lookup.target"];
-      wants = ["network-online.target" "nss-lookup.target"];
+      after = ["network-online.target"];
+      wants = ["network-online.target"];
       serviceConfig = {
         Type = "oneshot";
         ExecStart = pkgs.writeShellScript "update-timezone" ''
           set -euo pipefail
 
+          # Helper function for logging
+          log() {
+            echo "[$(date '+%Y-%m-%d %H:%M:%S')] $*"
+            logger -t ip-timezone "$*"
+          }
+
+          ${lib.custom.mkNetworkWaitScript { inherit pkgs; }}
+
           # Get timezone from IP geolocation
+          log "Fetching timezone from ${cfg.provider}"
           TIMEZONE=$(${pkgs.curl}/bin/curl -s ${cfg.provider} || echo "")
 
           if [ -z "$TIMEZONE" ]; then

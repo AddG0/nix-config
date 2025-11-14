@@ -26,8 +26,6 @@
         "nix-command"
         "flakes"
       ];
-      # Allow substitutes for all packages
-      always-allow-substitutes = true;
       extra-nix-path = "nixpkgs=flake:nixpkgs";
       substituters = [
         "https://cache.nixos.org"
