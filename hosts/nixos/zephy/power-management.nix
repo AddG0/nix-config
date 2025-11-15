@@ -1,0 +1,234 @@
+{
+  config,
+  lib,
+  ...
+}: {
+  # TLP - Advanced Power Management for Linux
+  # Official docs: https://linrunner.de/tlp/
+  # Optimized for: AMD Ryzen 9 6900HX + NVIDIA GPU on ASUS ROG Zephyrus Duo 16
+
+  # Kernel laptop-mode tweaks for better battery life
+  boot.kernel.sysctl = {
+    # Reduce disk write frequency (default: 500 = 5s, setting to 6000 = 60s)
+    # Allows longer idle periods for disk/SSD power savings
+    "vm.dirty_writeback_centisecs" = 6000;
+
+    # Enable laptop mode - kernel optimizations for battery
+    # Value of 5 seconds before considering system idle
+    "vm.laptop_mode" = 5;
+
+    # Additional VM tweaks for battery (aggressive settings for maximum savings)
+    "vm.dirty_ratio" = 95;              # Start forced writeback at 95% RAM (max battery savings)
+    "vm.dirty_background_ratio" = 60;   # Start background writeback at 60% RAM
+  };
+
+  services.tlp = {
+    enable = true;
+
+    settings = {
+      # ==================== CPU Settings ====================
+
+      # Processor frequency scaling for AMD Ryzen
+      # "powersave" is recommended for battery - already your default
+      CPU_SCALING_GOVERNOR_ON_AC = "performance";
+      CPU_SCALING_GOVERNOR_ON_BAT = "powersave";
+
+      # AMD-specific energy/performance policy
+      # "power" is most aggressive for battery savings (was "balance_power")
+      CPU_ENERGY_PERF_POLICY_ON_AC = "balance_performance";
+      CPU_ENERGY_PERF_POLICY_ON_BAT = "power";
+
+      # AMD platform profile (Ryzen 6000 series support)
+      # "low-power" focuses on power saving for battery
+      PLATFORM_PROFILE_ON_AC = "balanced";
+      PLATFORM_PROFILE_ON_BAT = "low-power";
+
+      # CPU boost - keep enabled on AC for performance
+      # Disable on battery for power savings (can reduce performance)
+      CPU_BOOST_ON_AC = 1;
+      CPU_BOOST_ON_BAT = 0;
+
+      # Limit max CPU frequency on battery for additional savings
+      # Uncomment to cap CPU at 2.4 GHz on battery (saves 3-5W)
+      # CPU_SCALING_MAX_FREQ_ON_BAT = 2400000;  # 2.4 GHz max
+
+      # ==================== Battery Care ====================
+
+      # Battery charge thresholds (ASUS-specific)
+      # ASUS hardware limitation: Only accepts 60, 80, or 100
+      # Charging to 80% dramatically extends battery lifespan
+
+      # START threshold - ASUS may not support this (hardware limitation)
+      # Use 0 as dummy value to skip
+      START_CHARGE_THRESH_BAT0 = 0;
+
+      # STOP threshold - Begin charging at this percentage
+      # 80 = Optimal for daily use (2-3x longer battery life)
+      # 60 = Maximum longevity (for mostly-plugged-in use)
+      # 100 = No protection (reduces battery lifespan)
+      STOP_CHARGE_THRESH_BAT0 = 80;
+
+      # ==================== Runtime Power Management ====================
+
+      # Enable runtime PM for PCI(e) devices
+      RUNTIME_PM_ON_AC = "on";
+      RUNTIME_PM_ON_BAT = "auto";
+
+      # ==================== Graphics Power Management ====================
+
+      # NVIDIA GPU is managed via hardware.nvidia.powerManagement in graphics.nix
+      # TLP should not interfere with NVIDIA power management
+
+      # ==================== Audio Power Management ====================
+
+      # Audio power saving (timeout in seconds)
+      SOUND_POWER_SAVE_ON_AC = 0;      # Disable on AC for better audio quality
+      SOUND_POWER_SAVE_ON_BAT = 1;     # 1 second timeout on battery
+
+      # ==================== Network Power Management ====================
+
+      # WiFi power saving
+      WIFI_PWR_ON_AC = "off";          # Max performance on AC
+      WIFI_PWR_ON_BAT = "on";          # Power saving on battery
+
+      # ==================== USB Power Management ====================
+
+      # USB autosuspend - aggressive power saving
+      USB_AUTOSUSPEND = 1;             # Enable autosuspend
+
+      # Exclude USB devices that cause issues when suspended
+      # Add device IDs if needed: "1234:5678 abcd:efgh"
+      # USB_DENYLIST = "";
+
+      # ==================== SATA/NVMe Power Management ====================
+
+      # SATA aggressive link power management (ALPM)
+      SATA_LINKPWR_ON_AC = "med_power_with_dipm";
+      SATA_LINKPWR_ON_BAT = "med_power_with_dipm";
+
+      # NVMe power management (for modern SSDs)
+      AHCI_RUNTIME_PM_ON_AC = "on";
+      AHCI_RUNTIME_PM_ON_BAT = "auto";
+
+      # ==================== PCIe Power Management ====================
+
+      # PCIe Active State Power Management (ASPM)
+      PCIE_ASPM_ON_AC = "default";
+      PCIE_ASPM_ON_BAT = "powersupersave";
+
+      # ==================== Kernel Settings ====================
+
+      # Laptop mode - kernel optimizer for battery
+      NMI_WATCHDOG = 0;                # Disable NMI watchdog (saves power)
+
+      # ==================== Misc Settings ====================
+
+      # Restore charge thresholds on reboot
+      RESTORE_THRESHOLDS_ON_BAT = 1;
+
+      # Verbose logging for troubleshooting (disable for production)
+      # TLP_DEBUG = "bat disk lock nm path pm ps rf run sysfs udev usb";
+    };
+  };
+
+  # Power Profiles Daemon conflicts with TLP
+  # TLP provides more granular control
+  services.power-profiles-daemon.enable = lib.mkForce false;
+
+  # Battery Display Manager - Auto-adjust brightness and refresh rate
+  systemd.user.services."battery-display-manager" = {
+    description = "Adjust display settings based on power state";
+    script = ''
+      set -euo pipefail
+
+      # Brightness settings
+      BRIGHTNESS_AC=100      # 100% on AC
+      BRIGHTNESS_BATTERY=40  # 40% on battery
+
+      # Refresh rate settings
+      REFRESH_AC=165
+      REFRESH_BATTERY=60
+
+      log() {
+        echo "[$(date +'%Y-%m-%d %H:%M:%S')] $*" | systemd-cat -t battery-display-manager -p info
+      }
+
+      set_brightness() {
+        local percent=$1
+        log "Setting brightness to ''${percent}%"
+
+        # Find all backlight devices and set brightness
+        for backlight in /sys/class/backlight/*; do
+          if [[ -d "$backlight" ]]; then
+            local max_brightness=$(cat "$backlight/max_brightness")
+            local target_brightness=$((max_brightness * percent / 100))
+            echo "$target_brightness" > "$backlight/brightness" 2>/dev/null || true
+            log "Set $backlight to $target_brightness (max: $max_brightness)"
+          fi
+        done
+      }
+
+      set_refresh_rate() {
+        local refresh=$1
+        log "Setting refresh rate to ''${refresh}Hz"
+
+        # Wait for display to be available (important for startup)
+        sleep 2
+
+        # Use kscreen-doctor to set refresh rate on all displays
+        if command -v kscreen-doctor &> /dev/null; then
+          # Set refresh rate for all outputs (main display and ScreenPad)
+          kscreen-doctor output.1@''${refresh} 2>&1 | systemd-cat -t battery-display-manager -p info || true
+          kscreen-doctor output.2@''${refresh} 2>&1 | systemd-cat -t battery-display-manager -p info || true
+        else
+          log "WARNING: kscreen-doctor not found, skipping refresh rate change"
+        fi
+      }
+
+      # Detect current power state
+      if [ "$(cat /sys/class/power_supply/AC0/online 2>/dev/null || echo 1)" = "0" ]; then
+        log "Switching to BATTERY mode"
+        set_brightness $BRIGHTNESS_BATTERY
+        set_refresh_rate $REFRESH_BATTERY
+      else
+        log "Switching to AC mode"
+        set_brightness $BRIGHTNESS_AC
+        set_refresh_rate $REFRESH_AC
+      fi
+
+      log "Display settings applied successfully"
+    '';
+    serviceConfig = {
+      Type = "oneshot";
+      Environment = "DISPLAY=:0";
+    };
+  };
+
+  # Monitor AC power state and trigger display adjustments
+  systemd.user.paths."battery-display-monitor" = {
+    description = "Monitor AC power state changes";
+    wantedBy = ["default.target"];
+    pathConfig = {
+      PathModified = "/sys/class/power_supply/AC0/online";
+    };
+  };
+
+  systemd.user.services."battery-display-monitor" = {
+    description = "Trigger display manager on power state change";
+    serviceConfig = {
+      Type = "oneshot";
+      ExecStart = "${config.systemd.package}/bin/systemctl --user start battery-display-manager.service";
+    };
+  };
+
+  # Run display manager on login
+  systemd.user.services."battery-display-manager-startup" = {
+    description = "Set display settings on startup";
+    wantedBy = ["graphical-session.target"];
+    after = ["graphical-session.target"];
+    serviceConfig = {
+      Type = "oneshot";
+      ExecStart = "${config.systemd.package}/bin/systemctl --user start battery-display-manager.service";
+    };
+  };
+}
