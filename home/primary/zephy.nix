@@ -33,6 +33,7 @@
         # "secrets/kubeconfig.nix"
         "gaming/minecraft.nix"
         "gaming/steam.nix"
+        "gaming"
         "comms"
         "ghostty"
         "secrets/1password.nix"
@@ -44,6 +45,8 @@
       ])
     ))
   ];
+
+  programs.btop.enable = lib.mkForce true;
 
   programs.plasma.input.mice = [
    {
