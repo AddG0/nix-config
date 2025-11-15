@@ -15,34 +15,54 @@
         "common/core" # required
       ]
       ++ (map (f: "common/optional/${f}") [
+        # Helper Scripts
         # "helper-scripts"
-        # "jupyter-notebook"
+        "helper-scripts"
+
+        # Browsers
         "browsers"
-        "development/ide.nix"
-        # "secrets"
-        # "secrets/kubeconfig.nix"
-        "gaming/minecraft.nix"
-        "gaming/steam.nix"
+
+        # Communication
         "comms"
-        "ghostty"
-        "secrets/1password.nix"
-        "media/spicetify.nix"
+
+        # Development
+        "development/ide.nix"
         "development/jupyter-notebook.nix"
-        "media/tidal.nix"
-        "media"
-        "nixos/desktops/plasma6"
-        # "remote-desktop/rustdesk.nix"
-        # "development/virtualization"
-        "development/virtualization/lens.nix"
-        "development/gcloud.nix"
-        "nixos/vlc.nix"
-        # "remote-desktop/mouseshare/lan-mouse.nix"
         "development/ai"
         "development/postman.nix"
-        "helper-scripts"
+        "development/gcloud.nix"
         "development/terraform.nix"
+        # "development/virtualization"
+        "development/virtualization/lens.nix"
         "development/virtualization/kubernetes.nix"
+
+        # Gaming
+        "gaming/minecraft.nix"
+        "gaming/steam.nix"
+        "gaming/r2modman.nix"
+
+        # Ghostty (Terminal)
+        "ghostty"
+
+        # Media
+        "media"
+        "media/spicetify.nix"
+        "media/tidal.nix"
+
+        # NixOS Specific
+        "nixos/desktops/plasma6"
+        "nixos/vlc.nix"
         "nixos/services/vscode-server.nix"
+
+        # Remote Desktop
+        # "remote-desktop/rustdesk.nix"
+        # "remote-desktop/mouseshare/lan-mouse.nix"
+
+        # Secrets
+        # "secrets"
+        # "secrets/kubeconfig.nix"
+        "secrets/1password.nix"
+        # "jupyter-notebook"
       ])
     ))
   ];

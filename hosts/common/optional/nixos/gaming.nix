@@ -4,10 +4,9 @@
   programs = {
     steam = {
       enable = true;
-      protontricks = {
-        enable = true;
-        package = pkgs.protontricks;
-      };
+      # protontricks = {
+      #   enable = true;
+      # };
       package = pkgs.steam.override {
         extraPkgs = pkgs: (builtins.attrValues {
           inherit
@@ -46,7 +45,7 @@
     gamemode = {
       enable = true;
       settings = {
-        #see gamemode man page for settings info
+        # See gamemode man page for settings info
         general = {
           softrealtime = "on";
           inhibit_screensaver = 1;
@@ -63,8 +62,4 @@
       };
     };
   };
-
-  environment.systemPackages = with pkgs; [
-    r2modman # Unofficial Thunderstore mod manager
-  ];
 }
