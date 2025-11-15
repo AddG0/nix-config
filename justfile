@@ -80,8 +80,26 @@ rebuild-trace hostname="": rebuild-pre && rebuild-post
 [confirm("This will remove all unused Nix store paths. Continue?")]
 [doc("Clean up Nix store and collect garbage")]
 clean:
+  @find . -type l -name 'result*' -delete 2>/dev/null || true
   nix-collect-garbage
   nix-store --gc
+
+[group('maintenance')]
+[confirm("This will remove all unused Nix store paths and optimize. This may take a while. Continue?")]
+[doc("Deep clean with store optimization (slower but reclaims more space)")]
+clean-deep:
+  @echo "Before: $(du -sh /nix/store | cut -f1)"
+  @find . -type l -name 'result*' -delete 2>/dev/null || true
+  nix-collect-garbage
+  nix-store --gc
+  @echo "Optimizing store (this will take a while)..."
+  nix-store --optimize
+  @echo "After: $(du -sh /nix/store | cut -f1)"
+
+[group('maintenance')]
+[doc("Visualize Nix store dependencies interactively")]
+tree:
+  nix-tree /run/current-system
 
 # Debug host configuration in nix repl
 [group('development')]
@@ -244,12 +262,12 @@ deploy-exec cmd="" hostname="":
 
 # Below is random commands incase I forget
 
-[group('system')]
+[group('utilities')]
 [doc("Manually create systemd temporary files")]
 tmpfiles-create:
   sudo systemd-tmpfiles --create
 
-[group('system')]
+[group('utilities')]
 [doc("Restart Plasma shell (KDE Plasma desktop)")]
 restart-plasma:
   #!/usr/bin/env bash
