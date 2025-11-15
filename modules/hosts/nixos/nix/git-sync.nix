@@ -5,9 +5,9 @@
   ...
 }:
 with lib; let
-  cfg = config.services.system-git-sync;
+  cfg = config.nix.git-sync;
 in {
-  options.services.system-git-sync = {
+  options.nix.git-sync = {
     enable = mkEnableOption "Automatic NixOS configuration sync from Git";
 
     repoPath = mkOption {
@@ -123,11 +123,11 @@ in {
     assertions = [
       {
         assertion = cfg.notifications.enable -> cfg.notifications.notifyUser != null;
-        message = "services.system-git-sync.notifications.notifyUser must be set when notifications are enabled";
+        message = "nix.git-sync.notifications.notifyUser must be set when notifications are enabled";
       }
       {
         assertion = (cfg.interval != null) != (cfg.schedule != null);
-        message = "services.system-git-sync: exactly one of 'interval' or 'schedule' must be set";
+        message = "nix.git-sync: exactly one of 'interval' or 'schedule' must be set";
       }
     ];
 

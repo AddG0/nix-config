@@ -57,7 +57,7 @@
     ))
   ];
 
-  services.system-git-sync = {
+  nix.git-sync = {
     enable = true;
     notifications.enable = true;
   };
