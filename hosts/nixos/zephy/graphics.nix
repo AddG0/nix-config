@@ -16,7 +16,8 @@
       amdgpuBusId = "PCI:6:0:0"; # Correct the format to include the full structure
       nvidiaBusId = "PCI:1:0:0";
     };
-    primeBatterySaverSpecialisation = true;
+    # We can't enable this since zephyrus's main monitor only works from the nvidia card
+    primeBatterySaverSpecialisation = false;
   };
 
   # hardware.nvidia-container-toolkit.enable = true;
