@@ -1,6 +1,7 @@
 {
   config,
   lib,
+  pkgs,
   ...
 }: {
   # TLP - Advanced Power Management for Linux
@@ -135,100 +136,33 @@
   # TLP provides more granular control
   services.power-profiles-daemon.enable = lib.mkForce false;
 
-  # Battery Display Manager - Auto-adjust brightness and refresh rate
-  systemd.user.services."battery-display-manager" = {
-    description = "Adjust display settings based on power state";
-    script = ''
-      set -euo pipefail
+  # Unified Power State Manager - Declarative AC/battery mode configuration
+  services.powerStateManager = {
+    enable = true;
 
-      # Brightness settings
-      BRIGHTNESS_AC=100      # 100% on AC
-      BRIGHTNESS_BATTERY=40  # 40% on battery
+    # Universal settings (work on any system)
+    onBattery.brightness = 40;   # 40% brightness on battery
+    onAC.brightness = 100;        # Full brightness on AC
 
-      # Refresh rate settings
-      REFRESH_AC=165
-      REFRESH_BATTERY=60
-
-      log() {
-        echo "[$(date +'%Y-%m-%d %H:%M:%S')] $*" | systemd-cat -t battery-display-manager -p info
-      }
-
-      set_brightness() {
-        local percent=$1
-        log "Setting brightness to ''${percent}%"
-
-        # Find all backlight devices and set brightness
-        for backlight in /sys/class/backlight/*; do
-          if [[ -d "$backlight" ]]; then
-            local max_brightness=$(cat "$backlight/max_brightness")
-            local target_brightness=$((max_brightness * percent / 100))
-            echo "$target_brightness" > "$backlight/brightness" 2>/dev/null || true
-            log "Set $backlight to $target_brightness (max: $max_brightness)"
-          fi
-        done
-      }
-
-      set_refresh_rate() {
-        local refresh=$1
-        log "Setting refresh rate to ''${refresh}Hz"
-
-        # Wait for display to be available (important for startup)
-        sleep 2
-
-        # Use kscreen-doctor to set refresh rate on all displays
-        if command -v kscreen-doctor &> /dev/null; then
-          # Set refresh rate for all outputs (main display and ScreenPad)
-          kscreen-doctor output.1@''${refresh} 2>&1 | systemd-cat -t battery-display-manager -p info || true
-          kscreen-doctor output.2@''${refresh} 2>&1 | systemd-cat -t battery-display-manager -p info || true
-        else
-          log "WARNING: kscreen-doctor not found, skipping refresh rate change"
-        fi
-      }
-
-      # Detect current power state
-      if [ "$(cat /sys/class/power_supply/AC0/online 2>/dev/null || echo 1)" = "0" ]; then
-        log "Switching to BATTERY mode"
-        set_brightness $BRIGHTNESS_BATTERY
-        set_refresh_rate $REFRESH_BATTERY
-      else
-        log "Switching to AC mode"
-        set_brightness $BRIGHTNESS_AC
-        set_refresh_rate $REFRESH_AC
-      fi
-
-      log "Display settings applied successfully"
-    '';
-    serviceConfig = {
-      Type = "oneshot";
-      Environment = "DISPLAY=:0";
+    # KDE backend for display management
+    kde = {
+      enable = true;
+      onBattery.refreshRate = 60;   # 60Hz on battery (saves ~2-4W)
+      onAC.refreshRate = 165;        # Max refresh rate on AC
     };
-  };
 
-  # Monitor AC power state and trigger display adjustments
-  systemd.user.paths."battery-display-monitor" = {
-    description = "Monitor AC power state changes";
-    wantedBy = ["default.target"];
-    pathConfig = {
-      PathModified = "/sys/class/power_supply/AC0/online";
+    # ASUS backend for performance profiles
+    asus = {
+      enable = true;
+      onBattery.profile = "Quiet";      # Quiet mode on battery
+      onAC.profile = "Balanced";         # Balanced mode on AC
     };
-  };
 
-  systemd.user.services."battery-display-monitor" = {
-    description = "Trigger display manager on power state change";
-    serviceConfig = {
-      Type = "oneshot";
-      ExecStart = "${config.systemd.package}/bin/systemctl --user start battery-display-manager.service";
-    };
-  };
-
-  # Run display manager on login
-  systemd.user.services."battery-display-manager-startup" = {
-    description = "Set display settings on startup";
-    wantedBy = ["graphical-session.target"];
-    after = ["graphical-session.target"];
-    serviceConfig = {
-      Type = "oneshot";
-      ExecStart = "${config.systemd.package}/bin/systemctl --user start battery-display-manager.service";
+    # NVIDIA backend for GPU mode switching (via supergfxctl)
+    nvidia = {
+      enable = true;
+      onBattery.mode = "Integrated";    # iGPU only (saves ~4-5W)
+      onAC.mode = "Hybrid";              # NVIDIA available when needed
     };
   };
 }
