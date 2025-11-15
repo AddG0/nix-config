@@ -12,12 +12,13 @@
   ];
 
   hardware.nvidia = {
+    powerManagement.enable = true;
+    powerManagement.finegrained = true; # Enable dynamic power management
+
     prime = {
-      amdgpuBusId = "PCI:6:0:0"; # Correct the format to include the full structure
-      nvidiaBusId = "PCI:1:0:0";
+      amdgpuBusId = "PCI:6:0:0"; # AMD Radeon 680M (integrated)
+      nvidiaBusId = "PCI:1:0:0"; # NVIDIA RTX 3080 Ti (discrete)
     };
-    # We can't enable this since zephyrus's main monitor only works from the nvidia card
-    primeBatterySaverSpecialisation = false;
   };
 
   # hardware.nvidia-container-toolkit.enable = true;
