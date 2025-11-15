@@ -157,12 +157,5 @@
       onBattery.profile = "Quiet";      # Quiet mode on battery
       onAC.profile = "Balanced";         # Balanced mode on AC
     };
-
-    # NVIDIA backend for GPU mode switching (via supergfxctl)
-    nvidia = {
-      enable = true;
-      onBattery.mode = "Integrated";    # iGPU only (saves ~4-5W)
-      onAC.mode = "Hybrid";              # NVIDIA available when needed
-    };
   };
 }
