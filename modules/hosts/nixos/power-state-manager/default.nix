@@ -99,6 +99,54 @@ with lib; let
     # Wait for all parallel operations to complete
     wait
   '';
+
+  # Generic power state switch script with debouncing (DRY)
+  mkPowerStateScript = {
+    lockFile,
+    serviceName,
+    batteryScript,
+    acScript,
+    triggerUserService ? false,
+  }: ''
+    set -euo pipefail
+
+    LOCKFILE="${lockFile}"
+    LOCKFILE_AGE_LIMIT=2
+
+    # Debounce: Exit if another instance is running or ran very recently
+    if [ -f "$LOCKFILE" ]; then
+      LOCK_AGE=$(($(date +%s) - $(stat -c %Y "$LOCKFILE" 2>/dev/null || echo 0)))
+      if [ "$LOCK_AGE" -lt "$LOCKFILE_AGE_LIMIT" ]; then
+        echo "[$(date)] ${serviceName}: Debouncing - skipping (last run $LOCK_AGE seconds ago)" | systemd-cat -t power-state-manager -p info
+        exit 0
+      fi
+    fi
+
+    # Create lock file
+    echo $$ > "$LOCKFILE"
+    trap 'rm -f "$LOCKFILE"' EXIT
+
+    # Small delay to let hardware settle and debounce rapid events
+    sleep 0.5
+
+    # Detect current power state and run appropriate script
+    if [ "$(cat ${cfg.powerSupplyPath} 2>/dev/null || echo 1)" = "0" ]; then
+      echo "[$(date)] ${serviceName}: Switching to BATTERY mode" | systemd-cat -t power-state-manager -p info
+      ${batteryScript}
+    else
+      echo "[$(date)] ${serviceName}: Switching to AC mode" | systemd-cat -t power-state-manager -p info
+      ${acScript}
+    fi
+
+    echo "[$(date)] ${serviceName}: Power state applied" | systemd-cat -t power-state-manager -p info
+
+    ${optionalString triggerUserService ''
+      # Trigger user service for session-level changes
+      if systemctl --user -M ${config.hostSpec.username}@ is-active graphical-session.target >/dev/null 2>&1; then
+        systemctl --user -M ${config.hostSpec.username}@ start power-state-manager-user.service
+      fi
+    ''}
+  '';
 in {
   # Auto-discover and import all backend modules
   imports = let
@@ -210,25 +258,13 @@ in {
     # System service (runs as root for hardware changes)
     systemd.services."power-state-manager-system" = {
       description = "Power state manager - system level (brightness, GPU, performance)";
-      script = ''
-        set -euo pipefail
-
-        # Detect current power state and run appropriate script
-        if [ "$(cat ${cfg.powerSupplyPath} 2>/dev/null || echo 1)" = "0" ]; then
-          echo "[$(date)] System: Switching to BATTERY mode" | systemd-cat -t power-state-manager -p info
-          ${mkSystemBatteryScript}
-        else
-          echo "[$(date)] System: Switching to AC mode" | systemd-cat -t power-state-manager -p info
-          ${mkSystemACScript}
-        fi
-
-        echo "[$(date)] System power state applied" | systemd-cat -t power-state-manager -p info
-
-        # Trigger user service for session-level changes
-        if systemctl --user -M ${config.hostSpec.username}@ is-active graphical-session.target >/dev/null 2>&1; then
-          systemctl --user -M ${config.hostSpec.username}@ start power-state-manager-user.service
-        fi
-      '';
+      script = mkPowerStateScript {
+        lockFile = "/run/power-state-manager.lock";
+        serviceName = "System";
+        batteryScript = mkSystemBatteryScript;
+        acScript = mkSystemACScript;
+        triggerUserService = true;
+      };
       serviceConfig = {
         Type = "oneshot";
       };
@@ -242,20 +278,13 @@ in {
     # User service (runs in user session for display/UI changes)
     systemd.user.services."power-state-manager-user" = {
       description = "Power state manager - user level (display, UI preferences)";
-      script = ''
-        set -euo pipefail
-
-        # Detect current power state and run appropriate script
-        if [ "$(cat ${cfg.powerSupplyPath} 2>/dev/null || echo 1)" = "0" ]; then
-          echo "[$(date)] User: Switching to BATTERY mode" | systemd-cat -t power-state-manager -p info
-          ${mkUserBatteryScript}
-        else
-          echo "[$(date)] User: Switching to AC mode" | systemd-cat -t power-state-manager -p info
-          ${mkUserACScript}
-        fi
-
-        echo "[$(date)] User power state applied" | systemd-cat -t power-state-manager -p info
-      '';
+      script = mkPowerStateScript {
+        lockFile = "$XDG_RUNTIME_DIR/power-state-manager-user.lock";
+        serviceName = "User";
+        batteryScript = mkUserBatteryScript;
+        acScript = mkUserACScript;
+        triggerUserService = false;
+      };
       serviceConfig = {
         Type = "oneshot";
       };

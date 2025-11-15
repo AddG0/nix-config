@@ -39,9 +39,6 @@
     system.nixos.tags = ["battery-saver" "integrated-only"];
 
     # Force Integrated GPU mode on boot
-    services.supergfxd.settings.mode = "Integrated";
-
-    # Disable automatic GPU switching in power state manager
-    services.powerStateManager.nvidia.enable = lib.mkForce false;
+    services.supergfxd.settings.mode = lib.mkForce "Integrated";
   };
 }
