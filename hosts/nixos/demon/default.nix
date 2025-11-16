@@ -106,9 +106,6 @@
     hostPlatform = "x86_64-linux";
   };
 
-  # Xbox One Controller Wired Support
-  hardware.xone.enable = true;
-
   environment.systemPackages = with pkgs; [
     cifs-utils
     v4l-utils # For OBSBOT camera
