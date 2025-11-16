@@ -38,7 +38,7 @@
 
         # Gaming
         "gaming/minecraft.nix"
-        "gaming/steam.nix"
+        "gaming/heroic.nix"
         "gaming/r2modman.nix"
 
         # Ghostty (Terminal)

@@ -1,39 +1,37 @@
 {pkgs, config, lib, ...}: let
   # Create script files for GameMode hooks
   gamemodeStartScript = pkgs.writeShellScript "gamemode-start" ''
-    # Save current power profile
-    ${pkgs.power-profiles-daemon}/bin/powerprofilesctl get > /tmp/gamemode-power-profile
-    # Set to performance mode
-    ${pkgs.power-profiles-daemon}/bin/powerprofilesctl set performance
-    # Notify user with nice formatting
-    ${pkgs.libnotify}/bin/notify-send \
-      --app-name="GameMode" \
-      --icon=applications-games \
-      --urgency=normal \
-      --expire-time=3000 \
-      "🎮 GameMode Activated" \
-      "System: Performance Profile"
+    ${lib.optionalString (config.services.asusd.enable or false) ''
+      # Save current ASUS profile
+      ${pkgs.asusctl}/bin/asusctl profile -p | grep "Active profile" | awk '{print $4}' > /tmp/gamemode-asus-profile
+
+      # Set to Performance mode
+      ${pkgs.asusctl}/bin/asusctl profile -P Performance
+    ''}
   '';
 
   gamemodeEndScript = pkgs.writeShellScript "gamemode-end" ''
-    # Restore previous power profile
-    PREVIOUS_PROFILE="balanced"
-    if [ -f /tmp/gamemode-power-profile ]; then
-      PREVIOUS_PROFILE=$(cat /tmp/gamemode-power-profile)
-      ${pkgs.power-profiles-daemon}/bin/powerprofilesctl set "$PREVIOUS_PROFILE"
-      rm /tmp/gamemode-power-profile
-    fi
-    # Notify user with nice formatting
-    ${pkgs.libnotify}/bin/notify-send \
-      --app-name="GameMode" \
-      --icon=application-exit \
-      --urgency=low \
-      --expire-time=3000 \
-      "🎮 GameMode Deactivated" \
-      "Restored to $PREVIOUS_PROFILE mode"
+    ${lib.optionalString (config.services.asusd.enable or false) ''
+      # Restore previous ASUS profile
+      PREVIOUS_PROFILE="Balanced"
+      if [ -f /tmp/gamemode-asus-profile ]; then
+        PREVIOUS_PROFILE=$(cat /tmp/gamemode-asus-profile)
+        ${pkgs.asusctl}/bin/asusctl profile -P "$PREVIOUS_PROFILE"
+        rm /tmp/gamemode-asus-profile
+      fi
+    ''}
+  '';
+
+  # Simple game wrapper - use in Steam launch options: game-wrapper %command%
+  game-wrapper = pkgs.writeShellScriptBin "game-wrapper" ''
+    exec ${pkgs.gamemode}/bin/gamemoderun "$@"
   '';
 in {
   hardware.xone.enable = true; # xbox controller
+
+  environment.systemPackages = [
+    game-wrapper
+  ];
 
   programs = {
     steam = {
@@ -41,6 +39,17 @@ in {
       # protontricks = {
       #   enable = true;
       # };
+
+      gamescopeSession = {
+        enable = true;
+        args = [
+          "--rt"                    # Use realtime scheduling
+          "--expose-wayland"        # Expose Wayland socket
+          "--adaptive-sync"         # Enable VRR/adaptive sync
+          "--force-grab-cursor"     # Better mouse capture for games
+        ];
+      };
+
       package = pkgs.steam.override {
         extraPkgs = pkgs: (builtins.attrValues {
           inherit
@@ -60,13 +69,14 @@ in {
             (pkgs)
             libpng
             libpulseaudio
-            libvorbis
+             libvorbis
             libkrb5
             keyutils
             gperftools
             ;
         });
       };
+
       extraCompatPackages = [pkgs.unstable.proton-ge-bin];
     };
     #gamescope launch args set dynamically in home/<user>/common/optional/gaming
