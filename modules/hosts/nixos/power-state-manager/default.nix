@@ -126,9 +126,6 @@ with lib; let
     echo $$ > "$LOCKFILE"
     trap 'rm -f "$LOCKFILE"' EXIT
 
-    # Small delay to let hardware settle and debounce rapid events
-    sleep 0.5
-
     # Detect current power state and run appropriate script
     if [ "$(cat ${cfg.powerSupplyPath} 2>/dev/null || echo 1)" = "0" ]; then
       echo "[$(date)] ${serviceName}: Switching to BATTERY mode" | systemd-cat -t power-state-manager -p info
