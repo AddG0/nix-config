@@ -27,13 +27,17 @@
         "development/gcloud.nix"
         "development/terraform.nix"
         "development/postman.nix"
+        
         "secrets"
         "nixos/desktops/plasma6"
         "browsers"
         # "secrets/kubeconfig.nix"
+        
         "gaming/minecraft.nix"
         "gaming/heroic.nix"
+        "gaming/bakkesmod.nix"
         "gaming"
+
         "comms"
         "ghostty"
         "secrets/1password.nix"
