@@ -20,10 +20,12 @@ with lib; let
       '' else ''
         # Auto-detect mode number for ${toString refreshRate}Hz
         # Look for refresh rate with decimals (e.g., 60.03, 165.04)
-        MODE_NUM=$(${pkgs.kdePackages.kscreen}/bin/kscreen-doctor --outputs 2>&1 | \
+        # Strip ANSI color codes first to avoid pattern matching issues
+        MODE_NUM=$(${pkgs.kdePackages.libkscreen}/bin/kscreen-doctor --outputs 2>&1 | \
+          sed 's/\x1b\[[0-9;]*m//g' | \
           grep -A 20 "${head outputs}" | \
           grep "Modes:" | \
-          grep -o '[0-9]*:[^@]*@${toString refreshRate}\.[0-9]*' | \
+          grep -o '[0-9]\+:[^@]*@${toString refreshRate}\.[0-9]*' | \
           head -n 1 | \
           cut -d: -f1)
 
@@ -34,7 +36,7 @@ with lib; let
       '';
 
       setModeCommands = concatMapStringsSep "\n" (output:
-        ''${pkgs.kdePackages.kscreen}/bin/kscreen-doctor output.${output}.mode.$MODE_NUM 2>&1 || echo "Warning: Failed to set refresh rate for ${output}" >&2''
+        ''${pkgs.kdePackages.libkscreen}/bin/kscreen-doctor output.${output}.mode.$MODE_NUM 2>&1 || echo "Warning: Failed to set refresh rate for ${output}" >&2''
       ) outputs;
     in ''
       ${modeDetectionScript}
@@ -99,7 +101,6 @@ in {
         modeScript = mkRefreshRateScript kdeCfg.outputs kdeCfg.onBattery.refreshRate kdeCfg.onBattery.modeNumber;
       in ''
         # KDE: Set refresh rate to ${toString kdeCfg.onBattery.refreshRate}Hz${optionalString (kdeCfg.onBattery.modeNumber != null) " (mode ${toString kdeCfg.onBattery.modeNumber})"}
-        sleep 2  # Wait for display availability
         ${modeScript}
       '';
     };
@@ -110,7 +111,6 @@ in {
         modeScript = mkRefreshRateScript kdeCfg.outputs kdeCfg.onAC.refreshRate kdeCfg.onAC.modeNumber;
       in ''
         # KDE: Set refresh rate to ${toString kdeCfg.onAC.refreshRate}Hz${optionalString (kdeCfg.onAC.modeNumber != null) " (mode ${toString kdeCfg.onAC.modeNumber})"}
-        sleep 2  # Wait for display availability
         ${modeScript}
       '';
     };

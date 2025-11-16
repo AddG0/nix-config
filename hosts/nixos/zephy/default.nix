@@ -58,7 +58,7 @@
   ];
 
   nix.git-sync = {
-    enable = true;
+    enable = false;
     notifications.enable = true;
   };
 
