@@ -41,7 +41,7 @@
 
       # AMD platform profile (Ryzen 6000 series support)
       # "low-power" focuses on power saving for battery
-      PLATFORM_PROFILE_ON_AC = "balanced";
+      PLATFORM_PROFILE_ON_AC = "performance";  # Max performance on AC
       PLATFORM_PROFILE_ON_BAT = "low-power";
 
       # CPU boost - keep enabled on AC for performance
@@ -72,7 +72,7 @@
       # ==================== Runtime Power Management ====================
 
       # Enable runtime PM for PCI(e) devices
-      RUNTIME_PM_ON_AC = "on";
+      RUNTIME_PM_ON_AC = "off";  # Disable for max performance
       RUNTIME_PM_ON_BAT = "auto";
 
       # ==================== Graphics Power Management ====================
@@ -104,11 +104,11 @@
       # ==================== SATA/NVMe Power Management ====================
 
       # SATA aggressive link power management (ALPM)
-      SATA_LINKPWR_ON_AC = "med_power_with_dipm";
+      SATA_LINKPWR_ON_AC = "max_performance";  # Max performance on AC
       SATA_LINKPWR_ON_BAT = "med_power_with_dipm";
 
       # NVMe power management (for modern SSDs)
-      AHCI_RUNTIME_PM_ON_AC = "on";
+      AHCI_RUNTIME_PM_ON_AC = "off";  # Disable for max performance
       AHCI_RUNTIME_PM_ON_BAT = "auto";
 
       # ==================== PCIe Power Management ====================

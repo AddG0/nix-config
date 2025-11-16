@@ -32,7 +32,7 @@
         "browsers"
         # "secrets/kubeconfig.nix"
         "gaming/minecraft.nix"
-        "gaming/steam.nix"
+        "gaming/heroic.nix"
         "gaming"
         "comms"
         "ghostty"
