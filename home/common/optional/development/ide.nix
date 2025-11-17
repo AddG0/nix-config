@@ -1,10 +1,14 @@
-{pkgs, ...}: {
-  home.packages = with pkgs;
-    [
-      stable.jetbrains.idea-ultimate
+{
+  pkgs,
+  lib,
+  ...
+}: {
+  home.packages = with pkgs; [
+      jetbrains.idea-ultimate
       jetbrains.pycharm-professional
       jetbrains.datagrip
       jetbrains.webstorm
+      jetbrains.fleet
 
       # jetbrains.phpstorm
       # vscode
