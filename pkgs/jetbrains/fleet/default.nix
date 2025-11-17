@@ -2,6 +2,7 @@
 # Just removed a few things that are not needed
 {
   lib,
+  pkgs,
   stdenv,
   fetchzip,
   autoPatchelfHook,
@@ -41,6 +42,7 @@ stdenv.mkDerivation (finalAttrs: {
   dontStrip = true;
 
   buildInputs = [
+    pkgs.jetbrains.jdk
     fontconfig
     xorg.libX11
     xorg.libXi
@@ -71,7 +73,9 @@ stdenv.mkDerivation (finalAttrs: {
     cp -r $src/license $out/fleet/license
 
     mkdir $out/bin
-    makeWrapper $out/fleet/bin/Fleet $out/bin/fleet
+    makeWrapper $out/fleet/bin/Fleet $out/bin/fleet \
+      --set _JAVA_AWT_WM_NONREPARENTING 1 \
+      --set FLEET_BACKEND_JDK "${pkgs.jetbrains.jdk}"
 
     mkdir -p $out/share/icons/hicolor/{1024x1024,512x512,256x256,128x128}/apps
     convert $src/lib/Fleet.png -resize 1024x1024 $out/share/icons/hicolor/1024x1024/apps/jetbrains-fleet.png
