@@ -2,12 +2,35 @@
 # This file defines overlays/custom modifications to upstream packages
 #
 {inputs, ...}: let
-  # Adds my custom packages
-  additions = final: prev:
-    prev.lib.packagesFromDirectoryRecursive {
-      callPackage = prev.lib.callPackageWith final;
-      directory = ../pkgs/common;
-    };
+  # Import the shared package definitions
+  # This keeps packages lazy - they're only evaluated when accessed
+  mkCustomPackages = import ../pkgs/packages.nix;
+
+  # Create additions overlay that automatically merges with existing nixpkgs namespaces
+  additions = final: prev: let
+    # Get our custom packages - evaluated lazily on demand
+    customPkgs = mkCustomPackages prev;
+
+    # Helper to smartly merge a package/namespace
+    mergePackage = name: value:
+      if builtins.hasAttr name prev then
+        # If it exists in nixpkgs, we need to merge
+        if builtins.isAttrs value && builtins.isAttrs prev.${name} then
+          # Both are attrsets, merge them
+          prev.${name} // value
+        else if builtins.isFunction prev.${name} && builtins.isAttrs value then
+          # Special case: nixpkgs has a function (like themes), we have an attrset
+          # Make it work as both using __functor
+          value // { __functor = self: prev.${name}; }
+        else
+          # Otherwise just override
+          value
+      else
+        # Doesn't exist in nixpkgs, just add it
+        value;
+  in
+    # Map over all our custom packages and merge them intelligently
+    builtins.mapAttrs mergePackage customPkgs;
 
   linuxModifications = _final: prev:
     if prev.stdenv.isLinux
