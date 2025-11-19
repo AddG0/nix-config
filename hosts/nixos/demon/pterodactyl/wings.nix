@@ -1,4 +1,4 @@
-_: {
+{config, ...}: {
   services.pterodactyl.wings = {
     enable = true;
     settings = {
@@ -6,13 +6,13 @@ _: {
         ssl.enabled = false;
         port = 8080;
       };
-      remote = "https://pterodactyl-local.addg0.com";
+      remote = "https://pterodactyl-local.${config.hostSpec.domain}";
     };
   };
 
-  services.nginx.virtualHosts."wings-local.addg0.com" = {
+  services.nginx.virtualHosts."wings-local.${config.hostSpec.domain}" = {
     forceSSL = true;
-    useACMEHost = "addg0.com";
+    useACMEHost = config.hostSpec.domain;
 
     locations."/" = {
       proxyPass = "http://127.0.0.1:8080";
@@ -26,7 +26,7 @@ _: {
   };
 
   networking.hosts = {
-    "127.0.0.1" = ["wings-local.addg0.com"];
+    "127.0.0.1" = ["wings-local.${config.hostSpec.domain}"];
   };
 
   security.firewall.allowedTCPPorts = [2022 25565 25566 25567 25568 25569 25570 24454 24455 24456];

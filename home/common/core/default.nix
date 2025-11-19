@@ -6,7 +6,7 @@
   ...
 }: let
   platform =
-    if hostSpec.isDarwin
+    if pkgs.stdenv.isDarwin
     then "darwin"
     else "nixos";
 in {
@@ -52,7 +52,6 @@ in {
 
     pciutils
     pfetch # system info
-    pre-commit # git hooks
     p7zip # compression & encryption
     ripgrep # better grep
     # steam-run # for running non-NixOS-packaged binaries on Nix
