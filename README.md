@@ -1,6 +1,4 @@
-[![Check Nix Flake](https://github.com/addg0/nix-config/actions/workflows/flake-check.yml/badge.svg)](https://github.com/addg0/nix-config/actions/workflows/flake-check.yml)
 [![Lint Nix](https://github.com/addg0/nix-config/actions/workflows/lint-nix.yml/badge.svg)](https://github.com/addg0/nix-config/actions/workflows/lint-nix.yml)
-[![Update Flakes](https://github.com/addg0/nix-config/actions/workflows/update-flakes.yml/badge.svg)](https://github.com/addg0/nix-config/actions/workflows/update-flakes.yml)
 
 <div align="center">
   <h1>
