@@ -127,6 +127,11 @@
       inputs.nixpkgs.follows = "nixpkgs";
     };
 
+    claude-desktop = {
+      url = "github:k3d3/claude-desktop-linux-flake";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
+
     nur-ryan4yin.url = "github:ryan4yin/nur-packages";
     nur-ataraxiasjel.url = "github:AtaraxiaSjel/nur";
 

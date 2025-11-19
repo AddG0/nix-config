@@ -12,6 +12,7 @@
     claude-code-router
     # claude-flow
     repomix
+    claude-desktop
   ];
 
   programs.claude-code = {
