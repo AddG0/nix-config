@@ -11,7 +11,6 @@
   fetchurl,
   buildFHSEnv,
   autoPatchelfHook,
-  copyDesktopItems,
   makeDesktopItem,
   libredirect,
   ...
@@ -211,7 +210,6 @@
 
   mkDesktopItem = {
     versionInfo,
-    deb,
   }: (makeDesktopItem {
     name = pname;
     desktopName = "AWS VPN Client";

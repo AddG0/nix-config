@@ -79,7 +79,7 @@
 
     # Fix SDDM Wayland session bug where command is passed as single quoted string
     # Without this sddm will not work properly in wayland sessions.
-    kdePackages = prev.kdePackages.overrideScope (kfinal: kprev: {
+    kdePackages = prev.kdePackages.overrideScope (_kfinal: kprev: {
       sddm = kprev.sddm.override {
         unwrapped = kprev.sddm.unwrapped.overrideAttrs (oldAttrs: {
           postInstall =
