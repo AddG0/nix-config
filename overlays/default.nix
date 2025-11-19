@@ -95,6 +95,8 @@
     });
 
     ghostty = inputs.ghostty.packages.${prev.stdenv.hostPlatform.system}.default;
+    claude-desktop = inputs.claude-desktop.packages.${prev.stdenv.hostPlatform.system}.claude-desktop-with-fhs;
+
     firefox-addons = import inputs.firefox-addons {
       inherit (prev) fetchurl lib stdenv;
     };
