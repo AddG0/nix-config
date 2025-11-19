@@ -27,12 +27,12 @@
   security.acme = {
     acceptTerms = true;
     defaults.email = config.hostSpec.email.user;
-    certs."addg0.com" = {
+    certs."${config.hostSpec.domain}" = {
       dnsProvider = "cloudflare";
       credentialsFile = config.sops.secrets.cloudflare.path;
       group = "nginx";
       postRun = "systemctl --no-block reload nginx.service";
-      extraDomainNames = ["*.addg0.com"];
+      extraDomainNames = ["*.${config.hostSpec.domain}"];
     };
   };
 

@@ -1,4 +1,4 @@
-{inputs, ...}: {
+{config, inputs, ...}: {
   virtualisation.libvirt.enable = true;
   virtualisation.libvirt.swtpm.enable = true;
   virtualisation.libvirt.connections."qemu:///system".pools = [
@@ -44,9 +44,9 @@
       active = true;
       restart = false;
     }
-  ]; # services.nginx.virtualHosts."home-assistant.addg0.com" = {
+  ]; # services.nginx.virtualHosts."home-assistant.${config.hostSpec.domain}" = {
   #   forceSSL = true;
-  #   useACMEHost = "addg0.com";
+  #   useACMEHost = config.hostSpec.domain;
   #   extraConfig = ''
   #     proxy_buffering off;
   #   '';

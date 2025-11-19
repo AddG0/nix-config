@@ -92,7 +92,7 @@
                   handle = user;
                   home = "/home/${user}";
                   isMinimal = false;
-                  isServer = false;
+                  hostType = "desktop";
                   isDarwin = false;
                   disableSops = true;
                   hostPlatform = "x86_64-linux";

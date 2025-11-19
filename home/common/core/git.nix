@@ -71,7 +71,7 @@ in {
   };
 
   home.packages = with pkgs;
-    lib.optionals (!config.hostSpec.isServer) [
+    lib.optionals (config.hostSpec.hostType != "server") [
       lazygit # Git terminal UI.
       renovate # Dependency update tool.
       gitkraken # Git GUI.

@@ -41,8 +41,8 @@
   };
 
   services.nginx = {
-    virtualHosts."pterodactyl-eu.addg0.com" = {
-      useACMEHost = "addg0.com";
+    virtualHosts."pterodactyl-eu.${config.hostSpec.domain}" = {
+      useACMEHost = config.hostSpec.domain;
       forceSSL = true;
 
       root = "${config.services.pterodactyl.panel.dataDir}/public";
@@ -61,7 +61,7 @@
   };
 
   networking.hosts = {
-    "127.0.0.1" = ["pterodactyl-eu.addg0.com"];
+    "127.0.0.1" = ["pterodactyl-eu.${config.hostSpec.domain}"];
   };
 
   sops.secrets = {

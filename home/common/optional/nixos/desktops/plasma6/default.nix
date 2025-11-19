@@ -288,6 +288,7 @@
         };
       };
       lowBattery = {
+        powerButtonAction = "sleep";
         autoSuspend = {
           action = "nothing";
         };

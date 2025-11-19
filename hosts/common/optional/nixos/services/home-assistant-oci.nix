@@ -11,9 +11,9 @@
     };
   };
 
-  services.nginx.virtualHosts."home-assistant.addg0.com" = {
+  services.nginx.virtualHosts."home-assistant.${config.hostSpec.domain}" = {
     forceSSL = true;
-    useACMEHost = "addg0.com";
+    useACMEHost = config.hostSpec.domain;
     extraConfig = ''
       proxy_buffering off;
     '';
