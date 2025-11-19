@@ -1,10 +1,6 @@
 [![Build Flakes](https://github.com/addg0/nix-config/actions/workflows/build-flakes.yml/badge.svg)](https://github.com/addg0/nix-config/actions/workflows/build-flakes.yml)
-[![Deploy](https://github.com/addg0/nix-config/actions/workflows/deploy.yml/badge.svg)](https://github.com/addg0/nix-config/actions/workflows/deploy.yml)
 [![Lint Nix](https://github.com/addg0/nix-config/actions/workflows/lint-nix.yml/badge.svg)](https://github.com/addg0/nix-config/actions/workflows/lint-nix.yml)
 [![Update Flakes](https://github.com/addg0/nix-config/actions/workflows/update-flakes.yml/badge.svg)](https://github.com/addg0/nix-config/actions/workflows/update-flakes.yml)
-[![Update Nixpkgs](https://github.com/addg0/nix-config/actions/workflows/update-nixpkgs.yml/badge.svg)](https://github.com/addg0/nix-config/actions/workflows/update-nixpkgs.yml)
-[![Upgrade Flakes](https://github.com/addg0/nix-config/actions/workflows/upgrade-flakes.yml/badge.svg)](https://github.com/addg0/nix-config/actions/workflows/upgrade-flakes.yml)
-[![Verify SOPS](https://github.com/addg0/nix-config/actions/workflows/verify-sops.yml/badge.svg)](https://github.com/addg0/nix-config/actions/workflows/verify-sops.yml)
 
 <div align="center">
   <h1>

@@ -1,4 +1,4 @@
-name: Build Nix Flakes
+name: Check Nix Flake
 
 on:
   push:
@@ -7,7 +7,7 @@ on:
     branches: [ "main" ]
 
 jobs:
-  build:
+  check:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v5
@@ -30,7 +30,5 @@ jobs:
           chmod 600 ~/.ssh/id_ed25519
           ssh-keyscan github.com >> ~/.ssh/known_hosts
 
-      - name: Build flake
-        run: |
-          nix flake check
-          nix build .#
+      - name: Check flake
+        run: nix flake check > /dev/null

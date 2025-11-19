@@ -7,12 +7,18 @@
   # Import the shared package definitions
   mkCustomPackages = import ./packages.nix;
 in {
-  perSystem = {
-    pkgs,
-    system,
-    ...
-  }: let
-    allPackages = mkCustomPackages pkgs;
+  perSystem = {system, ...}: let
+    # Override pkgs to allow insecure packages
+    pkgs' = import inputs.nixpkgs {
+      inherit system;
+      config = {
+        allowUnfree = true;
+        permittedInsecurePackages = [
+          "openssl-1.1.1w"
+        ];
+      };
+    };
+    allPackages = mkCustomPackages pkgs';
 
     # Flatten for packages output (only top-level derivations)
     flattenedPackages = let
@@ -43,7 +49,9 @@ in {
       lib.genAttrs systems (system: let
         pkgs = import inputs.nixpkgs {
           inherit system;
-          config.allowUnfree = true;
+          config = {
+            allowUnfree = true;
+          };
         };
       in
         mkCustomPackages pkgs);

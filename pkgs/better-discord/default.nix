@@ -15,8 +15,8 @@ in
     src = fetchFromGitHub {
       owner = "BetterDiscord";
       repo = "BetterDiscord";
-      rev = version;
-      sha256 = "sha256-oKXNw8vD8xRje07XRoAIdWNYC0mJJS/0lWB/OT9HnwQ="; # Replace with actual hash
+      rev = "eb367a0a3bd4a2147281584e80f8a037b575d73a";
+      sha256 = "sha256-I50gpLYdtU2q+rBKzrAdd0mXh9ABh6mzJR8WDfc4oDY=";
     };
 
     nativeBuildInputs = [

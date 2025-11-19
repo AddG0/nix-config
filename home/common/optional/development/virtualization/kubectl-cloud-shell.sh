@@ -1,3 +1,4 @@
+#!/bin/bash
 # Check for --bare flag
 BARE_MODE=false
 KUBECTL_ARGS=()
