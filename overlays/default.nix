@@ -7,7 +7,7 @@
   mkCustomPackages = import ../pkgs/packages.nix;
 
   # Create additions overlay that automatically merges with existing nixpkgs namespaces
-  additions = final: prev: let
+  additions = _final: prev: let
     # Get our custom packages - evaluated lazily on demand
     customPkgs = mkCustomPackages prev;
 
@@ -24,7 +24,7 @@
         then
           # Special case: nixpkgs has a function (like themes), we have an attrset
           # Make it work as both using __functor
-          value // {__functor = self: prev.${name};}
+          value // {__functor = _self: prev.${name};}
         else
           # Otherwise just override
           value

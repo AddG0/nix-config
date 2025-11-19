@@ -1,8 +1,4 @@
-{
-  config,
-  inputs,
-  ...
-}: {
+{inputs, ...}: {
   virtualisation.libvirt.enable = true;
   virtualisation.libvirt.swtpm.enable = true;
   virtualisation.libvirt.connections."qemu:///system".pools = [

@@ -208,9 +208,7 @@
       multiPkgs = _: with pkgs; [openssl_1_1 icu70];
     };
 
-  mkDesktopItem = {
-    versionInfo,
-  }: (makeDesktopItem {
+  mkDesktopItem = {versionInfo}: (makeDesktopItem {
     name = pname;
     desktopName = "AWS VPN Client";
     exec = "${(guiFHS versionInfo).name} %u";

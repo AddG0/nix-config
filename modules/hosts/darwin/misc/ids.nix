@@ -5,7 +5,7 @@
 # We only add static uids and gids for services where it is not feasible
 # to change uids/gids on service start, in example a service with a lot of
 # files.
-{lib, ...}: {
+_: {
   # options = {
   #   ids.uids = lib.mkOption {
   #     internal = true;

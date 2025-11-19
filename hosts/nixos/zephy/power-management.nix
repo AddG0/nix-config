@@ -1,9 +1,4 @@
-{
-  config,
-  lib,
-  pkgs,
-  ...
-}: {
+{lib, ...}: {
   # TLP - Advanced Power Management for Linux
   # Official docs: https://linrunner.de/tlp/
   # Optimized for: AMD Ryzen 9 6900HX + NVIDIA GPU on ASUS ROG Zephyrus Duo 16

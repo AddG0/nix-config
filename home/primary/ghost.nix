@@ -1,8 +1,4 @@
-{
-  lib,
-  nix-secrets,
-  ...
-}: {
+{lib, ...}: {
   imports = lib.flatten [
     ./common/core
     (map (f: ./common/optional/${f}) [

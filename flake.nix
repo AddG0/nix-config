@@ -162,24 +162,24 @@
     #################### Personal Repositories ####################
 
     # Private secrets repo.  See ./docs/secretsmgmt.md
-    # Authenticate via ssh and use shallow clone
+    # Authenticate via HTTPS with token
     nix-secrets = {
-      url = "git+ssh://git@github.com/addg0/nix-secrets.git?ref=main";
+      url = "git+https://github.com/addg0/nix-secrets.git?ref=main";
       inputs.nixpkgs.follows = "nixpkgs";
     };
 
     pterodactyl-addons = {
-      url = "git+ssh://git@github.com/addg0/pterodactyl-addons.git?ref=main";
+      url = "git+https://github.com/addg0/pterodactyl-addons.git?ref=main";
       flake = false;
     };
 
     lumenboard-player = {
-      url = "git+ssh://github.com/addg0/lumenboard-player.git?ref=tmp";
+      url = "git+https://github.com/addg0/lumenboard-player.git?ref=tmp";
       inputs.nixpkgs.follows = "nixpkgs";
     };
 
     ai-toolkit = {
-      url = "git+ssh://github.com/addg0/ai-toolkit.git?ref=main";
+      url = "git+https://github.com/addg0/ai-toolkit.git?ref=main";
       inputs.nixpkgs.follows = "nixpkgs";
     };
 

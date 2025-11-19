@@ -1,10 +1,4 @@
-{
-  inputs,
-  lib,
-  config,
-  pkgs,
-  ...
-}: {
+{inputs, ...}: {
   imports = [
     inputs.ai-toolkit.nixosModules.ai-toolkit
   ];
