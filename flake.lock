@@ -17,12 +17,12 @@
         "rev": "29daffed8e233668c3101877647460582634b18f",
         "revCount": 81,
         "type": "git",
-        "url": "https://github.com/addg0/ai-toolkit.git"
+        "url": "ssh://github.com/addg0/ai-toolkit.git"
       },
       "original": {
         "ref": "main",
         "type": "git",
-        "url": "https://github.com/addg0/ai-toolkit.git"
+        "url": "ssh://github.com/addg0/ai-toolkit.git"
       }
     },
     "asus-numberpad-driver": {
@@ -1117,12 +1117,12 @@
         "rev": "2727fac9411d459c9182ceb0dd7dc2616829c38f",
         "revCount": 63,
         "type": "git",
-        "url": "https://github.com/addg0/lumenboard-player.git"
+        "url": "ssh://github.com/addg0/lumenboard-player.git"
       },
       "original": {
         "ref": "tmp",
         "type": "git",
-        "url": "https://github.com/addg0/lumenboard-player.git"
+        "url": "ssh://github.com/addg0/lumenboard-player.git"
       }
     },
     "mmdoc": {

@@ -222,7 +222,7 @@
   guiFHS = versionInfo: let
     deb = mkDeb versionInfo;
     serviceFHS = mkServiceFHS {inherit versionInfo deb;};
-    desktopItem = mkDesktopItem {inherit versionInfo deb;};
+    desktopItem = mkDesktopItem {inherit versionInfo;};
   in
     buildFHSEnv {
       name = "${pname}-wrapped";
