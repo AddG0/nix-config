@@ -1,35 +1,38 @@
-name: Deploy NixOS Config
+# name: Deploy NixOS Config
 
-on:
-  push:
-    branches: [ "main" ]
-    paths-ignore:
-      - '**.md'
-      - '.github/**'
-  workflow_dispatch:    # Allows manual triggering
+# on:
+#   push:
+#     branches: [ "main" ]
+#     paths-ignore:
+#       - '**.md'
+#       - '.github/**'
+#   workflow_dispatch:    # Allows manual triggering
 
-jobs:
-  deploy:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v5
+# jobs:
+#   deploy:
+#     runs-on: ubuntu-latest
+#     steps:
+#       - uses: actions/checkout@v5
 
-      - name: Install Nix
-        uses: cachix/install-nix-action@v31
-        with:
-          extra_nix_config: |
-            access-tokens = github.com=${{ secrets.GITHUB_TOKEN }}
+#       - name: Install Nix
+#         uses: DeterminateSystems/nix-installer-action@main
+#         with:
+#           extra-conf: |
+#             access-tokens = github.com=${{ secrets.GITHUB_TOKEN }}
+#
+#       - name: Setup Magic Nix Cache
+#         uses: DeterminateSystems/magic-nix-cache-action@main
 
-      - name: Setup SSH
-        uses: webfactory/ssh-agent@v0.9.1
-        with:
-          ssh-private-key: ${{ secrets.DEPLOY_SSH_KEY }}
+#       - name: Setup SSH
+#         uses: webfactory/ssh-agent@v0.9.1
+#         with:
+#           ssh-private-key: ${{ secrets.DEPLOY_SSH_KEY }}
 
-      - name: Deploy
-        env:
-          DEPLOY_SSH_KEY: ${{ secrets.DEPLOY_SSH_KEY }}
-          DEPLOY_HOST: ${{ secrets.DEPLOY_HOST }}
-        run: |
-          # Add your deployment commands here
-          # Example using nixos-rebuild:
-          # ssh "$DEPLOY_HOST" 'nixos-rebuild switch --flake github:username/repo#hostname'
+#       - name: Deploy
+#         env:
+#           DEPLOY_SSH_KEY: ${{ secrets.DEPLOY_SSH_KEY }}
+#           DEPLOY_HOST: ${{ secrets.DEPLOY_HOST }}
+#         run: |
+#           # Add your deployment commands here
+#           # Example using nixos-rebuild:
+#           # ssh "$DEPLOY_HOST" 'nixos-rebuild switch --flake github:username/repo#hostname'
