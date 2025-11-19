@@ -20,6 +20,8 @@ jobs:
 
       - name: Setup Magic Nix Cache
         uses: DeterminateSystems/magic-nix-cache-action@main
+        with:
+          use-flakehub: false
 
       - name: Setup SSH for private repositories
         run: |
