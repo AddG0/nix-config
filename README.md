@@ -115,11 +115,3 @@ Completed features are noted in their respective stages.
 
 - [Ryan Yin](https://github.com/ryan4yin/nix-config) — Flake structure and Darwin integration patterns
 - [EmergentMind](https://github.com/EmergentMind) — Initial project architecture and modular design
-
----
-
-<div align="center">
-  <sub>
-    [Back to Top](#nix-config)
-  </sub>
-</div>
