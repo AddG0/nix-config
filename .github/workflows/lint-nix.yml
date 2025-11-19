@@ -14,9 +14,7 @@ jobs:
 
       - name: Install Nix
         uses: cachix/install-nix-action@v31
-      - name: Install statix and alejandra
-        run: nix-env -iA nixpkgs.statix nixpkgs.alejandra
       - name: Run statix
-        run: statix check ./
+        run: nix run nixpkgs#statix -- check ./
       - name: Run alejandra
-        run: alejandra --check ./
+        run: nix run nixpkgs#alejandra -- --check ./
