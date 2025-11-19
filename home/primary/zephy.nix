@@ -28,12 +28,12 @@
         "development/terraform.nix"
         "development/postman.nix"
         "development"
-        
+
         "secrets"
         "nixos/desktops/plasma6"
         "browsers"
         # "secrets/kubeconfig.nix"
-        
+
         "gaming/minecraft.nix"
         "gaming/heroic.nix"
         "gaming/bakkesmod.nix"
@@ -54,7 +54,7 @@
   programs.btop.enable = lib.mkForce true;
 
   programs.plasma.input.mice = [
-   {
+    {
       enable = true;
       name = "ASUE140F:00 04F3:31F7 Mouse";
       vendorId = "04F3";

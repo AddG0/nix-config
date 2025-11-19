@@ -11,13 +11,15 @@ with lib; let
 
   # Helper to build kscreen-doctor commands with mode detection
   # Runs in user session context, so no need for runuser or environment setup
-  mkRefreshRateScript = outputs: refreshRate: modeNum:
-    let
-      # If mode number is provided, use it directly
-      # Otherwise, try to auto-detect by parsing kscreen-doctor output
-      modeDetectionScript = if modeNum != null then ''
+  mkRefreshRateScript = outputs: refreshRate: modeNum: let
+    # If mode number is provided, use it directly
+    # Otherwise, try to auto-detect by parsing kscreen-doctor output
+    modeDetectionScript =
+      if modeNum != null
+      then ''
         MODE_NUM=${toString modeNum}
-      '' else ''
+      ''
+      else ''
         # Auto-detect mode number for ${toString refreshRate}Hz
         # Look for refresh rate with decimals (e.g., 60.03, 165.04)
         # Strip ANSI color codes first to avoid pattern matching issues
@@ -35,13 +37,15 @@ with lib; let
         fi
       '';
 
-      setModeCommands = concatMapStringsSep "\n" (output:
-        ''${pkgs.kdePackages.libkscreen}/bin/kscreen-doctor output.${output}.mode.$MODE_NUM 2>&1 || echo "Warning: Failed to set refresh rate for ${output}" >&2''
-      ) outputs;
-    in ''
-      ${modeDetectionScript}
-      ${setModeCommands}
-    '';
+    setModeCommands =
+      concatMapStringsSep "\n" (
+        output: ''${pkgs.kdePackages.libkscreen}/bin/kscreen-doctor output.${output}.mode.$MODE_NUM 2>&1 || echo "Warning: Failed to set refresh rate for ${output}" >&2''
+      )
+      outputs;
+  in ''
+    ${modeDetectionScript}
+    ${setModeCommands}
+  '';
 in {
   options.services.powerStateManager.kde = {
     enable = mkEnableOption "KDE Plasma display management backend";
@@ -128,7 +132,8 @@ in {
     ];
 
     # Warnings
-    warnings = optional
+    warnings =
+      optional
       (!config.services.desktopManager.plasma6.enable)
       "powerStateManager.kde.enable is true but KDE Plasma doesn't appear to be enabled";
   };

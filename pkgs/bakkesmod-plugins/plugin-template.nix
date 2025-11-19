@@ -12,21 +12,18 @@
 # - Fetch the CDN URL from the BakkesPlugins API
 # - Download and extract the plugin zip
 # - Install all files (DLLs, settings, assets)
-
-{ callPackage }:
-
-let
+{callPackage}: let
   mkBakkesModPlugin = callPackage ../mk-bakkesmod-plugin.nix {};
 in
-mkBakkesModPlugin {
-  pname = "PluginName";      # Name of the plugin (for identification)
-  version = "1.0.0";         # Plugin version (from the website)
-  pluginId = "123";          # Numeric ID from bakkesplugins.com URL
-  sha256 = "";               # Will be filled after first build attempt
-  description = "Plugin description";
+  mkBakkesModPlugin {
+    pname = "PluginName"; # Name of the plugin (for identification)
+    version = "1.0.0"; # Plugin version (from the website)
+    pluginId = "123"; # Numeric ID from bakkesplugins.com URL
+    sha256 = ""; # Will be filled after first build attempt
+    description = "Plugin description";
 
-  # Optional: additional meta attributes
-  meta = {
-    homepage = "https://github.com/...";
-  };
-}
+    # Optional: additional meta attributes
+    meta = {
+      homepage = "https://github.com/...";
+    };
+  }

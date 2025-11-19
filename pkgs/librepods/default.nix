@@ -30,7 +30,7 @@ stdenv.mkDerivation rec {
     ./patches/fix-pipewire-sink-detection.patch
   ];
 
-  patchFlags = [ "-p0" ];
+  patchFlags = ["-p0"];
 
   nativeBuildInputs = [
     cmake
@@ -51,8 +51,8 @@ stdenv.mkDerivation rec {
   ];
 
   runtimeDeps = [
-    bluez       # bluetoothctl
-    pulseaudio  # pactl
+    bluez # bluetoothctl
+    pulseaudio # pactl
   ];
 
   cmakeFlags = [
@@ -60,23 +60,23 @@ stdenv.mkDerivation rec {
   ];
 
   postInstall = ''
-    # Install icon from source assets
-    mkdir -p $out/share/pixmaps
-    cp ../assets/airpods.png $out/share/pixmaps/librepods.png
+        # Install icon from source assets
+        mkdir -p $out/share/pixmaps
+        cp ../assets/airpods.png $out/share/pixmaps/librepods.png
 
-    # Create desktop file since the CMake one expects assets we might not have
-    mkdir -p $out/share/applications
-    cat > $out/share/applications/me.kavishdevar.librepods.desktop <<EOF
-[Desktop Entry]
-Type=Application
-Name=LibrePods
-Comment=AirPods liberated from Apple's ecosystem
-Exec=librepods
-Icon=librepods
-Terminal=false
-Categories=Audio;AudioVideo;Utility;Qt;
-StartupWMClass=librepods
-EOF
+        # Create desktop file since the CMake one expects assets we might not have
+        mkdir -p $out/share/applications
+        cat > $out/share/applications/me.kavishdevar.librepods.desktop <<EOF
+    [Desktop Entry]
+    Type=Application
+    Name=LibrePods
+    Comment=AirPods liberated from Apple's ecosystem
+    Exec=librepods
+    Icon=librepods
+    Terminal=false
+    Categories=Audio;AudioVideo;Utility;Qt;
+    StartupWMClass=librepods
+    EOF
   '';
 
   postFixup = ''
@@ -110,6 +110,6 @@ EOF
     license = licenses.agpl3Only;
     platforms = platforms.linux;
     mainProgram = "librepods";
-    maintainers = with maintainers; [ ];
+    maintainers = with maintainers; [];
   };
 }

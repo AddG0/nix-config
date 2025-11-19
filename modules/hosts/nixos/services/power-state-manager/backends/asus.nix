@@ -53,7 +53,8 @@ in {
     ];
 
     # Warnings
-    warnings = optional (!config.services.asusd.enable)
+    warnings =
+      optional (!config.services.asusd.enable)
       "powerStateManager.asus.enable is true but services.asusd is not enabled";
   };
 }

@@ -5,7 +5,8 @@
   lib,
   pkgs,
   ...
-}: with lib; let
+}:
+with lib; let
   cfg = config.programs.bakkesmod;
 in {
   options.programs.bakkesmod = {

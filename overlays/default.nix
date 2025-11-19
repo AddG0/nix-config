@@ -13,15 +13,18 @@
 
     # Helper to smartly merge a package/namespace
     mergePackage = name: value:
-      if builtins.hasAttr name prev then
+      if builtins.hasAttr name prev
+      then
         # If it exists in nixpkgs, we need to merge
-        if builtins.isAttrs value && builtins.isAttrs prev.${name} then
+        if builtins.isAttrs value && builtins.isAttrs prev.${name}
+        then
           # Both are attrsets, merge them
           prev.${name} // value
-        else if builtins.isFunction prev.${name} && builtins.isAttrs value then
+        else if builtins.isFunction prev.${name} && builtins.isAttrs value
+        then
           # Special case: nixpkgs has a function (like themes), we have an attrset
           # Make it work as both using __functor
-          value // { __functor = self: prev.${name}; }
+          value // {__functor = self: prev.${name};}
         else
           # Otherwise just override
           value
@@ -67,7 +70,8 @@
         wrapProgram $out/bin/btop \
           --prefix LD_LIBRARY_PATH : "${prev.lib.makeLibraryPath ([
             prev.linuxPackages.nvidia_x11
-          ] ++ prev.lib.optionals (prev ? rocmPackages) [
+          ]
+          ++ prev.lib.optionals (prev ? rocmPackages) [
             prev.rocmPackages.rocm-smi
           ])}"
       '';

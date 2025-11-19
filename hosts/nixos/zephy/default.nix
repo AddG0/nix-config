@@ -65,7 +65,6 @@
   programs.awsvpnclient.enable = true;
   programs.librepods.enable = true;
 
-
   programs.kdeconnect.enable = true;
 
   networking = {

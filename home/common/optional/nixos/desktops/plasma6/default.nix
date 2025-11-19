@@ -4,8 +4,7 @@
   # - Set primary monitor: `kscreen-doctor output.3.primary` (replace 3 with output number)
 
   # Symlink timezone-hover plasmoid to XDG data directory so Plasma can find it
-  xdg.dataFile."plasma/plasmoids/com.github.timezonehover".source =
-    "${pkgs.timezone-hover}/share/plasma/plasmoids/com.github.timezonehover";
+  xdg.dataFile."plasma/plasmoids/com.github.timezonehover".source = "${pkgs.timezone-hover}/share/plasma/plasmoids/com.github.timezonehover";
 
   programs.plasma = {
     enable = true;
@@ -310,7 +309,8 @@
     # Input device configuration
     input = {
       mice = [
-        { # The Razer mice is my shared one
+        {
+          # The Razer mice is my shared one
           enable = true;
           name = "Razer Razer Viper Mini Signature Edition";
           vendorId = "1532";

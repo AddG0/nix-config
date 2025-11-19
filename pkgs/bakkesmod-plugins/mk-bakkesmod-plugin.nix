@@ -1,19 +1,26 @@
-{ lib, stdenv, fetchurl, unzip, curl, jq, cacert }:
-
-# Builder function for BakkesMod plugins
-{ pname
-, version ? "latest"
-, pluginId  # ID on bakkesplugins.com
-, sha256
-, description ? ""
-, meta ? {}
+{
+  lib,
+  stdenv,
+  fetchurl,
+  unzip,
+  curl,
+  jq,
+  cacert,
 }:
-
+# Builder function for BakkesMod plugins
+{
+  pname,
+  version ? "latest",
+  pluginId, # ID on bakkesplugins.com
+  sha256,
+  description ? "",
+  meta ? {},
+}:
 stdenv.mkDerivation {
   inherit pname version;
 
   # Build phase that fetches the CDN URL and downloads the plugin
-  nativeBuildInputs = [ curl jq unzip cacert ];
+  nativeBuildInputs = [curl jq unzip cacert];
 
   dontUnpack = true;
 
@@ -45,9 +52,11 @@ stdenv.mkDerivation {
   outputHashAlgo = "sha256";
   outputHash = sha256;
 
-  meta = with lib; {
-    inherit description;
-    license = licenses.unfree;
-    platforms = platforms.linux;
-  } // meta;
+  meta = with lib;
+    {
+      inherit description;
+      license = licenses.unfree;
+      platforms = platforms.linux;
+    }
+    // meta;
 }

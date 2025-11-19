@@ -19,8 +19,8 @@
     "vm.laptop_mode" = 5;
 
     # Additional VM tweaks for battery (aggressive settings for maximum savings)
-    "vm.dirty_ratio" = 95;              # Start forced writeback at 95% RAM (max battery savings)
-    "vm.dirty_background_ratio" = 60;   # Start background writeback at 60% RAM
+    "vm.dirty_ratio" = 95; # Start forced writeback at 95% RAM (max battery savings)
+    "vm.dirty_background_ratio" = 60; # Start background writeback at 60% RAM
   };
 
   services.tlp = {
@@ -41,7 +41,7 @@
 
       # AMD platform profile (Ryzen 6000 series support)
       # "low-power" focuses on power saving for battery
-      PLATFORM_PROFILE_ON_AC = "performance";  # Max performance on AC
+      PLATFORM_PROFILE_ON_AC = "performance"; # Max performance on AC
       PLATFORM_PROFILE_ON_BAT = "low-power";
 
       # CPU boost - keep enabled on AC for performance
@@ -72,7 +72,7 @@
       # ==================== Runtime Power Management ====================
 
       # Enable runtime PM for PCI(e) devices
-      RUNTIME_PM_ON_AC = "off";  # Disable for max performance
+      RUNTIME_PM_ON_AC = "off"; # Disable for max performance
       RUNTIME_PM_ON_BAT = "auto";
 
       # ==================== Graphics Power Management ====================
@@ -83,19 +83,19 @@
       # ==================== Audio Power Management ====================
 
       # Audio power saving (timeout in seconds)
-      SOUND_POWER_SAVE_ON_AC = 0;      # Disable on AC for better audio quality
-      SOUND_POWER_SAVE_ON_BAT = 1;     # 1 second timeout on battery
+      SOUND_POWER_SAVE_ON_AC = 0; # Disable on AC for better audio quality
+      SOUND_POWER_SAVE_ON_BAT = 1; # 1 second timeout on battery
 
       # ==================== Network Power Management ====================
 
       # WiFi power saving
-      WIFI_PWR_ON_AC = "off";          # Max performance on AC
-      WIFI_PWR_ON_BAT = "on";          # Power saving on battery
+      WIFI_PWR_ON_AC = "off"; # Max performance on AC
+      WIFI_PWR_ON_BAT = "on"; # Power saving on battery
 
       # ==================== USB Power Management ====================
 
       # USB autosuspend - aggressive power saving
-      USB_AUTOSUSPEND = 1;             # Enable autosuspend
+      USB_AUTOSUSPEND = 1; # Enable autosuspend
 
       # Exclude USB devices that cause issues when suspended
       # Add device IDs if needed: "1234:5678 abcd:efgh"
@@ -104,11 +104,11 @@
       # ==================== SATA/NVMe Power Management ====================
 
       # SATA aggressive link power management (ALPM)
-      SATA_LINKPWR_ON_AC = "max_performance";  # Max performance on AC
+      SATA_LINKPWR_ON_AC = "max_performance"; # Max performance on AC
       SATA_LINKPWR_ON_BAT = "med_power_with_dipm";
 
       # NVMe power management (for modern SSDs)
-      AHCI_RUNTIME_PM_ON_AC = "off";  # Disable for max performance
+      AHCI_RUNTIME_PM_ON_AC = "off"; # Disable for max performance
       AHCI_RUNTIME_PM_ON_BAT = "auto";
 
       # ==================== PCIe Power Management ====================
@@ -120,7 +120,7 @@
       # ==================== Kernel Settings ====================
 
       # Laptop mode - kernel optimizer for battery
-      NMI_WATCHDOG = 0;                # Disable NMI watchdog (saves power)
+      NMI_WATCHDOG = 0; # Disable NMI watchdog (saves power)
 
       # ==================== Misc Settings ====================
 
@@ -141,27 +141,27 @@
     enable = true;
 
     # Universal settings (work on any system)
-    onBattery.brightness = 40;   # 40% brightness on battery
-    onAC.brightness = 100;        # Full brightness on AC
+    onBattery.brightness = 40; # 40% brightness on battery
+    onAC.brightness = 100; # Full brightness on AC
 
     # KDE backend for display management
     kde = {
       enable = true;
       onBattery = {
-        refreshRate = 60;   # 60Hz on battery (saves ~2-4W)
-        modeNumber = 2;     # Hard-coded for instant switching
+        refreshRate = 60; # 60Hz on battery (saves ~2-4W)
+        modeNumber = 2; # Hard-coded for instant switching
       };
       onAC = {
-        refreshRate = 165;  # Max refresh rate on AC
-        modeNumber = 1;     # Hard-coded for instant switching
+        refreshRate = 165; # Max refresh rate on AC
+        modeNumber = 1; # Hard-coded for instant switching
       };
     };
 
     # ASUS backend for performance profiles
     asus = {
       enable = true;
-      onBattery.profile = "Quiet";      # Quiet mode on battery
-      onAC.profile = "Balanced";         # Balanced mode on AC
+      onBattery.profile = "Quiet"; # Quiet mode on battery
+      onAC.profile = "Balanced"; # Balanced mode on AC
     };
   };
 }

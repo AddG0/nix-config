@@ -1,8 +1,12 @@
-{pkgs, inputs, ...}: {
+{
+  pkgs,
+  inputs,
+  ...
+}: {
   imports = [
     inputs.ai-toolkit.homeModules.ai-toolkit
   ];
-  
+
   home.packages = with pkgs; [
     # Development tools
     claude-code-router
@@ -13,7 +17,7 @@
   programs.claude-code = {
     enable = true;
     agents = {
-        senior-code-reviewer = builtins.readFile ./agents/senior-code-reviewer.md;
+      senior-code-reviewer = builtins.readFile ./agents/senior-code-reviewer.md;
     };
     settings = {
       # https://mynixos.com/home-manager/option/programs.claude-code.settings

@@ -22,7 +22,8 @@ with lib; let
       (
         ${fragment}
       ) &
-    '') fragments;
+    '')
+    fragments;
 
   # System service scripts (root context)
   mkSystemBatteryScript = ''
@@ -150,7 +151,8 @@ in {
     backendsDir = ./backends;
     backendFiles = builtins.readDir backendsDir;
     nixFiles = filter (name: hasSuffix ".nix" name) (attrNames backendFiles);
-  in map (file: backendsDir + "/${file}") nixFiles;
+  in
+    map (file: backendsDir + "/${file}") nixFiles;
 
   # Core options
   options.services.powerStateManager = {

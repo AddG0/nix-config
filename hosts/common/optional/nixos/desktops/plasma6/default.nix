@@ -19,7 +19,7 @@
     sddm.kwallet.enable = lib.mkIf config.services.displayManager.sddm.enable true;
     greetd.kwallet = lib.mkIf config.services.greetd.enable {
       enable = true;
-      forceRun = true;  # Required for greetd since it's not detected as a graphical session
+      forceRun = true; # Required for greetd since it's not detected as a graphical session
     };
     kscreenlocker.kwallet.enable = lib.mkIf config.services.desktopManager.plasma6.enable true;
   };

@@ -28,7 +28,7 @@ in {
     hardware.bluetooth.enable = mkDefault true;
 
     # Ensure LibrePods is installed
-    environment.systemPackages = [ cfg.package ];
+    environment.systemPackages = [cfg.package];
 
     # Create systemd user service to auto-start LibrePods if enabled
     systemd.user.services.librepods = mkIf cfg.autoStart {

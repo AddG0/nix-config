@@ -13,12 +13,15 @@
   # Usage in writeShellScript: ${lib.custom.mkNetworkWaitScript { pkgs = pkgs; host = "github.com"; }}
   # Usage in writeShellApplication: ${lib.custom.mkNetworkWaitScript { host = "github.com"; }} (ping is in runtimeInputs)
   mkNetworkWaitScript = {
-    pkgs ? null,  # Required for writeShellScript, optional for writeShellApplication
-    host ? "1.1.1.1",  # Cloudflare DNS - reliable default
+    pkgs ? null, # Required for writeShellScript, optional for writeShellApplication
+    host ? "1.1.1.1", # Cloudflare DNS - reliable default
     maxAttempts ? 30,
     waitSeconds ? 2,
   }: let
-    pingCmd = if pkgs != null then "${pkgs.iputils}/bin/ping" else "ping";
+    pingCmd =
+      if pkgs != null
+      then "${pkgs.iputils}/bin/ping"
+      else "ping";
   in ''
     wait_for_network() {
       local max_attempts=${toString maxAttempts}

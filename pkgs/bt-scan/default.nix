@@ -4,10 +4,11 @@
   makeWrapper,
   stdenv,
 }: let
-  pythonEnv = python3.withPackages (ps: with ps; [
-    bleak
-    rich
-  ]);
+  pythonEnv = python3.withPackages (ps:
+    with ps; [
+      bleak
+      rich
+    ]);
 in
   stdenv.mkDerivation {
     pname = "bt-scan";

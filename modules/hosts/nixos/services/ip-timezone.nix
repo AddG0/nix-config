@@ -24,7 +24,6 @@ in {
   };
 
   config = mkIf cfg.enable {
-
     # Create a working IP-based timezone detection service
     systemd.services.ip-timezone = {
       description = "Update timezone based on IP geolocation";
@@ -41,7 +40,7 @@ in {
             ${pkgs.util-linux}/bin/logger -t ip-timezone "$*"
           }
 
-          ${lib.custom.mkNetworkWaitScript { inherit pkgs; }}
+          ${lib.custom.mkNetworkWaitScript {inherit pkgs;}}
 
           # Get timezone from IP geolocation
           log "Fetching timezone from ${cfg.provider}"

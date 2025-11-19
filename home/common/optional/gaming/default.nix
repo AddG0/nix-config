@@ -1,9 +1,5 @@
-{ 
-    pkgs, 
-    ... 
-    }: 
-{
-    home.packages = with pkgs; [
-        mangohud
-    ];
+{pkgs, ...}: {
+  home.packages = with pkgs; [
+    mangohud
+  ];
 }

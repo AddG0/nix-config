@@ -1,4 +1,9 @@
-{pkgs, config, lib, ...}: let
+{
+  pkgs,
+  config,
+  lib,
+  ...
+}: let
   # Create script files for GameMode hooks
   gamemodeStartScript = pkgs.writeShellScript "gamemode-start" ''
     ${lib.optionalString (config.services.asusd.enable or false) ''
@@ -43,10 +48,10 @@ in {
       gamescopeSession = {
         enable = true;
         args = [
-          "--rt"                    # Use realtime scheduling
-          "--expose-wayland"        # Expose Wayland socket
-          "--adaptive-sync"         # Enable VRR/adaptive sync
-          "--force-grab-cursor"     # Better mouse capture for games
+          "--rt" # Use realtime scheduling
+          "--expose-wayland" # Expose Wayland socket
+          "--adaptive-sync" # Enable VRR/adaptive sync
+          "--force-grab-cursor" # Better mouse capture for games
         ];
       };
 
@@ -69,7 +74,7 @@ in {
             (pkgs)
             libpng
             libpulseaudio
-             libvorbis
+            libvorbis
             libkrb5
             keyutils
             gperftools
