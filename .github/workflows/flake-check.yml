@@ -14,9 +14,9 @@ jobs:
 
       - name: Install Nix
         uses: DeterminateSystems/nix-installer-action@main
-        with:
-          extra-conf: |
-            access-tokens = github.com=${{ secrets.GH_TOKEN_FOR_UPDATES }}
+
+      - name: Configure Nix GitHub token
+        run: echo 'NIX_CONFIG=access-tokens = github.com=${{ secrets.GITHUB_TOKEN }}' >> $GITHUB_ENV
 
       - name: Setup Magic Nix Cache
         uses: DeterminateSystems/magic-nix-cache-action@main
