@@ -27,8 +27,9 @@
         "bluez5.enable-msbc" = true;
         "bluez5.enable-hw-volume" = true;
 
-        ## Define available profiles for all scenarios
-        "bluez5.roles" = ["a2dp_sink" "a2dp_source" "hsp_hs" "hsp_ag" "hfp_hf" "hfp_ag"];
+        ## Define available profiles - removed headset profiles to prevent low-quality auto-connect
+        ## Only enable A2DP for high-quality audio. Uncomment hfp/hsp if you need microphone support
+        "bluez5.roles" = ["a2dp_sink" "a2dp_source"];
 
         ## Codec priority list: prefer high-quality codecs first
         ## Note: OpenRun Pro 2 only supports SBC, but this helps other devices
@@ -56,10 +57,7 @@
             update-props = {
               ## Auto-connect A2DP profile ONLY by default for best audio quality
               ## HFP (phone call mode) can be manually enabled when needed
-              ## If you need auto microphone support, add "hfp_hf" back to this list
               "bluez5.auto-connect" = ["a2dp_sink"];
-              ## Set default initial profile to high-quality A2DP with SBC-XQ codec
-              "device.profile" = "a2dp-sink-sbc_xq";
             };
           };
         }

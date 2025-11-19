@@ -27,6 +27,7 @@
         "development/gcloud.nix"
         "development/terraform.nix"
         "development/postman.nix"
+        "development"
         
         "secrets"
         "nixos/desktops/plasma6"

@@ -14,8 +14,11 @@
 
   # Default configuration: Hybrid mode (NVIDIA available when needed)
   hardware.nvidia = {
+    # Use open-source NVIDIA drivers for better power management
+    # Specifically added to fix errors around closing the laptop lid erroring, preventing the displays from loading back up correctly
+    open = true;
     powerManagement.enable = true;
-    powerManagement.finegrained = true; # Enable dynamic power management
+    powerManagement.finegrained = true;
 
     prime = {
       amdgpuBusId = "PCI:6:0:0"; # AMD Radeon 680M (integrated)
