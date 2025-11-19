@@ -1,6 +1,7 @@
 #!/bin/bash
 
 POPUP_OFF="sketchybar --set apple.logo popup.drawing=off"
+# shellcheck disable=SC2016
 POPUP_CLICK_SCRIPT='sketchybar --set $NAME popup.drawing=toggle'
 
 apple_logo=(

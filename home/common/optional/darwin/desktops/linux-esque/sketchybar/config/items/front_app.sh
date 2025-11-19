@@ -1,5 +1,6 @@
 #!/bin/bash
 
+# shellcheck disable=SC2016
 FRONT_APP_SCRIPT='sketchybar --set $NAME label="$INFO"'
 
 yabai=(

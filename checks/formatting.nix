@@ -63,6 +63,9 @@
         "*.toml"
         "*.yaml"
         "*.yml"
+
+        # Scripts directory
+        "scripts/*"
       ];
     };
 

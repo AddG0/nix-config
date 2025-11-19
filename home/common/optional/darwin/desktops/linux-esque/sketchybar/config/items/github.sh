@@ -1,5 +1,6 @@
 #!/bin/bash
 
+# shellcheck disable=SC2016
 POPUP_CLICK_SCRIPT='sketchybar --set $NAME popup.drawing=toggle'
 
 github_bell=(

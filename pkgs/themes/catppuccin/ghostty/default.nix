@@ -10,8 +10,8 @@ stdenv.mkDerivation rec {
   src = fetchFromGitHub {
     owner = "catppuccin";
     repo = "ghostty";
-    rev = "main";
-    sha256 = "sha256-zJrL3ndgUJ8E8O5RpJf5VAmnDMcOrMdnHDQE5DQyIO4=";
+    rev = "0eeefa637affe0b5f29d7005cfe4e143c244a781";
+    sha256 = "sha256-j0HCakM9R/xxEjWd5A0j8VVlg0vQivjlAYHRW/4OpGU=";
   };
 
   installPhase = ''

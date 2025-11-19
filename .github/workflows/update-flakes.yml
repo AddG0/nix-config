@@ -2,7 +2,7 @@ name: Update Flakes
 
 on:
   schedule:
-    - cron: '0 0 * * 0'  # Runs at 00:00 on Sunday
+    - cron: '0 0 * * 6'  # Runs at 00:00 on Saturday
   workflow_dispatch:      # Allows manual triggering
 
 jobs:
@@ -13,6 +13,9 @@ jobs:
 
       - name: Install Nix
         uses: DeterminateSystems/nix-installer-action@main
+        with:
+          extra-conf: |
+            access-tokens = github.com=${{ secrets.GITHUB_TOKEN }}
 
       - name: Setup Magic Nix Cache
         uses: DeterminateSystems/magic-nix-cache-action@main

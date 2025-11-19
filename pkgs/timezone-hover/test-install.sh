@@ -12,8 +12,8 @@ echo "� Installing timezone-hover plasmoid for testing..."
 
 # Remove old installation if exists
 if [ -d "$PLASMOID_DIR" ]; then
-    echo "�  Removing old installation..."
-    rm -rf "$PLASMOID_DIR"
+  echo "�  Removing old installation..."
+  rm -rf "$PLASMOID_DIR"
 fi
 
 # Copy plasmoid files
