@@ -1,4 +1,8 @@
-{config, lib, ...}: {
+{
+  config,
+  lib,
+  ...
+}: {
   imports = lib.custom.scanPaths ./.;
 
   services.home-assistant = {
