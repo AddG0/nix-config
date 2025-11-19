@@ -1,5 +1,5 @@
 # BakkesMod configuration
-{ pkgs, ... }: {
+{pkgs, ...}: {
   programs.bakkesmod = {
     enable = true;
     plugins = [

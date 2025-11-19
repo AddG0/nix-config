@@ -9,7 +9,6 @@
   makeWrapper,
   makeDesktopItem,
   copyDesktopItems,
-
   fontconfig,
   xorg,
   libGL,
@@ -32,10 +31,11 @@ stdenv.mkDerivation (finalAttrs: {
         hash = "sha256-Spx/K7XqOy56aYNsemlJ4iJjPb1RIYhxHvftcZwPT9U=";
       };
     };
-  in fetchzip {
-    inherit (sources.${stdenv.hostPlatform.system}) url hash;
-    stripRoot = true;
-  };
+  in
+    fetchzip {
+      inherit (sources.${stdenv.hostPlatform.system}) url hash;
+      stripRoot = true;
+    };
 
   dontConfigure = true;
   dontBuild = true;
@@ -94,7 +94,7 @@ stdenv.mkDerivation (finalAttrs: {
       icon = "jetbrains-fleet";
       genericName = finalAttrs.meta.description;
       comment = finalAttrs.meta.longDescription;
-      categories = [ "Development" ];
+      categories = ["Development"];
       startupWMClass = "Fleet";
     })
   ];
@@ -105,9 +105,9 @@ stdenv.mkDerivation (finalAttrs: {
     mainProgram = "fleet";
     homepage = "https://www.jetbrains.com/fleet/";
     license = lib.licenses.unfree;
-    maintainers = [ ];
-    platforms = [ "x86_64-linux" "aarch64-linux" ];
-    sourceProvenance = with lib.sourceTypes; [ binaryNativeCode ];
+    maintainers = [];
+    platforms = ["x86_64-linux" "aarch64-linux"];
+    sourceProvenance = with lib.sourceTypes; [binaryNativeCode];
     changelog = "https://www.jetbrains.com/help/fleet/${lib.versions.majorMinor finalAttrs.version}/release-notes-fleet.html";
   };
 })

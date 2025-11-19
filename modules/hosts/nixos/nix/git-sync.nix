@@ -134,126 +134,136 @@ in {
     systemd.services.system-git-sync = let
       sync-script = pkgs.writeShellApplication {
         name = "system-git-sync";
-        runtimeInputs = with pkgs; [
-          git
-          nixos-rebuild
-          systemd
-          coreutils
-          gnugrep
-          gawk
-          sudo
-          util-linux
-          iputils  # For ping command in network check
-        ] ++ optionals cfg.notifications.enable [
-          libnotify
-        ];
+        runtimeInputs = with pkgs;
+          [
+            git
+            nixos-rebuild
+            systemd
+            coreutils
+            gnugrep
+            gawk
+            sudo
+            util-linux
+            iputils # For ping command in network check
+          ]
+          ++ optionals cfg.notifications.enable [
+            libnotify
+          ];
         text = ''
-        set -euo pipefail
+          set -euo pipefail
 
-        export HOME=/root
-        REPO="${cfg.repoPath}"
+          export HOME=/root
+          REPO="${cfg.repoPath}"
 
-        # Helper functions
-        log() {
-          echo "[$(date '+%Y-%m-%d %H:%M:%S')] $*"
-          logger -t system-git-sync "$*"
-        }
+          # Helper functions
+          log() {
+            echo "[$(date '+%Y-%m-%d %H:%M:%S')] $*"
+            logger -t system-git-sync "$*"
+          }
 
-        notify() {
-          ${if cfg.notifications.enable then ''
-            for session in $(loginctl list-sessions --no-legend | awk '{print $1}'); do
-              user=$(loginctl show-session "$session" -p Name --value)
-              if [ "$user" = "${cfg.notifications.notifyUser}" ]; then
-                uid=$(loginctl show-session "$session" -p User --value)
-                display=$(loginctl show-session "$session" -p Display --value || echo ":0")
-                sudo -u "${cfg.notifications.notifyUser}" \
-                  DISPLAY="$display" \
-                  DBUS_SESSION_BUS_ADDRESS="unix:path=/run/user/$uid/bus" \
-                  notify-send "$@"
-                break
+          notify() {
+            ${
+            if cfg.notifications.enable
+            then ''
+              for session in $(loginctl list-sessions --no-legend | awk '{print $1}'); do
+                user=$(loginctl show-session "$session" -p Name --value)
+                if [ "$user" = "${cfg.notifications.notifyUser}" ]; then
+                  uid=$(loginctl show-session "$session" -p User --value)
+                  display=$(loginctl show-session "$session" -p Display --value || echo ":0")
+                  sudo -u "${cfg.notifications.notifyUser}" \
+                    DISPLAY="$display" \
+                    DBUS_SESSION_BUS_ADDRESS="unix:path=/run/user/$uid/bus" \
+                    notify-send "$@"
+                  break
+                fi
+              done
+            ''
+            else ''
+              :  # Notifications disabled
+            ''
+          }
+          }
+
+          git_safe() {
+            git -c safe.directory="$REPO" "$@"
+          }
+
+          git_as_user() {
+            sudo -u ${cfg.user} git -c safe.directory="$REPO" "$@"
+          }
+
+          cd "$REPO"
+          log "Starting GitOps sync check..."
+
+          # Validate git repository
+          [ -d .git ] || { log "ERROR: $REPO is not a git repository"; exit 1; }
+
+          ${lib.custom.mkNetworkWaitScript {host = "github.com";}}
+
+          # Fetch and check for changes
+          log "Fetching from ${cfg.remote}/${cfg.branch}..."
+          git_as_user fetch ${cfg.remote} ${cfg.branch}
+
+          LOCAL=$(git_safe rev-parse HEAD)
+          REMOTE=$(git_safe rev-parse ${cfg.remote}/${cfg.branch})
+
+          [ "$LOCAL" = "$REMOTE" ] && { log "No changes detected"; exit 0; }
+
+          log "Changes detected: $LOCAL -> $REMOTE"
+          notify -u normal "System Git Sync" "Pulling and rebuilding configuration..."
+
+          # Pull changes
+          git_as_user pull ${cfg.remote} ${cfg.branch}
+
+          ${optionalString (cfg.preRebuildHook != "") ''
+            # Pre-rebuild hook
+            log "Running pre-rebuild hook..."
+            ${cfg.preRebuildHook}
+          ''}
+
+          # Determine flake path
+          ${
+            if cfg.flakePath != null
+            then ''
+              REBUILD_ARGS=(${cfg.rebuildCommand} --flake "$REPO${cfg.flakePath}")
+              log "Using flake: $REPO${cfg.flakePath}"
+            ''
+            else ''
+              if [ -f flake.nix ]; then
+                REBUILD_ARGS=(${cfg.rebuildCommand} --flake "$REPO#${config.networking.hostName}")
+                log "Auto-detected flake: $REPO#${config.networking.hostName}"
+              else
+                REBUILD_ARGS=(${cfg.rebuildCommand})
+                log "Using non-flake rebuild"
               fi
-            done
-          '' else ''
-            :  # Notifications disabled
+            ''
+          }
+
+          # Rebuild system
+          log "Running: nixos-rebuild ''${REBUILD_ARGS[*]}"
+          CURRENT_GEN=$(nixos-rebuild list-generations | grep current | awk '{print $1}')
+
+          if nixos-rebuild "''${REBUILD_ARGS[@]}"; then
+            log "Rebuild successful!"
+            notify -u normal "System Git Sync" "Configuration updated successfully!"
+
+            ${optionalString (cfg.postRebuildHook != "") ''
+            log "Running post-rebuild hook..."
+            ${cfg.postRebuildHook}
           ''}
-        }
+          else
+            log "ERROR: Rebuild failed!"
+            notify -u critical "System Git Sync" "Rebuild FAILED! Check logs."
 
-        git_safe() {
-          git -c safe.directory="$REPO" "$@"
-        }
-
-        git_as_user() {
-          sudo -u ${cfg.user} git -c safe.directory="$REPO" "$@"
-        }
-
-        cd "$REPO"
-        log "Starting GitOps sync check..."
-
-        # Validate git repository
-        [ -d .git ] || { log "ERROR: $REPO is not a git repository"; exit 1; }
-
-        ${lib.custom.mkNetworkWaitScript { host = "github.com"; }}
-
-        # Fetch and check for changes
-        log "Fetching from ${cfg.remote}/${cfg.branch}..."
-        git_as_user fetch ${cfg.remote} ${cfg.branch}
-
-        LOCAL=$(git_safe rev-parse HEAD)
-        REMOTE=$(git_safe rev-parse ${cfg.remote}/${cfg.branch})
-
-        [ "$LOCAL" = "$REMOTE" ] && { log "No changes detected"; exit 0; }
-
-        log "Changes detected: $LOCAL -> $REMOTE"
-        notify -u normal "System Git Sync" "Pulling and rebuilding configuration..."
-
-        # Pull changes
-        git_as_user pull ${cfg.remote} ${cfg.branch}
-
-        ${optionalString (cfg.preRebuildHook != "") ''
-        # Pre-rebuild hook
-        log "Running pre-rebuild hook..."
-        ${cfg.preRebuildHook}
-        ''}
-
-        # Determine flake path
-        ${if cfg.flakePath != null then ''
-        REBUILD_ARGS=(${cfg.rebuildCommand} --flake "$REPO${cfg.flakePath}")
-        log "Using flake: $REPO${cfg.flakePath}"
-        '' else ''
-        if [ -f flake.nix ]; then
-          REBUILD_ARGS=(${cfg.rebuildCommand} --flake "$REPO#${config.networking.hostName}")
-          log "Auto-detected flake: $REPO#${config.networking.hostName}"
-        else
-          REBUILD_ARGS=(${cfg.rebuildCommand})
-          log "Using non-flake rebuild"
-        fi
-        ''}
-
-        # Rebuild system
-        log "Running: nixos-rebuild ''${REBUILD_ARGS[*]}"
-        CURRENT_GEN=$(nixos-rebuild list-generations | grep current | awk '{print $1}')
-
-        if nixos-rebuild "''${REBUILD_ARGS[@]}"; then
-          log "Rebuild successful!"
-          notify -u normal "System Git Sync" "Configuration updated successfully!"
-
-          ${optionalString (cfg.postRebuildHook != "") ''
-          log "Running post-rebuild hook..."
-          ${cfg.postRebuildHook}
-          ''}
-        else
-          log "ERROR: Rebuild failed!"
-          notify -u critical "System Git Sync" "Rebuild FAILED! Check logs."
-
-          ${optionalString cfg.autoRollback ''
-          log "Auto-rollback to generation $CURRENT_GEN..."
-          nixos-rebuild switch --rollback
-          log "Rolled back successfully"
-          notify -u normal "System Git Sync" "Rolled back to previous configuration"
+            ${optionalString cfg.autoRollback ''
+            log "Auto-rollback to generation $CURRENT_GEN..."
+            nixos-rebuild switch --rollback
+            log "Rolled back successfully"
+            notify -u normal "System Git Sync" "Rolled back to previous configuration"
           ''}
 
-          exit 1
-        fi
+            exit 1
+          fi
         '';
       };
     in {
@@ -270,17 +280,21 @@ in {
     systemd.timers.system-git-sync = {
       description = "Periodically sync and rebuild NixOS configuration from Git";
       wantedBy = ["timers.target"];
-      timerConfig = {
-        Unit = "system-git-sync.service";
-        Persistent = true;  # Run on boot if missed while system was off
-      } // (
-        if cfg.schedule != null then {
-          OnCalendar = cfg.schedule;
-        } else {
-          OnBootSec = "5min";
-          OnUnitActiveSec = cfg.interval;
+      timerConfig =
+        {
+          Unit = "system-git-sync.service";
+          Persistent = true; # Run on boot if missed while system was off
         }
-      );
+        // (
+          if cfg.schedule != null
+          then {
+            OnCalendar = cfg.schedule;
+          }
+          else {
+            OnBootSec = "5min";
+            OnUnitActiveSec = cfg.interval;
+          }
+        );
     };
   };
 }

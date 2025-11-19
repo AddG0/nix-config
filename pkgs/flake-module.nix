@@ -7,7 +7,6 @@
   # Import the shared package definitions
   mkCustomPackages = import ./packages.nix;
 in {
-
   perSystem = {
     pkgs,
     system,

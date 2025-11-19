@@ -70,14 +70,16 @@ in {
     ];
   };
 
-  home.packages = with pkgs; [
-  ] ++ lib.optionals (!config.hostSpec.isServer) [
-    lazygit # Git terminal UI.
-    renovate # Dependency update tool.
-    gitkraken # Git GUI.
-    devcontainer # Dev Container CLI.
-    github-cli # GitHub CLI.
-  ];
+  home.packages = with pkgs;
+    [
+    ]
+    ++ lib.optionals (!config.hostSpec.isServer) [
+      lazygit # Git terminal UI.
+      renovate # Dependency update tool.
+      gitkraken # Git GUI.
+      devcontainer # Dev Container CLI.
+      github-cli # GitHub CLI.
+    ];
 
   programs.zsh.oh-my-zsh.plugins = [
     "git-auto-fetch"

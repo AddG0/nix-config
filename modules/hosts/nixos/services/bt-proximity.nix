@@ -97,9 +97,13 @@ in {
     assertions = [
       {
         assertion = (
-          cfg.deviceMacAddress != null || cfg.deviceMacAddressFile != null ||
-          cfg.deviceName != null || cfg.deviceNameFile != null ||
-          cfg.deviceServiceUuid != null || cfg.deviceServiceUuidFile != null
+          cfg.deviceMacAddress
+          != null
+          || cfg.deviceMacAddressFile != null
+          || cfg.deviceName != null
+          || cfg.deviceNameFile != null
+          || cfg.deviceServiceUuid != null
+          || cfg.deviceServiceUuidFile != null
         );
         message = "At least one of services.bt-proximity.{deviceMacAddress, deviceMacAddressFile, deviceName, deviceNameFile, deviceServiceUuid, deviceServiceUuidFile} must be set";
       }
@@ -149,29 +153,49 @@ in {
         ExecStart = "${pkgs.bt-proximity-monitor}/bin/bt-proximity-monitor";
       };
 
-      environment = {
-        PYTHONUNBUFFERED = "1";
-        BT_LOCK_CMD = cfg.lockCommand;
-        BT_UNLOCK_CMD = cfg.unlockCommand;
-        BT_PROXIMITY_TIMEOUT = toString cfg.proximityTimeout;
-        BT_LOCK_THRESHOLD = toString cfg.lockThreshold;
-        BT_UNLOCK_THRESHOLD = toString cfg.unlockThreshold;
-        BT_RSSI_SAMPLES = toString cfg.rssiSamples;
-      } // (if cfg.deviceMacAddressFile != null then {
-        BT_DEVICE_MAC_ADDRESS_FILE = cfg.deviceMacAddressFile;
-      } else if cfg.deviceMacAddress != null then {
-        BT_DEVICE_MAC_ADDRESS = cfg.deviceMacAddress;
-      } else {})
-        // (if cfg.deviceNameFile != null then {
-        BT_DEVICE_NAME_FILE = cfg.deviceNameFile;
-      } else if cfg.deviceName != null then {
-        BT_DEVICE_NAME = cfg.deviceName;
-      } else {})
-        // (if cfg.deviceServiceUuidFile != null then {
-        BT_DEVICE_SERVICE_UUID_FILE = cfg.deviceServiceUuidFile;
-      } else if cfg.deviceServiceUuid != null then {
-        BT_DEVICE_SERVICE_UUID = cfg.deviceServiceUuid;
-      } else {});
+      environment =
+        {
+          PYTHONUNBUFFERED = "1";
+          BT_LOCK_CMD = cfg.lockCommand;
+          BT_UNLOCK_CMD = cfg.unlockCommand;
+          BT_PROXIMITY_TIMEOUT = toString cfg.proximityTimeout;
+          BT_LOCK_THRESHOLD = toString cfg.lockThreshold;
+          BT_UNLOCK_THRESHOLD = toString cfg.unlockThreshold;
+          BT_RSSI_SAMPLES = toString cfg.rssiSamples;
+        }
+        // (
+          if cfg.deviceMacAddressFile != null
+          then {
+            BT_DEVICE_MAC_ADDRESS_FILE = cfg.deviceMacAddressFile;
+          }
+          else if cfg.deviceMacAddress != null
+          then {
+            BT_DEVICE_MAC_ADDRESS = cfg.deviceMacAddress;
+          }
+          else {}
+        )
+        // (
+          if cfg.deviceNameFile != null
+          then {
+            BT_DEVICE_NAME_FILE = cfg.deviceNameFile;
+          }
+          else if cfg.deviceName != null
+          then {
+            BT_DEVICE_NAME = cfg.deviceName;
+          }
+          else {}
+        )
+        // (
+          if cfg.deviceServiceUuidFile != null
+          then {
+            BT_DEVICE_SERVICE_UUID_FILE = cfg.deviceServiceUuidFile;
+          }
+          else if cfg.deviceServiceUuid != null
+          then {
+            BT_DEVICE_SERVICE_UUID = cfg.deviceServiceUuid;
+          }
+          else {}
+        );
     };
   };
 }

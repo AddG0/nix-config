@@ -1,8 +1,5 @@
-{
-    pkgs,
-    ...
-}: {
-    home.packages = with pkgs; [
-        r2modman # Unofficial Thunderstore mod manager
-    ];
+{pkgs, ...}: {
+  home.packages = with pkgs; [
+    r2modman # Unofficial Thunderstore mod manager
+  ];
 }

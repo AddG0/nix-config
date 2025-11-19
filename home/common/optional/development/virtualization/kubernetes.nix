@@ -1,7 +1,7 @@
 {pkgs, ...}: let
   kubectl-cloud-shell-script = pkgs.writeShellApplication {
     name = "kubectl-cloud-shell";
-    runtimeInputs = [ pkgs.kubectl ];
+    runtimeInputs = [pkgs.kubectl];
     text = builtins.readFile ./kubectl-cloud-shell.sh;
   };
 
@@ -36,7 +36,7 @@
 
   kubectl-cloud-shell = pkgs.symlinkJoin {
     name = "kubectl-cloud-shell";
-    paths = [ kubectl-cloud-shell-script kubectl-cloud-shell-completion ];
+    paths = [kubectl-cloud-shell-script kubectl-cloud-shell-completion];
   };
 in {
   home.packages = with pkgs; [

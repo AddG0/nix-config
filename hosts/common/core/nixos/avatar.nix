@@ -9,5 +9,5 @@ in {
   system.activationScripts.setUserAvatar = lib.mkIf (builtins.pathExists avatarPath) (lib.stringAfter ["users"] ''
     mkdir -p /var/lib/AccountsService/icons
     cp ${avatarPath} /var/lib/AccountsService/icons/${config.hostSpec.username}
-  '');   
+  '');
 }

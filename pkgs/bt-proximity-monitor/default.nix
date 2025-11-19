@@ -4,11 +4,12 @@
   makeWrapper,
   stdenv,
 }: let
-  pythonEnv = python3.withPackages (ps: with ps; [
-    bleak
-    pydantic
-    pydantic-settings
-  ]);
+  pythonEnv = python3.withPackages (ps:
+    with ps; [
+      bleak
+      pydantic
+      pydantic-settings
+    ]);
 in
   stdenv.mkDerivation {
     pname = "bt-proximity-monitor";

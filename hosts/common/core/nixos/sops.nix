@@ -27,7 +27,7 @@
   # the age key.
   sops.secrets = lib.mkMerge [
     {
-       # extract password/username to /run/secrets-for-users/ so it can be used to create the user
+      # extract password/username to /run/secrets-for-users/ so it can be used to create the user
       "password" = {
         sopsFile = "${inputs.nix-secrets}/users/${config.hostSpec.username}/password.yaml";
         neededForUsers = true;

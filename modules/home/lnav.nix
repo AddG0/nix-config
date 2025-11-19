@@ -23,7 +23,7 @@ in {
       default = {};
       description = ''
         Configuration settings for lnav in JSON format.
-        
+
         Example:
         {
           tuning = {
@@ -44,7 +44,7 @@ in {
             };
           };
         };
-        
+
         Note: Attribute names with hyphens must be quoted in Nix.
       '';
       example = lib.literalExpression ''
