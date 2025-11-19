@@ -55,8 +55,7 @@
 
   fetchedPatches = map (patch:
     fetchurl {
-      url = patch.url;
-      sha256 = patch.sha256;
+      inherit (patch) url sha256;
     })
   patchInfos;
 
@@ -78,11 +77,11 @@
   mkDeb = versionInfo:
     stdenv.mkDerivation {
       pname = "${pname}-deb";
-      version = versionInfo.version;
+      inherit (versionInfo) version;
 
       src = fetchurl {
         url = srcUrl versionInfo;
-        sha256 = versionInfo.sha256;
+        inherit (versionInfo) sha256;
       };
 
       nativeBuildInputs = [autoPatchelfHook pkgs.makeWrapper];
@@ -185,7 +184,7 @@
   in
     buildFHSEnv {
       name = "${pname}-service-wrapped";
-      version = versionInfo.version;
+      inherit (versionInfo) version;
 
       runScript = "${serviceWrapper}";
       targetPkgs = _: [deb pkgs.systemd pkgs.iproute2 pkgs.coreutils pkgs.bash];
@@ -229,7 +228,7 @@
   in
     buildFHSEnv {
       name = "${pname}-wrapped";
-      version = versionInfo.version;
+      inherit (versionInfo) version;
 
       runScript = "${guiExe}";
       targetPkgs = _: [deb];

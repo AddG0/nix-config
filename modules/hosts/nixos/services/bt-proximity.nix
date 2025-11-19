@@ -96,15 +96,14 @@ in {
     # Validate that at least one identification method is set
     assertions = [
       {
-        assertion = (
+        assertion =
           cfg.deviceMacAddress
           != null
           || cfg.deviceMacAddressFile != null
           || cfg.deviceName != null
           || cfg.deviceNameFile != null
           || cfg.deviceServiceUuid != null
-          || cfg.deviceServiceUuidFile != null
-        );
+          || cfg.deviceServiceUuidFile != null;
         message = "At least one of services.bt-proximity.{deviceMacAddress, deviceMacAddressFile, deviceName, deviceNameFile, deviceServiceUuid, deviceServiceUuidFile} must be set";
       }
       {

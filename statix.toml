@@ -1,0 +1,4 @@
+# Statix configuration
+# Disable warnings about repeated keys in attribute sets
+disabled = ["repeated_keys"]
+ignore = [".direnv"]
