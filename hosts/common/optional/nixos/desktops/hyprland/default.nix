@@ -1,8 +1,4 @@
-{
-  pkgs,
-  lib,
-  ...
-}: {
+{lib, ...}: {
   imports = lib.custom.scanPaths ./.;
 
   programs.hyprland = {

@@ -20,8 +20,8 @@ stdenv.mkDerivation rec {
   src = fetchFromGitHub {
     owner = "BlueprintFramework";
     repo = "framework";
-    rev = "main";
-    sha256 = "sha256-S5Bwyvouce/90IOMNxNx2zlQ6ePkMkzkWsLyrhko2y4="; # updated via nix-prefetch-url
+    rev = "29db7bcf888833f8e467e304168bad5ead2d769e";
+    sha256 = "sha256-r0Doyv0A4VNUYxRHNNaavLTr2DcBvn8gkLvHULfoA/M=";
   };
 
   nativeBuildInputs = [makeWrapper];

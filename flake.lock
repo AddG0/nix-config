@@ -17,12 +17,12 @@
         "rev": "29daffed8e233668c3101877647460582634b18f",
         "revCount": 81,
         "type": "git",
-        "url": "ssh://github.com/addg0/ai-toolkit.git"
+        "url": "https://github.com/addg0/ai-toolkit.git"
       },
       "original": {
         "ref": "main",
         "type": "git",
-        "url": "ssh://github.com/addg0/ai-toolkit.git"
+        "url": "https://github.com/addg0/ai-toolkit.git"
       }
     },
     "asus-numberpad-driver": {
@@ -1117,12 +1117,12 @@
         "rev": "2727fac9411d459c9182ceb0dd7dc2616829c38f",
         "revCount": 63,
         "type": "git",
-        "url": "ssh://github.com/addg0/lumenboard-player.git"
+        "url": "https://github.com/addg0/lumenboard-player.git"
       },
       "original": {
         "ref": "tmp",
         "type": "git",
-        "url": "ssh://github.com/addg0/lumenboard-player.git"
+        "url": "https://github.com/addg0/lumenboard-player.git"
       }
     },
     "mmdoc": {
@@ -1270,12 +1270,12 @@
         "rev": "00982e117eec5d2b9bba641627e6654fa223eb64",
         "revCount": 215,
         "type": "git",
-        "url": "ssh://git@github.com/addg0/nix-secrets.git"
+        "url": "https://github.com/addg0/nix-secrets.git"
       },
       "original": {
         "ref": "main",
         "type": "git",
-        "url": "ssh://git@github.com/addg0/nix-secrets.git"
+        "url": "https://github.com/addg0/nix-secrets.git"
       }
     },
     "nixlib": {
@@ -1911,12 +1911,12 @@
         "rev": "10ff1871be7640ec91a48dfbe66dd72f14c85e66",
         "revCount": 8,
         "type": "git",
-        "url": "ssh://git@github.com/addg0/pterodactyl-addons.git"
+        "url": "https://github.com/addg0/pterodactyl-addons.git"
       },
       "original": {
         "ref": "main",
         "type": "git",
-        "url": "ssh://git@github.com/addg0/pterodactyl-addons.git"
+        "url": "https://github.com/addg0/pterodactyl-addons.git"
       }
     },
     "root": {
