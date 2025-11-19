@@ -24,7 +24,6 @@ pkgs: {
   timezone-hover = pkgs.callPackage ./timezone-hover {};
 
   # Desktop environment
-  better-discord = pkgs.callPackage ./better-discord {};
   blueprint = pkgs.callPackage ./blueprint {};
   rofi-presets = pkgs.callPackage ./rofi-presets {};
 
