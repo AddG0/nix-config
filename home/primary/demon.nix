@@ -59,10 +59,9 @@
         # "remote-desktop/mouseshare/lan-mouse.nix"
 
         # Secrets
-        # "secrets"
+        "secrets"
         # "secrets/kubeconfig.nix"
         "secrets/1password.nix"
-        # "jupyter-notebook"
       ])
     ))
   ];

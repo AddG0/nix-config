@@ -26,11 +26,11 @@
         passwordFile = config.sops.secrets.pterodactylAdminPassword.path;
         isAdmin = true;
       };
-      jude = {
-        inherit (nix-secrets.pterodactyl.users.jude) email username firstName lastName;
-        passwordFile = config.sops.secrets.judePassword.path;
-        isAdmin = true;
-      };
+      # jude = {
+      #   inherit (nix-secrets.pterodactyl.users.jude) email username firstName lastName;
+      #   passwordFile = config.sops.secrets.judePassword.path;
+      #   isAdmin = true;
+      # };
     };
     locations = {
       uk = {

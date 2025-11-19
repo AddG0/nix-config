@@ -1,5 +1,4 @@
 [![Build Flakes](https://github.com/addg0/nix-config/actions/workflows/build-flakes.yml/badge.svg)](https://github.com/addg0/nix-config/actions/workflows/build-flakes.yml)
-[![Cache Nix Store](https://github.com/addg0/nix-config/actions/workflows/cache-nix-store.yml/badge.svg)](https://github.com/addg0/nix-config/actions/workflows/cache-nix-store.yml)
 [![Deploy](https://github.com/addg0/nix-config/actions/workflows/deploy.yml/badge.svg)](https://github.com/addg0/nix-config/actions/workflows/deploy.yml)
 [![Lint Nix](https://github.com/addg0/nix-config/actions/workflows/lint-nix.yml/badge.svg)](https://github.com/addg0/nix-config/actions/workflows/lint-nix.yml)
 [![Update Flakes](https://github.com/addg0/nix-config/actions/workflows/update-flakes.yml/badge.svg)](https://github.com/addg0/nix-config/actions/workflows/update-flakes.yml)
