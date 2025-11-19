@@ -13,13 +13,13 @@ jobs:
       - uses: actions/checkout@v5
 
       - name: Install Nix
-        uses: cachix/install-nix-action@v31
+        uses: DeterminateSystems/nix-installer-action@main
+
+      - name: Setup Magic Nix Cache
+        uses: DeterminateSystems/magic-nix-cache-action@main
 
       - name: Install SOPS
-        run: |
-          nix-channel --add https://nixos.org/channels/nixos-unstable nixos
-          nix-channel --update
-          nix-env -iA nixos.sops
+        run: nix profile install nixpkgs#sops
 
       - name: Setup Age Key
         run: |

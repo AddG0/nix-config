@@ -13,8 +13,13 @@ jobs:
       - uses: actions/checkout@v5
 
       - name: Install Nix
-        uses: cachix/install-nix-action@v31
+        uses: DeterminateSystems/nix-installer-action@main
+
+      - name: Setup Magic Nix Cache
+        uses: DeterminateSystems/magic-nix-cache-action@main
+
       - name: Run statix
         run: nix run nixpkgs#statix -- check ./
+
       - name: Run alejandra
         run: nix run nixpkgs#alejandra -- --check ./

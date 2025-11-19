@@ -13,10 +13,13 @@ jobs:
       - uses: actions/checkout@v5
 
       - name: Install Nix
-        uses: cachix/install-nix-action@v31
+        uses: DeterminateSystems/nix-installer-action@main
         with:
-          extra_nix_config: |
+          extra-conf: |
             access-tokens = github.com=${{ secrets.GITHUB_TOKEN }}
+
+      - name: Setup Magic Nix Cache
+        uses: DeterminateSystems/magic-nix-cache-action@main
 
       - name: Setup SSH for private repositories
         run: |
