@@ -101,29 +101,45 @@
   # services.printing.enable = true;
 
   # # Enable sound with pipewire.
-  security.rtkit.enable = true;
-  services.pipewire = {
-    enable = true;
-    alsa.enable = true;
-    alsa.support32Bit = true;
-    pulse.enable = true;
-    # Uncomment if you use JACK applications
-    # jack.enable = true;
-
-    # Configure PipeWire to support high sample rates
-    extraConfig.pipewire."99-hifi.conf" = {
-      "context.properties" = {
-        "default.clock.rate" = 96000;
-        "default.clock.allowed-rates" = [44100 48000 88200 96000 192000];
-        "resample.quality" = 10;
-      };
-    };
-  };
+  # NOTE: PipeWire config is in hosts/common/optional/nixos/audio.nix
+  # Keeping this commented duplicate for reference
+  # security.rtkit.enable = true;
+  # services.pipewire = {
+  #   enable = true;
+  #   alsa.enable = true;
+  #   alsa.support32Bit = true;
+  #   pulse.enable = true;
+  #   # Uncomment if you use JACK applications
+  #   # jack.enable = true;
+  #
+  #   # Configure PipeWire to support high sample rates
+  #   extraConfig.pipewire."99-hifi.conf" = {
+  #     "context.properties" = {
+  #       "default.clock.rate" = 96000;
+  #       "default.clock.allowed-rates" = [44100 48000 88200 96000 192000];
+  #       "resample.quality" = 10;
+  #     };
+  #   };
+  # };
 
   services.upower.enable = true;
 
   # Enable IP-based automatic timezone detection
-  services.ip-timezone.enable = true;
+  # services.ip-timezone.enable = true;
+
+  services.automatic-timezoned.enable = true;
+
+  # Set TZ environment variable from /etc/localtime for browsers
+  # automatic-timezoned only updates /etc/localtime symlink, not the TZ env var
+  # Browsers need an explicit timezone name (e.g., "Australia/Perth") in TZ variable
+  # The syntax TZ=:/etc/localtime doesn't work due to Chromium bug:
+  # https://bugs.chromium.org/p/chromium/issues/detail?id=811403
+  # This script extracts the actual timezone name from the symlink at login
+  environment.loginShellInit = ''
+    if [ -L /etc/localtime ]; then
+      export TZ=$(readlink -f /etc/localtime | grep -oP '(?<=zoneinfo/).*' || echo "UTC")
+    fi
+  '';
 
   system.stateVersion = config.hostSpec.system.stateVersion;
 }

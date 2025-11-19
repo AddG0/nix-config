@@ -24,8 +24,6 @@ in {
   };
 
   config = mkIf cfg.enable {
-    # Disable the broken automatic-timezoned that relies on geoclue2
-    services.automatic-timezoned.enable = mkForce false;
 
     # Create a working IP-based timezone detection service
     systemd.services.ip-timezone = {
