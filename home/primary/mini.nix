@@ -11,7 +11,7 @@
         #################### Host-specific Optional Configs ####################
         "helper-scripts"
         "development/java.nix"
-        "jupyter-notebook"
+        "development/jupyter-notebook.nix"
         "comms"
         "development/ide.nix"
         "development/tilt.nix"

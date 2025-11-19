@@ -10,7 +10,6 @@
       ++ (map (f: "common/optional/${f}") [
         #################### Host-specific Optional Configs ####################
         "helper-scripts"
-        "jupyter-notebook"
       ])
     ))
   ];

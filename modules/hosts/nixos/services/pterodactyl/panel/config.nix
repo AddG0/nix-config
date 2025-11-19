@@ -7,8 +7,12 @@
   cfg = config.services.pterodactyl.panel;
 
   # Move reusable derivations into their own bindings
-  php = pkgs.php.withExtensions ({all}:
-    with all; [
+  php = pkgs.php.withExtensions ({
+    enabled,
+    all,
+  }:
+    enabled
+    ++ (with all; [
       bcmath
       curl
       gd
@@ -27,7 +31,7 @@
       fileinfo
       dom
       filter
-    ]);
+    ]));
 
   composer = pkgs.php.packages.composer.override {inherit php;};
 
