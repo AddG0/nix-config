@@ -13,8 +13,8 @@ buildNpmPackage {
   src = fetchFromGitHub {
     owner = "ruvnet";
     repo = "claude-flow";
-    rev = "main";
-    sha256 = "sha256-HFIY9uAdOBRiwOHPrWduCfUAidHEtt3OZMT+GcXdY2s=";
+    rev = "25af48cd1c01cbcc4ac6d0dc4346e956db913845";
+    sha256 = "sha256-20dMNAihqY6oiBjDUKHj/IlGn9gVyQOOGbVlIrWksv0=";
   };
 
   npmDepsHash = "sha256-C74Gv6Xtr+Hl06mxxTCoWaif5UIE5kZatcjoBUCKQHY";
