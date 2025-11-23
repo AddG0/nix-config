@@ -49,6 +49,7 @@
         # "nixos/plymouth.nix" # fancy boot screen
         "nixos/services/bluetooth.nix"
         "nixos/services/bt-proximity.nix"
+        "nixos/services/automatic-timezoned.nix"
 
         #################### Desktop ####################
         "nixos/desktops/plasma6"
@@ -121,23 +122,6 @@
   # };
 
   services.upower.enable = true;
-
-  # Enable IP-based automatic timezone detection
-  # services.ip-timezone.enable = true;
-
-  services.automatic-timezoned.enable = true;
-
-  # Set TZ environment variable from /etc/localtime for browsers
-  # automatic-timezoned only updates /etc/localtime symlink, not the TZ env var
-  # Browsers need an explicit timezone name (e.g., "Australia/Perth") in TZ variable
-  # The syntax TZ=:/etc/localtime doesn't work due to Chromium bug:
-  # https://bugs.chromium.org/p/chromium/issues/detail?id=811403
-  # This script extracts the actual timezone name from the symlink at login
-  environment.loginShellInit = ''
-    if [ -L /etc/localtime ]; then
-      export TZ=$(readlink -f /etc/localtime | grep -oP '(?<=zoneinfo/).*' || echo "UTC")
-    fi
-  '';
 
   system.stateVersion = config.hostSpec.system.stateVersion;
 }

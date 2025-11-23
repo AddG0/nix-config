@@ -41,9 +41,16 @@
         "nixos/services/home-assistant-oci.nix"
         "nixos/services/nginx.nix" # nginx
         "nixos/services/n8n.nix" # n8n
+        # "nixos/services/kubernetes/clusters/main.nix"
       ])
     ))
   ];
+
+  nix.git-sync = {
+    enable = true;
+    # We stagger the schedule across thor odin and loki to keep the k3s cluster alive
+    schedule = "03:00";
+  };
 
   networking = {
     networkmanager.enable = true;

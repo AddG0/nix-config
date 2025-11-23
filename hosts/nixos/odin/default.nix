@@ -39,10 +39,17 @@
         #################### Host-specific Optional Configs ####################
         "nixos/services/openssh.nix" # allow remote SSH access
         # "nixos/services/home-assistant-oci.nix"
-        "nixos/services/nginx.nix" # nginx
+        # "nixos/services/nginx.nix" # nginx
+        "nixos/services/kubernetes/clusters/main.nix"
       ])
     ))
   ];
+
+  nix.git-sync = {
+    enable = true;
+    # We stagger the schedule across thor odin and loki to keep the k3s cluster alive
+    schedule = "03:20";
+  };
 
   networking = {
     networkmanager.enable = true;

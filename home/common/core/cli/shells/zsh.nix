@@ -92,6 +92,11 @@
         source <(gdcloud completion zsh)
         compdef _gdcloud gdcloud
       fi
+
+      # Load local zshrc if it exists
+      if [[ -f ~/.zshrc.imperitive ]]; then
+        source ~/.zshrc.imperitive
+      fi
     '';
   };
 }
