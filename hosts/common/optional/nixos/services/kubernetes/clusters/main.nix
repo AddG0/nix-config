@@ -8,11 +8,11 @@
     odin = {
       role = "server";
     };
-    odin = {
-      role = "server";
+    loki = {
+      role = "agent";
     };
-    odin = {
-      role = "server";
+    thor = {
+      role = "agent";
     };
   };
 in {
