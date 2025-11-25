@@ -43,7 +43,7 @@
   '';
 
   # This is so I can use sops in the shell anywhere
-  # home.file.".sops.yaml" = {
-  #   source = "${nix-secrets}/.sops.yaml";
-  # };
+  home.file.".sops.yaml" = {
+    source = ./.sops.yaml;
+  };
 }
