@@ -38,7 +38,22 @@
   linuxModifications = _final: prev:
     if prev.stdenv.isLinux
     then {
-      # Linux-specific packages here
+      # btop with GPU support for NVIDIA and AMD
+      btop = prev.symlinkJoin {
+        name = "btop-${prev.btop.version}";
+        paths = [prev.btop];
+        buildInputs = [prev.makeWrapper];
+        postBuild = prev.lib.optionalString prev.stdenv.isLinux ''
+          # Wrap btop with NVIDIA and AMD libraries for GPU monitoring
+          wrapProgram $out/bin/btop \
+            --prefix LD_LIBRARY_PATH : "${prev.lib.makeLibraryPath ([
+              prev.linuxPackages.nvidia_x11
+            ]
+            ++ prev.lib.optionals (prev ? rocmPackages) [
+              prev.rocmPackages.rocm-smi
+            ])}"
+        '';
+      };
     }
     else {};
 
@@ -59,23 +74,6 @@
     #        (prev.lib.cmakeBool "USE_WAYLAND_CLIPBOARD" true)
     #      ];
     #    };
-
-    # btop with GPU support for NVIDIA and AMD
-    btop = prev.symlinkJoin {
-      name = "btop-${prev.btop.version}";
-      paths = [prev.btop];
-      buildInputs = [prev.makeWrapper];
-      postBuild = prev.lib.optionalString prev.stdenv.isLinux ''
-        # Wrap btop with NVIDIA and AMD libraries for GPU monitoring
-        wrapProgram $out/bin/btop \
-          --prefix LD_LIBRARY_PATH : "${prev.lib.makeLibraryPath ([
-            prev.linuxPackages.nvidia_x11
-          ]
-          ++ prev.lib.optionals (prev ? rocmPackages) [
-            prev.rocmPackages.rocm-smi
-          ])}"
-      '';
-    };
 
     # Fix SDDM Wayland session bug where command is passed as single quoted string
     # Without this sddm will not work properly in wayland sessions.

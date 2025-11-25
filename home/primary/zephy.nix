@@ -19,6 +19,7 @@
       ++ (map (f: "common/optional/${f}") [
         #################### Host-specific Optional Configs ####################
         "helper-scripts"
+
         "development/jupyter-notebook.nix"
         "development/ai"
         "development/virtualization/kubernetes.nix"
@@ -30,9 +31,11 @@
         "development"
 
         "secrets"
+        "secrets/1password.nix"
+        # "secrets/kubeconfig.nix"
+
         "nixos/desktops/plasma6"
         "browsers"
-        # "secrets/kubeconfig.nix"
 
         "gaming/minecraft.nix"
         "gaming/heroic.nix"
@@ -41,7 +44,6 @@
 
         "comms"
         "ghostty"
-        "secrets/1password.nix"
         "media/spicetify.nix"
         "media/tidal.nix"
         "media"

@@ -37,7 +37,7 @@
         defaultMode = "acceptEdits";
         deny = [
           "Read(./.env)"
-          "Read(./secrets/**)"
+          # "Read(./secrets/**)"
         ];
       };
       statusLine = {
