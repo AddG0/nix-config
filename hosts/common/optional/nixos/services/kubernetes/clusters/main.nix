@@ -4,7 +4,7 @@
   pkgs,
   nix-secrets,
   ...
-}: let 
+}: let
   nodes = {
     odin = {
       role = "server";
