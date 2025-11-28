@@ -144,8 +144,8 @@ in {
         "cleanshot" # screenshot tool
         # "imageoptim" # strip metadata from images
         # "parallels" # Get version 19 from here: https://www.parallels.com/products/desktop/download/
-        "amazon-q"
-        "flux" # blue light filter
+        "kiro-cli"
+        "flux-app" # blue light filter
         # "lens"
         "cursor"
         "stats" # beautiful system status monitor in menu bar

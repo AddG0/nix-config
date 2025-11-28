@@ -81,10 +81,10 @@
           fi
       }
 
-      # Check if Amazon Q is installed and disable autosuggestions if it is
-      if [[ -f "''${HOME}/Library/Application Support/amazon-q/shell/zshrc.post.zsh" ]]; then
+      # Check if kiro-cli is installed and disable autosuggestions if it is
+      if [[ -f "''${HOME}/Library/Application Support/kiro-cli/shell/zshrc.post.zsh" ]]; then
         ZSH_AUTOSUGGEST_DISABLE="true"
-        source "''${HOME}/Library/Application Support/amazon-q/shell/zshrc.post.zsh"
+        source "''${HOME}/Library/Application Support/kiro-cli/shell/zshrc.post.zsh"
       fi
 
       # Load gdcloud completion for current session

@@ -2,6 +2,7 @@
 {
   config,
   pkgs,
+  nix-secrets,
   ...
 }: let 
   nodes = {
@@ -34,8 +35,9 @@ in {
 
   services.k3s = {
     enable = true;
+    inherit (nodes.${config.hostSpec.hostname}) role;
+
     tokenFIle = config.sops.k3sMainToken.path;
-    role = nodes.${config.hostSpec.hostname}.role;
     extraFlags = toString [
       "--disable=traefik"
       "--disable=servicelb" # we use kube-vip instead

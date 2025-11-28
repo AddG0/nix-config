@@ -5,7 +5,6 @@
       jetbrains.pycharm-professional
       jetbrains.datagrip
       jetbrains.webstorm
-      jetbrains.fleet
 
       # jetbrains.phpstorm
       # vscode
@@ -15,6 +14,7 @@
       then [
         code-cursor
         android-studio
+        jetbrains.fleet
       ]
       else []
     );

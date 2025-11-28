@@ -12,6 +12,7 @@
     claude-code-router
     # claude-flow
     repomix
+  ] ++ lib.optionals pkgs.stdenv.isLinux [
     claude-desktop
   ];
 
