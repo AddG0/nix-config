@@ -13,25 +13,29 @@
       ++ (map (f: "common/optional/${f}") [
         #################### Host-specific Optional Configs ####################
         "helper-scripts"
+
+        "development"
+        "development/ai"
+        "development/gcloud.nix"
+        "development/ide.nix"
         # "development/java.nix"
         "development/jupyter-notebook.nix"
-        "secrets/kubeconfig.nix"
-        "comms"
-        "development"
-        "development/ide.nix"
-        "development/tilt.nix"
         "development/node.nix"
-        # "development/misc-language-servers.nix"
-        "secrets/ssh/server.nix"
-        "ghostty"
-        "secrets"
-        "secrets/cachix.nix"
-        # "development/go.nix"
-        "media/spicetify.nix"
+        "development/terraform.nix"
+        "development/tilt.nix"
         "development/virtualization"
-        "development/ai"
+        # "development/go.nix"
+        # "development/misc-language-servers.nix"
+
+        "secrets"
         "secrets/1password.nix"
-        "development/gcloud.nix"
+        "secrets/cachix.nix"
+        "secrets/kubeconfig.nix"
+        "secrets/ssh/server.nix"
+
+        "comms"
+        "ghostty"
+        "media/spicetify.nix"
       ])
     ))
   ];
