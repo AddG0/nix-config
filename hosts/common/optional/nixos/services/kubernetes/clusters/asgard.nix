@@ -1,27 +1,28 @@
 # https://github.com/NixOS/nixpkgs/blob/master/pkgs/applications/networking/cluster/k3s/README.md
 {
   config,
+  lib,
   pkgs,
   nix-secrets,
   ...
 }: let
+  inherit (config.hostSpec.networking) hostsAddr;
+  masterAddr = "https://${hostsAddr.odin.ipv4}:6443";
+  currentNode = config.hostSpec.hostName;
   nodes = {
-    odin = {
-      role = "server";
-    };
-    loki = {
-      role = "agent";
-    };
-    thor = {
-      role = "agent";
-    };
+    odin = "server";
+    loki = "agent";
+    thor = "agent";
   };
+  isServer = nodes.${currentNode} == "server";
+  isAgent = nodes.${currentNode} == "agent";
+  agentIPs = builtins.map (n: hostsAddr.${n}.ipv4) (builtins.filter (n: nodes.${n} == "agent") (builtins.attrNames nodes));
 in {
-  networking.firewall.allowedTCPPorts = [
-    6443 # k3s: required so that pods can reach the API server (running on port 6443 by default)
-    # 2379 # k3s, etcd clients: required if using a "High Availability Embedded etcd" configuration
-    # 2380 # k3s, etcd peers: required if using a "High Availability Embedded etcd" configuration
-  ];
+  # Only allow API server access from agent nodes (on server only)
+  networking.firewall.extraCommands = lib.mkIf isServer (builtins.concatStringsSep "\n" (
+    builtins.map (ip: "iptables -A INPUT -p tcp --dport 6443 -s ${ip} -j ACCEPT") agentIPs
+    ++ ["iptables -A INPUT -p tcp --dport 6443 -j DROP"]
+  ));
   networking.firewall.allowedUDPPorts = [
     # 8472 # k3s, flannel: required if using multi-node for inter-node networking
   ];
@@ -35,8 +36,8 @@ in {
 
   services.k3s = {
     enable = true;
-    inherit (nodes.${config.hostSpec.hostName}) role;
-
+    role = nodes.${currentNode};
+    serverAddr = if isAgent then masterAddr else "";
     tokenFile = config.sops.secrets.k3sMainToken.path;
     extraFlags = toString [
       "--disable=traefik"
