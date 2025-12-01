@@ -38,7 +38,7 @@
 
   sops.secrets.cloudflare = {
     format = "binary";
-    sopsFile = "${nix-secrets}/secrets/cloudflare.env.enc";
+    sopsFile = "${nix-secrets}/global/api-keys/cloudflare.enc";
     mode = "0400";
     owner = "root";
   };
