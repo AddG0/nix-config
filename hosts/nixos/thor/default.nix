@@ -40,7 +40,7 @@
         "nixos/services/openssh.nix" # allow remote SSH access
         # "nixos/services/home-assistant-oci.nix"
         # "nixos/services/nginx.nix" # nginx
-        "nixos/services/kubernetes/clusters/main.nix"
+        "nixos/services/kubernetes/clusters/asgard.nix"
       ])
     ))
   ];
