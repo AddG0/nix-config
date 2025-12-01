@@ -1280,11 +1280,11 @@
         "pre-commit-hooks": "pre-commit-hooks_2"
       },
       "locked": {
-        "lastModified": 1764056807,
-        "narHash": "sha256-MOGs6+qOTdtTyGXxLIugmb6u7JtYPwFI757NGGQKQBk=",
+        "lastModified": 1764574823,
+        "narHash": "sha256-YR0mpQwO9lkc10zkRHuz9aFgQrSutpYyG6wK3sKzD7A=",
         "ref": "main",
-        "rev": "c3b589245278ee77e5bcd5c4559fde8d425e42a8",
-        "revCount": 218,
+        "rev": "472daef6ecca579b219169cd6d75edd05a44d743",
+        "revCount": 223,
         "type": "git",
         "url": "ssh://git@github.com/addg0/nix-secrets.git"
       },
