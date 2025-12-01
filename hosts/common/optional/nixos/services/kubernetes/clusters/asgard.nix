@@ -39,7 +39,7 @@ in {
     role = nodes.${currentNode};
     serverAddr = if isAgent then masterAddr else "";
     tokenFile = config.sops.secrets.k3sMainToken.path;
-    extraFlags = toString [
+    extraFlags = toString (lib.optionals isServer [
       "--disable=traefik"
       "--disable=servicelb" # we use kube-vip instead
       "--disable-network-policy"
@@ -47,7 +47,7 @@ in {
       "--disable=local-storage"
       "--disable-helm-controller" # we use argocd instead
       "--etcd-expose-metrics=true"
-    ];
+    ]);
   };
 
   # Below is required for longhorn
