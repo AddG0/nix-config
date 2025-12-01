@@ -28,16 +28,16 @@ in {
 
   sops.secrets = {
     k3sMainToken = {
-      sopsFile = "${nix-secrets}/services/kubernetes/production.yaml";
+      sopsFile = "${nix-secrets}/services/kubernetes/asgard.yaml";
       key = "token";
     };
   };
 
   services.k3s = {
     enable = true;
-    inherit (nodes.${config.hostSpec.hostname}) role;
+    inherit (nodes.${config.hostSpec.hostName}) role;
 
-    tokenFIle = config.sops.secrets.k3sMainToken.path;
+    tokenFile = config.sops.secrets.k3sMainToken.path;
     extraFlags = toString [
       "--disable=traefik"
       "--disable=servicelb" # we use kube-vip instead
