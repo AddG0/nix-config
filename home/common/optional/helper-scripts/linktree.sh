@@ -34,7 +34,8 @@ get_color_code() {
 }
 
 if [ $# -ne 1 ]; then
-  echo "Usage: $0 <symlink>"
+  echo "Usage: linktree <symlink>"
+  exit 1
 fi
 current_link=$1
 

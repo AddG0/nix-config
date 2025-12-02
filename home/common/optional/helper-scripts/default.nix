@@ -21,6 +21,11 @@
         runtimeInputs = with pkgs; [];
         text = builtins.readFile ./kill-cursor-rag.sh;
       };
+      gitlab-avatar = pkgs.writeShellApplication {
+        name = "gitlab-avatar";
+        runtimeInputs = with pkgs; [imagemagick];
+        text = builtins.readFile ./gitlab-avatar.sh;
+      };
     }
     // pkgs.lib.optionalAttrs pkgs.stdenv.isDarwin {
       kill-cursor-rag = pkgs.writeShellApplication {
