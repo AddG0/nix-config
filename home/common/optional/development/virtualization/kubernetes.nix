@@ -47,6 +47,7 @@ in {
     # kubevpn
     helmfile
     kubernetes-helm
+    kubie
 
     # istioctl
     # clusterctl # for kubernetes cluster-api
@@ -57,7 +58,7 @@ in {
     # mirrord # Debug Kubernetes applications locally
     # kubefwd
 
-    minikube # local kubernetes
+    # minikube # local kubernetes
     kind
 
     # Custom scripts

@@ -1,5 +1,6 @@
 {
   pkgs,
+  lib,
   inputs,
   ...
 }: {
@@ -23,6 +24,8 @@
     };
     settings = {
       # https://mynixos.com/home-manager/option/programs.claude-code.settings
+      # Disable telemetry: https://code.claude.com/docs/en/data-usage
+      env.CLAUDE_CODE_DISABLE_NONESSENTIAL_TRAFFIC = "1";
       includeCoAuthoredBy = false;
       permissions = {
         additionalDirectories = [
