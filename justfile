@@ -207,6 +207,22 @@ sync HOST USER=DEFAULT_USER:
   rsync -av --filter=':- .gitignore' --exclude='.git' -e "ssh -l {{USER}}" . {{USER}}@{{HOST}}:nix-config/
 
 [group('deployment')]
+[doc("Watch filesystem and sync configuration to remote host on changes")]
+sync-watch HOST USER=DEFAULT_USER:
+  @{{ if HOST == "" { error("HOST parameter is required") } else { "" } }}
+  rsync -av --filter=':- .gitignore' --exclude='.git' -e "ssh -l {{USER}}" . {{USER}}@{{HOST}}:nix-config/
+  @if [ "$(uname)" = "Darwin" ]; then \
+    nix run nixpkgs#fswatch -- -o --exclude='\.git' . | while read -r _; do \
+      rsync -av --filter=':- .gitignore' --exclude='.git' -e "ssh -l {{USER}}" . {{USER}}@{{HOST}}:nix-config/; \
+    done; \
+  else \
+    while true; do \
+      inotifywait -r -e modify,create,delete,move --exclude '\.git' .; \
+      rsync -av --filter=':- .gitignore' --exclude='.git' -e "ssh -l {{USER}}" . {{USER}}@{{HOST}}:nix-config/; \
+    done; \
+  fi
+
+[group('deployment')]
 [doc("Sync secrets to remote host")]
 sync-secrets HOST USER=DEFAULT_USER:
   @{{ if HOST == "" { error("HOST parameter is required") } else { "" } }}
@@ -280,3 +296,37 @@ restart-plasma:
     plasmashell > /dev/null 2>&1 & \
     echo "Plasma shell started"; \
   fi
+
+# K3s cluster management commands
+
+[group('k3s')]
+[doc("Reset k3s on specified node (removes all k3s data)")]
+k3s-reset HOST USER=DEFAULT_USER WAIT="true":
+  @{{ if HOST == "" { error("HOST parameter is required") } else { "" } }}
+  @echo "WARNING: This will completely reset k3s on {{HOST}}, removing all cluster data!"
+  @if [ "{{WAIT}}" = "true" ]; then echo "Press Ctrl+C to cancel, or wait 5 seconds to continue..."; sleep 5; fi
+  ssh -t -l {{USER}} {{HOST}} 'sudo systemctl stop k3s || true; sudo systemctl stop k3s-agent || true; sudo rm -rf /var/lib/rancher /etc/rancher; sudo ip addr flush dev lo; sudo ip addr add 127.0.0.1/8 dev lo'
+  @echo "k3s reset complete on {{HOST}}"
+
+[group('k3s')]
+[doc("Reset entire asgard cluster (odin, loki, thor)")]
+k3s-reset-asgard USER=DEFAULT_USER:
+  @echo "WARNING: This will completely reset the entire asgard cluster!"
+  @echo "Press Ctrl+C to cancel, or wait 5 seconds to continue..."
+  @sleep 5
+  just k3s-reset odin {{USER}} false
+  just k3s-reset loki {{USER}} false
+  just k3s-reset thor {{USER}} false
+  @echo "Asgard cluster reset complete"
+
+[group('k3s')]
+[doc("Get k3s cluster node status")]
+k3s-status HOST USER=DEFAULT_USER:
+  @{{ if HOST == "" { error("HOST parameter is required") } else { "" } }}
+  ssh -t -l {{USER}} {{HOST}} 'sudo kubectl get nodes -o wide; echo "---"; sudo kubectl get pods -A'
+
+[group('k3s')]
+[doc("View k3s service logs on specified node")]
+k3s-logs HOST USER=DEFAULT_USER:
+  @{{ if HOST == "" { error("HOST parameter is required") } else { "" } }}
+  ssh -t -l {{USER}} {{HOST}} 'sudo journalctl -u k3s -u k3s-agent -f'
