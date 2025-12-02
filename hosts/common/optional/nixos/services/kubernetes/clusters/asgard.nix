@@ -25,28 +25,13 @@
   isServer = nodeRole == "server";
   isAgent = nodeRole == "agent";
 
-  agentIPs = lib.pipe cluster.nodes [
-    builtins.attrNames
-    (builtins.filter (n: cluster.nodes.${n} == "agent"))
-    (map (n: hostsAddr.${n}.ipv4))
-  ];
 in {
   # ==========================================================================
-  # Firewall - restrict API server access to cluster nodes only
+  # Firewall - open k3s ports
   # ==========================================================================
-  networking.firewall = lib.mkIf isServer {
-    extraCommands = ''
-      iptables -I INPUT -p tcp --dport 6443 -s 127.0.0.1 -j ACCEPT
-      iptables -I INPUT -p tcp --dport 6443 -s ${cluster.vip} -j ACCEPT
-      ${lib.concatMapStringsSep "\n" (ip: "iptables -I INPUT -p tcp --dport 6443 -s ${ip} -j ACCEPT") agentIPs}
-      iptables -A INPUT -p tcp --dport 6443 -j DROP
-    '';
-    extraStopCommands = ''
-      iptables -D INPUT -p tcp --dport 6443 -s 127.0.0.1 -j ACCEPT || true
-      iptables -D INPUT -p tcp --dport 6443 -s ${cluster.vip} -j ACCEPT || true
-      ${lib.concatMapStringsSep "\n" (ip: "iptables -D INPUT -p tcp --dport 6443 -s ${ip} -j ACCEPT || true") agentIPs}
-      iptables -D INPUT -p tcp --dport 6443 -j DROP || true
-    '';
+  networking.firewall = {
+    allowedTCPPorts = lib.optionals isServer [ 6443 ];  # k3s API server
+    allowedUDPPorts = [ 8472 ];  # flannel VXLAN
   };
 
   # ==========================================================================

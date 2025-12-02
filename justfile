@@ -299,13 +299,23 @@ restart-plasma:
 
 # K3s cluster management commands
 
+# Helper to run command locally or via SSH based on hostname
+[private]
+_run-on HOST USER CMD:
+  #!/usr/bin/env bash
+  if [ "{{HOST}}" = "$(hostname)" ] || [ "{{HOST}}" = "$(hostname -s)" ]; then
+    eval "{{CMD}}"
+  else
+    ssh -t -l {{USER}} {{HOST}} '{{CMD}}'
+  fi
+
 [group('k3s')]
 [doc("Reset k3s on specified node (removes all k3s data)")]
 k3s-reset HOST USER=DEFAULT_USER WAIT="true":
   @{{ if HOST == "" { error("HOST parameter is required") } else { "" } }}
   @echo "WARNING: This will completely reset k3s on {{HOST}}, removing all cluster data!"
   @if [ "{{WAIT}}" = "true" ]; then echo "Press Ctrl+C to cancel, or wait 5 seconds to continue..."; sleep 5; fi
-  ssh -t -l {{USER}} {{HOST}} 'sudo systemctl stop k3s || true; sudo systemctl stop k3s-agent || true; sudo rm -rf /var/lib/rancher /etc/rancher; sudo ip addr flush dev lo; sudo ip addr add 127.0.0.1/8 dev lo'
+  just _run-on {{HOST}} {{USER}} 'sudo systemctl stop k3s || true; sudo systemctl stop k3s-agent || true; sudo rm -rf /var/lib/rancher /etc/rancher; sudo ip addr flush dev lo; sudo ip addr add 127.0.0.1/8 dev lo'
   @echo "k3s reset complete on {{HOST}}"
 
 [group('k3s')]
@@ -323,10 +333,10 @@ k3s-reset-asgard USER=DEFAULT_USER:
 [doc("Get k3s cluster node status")]
 k3s-status HOST USER=DEFAULT_USER:
   @{{ if HOST == "" { error("HOST parameter is required") } else { "" } }}
-  ssh -t -l {{USER}} {{HOST}} 'sudo kubectl get nodes -o wide; echo "---"; sudo kubectl get pods -A'
+  just _run-on {{HOST}} {{USER}} 'sudo kubectl get nodes -o wide; echo "---"; sudo kubectl get pods -A'
 
 [group('k3s')]
 [doc("View k3s service logs on specified node")]
 k3s-logs HOST USER=DEFAULT_USER:
   @{{ if HOST == "" { error("HOST parameter is required") } else { "" } }}
-  ssh -t -l {{USER}} {{HOST}} 'sudo journalctl -u k3s -u k3s-agent -f'
+  just _run-on {{HOST}} {{USER}} 'sudo journalctl -u k3s -u k3s-agent -f'

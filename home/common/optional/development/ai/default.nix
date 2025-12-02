@@ -34,6 +34,7 @@
         ];
         ask = [
           "Bash(git push:*)"
+          "Bash(kubectl get secret:*)"
         ];
         defaultMode = "acceptEdits";
         deny = [
