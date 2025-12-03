@@ -11,4 +11,8 @@
     tg = "terragrunt";
     tm = "terramate";
   };
+
+  programs.zsh.oh-my-zsh.plugins = [
+    "terraform"
+  ];
 }

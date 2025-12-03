@@ -7,4 +7,9 @@
     go-containerregistry # provides `crane` & `gcrane`, it's similar to skopeo
     ko # build go project to container image
   ];
+
+  programs.zsh.oh-my-zsh.plugins = [
+    "docker-compose"
+    "docker"
+  ];
 }

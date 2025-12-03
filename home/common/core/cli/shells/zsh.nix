@@ -1,4 +1,8 @@
-{pkgs, ...}: {
+{pkgs, ...}: let
+  profile-zsh = pkgs.writeShellScriptBin "profile-zsh" ''
+    zsh -c 'zmodload zsh/zprof; source ~/.zshrc; zprof' 2>/dev/null | head -40
+  '';
+in {
   programs.zsh = {
     enable = true;
     shellAliases = {
@@ -20,20 +24,20 @@
       plugins = [
         "last-working-dir"
         "sudo"
-        "redis-cli"
-        "dbt"
-        "docker-compose"
-        "docker"
-        "composer"
-        "helm"
-        "kubectl"
-        "microk8s"
-        "minikube"
-        "terraform"
       ];
     };
 
     enableCompletion = true;
+
+    # Only rebuild completion cache once per day
+    completionInit = ''
+      autoload -Uz compinit
+      if [[ -f ~/.zcompdump && $(date +'%Y%m%d') == $(date -r ~/.zcompdump +'%Y%m%d' 2>/dev/null || stat -c '%y' ~/.zcompdump 2>/dev/null | cut -d' ' -f1 | tr -d '-') ]]; then
+        compinit -C
+      else
+        compinit
+      fi
+    '';
     syntaxHighlighting = {
       enable = true;
       highlighters = [
@@ -99,4 +103,8 @@
       fi
     '';
   };
+
+  home.packages = [
+    profile-zsh
+  ];
 }

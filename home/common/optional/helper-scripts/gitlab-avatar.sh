@@ -108,7 +108,6 @@ trap 'rm -f "$TEMP_FILE" "$TEMP_JPG"' EXIT
 LOW=1
 HIGH=100
 BEST_QUALITY=0
-BEST_SIZE=0
 
 while [[ $LOW -le $HIGH ]]; do
     MID=$(( (LOW + HIGH) / 2 ))
@@ -121,7 +120,6 @@ while [[ $LOW -le $HIGH ]]; do
 
     if [[ $SIZE_KB -le $MAX_SIZE_KB ]]; then
         BEST_QUALITY=$MID
-        BEST_SIZE=$SIZE_KB
         LOW=$((MID + 1))
     else
         HIGH=$((MID - 1))

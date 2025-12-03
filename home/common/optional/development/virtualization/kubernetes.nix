@@ -65,6 +65,13 @@ in {
     kubectl-cloud-shell
   ];
 
+  programs.zsh.oh-my-zsh.plugins = [
+    "helm"
+    "kubectl"
+   #  "microk8s"
+    # "minikube"
+  ];
+
   home.shellAliases = {
     k = "kubectl";
   };
