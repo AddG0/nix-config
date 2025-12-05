@@ -5,7 +5,7 @@
   ...
 }: let
   cfg = config.programs.ssh;
-in let
+
   hosts = [
     "ghost"
   ];
