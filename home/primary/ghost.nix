@@ -28,7 +28,6 @@
         # "development/misc-language-servers.nix"
 
         "secrets"
-        "secrets/1password.nix"
         "secrets/cachix.nix"
         "secrets/kubeconfig.nix"
         "secrets/ssh/server.nix"

@@ -68,7 +68,7 @@ in {
   programs.zsh.oh-my-zsh.plugins = [
     "helm"
     "kubectl"
-   #  "microk8s"
+    #  "microk8s"
     # "minikube"
   ];
 

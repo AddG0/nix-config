@@ -61,7 +61,6 @@
         # Secrets
         "secrets"
         # "secrets/kubeconfig.nix"
-        "secrets/1password.nix"
       ])
     ))
   ];

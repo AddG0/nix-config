@@ -19,7 +19,6 @@
         "darwin/vban-walkie.nix"
 
         #################### Optional Applications ####################
-        "darwin/applications/1password.nix"
         "darwin/applications/autodesk-fusion.nix"
         "darwin/applications/browsers.nix"
         "darwin/applications/deskflow.nix"
@@ -39,6 +38,8 @@
         "darwin/applications/vpn.nix"
         "darwin/applications/ghostty.nix"
         "darwin/applications/bleunlock.nix"
+
+        "1password.nix"
         #################### Desktop ####################
       ])
     ))

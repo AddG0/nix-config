@@ -24,14 +24,13 @@
   nodeRole = cluster.nodes.${currentNode};
   isServer = nodeRole == "server";
   isAgent = nodeRole == "agent";
-
 in {
   # ==========================================================================
   # Firewall - open k3s ports
   # ==========================================================================
   networking.firewall = {
-    allowedTCPPorts = lib.optionals isServer [ 6443 ];  # k3s API server
-    allowedUDPPorts = [ 8472 ];  # flannel VXLAN
+    allowedTCPPorts = lib.optionals isServer [6443]; # k3s API server
+    allowedUDPPorts = [8472]; # flannel VXLAN
   };
 
   # ==========================================================================

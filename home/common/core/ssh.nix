@@ -4,6 +4,8 @@
   lib,
   ...
 }: let
+  cfg = config.programs.ssh;
+in let
   hosts = [
     "ghost"
   ];
@@ -44,70 +46,80 @@
     vanillaHosts
   );
 in {
-  programs.ssh = {
-    enable = true;
-    enableDefaultConfig = false;
-
-    # req'd for enabling yubikey-agent
-    extraConfig = ''
-      AddKeysToAgent yes
-      IdentityFile ${config.home.homeDirectory}/.ssh/id_ed25519
-      ${hostSpec.networking.ssh.extraConfig}
+  options.programs.ssh.enableTraditionalAgent = lib.mkOption {
+    type = lib.types.bool;
+    default = true;
+    description = ''
+      Whether to enable the traditional SSH agent via oh-my-zsh plugin.
+      Set to false when using alternative SSH agents like 1Password.
     '';
-
-    matchBlocks =
-      {
-        "*" = {
-          controlMaster = "auto";
-          controlPath = "~/.ssh/sockets/S.%r@%h:%p";
-          controlPersist = "10m";
-          serverAliveInterval = 60;
-          serverAliveCountMax = 3;
-          extraOptions = {
-            TCPKeepAlive = "yes";
-          };
-        };
-
-        # Not all of this systems I have access to can use yubikey.
-        "ssh-hosts" = lib.hm.dag.entryAfter ["*"] {
-          host = "${hostString}";
-          forwardAgent = true;
-          identitiesOnly = true;
-          identityFile = lib.lists.forEach identityFiles (file: "${config.home.homeDirectory}/.ssh/${file}");
-        };
-
-        "gitlab-personal" = {
-          host = "gitlab-personal";
-          hostname = "gitlab.com";
-          user = "git";
-          forwardAgent = false;
-          identitiesOnly = true;
-          identityFile = "${config.home.homeDirectory}/.ssh/id_ed25519_personal";
-          identityAgent = "none";
-          controlMaster = "no";
-          controlPath = "none";
-        };
-
-        "git" = {
-          host = "gitlab.com github.com";
-          user = "git";
-          forwardAgent = true;
-          identitiesOnly = true;
-          identityFile = lib.lists.forEach identityFiles (file: "${config.home.homeDirectory}/.ssh/${file}");
-        };
-      }
-      // vanillaHostsConfig;
   };
 
-  programs.zsh.oh-my-zsh.plugins = [
-    "ssh-agent"
-    "ssh"
-  ];
+  config = {
+    programs.ssh = {
+      enable = true;
+      enableDefaultConfig = false;
 
-  home.file =
-    {
-      ".ssh/config.d/.keep".text = "# Managed by Home Manager";
-      ".ssh/sockets/.keep".text = "# Managed by Home Manager";
-    }
-    // sshPublicKeyEntries;
+      # req'd for enabling yubikey-agent
+      extraConfig = ''
+        AddKeysToAgent yes
+        IdentityFile ${config.home.homeDirectory}/.ssh/id_ed25519
+        ${hostSpec.networking.ssh.extraConfig}
+      '';
+
+      matchBlocks =
+        {
+          "*" = {
+            controlMaster = "auto";
+            controlPath = "~/.ssh/sockets/S.%r@%h:%p";
+            controlPersist = "10m";
+            serverAliveInterval = 60;
+            serverAliveCountMax = 3;
+            extraOptions = {
+              TCPKeepAlive = "yes";
+            };
+          };
+
+          # Not all of this systems I have access to can use yubikey.
+          "ssh-hosts" = lib.hm.dag.entryAfter ["*"] {
+            host = "${hostString}";
+            forwardAgent = true;
+            identitiesOnly = true;
+            identityFile = lib.lists.forEach identityFiles (file: "${config.home.homeDirectory}/.ssh/${file}");
+          };
+
+          "gitlab-personal" = {
+            host = "gitlab-personal";
+            hostname = "gitlab.com";
+            user = "git";
+            forwardAgent = false;
+            identitiesOnly = true;
+            identityFile = "${config.home.homeDirectory}/.ssh/id_ed25519_personal";
+            identityAgent = "none";
+            controlMaster = "no";
+            controlPath = "none";
+          };
+
+          "git" = {
+            host = "gitlab.com github.com";
+            user = "git";
+            forwardAgent = true;
+            identitiesOnly = true;
+            identityFile = lib.lists.forEach identityFiles (file: "${config.home.homeDirectory}/.ssh/${file}");
+          };
+        }
+        // vanillaHostsConfig;
+    };
+
+    programs.zsh.oh-my-zsh.plugins =
+      lib.optional cfg.enableTraditionalAgent "ssh-agent"
+      ++ ["ssh"];
+
+    home.file =
+      {
+        ".ssh/config.d/.keep".text = "# Managed by Home Manager";
+        ".ssh/sockets/.keep".text = "# Managed by Home Manager";
+      }
+      // sshPublicKeyEntries;
+  };
 }

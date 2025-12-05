@@ -30,14 +30,15 @@ in {
     enableCompletion = true;
 
     # Only rebuild completion cache once per day
-    completionInit = ''
-      autoload -Uz compinit
-      if [[ -f ~/.zcompdump && $(date +'%Y%m%d') == $(date -r ~/.zcompdump +'%Y%m%d' 2>/dev/null || stat -c '%y' ~/.zcompdump 2>/dev/null | cut -d' ' -f1 | tr -d '-') ]]; then
-        compinit -C
-      else
-        compinit
-      fi
-    '';
+    # completionInit = ''
+    #   autoload -Uz compinit
+    #   if [[ -f ~/.zcompdump && $(date +'%Y%m%d') == $(date -r ~/.zcompdump +'%Y%m%d' 2>/dev/null || stat -c '%y' ~/.zcompdump 2>/dev/null | cut -d' ' -f1 | tr -d '-') ]]; then
+    #     compinit -C
+    #   else
+    #     compinit
+    #   fi
+    # '';
+
     syntaxHighlighting = {
       enable = true;
       highlighters = [

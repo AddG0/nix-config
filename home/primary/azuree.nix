@@ -25,7 +25,6 @@
         "gaming/heroic.nix"
         "comms"
         "ghostty"
-        "secrets/1password.nix"
         "media/spicetify.nix"
         "media/tidal.nix"
         "media"

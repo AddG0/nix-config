@@ -31,7 +31,7 @@
         "development"
 
         "secrets"
-        "secrets/1password.nix"
+        "secrets/1password-ssh.nix"
         # "secrets/kubeconfig.nix"
 
         "nixos/desktops/plasma6"

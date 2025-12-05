@@ -8,14 +8,16 @@
     inputs.ai-toolkit.homeModules.ai-toolkit
   ];
 
-  home.packages = with pkgs; [
-    # Development tools
-    claude-code-router
-    # claude-flow
-    repomix
-  ] ++ lib.optionals pkgs.stdenv.isLinux [
-    claude-desktop
-  ];
+  home.packages = with pkgs;
+    [
+      # Development tools
+      claude-code-router
+      # claude-flow
+      repomix
+    ]
+    ++ lib.optionals pkgs.stdenv.isLinux [
+      claude-desktop
+    ];
 
   programs.claude-code = {
     enable = true;

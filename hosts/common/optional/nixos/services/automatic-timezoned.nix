@@ -1,5 +1,4 @@
-{ pkgs, ... }:
-{
+{pkgs, ...}: {
   # Enable IP-based automatic timezone detection
   # services.ip-timezone.enable = true;
 
