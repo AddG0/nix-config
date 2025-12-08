@@ -20,6 +20,12 @@
       min-free = 128000000; # 128MB
       max-free = 1000000000; # 1GB
 
+      # Conditional max-jobs based on whether remote builders are enabled
+      # With remote builders: use total maxJobs from all remote builders (auto-calculated)
+      # Without remote builders: auto-detect local cores to avoid overselling
+      max-jobs = if config.nix.remoteBuilder.enableClient then config.nix.remoteBuilder.totalRemoteJobs else "auto";
+      cores = 0; # Let each build use all available cores on the builder (auto-detect)
+
       trusted-users = ["root" config.hostSpec.username];
 
       experimental-features = [

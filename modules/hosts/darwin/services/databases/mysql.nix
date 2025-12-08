@@ -45,10 +45,10 @@
         sleep 1
     done
 
-    # Fix socket permissions so all users can connect
+    # Fix socket permissions for mysql group access
     echo "Fixing MySQL socket permissions..."
-    chmod 755 "${cfg.dataDir}"  # Allow access to directory
-    chmod 666 "${cfg.dataDir}/mysql.sock"  # Allow socket connections
+    chmod 750 "${cfg.dataDir}"  # Allow access to directory for owner and group
+    chmod 660 "${cfg.dataDir}/mysql.sock"  # Allow socket connections for owner and group only
 
     ${lib.optionalString isMariaDB ''
       # If MariaDB is used in an Galera cluster, we have to check if the sync is done

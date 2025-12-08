@@ -12,6 +12,7 @@
   config,
   lib,
   inputs,
+  pkgs,
   ...
 }:
 with lib; let
@@ -43,6 +44,19 @@ with lib; let
 
   currentHost = config.hostSpec.hostName;
   isBuilder = hasAttr currentHost allBuilders;
+
+  # Calculate total maxJobs from all remote builders (excluding current host)
+  # Only count builders that match the current system's architecture
+  totalRemoteJobs = let
+    currentSystem = pkgs.stdenv.hostPlatform.system;
+
+    # Filter to only builders matching current architecture and excluding current host
+    remoteBuilders = filterAttrs
+      (name: builder: name != currentHost && builder.system == currentSystem)
+      allBuilders;
+
+    sumJobs = builders: foldl' (acc: builder: acc + builder.maxJobs) 0 (attrValues builders);
+  in sumJobs remoteBuilders;
 in {
   options.nix.remoteBuilder = {
     enable = mkOption {
@@ -62,6 +76,13 @@ in {
       default = "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIPolgQKCN05Js3NXyBQGs4ii6tTmHYV2jRt79ZCdbMX5";
       description = "SSH public key for the builder user";
       example = "ssh-ed25519 AAAA...";
+    };
+
+    totalRemoteJobs = mkOption {
+      type = types.int;
+      default = totalRemoteJobs;
+      readOnly = true;
+      description = "Total maxJobs available from all remote builders (calculated automatically)";
     };
   };
 
