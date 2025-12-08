@@ -5,7 +5,7 @@
   dpkg,
   autoPatchelfHook,
   makeWrapper,
-  webkitgtk_4_0,
+  webkitgtk_4_1,
   libayatana-appindicator,
   iw,
   wirelesstools,
@@ -30,7 +30,7 @@ stdenv.mkDerivation {
   ];
 
   buildInputs = [
-    webkitgtk_4_0
+    webkitgtk_4_1
     libayatana-appindicator
   ];
 
@@ -46,7 +46,7 @@ stdenv.mkDerivation {
     cp -r usr/lib/wifiman-desktop/* $out/lib/
     cp -r usr/share/* $out/share/
 
-    makeWrapper $out/lib/wifiman-desktop $out/bin/wifiman-desktop \
+    makeWrapper usr/bin/wifiman-desktop $out/bin/wifiman-desktop \
       --prefix PATH : ${lib.makeBinPath [iw wirelesstools nettools]}
 
     runHook postInstall

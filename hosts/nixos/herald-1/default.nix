@@ -1,7 +1,7 @@
 #############################################################
 #
-#  zephy - Main Desktop
-#  NixOS running on Ryzen 5 3600X, Radeon RX 5700 XT, 64GB RAM
+#  herald-1 - Signage Player
+#  NixOS running on Ryzen 5 3600X, Radeon RX 5700 XT, 64GB RAM TODO: Update hardware specs
 #
 ###############################################################
 {

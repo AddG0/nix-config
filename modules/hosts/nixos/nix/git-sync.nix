@@ -137,6 +137,7 @@ in {
         runtimeInputs = with pkgs;
           [
             git
+            openssh
             nixos-rebuild
             systemd
             coreutils

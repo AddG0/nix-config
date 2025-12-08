@@ -1,7 +1,7 @@
 #############################################################
 #
-#  zephy - Main Desktop
-#  NixOS running on Ryzen 5 3600X, Radeon RX 5700 XT, 64GB RAM
+#  odin - Server
+#  NixOS running on Intel i9-13900H (20 cores), 32GB RAM
 #
 ###############################################################
 {

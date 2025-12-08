@@ -46,6 +46,8 @@
       warn-dirty = false;
     };
 
+    # distributedBuilds and buildMachines are configured in nix-remote-builder.nix
+
     optimise.automatic = true;
   };
 
