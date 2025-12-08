@@ -49,7 +49,7 @@
         "nixos/services/nginx.nix" # nginx
         "nixos/obs.nix" # obs
         "nixos/hardware/openrazer.nix" # openrazer
-        "1password.nix"
+        "nixos/1password.nix"
         #################### Desktop ####################
         "nixos/desktops/plasma6" # window manager
         "nixos/services/greetd.nix" # display manager

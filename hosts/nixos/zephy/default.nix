@@ -50,7 +50,7 @@
         "nixos/services/bluetooth.nix"
         "nixos/services/bt-proximity.nix"
         "nixos/services/automatic-timezoned.nix"
-        "1password.nix"
+        "nixos/1password.nix"
         "nixos/hardware/openrazer.nix" # openrazer
 
         #################### Desktop ####################

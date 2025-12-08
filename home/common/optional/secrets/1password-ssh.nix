@@ -35,7 +35,7 @@ in {
   # Configure SSH to use 1Password as the SSH agent
   # mkBefore ensures this is added before other extraConfig settings
   programs.ssh.extraConfig = lib.mkBefore ''
-    IdentityAgent ${agentPath}
+    IdentityAgent "${agentPath}"
   '';
 
   # Disable the traditional SSH agent plugin

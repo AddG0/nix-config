@@ -38,8 +38,9 @@
         "darwin/applications/vpn.nix"
         "darwin/applications/ghostty.nix"
         "darwin/applications/bleunlock.nix"
+        "darwin/applications/wifiman.nix"
+        "darwin/applications/1password.nix"
 
-        "1password.nix"
         #################### Desktop ####################
       ])
     ))

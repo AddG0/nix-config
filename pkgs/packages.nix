@@ -8,6 +8,7 @@ pkgs: {
   kubevpn = pkgs.callPackage ./kubevpn {};
   openhands = pkgs.callPackage ./openhands {};
   claude-flow = pkgs.callPackage ./claude-flow {};
+  wifiman-desktop = pkgs.callPackage ./wifiman-desktop {};
 
   # JetBrains - modular namespace
   jetbrains = import ./jetbrains pkgs;

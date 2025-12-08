@@ -1,4 +1,4 @@
-{lib, ...}: {
+{lib, pkgs, ...}: {
   imports = lib.flatten [
     ./common/core
     (map (f: ./common/optional/${f}) [
@@ -31,6 +31,7 @@
         "secrets/cachix.nix"
         "secrets/kubeconfig.nix"
         "secrets/ssh/server.nix"
+        "secrets/1password-ssh.nix"
 
         "comms"
         "ghostty"
