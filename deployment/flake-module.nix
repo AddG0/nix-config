@@ -9,7 +9,11 @@
     colmena =
       {
         meta = {
-          nixpkgs = import inputs.nixpkgs {system = "x86_64-linux";};
+          # Set nixpkgs to the deployment host's system (where colmena runs)
+          # Actual builds will be delegated to remote builders based on derivation requirements
+          nixpkgs = import inputs.nixpkgs {
+            system = builtins.currentSystem;
+          };
           specialArgs = {
             inherit inputs;
             inherit (inputs) self;
