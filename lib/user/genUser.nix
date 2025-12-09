@@ -21,7 +21,7 @@
   baseUserConfig = lib.recursiveUpdate commonConfig {
     users.users.${user} = {
       home = lib.mkIf (user != "root") hostSpec.home;
-      shell = pkgs.zsh;
+      shell = pkgs.nushell;
       openssh.authorizedKeys.keys = pubKeys;
     };
     programs.zsh.enable = true;

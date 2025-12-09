@@ -11,6 +11,7 @@
     # Changing working directory when exiting Yazi
     enableBashIntegration = true;
     enableZshIntegration = true;
+    enableNushellIntegration = true;
     settings = {
       manager = {
         show_hidden = true;

@@ -28,7 +28,7 @@ in {
     ];
     sessionVariables = {
       FLAKE = "$HOME/nix-config";
-      SHELL = "zsh";
+      SHELL = "nu";
       TERM = "xterm-256color";
       TERMINAL = "xterm-256color";
       VISUAL = "nvim";
