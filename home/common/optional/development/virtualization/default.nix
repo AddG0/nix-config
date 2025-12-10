@@ -1,6 +1,6 @@
 {
   imports = [
     ./docker.nix
-    ./kubernetes.nix
+    ./kubernetes
   ];
 }

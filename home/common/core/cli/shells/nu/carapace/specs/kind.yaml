@@ -1,0 +1,125 @@
+# yaml-language-server: $schema=https://carapace.sh/schemas/command.json
+name: kind
+description: kind creates and manages local Kubernetes clusters using Docker container 'nodes'
+persistentflags:
+  -h, --help: help for kind
+  -q, --quiet: silence all stderr output
+  -v, --verbosity=: info log verbosity
+  --version: version for kind
+commands:
+  - name: build
+    description: Build one of [node-image]
+    commands:
+      - name: node-image
+        description: Build a node image
+        flags:
+          --base-image=: base image to use
+          --image=: name of the resulting image
+          --kube-root=: path to Kubernetes source
+          --type=: type of build (docker, podman)
+  - name: completion
+    description: Output shell completion code
+    completion:
+      positional:
+        - ["bash", "zsh", "fish", "powershell"]
+  - name: create
+    description: Creates one of [cluster]
+    commands:
+      - name: cluster
+        description: Creates a local Kubernetes cluster
+        flags:
+          --config=: path to kind config file
+          --image=: node docker image
+          --kubeconfig=: kubeconfig path
+          -n, --name=: cluster name
+          --retain: retain nodes for debugging
+          --wait=: wait for control plane
+        completion:
+          flag:
+            config: ["$files"]
+            kubeconfig: ["$files"]
+  - name: delete
+    description: Deletes one of [cluster, clusters]
+    commands:
+      - name: cluster
+        description: Delete a cluster
+        flags:
+          --kubeconfig=: kubeconfig path
+          -n, --name=: cluster name
+        completion:
+          flag:
+            kubeconfig: ["$files"]
+            name: ["$carapace.tools.Kind.Clusters"]
+      - name: clusters
+        description: Delete multiple clusters
+        flags:
+          -A, --all: delete all clusters
+          --kubeconfig=: kubeconfig path
+        completion:
+          flag:
+            kubeconfig: ["$files"]
+  - name: export
+    description: Exports one of [kubeconfig, logs]
+    commands:
+      - name: kubeconfig
+        description: Export kubeconfig
+        flags:
+          --internal: use internal address
+          --kubeconfig=: kubeconfig path
+          -n, --name=: cluster name
+        completion:
+          flag:
+            kubeconfig: ["$files"]
+            name: ["$carapace.tools.Kind.Clusters"]
+      - name: logs
+        description: Export logs
+        flags:
+          -n, --name=: cluster name
+        completion:
+          flag:
+            name: ["$carapace.tools.Kind.Clusters"]
+          positional:
+            - ["$directories"]
+  - name: get
+    description: Gets one of [clusters, nodes, kubeconfig]
+    commands:
+      - name: clusters
+        description: List kind clusters
+      - name: nodes
+        description: List nodes in a cluster
+        flags:
+          -n, --name=: cluster name
+        completion:
+          flag:
+            name: ["$carapace.tools.Kind.Clusters"]
+      - name: kubeconfig
+        description: Print cluster kubeconfig
+        flags:
+          --internal: use internal address
+          -n, --name=: cluster name
+        completion:
+          flag:
+            name: ["$carapace.tools.Kind.Clusters"]
+  - name: load
+    description: Loads images into nodes
+    commands:
+      - name: docker-image
+        description: Load docker image
+        flags:
+          -n, --name=: cluster name
+          --nodes=: comma separated list of nodes
+        completion:
+          flag:
+            name: ["$carapace.tools.Kind.Clusters"]
+      - name: image-archive
+        description: Load image archive
+        flags:
+          -n, --name=: cluster name
+          --nodes=: comma separated list of nodes
+        completion:
+          flag:
+            name: ["$carapace.tools.Kind.Clusters"]
+          positional:
+            - ["$files"]
+  - name: version
+    description: Prints the kind CLI version

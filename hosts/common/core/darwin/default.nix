@@ -32,6 +32,16 @@ in {
 
   system.primaryUser = config.hostSpec.username;
 
+  # Add nushell to available shells
+  environment.shells = [ pkgs.nushell ];
+
+  # Activation script to change shell for existing users
+  # Using dscl (consistent with nix-darwin's user module implementation)
+  system.activationScripts.users.text = lib.mkAfter ''
+    echo "Setting shell to nushell for ${config.hostSpec.username}..."
+    dscl . -create /Users/${config.hostSpec.username} UserShell ${pkgs.nushell}/bin/nu
+  '';
+
   users.users.${config.hostSpec.username} = {
     description = config.hostSpec.userFullName;
     # Public Keys that can be used to login to all my PCs, Macbooks, and servers.

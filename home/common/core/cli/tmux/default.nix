@@ -1,11 +1,9 @@
 {
-  config,
   pkgs,
   ...
 }: let
   shellAliases = {
     "t" = "tmux";
-    "td" = "default_tmux_session";
   };
 in {
   programs.tmux = {
@@ -14,7 +12,6 @@ in {
     tmuxp.enable = false;
     mouse = true;
     clock24 = false;
-    shell = "${config.home.homeDirectory}/.nix-profile/bin/zsh";
     terminal = "tmux-256color";
     plugins = with pkgs.tmuxPlugins; [
       vim-tmux-navigator
@@ -129,5 +126,6 @@ in {
             tmux attach-session -t default 2>/dev/null || tmux new-session -s default -c "$PWD"
         fi
     }
+    alias td="default_tmux_session"
   '';
 }
