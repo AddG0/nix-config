@@ -29,15 +29,32 @@
       ) (builtins.attrNames (builtins.readDir userPath))
     else [];
 
-  # Get all user directories in home/
+  # Get all user directories in home/ - cached once
   userDirs = getDirectories ./.;
+
+  # Cache user configs mapping to avoid rescanning
+  userConfigsMap = builtins.listToAttrs (
+    map (user: {
+      name = user;
+      value = {
+        path = ./. + "/${user}";
+        configs = getHostConfigs (./. + "/${user}");
+      };
+    })
+    userDirs
+  );
+
+  # Extend lib once and reuse - significant performance improvement
+  extendedLib = inputs.nixpkgs.lib.extend (_self: _super: {
+    custom = import ../lib/default.nix {inherit (inputs.nixpkgs) lib;};
+    inherit (inputs.home-manager.lib) hm;
+  });
 
   # Function to get a simple mapping of what configurations exist
   getAvailableConfigs = builtins.listToAttrs (
     builtins.concatMap (
       user: let
-        userPath = ./. + "/${user}";
-        hostConfigs = getHostConfigs userPath;
+        userInfo = userConfigsMap.${user};
       in
         builtins.map (hostFile: {
           name =
@@ -47,10 +64,10 @@
           value = {
             inherit user;
             host = builtins.replaceStrings [".nix"] [""] hostFile;
-            path = ./. + "/${user}/${hostFile}";
+            path = userInfo.path + "/${hostFile}";
           };
         })
-        hostConfigs
+        userInfo.configs
     )
     userDirs
   );
@@ -59,8 +76,7 @@
   homeConfigurations = builtins.listToAttrs (
     builtins.concatMap (
       user: let
-        userPath = ./. + "/${user}";
-        hostConfigs = getHostConfigs userPath;
+        userInfo = userConfigsMap.${user};
       in
         builtins.map (hostFile: let
           hostName = builtins.replaceStrings [".nix"] [""] hostFile;
@@ -68,66 +84,58 @@
             if user == "primary"
             then hostName
             else "${user}@${hostName}";
-          configPath = ./. + "/${user}/${hostFile}";
+          configPath = userInfo.path + "/${hostFile}";
         in {
           name = configName;
-          value = let
-            # Extend lib with custom functions
-            extendedLib = inputs.nixpkgs.lib.extend (_self: _super: {
-              custom = import ../lib/default.nix {inherit (inputs.nixpkgs) lib;};
-              inherit (inputs.home-manager.lib) hm;
-            });
-          in
-            inputs.home-manager.lib.homeManagerConfiguration {
-              pkgs = inputs.nixpkgs.legacyPackages.x86_64-linux;
-              extraSpecialArgs = {
-                inherit inputs;
-                inherit self;
-                # Use the extended lib with custom functions
-                lib = extendedLib;
-                # Provide basic hostSpec - modules can override specific values
-                hostSpec = {
-                  inherit hostName;
-                  username = user;
-                  handle = user;
-                  home = "/home/${user}";
-                  isMinimal = false;
-                  hostType = "desktop";
-                  isDarwin = false;
-                  disableSops = true;
-                  hostPlatform = "x86_64-linux";
-                  system = {
-                    stateVersion = "24.05";
-                  };
-                  domain = "example.com";
-                  email = {
-                    personal = "user@example.com";
-                    work = "user@work.example.com";
-                  };
-                  userFullName = "Example User";
-                  githubEmail = "user@example.com";
-                  networking = {
-                    prefixLength = 24;
-                    ports.tcp.ssh = 22;
-                    ssh = {
-                      extraConfig = "";
-                    };
+          value = inputs.home-manager.lib.homeManagerConfiguration {
+            pkgs = inputs.nixpkgs.legacyPackages.x86_64-linux;
+            extraSpecialArgs = {
+              inherit inputs self;
+              # Use the shared extended lib
+              lib = extendedLib;
+              # Provide basic hostSpec - modules can override specific values
+              hostSpec = {
+                inherit hostName;
+                username = user;
+                handle = user;
+                home = "/home/${user}";
+                isMinimal = false;
+                hostType = "desktop";
+                isDarwin = false;
+                disableSops = true;
+                hostPlatform = "x86_64-linux";
+                system = {
+                  stateVersion = "24.05";
+                };
+                domain = "example.com";
+                email = {
+                  personal = "user@example.com";
+                  work = "user@work.example.com";
+                };
+                userFullName = "Example User";
+                githubEmail = "user@example.com";
+                networking = {
+                  prefixLength = 24;
+                  ports.tcp.ssh = 22;
+                  ssh = {
+                    extraConfig = "";
                   };
                 };
-                desktops = {};
-                inherit (inputs) nix-secrets;
-                inherit (inputs) nur-ryan4yin;
               };
-              modules = [
-                # Pass the extended lib to modules
-                {
-                  _module.args.lib = extendedLib;
-                }
-                configPath
-              ];
+              desktops = {};
+              inherit (inputs) nix-secrets;
+              inherit (inputs) nur-ryan4yin;
             };
+            modules = [
+              # Pass the extended lib to modules
+              {
+                _module.args.lib = extendedLib;
+              }
+              configPath
+            ];
+          };
         })
-        hostConfigs
+        userInfo.configs
     )
     userDirs
   );

@@ -186,21 +186,11 @@
   };
 
   stable-packages = final: _prev: {
-    stable = import inputs.nixpkgs-stable {
-      inherit (final.stdenv.hostPlatform) system;
-      config.allowUnfree = true;
-      #      overlays = [
-      #     ];
-    };
+    stable = inputs.nixpkgs-stable.legacyPackages.${final.stdenv.hostPlatform.system};
   };
 
   unstable-packages = final: _prev: {
-    unstable = import inputs.nixpkgs-unstable {
-      inherit (final.stdenv.hostPlatform) system;
-      config.allowUnfree = true;
-      #      overlays = [
-      #     ];
-    };
+    unstable = inputs.nixpkgs-unstable.legacyPackages.${final.stdenv.hostPlatform.system};
   };
 
   nur = final: _prev: let
