@@ -18,7 +18,7 @@ fi
 FEATURE_BRANCH="$1"
 BASE_BRANCH="${2:-main}"
 HOST="${3:-$(hostname)}"
-ITERATIONS="${4:-5}"
+ITERATIONS="${4:-50}"
 WARMUP_RUNS=1
 
 # Detect OS and build flake path
@@ -169,26 +169,48 @@ echo ""
 
 calc_stats() {
 	local file=$1
+	local exclude_outliers=${2:-false}
+
+	# First pass: calculate initial stats
 	local avg=$(awk '{ sum += $1; count++ } END { print sum/count }' "$file")
-	local min=$(sort -n "$file" | head -1)
-	local max=$(sort -n "$file" | tail -1)
+	local stddev=$(awk -v avg="$avg" '{ sum += ($1 - avg)^2; count++ } END { print sqrt(sum/count) }' "$file")
+
+	# Filter outliers if requested (>2σ threshold)
+	local filtered_file="$file"
+	if [ "$exclude_outliers" = "true" ]; then
+		filtered_file="${file}.filtered"
+		awk -v avg="$avg" -v stddev="$stddev" -v threshold="2" '
+			{
+				deviation = ($1 - avg) / stddev
+				if (deviation < 0) deviation = -deviation
+				if (deviation <= threshold) print $1
+			}
+		' "$file" >"$filtered_file"
+
+		# Recalculate stats with filtered data
+		avg=$(awk '{ sum += $1; count++ } END { print sum/count }' "$filtered_file")
+		stddev=$(awk -v avg="$avg" '{ sum += ($1 - avg)^2; count++ } END { print sqrt(sum/count) }' "$filtered_file")
+	fi
+
+	local min=$(sort -n "$filtered_file" | head -1)
+	local max=$(sort -n "$filtered_file" | tail -1)
 
 	# Calculate median
-	local count=$(wc -l <"$file")
+	local count=$(wc -l <"$filtered_file")
 	local median
 	if [ $((count % 2)) -eq 0 ]; then
 		# Even number of values - average of middle two
 		local mid1=$((count / 2))
 		local mid2=$((mid1 + 1))
-		median=$(sort -n "$file" | awk "NR==$mid1 || NR==$mid2 { sum += \$1; count++ } END { print sum/count }")
+		median=$(sort -n "$filtered_file" | awk "NR==$mid1 || NR==$mid2 { sum += \$1; count++ } END { print sum/count }")
 	else
 		# Odd number of values - middle value
 		local mid=$(((count + 1) / 2))
-		median=$(sort -n "$file" | awk "NR==$mid { print \$1 }")
+		median=$(sort -n "$filtered_file" | awk "NR==$mid { print \$1 }")
 	fi
 
-	# Calculate standard deviation
-	local stddev=$(awk -v avg="$avg" '{ sum += ($1 - avg)^2; count++ } END { print sqrt(sum/count) }' "$file")
+	# Cleanup filtered file if created
+	[ "$exclude_outliers" = "true" ] && rm -f "$filtered_file"
 
 	echo "$avg $min $max $median $stddev"
 }
@@ -219,11 +241,16 @@ detect_outliers() {
 	fi
 }
 
-read avg_base min_base max_base median_base stddev_base <<<$(calc_stats "/tmp/times-${BASE_BRANCH}.txt")
-read avg_feature min_feature max_feature median_feature stddev_feature <<<$(calc_stats "/tmp/times-${FEATURE_BRANCH}.txt")
+# Calculate stats with all data (for outlier detection)
+read avg_base_all min_base_all max_base_all median_base_all stddev_base_all <<<$(calc_stats "/tmp/times-${BASE_BRANCH}.txt" false)
+read avg_feature_all min_feature_all max_feature_all median_feature_all stddev_feature_all <<<$(calc_stats "/tmp/times-${FEATURE_BRANCH}.txt" false)
+
+# Calculate stats excluding outliers >2σ (for final comparison)
+read avg_base min_base max_base median_base stddev_base <<<$(calc_stats "/tmp/times-${BASE_BRANCH}.txt" true)
+read avg_feature min_feature max_feature median_feature stddev_feature <<<$(calc_stats "/tmp/times-${FEATURE_BRANCH}.txt" true)
 
 echo "$BASE_BRANCH (baseline):"
-echo "  Average: ${avg_base}ms"
+echo "  Average: ${avg_base}ms (outliers excluded)"
 echo "  Median:  ${median_base}ms"
 echo "  Std Dev: ${stddev_base}ms"
 echo "  Min:     ${min_base}ms"
@@ -231,16 +258,16 @@ echo "  Max:     ${max_base}ms"
 echo ""
 
 echo "$FEATURE_BRANCH (feature):"
-echo "  Average: ${avg_feature}ms"
+echo "  Average: ${avg_feature}ms (outliers excluded)"
 echo "  Median:  ${median_feature}ms"
 echo "  Std Dev: ${stddev_feature}ms"
 echo "  Min:     ${min_feature}ms"
 echo "  Max:     ${max_feature}ms"
 echo ""
 
-# Detect outliers
-detect_outliers "/tmp/times-${BASE_BRANCH}.txt" "$BASE_BRANCH" "$avg_base" "$stddev_base" && echo ""
-detect_outliers "/tmp/times-${FEATURE_BRANCH}.txt" "$FEATURE_BRANCH" "$avg_feature" "$stddev_feature" && echo ""
+# Detect outliers (using unfiltered stats)
+detect_outliers "/tmp/times-${BASE_BRANCH}.txt" "$BASE_BRANCH" "$avg_base_all" "$stddev_base_all" && echo ""
+detect_outliers "/tmp/times-${FEATURE_BRANCH}.txt" "$FEATURE_BRANCH" "$avg_feature_all" "$stddev_feature_all" && echo ""
 
 # Calculate improvement (using both average and median)
 improvement_avg=$(awk "BEGIN { printf \"%.2f\", (($avg_base - $avg_feature) / $avg_base * 100) }")
