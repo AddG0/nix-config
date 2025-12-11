@@ -187,15 +187,15 @@
 
   stable-packages = final: _prev: {
     stable = import inputs.nixpkgs-stable {
-      system = final.stdenv.hostPlatform.system;
-      config = final.config;
+      inherit (final.stdenv.hostPlatform) system;
+      inherit (final) config;
     };
   };
 
   unstable-packages = final: _prev: {
     unstable = import inputs.nixpkgs-unstable {
-      system = final.stdenv.hostPlatform.system;
-      config = final.config;
+      inherit (final.stdenv.hostPlatform) system;
+      inherit (final) config;
     };
   };
 

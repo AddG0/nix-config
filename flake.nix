@@ -243,7 +243,7 @@
         # Development shell
         devShells = import ./shell.nix {
           inherit pkgs;
-          checks = config.checks;
+          inherit (config) checks;
         };
       };
     };

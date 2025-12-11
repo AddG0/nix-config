@@ -36,6 +36,7 @@
           # };
 
           alejandra.enable = true;
+          statix.enable = true;
           shfmt.enable = true;
 
           end-of-file-fixer.enable = true;
