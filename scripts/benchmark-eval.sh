@@ -77,7 +77,7 @@ CURRENT_BRANCH=$(git branch --show-current)
 # Check for uncommitted changes and stash if needed
 if [ -n "$(git status --porcelain)" ]; then
 	echo "⚠️  Stashing uncommitted changes..."
-	git stash push -m "benchmark-eval.sh temporary stash" >/dev/null 2>&1
+	git stash push -u -m "benchmark-eval.sh temporary stash" >/dev/null 2>&1
 	STASHED=true
 else
 	STASHED=false
