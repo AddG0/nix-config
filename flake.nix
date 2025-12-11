@@ -26,11 +26,16 @@
     #################### Official NixOS and HM Package Sources ####################
 
     flake-parts.url = "github:hercules-ci/flake-parts";
+
+    # Option 1: Main = unstable (current)
     nixpkgs.url = "github:NixOS/nixpkgs/nixos-unstable";
-    # The next two are for pinning to stable vs unstable regardless of what the above is set to
-    # See also 'stable-packages' and 'unstable-packages' overlays at 'overlays/default.nix"
     nixpkgs-stable.url = "github:NixOS/nixpkgs/nixos-25.05";
-    nixpkgs-unstable.url = "github:NixOS/nixpkgs/nixos-unstable";
+    nixpkgs-unstable.follows = "nixpkgs";
+
+    # Option 2: Main = stable (swap comments to switch)
+    # nixpkgs.url = "github:NixOS/nixpkgs/nixos-25.05";
+    # nixpkgs-stable.follows = "nixpkgs";
+    # nixpkgs-unstable.url = "github:NixOS/nixpkgs/nixos-unstable";
     nix-darwin = {
       url = "github:lnl7/nix-darwin";
       inputs.nixpkgs.follows = "nixpkgs";
