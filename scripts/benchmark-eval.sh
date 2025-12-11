@@ -74,6 +74,16 @@ echo ""
 # Store current branch
 CURRENT_BRANCH=$(git branch --show-current)
 
+# Check for uncommitted changes and stash if needed
+if [ -n "$(git status --porcelain)" ]; then
+	echo "⚠️  Stashing uncommitted changes..."
+	git stash push -m "benchmark-eval.sh temporary stash" >/dev/null 2>&1
+	STASHED=true
+else
+	STASHED=false
+fi
+echo ""
+
 # Function to run benchmark
 benchmark_branch() {
 	local branch=$1
@@ -144,6 +154,13 @@ done
 # Return to original branch
 echo "🌿 Returning to $CURRENT_BRANCH..."
 git checkout "$CURRENT_BRANCH" >/dev/null 2>&1
+
+# Restore stashed changes if any
+if [ "$STASHED" = true ]; then
+	echo "🔄 Restoring stashed changes..."
+	git stash pop >/dev/null 2>&1
+fi
+echo ""
 
 # Calculate statistics
 echo "📈 Results Summary"
@@ -233,7 +250,7 @@ echo "📊 Performance Comparison:"
 if (($(echo "$improvement_avg > 0" | bc -l))); then
 	echo "✅ $FEATURE_BRANCH is ${improvement_avg}% FASTER (avg) than $BASE_BRANCH"
 elif (($(echo "$improvement_avg < 0" | bc -l))); then
-	local abs_improvement=$(echo "$improvement_avg * -1" | bc)
+	abs_improvement=$(echo "$improvement_avg * -1" | bc)
 	echo "⚠️  $FEATURE_BRANCH is ${abs_improvement}% SLOWER (avg) than $BASE_BRANCH"
 else
 	echo "➖ No significant difference (avg)"
@@ -242,7 +259,7 @@ fi
 if (($(echo "$improvement_median > 0" | bc -l))); then
 	echo "✅ $FEATURE_BRANCH is ${improvement_median}% FASTER (median) than $BASE_BRANCH"
 elif (($(echo "$improvement_median < 0" | bc -l))); then
-	local abs_improvement=$(echo "$improvement_median * -1" | bc)
+	abs_improvement=$(echo "$improvement_median * -1" | bc)
 	echo "⚠️  $FEATURE_BRANCH is ${abs_improvement}% SLOWER (median) than $BASE_BRANCH"
 else
 	echo "➖ No significant difference (median)"
