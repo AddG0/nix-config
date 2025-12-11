@@ -7,3 +7,6 @@ result
 ._*
 .claude/
 CLAUDE.local.md
+
+# Profiling artifacts
+trace.log

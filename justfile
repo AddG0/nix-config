@@ -141,6 +141,17 @@ update-packages *ARGS:
 diff:
   git diff ':!flake.lock'
 
+[group('development')]
+[doc("Analyze Nix evaluation performance using trace profiling")]
+profile hostname="" use-existing="y":
+  scripts/analyze-trace.sh {{ if hostname != "" { hostname } else { "$(hostname)" } }} {{use-existing}}
+
+[group('development')]
+[doc("Benchmark evaluation performance between feature branch and base (defaults to main)")]
+benchmark feature-branch base-branch="main" hostname="" iterations="3":
+  @{{ if feature-branch == "" { error("feature-branch parameter is required") } else { "" } }}
+  scripts/benchmark-eval.sh {{feature-branch}} {{base-branch}} {{ if hostname != "" { hostname } else { "$(hostname)" } }} {{iterations}}
+
 [group('secrets')]
 [doc("Edit encrypted secrets file using SOPS")]
 sops:
