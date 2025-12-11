@@ -186,11 +186,17 @@
   };
 
   stable-packages = final: _prev: {
-    stable = inputs.nixpkgs-stable.legacyPackages.${final.stdenv.hostPlatform.system};
+    stable = import inputs.nixpkgs-stable {
+      system = final.stdenv.hostPlatform.system;
+      config = final.config;
+    };
   };
 
   unstable-packages = final: _prev: {
-    unstable = inputs.nixpkgs-unstable.legacyPackages.${final.stdenv.hostPlatform.system};
+    unstable = import inputs.nixpkgs-unstable {
+      system = final.stdenv.hostPlatform.system;
+      config = final.config;
+    };
   };
 
   nur = final: _prev: let
