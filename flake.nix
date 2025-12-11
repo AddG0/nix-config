@@ -31,10 +31,9 @@
     # See also 'stable-packages' and 'unstable-packages' overlays at 'overlays/default.nix"
     nixpkgs-stable.url = "github:NixOS/nixpkgs/nixos-25.05";
     nixpkgs-unstable.url = "github:NixOS/nixpkgs/nixos-unstable";
-    nixpkgs-darwin.url = "github:nixos/nixpkgs/nixpkgs-unstable";
     nix-darwin = {
       url = "github:lnl7/nix-darwin";
-      inputs.nixpkgs.follows = "nixpkgs-darwin";
+      inputs.nixpkgs.follows = "nixpkgs";
     };
 
     hardware.url = "github:nixos/nixos-hardware";
