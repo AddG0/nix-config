@@ -1,0 +1,175 @@
+# yaml-language-server: $schema=https://carapace.sh/schemas/command.json
+name: claude
+description: Claude Code - starts an interactive session by default
+persistentflags:
+  -h, --help: Display help for command
+flags:
+  -d, --debug?: Enable debug mode with optional category filtering (e.g., "api,hooks" or "!statsig,!file")
+  --verbose: Override verbose mode setting from config
+  -p, --print: Print response and exit (useful for pipes)
+  --output-format=: 'Output format (only works with --print): "text" (default), "json", or "stream-json"'
+  --include-partial-messages: Include partial message chunks as they arrive (only works with --print and --output-format=stream-json)
+  --input-format=: 'Input format (only works with --print): "text" (default), or "stream-json"'
+  --mcp-debug: '[DEPRECATED. Use --debug instead] Enable MCP debug mode (shows MCP server errors)'
+  --dangerously-skip-permissions: Bypass all permission checks. Recommended only for sandboxes with no internet access
+  --allow-dangerously-skip-permissions: Enable bypassing all permission checks as an option, without it being enabled by default
+  --replay-user-messages: Re-emit user messages from stdin back on stdout for acknowledgment (only works with --input-format=stream-json and --output-format=stream-json)
+  --allowedTools*=: Comma or space-separated list of tool names to allow (e.g. "Bash(git:*) Edit")
+  --allowed-tools*=: Comma or space-separated list of tool names to allow (e.g. "Bash(git:*) Edit")
+  --tools*=: 'Specify the list of available tools from the built-in set. Use "" to disable all tools, "default" to use all tools, or specify tool names (e.g. "Bash,Edit,Read"). Only works with --print mode'
+  --disallowedTools*=: Comma or space-separated list of tool names to deny (e.g. "Bash(git:*) Edit")
+  --disallowed-tools*=: Comma or space-separated list of tool names to deny (e.g. "Bash(git:*) Edit")
+  --mcp-config*=: Load MCP servers from JSON files or strings (space-separated)
+  --system-prompt=: System prompt to use for the session
+  --append-system-prompt=: Append a system prompt to the default system prompt
+  --permission-mode=: Permission mode to use for the session
+  -c, --continue: Continue the most recent conversation
+  -r, --resume?: Resume a conversation - provide a session ID or interactively select a conversation to resume
+  --fork-session: When resuming, create a new session ID instead of reusing the original (use with --resume or --continue)
+  --model=: Model for the current session. Provide an alias for the latest model (e.g. 'sonnet' or 'opus') or a model's full name (e.g. 'claude-sonnet-4-5-20250929')
+  --fallback-model=: Enable automatic fallback to specified model when default model is overloaded (only works with --print)
+  --settings=: Path to a settings JSON file or a JSON string to load additional settings from
+  --add-dir*=: Additional directories to allow tool access to
+  --ide: Automatically connect to IDE on startup if exactly one valid IDE is available
+  --strict-mcp-config: Only use MCP servers from --mcp-config, ignoring all other MCP configurations
+  --session-id=: Use a specific session ID for the conversation (must be a valid UUID)
+  --agents=: 'JSON object defining custom agents (e.g. ''{"reviewer": {"description": "Reviews code", "prompt": "You are a code reviewer"}}'')'
+  --setting-sources=: Comma-separated list of setting sources to load (user, project, local)
+  --plugin-dir*=: Load plugins from directories for this session only (repeatable)
+  -v, --version: Output the version number
+completion:
+  flag:
+    output-format: ["text", "json", "stream-json"]
+    input-format: ["text", "stream-json"]
+    permission-mode: ["acceptEdits", "bypassPermissions", "default", "plan"]
+    model: ["sonnet", "opus", "haiku", "claude-sonnet-4-5-20250929", "claude-opus-4-20250514", "claude-3-5-haiku-20241022"]
+    fallback-model: ["sonnet", "opus", "haiku"]
+    settings: ["$files"]
+    add-dir: ["$directories"]
+    mcp-config: ["$files"]
+    plugin-dir: ["$directories"]
+    setting-sources: ["user", "project", "local"]
+    tools: ["default", "Bash", "Edit", "Read", "Write", "Grep", "Glob", "Task"]
+commands:
+  - name: mcp
+    description: Configure and manage MCP servers
+    persistentflags:
+      -h, --help: Display help for mcp command
+    commands:
+      - name: add
+        description: Add a new MCP server configuration
+        flags:
+          -h, --help: Display help for mcp add command
+          --global: Add to global configuration
+          --project: Add to project configuration
+        completion:
+          positional:
+            - ["$files"]
+      - name: remove
+        description: Remove an MCP server configuration
+        flags:
+          -h, --help: Display help for mcp remove command
+          --global: Remove from global configuration
+          --project: Remove from project configuration
+      - name: list
+        description: List configured MCP servers
+        flags:
+          -h, --help: Display help for mcp list command
+          --global: List global servers only
+          --project: List project servers only
+          -a, --all: List all servers (global and project)
+      - name: enable
+        description: Enable an MCP server
+        flags:
+          -h, --help: Display help for mcp enable command
+      - name: disable
+        description: Disable an MCP server
+        flags:
+          -h, --help: Display help for mcp disable command
+      - name: test
+        description: Test an MCP server connection
+        flags:
+          -h, --help: Display help for mcp test command
+      - name: logs
+        description: View MCP server logs
+        flags:
+          -h, --help: Display help for mcp logs command
+          -f, --follow: Follow log output
+  - name: plugin
+    description: Manage Claude Code plugins
+    persistentflags:
+      -h, --help: Display help for plugin command
+    commands:
+      - name: install
+        description: Install a plugin
+        flags:
+          -h, --help: Display help for plugin install command
+          --global: Install globally
+          --project: Install for project only
+        completion:
+          positionalany: ["$directories", "$files"]
+      - name: uninstall
+        description: Uninstall a plugin
+        flags:
+          -h, --help: Display help for plugin uninstall command
+          --global: Uninstall from global
+          --project: Uninstall from project
+      - name: list
+        description: List installed plugins
+        flags:
+          -h, --help: Display help for plugin list command
+          --global: List global plugins only
+          --project: List project plugins only
+          -a, --all: List all plugins (global and project)
+      - name: enable
+        description: Enable a plugin
+        flags:
+          -h, --help: Display help for plugin enable command
+      - name: disable
+        description: Disable a plugin
+        flags:
+          -h, --help: Display help for plugin disable command
+      - name: update
+        description: Update a plugin
+        flags:
+          -h, --help: Display help for plugin update command
+          -a, --all: Update all plugins
+  - name: migrate-installer
+    description: Migrate from global npm installation to local installation
+    flags:
+      -h, --help: Display help for migrate-installer command
+      --dry-run: Show what would be done without making changes
+      -f, --force: Force migration even if conflicts exist
+  - name: setup-token
+    description: Set up a long-lived authentication token (requires Claude subscription)
+    flags:
+      -h, --help: Display help for setup-token command
+      --token=: Provide token directly instead of interactive prompt
+      --verify: Verify existing token
+  - name: doctor
+    description: Check the health of your Claude Code auto-updater
+    flags:
+      -h, --help: Display help for doctor command
+      --verbose: Show detailed diagnostic information
+      --fix: Attempt to fix detected issues
+  - name: update
+    description: Check for updates and install if available
+    flags:
+      -h, --help: Display help for update command
+      --check: Only check for updates without installing
+      --force: Force update even if current version is latest
+      --channel=: Update channel to use
+    completion:
+      flag:
+        channel: ["stable", "latest", "beta"]
+  - name: install
+    description: Install Claude Code native build. Use [target] to specify version (stable, latest, or specific version)
+    flags:
+      -h, --help: Display help for install command
+      --force: Force reinstall even if already installed
+      --channel=: Installation channel
+    completion:
+      flag:
+        channel: ["stable", "latest", "beta"]
+      positional:
+        - ["stable", "latest"]
