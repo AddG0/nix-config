@@ -60,7 +60,7 @@ in {
             else "disable"
           }"
         )
-        config.monitors
+        (builtins.filter (m: m.name != "") config.monitors)
       );
 
       #
