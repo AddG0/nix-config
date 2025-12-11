@@ -1,10 +1,21 @@
 {
   pkgs,
   lib,
+  config,
   ...
-}: {
+}: let
+  # Convert home.sessionVariables to Nushell env variable assignments
+  sessionVarsString = lib.concatStringsSep "\n" (
+    lib.mapAttrsToList (name: value: ''$env.${name} = "${value}"'') config.home.sessionVariables
+  );
+in {
   programs.nushell.extraEnv =
-    lib.optionalString pkgs.stdenv.isDarwin ''
+    ''
+      # Set all home.sessionVariables for Nushell
+      # (Nushell doesn't automatically pick these up)
+      ${sessionVarsString}
+    ''
+    + lib.optionalString pkgs.stdenv.isDarwin ''
       # Nix environment setup for nushell as login shell on macOS
       # Nushell doesn't automatically source /etc/bashrc where nix-darwin sets up the environment
       # See: https://discourse.nixos.org/t/any-nix-darwin-nushell-users/37778

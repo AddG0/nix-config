@@ -13,7 +13,7 @@
     };
   };
 
-  programs.zsh.initContent = ''
-    export KUBECONFIG=${config.home.homeDirectory}/.kube/config:${config.sops.secrets.kube_config.path}
-  '';
+  home.sessionVariables = {
+    KUBECONFIG = "${config.home.homeDirectory}/.kube/config:${config.sops.secrets.kube_config.path}";
+  };
 }

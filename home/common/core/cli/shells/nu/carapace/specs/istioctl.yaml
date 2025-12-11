@@ -1,0 +1,257 @@
+# yaml-language-server: $schema=https://carapace.sh/schemas/command.json
+name: istioctl
+description: Istio configuration command line utility
+persistentflags:
+  --as=: Username to impersonate
+  --as-group*=: Group to impersonate
+  --as-uid=: UID to impersonate
+  --context=: Kubernetes configuration context
+  -h, --help: help for istioctl
+  -i, --istioNamespace=: Istio system namespace
+  --kubeclient-timeout=: Kubernetes client timeout
+  -c, --kubeconfig=: Kubernetes configuration file
+  -n, --namespace=: Kubernetes namespace
+  --vklog=: log level verbosity
+completion:
+  flag:
+    kubeconfig: ["$files"]
+commands:
+  - name: admin
+    description: Manage control plane (istiod) configuration
+  - name: analyze
+    description: Analyze Istio configuration and print validation messages
+    flags:
+      -A, --all-namespaces: Analyze all namespaces
+      --analyzer*=: Select specific analyzers to run
+      --color: Enable color output
+      --failure-threshold=: Severity level for non-zero exit
+      --ignore-unknown: Don't complain about un-parseable input
+      -L, --list-analyzers: List available analyzers
+      -o, --output=: Output format
+      -R, --recursive: Process directory recursively
+      --revision=: Analyze specific revision
+      -S, --suppress*=: Suppress specific messages
+      --timeout=: Duration to wait
+      --use-kube: Use live kubernetes cluster
+    completion:
+      flag:
+        output: ["yaml", "json", "summary"]
+        failure-threshold: ["Info", "Warning", "Error"]
+      positionalany: ["$files"]
+  - name: authz
+    description: Authorization policy commands (experimental)
+  - name: bug-report
+    description: Cluster information and log capture support tool
+    flags:
+      --critical-errs: List of critical errors to abort bug report
+      --dir=: Output directory
+      --dry-run: Run without collecting logs
+      --duration=: How far to go back in time for logs
+      --end-time=: End time for log collection
+      --exclude: Exclude namespaces
+      --full-secrets: Include secret contents
+      --include*=: Include specific namespaces
+      --ior-configmap=: istio-operator configmap name
+      --start-time=: Start time for log collection
+      --timeout=: Timeout for archive creation
+  - name: completion
+    description: Generate autocompletion script
+    completion:
+      positional:
+        - ["bash", "zsh", "fish", "powershell"]
+  - name: create-remote-secret
+    description: Create secret with credentials for remote Kubernetes access
+    flags:
+      --auth-plugin-config: Authenticator plug-in configuration
+      --auth-plugin-name=: Authenticator plug-in name
+      --auth-type=: Type of authentication plugin
+      --context*=: Context to export from kubeconfig
+      --create-service-account: Create service account
+      --manifests=: Specify directory containing Istio manifests
+      --name=: Name of remote secret
+      --secret-name=: Name of secret
+      --server=: Server address
+      --service-account=: Create secret for service account
+      --type=: Type of secret
+  - name: dashboard
+    description: Access to Istio web UIs
+    aliases: [dash, d]
+    flags:
+      --address=: Address to listen on
+      --browser: Open browser
+      -p, --port=: Local port to listen to
+    commands:
+      - name: controlz
+        description: Open ControlZ web UI
+      - name: envoy
+        description: Open Envoy admin web UI
+      - name: grafana
+        description: Open Grafana web UI
+      - name: istiod-debug
+        description: Open Istio debug web UI
+      - name: jaeger
+        description: Open Jaeger web UI
+      - name: kiali
+        description: Open Kiali web UI
+      - name: prometheus
+        description: Open Prometheus web UI
+      - name: proxy
+        description: Open admin web UI for a proxy
+      - name: skywalking
+        description: Open SkyWalking UI
+      - name: zipkin
+        description: Open Zipkin web UI
+  - name: experimental
+    description: Experimental commands
+  - name: install
+    description: Install or reconfigure Istio
+    flags:
+      --charts=: Charts directory
+      --dry-run: Console/log output only
+      -d, --manifests=: Directory containing Istio manifests
+      --readiness-timeout=: Max wait time for Istio resources
+      --revision=: Target control plane revision
+      -s, --set*=: Override values
+      -f, --filename*=: Configuration files
+      --skip-confirmation: Skip confirmation prompts
+      --verify: Verify installation
+    completion:
+      flag:
+        charts: ["$directories"]
+        manifests: ["$directories"]
+        filename: ["$files"]
+  - name: kube-inject
+    description: Inject Istio sidecar into Kubernetes pod resources
+    flags:
+      -f, --filename=: Input Kubernetes resource file
+      --injectConfigFile=: Injection configuration file
+      --meshConfigFile=: Mesh configuration file
+      -o, --output=: Modified manifest output format
+      --revision=: Control plane revision
+      --valuesFile=: Values file
+    completion:
+      flag:
+        filename: ["$files"]
+        injectConfigFile: ["$files"]
+        meshConfigFile: ["$files"]
+        valuesFile: ["$files"]
+        output: ["yaml", "json"]
+  - name: manifest
+    description: Istio manifest commands
+    commands:
+      - name: diff
+        description: Show differences in manifests
+      - name: generate
+        description: Generate Istio install manifest
+      - name: install
+        description: Install Istio from manifest
+      - name: versions
+        description: List available manifest versions
+  - name: proxy-config
+    description: Retrieve proxy configuration from Envoy
+    aliases: [pc]
+    flags:
+      -o, --output=: Output format
+      --proxy-admin-port=: Envoy proxy admin port
+    completion:
+      flag:
+        output: ["json", "yaml", "short"]
+    commands:
+      - name: all
+        description: Retrieves all configuration
+      - name: bootstrap
+        description: Retrieves bootstrap configuration
+      - name: cluster
+        description: Retrieves cluster configuration
+      - name: ecds
+        description: Retrieves typed extension configuration
+      - name: endpoint
+        description: Retrieves endpoint configuration
+      - name: listener
+        description: Retrieves listener configuration
+      - name: log
+        description: Retrieves logging levels
+      - name: rootca-compare
+        description: Compare ROOTCA values for two pods
+      - name: route
+        description: Retrieves route configuration
+      - name: secret
+        description: Retrieves secret configuration
+  - name: proxy-status
+    description: Retrieves synchronization status of each Envoy
+    aliases: [ps]
+    flags:
+      -f, --file=: File to use for proxy status
+      --revision=: Control plane revision
+    completion:
+      flag:
+        file: ["$files"]
+  - name: remote-clusters
+    description: Lists remote clusters each istiod is connected to
+    flags:
+      --context*=: Kubernetes context names
+  - name: tag
+    description: Interact with revision tags
+    commands:
+      - name: generate
+        description: Generate configuration for revision tag
+      - name: list
+        description: List existing revision tags
+      - name: remove
+        description: Remove revision tag
+      - name: set
+        description: Create or modify revision tags
+  - name: uninstall
+    description: Uninstall Istio from a cluster
+    flags:
+      --context*=: Kubernetes contexts
+      --filename=: Path to file containing IstioOperator
+      --force: Proceed without confirmation
+      --manifests=: Directory containing manifests
+      --purge: Delete all Istio resources
+      --revision=: Control plane revision
+      --skip-confirmation: Skip confirmation
+      -y, --yes: Skip confirmation
+    completion:
+      flag:
+        filename: ["$files"]
+        manifests: ["$directories"]
+  - name: upgrade
+    description: Upgrade Istio control plane
+    flags:
+      --charts=: Charts directory
+      --dry-run: Console output only
+      -f, --filename*=: Configuration files
+      --force: Apply upgrade without eligibility checks
+      -d, --manifests=: Manifests directory
+      --readiness-timeout=: Wait time for Istio resources
+      -s, --set*=: Override values
+      --skip-confirmation: Skip confirmation
+      --verify: Verify upgrade
+    completion:
+      flag:
+        charts: ["$directories"]
+        filename: ["$files"]
+        manifests: ["$directories"]
+  - name: validate
+    description: Validate Istio policy and rules files
+    flags:
+      -f, --filename=: Names of files to validate
+      -x, --referential: Enable structural validation
+    completion:
+      flag:
+        filename: ["$files"]
+  - name: version
+    description: Print version information
+    flags:
+      -o, --output=: Output format
+      --remote: Print remote version
+      --revision=: Control plane revision
+      -s, --short: Print version number only
+    completion:
+      flag:
+        output: ["yaml", "json"]
+  - name: waypoint
+    description: Manage waypoint configuration
+  - name: ztunnel-config
+    description: Update or retrieve Ztunnel configuration

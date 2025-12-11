@@ -1,11 +1,28 @@
-{pkgs, ...}: let
-  # Carapace expects specs in different locations per platform
+{
+  pkgs,
+  lib,
+  ...
+}: let
+  # Auto-discover all .yaml spec files in the specs directory
+  specFiles = builtins.attrNames (
+    lib.filterAttrs (name: type: type == "regular" && lib.hasSuffix ".yaml" name)
+    (builtins.readDir ./carapace/specs)
+  );
+
+  # Generate home.file entries for all spec files
+  # Platform-specific paths:
   # macOS: ~/Library/Application Support/carapace/specs
-  # Linux: ~/.config/carapace/specs (uses XDG)
-  specPath =
-    if pkgs.stdenv.isDarwin
-    then "Library/Application Support/carapace/specs/kind.yaml"
-    else ".config/carapace/specs/kind.yaml";
+  # Linux: ~/.config/carapace/specs
+  specFileAttrs = builtins.listToAttrs (
+    map (file: {
+      name =
+        if pkgs.stdenv.isDarwin
+        then "Library/Application Support/carapace/specs/${file}"
+        else ".config/carapace/specs/${file}";
+      value = {source = ./carapace/specs/${file};};
+    })
+    specFiles
+  );
 in {
   # Carapace - Multi-shell completion engine
   # https://carapace.sh/
@@ -14,9 +31,9 @@ in {
     carapace # Multi-shell completion
   ];
 
-  # Carapace custom spec files
+  # Carapace custom spec files (auto-discovered from ./carapace/specs/)
   # Specs define completions for commands that don't have built-in Carapace support
-  home.file.${specPath}.source = ./carapace/specs/kind.yaml;
+  home.file = specFileAttrs;
 
   programs.nushell = {
     # Enable Carapace bridges for bash/zsh/fish completions

@@ -9,6 +9,12 @@
     ./carapace.nix
   ];
 
+  # nix-your-shell: Makes nix shell/develop work with nushell
+  programs.nix-your-shell = {
+    enable = true;
+    enableNushellIntegration = true;
+  };
+
   programs.nushell = {
     enable = true;
     # Plugins - conditionally enabled based on platform
