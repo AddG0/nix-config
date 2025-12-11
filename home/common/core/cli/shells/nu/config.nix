@@ -115,7 +115,7 @@
     # source ${pkgs.nu_scripts}/share/nu_scripts/custom-completions/git/git-completions.nu
     # source ${pkgs.nu_scripts}/share/nu_scripts/custom-completions/cargo/cargo-completions.nu
     # source ${pkgs.nu_scripts}/share/nu_scripts/custom-completions/docker/docker-completions.nu
-    source ${pkgs.nu_scripts}/share/nu_scripts/custom-completions/nix/nix-completions.nu
+    # source ${pkgs.nu_scripts}/share/nu_scripts/custom-completions/nix/nix-completions.nu
     # source ${pkgs.nu_scripts}/share/nu_scripts/custom-completions/make/make-completions.nu
     # source ${pkgs.nu_scripts}/share/nu_scripts/custom-completions/npm/npm-completions.nu
     # source ${pkgs.nu_scripts}/share/nu_scripts/custom-completions/kubectl/kubectl-completions.nu

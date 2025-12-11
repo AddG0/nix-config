@@ -24,7 +24,6 @@
       ]
       ++ lib.optionals pkgs.stdenv.isLinux [
         semver # Semantic version handling (Linux only)
-        units # Unit conversions (Linux only)
       ];
 
     extraConfig = ''
