@@ -7,13 +7,8 @@
     ./env.nix
     ./config.nix
     ./carapace.nix
+    ./nix-your-shell.nix
   ];
-
-  # nix-your-shell: Makes nix shell/develop work with nushell
-  programs.nix-your-shell = {
-    enable = true;
-    enableNushellIntegration = true;
-  };
 
   programs.nushell = {
     enable = true;

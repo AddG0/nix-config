@@ -1,4 +1,4 @@
-{pkgs, ...}: {
+{
   programs.direnv = {
     enable = true;
     enableBashIntegration = true;
@@ -11,7 +11,18 @@
     silent = true;
   };
 
-  home.packages = with pkgs; [
-    devenv
+  # Global direnvrc - automatically loads per-project non-commited envrc files
+  home.file.".config/direnv/direnvrc".text = ''
+    # Automatically load .envrc.private for personal secrets (per-project)
+    source_env_if_exists ".envrc.private"
+
+    # Optionally: machine-specific overrides (per-project)
+    source_env_if_exists ".envrc.local"
+  '';
+
+  # Global git ignores for direnv private files
+  programs.git.ignores = [
+    ".envrc.private"
+    ".envrc.local"
   ];
 }
