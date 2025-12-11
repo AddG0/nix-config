@@ -209,9 +209,16 @@
         ./checks/flake-module.nix
       ];
 
-      perSystem = {pkgs, ...}: {
+      perSystem = {
+        pkgs,
+        config,
+        ...
+      }: {
         # Development shell
-        devShells = import ./shell.nix {inherit pkgs;};
+        devShells = import ./shell.nix {
+          inherit pkgs;
+          checks = config.checks;
+        };
       };
     };
 }
