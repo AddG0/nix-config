@@ -41,9 +41,16 @@ echo ""
 # Report system conditions
 echo "💻 System Conditions:"
 if [ "$OS_TYPE" = "darwin" ]; then
-	# macOS
-	cpu_freq=$(sysctl -n hw.cpufrequency 2>/dev/null || echo "unknown")
-	if [ "$cpu_freq" != "unknown" ]; then
+	# macOS - try different methods to get CPU frequency
+	cpu_freq=$(sysctl -n hw.cpufrequency 2>/dev/null)
+	if [ -z "$cpu_freq" ]; then
+		cpu_freq=$(sysctl -n hw.cpufrequency_max 2>/dev/null)
+	fi
+	if [ -z "$cpu_freq" ]; then
+		cpu_freq=$(sysctl -n machdep.cpu.brand_string 2>/dev/null | grep -oE '[0-9]+\.[0-9]+GHz' | sed 's/GHz//' | awk '{print $1 * 1000000000}')
+	fi
+
+	if [ -n "$cpu_freq" ] && [ "$cpu_freq" != "0" ]; then
 		cpu_freq_ghz=$(awk "BEGIN { printf \"%.2f\", $cpu_freq / 1000000000 }")
 		echo "  CPU Frequency: ${cpu_freq_ghz} GHz"
 	else
