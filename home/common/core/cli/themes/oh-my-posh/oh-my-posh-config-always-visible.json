@@ -89,7 +89,7 @@
           "foreground": "#ffffff",
           "leading_powerline_symbol": "",
           "style": "powerline",
-          "template": "<background,transparent></>⎈ {{.Context}}{{if .Namespace}} :: {{.Namespace}}{{end}}<transparent,background></>",
+          "template": "<background,transparent></>⎈ {{.Context}}{{if .Namespace}} :: {{.Namespace}}{{end}} <transparent,background></>",
           "type": "kubectl"
         },
         {
