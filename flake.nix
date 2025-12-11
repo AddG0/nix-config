@@ -75,6 +75,7 @@
 
     ghostty = {
       url = "github:ghostty-org/ghostty";
+      inputs.nixpkgs.follows = "nixpkgs";
     };
 
     firefox-addons = {
@@ -132,15 +133,26 @@
       inputs.nixpkgs.follows = "nixpkgs";
     };
 
-    nur-ryan4yin.url = "github:ryan4yin/nur-packages";
-    nur-ataraxiasjel.url = "github:AtaraxiaSjel/nur";
+    nur-ryan4yin = {
+      url = "github:ryan4yin/nur-packages";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
 
-    nixpkgs-update.url = "github:nix-community/nixpkgs-update";
+    nur-ataraxiasjel = {
+      url = "github:AtaraxiaSjel/nur";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
+
+    nixpkgs-update = {
+      url = "github:nix-community/nixpkgs-update";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
 
     #################### Theming ####################
 
     stylix = {
       url = "github:danth/stylix";
+      inputs.nixpkgs.follows = "nixpkgs";
     };
 
     # Add base16.nix, base16 schemes and
@@ -162,7 +174,10 @@
       flake = false;
     };
 
-    spicetify-nix.url = "github:Gerg-L/spicetify-nix";
+    spicetify-nix = {
+      url = "github:Gerg-L/spicetify-nix";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
 
     #################### Personal Repositories ####################
 
