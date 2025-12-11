@@ -96,6 +96,7 @@
       url = "github:nix-community/lanzaboote";
       inputs.nixpkgs.follows = "nixpkgs";
       inputs.rust-overlay.follows = "rust-overlay";
+      inputs.flake-parts.follows = "flake-parts";
     };
 
     # vim4LMFQR!
@@ -104,6 +105,7 @@
       #inputs.nixpkgs.follows = "nixpkgs";
       url = "github:nix-community/nixvim";
       inputs.nixpkgs.follows = "nixpkgs";
+      inputs.flake-parts.follows = "flake-parts";
     };
 
     plasma-manager = {
@@ -145,6 +147,7 @@
     nur-ataraxiasjel = {
       url = "github:AtaraxiaSjel/nur";
       inputs.nixpkgs.follows = "nixpkgs";
+      inputs.flake-parts.follows = "flake-parts";
     };
 
     nixpkgs-update = {
@@ -157,6 +160,7 @@
     stylix = {
       url = "github:danth/stylix";
       inputs.nixpkgs.follows = "nixpkgs";
+      inputs.flake-parts.follows = "flake-parts";
     };
 
     # Add base16.nix, base16 schemes and
@@ -189,6 +193,7 @@
     nix-secrets = {
       url = "git+ssh://git@github.com/addg0/nix-secrets.git?ref=main";
       inputs.nixpkgs.follows = "nixpkgs";
+      inputs.flake-parts.follows = "flake-parts";
     };
 
     pterodactyl-addons = {
@@ -199,11 +204,13 @@
     lumenboard-player = {
       url = "git+ssh://git@github.com/addg0/lumenboard-player.git?ref=tmp";
       inputs.nixpkgs.follows = "nixpkgs";
+      inputs.flake-parts.follows = "flake-parts";
     };
 
     ai-toolkit = {
       url = "git+ssh://git@github.com/addg0/ai-toolkit.git?ref=main";
       inputs.nixpkgs.follows = "nixpkgs";
+      inputs.flake-parts.follows = "flake-parts";
     };
 
     asus-numberpad-driver = {
