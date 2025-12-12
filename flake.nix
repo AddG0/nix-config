@@ -27,13 +27,13 @@
 
     flake-parts.url = "github:hercules-ci/flake-parts";
 
-    # Option 1: Main = unstable (current)
+    # Option 1: Main = unstable
     nixpkgs.url = "github:NixOS/nixpkgs/nixos-unstable";
-    nixpkgs-stable.url = "github:NixOS/nixpkgs/nixos-25.05";
+    nixpkgs-stable.url = "github:NixOS/nixpkgs/nixos-25.11";
     nixpkgs-unstable.follows = "nixpkgs";
 
-    # Option 2: Main = stable (swap comments to switch)
-    # nixpkgs.url = "github:NixOS/nixpkgs/nixos-25.05";
+    # Option 2: Main = stable
+    # nixpkgs.url = "github:NixOS/nixpkgs/nixos-25.11";
     # nixpkgs-stable.follows = "nixpkgs";
     # nixpkgs-unstable.url = "github:NixOS/nixpkgs/nixos-unstable";
     nix-darwin = {
@@ -43,7 +43,7 @@
 
     hardware.url = "github:nixos/nixos-hardware";
     home-manager = {
-      # url = "github:nix-community/home-manager/release-25.05";
+      # url = "github:nix-community/home-manager/release-25.11";
       #inputs.nixpkgs.follows = "nixpkgs-stable";
       url = "github:nix-community/home-manager";
       inputs.nixpkgs.follows = "nixpkgs";
@@ -96,7 +96,6 @@
       url = "github:nix-community/lanzaboote";
       inputs.nixpkgs.follows = "nixpkgs";
       inputs.rust-overlay.follows = "rust-overlay";
-      inputs.flake-parts.follows = "flake-parts";
     };
 
     # vim4LMFQR!

@@ -14,7 +14,6 @@
       then [
         code-cursor
         android-studio
-        jetbrains.fleet
       ]
       else []
     );

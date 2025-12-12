@@ -20,6 +20,9 @@
       min-free = 128000000; # 128MB
       max-free = 1000000000; # 1GB
 
+      # Increase concurrent downloads from binary caches
+      max-substitution-jobs = 128; # Default is 16
+
       # Conditional max-jobs based on whether remote builders are enabled
       # If totalRemoteJobs is 0 (no compatible remote builders): use "auto" for local builds
       # Otherwise: use total maxJobs from all remote builders (auto-calculated)

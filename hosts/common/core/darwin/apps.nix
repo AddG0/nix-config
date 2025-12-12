@@ -135,8 +135,6 @@ in {
         # "sharemouse"
         "caffeine"
 
-        "fleet"
-
         # "balenaetcher"
 
         "termius"

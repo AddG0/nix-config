@@ -35,7 +35,7 @@
     # Map over all our custom packages and merge them intelligently
     builtins.mapAttrs mergePackage customPkgs;
 
-  linuxModifications = _final: prev:
+  linuxModifications = final: prev:
     if prev.stdenv.isLinux
     then {
       # btop with GPU support for NVIDIA and AMD

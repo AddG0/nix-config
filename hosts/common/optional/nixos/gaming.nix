@@ -32,7 +32,7 @@
     exec ${pkgs.gamemode}/bin/gamemoderun "$@"
   '';
 in {
-  hardware.xone.enable = true; # xbox controller
+  hardware.xone.enable = true;
 
   environment.systemPackages = [
     game-wrapper

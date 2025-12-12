@@ -10,9 +10,6 @@ pkgs: {
   claude-flow = pkgs.callPackage ./claude-flow {};
   wifiman-desktop = pkgs.callPackage ./wifiman-desktop {};
 
-  # JetBrains - modular namespace
-  jetbrains = import ./jetbrains pkgs;
-
   # Gaming
   bakkesmod = pkgs.callPackage ./bakkesmod {};
   bakkesmod-plugins = import ./bakkesmod-plugins pkgs;
