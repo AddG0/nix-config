@@ -34,7 +34,7 @@
         "development/terraform.nix"
         # "development/virtualization"
         "development/virtualization/lens.nix"
-        "development/virtualization/kubernetes.nix"
+        "development/virtualization/kubernetes"
 
         # Gaming
         "gaming/minecraft.nix"
