@@ -6,16 +6,16 @@ KUBECTL_ARGS=()
 # Packages to install in bare mode
 # shellcheck disable=SC2034
 BARE_NIX_PACKAGES=(
-  "nixpkgs#iputils"
-  "nixpkgs#bind"
+	"nixpkgs#iputils"
+	"nixpkgs#bind"
 )
 
 for arg in "$@"; do
-  if [ "$arg" = "--bare" ]; then
-    BARE_MODE=true
-  else
-    KUBECTL_ARGS+=("$arg")
-  fi
+	if [ "$arg" = "--bare" ]; then
+		BARE_MODE=true
+	else
+		KUBECTL_ARGS+=("$arg")
+	fi
 done
 
 # Generate unique pod name
@@ -30,13 +30,13 @@ echo "Type 'exit' to leave the pod. The pod will be deleted automatically."
 # Run the pod with --rm to auto-delete when it exits
 # activeDeadlineSeconds: terminate pod after 6 hours if still running
 kubectl "${KUBECTL_ARGS[@]}" run "$POD_NAME" --rm -it --restart=Never \
-  --image=nixos/nix:latest \
-  --env="HOME=/home/addg" \
-  --env="USER=addg" \
-  --env="BARE_MODE=$BARE_MODE" \
-  --env="BARE_PACKAGES_STR=$BARE_PACKAGES_STR" \
-  --overrides='{"spec":{"activeDeadlineSeconds":21600}}' \
-  -- sh -c "
+	--image=nixos/nix:latest \
+	--env="HOME=/home/addg" \
+	--env="USER=addg" \
+	--env="BARE_MODE=$BARE_MODE" \
+	--env="BARE_PACKAGES_STR=$BARE_PACKAGES_STR" \
+	--overrides='{"spec":{"activeDeadlineSeconds":21600}}' \
+	-- sh -c "
     set -e
 
     # Enable flakes and nix-command
@@ -56,7 +56,7 @@ kubectl "${KUBECTL_ARGS[@]}" run "$POD_NAME" --rm -it --restart=Never \
 
       # Install zsh, oh-my-zsh, syntax highlighting, and autosuggestions using nix profile
       # Note: glibc provides iconv command needed by oh-my-zsh
-      nix profile install nixpkgs#zsh nixpkgs#oh-my-zsh nixpkgs#zsh-syntax-highlighting nixpkgs#zsh-autosuggestions nixpkgs#glibc nixpkgs#coreutils \$BARE_PACKAGES_STR 
+      nix profile install nixpkgs#zsh nixpkgs#oh-my-zsh nixpkgs#zsh-syntax-highlighting nixpkgs#zsh-autosuggestions nixpkgs#glibc nixpkgs#coreutils \$BARE_PACKAGES_STR
 
       # Set up minimal zshrc with oh-my-zsh, syntax highlighting, and autosuggestions
       echo \"export ZSH=\$HOME/.nix-profile/share/oh-my-zsh\" > ~/.zshrc
@@ -77,7 +77,7 @@ kubectl "${KUBECTL_ARGS[@]}" run "$POD_NAME" --rm -it --restart=Never \
       mkdir -p ~/.local/state/nix/profiles
 
       echo \"Activating cloud-shell home-manager configuration...\"
-      nix run home-manager/master -- switch --impure --flake \"git+https://github.com/AddG0/nix-config?ref=main#cloud-shell\" -b backup
+      nix run home-manager/master -- switch --impure --show-trace --flake \"git+https://github.com/AddG0/nix-config?ref=main#cloud-shell\" -b backup
 
       echo \"=====================================\"
       echo \"Welcome to cloud-shell environment!\"
