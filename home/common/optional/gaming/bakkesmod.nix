@@ -1,5 +1,6 @@
 # BakkesMod configuration
 {pkgs, ...}: {
+  # To use: add 'bakkes-launcher %command%' to Rocket League Steam launch options
   programs.bakkesmod = {
     enable = true;
     plugins = [
