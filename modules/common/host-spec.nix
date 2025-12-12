@@ -136,6 +136,13 @@
     # ============================================================================
     # Platform-specific Configuration
     # ============================================================================
+    # Sometimes we can't use pkgs.stdenv.isLinux due to infinite recursion
+    isDarwin = lib.mkOption {
+      type = lib.types.bool;
+      default = false;
+      description = "Used to indicate a host that is darwin";
+    };
+
     darwin = {
       isAarch64 = lib.mkOption {
         type = lib.types.bool;

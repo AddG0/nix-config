@@ -42,7 +42,6 @@
           specialArgs =
             commonSpecialArgs
             // {
-              isDarwin = false;
               inherit (inputs) nixvirt;
             };
           modules = [./nixos/${host}] ++ commonNixOSModules;
@@ -58,11 +57,7 @@
       mkDarwinConfig = host: {
         name = host;
         value = inputs.nix-darwin.lib.darwinSystem {
-          specialArgs =
-            commonSpecialArgs
-            // {
-              isDarwin = true;
-            };
+          specialArgs = commonSpecialArgs;
           modules = [./darwin/${host}];
         };
       };

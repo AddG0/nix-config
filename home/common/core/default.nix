@@ -6,7 +6,7 @@
   ...
 }: let
   platform =
-    if lib.hasInfix "darwin" hostSpec.hostPlatform
+    if hostSpec.isDarwin
     then "darwin"
     else "nixos";
 in {

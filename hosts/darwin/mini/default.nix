@@ -35,7 +35,6 @@
     username = lib.mkForce "shqadmin";
     handle = lib.mkForce "shqadmin";
     hostName = "mini";
-    isDarwin = true;
     hostPlatform = "x86_64-darwin";
   };
 

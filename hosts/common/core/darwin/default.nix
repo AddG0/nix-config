@@ -22,9 +22,12 @@ in {
     }
   ];
 
-  hostSpec.darwin = {
-    isAarch64 = lib.strings.hasInfix "aarch64" config.hostSpec.hostPlatform;
-    hasPaidApps = lib.mkDefault (config.hostSpec.username == "addg");
+  hostSpec = {
+    isDarwin = true;
+    darwin = {
+      isAarch64 = lib.strings.hasInfix "aarch64" config.hostSpec.hostPlatform;
+      hasPaidApps = lib.mkDefault (config.hostSpec.username == "addg");
+    };
   };
 
   networking.computerName = config.hostSpec.hostName;
@@ -33,7 +36,7 @@ in {
   system.primaryUser = config.hostSpec.username;
 
   # Add nushell to available shells
-  environment.shells = [ pkgs.nushell ];
+  environment.shells = [pkgs.nushell];
 
   # Activation script to change shell for existing users
   # Using dscl (consistent with nix-darwin's user module implementation)
