@@ -17,6 +17,7 @@
       inherit (inputs) self;
       inherit (inputs.self) lib;
       inherit (inputs) nix-secrets;
+      isDarwin = false;
     };
 
     # Common modules for NixOS systems
@@ -57,7 +58,7 @@
       mkDarwinConfig = host: {
         name = host;
         value = inputs.nix-darwin.lib.darwinSystem {
-          specialArgs = commonSpecialArgs;
+          specialArgs = commonSpecialArgs // {isDarwin = true;};
           modules = [./darwin/${host}];
         };
       };

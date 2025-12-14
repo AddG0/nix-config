@@ -47,7 +47,7 @@
         theme = "Noir-Splash-6";
       };
 
-      wallpaper = "${pkgs.kdePackages.plasma-workspace-wallpapers}/share/wallpapers/Patak/contents/images/5120x2880.png";
+      wallpaper = "${pkgs.kdePackages.plasma-workspace-wallpapers}/share/wallpapers/Nexus/contents/images_dark/5120x2880.png";
 
       # Icon theme
       iconTheme = "Papirus-Dark";
