@@ -19,19 +19,13 @@ in {
     enable = mkEnableOption "1Password direnv integration";
   };
 
-  config = mkIf cfg.enable (let
-    onePasswordScript = pkgs.writeShellApplication {
-      name = "1password.sh";
-      text = builtins.readFile ./1password.sh;
-      runtimeInputs = with pkgs; [
-        _1password-cli
-        direnv
-      ];
-    };
-  in {
+  # Note: We use writeText instead of writeShellApplication because this script
+  # is sourced by direnv, and writeShellApplication adds PATH exports that would
+  # override /run/wrappers/bin (where the setgid op wrapper lives on NixOS).
+  config = mkIf cfg.enable {
     home.file.".config/direnv/lib/1password.sh" = {
-      source = "${onePasswordScript}/bin/1password.sh";
+      source = ./1password.sh;
       executable = true;
     };
-  });
+  };
 }
