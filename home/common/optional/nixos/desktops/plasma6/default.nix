@@ -356,6 +356,10 @@
         BusyCursor = false;
         TaskbarButton = false;
       };
+      # Disable focus stealing prevention so opened URLs get focus
+      kwinrc.Windows = {
+        FocusStealingPreventionLevel = 0; # 0=None, 1=Low, 2=Medium, 3=High, 4=Extreme
+      };
     };
   };
 }
