@@ -8,6 +8,9 @@
   imports = lib.flatten [
     inputs.stylix.homeModules.stylix
     ./common/core
+    (map (f: ./common/optional/${f}) [
+      "development/aws.nix"
+    ])
 
     (map lib.custom.relativeToHome (
       [
