@@ -29,6 +29,7 @@
         "comms"
 
         # Development
+        "development"
         "development/ide.nix"
         "development/jupyter-notebook.nix"
         "development/ai"
