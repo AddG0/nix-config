@@ -11,7 +11,6 @@
   settingsSpace = lib.concatStringsSep " " settingsPairs;
 
   applyScript = pkgs.writeShellScript "obsbot-apply.sh" ''
-    #!/bin/sh
     set -eu
     DEV="/dev/$1"
     DELAY_SECONDS='${toString cfg.delaySeconds}'
@@ -50,7 +49,6 @@
   '';
 
   watchScript = pkgs.writeShellScript "obsbot-watch.sh" ''
-    #!/bin/sh
     set -eu
     PATH=${pkgs.inotify-tools}/bin:${pkgs.coreutils}/bin:${pkgs.systemd}/bin:$PATH
     COOLDOWN=8
