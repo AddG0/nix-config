@@ -118,7 +118,7 @@
                 "applications:com.mitchellh.ghostty.desktop"
                 "applications:org.kde.dolphin.desktop"
                 "applications:google-chrome.desktop"
-                "applications:discord.desktop"
+                "applications:legcord.desktop"
                 "applications:spotify.desktop"
                 "applications:steam.desktop"
                 "applications:cursor.desktop"
