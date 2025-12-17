@@ -36,7 +36,6 @@
       mysqld = {
         # Memory settings - using ~40% of total RAM for buffer pool
         innodb_buffer_pool_size = "48G";
-        innodb_buffer_pool_instances = 48; # 1GB per instance for better concurrency
         innodb_log_file_size = "4G"; # Larger logs for better write performance
         innodb_log_buffer_size = "256M";
 
@@ -45,7 +44,6 @@
         back_log = 500;
 
         # Thread settings for high concurrency
-        innodb_thread_concurrency = 0; # Let InnoDB manage
         innodb_read_io_threads = 16;
         innodb_write_io_threads = 16;
         innodb_purge_threads = 8;
@@ -79,7 +77,6 @@
         innodb_io_capacity = 10000;
         innodb_io_capacity_max = 20000;
         innodb_lru_scan_depth = 4000;
-        innodb_page_cleaners = 8;
 
         # File per table for better performance
         innodb_file_per_table = 1;
@@ -87,9 +84,6 @@
         # Adaptive hash index
         innodb_adaptive_hash_index = "ON";
         innodb_adaptive_hash_index_parts = 16;
-
-        # Change buffer for faster inserts
-        innodb_change_buffer_max_size = 50;
 
         # Compression
         innodb_compression_level = 6;
