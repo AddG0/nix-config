@@ -135,39 +135,41 @@
     });
 
     # Legcord with Discord branding
-    discord-legcord = prev.symlinkJoin {
-      name = "discord";
-      paths = [prev.legcord];
-      buildInputs = [prev.makeWrapper];
-      postBuild = ''
-                # Create a discord symlink to legcord binary
-                if [ -f "$out/bin/legcord" ]; then
-                  ln -sf "$out/bin/legcord" "$out/bin/discord"
-                fi
+    discord-legcord = prev.stdenv.mkDerivation {
+      pname = "discord-legcord";
+      inherit (prev.legcord) version;
 
-                # Copy Discord icons over Legcord icons
-                for size in 16 32 48 64 128 256 512 1024; do
-                  icon_dir="$out/share/icons/hicolor/''${size}x''${size}/apps"
-                  if [ -d "$icon_dir" ] && [ -f "${prev.discord}/share/icons/hicolor/''${size}x''${size}/apps/discord.png" ]; then
-                    rm -f "$icon_dir/legcord.png"
-                    cp "${prev.discord}/share/icons/hicolor/''${size}x''${size}/apps/discord.png" "$icon_dir/discord.png"
-                  fi
-                done
+      dontUnpack = true;
 
-                # Create a new desktop file with Discord branding
-                if [ -f "$out/share/applications/legcord.desktop" ]; then
-                  rm -f "$out/share/applications/legcord.desktop"
-                  cat > "$out/share/applications/discord.desktop" << EOF
+      nativeBuildInputs = [];
+
+      installPhase = ''
+        mkdir -p $out/bin $out/share/applications $out/share/icons/hicolor
+
+        # Link legcord binary and create discord alias
+        ln -s "${prev.legcord}/bin/legcord" "$out/bin/legcord"
+        ln -s "$out/bin/legcord" "$out/bin/discord"
+
+        # Copy Discord icons as legcord.png (to match Icon=legcord)
+        for size in 16 32 48 64 128 256 512 1024; do
+          src_icon="${prev.discord}/share/icons/hicolor/''${size}x''${size}/apps/discord.png"
+          if [ -f "$src_icon" ]; then
+            mkdir -p "$out/share/icons/hicolor/''${size}x''${size}/apps"
+            cp "$src_icon" "$out/share/icons/hicolor/''${size}x''${size}/apps/legcord.png"
+          fi
+        done
+
+        # Create desktop file named legcord.desktop (matches desktopFile: legcord)
+        cat > "$out/share/applications/legcord.desktop" << EOF
         [Desktop Entry]
         Name=Discord
         Comment=All-in-one voice and text chat for gamers
-        Exec=discord
-        Icon=discord
+        Exec=legcord
+        Icon=legcord
         Type=Application
         Categories=Network;InstantMessaging;
         StartupWMClass=legcord
         EOF
-                fi
       '';
     };
 

@@ -3,7 +3,6 @@
   hostSpec,
   self,
   lib,
-  inputs,
   ...
 }: {
   home.packages = with pkgs;
@@ -39,9 +38,6 @@
 
   nix = {
     package = lib.mkDefault pkgs.nix;
-    nixPath = [
-      "nixpkgs=${inputs.nixpkgs}"
-    ];
     settings = {
       experimental-features = [
         "nix-command"

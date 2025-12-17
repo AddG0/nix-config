@@ -208,19 +208,19 @@
       multiPkgs = _: with pkgs; [openssl_1_1 icu70];
     };
 
-  mkDesktopItem = {versionInfo}: (makeDesktopItem {
-    name = pname;
+  mkDesktopItem = makeDesktopItem {
+    name = "AWS VPN Client";
     desktopName = "AWS VPN Client";
-    exec = "${(guiFHS versionInfo).name} %u";
+    exec = "awsvpnclient-wrapped %u";
     icon = "awsvpnclient";
     categories = ["Network" "X-VPN"];
-    startupWMClass = "awsvpnclient";
-  });
+    startupWMClass = "AWS VPN Client";
+  };
 
   guiFHS = versionInfo: let
     deb = mkDeb versionInfo;
     serviceFHS = mkServiceFHS {inherit versionInfo deb;};
-    desktopItem = mkDesktopItem {inherit versionInfo;};
+    desktopItem = mkDesktopItem;
   in
     buildFHSEnv {
       name = "${pname}-wrapped";
@@ -246,11 +246,11 @@
         EOF
 
         mkdir -p "$out/share/applications"
-        cp "${desktopItem}/share/applications/${pname}.desktop" "$out/share/applications/${pname}.desktop"
+        cp "${desktopItem}/share/applications/AWS VPN Client.desktop" "$out/share/applications/AWS VPN Client.desktop"
 
-        # Install icon to standard location
-        mkdir -p "$out/share/pixmaps"
-        cp "${deb}/usr/share/pixmaps/acvc-64.png" "$out/share/pixmaps/awsvpnclient.png"
+        # Install icon to hicolor theme (required for KDE Plasma app menu)
+        mkdir -p "$out/share/icons/hicolor/64x64/apps"
+        cp "${deb}/usr/share/pixmaps/acvc-64.png" "$out/share/icons/hicolor/64x64/apps/awsvpnclient.png"
       '';
     };
 
