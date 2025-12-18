@@ -13,7 +13,7 @@
         "development/java.nix"
         "development/jupyter-notebook.nix"
         "comms"
-        "development/ide.nix"
+        "development/ide"
         "development/tilt.nix"
         "development/node.nix"
         "development/misc-language-servers.nix"

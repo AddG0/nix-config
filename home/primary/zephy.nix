@@ -24,7 +24,7 @@
         "development/ai"
         "development/virtualization/kubernetes"
         "development/virtualization/lens.nix"
-        "development/ide.nix"
+        "development/ide"
         "development/gcloud.nix"
         "development/terraform.nix"
         "development/postman.nix"

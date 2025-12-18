@@ -13,11 +13,11 @@
         ]
       },
       "locked": {
-        "lastModified": 1764728367,
-        "narHash": "sha256-BOpd31FhlfuChjTgov5IwAwNwsouP+/NRK4cl5v2fMU=",
+        "lastModified": 1766026033,
+        "narHash": "sha256-KOxWcaQOsevjxSabHYx3jKVZMJxe+LDw9G3zaARboe8=",
         "ref": "main",
-        "rev": "54a30eb3bb0ede606b555ad059b6df927746642b",
-        "revCount": 95,
+        "rev": "24aafef79059064e407fe0bfba12623d48dbc309",
+        "revCount": 96,
         "type": "git",
         "url": "ssh://git@github.com/addg0/ai-toolkit.git"
       },
@@ -1165,6 +1165,26 @@
         "url": "ssh://git@github.com/addg0/nix-secrets.git"
       }
     },
+    "nix-vscode-extensions": {
+      "inputs": {
+        "nixpkgs": [
+          "nixpkgs"
+        ]
+      },
+      "locked": {
+        "lastModified": 1766023187,
+        "narHash": "sha256-1GY5NaOc3Yn4DctY2tAqKJaSbfb1z2fNd6JS7OAH40U=",
+        "owner": "nix-community",
+        "repo": "nix-vscode-extensions",
+        "rev": "bd3fdab2b882463aaa14626e416b492e261d5ea0",
+        "type": "github"
+      },
+      "original": {
+        "owner": "nix-community",
+        "repo": "nix-vscode-extensions",
+        "type": "github"
+      }
+    },
     "nixlib": {
       "locked": {
         "lastModified": 1736643958,
@@ -1612,6 +1632,7 @@
         "nix-darwin": "nix-darwin",
         "nix-homebrew": "nix-homebrew",
         "nix-secrets": "nix-secrets_2",
+        "nix-vscode-extensions": "nix-vscode-extensions",
         "nixos-generators": "nixos-generators",
         "nixpkgs": "nixpkgs_3",
         "nixpkgs-stable": "nixpkgs-stable",

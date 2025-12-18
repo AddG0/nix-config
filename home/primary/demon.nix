@@ -30,7 +30,8 @@
 
         # Development
         "development"
-        "development/ide.nix"
+        "development/ide"
+        "development/ide/vscode"
         "development/jupyter-notebook.nix"
         "development/ai"
         "development/postman.nix"

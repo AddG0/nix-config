@@ -18,7 +18,7 @@
         # "helper-scripts"
         # "development/jupyter-notebook.nix"
         "browsers"
-        "development/ide.nix"
+        "development/ide"
         # "secrets"
         # "secrets/kubeconfig.nix"
         "gaming/minecraft.nix"

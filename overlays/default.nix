@@ -225,6 +225,8 @@
           };
       };
   };
+
+  vscode-marketplace = inputs.nix-vscode-extensions.overlays.default;
 in {
   default = final: prev:
     (additions final prev)
@@ -233,5 +235,6 @@ in {
     // (darwinModifications final prev)
     // (stable-packages final prev)
     // (unstable-packages final prev)
-    // (nur final prev);
+    // (nur final prev)
+    // (vscode-marketplace final prev);
 }

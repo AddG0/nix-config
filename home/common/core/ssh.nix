@@ -30,21 +30,35 @@
     "id_ed25519"
   ];
 
-  # Lots of hosts have the same default config, so don't duplicate
-  vanillaHosts = [
-    "ghost"
-    "zephy"
-  ];
-  vanillaHostsConfig = lib.attrsets.mergeAttrsList (
-    lib.lists.map (host: {
-      "${host}" = lib.hm.dag.entryAfter ["ssh-hosts"] {
+  # Generate SSH host entries from hostsAddr
+  hostsAddrConfig =
+    lib.attrsets.mapAttrs' (host: value: {
+      name = host;
+      value = lib.hm.dag.entryAfter ["ssh-hosts"] {
         inherit host;
-        hostname = "${host}.${hostSpec.domain}";
+        hostname = value.ipv4;
         port = hostSpec.networking.ports.tcp.ssh;
       };
     })
-    vanillaHosts
-  );
+    hostSpec.networking.hostsAddr;
+
+  # VS Code Remote SSH workaround for hosts using nushell as login shell.
+  # Generates <host>-vscode aliases for all hosts in hostsAddr.
+  # Use these aliases in VS Code with remote.SSH.enableRemoteCommand setting.
+  vsCodeHostsConfig =
+    lib.attrsets.mapAttrs' (host: value: {
+      name = "${host}-vscode";
+      value = lib.hm.dag.entryAfter ["ssh-hosts"] {
+        host = "${host}-vscode";
+        hostname = value.ipv4;
+        port = hostSpec.networking.ports.tcp.ssh;
+        extraOptions = {
+          RemoteCommand = "bash -l";
+          RequestTTY = "no";
+        };
+      };
+    })
+    hostSpec.networking.hostsAddr;
 in {
   options.programs.ssh.enableTraditionalAgent = lib.mkOption {
     type = lib.types.bool;
@@ -64,7 +78,6 @@ in {
       extraConfig = ''
         AddKeysToAgent yes
         IdentityFile ${config.home.homeDirectory}/.ssh/id_ed25519
-        ${hostSpec.networking.ssh.extraConfig}
       '';
 
       matchBlocks =
@@ -108,7 +121,8 @@ in {
             identityFile = lib.lists.forEach identityFiles (file: "${config.home.homeDirectory}/.ssh/${file}");
           };
         }
-        // vanillaHostsConfig;
+        // hostsAddrConfig
+        // vsCodeHostsConfig;
     };
 
     programs.zsh.oh-my-zsh.plugins =

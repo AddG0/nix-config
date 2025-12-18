@@ -1,4 +1,8 @@
-{lib, pkgs, ...}: {
+{
+  lib,
+  pkgs,
+  ...
+}: {
   imports = lib.flatten [
     ./common/core
     (map (f: ./common/optional/${f}) [
@@ -17,7 +21,7 @@
         "development"
         "development/ai"
         "development/gcloud.nix"
-        "development/ide.nix"
+        "development/ide"
         # "development/java.nix"
         "development/jupyter-notebook.nix"
         "development/node.nix"
