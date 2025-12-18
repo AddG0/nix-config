@@ -4,9 +4,9 @@
   ];
   userSettings = {
     # Disable for nix files - too many false positives
-    "cSpell.enableFiletypes" = [
-      "!nix"
-    ];
+    "cSpell.enabledFileTypes" = {
+      "nix" = false;
+    };
     # Show as hints instead of problems
     "cSpell.diagnosticLevel" = "Hint";
   };

@@ -124,8 +124,9 @@ in {
 
         # AI
         chat
+        supermaven
         # copilot
-        continue
+        # continue
 
         # Keybindings
         # vim

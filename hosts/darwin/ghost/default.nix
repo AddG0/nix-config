@@ -16,10 +16,10 @@
       ]
       ++ (map (f: "common/optional/${f}") [
         #################### Host-specific Optional Configs ####################
-        "darwin/vban-walkie.nix"
+        # "darwin/vban-walkie.nix"
 
         #################### Optional Applications ####################
-        "darwin/applications/autodesk-fusion.nix"
+        # "darwin/applications/autodesk-fusion.nix"
         "darwin/applications/browsers.nix"
         "darwin/applications/deskflow.nix"
         "darwin/applications/docker.nix"
@@ -30,7 +30,7 @@
         "darwin/applications/motion.nix"
         "darwin/applications/notchnook.nix"
         "darwin/applications/notion-calendar.nix"
-        "darwin/applications/obsidian.nix"
+        # "darwin/applications/obsidian.nix"
         # "darwin/applications/ollama.nix"
         "darwin/applications/synology.nix"
         # "darwin/applications/tencent-lemon.nix"

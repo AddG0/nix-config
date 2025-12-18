@@ -79,5 +79,8 @@
     # Zen mode
     "zenMode.hideLineNumbers" = false;
     "zenMode.centerLayout" = true;
+
+    # Disable screen reader detection prompt in status bar
+    "editor.accessibilitySupport" = "off";
   };
 }

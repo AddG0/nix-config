@@ -22,6 +22,7 @@
         "development/ai"
         "development/gcloud.nix"
         "development/ide"
+        "development/ide/vscode"
         # "development/java.nix"
         "development/jupyter-notebook.nix"
         "development/node.nix"
