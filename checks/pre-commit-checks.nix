@@ -37,7 +37,10 @@
 
           alejandra.enable = true;
           statix.enable = true;
-          shfmt.enable = true;
+          shfmt = {
+            enable = true;
+            excludes = ["\\.zsh$"]; # zsh has syntax shfmt doesn't understand
+          };
 
           end-of-file-fixer.enable = true;
         };

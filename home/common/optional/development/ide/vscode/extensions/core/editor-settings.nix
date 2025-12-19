@@ -76,6 +76,10 @@ _: {
     "explorer.confirmDragAndDrop" = false;
     "explorer.compactFolders" = false;
 
+    # Extensions (managed by Nix)
+    "extensions.autoUpdate" = false;
+    "extensions.autoCheckUpdates" = false;
+
     # Zen mode
     "zenMode.hideLineNumbers" = false;
     "zenMode.centerLayout" = true;

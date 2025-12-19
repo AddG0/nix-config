@@ -26,6 +26,62 @@
       kubectl-cloud-shell-nu-completion
     ];
   };
+
+  # kind-start script and completions
+  kind-start-script = pkgs.writeShellApplication {
+    name = "kind-start";
+    runtimeInputs = [pkgs.docker pkgs.kind pkgs.kubectl pkgs.gnused];
+    text = builtins.readFile ./scripts/kind-start.sh;
+  };
+
+  kind-start-zsh-completion = pkgs.writeTextFile {
+    name = "kind-start-zsh-completion";
+    destination = "/share/zsh/site-functions/_kind-start";
+    text = builtins.readFile ./scripts/kind-start-completion.zsh;
+  };
+
+  kind-start-nu-completion = pkgs.writeTextFile {
+    name = "kind-start-nu-completion";
+    destination = "/share/nushell/vendor/autoload/kind-start.nu";
+    text = builtins.readFile ./scripts/kind-start-completion.nu;
+  };
+
+  kind-start = pkgs.symlinkJoin {
+    name = "kind-start";
+    paths = [
+      kind-start-script
+      kind-start-zsh-completion
+      kind-start-nu-completion
+    ];
+  };
+
+  # kind-stop script and completions
+  kind-stop-script = pkgs.writeShellApplication {
+    name = "kind-stop";
+    runtimeInputs = [pkgs.docker pkgs.gnused];
+    text = builtins.readFile ./scripts/kind-stop.sh;
+  };
+
+  kind-stop-zsh-completion = pkgs.writeTextFile {
+    name = "kind-stop-zsh-completion";
+    destination = "/share/zsh/site-functions/_kind-stop";
+    text = builtins.readFile ./scripts/kind-stop-completion.zsh;
+  };
+
+  kind-stop-nu-completion = pkgs.writeTextFile {
+    name = "kind-stop-nu-completion";
+    destination = "/share/nushell/vendor/autoload/kind-stop.nu";
+    text = builtins.readFile ./scripts/kind-stop-completion.nu;
+  };
+
+  kind-stop = pkgs.symlinkJoin {
+    name = "kind-stop";
+    paths = [
+      kind-stop-script
+      kind-stop-zsh-completion
+      kind-stop-nu-completion
+    ];
+  };
 in {
   home.packages = with pkgs; [
     kubectl
@@ -51,6 +107,8 @@ in {
 
     # Custom scripts
     kubectl-cloud-shell
+    kind-start
+    kind-stop
   ];
 
   programs.zsh.oh-my-zsh.plugins = [
@@ -67,6 +125,10 @@ in {
   programs.nushell.extraConfig = ''
     # kubectl-cloud-shell completions
     source ${kubectl-cloud-shell}/share/nushell/vendor/autoload/kubectl-cloud-shell.nu
+    # kind-start completions
+    source ${kind-start}/share/nushell/vendor/autoload/kind-start.nu
+    # kind-stop completions
+    source ${kind-stop}/share/nushell/vendor/autoload/kind-stop.nu
   '';
 
   # Disable Kind container auto-start at boot
