@@ -1,4 +1,4 @@
-{pkgs}: {
+{pkgs, ...}: {
   extensions = [
     pkgs.vscode-marketplace.rust-lang.rust-analyzer
     pkgs.vscode-marketplace.tamasfe.even-better-toml

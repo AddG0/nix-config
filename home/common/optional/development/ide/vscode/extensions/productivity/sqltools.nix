@@ -1,4 +1,4 @@
-{pkgs}: {
+{pkgs, ...}: {
   extensions = [
     pkgs.vscode-marketplace.mtxr.sqltools
     pkgs.vscode-marketplace.mtxr.sqltools-driver-pg

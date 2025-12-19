@@ -1,8 +1,30 @@
 {
   lib,
   pkgs,
+  config,
   ...
 }: let
+  # Wrap VS Code with KUBECONFIG env var if it exists
+  hasKubeconfig = config.home.sessionVariables ? KUBECONFIG;
+  wrappedVscode =
+    (pkgs.symlinkJoin {
+      name = "vscode-wrapped";
+      paths = [pkgs.vscode];
+      buildInputs = [pkgs.makeWrapper];
+      postBuild = ''
+        wrapProgram $out/bin/code \
+          ${lib.optionalString hasKubeconfig ''--set KUBECONFIG "${config.home.sessionVariables.KUBECONFIG}"''}
+      '';
+    })
+    // {
+      inherit (pkgs.vscode) pname version;
+      meta = pkgs.vscode.meta // {mainProgram = "code";};
+    };
+  vscodePackage =
+    if hasKubeconfig
+    then wrappedVscode
+    else pkgs.vscode;
+
   # Auto-discover all extension configs from ./extensions/**/*.nix
   extensionsDir = ./extensions;
 
@@ -26,7 +48,7 @@
   in
     lib.mapAttrs' (name: _: {
       name = toCamelCase (lib.removeSuffix ".nix" name);
-      value = import (categoryPath + "/${name}") {inherit pkgs;};
+      value = import (categoryPath + "/${name}") {inherit pkgs config;};
     })
     nixFiles;
 
@@ -48,6 +70,7 @@
 in {
   programs.vscode = {
     enable = true;
+    package = vscodePackage;
     profiles = {
       default = mkProfile (with ext; [
         # Core

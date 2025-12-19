@@ -1,4 +1,4 @@
-{pkgs}: {
+{pkgs, ...}: {
   extensions = [
     pkgs.vscode-marketplace.dbaeumer.vscode-eslint
     pkgs.vscode-marketplace.esbenp.prettier-vscode

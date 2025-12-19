@@ -1,4 +1,4 @@
-{pkgs}: {
+{pkgs, ...}: {
   extensions = [];
   userSettings = {
     # Custom instructions file locations

@@ -1,4 +1,4 @@
-{pkgs}: {
+{pkgs, ...}: {
   extensions = [
     pkgs.vscode-marketplace.johnpapa.vscode-peacock
   ];

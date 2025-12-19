@@ -1,4 +1,4 @@
-{pkgs}: {
+{pkgs, ...}: {
   extensions = [
     pkgs.vscode-marketplace.ms-python.python
     pkgs.vscode-marketplace.ms-python.vscode-pylance

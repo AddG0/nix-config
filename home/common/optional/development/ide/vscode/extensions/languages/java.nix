@@ -1,4 +1,4 @@
-{pkgs}: {
+{pkgs, ...}: {
   extensions = [
     pkgs.vscode-marketplace.redhat.java
     pkgs.vscode-marketplace.vscjava.vscode-java-debug

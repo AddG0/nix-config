@@ -1,4 +1,4 @@
-{pkgs}: {
+{pkgs, ...}: {
   extensions = [
     pkgs.vscode-marketplace.github.copilot
     pkgs.vscode-marketplace.github.copilot-chat

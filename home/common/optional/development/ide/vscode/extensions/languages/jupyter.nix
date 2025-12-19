@@ -1,4 +1,4 @@
-{pkgs}: {
+{pkgs, ...}: {
   extensions = [
     pkgs.vscode-marketplace.ms-toolsai.jupyter
     pkgs.vscode-marketplace.ms-toolsai.jupyter-keymap

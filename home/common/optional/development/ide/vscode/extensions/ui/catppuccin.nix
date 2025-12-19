@@ -1,4 +1,4 @@
-{pkgs}: {
+{pkgs, ...}: {
   extensions = [
     pkgs.vscode-marketplace.catppuccin.catppuccin-vsc
     pkgs.vscode-marketplace.catppuccin.catppuccin-vsc-icons
