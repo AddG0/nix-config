@@ -4,11 +4,11 @@
   ];
   userSettings = {
     "nix.enableLanguageServer" = true;
-    "nix.serverPath" = "nixd";
+    "nix.serverPath" = "${pkgs.nixd}/bin/nixd";
     "nix.serverSettings" = {
       "nixd" = {
         "formatting" = {
-          "command" = ["alejandra"];
+          "command" = ["${pkgs.alejandra}/bin/alejandra"];
         };
       };
     };

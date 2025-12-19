@@ -26,5 +26,8 @@
 
     # Disable telemetry
     "gitlens.telemetry.enabled" = false;
+
+    # AI model - use Claude Sonnet 4.5
+    "gitlens.ai.model" = "anthropic:claude-sonnet-4-5-20250929";
   };
 }

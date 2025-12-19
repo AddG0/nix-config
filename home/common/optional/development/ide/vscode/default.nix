@@ -4,7 +4,7 @@
   config,
   ...
 }: let
-  # Wrap VS Code with KUBECONFIG env var if it exists
+  # Wrap VS Code with env vars and WebGPU flags
   hasKubeconfig = config.home.sessionVariables ? KUBECONFIG;
   wrappedVscode =
     (pkgs.symlinkJoin {
@@ -20,10 +20,7 @@
       inherit (pkgs.vscode) pname version;
       meta = pkgs.vscode.meta // {mainProgram = "code";};
     };
-  vscodePackage =
-    if hasKubeconfig
-    then wrappedVscode
-    else pkgs.vscode;
+  vscodePackage = wrappedVscode;
 
   # Auto-discover all extension configs from ./extensions/**/*.nix
   extensionsDir = ./extensions;
@@ -48,7 +45,7 @@
   in
     lib.mapAttrs' (name: _: {
       name = toCamelCase (lib.removeSuffix ".nix" name);
-      value = import (categoryPath + "/${name}") {inherit pkgs config;};
+      value = import (categoryPath + "/${name}") {inherit pkgs config lib;};
     })
     nixFiles;
 
@@ -89,6 +86,7 @@ in {
         outputColorizer
 
         # Git
+        git
         gitlens
         gitGraph
         gitlab
@@ -147,6 +145,7 @@ in {
 
         # AI
         chat
+        claudeCode
         supermaven
         # copilot
         # continue

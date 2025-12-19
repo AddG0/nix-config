@@ -19,8 +19,13 @@ _: {
 
     # Scrolling
     "editor.smoothScrolling" = true;
-    "workbench.list.smoothScrolling" = true;
     "editor.fastScrollSensitivity" = 5;
+    "workbench.list.smoothScrolling" = true;
+    "workbench.list.fastScrollSensitivity" = 5;
+
+    # GPU acceleration (WebGPU not supported on Linux/NVIDIA yet)
+    # "editor.experimentalGpuAcceleration" = "on";
+    "terminal.integrated.gpuAcceleration" = "on";
 
     # Editor behavior
     "editor.formatOnSave" = true;

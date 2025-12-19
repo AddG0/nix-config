@@ -4,6 +4,7 @@
   ];
   userSettings = {
     "terraform.languageServer.enable" = true;
+    "terraform.languageServer.path" = "${pkgs.terraform-ls}/bin/terraform-ls";
     "terraform.experimentalFeatures.validateOnSave" = true;
     "terraform.experimentalFeatures.prefillRequiredFields" = true;
     "[terraform]" = {
