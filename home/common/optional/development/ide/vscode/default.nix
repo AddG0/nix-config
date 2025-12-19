@@ -60,7 +60,7 @@
   # languageSnippets, userMcp, userTasks
   mkProfile = exts: {
     extensions = lib.flatten (map (e: e.extensions or []) exts);
-    userSettings = lib.foldl (acc: e: acc // (e.userSettings or {})) {} exts;
+    userSettings = lib.foldl (acc: e: lib.recursiveUpdate acc (e.userSettings or {})) {} exts;
     keybindings = lib.flatten (map (e: e.keybindings or []) exts);
     globalSnippets = lib.foldl (acc: e: acc // (e.globalSnippets or {})) {} exts;
     languageSnippets = lib.foldl (acc: e: acc // (e.languageSnippets or {})) {} exts;
@@ -99,7 +99,7 @@ in {
         nixIde
         yaml
         toml
-        json
+        # json
         xml
         markdown
         mermaid
