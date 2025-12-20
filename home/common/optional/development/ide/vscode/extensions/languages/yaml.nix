@@ -7,6 +7,10 @@
       # Kustomize. We override the schemaStore because then it doesn't find random schemas to try to validate against
       "https://json.schemastore.org/kustomization.json" = "kustomization.yaml";
     };
+    # GitLab CI uses !reference tags to reuse configuration sections
+    "yaml.customTags" = [
+      "!reference sequence"
+    ];
     "yaml.validate" = true;
     "yaml.completion" = true;
     "yaml.hover" = true;

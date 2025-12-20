@@ -53,6 +53,7 @@
         #################### Desktop ####################
         "nixos/desktops/plasma6" # window manager
         "nixos/services/bluetooth.nix"
+        "nixos/services/ollama.nix"
         "nixos/secureboot.nix"
       ])
     ))

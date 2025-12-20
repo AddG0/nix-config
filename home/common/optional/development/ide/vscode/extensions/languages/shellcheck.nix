@@ -5,5 +5,9 @@
   userSettings = {
     "shellcheck.executablePath" = "${pkgs.shellcheck}/bin/shellcheck";
     "shellcheck.run" = "onSave";
+    # .envrc files are sourced by direnv, not executed as shell scripts
+    "shellcheck.ignorePatterns" = {
+      "**/.envrc" = true;
+    };
   };
 }
