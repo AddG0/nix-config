@@ -41,6 +41,7 @@
       ++ (map (f: "common/optional/${f}") [
         #################### Host-specific Optional Configs ####################
         "nixos/services/openssh.nix" # allow remote SSH access
+        "nixos/services/tailscale.nix" # mesh VPN for secure remote access
         "nixos/nvtop.nix" # GPU monitor (not available in home-manager)
         # "nixos/audio.nix" # pipewire and cli controls - using local audio.nix instead
         #################### Desktop ####################

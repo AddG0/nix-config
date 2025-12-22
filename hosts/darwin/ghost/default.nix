@@ -17,6 +17,7 @@
       ++ (map (f: "common/optional/${f}") [
         #################### Host-specific Optional Configs ####################
         # "darwin/vban-walkie.nix"
+        "darwin/services/tailscale.nix" # mesh VPN for secure remote access
 
         #################### Optional Applications ####################
         # "darwin/applications/autodesk-fusion.nix"
