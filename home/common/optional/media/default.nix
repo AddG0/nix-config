@@ -6,9 +6,5 @@
       vlc
       losslesscut
       ;
-    inherit
-      (pkgs.stable)
-      calibre
-      ;
   };
 }

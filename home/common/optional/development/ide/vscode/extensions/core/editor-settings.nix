@@ -27,6 +27,9 @@ _: {
     # "editor.experimentalGpuAcceleration" = "on";
     "terminal.integrated.gpuAcceleration" = "on";
 
+    # Line numbers (relative like Neovim - current line shows absolute, others show distance)
+    "editor.lineNumbers" = "relative";
+
     # Editor behavior
     "editor.formatOnSave" = true;
     "editor.formatOnPaste" = false;
@@ -65,14 +68,9 @@ _: {
       "flake.lock" = "json";
     };
 
-    # Search
+    # Search (language-specific exclusions in their respective files)
     "search.exclude" = {
-      "**/node_modules" = true;
       "**/result" = true;
-      "**/.direnv" = true;
-      "**/.devenv" = true;
-      "**/dist" = true;
-      "**/build" = true;
       "**/.git" = true;
     };
 
@@ -81,9 +79,11 @@ _: {
     "explorer.confirmDragAndDrop" = false;
     "explorer.compactFolders" = false;
 
-    # Extensions (managed by Nix)
+    # Updates (managed by Nix)
+    "update.mode" = "none";
     "extensions.autoUpdate" = false;
     "extensions.autoCheckUpdates" = false;
+    "extensions.ignoreRecommendations" = true;
 
     # Zen mode
     "zenMode.hideLineNumbers" = false;

@@ -141,6 +141,16 @@ update-packages *ARGS:
 diff:
   git diff ':!flake.lock'
 
+[group('vscode')]
+[doc("Compare VS Code extension versions between marketplace and release")]
+vscode-compare:
+  scripts/compare-vscode-extensions.sh
+
+[group('vscode')]
+[doc("Compare and auto-fix VS Code extensions to use best source")]
+vscode-fix:
+  scripts/compare-vscode-extensions.sh --fix
+
 [group('development')]
 [doc("Analyze Nix evaluation performance using trace profiling")]
 profile hostname="" use-existing="y":

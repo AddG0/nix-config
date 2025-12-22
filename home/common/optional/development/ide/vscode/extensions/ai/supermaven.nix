@@ -1,6 +1,6 @@
 {pkgs, ...}: {
   extensions = [
-    pkgs.vscode-marketplace.supermaven.supermaven
+    pkgs.vscode-marketplace-release.supermaven.supermaven
   ];
   userSettings = {};
 }

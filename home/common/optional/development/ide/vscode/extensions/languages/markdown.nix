@@ -1,6 +1,6 @@
 {pkgs, ...}: {
   extensions = [
-    pkgs.vscode-marketplace.yzhang.markdown-all-in-one
+    pkgs.vscode-marketplace-release.yzhang.markdown-all-in-one
   ];
   userSettings = {
     "markdown.extension.toc.updateOnSave" = true;

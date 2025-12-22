@@ -48,5 +48,8 @@ in {
 
     # Use terminal for auth (for SSH keys)
     "git.terminalAuthentication" = true;
+
+    # Don't prompt to open repos found in parent folders
+    "git.openRepositoryInParentFolders" = "never";
   };
 }

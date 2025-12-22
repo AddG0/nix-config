@@ -39,22 +39,24 @@
       ]
       ++ (map (f: "common/optional/${f}") [
         #################### Host-specific Optional Configs ####################
+        "nixos/secureboot.nix"
         "nixos/services/openssh.nix" # allow remote SSH access
         # "nixos/nvtop.nix" # GPU monitor (not available in home-manager)
         # "nixos/audio.nix" # pipewire and cli controls - using local audio.nix instead
         "nixos/gaming.nix" # steam, gamescope, gamemode, and related hardware
         # "nixos/services/home-assistant"
         "nixos/virtualisation/docker.nix" # docker
-        # "nixos/plymouth.nix" # fancy boot screen
-        "nixos/services/nginx.nix" # nginx
+        # "nixos/services/nginx.nix" # nginx
+
         # "nixos/obs.nix" # obs
         "nixos/hardware/openrazer.nix" # openrazer
         "nixos/1password.nix"
-        #################### Desktop ####################
-        "nixos/desktops/plasma6" # window manager
         "nixos/services/bluetooth.nix"
         "nixos/services/ollama.nix"
-        "nixos/secureboot.nix"
+        "nixos/services/clamav.nix"
+
+        # "nixos/plymouth.nix" # fancy boot screen
+        "nixos/desktops/plasma6" # window manager
       ])
     ))
   ];

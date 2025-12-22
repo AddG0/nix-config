@@ -1,4 +1,4 @@
-{pkgs, ...}: {
+_: {
   extensions = [];
   userSettings = {
     # Terminal settings

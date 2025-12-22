@@ -1,6 +1,6 @@
 {pkgs, ...}: {
   extensions = [
-    pkgs.vscode-marketplace.bradlc.vscode-tailwindcss
+    pkgs.vscode-marketplace-release.bradlc.vscode-tailwindcss
   ];
   userSettings = {
     "tailwindCSS.emmetCompletions" = true;

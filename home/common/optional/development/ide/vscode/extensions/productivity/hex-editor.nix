@@ -1,6 +1,6 @@
 {pkgs, ...}: {
   extensions = [
-    pkgs.vscode-marketplace.ms-vscode.hexeditor
+    pkgs.vscode-marketplace-release.ms-vscode.hexeditor
   ];
   userSettings = {
     "hexeditor.columnWidth" = 16;

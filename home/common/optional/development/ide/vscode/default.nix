@@ -1,3 +1,7 @@
+# Debugging VS Code Extension Issues:
+#   - "Help: Start Extension Bisect" - Binary search to find problematic extension
+#   - "Developer: Inspect Editor Tokens and Scopes" - See what's styling an element
+#   - "Extensions: Disable All Installed Extensions" - Quick isolation test
 {
   lib,
   pkgs,
@@ -68,6 +72,8 @@ in {
   programs.vscode = {
     enable = true;
     package = vscodePackage;
+    # Must be true - some extensions (vscode-java-debug) write to their own directory
+    mutableExtensionsDir = true;
     profiles = {
       default = mkProfile (with ext; [
         # Core
@@ -75,6 +81,7 @@ in {
         terminal
         remoteSsh
         materialIcons
+        direnv
 
         # UI / Theme
         catppuccin
@@ -108,6 +115,7 @@ in {
         rust
         typescript
         java
+        # javaOracle
         dotenv
         rainbowCsv
         tailwind
@@ -134,20 +142,19 @@ in {
         sqltools
         importCost
         bookmarks
-        drawio
+        # drawio
         liveshare
         regexPreviewer
         codeRunner
         hexEditor
-        excalidraw
+        # excalidraw
         codesnap
         partialDiff
 
         # AI
-        chat
         claudeCode
         supermaven
-        # copilot
+        copilot
         # continue
 
         # Keybindings

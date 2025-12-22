@@ -37,5 +37,29 @@
     "typescript.suggest.autoImports" = true;
     "typescript.inlayHints.parameterNames.enabled" = "all";
     "typescript.inlayHints.functionLikeReturnTypes.enabled" = true;
+    "typescript.npm" = "${pkgs.nodejs}/bin/npm";
+    "typescript.tsserver.nodePath" = "${pkgs.nodejs}/bin/node";
+
+    # Hide Node.js build directories from explorer
+    "files.exclude" = {
+      "**/node_modules" = true;
+      "**/dist" = true;
+      "**/build" = true;
+      "**/.next" = true;
+      "**/.nuxt" = true;
+      "**/.turbo" = true;
+      "**/coverage" = true;
+    };
+
+    # Exclude from search
+    "search.exclude" = {
+      "**/node_modules" = true;
+      "**/dist" = true;
+      "**/build" = true;
+      "**/.next" = true;
+      "**/.nuxt" = true;
+      "**/.turbo" = true;
+      "**/coverage" = true;
+    };
   };
 }

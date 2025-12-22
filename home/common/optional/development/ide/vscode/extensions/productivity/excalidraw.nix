@@ -1,5 +1,5 @@
 {pkgs, ...}: {
   extensions = [
-    pkgs.vscode-marketplace.pomdtr.excalidraw-editor
+    pkgs.vscode-marketplace-release.pomdtr.excalidraw-editor
   ];
 }

@@ -1,6 +1,6 @@
 {pkgs, ...}: {
   extensions = [
-    pkgs.vscode-marketplace.streetsidesoftware.code-spell-checker
+    pkgs.vscode-marketplace-release.streetsidesoftware.code-spell-checker
   ];
   userSettings = {
     # Disable for nix files - too many false positives

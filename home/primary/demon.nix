@@ -53,7 +53,7 @@
         # Media
         "media"
         "media/spicetify.nix"
-        "media/tidal.nix"
+        # "media/tidal.nix"
 
         # NixOS Specific
         "nixos/desktops/plasma6"
@@ -96,7 +96,7 @@
   };
 
   programs.btop.enable = lib.mkForce true;
-  services.safeeyes.enable = true;
+  # services.safeeyes.enable = true;
 
   services.gpu-screen-recorder = {
     enable = true;

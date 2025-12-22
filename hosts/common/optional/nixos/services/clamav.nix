@@ -9,7 +9,6 @@
   # };
   # Function to notify users and admin when a suspicious file is detected
   notify-all-users = pkgs.writeScript "notify-all-users-of-sus-file" ''
-    #!/usr/bin/env bash
     ALERT="Signature detected by clamav: $CLAM_VIRUSEVENT_VIRUSNAME in $CLAM_VIRUSEVENT_FILENAME"
     # Send an alert to all graphical users.
     for ADDRESS in /run/user/*; do
@@ -37,11 +36,69 @@ in {
         enable = true;
         settings = {
           # ClamAV configuration. Refer to <https://linux.die.net/man/5/clamd.conf>, for details on supported values.
+
+          # On-access scanning
           OnAccessPrevention = false;
           OnAccessExtraScanning = true;
           OnAccessExcludeUname = "clamav";
           VirusEvent = "${notify-all-users}";
           User = "clamav";
+
+          # Performance tuning
+          MaxThreads = 10;
+          MaxQueue = 30;
+          ConcurrentDatabaseReload = true;
+
+          # Scanning limits (prevent resource exhaustion)
+          MaxScanSize = "500M";
+          MaxFileSize = "150M";
+          MaxRecursion = 20;
+          MaxFiles = 15000;
+          MaxEmbeddedPE = "50M";
+          MaxHTMLNormalize = "50M";
+          MaxScriptNormalize = "25M";
+          StreamMaxLength = "500M";
+
+          # Detection improvements
+          Bytecode = true;
+          BytecodeSecurity = "TrustSigned";
+          BytecodeTimeout = 10000;
+          HeuristicAlerts = true;
+          HeuristicScanPrecedence = true;
+
+          # Alert on suspicious content
+          AlertEncrypted = true;
+          AlertEncryptedArchive = true;
+          AlertEncryptedDoc = true;
+          AlertOLE2Macros = true;
+          AlertPartitionIntersection = true;
+
+          # Scan settings
+          ScanPE = true;
+          ScanELF = true;
+          ScanOLE2 = true;
+          ScanPDF = true;
+          ScanSWF = true;
+          ScanXMLDOCS = true;
+          ScanHWP3 = true;
+          ScanMail = true;
+          ScanHTML = true;
+          ScanArchive = true;
+          PhishingSignatures = true;
+          PhishingScanURLs = true;
+
+          # Logging
+          ExtendedDetectionInfo = true;
+          LogTime = true;
+
+          # Exclude paths that don't need scanning
+          ExcludePath = [
+            "^/proc"
+            "^/sys"
+            "^/dev"
+            "^/run"
+            "^/nix/store"
+          ];
         };
       };
       updater = {
@@ -52,20 +109,27 @@ in {
           # Refer to <https://linux.die.net/man/5/freshclam.conf>,for details on supported values.
         };
       };
-      # # TODO stage 3 checkback - this isn't currently available in stable but looks to be coming down the pipe https://github.com/NixOS/nixpkgs/commits/master/nixos/modules/services/security/clamav.nix
-      # fangfrisch = {
-      #   enable = true;
-      #   interval = "daily";
-      # };
-      # scanner = {
-      #   # By default his runs using 10 cores, be sure
-      #   enable = true;
-      #   interval = "*-*-* 04:00:00"; # default
-      #   scanDirectories = [
-      #     # these are currently defaults from the nixos pkg maintainer for everything he thought was valid for nixos
-      #     "/home" "/var/lib" "/tmp" "/etc" "/var/tmp"
-      #   ];
-      # };
+      # Additional signature databases (sanesecurity, urlhaus enabled by default)
+      fangfrisch = {
+        enable = true;
+        interval = "daily";
+        settings = {
+          # SecuriteInfo adds 4M+ signatures (free tier is 30-day delayed)
+          securiteinfo.enabled = true;
+        };
+      };
+      # Scheduled filesystem scan
+      scanner = {
+        enable = true;
+        interval = "*-*-* 04:00:00"; # 4 AM daily
+        scanDirectories = [
+          "/home"
+          "/etc"
+          "/var/lib"
+          "/tmp"
+          "/var/tmp"
+        ];
+      };
     };
   };
 }
