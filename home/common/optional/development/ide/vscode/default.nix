@@ -82,6 +82,7 @@ in {
         remoteSsh
         materialIcons
         direnv
+        indentOnEmptyLine
 
         # UI / Theme
         catppuccin
@@ -114,6 +115,7 @@ in {
         go
         rust
         typescript
+        jest
         java
         # javaOracle
         dotenv
