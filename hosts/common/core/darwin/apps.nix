@@ -82,7 +82,7 @@ in {
         if config.hostSpec.darwin.hasPaidApps
         then {
           # "Yoink" = 457622435;
-          "Magnet" = 441258766;
+          # "Magnet" = 441258766;
         }
         else {}
       );
@@ -132,7 +132,6 @@ in {
       [
         # "zen-browser"
         # "docker" # Docker Desktop needed for vscode devcontainers
-        # "sharemouse"
         "caffeine"
 
         # "balenaetcher"
@@ -144,32 +143,12 @@ in {
         # "parallels" # Get version 19 from here: https://www.parallels.com/products/desktop/download/
         "kiro-cli"
         "flux-app" # blue light filter
-        # "lens"
-        "cursor"
-        "stats" # beautiful system status monitor in menu bar
       ]
-      ++ (
-        if config.hostSpec.darwin.isAarch64
-        then [
-          "chatgpt"
-        ]
-        else []
-      )
       ++ (
         if config.hostSpec.darwin.hasPaidApps
         then [
         ]
         else []
       );
-  };
-
-  security.firewall = {
-    # ShareMouse
-    allowedUDPPorts = [
-      1046
-    ];
-    allowedTCPPorts = [
-      6555
-    ];
   };
 }

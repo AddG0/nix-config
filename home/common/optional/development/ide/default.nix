@@ -8,11 +8,11 @@
 
       # jetbrains.phpstorm
       # vscode
+      code-cursor
     ]
     ++ (
       if pkgs.stdenv.isLinux
       then [
-        code-cursor
         android-studio
       ]
       else []

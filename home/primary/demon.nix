@@ -95,7 +95,6 @@
     polarity = "dark";
   };
 
-  programs.btop.enable = lib.mkForce true;
   # services.safeeyes.enable = true;
 
   services.gpu-screen-recorder = {

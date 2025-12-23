@@ -23,6 +23,4 @@
 
   # Mark this as a server to avoid installing GUI tools
   hostSpec.hostType = lib.mkForce "server";
-
-  programs.btop.enable = lib.mkForce true;
 }

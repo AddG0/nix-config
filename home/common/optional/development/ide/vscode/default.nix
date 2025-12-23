@@ -116,7 +116,7 @@ in {
         rust
         typescript
         jest
-        java
+        # java
         # javaOracle
         dotenv
         rainbowCsv

@@ -53,8 +53,6 @@
     ))
   ];
 
-  programs.btop.enable = lib.mkForce true;
-
   programs.plasma.input.mice = [
     {
       enable = true;

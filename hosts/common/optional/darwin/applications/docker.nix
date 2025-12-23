@@ -1,8 +1,8 @@
 _: {
   homebrew = {
     brews = [
-      "podman"
-      "podman-compose"
+      # "podman"
+      # "podman-compose"
     ];
     casks = [
       "orbstack"

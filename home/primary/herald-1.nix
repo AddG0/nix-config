@@ -22,5 +22,4 @@
       ])
     ))
   ];
-  programs.btop.enable = lib.mkForce false;
 }
