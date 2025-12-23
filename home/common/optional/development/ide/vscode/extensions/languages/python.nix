@@ -13,6 +13,11 @@
     "python.analysis.inlayHints.variableTypes" = true;
     "python.poetryPath" = "${pkgs.poetry}/bin/poetry";
 
+    # Pytest testing
+    "python.testing.pytestEnabled" = true;
+    "python.testing.unittestEnabled" = false;
+    "python.testing.pytestArgs" = ["-v"];
+
     # Ruff - fast Python linter and formatter
     "ruff.path" = ["${pkgs.ruff}/bin/ruff"];
 

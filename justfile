@@ -305,6 +305,11 @@ tmpfiles-create:
   sudo systemd-tmpfiles --create
 
 [group('utilities')]
+[doc("Flush DNS resolver cache")]
+flush-dns:
+  resolvectl flush-caches
+
+[group('utilities')]
 [doc("Restart Plasma shell (KDE Plasma desktop)")]
 restart-plasma:
   #!/usr/bin/env bash
