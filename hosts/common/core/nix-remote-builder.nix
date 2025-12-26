@@ -57,12 +57,14 @@ with lib; let
     currentSystem = pkgs.stdenv.hostPlatform.system;
 
     # Filter to only builders matching current architecture and excluding current host
-    remoteBuilders = filterAttrs
+    remoteBuilders =
+      filterAttrs
       (name: builder: name != currentHost && builder.system == currentSystem)
       allBuilders;
 
     sumJobs = builders: foldl' (acc: builder: acc + builder.maxJobs) 0 (attrValues builders);
-  in sumJobs remoteBuilders;
+  in
+    sumJobs remoteBuilders;
 in {
   options.nix.remoteBuilder = {
     enable = mkOption {
