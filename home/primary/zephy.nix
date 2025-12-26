@@ -37,7 +37,7 @@
         "nixos/desktops/plasma6"
         "browsers"
 
-        "gaming/minecraft.nix"
+        "gaming/minecraft"
         "gaming/heroic.nix"
         "gaming/bakkesmod.nix"
         "gaming"

@@ -1,0 +1,11 @@
+{
+	scale: 1.0,
+	displayDescriptions: false,
+	showColorPickerPreview: true,
+	renderInDebugScreen: false,
+	forceSameContextMenuSkin: true,
+	complexity: "Simple",
+	snapSize: 100,
+	hudActiveColor: -2147483648,
+	hudInactiveColor: -2130771968
+}

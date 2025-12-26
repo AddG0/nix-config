@@ -8,6 +8,8 @@
     # .envrc files are sourced by direnv, not executed as shell scripts
     "shellcheck.ignorePatterns" = {
       "**/.envrc" = true;
+      "**/.envrc.private" = true;
+      "**/.envrc.local" = true;
     };
   };
 }

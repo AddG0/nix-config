@@ -1,0 +1,13 @@
+name = "MCInspects"
+filename = "mcinspects-1.0.4.jar"
+side = "client"
+
+[download]
+url = "https://cdn.modrinth.com/data/nUsMv8OS/versions/sa203pxT/mcinspects-1.0.4.jar"
+hash-format = "sha512"
+hash = "a639669dbce89320f640a6a08d27133e1ea4352d5d32d9786a4840b88e09745f446939a2c7e8b7051d3cb806e7879dad9c5c05e4f4bc2a9e3d59eaba2d8974da"
+
+[update]
+[update.modrinth]
+mod-id = "nUsMv8OS"
+version = "sa203pxT"

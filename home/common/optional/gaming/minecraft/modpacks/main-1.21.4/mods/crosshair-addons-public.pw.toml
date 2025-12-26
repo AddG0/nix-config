@@ -1,0 +1,13 @@
+name = "Crosshair Addons Public"
+filename = "CrosshairAddons-2.1.0-1.21.4.jar"
+side = "client"
+
+[download]
+url = "https://cdn.modrinth.com/data/QrKEZXN9/versions/ZZOvScaJ/CrosshairAddons-2.1.0-1.21.4.jar"
+hash-format = "sha512"
+hash = "4fb0e63fb65256779b77b9b983fcc096ec691eafecf4108cc1199fc102013ffc6dbc4d3a568ce06bf998f3821239a9fef878c7f1ffbe245af92a76849d1bf15e"
+
+[update]
+[update.modrinth]
+mod-id = "QrKEZXN9"
+version = "ZZOvScaJ"

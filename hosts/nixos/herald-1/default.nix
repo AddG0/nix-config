@@ -42,11 +42,6 @@
         #################### Host-specific Optional Configs ####################
         "nixos/services/openssh.nix" # allow remote SSH access
         "nixos/services/tailscale.nix" # mesh VPN for secure remote access
-        "nixos/nvtop.nix" # GPU monitor (not available in home-manager)
-        # "nixos/audio.nix" # pipewire and cli controls - using local audio.nix instead
-        #################### Desktop ####################
-        # "nixos/desktops/plasma6" # window manager - disabled for signage-only setup
-        # "nixos/services/greetd.nix" # display manager - disabled for headless signage
       ])
     ))
   ];

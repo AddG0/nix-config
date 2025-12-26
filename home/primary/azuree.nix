@@ -21,7 +21,7 @@
         "development/ide"
         # "secrets"
         # "secrets/kubeconfig.nix"
-        "gaming/minecraft.nix"
+        "gaming/minecraft"
         "gaming/heroic.nix"
         "comms"
         "ghostty"

@@ -6,7 +6,10 @@
         src = ./.;
         default_stages = ["pre-commit"];
         hooks = {
-          check-added-large-files.enable = true;
+          check-added-large-files = {
+            enable = true;
+            excludes = ["^assets/avatars/"];
+          };
           check-case-conflicts.enable = true;
           check-executables-have-shebangs.enable = true;
           check-shebang-scripts-are-executable.enable = true;

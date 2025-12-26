@@ -1,0 +1,13 @@
+name = "SettingsManagerLib"
+filename = "settingsmanager-1.0.9+1.21.10.jar"
+side = "client"
+
+[download]
+url = "https://cdn.modrinth.com/data/1dU3bHt8/versions/TGcGOkaB/settingsmanager-1.0.9%2B1.21.10.jar"
+hash-format = "sha512"
+hash = "55fc3b4ecf308dd542040bdad807797b15acb41f27326fef7151ae1b16b6e57a1af9ff6c34744b799e3bc26ddd65fe7400370ace20975ac382b40d2f96a7ee5c"
+
+[update]
+[update.modrinth]
+mod-id = "1dU3bHt8"
+version = "TGcGOkaB"

@@ -42,7 +42,7 @@
         "development/virtualization/kubernetes"
 
         # Gaming
-        "gaming/minecraft.nix"
+        "gaming/minecraft"
         "gaming/heroic.nix"
         "gaming/r2modman.nix"
         "gaming/bakkesmod.nix"

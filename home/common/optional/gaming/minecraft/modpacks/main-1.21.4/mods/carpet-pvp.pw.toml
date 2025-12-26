@@ -1,0 +1,13 @@
+name = "Carpet PVP"
+filename = "carpet-pvp-1.21.4-1.2.0+v250515.jar"
+side = "server"
+
+[download]
+url = "https://cdn.modrinth.com/data/9FuEJ7Wg/versions/Na1AglK8/carpet-pvp-1.21.4-1.2.0%2Bv250515.jar"
+hash-format = "sha512"
+hash = "2e52ecc3a1e678978c36405238db8af1e8532c8b2a39d7e7a2f01a6e45ceb942c287f635f530c761bacbabcff58fe1818ff3dcbd2b21f253409304e449f0c778"
+
+[update]
+[update.modrinth]
+mod-id = "9FuEJ7Wg"
+version = "Na1AglK8"

@@ -1,0 +1,13 @@
+name = "Consumable Optimizer"
+filename = "ConsumableOptimizer-1.1.0-1.21.4.jar"
+side = "client"
+
+[download]
+url = "https://cdn.modrinth.com/data/4alTd2ag/versions/SNKYpBiA/ConsumableOptimizer-1.1.0-1.21.4.jar"
+hash-format = "sha512"
+hash = "5ea93b0680e588842a823fa1dc3846b27781741aae491a1e0ca549cb4c720e547471ebdb7d5aae4893f5ab165a62ec16e18afd15c506c1ec4cd5e765cf892cd6"
+
+[update]
+[update.modrinth]
+mod-id = "4alTd2ag"
+version = "SNKYpBiA"

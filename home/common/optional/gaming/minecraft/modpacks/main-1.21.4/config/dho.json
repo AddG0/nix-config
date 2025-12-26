@@ -1,0 +1,12 @@
+{
+  "enabled": false,
+  "itemsToSync": {
+    "type": "ItemList",
+    "items": [],
+    "invert": true
+  },
+  "debugMode": true,
+  "debugModeLogging": false,
+  "allowTickSwitches": false,
+  "sendModDisableMessages": false
+}

@@ -1,0 +1,13 @@
+name = "Item Name Changer"
+filename = "item-name-changer-1.0.0.jar"
+side = "client"
+
+[download]
+url = "https://cdn.modrinth.com/data/A4DX4dF7/versions/5yVkjpYu/item-name-changer-1.0.0.jar"
+hash-format = "sha512"
+hash = "279d7005ed35970d16bd2772e1927b1d6a28ec4424e44833bb2de992669474544843526e31ae5404563eb332bfbb1ce0d022281c6b38b757dfecdd039238a01c"
+
+[update]
+[update.modrinth]
+mod-id = "A4DX4dF7"
+version = "5yVkjpYu"

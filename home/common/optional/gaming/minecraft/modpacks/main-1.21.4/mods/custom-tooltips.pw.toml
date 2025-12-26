@@ -1,0 +1,13 @@
+name = "Custom Tooltips"
+filename = "CustomToolTips-1.0.jar"
+side = "client"
+
+[download]
+url = "https://cdn.modrinth.com/data/2FHqRskk/versions/Hw000wat/CustomToolTips-1.0.jar"
+hash-format = "sha512"
+hash = "b8a912ae4780211ca292a7bf489142cc653ccf1aa85d2cff9485fba2a88597b60416373d1b133ac45ff08deb4341eb0068f94918b741d6fc1f67b5ad369de321"
+
+[update]
+[update.modrinth]
+mod-id = "2FHqRskk"
+version = "Hw000wat"

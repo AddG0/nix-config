@@ -79,6 +79,15 @@ in {
       github-cli # GitHub CLI.
     ];
 
+  programs.difftastic = {
+    enable = true;
+    git.enable = true;
+    options = {
+      background = "dark"; # matches catppuccin-mocha
+      display = "side-by-side";
+    };
+  };
+
   programs.zsh.oh-my-zsh.plugins = [
     "git-auto-fetch"
     "github"

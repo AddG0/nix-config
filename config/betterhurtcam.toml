@@ -1,0 +1,4 @@
+enabled = true
+multiplier = 1.0
+heartBlink = true
+type = "OLD"

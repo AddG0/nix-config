@@ -1,0 +1,13 @@
+name = "WalksyLib"
+filename = "WalksyLib-0.9.96+1.21.4.jar"
+side = "client"
+
+[download]
+url = "https://cdn.modrinth.com/data/7P86n6Vg/versions/wL1FeLnX/WalksyLib-0.9.96%2B1.21.4.jar"
+hash-format = "sha512"
+hash = "30ce1203a416a81c4e44926bae7737bc3a54d7940a4584d70f1da7d4a923ed71e4e2ecb91c66e4ec54fb558936895e228c27f3b99ca23eecb8daf8771fc5be35"
+
+[update]
+[update.modrinth]
+mod-id = "7P86n6Vg"
+version = "wL1FeLnX"

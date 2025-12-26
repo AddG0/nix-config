@@ -1,0 +1,13 @@
+name = "CPS+ | cps counter"
+filename = "cpsplus-1.0.0.jar"
+side = "client"
+
+[download]
+url = "https://cdn.modrinth.com/data/cEJ28DQF/versions/Za6d6AqQ/cpsplus-1.0.0.jar"
+hash-format = "sha512"
+hash = "d3198b1239099c6a4fec8d14dcf9c5fc436e59bdb734da24c1a3b183e17ad8e503869f20a54274e2b6f571dfbd8323735c0330ed87b3c33e35adeec36000ff2b"
+
+[update]
+[update.modrinth]
+mod-id = "cEJ28DQF"
+version = "Za6d6AqQ"

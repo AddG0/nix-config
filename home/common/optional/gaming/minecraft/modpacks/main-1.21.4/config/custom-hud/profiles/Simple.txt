@@ -1,0 +1,10 @@
+  =if: singleplayer=
+&{bold}world: &{aqua}{world}
+  =else=
+&{bold}server: &{aqua}{address}
+  =endif=
+&{bold}facing: &{aqua}{facing}
+&{bold}fps: &{aqua}{fps}
+&{bold}ping: &{aqua}{ping}
+&{bold}tps: &{aqua}{tps}
+&{bold}l: &{aqua}{lcps} &{bold}r: &{aqua}{rcps}

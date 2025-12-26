@@ -1,0 +1,13 @@
+name = "DynamicHUD"
+filename = "dynamichud-3.0.0.jar"
+side = "client"
+
+[download]
+url = "https://cdn.modrinth.com/data/hQbzUScT/versions/gZwWvs4E/dynamichud-3.0.0.jar"
+hash-format = "sha512"
+hash = "ef7f25ddde99355989583a6d66b110cd063c7a864baf7367b52235fd9149c25b1272f28198673700166a6a8f23f41155e184daa994507699d5e1b2d1ddbe890c"
+
+[update]
+[update.modrinth]
+mod-id = "hQbzUScT"
+version = "gZwWvs4E"

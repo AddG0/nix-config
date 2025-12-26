@@ -106,6 +106,7 @@ in {
         yaml
         toml
         # json
+        justfile
         xml
         markdown
         mermaid
@@ -115,8 +116,7 @@ in {
         go
         rust
         typescript
-        jest
-        # java
+        java
         # javaOracle
         dotenv
         rainbowCsv

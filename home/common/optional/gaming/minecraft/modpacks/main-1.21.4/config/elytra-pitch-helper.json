@@ -1,0 +1,9 @@
+{
+  "targetUpMinecraft": -40.0,
+  "targetDownMinecraft": 40.0,
+  "toleranceDegrees": 6.0,
+  "maxOffsetPixels": 42,
+  "offsetPerDegree": 2.0,
+  "lineColorRgb": 16777215,
+  "centerTickColorRgb": 16744703
+}

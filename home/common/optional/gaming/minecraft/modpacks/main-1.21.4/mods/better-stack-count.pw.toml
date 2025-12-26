@@ -1,0 +1,13 @@
+name = "Better Stack Count"
+filename = "Better Stack Count-0.0.4-1.21.4.jar"
+side = "client"
+
+[download]
+url = "https://cdn.modrinth.com/data/e2AEhyhD/versions/3PEDo7QT/Better%20Stack%20Count-0.0.4-1.21.4.jar"
+hash-format = "sha512"
+hash = "1d073583e2440c6d60d6cc93c5134c1744d14f52e38ddcb1e31353814bbe7ecffc3c613e7d4c98d2958bec6d6e40752eaaa29073e6423ff163d268163547c4cf"
+
+[update]
+[update.modrinth]
+mod-id = "e2AEhyhD"
+version = "3PEDo7QT"

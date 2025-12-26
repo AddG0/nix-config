@@ -1,0 +1,33 @@
+{
+  "IS_ENABLED": true,
+  "CLOUDS_RENDERED": false,
+  "APPEARS_SHADED": false,
+  "USES_CUSTOM_ALPHA": true,
+  "CUSTOM_BRIGHTNESS": true,
+  "USES_CUSTOM_COLOR": false,
+  "DEBUG_v0": false,
+  "RANDOMIZED_Y": true,
+  "FADE_ENABLED": true,
+  "FOG_ENABLED": false,
+  "FADE_ALPHA": 0.2,
+  "CLOUD_Y_SCALE": 1.5,
+  "BRIGHTNESS": 1.0,
+  "BASE_ALPHA": 0.8,
+  "TRANSITION_RANGE": 10.0,
+  "CLOUD_COLOR": 16777215,
+  "CLOUD_COLORS": [
+    16777215,
+    16777215,
+    16777215,
+    16777215,
+    16777215,
+    16777215,
+    16777215,
+    16777215,
+    16777215,
+    16777215
+  ],
+  "CLOUD_LAYERS": 1,
+  "CLOUD_LAYERS_SPACING": 14.0,
+  "CLOUD_RANDOM_LAYERS": true
+}

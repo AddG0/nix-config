@@ -1,0 +1,3 @@
+minimap:false
+showWaypoints:true
+showIngameWaypoints:true

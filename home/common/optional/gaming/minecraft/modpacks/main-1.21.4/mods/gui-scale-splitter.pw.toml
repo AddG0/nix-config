@@ -1,0 +1,13 @@
+name = "GUI Scale Splitter"
+filename = "GuiScaleSplitter-1.2+1.21.4.jar"
+side = "client"
+
+[download]
+url = "https://cdn.modrinth.com/data/SkdFPG2J/versions/5rxrUvh7/GuiScaleSplitter-1.2%2B1.21.4.jar"
+hash-format = "sha512"
+hash = "b1e5cca5be017c3036bfddc32d1e3ddd5fa2514bb696e905ecc64b3f0472415ccc4b85f7647c5d416794ef9d3ac93dac735c56b962ae5acde065f2d0fc84bb08"
+
+[update]
+[update.modrinth]
+mod-id = "SkdFPG2J"
+version = "5rxrUvh7"

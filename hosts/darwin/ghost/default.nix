@@ -42,7 +42,7 @@
         # "darwin/applications/wifiman.nix"
         "darwin/applications/1password.nix"
         # "darwin/applications/stats.nix"
-        # "darwin/applications/chatgpt.nix"
+        "darwin/applications/chatgpt.nix"
 
         #################### Desktop ####################
       ])

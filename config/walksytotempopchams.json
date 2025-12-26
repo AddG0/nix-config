@@ -1,0 +1,14 @@
+{
+	"modEnabled": false,
+	"showOwnPops": false,
+	"fadeOut": true,
+	"lifeTime": 50.0,
+	"disperse": false,
+	"disperseSpeed": 1.5,
+	"disperseMaxDistance": 1.0,
+	"filledModelEnabled": true,
+	"filledColor": -1768713325,
+	"wireframeEnabled": true,
+	"wireframeColor": -1774700487,
+	"wireframeThickness": 2.0
+}

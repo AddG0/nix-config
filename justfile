@@ -297,6 +297,43 @@ deploy-exec cmd="" hostname="":
   colmena exec --impure {{ if hostname != "" { "--on " + hostname } else { "" } }} -- {{cmd}}
 
 
+# Minecraft modpack management (see scripts/modpack.sh)
+
+[group('minecraft')]
+[doc("Update a mod in a modpack")]
+modpack-update name mod:
+  scripts/modpack.sh update {{name}} {{mod}}
+
+[group('minecraft')]
+[doc("Update all mods in a modpack")]
+modpack-update-all name:
+  scripts/modpack.sh update-all {{name}}
+
+[group('minecraft')]
+[doc("Add a mod to a modpack")]
+modpack-add name mod:
+  scripts/modpack.sh add {{name}} {{mod}}
+
+[group('minecraft')]
+[doc("Remove a mod from a modpack")]
+modpack-remove name mod:
+  scripts/modpack.sh remove {{name}} {{mod}}
+
+[group('minecraft')]
+[doc("List all modpacks")]
+modpack-list:
+  @scripts/modpack.sh list
+
+[group('minecraft')]
+[doc("Start packwiz dev server for rapid modpack iteration")]
+modpack-serve name:
+  @echo "Set Prism Launcher Pre-launch command to:"
+  @echo '  "$INST_JAVA" -jar $HOME/.local/share/packwiz/packwiz-installer-bootstrap.jar http://localhost:8080/pack.toml'
+  @echo ""
+  @echo "Starting packwiz serve... (Ctrl+C to stop)"
+  @echo ""
+  cd home/common/optional/gaming/minecraft/modpacks/{{name}} && packwiz serve
+
 # Below is random commands incase I forget
 
 [group('utilities')]

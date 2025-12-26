@@ -1,0 +1,13 @@
+name = "Anchor Optimizer"
+filename = "ClientSideAnchors-1.21.4.jar"
+side = "client"
+
+[download]
+url = "https://cdn.modrinth.com/data/Lpf6Rujk/versions/gnk5Q4ef/ClientSideAnchors-1.21.4.jar"
+hash-format = "sha512"
+hash = "ac5c4f4e0650b5f193dfda7a3f5e97ce10dcf0c950574f267b4cbcf1aad8b773c7e80162f6732e35de0268dd601db2b097935172b2c4d2b0dfb845358f3e0380"
+
+[update]
+[update.modrinth]
+mod-id = "Lpf6Rujk"
+version = "gnk5Q4ef"

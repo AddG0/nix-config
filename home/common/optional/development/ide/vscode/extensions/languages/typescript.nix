@@ -2,6 +2,8 @@
   extensions = [
     pkgs.vscode-marketplace.dbaeumer.vscode-eslint
     pkgs.vscode-marketplace.esbenp.prettier-vscode
+    pkgs.vscode-marketplace.orta.vscode-jest
+    pkgs.vscode-marketplace.vitest.explorer
   ];
   userSettings = {
     # ESLint
@@ -61,5 +63,10 @@
       "**/.turbo" = true;
       "**/coverage" = true;
     };
+
+    # Jest
+    "jest.autoRun" = "off";
+    "jest.showCoverageOnLoad" = false;
+    "jest.runMode" = "on-demand";
   };
 }
