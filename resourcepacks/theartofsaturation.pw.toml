@@ -1,7 +1,0 @@
-name = "TheArtOfSaturation"
-filename = "TheArtOfSaturation.zip"
-
-[download]
-url = "https://raw.githubusercontent.com/uku3lig/pvp-modpack/1.21/resourcepacks/TheArtOfSaturation.zip"
-hash-format = "sha256"
-hash = "12a2ff714a965fa7078c36fed81f9502121bf785abdaabd3899286dc76772eda"
