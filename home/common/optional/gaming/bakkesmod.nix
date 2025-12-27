@@ -13,7 +13,12 @@
     enable = true;
     plugins = with pkgs.bakkesmod-plugins; [
       ingamerank
-      rocketstats
+      {
+        plugin = rocketstats;
+        extraConfig = ''
+          rs_toggle_logo "0"
+        '';
+      }
       {
         plugin = deja-vu-player-tracking;
         extraConfig = ''
@@ -21,7 +26,7 @@
           cl_dejavu_toggle_with_scoreboard "1"
           cl_dejavu_xpos "1.0"
           cl_dejavu_ypos "0.02"
-          cl_dejavu_width "0.048"
+          cl_dejavu_width "0.065"
           cl_dejavu_scale "1.5"
 
           // Styling - clean dark theme
