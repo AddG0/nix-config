@@ -19,9 +19,9 @@
         extraConfig = ''
           // Position
           cl_dejavu_toggle_with_scoreboard "1"
-          cl_dejavu_xpos "0.9"
-          cl_dejavu_ypos "0.0"
-          cl_dejavu_width "0.15"
+          cl_dejavu_xpos "1.0"
+          cl_dejavu_ypos "0.02"
+          cl_dejavu_width "0.048"
           cl_dejavu_scale "1.5"
 
           // Styling - clean dark theme
