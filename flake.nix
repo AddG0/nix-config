@@ -222,6 +222,14 @@
       url = "github:asus-linux-drivers/asus-numberpad-driver";
       inputs.nixpkgs.follows = "nixpkgs";
     };
+
+    # BakkesMod for Rocket League
+    bakkesmod-nix = {
+      url = "github:AddG0/bakkesmod-nix";
+      # url = "path:/home/addg/home/code/github/bakkesmod-nix";
+      inputs.nixpkgs.follows = "nixpkgs";
+      inputs.flake-parts.follows = "flake-parts";
+    };
   };
 
   outputs = inputs:

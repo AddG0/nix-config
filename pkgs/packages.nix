@@ -10,10 +10,6 @@ pkgs: {
   claude-flow = pkgs.callPackage ./claude-flow {};
   wifiman-desktop = pkgs.callPackage ./wifiman-desktop {};
 
-  # Gaming
-  bakkesmod = pkgs.callPackage ./bakkesmod {};
-  bakkesmod-plugins = import ./bakkesmod-plugins pkgs;
-
   # System utilities
   bt-proximity-monitor = pkgs.callPackage ./bt-proximity-monitor {};
   bt-scan = pkgs.callPackage ./bt-scan {};

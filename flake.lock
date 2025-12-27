@@ -45,6 +45,29 @@
         "type": "github"
       }
     },
+    "bakkesmod-nix": {
+      "inputs": {
+        "flake-parts": [
+          "flake-parts"
+        ],
+        "nixpkgs": [
+          "nixpkgs"
+        ]
+      },
+      "locked": {
+        "lastModified": 1766806627,
+        "narHash": "sha256-Nl7IFqqXUKBFSCOAbBhV2eGIgcXy1XeZHArsdZB6JMk=",
+        "owner": "AddG0",
+        "repo": "bakkesmod-nix",
+        "rev": "9ecf0de50339d054248d7e7bf1efdbd3e6d8453a",
+        "type": "github"
+      },
+      "original": {
+        "owner": "AddG0",
+        "repo": "bakkesmod-nix",
+        "type": "github"
+      }
+    },
     "base16": {
       "inputs": {
         "fromYaml": "fromYaml"
@@ -1631,6 +1654,7 @@
       "inputs": {
         "ai-toolkit": "ai-toolkit",
         "asus-numberpad-driver": "asus-numberpad-driver",
+        "bakkesmod-nix": "bakkesmod-nix",
         "base16": "base16",
         "base16-vim": "base16-vim",
         "base16-zathura": "base16-zathura",
