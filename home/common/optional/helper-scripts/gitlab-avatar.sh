@@ -7,34 +7,34 @@ MAX_SIZE_KB=200
 TARGET_SIZE=192
 
 usage() {
-    echo "Usage: gitlab-avatar <input-image> [output-image]"
-    echo ""
-    echo "Optimizes an image for GitLab group/project avatars."
-    echo "Target: ${TARGET_SIZE}x${TARGET_SIZE} pixels, max ${MAX_SIZE_KB} KiB file size."
-    echo "If no output is specified, creates <input>_gitlab.<ext> in the same directory."
-    exit 1
+	echo "Usage: gitlab-avatar <input-image> [output-image]"
+	echo ""
+	echo "Optimizes an image for GitLab group/project avatars."
+	echo "Target: ${TARGET_SIZE}x${TARGET_SIZE} pixels, max ${MAX_SIZE_KB} KiB file size."
+	echo "If no output is specified, creates <input>_gitlab.<ext> in the same directory."
+	exit 1
 }
 
 if [[ $# -lt 1 ]]; then
-    usage
+	usage
 fi
 
 INPUT="$1"
 
-if [[ ! -f "$INPUT" ]]; then
-    echo "Error: Input file '$INPUT' does not exist."
-    exit 1
+if [[ ! -f $INPUT ]]; then
+	echo "Error: Input file '$INPUT' does not exist."
+	exit 1
 fi
 
 # Determine output filename
 if [[ $# -ge 2 ]]; then
-    OUTPUT="$2"
+	OUTPUT="$2"
 else
-    DIR=$(dirname "$INPUT")
-    BASENAME=$(basename "$INPUT")
-    NAME="${BASENAME%.*}"
-    EXT="${BASENAME##*.}"
-    OUTPUT="${DIR}/${NAME}_gitlab.${EXT}"
+	DIR=$(dirname "$INPUT")
+	BASENAME=$(basename "$INPUT")
+	NAME="${BASENAME%.*}"
+	EXT="${BASENAME##*.}"
+	OUTPUT="${DIR}/${NAME}_gitlab.${EXT}"
 fi
 
 # Get input file info
@@ -59,44 +59,44 @@ INITIAL_SIZE_KB=$((INITIAL_SIZE / 1024))
 echo "Size after resize: ${INITIAL_SIZE_KB} KiB"
 
 if [[ $INITIAL_SIZE_KB -le $MAX_SIZE_KB ]]; then
-    cp "$TEMP_FILE" "$OUTPUT"
-    echo "Image already under ${MAX_SIZE_KB} KiB. Done!"
-    exit 0
+	cp "$TEMP_FILE" "$OUTPUT"
+	echo "Image already under ${MAX_SIZE_KB} KiB. Done!"
+	exit 0
 fi
 
 # For PNG files, try different compression levels
-if [[ "$EXT_LOWER" == "png" ]]; then
-    echo "Optimizing PNG..."
+if [[ $EXT_LOWER == "png" ]]; then
+	echo "Optimizing PNG..."
 
-    # Try with maximum compression
-    magick "$INPUT" -resize "${TARGET_SIZE}x${TARGET_SIZE}^" -gravity center -extent "${TARGET_SIZE}x${TARGET_SIZE}" \
-        -strip -define png:compression-level=9 -define png:compression-filter=5 "$TEMP_FILE"
+	# Try with maximum compression
+	magick "$INPUT" -resize "${TARGET_SIZE}x${TARGET_SIZE}^" -gravity center -extent "${TARGET_SIZE}x${TARGET_SIZE}" \
+		-strip -define png:compression-level=9 -define png:compression-filter=5 "$TEMP_FILE"
 
-    SIZE=$(stat -f%z "$TEMP_FILE" 2>/dev/null || stat -c%s "$TEMP_FILE")
-    SIZE_KB=$((SIZE / 1024))
-    echo "Size with max compression: ${SIZE_KB} KiB"
+	SIZE=$(stat -f%z "$TEMP_FILE" 2>/dev/null || stat -c%s "$TEMP_FILE")
+	SIZE_KB=$((SIZE / 1024))
+	echo "Size with max compression: ${SIZE_KB} KiB"
 
-    if [[ $SIZE_KB -le $MAX_SIZE_KB ]]; then
-        cp "$TEMP_FILE" "$OUTPUT"
-        echo "Done! Final size: ${SIZE_KB} KiB"
-        exit 0
-    fi
+	if [[ $SIZE_KB -le $MAX_SIZE_KB ]]; then
+		cp "$TEMP_FILE" "$OUTPUT"
+		echo "Done! Final size: ${SIZE_KB} KiB"
+		exit 0
+	fi
 
-    # If still too large, reduce colors
-    for COLORS in 256 128 64 32; do
-        magick "$INPUT" -resize "${TARGET_SIZE}x${TARGET_SIZE}^" -gravity center -extent "${TARGET_SIZE}x${TARGET_SIZE}" \
-            -strip -colors "$COLORS" -define png:compression-level=9 "$TEMP_FILE"
+	# If still too large, reduce colors
+	for COLORS in 256 128 64 32; do
+		magick "$INPUT" -resize "${TARGET_SIZE}x${TARGET_SIZE}^" -gravity center -extent "${TARGET_SIZE}x${TARGET_SIZE}" \
+			-strip -colors "$COLORS" -define png:compression-level=9 "$TEMP_FILE"
 
-        SIZE=$(stat -f%z "$TEMP_FILE" 2>/dev/null || stat -c%s "$TEMP_FILE")
-        SIZE_KB=$((SIZE / 1024))
-        echo "Size with $COLORS colors: ${SIZE_KB} KiB"
+		SIZE=$(stat -f%z "$TEMP_FILE" 2>/dev/null || stat -c%s "$TEMP_FILE")
+		SIZE_KB=$((SIZE / 1024))
+		echo "Size with $COLORS colors: ${SIZE_KB} KiB"
 
-        if [[ $SIZE_KB -le $MAX_SIZE_KB ]]; then
-            cp "$TEMP_FILE" "$OUTPUT"
-            echo "Done! Final size: ${SIZE_KB} KiB (reduced to $COLORS colors)"
-            exit 0
-        fi
-    done
+		if [[ $SIZE_KB -le $MAX_SIZE_KB ]]; then
+			cp "$TEMP_FILE" "$OUTPUT"
+			echo "Done! Final size: ${SIZE_KB} KiB (reduced to $COLORS colors)"
+			exit 0
+		fi
+	done
 fi
 
 # For JPEG or as fallback, use quality reduction
@@ -110,39 +110,39 @@ HIGH=100
 BEST_QUALITY=0
 
 while [[ $LOW -le $HIGH ]]; do
-    MID=$(( (LOW + HIGH) / 2 ))
+	MID=$(((LOW + HIGH) / 2))
 
-    magick "$INPUT" -resize "${TARGET_SIZE}x${TARGET_SIZE}^" -gravity center -extent "${TARGET_SIZE}x${TARGET_SIZE}" \
-        -strip -quality "$MID" "$TEMP_JPG"
+	magick "$INPUT" -resize "${TARGET_SIZE}x${TARGET_SIZE}^" -gravity center -extent "${TARGET_SIZE}x${TARGET_SIZE}" \
+		-strip -quality "$MID" "$TEMP_JPG"
 
-    SIZE=$(stat -f%z "$TEMP_JPG" 2>/dev/null || stat -c%s "$TEMP_JPG")
-    SIZE_KB=$((SIZE / 1024))
+	SIZE=$(stat -f%z "$TEMP_JPG" 2>/dev/null || stat -c%s "$TEMP_JPG")
+	SIZE_KB=$((SIZE / 1024))
 
-    if [[ $SIZE_KB -le $MAX_SIZE_KB ]]; then
-        BEST_QUALITY=$MID
-        LOW=$((MID + 1))
-    else
-        HIGH=$((MID - 1))
-    fi
+	if [[ $SIZE_KB -le $MAX_SIZE_KB ]]; then
+		BEST_QUALITY=$MID
+		LOW=$((MID + 1))
+	else
+		HIGH=$((MID - 1))
+	fi
 done
 
 if [[ $BEST_QUALITY -gt 0 ]]; then
-    # Re-create with best quality found
-    magick "$INPUT" -resize "${TARGET_SIZE}x${TARGET_SIZE}^" -gravity center -extent "${TARGET_SIZE}x${TARGET_SIZE}" \
-        -strip -quality "$BEST_QUALITY" "$TEMP_JPG"
+	# Re-create with best quality found
+	magick "$INPUT" -resize "${TARGET_SIZE}x${TARGET_SIZE}^" -gravity center -extent "${TARGET_SIZE}x${TARGET_SIZE}" \
+		-strip -quality "$BEST_QUALITY" "$TEMP_JPG"
 
-    # If output should be PNG but we had to use JPEG compression
-    if [[ "$EXT_LOWER" == "png" ]]; then
-        echo "Warning: PNG too large even with color reduction. Saving as optimized PNG from JPEG compression."
-        magick "$TEMP_JPG" "$OUTPUT"
-    else
-        cp "$TEMP_JPG" "$OUTPUT"
-    fi
+	# If output should be PNG but we had to use JPEG compression
+	if [[ $EXT_LOWER == "png" ]]; then
+		echo "Warning: PNG too large even with color reduction. Saving as optimized PNG from JPEG compression."
+		magick "$TEMP_JPG" "$OUTPUT"
+	else
+		cp "$TEMP_JPG" "$OUTPUT"
+	fi
 
-    FINAL_SIZE=$(stat -f%z "$OUTPUT" 2>/dev/null || stat -c%s "$OUTPUT")
-    FINAL_SIZE_KB=$((FINAL_SIZE / 1024))
-    echo "Done! Final size: ${FINAL_SIZE_KB} KiB (quality: $BEST_QUALITY)"
+	FINAL_SIZE=$(stat -f%z "$OUTPUT" 2>/dev/null || stat -c%s "$OUTPUT")
+	FINAL_SIZE_KB=$((FINAL_SIZE / 1024))
+	echo "Done! Final size: ${FINAL_SIZE_KB} KiB (quality: $BEST_QUALITY)"
 else
-    echo "Error: Could not reduce image to under ${MAX_SIZE_KB} KiB"
-    exit 1
+	echo "Error: Could not reduce image to under ${MAX_SIZE_KB} KiB"
+	exit 1
 fi

@@ -34,7 +34,7 @@
     iconResolved = resolveIcon modpack.icon;
   in {
     name = validName;
-    inherit (modpack) source group javaArgs mutableOverrides;
+    inherit (modpack) source group javaArgs;
     icon = iconResolved.key;
     iconPath = iconResolved.path;
     iconIsCustom = iconResolved.isCustom;
@@ -136,15 +136,6 @@
         example = "-Xmx4G -Xms2G";
         description = "JVM arguments for this instance";
       };
-
-      mutableOverrides = mkOption {
-        type = types.bool;
-        default = true;
-        description = ''
-          If true (default), overrides are only copied if they don't exist.
-          If false, overrides are merged/copied on every rebuild.
-        '';
-      };
     };
   };
 
@@ -191,8 +182,7 @@
     resolved = resolveModpack name modpack;
   in
     scripts.mkInstanceSetup {
-      inherit name prismDir packwizDir;
-      inherit (resolved) mutableOverrides;
+      inherit name prismDir;
       mmcPackJson = mkMmcPackJson resolved;
       instanceCfg = mkInstanceCfg name resolved;
     })

@@ -17,6 +17,7 @@
     };
     linuxConfig = {
       users.users.${config.hostSpec.username} = {
+        uid = 1000;
         hashedPasswordFile = sopsHashedPasswordFile;
       };
     };

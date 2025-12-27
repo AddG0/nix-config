@@ -60,10 +60,8 @@
   mkInstanceSetup = {
     name,
     prismDir,
-    packwizDir,
     mmcPackJson,
     instanceCfg,
-    mutableOverrides,
   }: ''
     # Instance: ${name}
     run mkdir -p "${prismDir}/instances/${name}/.minecraft"
@@ -77,20 +75,5 @@
     run cat > "${prismDir}/instances/${name}/instance.cfg" << 'INSTCFG'
     ${instanceCfg}
     INSTCFG
-
-    ${
-      if !mutableOverrides
-      then ''
-        # Sync overrides (mutableOverrides = false)
-        # Note: Use yosbr mod for config merging (configs go in config/yosbr/)
-        if [ -d "${packwizDir}/${name}/overrides" ]; then
-          ${pkgs.rsync}/bin/rsync -a \
-            --chmod=Du=rwx,Dgo=rx,Fu=rw,Fgo=r \
-            "${packwizDir}/${name}/overrides/" \
-            "${prismDir}/instances/${name}/.minecraft/"
-        fi
-      ''
-      else ""
-    }
   '';
 }

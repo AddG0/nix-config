@@ -43,7 +43,6 @@ packwiz modrinth add sodium lithium starlight
         icon = ./icons/my-pack.png;  # Or "diamond" for built-in
         group = "Modded";
         javaArgs = "-Xmx4G -Xms2G";
-        mutableOverrides = false;
       };
     };
   };
@@ -72,7 +71,6 @@ Launch Prism Launcher - your instance appears ready to play.
 | `modpacks.<name>.icon` | string/path | "default" | Built-in icon key or path to image |
 | `modpacks.<name>.group` | string | null | Instance group in Prism |
 | `modpacks.<name>.javaArgs` | string | null | JVM arguments |
-| `modpacks.<name>.mutableOverrides` | bool | true | If false, force-sync overrides on rebuild |
 
 ## Packwiz Commands
 
@@ -132,7 +130,7 @@ narrator:0
 autoJump:false
 ```
 
-With `mutableOverrides = false`, these are merged into Minecraft's options.txt on each rebuild. User settings not in your file are preserved.
+Packwiz syncs these to the instance on launch. Use the [yosbr](https://modrinth.com/mod/yosbr) mod for config merging (configs go in `config/yosbr/`).
 
 ## File Structure
 
