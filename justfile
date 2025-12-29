@@ -403,3 +403,18 @@ k3s-status HOST USER=DEFAULT_USER:
 k3s-logs HOST USER=DEFAULT_USER:
   @{{ if HOST == "" { error("HOST parameter is required") } else { "" } }}
   just _run-on {{HOST}} {{USER}} 'sudo journalctl -u k3s -u k3s-agent -f'
+
+[group('setup')]
+[doc("Configure rclone remote (interactive OAuth flow)")]
+setup-rclone:
+  @echo "Setting up rclone remote..."
+  @echo "When prompted:"
+  @echo "  1. Press 'n' for new remote"
+  @echo "  2. Name it (e.g., AddG, Work, Dropbox)"
+  @echo "  3. Choose remote type (drive, dropbox, onedrive, etc.)"
+  @echo "  4. Follow the prompts and complete OAuth in browser"
+  @echo ""
+  nix run nixpkgs#rclone -- config --config ~/.config/rclone/mounts.conf
+  @echo ""
+  @echo "Done! Add the remote to rclone.nix and run 'just rebuild'"
+  @echo "Your drive will mount at ~/cloud/<remote-name>"

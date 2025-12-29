@@ -82,11 +82,11 @@
 
   security.firewall.enable = true;
 
-  services.deskflow-client = {
-    enable = true;
-    clientName = "demon";
-    serverAddress = "192.168.110.160:24800";
-  };
+  # services.deskflow-client = {
+  #   enable = true;
+  #   clientName = "demon";
+  #   serverAddress = "192.168.110.160:24800";
+  # };
 
   services.obsbot-camera = {
     enable = true;
@@ -110,11 +110,6 @@
     hostPlatform = "x86_64-linux";
   };
 
-  environment.systemPackages = with pkgs; [
-    cifs-utils
-    v4l-utils # For OBSBOT camera
-  ];
-
   sops.secrets = {
     "nas-credentials" = {
       sopsFile = "${nix-secrets}/users/${config.hostSpec.username}/nas-credentials.enc";
@@ -130,6 +125,8 @@
       "x-systemd.automount"
       "noauto"
       "x-systemd.idle-timeout=60"
+      "x-systemd.device-timeout=5s"
+      "x-systemd.mount-timeout=5s"
       "uid=${toString config.users.users.${config.hostSpec.username}.uid}"
       "forceuid"
       "gid=${toString config.users.users.${config.hostSpec.username}.group}"

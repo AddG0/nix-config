@@ -24,22 +24,26 @@
         extraConfig = ''
           // Position
           cl_dejavu_toggle_with_scoreboard "1"
-          cl_dejavu_xpos "1.0"
-          cl_dejavu_ypos "0.02"
-          cl_dejavu_width "0.065"
+          cl_dejavu_xpos "0.0"
+          cl_dejavu_ypos "1.0"
+          cl_dejavu_width "0.1"
           cl_dejavu_scale "1.5"
 
           // Styling - clean dark theme
           cl_dejavu_alpha "0.85"
           cl_dejavu_background "1"
-          cl_dejavu_background_color "(20, 20, 25, 200)"
+          cl_dejavu_background_color "(0, 0, 0, 200)"
           cl_dejavu_borders "1"
-          cl_dejavu_border_color "(80, 80, 90, 180)"
+          cl_dejavu_border_color "(0, 0, 0, 180)"
           cl_dejavu_text_color "(240, 240, 245, 255)"
 
           // Display options
           cl_dejavu_show_metcount "1"
           cl_dejavu_show_record "1"
+          cl_dejavu_show_player_notes "1"
+
+          // Keybinds
+          cl_dejavu_keybind_quick_note "F3"
         '';
       }
     ];

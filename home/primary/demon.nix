@@ -10,6 +10,7 @@
     ./common/core
     (map (f: ./common/optional/${f}) [
       "development/aws.nix"
+      "rclone.nix"
     ])
 
     (map lib.custom.relativeToHome (

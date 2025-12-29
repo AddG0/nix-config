@@ -1,3 +1,8 @@
+# GPU Screen Recorder replay buffer service
+#
+# NOTE: This module runs gpu-screen-recorder as a user service.
+# You also need `programs.gpu-screen-recorder.enable = true` in your
+# NixOS config to set up the required capabilities for promptless recording.
 {
   config,
   lib,
