@@ -24,6 +24,10 @@
     kscreenlocker.kwallet.enable = lib.mkIf config.services.desktopManager.plasma6.enable true;
   };
 
+  environment.plasma6.excludePackages = with pkgs.kdePackages; [
+    kate
+  ];
+
   environment.systemPackages = with pkgs; [
     # Fix for "Could not register app ID: App info not found for 'org.kde.kioclient'"
     # See: https://bugs.kde.org/show_bug.cgi?id=512650

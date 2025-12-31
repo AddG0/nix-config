@@ -47,7 +47,7 @@
         "nixos/gaming.nix" # steam, gamescope, gamemode, and related hardware
         # "nixos/services/home-assistant"
         "nixos/virtualisation/docker.nix" # docker
-        # "nixos/services/nginx.nix" # nginx
+        "nixos/services/nginx.nix" # nginx
 
         # "nixos/obs.nix" # obs
         "nixos/hardware/openrazer.nix" # openrazer
@@ -55,6 +55,7 @@
         "nixos/services/bluetooth.nix"
         "nixos/services/ollama.nix"
         "nixos/services/clamav.nix"
+        "nixos/services/opentelemetry-collector.nix"
 
         # "nixos/plymouth.nix" # fancy boot screen
         "nixos/desktops/plasma6" # window manager
@@ -108,37 +109,6 @@
   hostSpec = {
     hostName = "demon";
     hostPlatform = "x86_64-linux";
-  };
-
-  sops.secrets = {
-    "nas-credentials" = {
-      sopsFile = "${nix-secrets}/users/${config.hostSpec.username}/nas-credentials.enc";
-      format = "binary";
-      neededForUsers = true;
-    };
-  };
-
-  fileSystems."/mnt/videos" = {
-    device = "//10.10.15.252/videos";
-    fsType = "cifs";
-    options = [
-      "x-systemd.automount"
-      "noauto"
-      "x-systemd.idle-timeout=60"
-      "x-systemd.device-timeout=5s"
-      "x-systemd.mount-timeout=5s"
-      "uid=${toString config.users.users.${config.hostSpec.username}.uid}"
-      "forceuid"
-      "gid=${toString config.users.users.${config.hostSpec.username}.group}"
-      "forcegid"
-      "file_mode=0600"
-      "dir_mode=0700"
-      "credentials=${config.sops.secrets.nas-credentials.path}"
-      "_netdev"
-      "soft"
-      "vers=3.1.1"
-      "echo_interval=10"
-    ];
   };
 
   system.stateVersion = config.hostSpec.system.stateVersion;

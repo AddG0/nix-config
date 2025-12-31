@@ -229,6 +229,8 @@
   vscode-marketplace = inputs.nix-vscode-extensions.overlays.default;
 
   bakkesmod = inputs.bakkesmod-nix.overlays.default;
+
+  ai-toolkit = inputs.ai-toolkit.overlays.default;
 in {
   default = final: prev:
     (additions final prev)
@@ -239,5 +241,6 @@ in {
     // (unstable-packages final prev)
     // (nur final prev)
     // (vscode-marketplace final prev)
-    // (bakkesmod final prev);
+    // (bakkesmod final prev)
+    // (ai-toolkit final prev);
 }

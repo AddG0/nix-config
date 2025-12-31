@@ -191,6 +191,11 @@
       inputs.nixpkgs.follows = "nixpkgs";
     };
 
+    asus-numberpad-driver = {
+      url = "github:asus-linux-drivers/asus-numberpad-driver";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
+
     #################### Personal Repositories ####################
 
     # Private secrets repo.  See ./docs/secretsmgmt.md
@@ -217,11 +222,6 @@
       # Don't follow nixpkgs - ai-toolkit needs its own nixpkgs with working bun version
       # (nix-config's nixpkgs has bun 1.3.4 which produces empty binaries on darwin)
       inputs.flake-parts.follows = "flake-parts";
-    };
-
-    asus-numberpad-driver = {
-      url = "github:asus-linux-drivers/asus-numberpad-driver";
-      inputs.nixpkgs.follows = "nixpkgs";
     };
 
     # BakkesMod for Rocket League

@@ -11,11 +11,11 @@
         "nixpkgs": "nixpkgs_2"
       },
       "locked": {
-        "lastModified": 1766179242,
-        "narHash": "sha256-E2iOjabxX8HLjvQklBLpYvwhLvZ5FqZ55EmHnO6IUMs=",
+        "lastModified": 1767145561,
+        "narHash": "sha256-ip99HR3WYIgJrEsT8E1kymniOrhzOwrLZezZb77dfg4=",
         "ref": "main",
-        "rev": "9e69aaad609397871eb609cd56ba8432b725f920",
-        "revCount": 100,
+        "rev": "98c9090872e2dc46f300dec8c95697176e628f08",
+        "revCount": 101,
         "type": "git",
         "url": "ssh://git@github.com/addg0/ai-toolkit.git"
       },
@@ -32,11 +32,11 @@
         ]
       },
       "locked": {
-        "lastModified": 1765917206,
-        "narHash": "sha256-k2LHeilskOT1uplC4lKw2fQS9skG8vkuvN344/tWPSA=",
+        "lastModified": 1766910188,
+        "narHash": "sha256-BlRaY5baJe4FZixx0SvbRYpf4sh0oo9iTRwHOQbcJBY=",
         "owner": "asus-linux-drivers",
         "repo": "asus-numberpad-driver",
-        "rev": "15c6663df12f269703e0f222488754f06ea6889f",
+        "rev": "b93489ab170bae36b4150521f65ffb50654233bb",
         "type": "github"
       },
       "original": {
@@ -1172,11 +1172,11 @@
         "pre-commit-hooks": "pre-commit-hooks_2"
       },
       "locked": {
-        "lastModified": 1766440593,
-        "narHash": "sha256-pzRSRr6DyKP5SFs3d/Yuy4/yxQ99VMCdi216aO6MFn0=",
+        "lastModified": 1767063033,
+        "narHash": "sha256-HyHCDycYVOFa4TlizJoOcXdho8CHwZRO0LTu65lzIm4=",
         "ref": "main",
-        "rev": "38156cccbe6c1599b09e72170055830c33d3ebe7",
-        "revCount": 238,
+        "rev": "9b8d86ea065b1ea6249773a940e2c794b3fe653a",
+        "revCount": 242,
         "type": "git",
         "url": "ssh://git@github.com/addg0/nix-secrets.git"
       },
