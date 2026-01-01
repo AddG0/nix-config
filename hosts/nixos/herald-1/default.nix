@@ -141,7 +141,5 @@
     };
   };
 
-  system.stateVersion = config.hostSpec.system.stateVersion;
-
   time.timeZone = "America/Chicago";
 }

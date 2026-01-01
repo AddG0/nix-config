@@ -33,6 +33,4 @@ in {
     };
     linkConfig.RequiredForOnline = "routable";
   };
-
-  system.stateVersion = config.hostSpec.system.stateVersion;
 }

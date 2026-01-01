@@ -65,6 +65,4 @@
       systemd.enable = lib.mkDefault true;
     };
   };
-
-  system.stateVersion = config.hostSpec.system.stateVersion;
 }

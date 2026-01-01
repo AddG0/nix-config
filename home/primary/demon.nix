@@ -96,7 +96,7 @@
     polarity = "dark";
   };
 
-  # services.safeeyes.enable = true;
+  services.safeeyes.enable = true;
 
   services.gpu-screen-recorder = {
     enable = true;

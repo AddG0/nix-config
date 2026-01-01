@@ -65,7 +65,5 @@
     hostPlatform = "x86_64-linux";
   };
 
-  system.stateVersion = config.hostSpec.system.stateVersion;
-
   time.timeZone = "Europe/London";
 }

@@ -57,7 +57,7 @@
         "nixos/services/clamav.nix"
         "nixos/services/opentelemetry-collector.nix"
 
-        # "nixos/plymouth.nix" # fancy boot screen
+        "nixos/plymouth.nix" # fancy boot screen
         "nixos/desktops/plasma6" # window manager
       ])
     ))
@@ -78,7 +78,6 @@
   boot.loader = {
     systemd-boot.enable = true;
     efi.canTouchEfiVariables = true;
-    timeout = 3;
   };
 
   security.firewall.enable = true;
@@ -110,8 +109,6 @@
     hostName = "demon";
     hostPlatform = "x86_64-linux";
   };
-
-  system.stateVersion = config.hostSpec.system.stateVersion;
 
   time.timeZone = "America/Chicago";
 

@@ -64,6 +64,4 @@
   boot.initrd = {
     systemd.enable = true;
   };
-
-  system.stateVersion = config.hostSpec.system.stateVersion;
 }

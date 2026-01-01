@@ -93,6 +93,4 @@ in {
     dhcpcd.enable = false; # disable dhcpcd, it's useless for the host
     enableIPv6 = true;
   };
-
-  system.stateVersion = config.hostSpec.system.stateVersion;
 }

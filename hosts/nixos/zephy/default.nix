@@ -124,6 +124,4 @@
   # };
 
   services.upower.enable = true;
-
-  system.stateVersion = config.hostSpec.system.stateVersion;
 }
