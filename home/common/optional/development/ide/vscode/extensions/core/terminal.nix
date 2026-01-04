@@ -2,7 +2,7 @@ _: {
   extensions = [];
   userSettings = {
     # Terminal settings
-    "terminal.integrated.defaultProfile.linux" = "nushell";
+    "terminal.integrated.defaultProfile.linux" = "zsh";
     "terminal.integrated.profiles.linux" = {
       "nushell" = {
         "path" = "nu";

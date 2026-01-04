@@ -5,7 +5,15 @@
   inputs,
   pkgs,
   ...
-}: {
+}: let
+  otlp-ingest = pkgs.writeShellApplication {
+    name = "otlp-ingest";
+    runtimeInputs = with pkgs; [curl jq coreutils findutils];
+    text = builtins.readFile ./otlp-ingest.sh;
+  };
+in {
+  environment.systemPackages = [otlp-ingest];
+
   # Create the user/group early so sops can set ownership
   users.users.opentelemetry-collector = {
     isSystemUser = true;

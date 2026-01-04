@@ -55,9 +55,10 @@
         "nixos/services/bluetooth.nix"
         "nixos/services/ollama.nix"
         "nixos/services/clamav.nix"
-        "nixos/services/opentelemetry-collector.nix"
+        "nixos/services/opentelemetry-collector"
 
         "nixos/plymouth.nix" # fancy boot screen
+        "nixos/services/greetd.nix"
         "nixos/desktops/plasma6" # window manager
       ])
     ))

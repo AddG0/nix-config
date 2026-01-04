@@ -43,7 +43,6 @@
         # "nixos/nvtop.nix" # GPU monitor (not available in home-manager)
         "nixos/audio.nix" # pipewire and cli controls
         "nixos/gaming.nix" # steam, gamescope, gamemode, and related hardware
-        # "nixos/services/vscode-server.nix"
         # "nixos/services/home-assistant.nix"
         "nixos/virtualisation/docker.nix"
         # "nixos/plymouth.nix" # fancy boot screen

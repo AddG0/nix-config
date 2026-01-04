@@ -1,6 +1,7 @@
 {
   pkgs,
   hostSpec,
+  ...
 }: {
   extensions = [
     pkgs.vscode-marketplace.continue.continue

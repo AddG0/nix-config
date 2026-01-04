@@ -360,6 +360,11 @@
       kwinrc.Windows = {
         FocusStealingPreventionLevel = 0; # 0=None, 1=Low, 2=Medium, 3=High, 4=Extreme
       };
+      # Unbind KZones snap shortcuts
+      kglobalshortcutsrc.kzones = {
+        "KZones: Snap active window" = "none,Meta+Shift+Space,KZones: Snap active window";
+        "KZones: Snap all windows" = "none,Meta+Space,KZones: Snap all windows";
+      };
     };
   };
 }

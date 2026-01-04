@@ -41,24 +41,24 @@
       };
     })
     hostSpec.networking.hostsAddr;
-
   # VS Code Remote SSH workaround for hosts using nushell as login shell.
   # Generates <host>-vscode aliases for all hosts in hostsAddr.
   # Use these aliases in VS Code with remote.SSH.enableRemoteCommand setting.
-  vsCodeHostsConfig =
-    lib.attrsets.mapAttrs' (host: value: {
-      name = "${host}-vscode";
-      value = lib.hm.dag.entryAfter ["ssh-hosts"] {
-        host = "${host}-vscode";
-        hostname = value.ipv4;
-        port = hostSpec.networking.ports.tcp.ssh;
-        extraOptions = {
-          RemoteCommand = "bash -l";
-          RequestTTY = "no";
-        };
-      };
-    })
-    hostSpec.networking.hostsAddr;
+  # Below is only needed if we're defaulting to a non posix shell.
+  # vsCodeHostsConfig =
+  #   lib.attrsets.mapAttrs' (host: value: {
+  #     name = "${host}-vscode";
+  #     value = lib.hm.dag.entryAfter ["ssh-hosts"] {
+  #       host = "${host}-vscode";
+  #       hostname = value.ipv4;
+  #       port = hostSpec.networking.ports.tcp.ssh;
+  #       extraOptions = {
+  #         RemoteCommand = "bash -l";
+  #         RequestTTY = "no";
+  #       };
+  #     };
+  #   })
+  #   hostSpec.networking.hostsAddr;
 in {
   options.programs.ssh.enableTraditionalAgent = lib.mkOption {
     type = lib.types.bool;
@@ -121,8 +121,7 @@ in {
             identityFile = lib.lists.forEach identityFiles (file: "${config.home.homeDirectory}/.ssh/${file}");
           };
         }
-        // hostsAddrConfig
-        // vsCodeHostsConfig;
+        // hostsAddrConfig;
     };
 
     programs.zsh.oh-my-zsh.plugins =

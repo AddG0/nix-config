@@ -11,11 +11,11 @@
         "nixpkgs": "nixpkgs_2"
       },
       "locked": {
-        "lastModified": 1767145561,
-        "narHash": "sha256-ip99HR3WYIgJrEsT8E1kymniOrhzOwrLZezZb77dfg4=",
+        "lastModified": 1767376465,
+        "narHash": "sha256-rIu+lJs5Baty+wc5a0mTM7T9U2vovFkwYCezgzKO7fU=",
         "ref": "main",
-        "rev": "98c9090872e2dc46f300dec8c95697176e628f08",
-        "revCount": 101,
+        "rev": "7162a2a15fd11bd390f109ce35b0e311ad5176f1",
+        "revCount": 102,
         "type": "git",
         "url": "ssh://git@github.com/addg0/ai-toolkit.git"
       },

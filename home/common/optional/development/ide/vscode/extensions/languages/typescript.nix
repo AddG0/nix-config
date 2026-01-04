@@ -65,8 +65,6 @@
     };
 
     # Jest
-    "jest.autoRun" = "off";
-    "jest.showCoverageOnLoad" = false;
     "jest.runMode" = "on-demand";
   };
 }

@@ -33,6 +33,7 @@
         "development"
         "development/ide"
         "development/ide/vscode"
+        "development/ide/vscode/server.nix"
         "development/jupyter-notebook.nix"
         "development/ai"
         "development/postman.nix"
@@ -59,7 +60,6 @@
         # NixOS Specific
         "nixos/desktops/plasma6"
         "nixos/vlc.nix"
-        "nixos/services/vscode-server.nix"
 
         # Remote Desktop
         # "remote-desktop/rustdesk.nix"
