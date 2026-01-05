@@ -13,4 +13,6 @@
   ];
 
   networking.hostName = config.hostSpec.hostName;
+
+  system.stateVersion = config.hostSpec.system.stateVersion;
 }
