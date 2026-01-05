@@ -5,7 +5,7 @@
   userSettings = {
     # Current line blame
     "gitlens.currentLine.enabled" = true;
-    "gitlens.currentLine.format" = "{author}, {agoOrDate} • {message}";
+    "gitlens.currentLine.format" = "\${author}, \${agoOrDate} • \${message}";
 
     # Code lens
     "gitlens.codeLens.enabled" = true;
@@ -17,7 +17,7 @@
     "gitlens.hovers.enabled" = true;
 
     # Blame annotations
-    "gitlens.blame.format" = "{author|10} {agoOrDate|14-}";
+    "gitlens.blame.format" = "\${author|10} \${agoOrDate|14-}";
     "gitlens.blame.heatmap.enabled" = true;
 
     # Status bar

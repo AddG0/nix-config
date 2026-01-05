@@ -1,11 +1,14 @@
 {
   inputs,
   lib,
+  pkgs,
   ...
 }: {
   imports = lib.flatten [
     ./addons/browser-mcp
-    ./addons/mcp-grafana
+    ./addons/grafana
+    ./addons/code-review
+    # ./addons/superpowers
     (map (f: "${inputs.ai-toolkit}/home/claude-code/addons/${f}") [
       "context7"
       "graphiti"
@@ -15,8 +18,12 @@
 
   programs.claude-code = {
     enable = true;
-    agents = {
-      senior-code-reviewer = builtins.readFile ../agents/senior-code-reviewer.md;
+    # agents = {
+    #   senior-code-reviewer = builtins.readFile ../agents/senior-code-reviewer.md;
+    # };
+    skills = {
+      "changelog-generator" = ./skills/changelog-generator.md;
+      "software-architecture" = builtins.readFile "${pkgs.context-engineering-kit}/share/claude-code/plugins/ddd/skills/software-architecture/SKILL.md";
     };
     settings = {
       # https://mynixos.com/home-manager/option/programs.claude-code.settings

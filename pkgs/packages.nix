@@ -9,6 +9,8 @@ pkgs: {
   openhands = pkgs.callPackage ./openhands {};
   claude-flow = pkgs.callPackage ./claude-flow {};
   wifiman-desktop = pkgs.callPackage ./wifiman-desktop {};
+  superpowers-skills = pkgs.callPackage ./superpowers-skills {};
+  context-engineering-kit = pkgs.callPackage ./context-engineering-kit {};
 
   # System utilities
   bt-proximity-monitor = pkgs.callPackage ./bt-proximity-monitor {};
