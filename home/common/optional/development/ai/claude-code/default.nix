@@ -3,10 +3,14 @@
   lib,
   pkgs,
   ...
-}: {
+}: let
+  packageSkills = {
+    "software-architecture" = "${pkgs.context-engineering-kit}/share/claude-code/plugins/ddd/skills/software-architecture";
+  };
+in {
   imports = lib.flatten [
-    ./addons/browser-mcp
-    ./addons/grafana
+    # ./addons/browser-mcp
+    # ./addons/grafana
     ./addons/code-review
     # ./addons/superpowers
     (map (f: "${inputs.ai-toolkit}/home/claude-code/addons/${f}") [
@@ -22,8 +26,7 @@
     #   senior-code-reviewer = builtins.readFile ../agents/senior-code-reviewer.md;
     # };
     skills = {
-      "changelog-generator" = ./skills/changelog-generator.md;
-      "software-architecture" = builtins.readFile "${pkgs.context-engineering-kit}/share/claude-code/plugins/ddd/skills/software-architecture/SKILL.md";
+      "changelog-generator" = ./skills/changelog-generator;
     };
     settings = {
       # https://mynixos.com/home-manager/option/programs.claude-code.settings
@@ -56,4 +59,14 @@
       theme = "dark";
     };
   };
+
+  home.file =
+    lib.mapAttrs' (
+      name: source:
+        lib.nameValuePair ".claude/skills/${name}" {
+          inherit source;
+          recursive = true;
+        }
+    )
+    packageSkills;
 }
