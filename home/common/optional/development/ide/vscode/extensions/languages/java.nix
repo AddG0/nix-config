@@ -31,6 +31,7 @@
     ];
     "spring-boot.ls.java.home" = "${pkgs.jdk}";
     "java.import.gradle.java.home" = "${pkgs.jdk}";
+    "java.import.gradle.home" = "${pkgs.gradle}";
     "maven.executable.path" = "${pkgs.maven}/bin/mvn";
 
     # JDT Language Server memory/performance settings

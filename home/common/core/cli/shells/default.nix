@@ -1,3 +1,6 @@
-{lib, ...}: {
-  imports = lib.custom.scanPaths ./.;
+{...}: {
+  imports = [
+    ./zsh.nix
+    ./bash.nix
+  ];
 }

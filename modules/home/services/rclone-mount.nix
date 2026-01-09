@@ -134,7 +134,7 @@ in {
                     (lib.getExe cfg.package)
                     "mount"
                     "--config=${cfg.configPath}"
-                    (lib.cli.toGNUCommandLineShell {} mount.options)
+                    (lib.cli.toCommandLineShellGNU {} mount.options)
                     "${remote-name}:${mount-path}"
                     "${mount.mountPoint}"
                   ];

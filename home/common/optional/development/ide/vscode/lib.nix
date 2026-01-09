@@ -99,7 +99,7 @@
     rust
     typescript
     java
-    # javaOracle
+    kotlin
     dotenv
     rainbowCsv
     tailwind

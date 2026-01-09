@@ -6,9 +6,7 @@
 ###############################################################
 {
   inputs,
-  nix-secrets,
   lib,
-  config,
   pkgs,
   ...
 }: {
@@ -55,7 +53,8 @@
         "nixos/services/bluetooth.nix"
         "nixos/services/ollama.nix"
         "nixos/services/clamav.nix"
-        "nixos/services/opentelemetry-collector"
+        "nixos/services/earlyoom.nix"
+        "nixos/development/druid"
 
         "nixos/plymouth.nix" # fancy boot screen
         "nixos/services/greetd.nix"
@@ -109,6 +108,7 @@
   hostSpec = {
     hostName = "demon";
     hostPlatform = "x86_64-linux";
+    telemetry.enabled = true;
   };
 
   time.timeZone = "America/Chicago";

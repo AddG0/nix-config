@@ -21,7 +21,7 @@
 
     persistent-apps = [
       "/Applications/Arc.app"
-      "${pkgs.jetbrains.idea-ultimate}/Applications/IntelliJ IDEA.app"
+      "${pkgs.jetbrains.idea}/Applications/IntelliJ IDEA.app"
       "${pkgs.code-cursor}/Applications/Cursor.app"
       "${pkgs.postman}/Applications/Postman.app"
       "/Applications/Ghostty.app"

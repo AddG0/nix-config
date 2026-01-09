@@ -66,6 +66,26 @@
     else {};
 
   modifications = _final: prev: {
+    # https://github.com/microsoft/vscode-gradle/issues/1589
+    # Patch VSCode Java extension to use Nix-provided JDK instead of bundled dynamically-linked JRE
+    vscode-marketplace-release =
+      prev.vscode-marketplace-release
+      // {
+        redhat =
+          prev.vscode-marketplace-release.redhat
+          // {
+            java = prev.vscode-marketplace-release.redhat.java.overrideAttrs (old: {
+              postInstall =
+                (old.postInstall or "")
+                + ''
+                  rm -rf $out/share/vscode/extensions/redhat.java/jre
+                  mkdir -p $out/share/vscode/extensions/redhat.java/jre
+                  ln -s ${prev.jdk21}/lib/openjdk $out/share/vscode/extensions/redhat.java/jre/21.0.9-linux-x86_64
+                '';
+            });
+          };
+      };
+
     # example = prev.example.overrideAttrs (oldAttrs: let ... in {
     # ...
     # });
@@ -75,23 +95,6 @@
     #        (prev.lib.cmakeBool "USE_WAYLAND_CLIPBOARD" true)
     #      ];
     #    };
-
-    # Fix SDDM Wayland session bug where command is passed as single quoted string
-    # Without this sddm will not work properly in wayland sessions.
-    kdePackages = prev.kdePackages.overrideScope (_kfinal: kprev: {
-      sddm = kprev.sddm.override {
-        unwrapped = kprev.sddm.unwrapped.overrideAttrs (oldAttrs: {
-          postInstall =
-            (oldAttrs.postInstall or "")
-            + ''
-              # Fix wayland-session script to handle SDDM passing command as single string
-              substituteInPlace $out/share/sddm/scripts/wayland-session \
-                --replace-warn 'exec $@' \
-                  $'# Handle SDDM bug where command is passed as single quoted string\nif [ $# -eq 1 ]; then\n  # Use sh -c to properly parse single argument (SDDM Wayland bug workaround)\n  exec sh -c "$1"\nelse\n  exec "$@"\nfi'
-            '';
-        });
-      };
-    });
 
     ghostty = inputs.ghostty.packages.${prev.stdenv.hostPlatform.system}.default;
 
@@ -232,15 +235,17 @@
 
   ai-toolkit = inputs.ai-toolkit.overlays.default;
 in {
-  default = final: prev:
-    (additions final prev)
-    // (modifications final prev)
-    // (linuxModifications final prev)
-    // (darwinModifications final prev)
-    // (stable-packages final prev)
-    // (unstable-packages final prev)
-    // (nur final prev)
-    // (vscode-marketplace final prev)
-    // (bakkesmod final prev)
-    // (ai-toolkit final prev);
+  # Use composeManyExtensions so each overlay sees the result of previous overlays in `prev`
+  default = inputs.nixpkgs.lib.composeManyExtensions [
+    vscode-marketplace
+    stable-packages
+    unstable-packages
+    nur
+    bakkesmod
+    ai-toolkit
+    additions
+    modifications
+    linuxModifications
+    darwinModifications
+  ];
 }

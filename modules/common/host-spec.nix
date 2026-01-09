@@ -173,6 +173,23 @@
       type = lib.types.str;
       description = "The state version of the host";
     };
+
+    # ============================================================================
+    # Telemetry Configuration
+    # ============================================================================
+    telemetry = {
+      enabled = lib.mkOption {
+        type = lib.types.bool;
+        default = false;
+        description = "Global toggle to enable telemetry across the system";
+      };
+
+      claude-code.enabled = lib.mkOption {
+        type = lib.types.bool;
+        default = true;
+        description = "Enable OTLP telemetry for Claude Code";
+      };
+    };
   };
 
   config = {

@@ -11,6 +11,11 @@ pkgs: {
   wifiman-desktop = pkgs.callPackage ./wifiman-desktop {};
   superpowers-skills = pkgs.callPackage ./superpowers-skills {};
   context-engineering-kit = pkgs.callPackage ./context-engineering-kit {};
+  claude-code-plugins = pkgs.callPackage ./claude-code-plugins {};
+  claude-code-skills-collection = pkgs.callPackage ./claude-code-skills-collection {};
+
+  # OpenTelemetry
+  opentelemetry-javaagent = pkgs.callPackage ./opentelemetry-javaagent {};
 
   # System utilities
   bt-proximity-monitor = pkgs.callPackage ./bt-proximity-monitor {};
