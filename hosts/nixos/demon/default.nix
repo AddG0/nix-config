@@ -47,7 +47,7 @@
         "nixos/virtualisation/docker.nix" # docker
         "nixos/services/nginx.nix" # nginx
 
-        # "nixos/obs.nix" # obs
+        "nixos/obs.nix" # obs
         "nixos/hardware/openrazer.nix" # openrazer
         "nixos/1password.nix"
         "nixos/services/bluetooth.nix"

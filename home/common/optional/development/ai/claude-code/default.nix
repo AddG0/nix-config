@@ -40,14 +40,15 @@
   # Generate --plugin-dir flags for each plugin
   pluginDirFlags = lib.concatMapStrings (dir: " --plugin-dir ${dir}") pluginDirs;
 
-  # Wrap claude-code with plugin directories
-  claudeWithPlugins = pkgs.symlinkJoin {
+  # Wrap claude-code with plugin directories and sandbox dependencies
+  claude = pkgs.symlinkJoin {
     name = "claude-code-with-plugins";
     paths = [pkgs.claude-code];
     buildInputs = [pkgs.makeWrapper];
     postBuild = ''
       wrapProgram $out/bin/claude \
-        --append-flags "${pluginDirFlags}"
+        --append-flags "${pluginDirFlags}" \
+        --prefix PATH : ${lib.makeBinPath [pkgs.socat pkgs.bubblewrap]}
     '';
   };
 in {
@@ -59,14 +60,15 @@ in {
     # ./addons/superpowers
     (map (f: "${inputs.ai-toolkit}/home/claude-code/addons/${f}") [
       "context7"
-      "graphiti"
+      # "graphiti"
+      # "context-tracking"
       "jira"
     ])
   ];
 
   programs.claude-code = {
     enable = true;
-    package = claudeWithPlugins;
+    package = claude;
     agents = {
       # Knowledge graph RAG specialist
       "graphrag-specialist" = builtins.readFile "${pkgs.claude-code-skills-collection}/share/claude-code/plugins/claude-code-skills-collection/agents/graphrag_specialist.md";
@@ -77,7 +79,11 @@ in {
     };
     commands = {
       "fix-tests" = ./commands/fix-tests.md;
+      "explore-codebase" = ./commands/explore-codebase.md;
     };
+    memory.text = ''
+      Proactively invoke available skills when they match the task at hand. Check skill descriptions and use them without being asked.
+    '';
     settings = {
       env =
         {

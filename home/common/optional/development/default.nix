@@ -1,4 +1,6 @@
 {pkgs, ...}: {
+  imports = [./process-compose.nix];
+
   home.packages = with pkgs; [
     ttyplot
     ngrok

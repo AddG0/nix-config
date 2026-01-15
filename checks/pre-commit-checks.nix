@@ -1,6 +1,10 @@
 # checks/pre-commit-checks.nix - Pre-commit hooks validation
 {inputs, ...}: {
-  perSystem = {system, ...}: {
+  perSystem = {
+    pkgs,
+    system,
+    ...
+  }: {
     checks = {
       pre-commit-check = inputs.pre-commit-hooks.lib.${system}.run {
         src = ./.;
@@ -46,6 +50,23 @@
           };
 
           end-of-file-fixer.enable = true;
+
+          # Prevent committing local path URLs in flake.nix
+          no-local-flake-inputs = {
+            enable = true;
+            name = "no-local-flake-inputs";
+            description = "Prevents committing uncommented local path URLs in flake.nix";
+            entry = "${pkgs.writeShellScript "no-local-flake-inputs" ''
+              if grep -E "^[^#]*url\s*=\s*\"path:" flake.nix 2>/dev/null; then
+                echo "ERROR: Found uncommented local path URL(s) in flake.nix"
+                echo "Please comment out local paths before committing"
+                exit 1
+              fi
+            ''}";
+            language = "system";
+            files = "^flake\\.nix$";
+            pass_filenames = false;
+          };
         };
       };
     };

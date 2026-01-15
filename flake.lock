@@ -11,11 +11,11 @@
         "nixpkgs": "nixpkgs_2"
       },
       "locked": {
-        "lastModified": 1767921465,
-        "narHash": "sha256-2g7OhX5DUc3mEmurLDnTlPrRUoQ2ob3rCiK6qbC5r9w=",
+        "lastModified": 1767926354,
+        "narHash": "sha256-NpDIDEdOSrqlQe5729dQapK1fYp6StQQa5e6lGsGYUc=",
         "ref": "main",
-        "rev": "ed2be3b26e9028dda077b013e0132f82b2bda6d6",
-        "revCount": 106,
+        "rev": "08dadaa57cee84772ecf9645f61625ad11ded4be",
+        "revCount": 109,
         "type": "git",
         "url": "ssh://git@github.com/addg0/ai-toolkit.git"
       },
@@ -1188,11 +1188,11 @@
         "pre-commit-hooks": "pre-commit-hooks_2"
       },
       "locked": {
-        "lastModified": 1767724814,
-        "narHash": "sha256-7GZ9qR5OWeYnvHvQ/F9Wz+xPJX1HwtpETs5xIgBkbJE=",
+        "lastModified": 1768250296,
+        "narHash": "sha256-I4VfbtL9Jagkp5XDMth+c9jlW5LzAthOwycqaQ21BnE=",
         "ref": "main",
-        "rev": "905cac76689871610c938649ec2f1521c9f6c6b7",
-        "revCount": 243,
+        "rev": "9564ec8cebe515b00650f3d3eac39056ab6d5d71",
+        "revCount": 245,
         "type": "git",
         "url": "ssh://git@github.com/addg0/nix-secrets.git"
       },

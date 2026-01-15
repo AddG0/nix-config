@@ -106,6 +106,7 @@
     stylelint
     jupyter
     logHighlighter
+    neo4j
 
     # Infrastructure
     kubernetes

@@ -42,6 +42,7 @@
         # "development/virtualization"
         "development/virtualization/lens.nix"
         "development/virtualization/kubernetes"
+        "development/ai/litellm-proxy.nix"
 
         # Gaming
         "gaming/minecraft"
@@ -68,6 +69,7 @@
         # Secrets
         "secrets"
         "secrets/kubeconfig.nix"
+        "secrets/ai.nix"
         # "secrets/1password-ssh.nix"
       ])
     ))
@@ -100,7 +102,7 @@
 
   services.gpu-screen-recorder = {
     enable = true;
-    display = "DP-5";
+    matchMonitorName = "LG ULTRAGEAR";
   };
 
   #

@@ -19,9 +19,9 @@
 
   nixpkgs.config.chromium.enableWidevine = true;
 
-  home.packages = with pkgs; [
+  home.packages = [
     # https://www.reddit.com/r/kde/comments/1gjcfpp/window_title_bar_not_fully_maximizing_and_or/
     # chrome://flags enable ozone platform wayland to fix window title bar glitch
-    google-chrome
+    pkgs.google-chrome
   ];
 }

@@ -9,4 +9,12 @@
     # Open in sidebar (not as editor tab)
     "claudeCode.preferredLocation" = "sidebar";
   };
+  keybindings = [
+    {
+      key = "shift+enter";
+      command = "workbench.action.terminal.sendSequence";
+      args.text = "\\u001b\\n";
+      when = "terminalFocus";
+    }
+  ];
 }

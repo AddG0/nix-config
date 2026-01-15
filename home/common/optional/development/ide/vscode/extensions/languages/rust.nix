@@ -2,6 +2,7 @@
   extensions = [
     pkgs.vscode-marketplace.rust-lang.rust-analyzer
     pkgs.vscode-marketplace.tamasfe.even-better-toml
+    pkgs.vscode-extensions.vadimcn.vscode-lldb
   ];
   userSettings = {
     "rust-analyzer.check.command" = "clippy";
