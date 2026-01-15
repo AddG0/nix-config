@@ -39,6 +39,26 @@
     if prev.stdenv.isLinux
     then {
       claude-desktop = inputs.claude-desktop.packages.${prev.stdenv.hostPlatform.system}.claude-desktop-with-fhs;
+
+      # https://github.com/microsoft/vscode-gradle/issues/1589
+      # Patch VSCode Java extension to use Nix-provided JDK instead of bundled dynamically-linked JRE
+      vscode-marketplace-release =
+        prev.vscode-marketplace-release
+        // {
+          redhat =
+            prev.vscode-marketplace-release.redhat
+            // {
+              java = prev.vscode-marketplace-release.redhat.java.overrideAttrs (old: {
+                postInstall =
+                  (old.postInstall or "")
+                  + ''
+                    rm -rf $out/share/vscode/extensions/redhat.java/jre
+                    mkdir -p $out/share/vscode/extensions/redhat.java/jre
+                    ln -s ${prev.jdk21}/lib/openjdk $out/share/vscode/extensions/redhat.java/jre/21.0.9-linux-x86_64
+                  '';
+              });
+            };
+        };
     }
     else {};
 
@@ -50,26 +70,6 @@
     else {};
 
   modifications = _final: prev: {
-    # https://github.com/microsoft/vscode-gradle/issues/1589
-    # Patch VSCode Java extension to use Nix-provided JDK instead of bundled dynamically-linked JRE
-    vscode-marketplace-release =
-      prev.vscode-marketplace-release
-      // {
-        redhat =
-          prev.vscode-marketplace-release.redhat
-          // {
-            java = prev.vscode-marketplace-release.redhat.java.overrideAttrs (old: {
-              postInstall =
-                (old.postInstall or "")
-                + ''
-                  rm -rf $out/share/vscode/extensions/redhat.java/jre
-                  mkdir -p $out/share/vscode/extensions/redhat.java/jre
-                  ln -s ${prev.jdk21}/lib/openjdk $out/share/vscode/extensions/redhat.java/jre/21.0.9-linux-x86_64
-                '';
-            });
-          };
-      };
-
     # example = prev.example.overrideAttrs (oldAttrs: let ... in {
     # ...
     # });

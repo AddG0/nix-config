@@ -48,7 +48,7 @@
     postBuild = ''
       wrapProgram $out/bin/claude \
         --append-flags "${pluginDirFlags}" \
-        --prefix PATH : ${lib.makeBinPath [pkgs.socat pkgs.bubblewrap]}
+        --prefix PATH : ${lib.makeBinPath ([pkgs.socat] ++ lib.optionals pkgs.stdenv.hostPlatform.isLinux [pkgs.bubblewrap])}
     '';
   };
 in {
