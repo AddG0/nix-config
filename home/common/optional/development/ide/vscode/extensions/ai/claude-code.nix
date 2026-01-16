@@ -13,7 +13,7 @@
     {
       key = "shift+enter";
       command = "workbench.action.terminal.sendSequence";
-      args.text = "\\u001b\\n";
+      args.text = builtins.fromJSON ''"\u001b\r"'';
       when = "terminalFocus";
     }
   ];
