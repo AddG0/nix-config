@@ -243,7 +243,10 @@
   stable-packages = final: _prev: {
     stable = import inputs.nixpkgs-stable {
       inherit (final.stdenv.hostPlatform) system;
-      inherit (final) config;
+      # Remove replaceStdenv because main nixpkgs sets it to null by default,
+      # but stable's stdenv/default.nix uses `config ? replaceStdenv` (not `!= null`)
+      # which incorrectly triggers custom stdenv and tries to call null as a function.
+      config = removeAttrs final.config ["replaceStdenv"];
     };
   };
 
