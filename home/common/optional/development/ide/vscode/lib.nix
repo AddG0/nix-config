@@ -107,6 +107,7 @@
     jupyter
     logHighlighter
     neo4j
+    tilt
 
     # Infrastructure
     kubernetes

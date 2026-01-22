@@ -71,6 +71,11 @@ _: {
       "flake.lock" = "json";
     };
 
+    "files.exclude" = {
+      # We don't want to see dump.rdb from redis-server cmd
+      "**/dump.rdb" = true;
+    };
+
     # Search (language-specific exclusions in their respective files)
     "search.exclude" = {
       "**/result" = true;

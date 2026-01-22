@@ -117,12 +117,4 @@ in {
     '';
   };
   home.shellAliases = shellAliases;
-  programs.zsh.initContent = ''
-    function default_tmux_session() {
-        if command -v tmux &> /dev/null && [ -z "$TMUX" ]; then
-            tmux attach-session -t default 2>/dev/null || tmux new-session -s default -c "$PWD"
-        fi
-    }
-    alias td="default_tmux_session"
-  '';
 }

@@ -30,6 +30,8 @@
       }
     ];
     "spring-boot.ls.java.home" = "${pkgs.jdk}";
+    # Explicit log path required on NixOS to avoid read-only filesystem errors
+    "spring-boot.ls.logfile" = "/tmp/spring-boot-ls.log";
     "java.import.gradle.java.home" = "${pkgs.jdk}";
     "java.import.gradle.home" = "${pkgs.gradle}";
     "maven.executable.path" = "${pkgs.maven}/bin/mvn";

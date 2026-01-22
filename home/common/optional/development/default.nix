@@ -13,6 +13,11 @@
     devenv
   ];
 
+  programs.git.ignores = [
+    # Running the redis-server in a directory will make this file appear
+    "dump.rdb"
+  ];
+
   programs.lnav = {
     enable = true;
     settings = {
