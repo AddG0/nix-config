@@ -42,7 +42,6 @@
           "foreground": "#193549",
           "powerline_symbol": "",
           "properties": {
-            "fetch_stash_count": true,
             "fetch_status": true,
             "fetch_upstream_icon": true
           },
@@ -238,5 +237,5 @@
     "foreground": "#ffffff",
     "template": "<#eb6f92,#286983> </><#286983,transparent></> "
   },
-  "version": 2
+  "version": 4
 }

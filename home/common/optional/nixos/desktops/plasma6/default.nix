@@ -121,7 +121,7 @@
                 "applications:legcord.desktop"
                 "applications:spotify.desktop"
                 "applications:steam.desktop"
-                "applications:cursor.desktop"
+                "applications:code.desktop"
               ];
               appearance = {
                 showTooltips = true;
@@ -309,6 +309,9 @@
 
     # Input device configuration
     input = {
+      # Remap Caps Lock to Escape
+      keyboard.options = ["caps:escape"];
+
       mice = [
         {
           # The Razer mice is my shared one

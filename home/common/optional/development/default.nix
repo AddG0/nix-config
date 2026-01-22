@@ -1,5 +1,8 @@
 {pkgs, ...}: {
-  imports = [./process-compose.nix];
+  imports = [
+    ./process-compose.nix
+    ./gsync.nix
+  ];
 
   home.packages = with pkgs; [
     ttyplot

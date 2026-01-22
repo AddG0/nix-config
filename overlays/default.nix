@@ -35,30 +35,10 @@
     # Map over all our custom packages and merge them intelligently
     builtins.mapAttrs mergePackage customPkgs;
 
-  linuxModifications = final: prev:
+  linuxModifications = _final: prev:
     if prev.stdenv.isLinux
     then {
       claude-desktop = inputs.claude-desktop.packages.${prev.stdenv.hostPlatform.system}.claude-desktop-with-fhs;
-
-      # https://github.com/microsoft/vscode-gradle/issues/1589
-      # Patch VSCode Java extension to use Nix-provided JDK instead of bundled dynamically-linked JRE
-      vscode-marketplace-release =
-        prev.vscode-marketplace-release
-        // {
-          redhat =
-            prev.vscode-marketplace-release.redhat
-            // {
-              java = prev.vscode-marketplace-release.redhat.java.overrideAttrs (old: {
-                postInstall =
-                  (old.postInstall or "")
-                  + ''
-                    rm -rf $out/share/vscode/extensions/redhat.java/jre
-                    mkdir -p $out/share/vscode/extensions/redhat.java/jre
-                    ln -s ${prev.jdk21}/lib/openjdk $out/share/vscode/extensions/redhat.java/jre/21.0.9-linux-x86_64
-                  '';
-              });
-            };
-        };
     }
     else {};
 
@@ -79,6 +59,92 @@
     #        (prev.lib.cmakeBool "USE_WAYLAND_CLIPBOARD" true)
     #      ];
     #    };
+
+    # VSCode extension patches
+    vscode-marketplace-release =
+      prev.vscode-marketplace-release
+      // {
+        # Fix debug extensions writing .noConfigDebugAdapterEndpoints to read-only extension dir
+        # Redirect to XDG_STATE_HOME instead. Uses regex to survive minified variable name changes.
+        vscjava =
+          prev.vscode-marketplace-release.vscjava
+          // {
+            vscode-java-debug = prev.vscode-marketplace-release.vscjava.vscode-java-debug.overrideAttrs (old: {
+              postInstall =
+                (old.postInstall or "")
+                + ''
+                  sed -i -E 's/([a-zA-Z0-9]+)\.join\([a-zA-Z0-9]+,"\.noConfigDebugAdapterEndpoints"\)/\1.join(process.env.XDG_STATE_HOME||(process.env.HOME+"\/.local\/state"),"vscode-java-debug")/g' \
+                    $out/share/vscode/extensions/vscjava.vscode-java-debug/dist/extension.js
+                '';
+            });
+          };
+      }
+      // {
+        github =
+          prev.vscode-marketplace-release.github
+          // {
+            # Fix Copilot Chat copying read-only files to globalStorage
+            # Node.js copyFile preserves permissions from nix store (read-only).
+            # Patch to chmod files writable after copying.
+            # Uses regex to match pattern regardless of minified variable names.
+            copilot-chat = prev.vscode-marketplace-release.github.copilot-chat.overrideAttrs (old: {
+              postInstall =
+                (old.postInstall or "")
+                + ''
+                  sed -i -E 's/await ([a-zA-Z0-9]+)\.promises\.copyFile\(xr\(__dirname,([a-zA-Z0-9]+)\),xr\(([a-zA-Z0-9]+),\2\)\)/await \1.promises.copyFile(xr(__dirname,\2),xr(\3,\2)),await \1.promises.chmod(xr(\3,\2),438)/g' \
+                    $out/share/vscode/extensions/github.copilot-chat/dist/extension.js
+                '';
+            });
+          };
+      }
+      // prev.lib.optionalAttrs prev.stdenv.isLinux {
+        # https://github.com/microsoft/vscode-gradle/issues/1589
+        # Patch VSCode Java extension to use Nix-provided JDK instead of bundled dynamically-linked JRE
+        redhat =
+          prev.vscode-marketplace-release.redhat
+          // {
+            java = prev.vscode-marketplace-release.redhat.java.overrideAttrs (old: {
+              postInstall =
+                (old.postInstall or "")
+                + ''
+                  rm -rf $out/share/vscode/extensions/redhat.java/jre
+                  mkdir -p $out/share/vscode/extensions/redhat.java/jre
+                  ln -s ${prev.jdk21}/lib/openjdk $out/share/vscode/extensions/redhat.java/jre/21.0.9-linux-x86_64
+                '';
+            });
+          };
+      };
+
+    vscode-marketplace =
+      prev.vscode-marketplace
+      // {
+        # Fix debug extensions writing .noConfigDebugAdapterEndpoints to read-only extension dir
+        # Redirect to XDG_STATE_HOME instead. Uses regex to survive minified variable name changes.
+        ms-python =
+          prev.vscode-marketplace.ms-python
+          // {
+            debugpy = prev.vscode-marketplace.ms-python.debugpy.overrideAttrs (old: {
+              postInstall =
+                (old.postInstall or "")
+                + ''
+                  sed -i -E 's/([a-zA-Z0-9]+)\.join\([a-zA-Z0-9]+,"\.noConfigDebugAdapterEndpoints"\)/\1.join(process.env.XDG_STATE_HOME||(process.env.HOME+"\/.local\/state"),"vscode-debugpy")/g' \
+                    $out/share/vscode/extensions/ms-python.debugpy/dist/extension.js
+                '';
+            });
+          };
+      };
+
+    # Fix gcloud interactive shell on NixOS (hardcoded /bin/bash)
+    google-cloud-sdk = prev.google-cloud-sdk.overrideAttrs (old: {
+      postInstall =
+        (old.postInstall or "")
+        + ''
+          substituteInPlace $out/google-cloud-sdk/lib/googlecloudsdk/command_lib/interactive/coshell.py \
+            --replace-fail "SHELL_PATH = '/bin/bash'" "SHELL_PATH = '${prev.bash}/bin/bash'"
+          substituteInPlace $out/google-cloud-sdk/lib/googlecloudsdk/core/execution_utils.py \
+            --replace-fail "shells = ['/bin/bash', '/bin/sh']" "shells = ['${prev.bash}/bin/bash', '/bin/sh']"
+        '';
+    });
 
     ghostty = inputs.ghostty.packages.${prev.stdenv.hostPlatform.system}.default;
 

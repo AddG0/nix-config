@@ -6,6 +6,13 @@
     # Auto-restart terminal when direnv environment changes
     "direnv.restart.automatic" = true;
 
+    # Treat .envrc variants as shell files
+    # See direnv.nix in core for how these are used
+    "files.associations" = {
+      ".envrc.local" = "shellscript";
+      ".envrc.private" = "shellscript";
+    };
+
     # Hide direnv/devenv cache directories from explorer
     "files.exclude" = {
       "**/.direnv" = true;

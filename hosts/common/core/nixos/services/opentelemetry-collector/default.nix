@@ -118,6 +118,22 @@ in {
         };
 
         service = {
+          telemetry = {
+            metrics = {
+              readers = [
+                {
+                  pull = {
+                    exporter = {
+                      prometheus = {
+                        host = "127.0.0.1";
+                        port = 19888;
+                      };
+                    };
+                  };
+                }
+              ];
+            };
+          };
           extensions = ["oauth2client"];
           pipelines = {
             traces = {

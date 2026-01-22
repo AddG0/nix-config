@@ -15,18 +15,7 @@
     (lib.custom.scanPaths ./.)
     #################### Hardware ####################
     inputs.hardware.nixosModules.common-cpu-amd
-    # inputs.hardware.nixosModules.common-pc-ssd
-
-    #################### Disk Layout ####################
-    # inputs.disko.nixosModules.disko
-    # (lib.custom.relativeToHosts "common/disks/dual-boot-disk.nix")
-    # {
-    #   _module.args = {
-    #     # Use the full model name disk ID for the Crucial 4TB NVMe drive
-    #     disk = "/dev/disk/by-id/nvme-CT4000P3PSSD8_2323E6E05060";
-    #     withSwap = false;
-    #   };
-    # }
+    inputs.hardware.nixosModules.common-pc-ssd
 
     #################### Misc Inputs ####################
 
@@ -54,9 +43,8 @@
         "nixos/services/ollama.nix"
         "nixos/services/clamav.nix"
         "nixos/services/earlyoom.nix"
-        "nixos/development/druid"
 
-        "nixos/plymouth.nix" # fancy boot screen
+        # "nixos/plymouth.nix" # fancy boot screen
         "nixos/services/greetd.nix"
         "nixos/desktops/plasma6" # window manager
       ])
@@ -75,8 +63,12 @@
     enableIPv6 = false;
   };
 
+  # Press 'w' at boot menu to jump to Windows
   boot.loader = {
-    systemd-boot.enable = true;
+    systemd-boot = {
+      enable = true;
+      configurationLimit = 20;
+    };
     efi.canTouchEfiVariables = true;
   };
 

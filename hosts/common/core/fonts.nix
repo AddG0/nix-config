@@ -15,12 +15,12 @@
         # nerdfonts (individual packages)
         julia-mono
         dejavu_fonts
+        nerd-fonts.jetbrains-mono # JetBrains Mono - used in VS Code terminal
       ]
       ++ (
         if pkgs.stdenv.isDarwin
         then [
           nerd-fonts.fira-code
-          nerd-fonts.jetbrains-mono # JetBrains Mono
           nerd-fonts.iosevka
         ]
         else []

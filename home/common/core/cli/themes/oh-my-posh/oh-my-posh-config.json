@@ -42,7 +42,6 @@
           "foreground": "#193549",
           "powerline_symbol": "",
           "properties": {
-            "fetch_stash_count": true,
             "fetch_status": true,
             "fetch_upstream_icon": true
           },
@@ -203,6 +202,15 @@
       "style": "accordion",
       "foreground": "#b4f9f8",
       "template": " {{ .Name }}"
+    },
+    {
+      "type": "gcp",
+      "tips": ["gcloud", "gsutil", "bq", "terraform", "tf"],
+      "invert_powerline": true,
+      "powerline_symbol": "",
+      "style": "accordion",
+      "foreground": "#4285F4",
+      "template": "  {{ .Project }}{{ if .Account }}@{{ .Account }}{{ end }}"
     }
   ],
   "console_title_template": "{{.Folder}}{{if .Root}} :: root{{end}} :: {{.Shell}}",
@@ -217,5 +225,5 @@
     "foreground": "#ffffff",
     "template": "<#eb6f92,#286983>\ue009 </><#286983,transparent>\ue0b4</> "
   },
-  "version": 2
+  "version": 4
 }

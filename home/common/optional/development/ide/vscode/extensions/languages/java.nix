@@ -3,8 +3,8 @@
   # They're released together as a pack and have interdependent bundles
   extensions = [
     pkgs.vscode-marketplace-release.redhat.java
-    # pkgs.vscode-marketplace-release.vscjava.vscode-java-debug  # writes to itself
-    # pkgs.vscode-marketplace-release.vscjava.vscode-java-test   # depends on debug
+    pkgs.vscode-marketplace-release.vscjava.vscode-java-debug
+    pkgs.vscode-marketplace-release.vscjava.vscode-java-test
     pkgs.vscode-marketplace-release.vscjava.vscode-maven
     pkgs.vscode-marketplace-release.vscjava.vscode-java-dependency
     pkgs.vscode-marketplace-release.vscjava.vscode-gradle

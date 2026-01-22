@@ -3,7 +3,6 @@
     inherit
       (pkgs)
       ffmpeg
-      vlc
       losslesscut
       ;
   };

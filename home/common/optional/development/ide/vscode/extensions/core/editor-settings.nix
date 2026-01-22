@@ -27,6 +27,9 @@ _: {
     # "editor.experimentalGpuAcceleration" = "on";
     "terminal.integrated.gpuAcceleration" = "on";
 
+    # Terminal font
+    "terminal.integrated.fontFamily" = "'JetBrainsMono Nerd Font Mono'";
+
     # Line numbers (relative like Neovim - current line shows absolute, others show distance)
     "editor.lineNumbers" = "relative";
 

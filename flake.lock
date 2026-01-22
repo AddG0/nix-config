@@ -11,11 +11,11 @@
         "nixpkgs": "nixpkgs_2"
       },
       "locked": {
-        "lastModified": 1767926354,
-        "narHash": "sha256-NpDIDEdOSrqlQe5729dQapK1fYp6StQQa5e6lGsGYUc=",
+        "lastModified": 1768953717,
+        "narHash": "sha256-FTSmeGysaTfn25k+fgrcqbYAGLw/NQEab2+cI4LWq74=",
         "ref": "main",
-        "rev": "08dadaa57cee84772ecf9645f61625ad11ded4be",
-        "revCount": 109,
+        "rev": "a84ba27c99b42c250b52350e481b9988e147fd63",
+        "revCount": 117,
         "type": "git",
         "url": "ssh://git@github.com/addg0/ai-toolkit.git"
       },
@@ -55,11 +55,11 @@
         ]
       },
       "locked": {
-        "lastModified": 1766808957,
-        "narHash": "sha256-vgFZ+coz4pU29S5+4owUqkVBmX9vnB6SGNFY7GiHdFo=",
+        "lastModified": 1768880512,
+        "narHash": "sha256-tuhNhIEt2Rfvw7RFVD3O5mJTSe7pFOEEgvOYfGD3RtQ=",
         "owner": "AddG0",
         "repo": "bakkesmod-nix",
-        "rev": "e718794d21ffcaddf668836d4cbd4aa60f9c7f3b",
+        "rev": "45a79398ead66db14fba9146870f4b584b28f2e2",
         "type": "github"
       },
       "original": {
@@ -1188,11 +1188,11 @@
         "pre-commit-hooks": "pre-commit-hooks_2"
       },
       "locked": {
-        "lastModified": 1768250296,
-        "narHash": "sha256-I4VfbtL9Jagkp5XDMth+c9jlW5LzAthOwycqaQ21BnE=",
+        "lastModified": 1768584632,
+        "narHash": "sha256-wmjiCSz9X6xOkclcfvTKohz3RZ+1y54JXZBcFSR7t+M=",
         "ref": "main",
-        "rev": "9564ec8cebe515b00650f3d3eac39056ab6d5d71",
-        "revCount": 245,
+        "rev": "0c0b43dff7af3fd00977caa142dc1ec7f268c1ef",
+        "revCount": 246,
         "type": "git",
         "url": "ssh://git@github.com/addg0/nix-secrets.git"
       },

@@ -61,7 +61,7 @@
 
         # NixOS Specific
         "nixos/desktops/plasma6"
-        "nixos/vlc.nix"
+        "media/vlc.nix"
 
         # Remote Desktop
         # "remote-desktop/rustdesk.nix"

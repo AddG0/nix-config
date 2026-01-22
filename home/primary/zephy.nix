@@ -47,7 +47,7 @@
         "media/spicetify.nix"
         "media/tidal.nix"
         "media"
-        "nixos/vlc.nix"
+        "media/vlc.nix"
         # "remote-desktop/rustdesk.nix"
       ])
     ))

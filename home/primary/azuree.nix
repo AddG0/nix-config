@@ -33,7 +33,7 @@
         # "development/virtualization"
         # "development/virtualization/lens.nix"
         "development/gcloud.nix"
-        "nixos/vlc.nix"
+        "media/vlc.nix"
         # "remote-desktop/mouseshare/lan-mouse.nix"
         # "development/ai"
         "development/postman.nix"
