@@ -17,9 +17,6 @@
       ".github/instructions" = true;
     };
 
-    # Enable Claude skills from .claude/skills directories
-    "chat.useClaudeSkills" = true;
-
     # Enable nested AGENTS.md files
     "chat.useNestedAgentsMdFiles" = true;
 
