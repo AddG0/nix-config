@@ -1,9 +1,12 @@
 # Shared package definitions - used by both overlay and flake-module
 # This keeps packages lazy - they're only evaluated when accessed
 # Namespaces with multiple packages have their own default.nix for modularity
-pkgs: {
+pkgs: let
+  awsvpnShared = import ./awsvpnclient/shared.nix pkgs;
+in {
   # Development tools
-  awsvpnclient = pkgs.callPackage ./awsvpnclient {};
+  awsvpnclient = pkgs.callPackage ./awsvpnclient/application.nix {shared = awsvpnShared;};
+  awsvpnclient-service = pkgs.callPackage ./awsvpnclient/service.nix {shared = awsvpnShared;};
   gke-gcloud-auth-plugin = pkgs.callPackage ./gke-gcloud-auth-plugin {};
   kubevpn = pkgs.callPackage ./kubevpn {};
   openhands = pkgs.callPackage ./openhands {};

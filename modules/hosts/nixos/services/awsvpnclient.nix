@@ -18,10 +18,19 @@ in {
     ];
 
     environment.systemPackages = [pkgs.awsvpnclient];
-    systemd.packages = [pkgs.awsvpnclient];
 
-    # Even though the service already defines this, nixos doesn't pick that up and leaves the service disabled
-    systemd.services.AwsVpnClientService.wantedBy = ["multi-user.target"];
+    systemd.services.awsvpnclient = {
+      description = "AWS VPN Client Service";
+      after = ["network.target"];
+      wantedBy = ["multi-user.target"];
+
+      serviceConfig = {
+        Type = "simple";
+        ExecStart = "${pkgs.awsvpnclient-service}/bin/awsvpnclient-service";
+        Restart = "always";
+        RestartSec = "1s";
+      };
+    };
 
     # Required for DNS resolution in AWS VPN Client
     services.resolved.enable = true;
