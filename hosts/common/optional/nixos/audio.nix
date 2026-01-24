@@ -83,9 +83,4 @@ _: {
       };
     };
   };
-
-  environment.systemPackages = [
-    # pkgs.playerctl # cli utility and lib for controlling media players
-    # pkgs.pamixer # cli pulseaudio sound mixer
-  ];
 }

@@ -51,6 +51,8 @@
     ))
   ];
 
+  services.greetd.autoLogin.enable = true;
+
   # AWS VPN Client with SAML support
   programs.awsvpnclient.enable = true;
 
