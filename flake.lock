@@ -45,6 +45,26 @@
         "type": "github"
       }
     },
+    "awsvpnclient-nix": {
+      "inputs": {
+        "flake-parts": [
+          "flake-parts"
+        ],
+        "nixpkgs": [
+          "nixpkgs"
+        ]
+      },
+      "locked": {
+        "lastModified": 1769371564,
+        "narHash": "sha256-J5T0WIimrIYY1jjB1dX3DMrRDJm0CZC8QJIkmgJervQ=",
+        "path": "/home/addg/home/code/github/awsvpnclient-nix",
+        "type": "path"
+      },
+      "original": {
+        "path": "/home/addg/home/code/github/awsvpnclient-nix",
+        "type": "path"
+      }
+    },
     "bakkesmod-nix": {
       "inputs": {
         "flake-parts": [
@@ -1698,6 +1718,7 @@
       "inputs": {
         "ai-toolkit": "ai-toolkit",
         "asus-numberpad-driver": "asus-numberpad-driver",
+        "awsvpnclient-nix": "awsvpnclient-nix",
         "bakkesmod-nix": "bakkesmod-nix",
         "base16": "base16",
         "base16-vim": "base16-vim",

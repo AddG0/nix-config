@@ -12,6 +12,7 @@
 }: {
   imports = lib.flatten [
     inputs.stylix.nixosModules.stylix
+    inputs.awsvpnclient-nix.nixosModules.default
     (lib.custom.scanPaths ./.)
     #################### Hardware ####################
     inputs.hardware.nixosModules.common-cpu-amd

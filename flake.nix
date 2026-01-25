@@ -231,6 +231,14 @@
       inputs.nixpkgs.follows = "nixpkgs";
       inputs.flake-parts.follows = "flake-parts";
     };
+
+    # AWS VPN Client
+    awsvpnclient-nix = {
+      # url = "github:AddG0/awsvpnclient-nix";
+      url = "path:/home/addg/home/code/github/awsvpnclient-nix";
+      inputs.nixpkgs.follows = "nixpkgs";
+      inputs.flake-parts.follows = "flake-parts";
+    };
   };
 
   outputs = inputs:

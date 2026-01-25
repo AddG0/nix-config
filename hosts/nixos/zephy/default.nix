@@ -11,6 +11,7 @@
   ...
 }: {
   imports = lib.flatten [
+    inputs.awsvpnclient-nix.nixosModules.default
     (lib.custom.scanPaths ./.)
 
     #################### Hardware ####################

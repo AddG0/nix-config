@@ -11,7 +11,6 @@ _: {
         # Add packages that shouldn't be checked here
         "install-iso"
         "vm-" # Skip VM images in checks as they're large
-        "awsvpnclient" # Requires insecure openssl-1.1.1w (EOL)
       ];
 
       packageChecks = lib.mapAttrs' (n: lib.nameValuePair "package-${n}") (
