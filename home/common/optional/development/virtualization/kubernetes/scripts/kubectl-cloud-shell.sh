@@ -234,7 +234,7 @@ attach_pod() {
 
 	# shellcheck disable=SC2016 # PATH must expand in pod, not locally
 	kubectl "${KUBECTL_ARGS[@]}" exec -it "$pod" -- \
-		sh -c 'N="'"$POD_HOME"'/.nix-profile/bin"; PATH="$N:$PATH" SHELL="$N/zsh" exec "$N/zsh" -l'
+		sh -c 'cd "'"$POD_HOME"'"; N="'"$POD_HOME"'/.nix-profile/bin"; PATH="$N:$PATH" SHELL="$N/zsh" exec "$N/zsh" -l'
 }
 
 # Feature: Copy local flake to pod
