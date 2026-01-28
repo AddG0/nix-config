@@ -77,17 +77,20 @@
 
   services.obsbot-camera = {
     enable = true;
-    # index0 = PTZ controls, index1 = video stream
-    # Watch both since apps may open either node
-    devicePaths = [
-      "/dev/v4l/by-id/usb-Remo_Tech_Co.__Ltd._OBSBOT_Tiny_2-video-index0"
-      "/dev/v4l/by-id/usb-Remo_Tech_Co.__Ltd._OBSBOT_Tiny_2-video-index1"
-    ];
-    settings = {
-      pan_absolute = 20000;
-      tilt_absolute = -50000;
-      zoom_absolute = 10;
-      focus_automatic_continuous = 1;
+    cameras.obsbot-tiny-2 = {
+      # Watch both devices - apps may open either
+      triggerPaths = [
+        "/dev/v4l/by-id/usb-Remo_Tech_Co.__Ltd._OBSBOT_Tiny_2-video-index0"
+        "/dev/v4l/by-id/usb-Remo_Tech_Co.__Ltd._OBSBOT_Tiny_2-video-index1"
+      ];
+      # PTZ controls are only on index0
+      controlPath = "/dev/v4l/by-id/usb-Remo_Tech_Co.__Ltd._OBSBOT_Tiny_2-video-index0";
+      settings = {
+        pan_absolute = 20000;
+        tilt_absolute = -50000;
+        zoom_absolute = 10;
+        focus_automatic_continuous = 1;
+      };
     };
   };
 
