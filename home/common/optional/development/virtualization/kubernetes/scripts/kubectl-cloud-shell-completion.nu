@@ -16,6 +16,12 @@ module completions {
   # Main completion for kubectl-cloud-shell
   export extern "kubectl-cloud-shell" [
     --bare                           # Use bare mode with minimal zsh setup instead of home-manager
+    --copy: path                     # Copy local directory to pod at startup
+    --ssh-agent                      # Forward local SSH agent to pod
+    --memory: string                 # Memory request/limit (e.g., 2Gi)
+    --cpu: string                    # CPU request/limit (e.g., 2)
+    --storage: string                # Ephemeral storage (e.g., 10Gi)
+    --help                           # Show help message
     --namespace(-n): string@"nu-complete kubectl-namespaces"  # Kubernetes namespace
     --context: string@"nu-complete kubectl-contexts"          # Kubernetes context to use
     --kubeconfig: path                                        # Path to kubeconfig file

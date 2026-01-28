@@ -6,6 +6,12 @@ _kubectl-cloud-shell() {
 
   _arguments -C \
     '--bare[Use bare mode with minimal zsh setup instead of home-manager]' \
+    '--copy[Copy local directory to pod at startup]:directory:_files -/' \
+    '--ssh-agent[Forward local SSH agent to pod]' \
+    '--memory[Memory request/limit (e.g., 2Gi)]:size:' \
+    '--cpu[CPU request/limit (e.g., 2)]:cores:' \
+    '--storage[Ephemeral storage (e.g., 10Gi)]:size:' \
+    '--help[Show help message]' \
     '*:: :->kubectl_args'
 
   if [[ $state == kubectl_args ]]; then
