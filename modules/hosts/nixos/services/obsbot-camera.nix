@@ -56,7 +56,9 @@
 
     ${pkgs.inotify-tools}/bin/inotifywait -m -e open ${lib.concatStringsSep " " cfg.devicePaths} 2>/dev/null |
     while read -r DEV _ _; do
-      base="$(${pkgs.coreutils}/bin/basename "$DEV")"
+      # Resolve symlinks to get the real device (e.g., /dev/video1)
+      realdev="$(${pkgs.coreutils}/bin/readlink -f "$DEV")"
+      base="$(${pkgs.coreutils}/bin/basename "$realdev")"
       now="$(${pkgs.coreutils}/bin/date +%s)"
       last="''${LAST[$base]:-0}"
       if [ $((now - last)) -ge $COOLDOWN ]; then
@@ -71,8 +73,9 @@ in {
 
     devicePaths = lib.mkOption {
       type = lib.types.listOf lib.types.str;
-      default = ["/dev/video0"]; # your PTZ node
-      description = "V4L device nodes to watch for OPEN events.";
+      default = [];
+      example = ["/dev/v4l/by-id/usb-Vendor_Product-video-index0"];
+      description = "V4L device paths to watch for OPEN events. Use /dev/v4l/by-id/ paths for stable names across reboots. Symlinks are resolved automatically.";
     };
 
     settings = lib.mkOption {

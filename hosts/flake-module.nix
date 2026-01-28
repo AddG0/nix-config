@@ -76,7 +76,7 @@
       # "cloudstack"
       # "do"
       # "docker"
-      # "gce"
+      "gce"
       # "hyperv"
       # "install-iso"
       # "install-iso-hyperv"

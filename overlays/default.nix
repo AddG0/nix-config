@@ -39,6 +39,7 @@
     if prev.stdenv.isLinux
     then {
       claude-desktop = inputs.claude-desktop.packages.${prev.stdenv.hostPlatform.system}.claude-desktop-with-fhs;
+      zen-browser = inputs.zen-browser.packages.${prev.stdenv.hostPlatform.system}.default;
     }
     else {};
 

@@ -117,7 +117,7 @@
               launchers = [
                 "applications:com.mitchellh.ghostty.desktop"
                 "applications:org.kde.dolphin.desktop"
-                "applications:google-chrome.desktop"
+                "applications:zen-beta.desktop"
                 "applications:legcord.desktop"
                 "applications:spotify.desktop"
                 "applications:steam.desktop"
@@ -363,10 +363,10 @@
       kwinrc.Windows = {
         FocusStealingPreventionLevel = 0; # 0=None, 1=Low, 2=Medium, 3=High, 4=Extreme
       };
-      # Unbind KZones snap shortcuts
-      kglobalshortcutsrc.kzones = {
-        "KZones: Snap active window" = "none,Meta+Shift+Space,KZones: Snap active window";
-        "KZones: Snap all windows" = "none,Meta+Space,KZones: Snap all windows";
+      # Disable KZones snap shortcuts (~/.config/kglobalshortcutsrc)
+      kglobalshortcutsrc.kwin = {
+        "KZones: Snap active window" = "none,none,KZones: Snap active window";
+        "KZones: Snap all windows" = "none,none,KZones: Snap all windows";
       };
     };
   };

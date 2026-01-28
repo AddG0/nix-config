@@ -11,6 +11,7 @@
     (map (f: ./common/optional/${f}) [
       "development/aws.nix"
       "nixos/services/rclone.nix"
+      "work.nix"
     ])
 
     (map lib.custom.relativeToHome (
@@ -39,6 +40,7 @@
         "development/ai"
         "development/postman.nix"
         "development/gcloud.nix"
+        "development/aws.nix"
         "development/terraform.nix"
         # "development/virtualization"
         "development/virtualization/lens.nix"

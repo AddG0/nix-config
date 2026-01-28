@@ -63,6 +63,7 @@ in {
           ssh = {
             extraConfig = "";
           };
+          hostsAddr = {}; # Empty - no SSH host entries generated
         }
       else inputs.nix-secrets.networking;
   };

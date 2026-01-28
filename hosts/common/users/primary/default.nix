@@ -4,7 +4,8 @@
   lib,
   ...
 }: let
-  sopsHashedPasswordFile = lib.optionalString (!config.hostSpec.isMinimal) config.sops.secrets."password".path;
+  # Only set hashedPasswordFile when sops is enabled and not minimal
+  useSopsPassword = !config.hostSpec.disableSops && !config.hostSpec.isMinimal;
 
   userConfig = lib.custom.genUser {
     user = config.hostSpec.username;
@@ -16,10 +17,13 @@
       ];
     };
     linuxConfig = {
-      users.users.${config.hostSpec.username} = {
-        uid = 1000;
-        hashedPasswordFile = sopsHashedPasswordFile;
-      };
+      users.users.${config.hostSpec.username} =
+        {
+          uid = 1000;
+        }
+        // lib.optionalAttrs useSopsPassword {
+          hashedPasswordFile = config.sops.secrets."password".path;
+        };
     };
     pubKeys = lib.lists.forEach (lib.filesystem.listFilesRecursive ./keys) (key: builtins.readFile key);
   };

@@ -69,23 +69,7 @@
   };
 
   security.firewall.enable = true;
-
-  services.deskflow-client = {
-    enable = true;
-    clientName = "azuree";
-    serverAddress = "192.168.110.160:24800";
-  };
-
-  services.obsbot-camera = {
-    enable = true;
-    devicePaths = ["/dev/video0"];
-    settings = {
-      pan_absolute = 20000;
-      tilt_absolute = -50000;
-      zoom_absolute = 10;
-      focus_automatic_continuous = 1;
-    };
-  };
+  
 
   boot.initrd = {
     systemd.enable = true;

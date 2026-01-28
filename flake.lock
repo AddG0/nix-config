@@ -55,8 +55,8 @@
         ]
       },
       "locked": {
-        "lastModified": 1769371564,
-        "narHash": "sha256-J5T0WIimrIYY1jjB1dX3DMrRDJm0CZC8QJIkmgJervQ=",
+        "lastModified": 1769554002,
+        "narHash": "sha256-rtlL9x6Ul0VvB5yq+xTCpkde3ckf/0/xLjjaVj2WWHA=",
         "path": "/home/addg/home/code/github/awsvpnclient-nix",
         "type": "path"
       },
@@ -1207,11 +1207,11 @@
         "pre-commit-hooks": "pre-commit-hooks_2"
       },
       "locked": {
-        "lastModified": 1768584632,
-        "narHash": "sha256-wmjiCSz9X6xOkclcfvTKohz3RZ+1y54JXZBcFSR7t+M=",
+        "lastModified": 1769528836,
+        "narHash": "sha256-iCY8MWv3SEuqsvtdBIgG7HNmUKXJyPHixrmnDgvYoHM=",
         "ref": "main",
-        "rev": "0c0b43dff7af3fd00977caa142dc1ec7f268c1ef",
-        "revCount": 246,
+        "rev": "d9de4ae63316e244847c7775cb61a4b591a3bf9c",
+        "revCount": 254,
         "type": "git",
         "url": "ssh://git@github.com/addg0/nix-secrets.git"
       },
@@ -1757,7 +1757,8 @@
         "stylix": "stylix",
         "treefmt-nix": "treefmt-nix_4",
         "tt-schemes": "tt-schemes",
-        "vscode-server": "vscode-server"
+        "vscode-server": "vscode-server",
+        "zen-browser": "zen-browser"
       }
     },
     "runtimeDeps": {
@@ -2194,6 +2195,29 @@
       "original": {
         "owner": "nix-community",
         "repo": "nixos-vscode-server",
+        "type": "github"
+      }
+    },
+    "zen-browser": {
+      "inputs": {
+        "home-manager": [
+          "home-manager"
+        ],
+        "nixpkgs": [
+          "nixpkgs"
+        ]
+      },
+      "locked": {
+        "lastModified": 1769431876,
+        "narHash": "sha256-FnOW+ulwocxfYGVKV2H/7MlSbn52+hfX9oaRR6FClZ4=",
+        "owner": "0xc000022070",
+        "repo": "zen-browser-flake",
+        "rev": "d5ef79d18dca7617aefe511db8267d47f7cf953f",
+        "type": "github"
+      },
+      "original": {
+        "owner": "0xc000022070",
+        "repo": "zen-browser-flake",
         "type": "github"
       }
     },

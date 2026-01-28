@@ -52,8 +52,6 @@
     ))
   ];
 
-  services.greetd.autoLogin.enable = true;
-
   # AWS VPN Client with SAML support
   programs.awsvpnclient.enable = true;
 
@@ -77,15 +75,14 @@
 
   security.firewall.enable = true;
 
-  # services.deskflow-client = {
-  #   enable = true;
-  #   clientName = "demon";
-  #   serverAddress = "192.168.110.160:24800";
-  # };
-
   services.obsbot-camera = {
     enable = true;
-    devicePaths = ["/dev/video0"];
+    # index0 = PTZ controls, index1 = video stream
+    # Watch both since apps may open either node
+    devicePaths = [
+      "/dev/v4l/by-id/usb-Remo_Tech_Co.__Ltd._OBSBOT_Tiny_2-video-index0"
+      "/dev/v4l/by-id/usb-Remo_Tech_Co.__Ltd._OBSBOT_Tiny_2-video-index1"
+    ];
     settings = {
       pan_absolute = 20000;
       tilt_absolute = -50000;

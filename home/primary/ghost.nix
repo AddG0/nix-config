@@ -7,6 +7,7 @@
     ./common/core
     (map (f: ./common/optional/${f}) [
       "development/aws.nix"
+      "work.nix"
     ])
 
     (map lib.custom.relativeToHome (
@@ -21,6 +22,7 @@
         "development"
         "development/ai"
         "development/gcloud.nix"
+        "development/aws.nix"
         "development/ide"
         "development/ide/vscode"
         # "development/java.nix"

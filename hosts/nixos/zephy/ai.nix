@@ -1,6 +1,6 @@
 {inputs, ...}: {
   imports = [
-    inputs.ai-toolkit.nixosModules.ai-toolkit
+    "${inputs.ai-toolkit}/host"
   ];
 
   ai-toolkit = {

@@ -4,7 +4,6 @@
 pkgs: {
   # Development tools
   gke-gcloud-auth-plugin = pkgs.callPackage ./gke-gcloud-auth-plugin {};
-  kubevpn = pkgs.callPackage ./kubevpn {};
   openhands = pkgs.callPackage ./openhands {};
   claude-flow = pkgs.callPackage ./claude-flow {};
   wifiman-desktop = pkgs.callPackage ./wifiman-desktop {};
