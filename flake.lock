@@ -11,11 +11,11 @@
         "nixpkgs": "nixpkgs_2"
       },
       "locked": {
-        "lastModified": 1769114887,
-        "narHash": "sha256-UNCnpfAZ8GElCdvxRooXeF5gVQFJUVt+3X3QUFC77qA=",
+        "lastModified": 1769626916,
+        "narHash": "sha256-jk9P9FTyuVu0lVmOhf9XY6MsIZewdJTc7fgFfv2ORBQ=",
         "ref": "main",
-        "rev": "f8ff70ab0037c93224d3885b60542d2167cbb359",
-        "revCount": 123,
+        "rev": "d9da3d0e0e93c80b9c6dc04095f837affc36863f",
+        "revCount": 124,
         "type": "git",
         "url": "ssh://git@github.com/addg0/ai-toolkit.git"
       },
@@ -55,14 +55,17 @@
         ]
       },
       "locked": {
-        "lastModified": 1769554002,
-        "narHash": "sha256-rtlL9x6Ul0VvB5yq+xTCpkde3ckf/0/xLjjaVj2WWHA=",
-        "path": "/home/addg/home/code/github/awsvpnclient-nix",
-        "type": "path"
+        "lastModified": 1769371564,
+        "narHash": "sha256-rzP14yGTgIT58/Z6NL3W7IsocsuKO2q/IxLGKS0PH60=",
+        "owner": "AddG0",
+        "repo": "awsvpnclient-nix",
+        "rev": "53703779267c07199d77548481d42acc354a6f50",
+        "type": "github"
       },
       "original": {
-        "path": "/home/addg/home/code/github/awsvpnclient-nix",
-        "type": "path"
+        "owner": "AddG0",
+        "repo": "awsvpnclient-nix",
+        "type": "github"
       }
     },
     "bakkesmod-nix": {

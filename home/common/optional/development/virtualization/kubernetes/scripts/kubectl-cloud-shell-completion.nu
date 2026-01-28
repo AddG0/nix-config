@@ -13,14 +13,23 @@ module completions {
     kubectl get namespaces -o jsonpath='{.items[*].metadata.name}' | split row ' '
   }
 
+  # Get running cloud-shell pods for completion
+  def "nu-complete cloud-shell-pods" [] {
+    kubectl get pods --selector=app=nix-cloud-shell -o jsonpath='{.items[*].metadata.name}' | split row ' ' | where { |it| $it != '' }
+  }
+
   # Main completion for kubectl-cloud-shell
   export extern "kubectl-cloud-shell" [
     --bare                           # Use bare mode with minimal zsh setup instead of home-manager
+    --local-flake                    # Copy $FLAKE to pod and use it instead of remote
     --copy: path                     # Copy local directory to pod at startup
     --ssh-agent                      # Forward local SSH agent to pod
     --memory: string                 # Memory request/limit (e.g., 2Gi)
     --cpu: string                    # CPU request/limit (e.g., 2)
     --storage: string                # Ephemeral storage (e.g., 10Gi)
+    --attach: string@"nu-complete cloud-shell-pods"  # Attach to existing pod
+    --list                           # List running cloud-shell pods
+    --clean                          # Delete all cloud-shell pods
     --help                           # Show help message
     --namespace(-n): string@"nu-complete kubectl-namespaces"  # Kubernetes namespace
     --context: string@"nu-complete kubectl-contexts"          # Kubernetes context to use

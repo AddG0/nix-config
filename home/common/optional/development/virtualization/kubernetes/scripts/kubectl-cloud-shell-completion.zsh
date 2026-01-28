@@ -1,16 +1,26 @@
 #compdef kubectl-cloud-shell
 
+_cloud_shell_pods() {
+  local pods
+  pods=($(kubectl get pods --selector=app=nix-cloud-shell -o jsonpath='{.items[*].metadata.name}' 2>/dev/null))
+  _describe 'cloud-shell pods' pods
+}
+
 _kubectl-cloud-shell() {
   local context state line
   typeset -A opt_args
 
   _arguments -C \
     '--bare[Use bare mode with minimal zsh setup instead of home-manager]' \
+    '--local-flake[Copy $FLAKE to pod and use it instead of remote]' \
     '--copy[Copy local directory to pod at startup]:directory:_files -/' \
     '--ssh-agent[Forward local SSH agent to pod]' \
     '--memory[Memory request/limit (e.g., 2Gi)]:size:' \
     '--cpu[CPU request/limit (e.g., 2)]:cores:' \
     '--storage[Ephemeral storage (e.g., 10Gi)]:size:' \
+    '--attach[Attach to existing pod]:pod:_cloud_shell_pods' \
+    '--list[List running cloud-shell pods]' \
+    '--clean[Delete all cloud-shell pods]' \
     '--help[Show help message]' \
     '*:: :->kubectl_args'
 

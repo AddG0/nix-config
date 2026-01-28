@@ -286,8 +286,6 @@
   vscode-marketplace = inputs.nix-vscode-extensions.overlays.default;
 
   bakkesmod = inputs.bakkesmod-nix.overlays.default;
-
-  ai-toolkit = inputs.ai-toolkit.overlays.default;
 in {
   # Use composeManyExtensions so each overlay sees the result of previous overlays in `prev`
   default = inputs.nixpkgs.lib.composeManyExtensions [
@@ -296,7 +294,6 @@ in {
     unstable-packages
     nur
     bakkesmod
-    ai-toolkit
     additions
     modifications
     linuxModifications

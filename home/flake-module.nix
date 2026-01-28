@@ -120,6 +120,7 @@
                   ssh = {
                     extraConfig = "";
                   };
+                  hostsAddr = {};
                 };
               };
               desktops = {};

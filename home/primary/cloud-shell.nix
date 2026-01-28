@@ -1,3 +1,4 @@
+# To test building: nix build .#homeConfigurations.cloud-shell.activationPackage --impure
 {lib, ...}: {
   imports = lib.flatten [
     ./common/core

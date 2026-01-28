@@ -1,6 +1,7 @@
 {
   config,
   nix-secrets,
+  pkgs,
   ...
 }: {
   sops.secrets = {
@@ -59,4 +60,8 @@
   };
 
   networking.hosts."127.0.0.1" = ["jellyfin.${config.hostSpec.domain}"];
+
+  environment.systemPackages = with pkgs; [
+    jellyfin-desktop
+  ];
 }
