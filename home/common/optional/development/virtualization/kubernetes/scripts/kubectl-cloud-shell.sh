@@ -232,9 +232,9 @@ attach_pod() {
 			sh -c "echo 'export SSH_AUTH_SOCK=\"$SSH_AGENT_SOCK\"' > $POD_HOME/.zshrc.imperitive"
 	fi
 
-	# shellcheck disable=SC2016 # $PATH must expand in pod, not locally
+	# shellcheck disable=SC2016 # PATH must expand in pod, not locally
 	kubectl "${KUBECTL_ARGS[@]}" exec -it "$pod" -- \
-		sh -c 'export PATH="'"$POD_HOME"'/.nix-profile/bin:$PATH" SHELL="'"$POD_HOME"'/.nix-profile/bin/zsh"; exec "'"$POD_HOME"'/.nix-profile/bin/zsh" -l'
+		sh -c 'N="'"$POD_HOME"'/.nix-profile/bin"; PATH="$N:$PATH" SHELL="$N/zsh" exec "$N/zsh" -l'
 }
 
 # Feature: Copy local flake to pod
@@ -377,9 +377,8 @@ get_init_script() {
 		ZSHRC
 
 		  cd "$HOME"
-		  export PATH="$HOME/.nix-profile/bin:$PATH"
-		  export SHELL="$HOME/.nix-profile/bin/zsh"
-		  exec zsh
+		  . "$HOME/.nix-profile/etc/profile.d/nix.sh"
+		  SHELL="$HOME/.nix-profile/bin/zsh" exec zsh -l
 		else
 		  mkdir -p ~/.local/state/nix/profiles
 
@@ -398,7 +397,8 @@ get_init_script() {
 		  fi
 
 		  cd "$HOME"
-		  exec env PATH="$HOME/.nix-profile/bin:$PATH" SHELL="$HOME/.nix-profile/bin/zsh" zsh -l
+		  export PATH="$HOME/.nix-profile/bin:$PATH"
+		  SHELL="$HOME/.nix-profile/bin/zsh" exec zsh -l
 		fi
 	INIT_EOF
 }

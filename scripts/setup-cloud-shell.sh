@@ -20,4 +20,5 @@ log "Activating home-manager configuration..."
 NIX_CONFIG="experimental-features = nix-command flakes" \
   nix run home-manager/master -- switch --impure --flake "$FLAKE_URL" -b backup
 
-log "Done! Restart your shell or run: exec zsh -l"
+log "Done! Starting zsh..."
+SHELL="$HOME/.nix-profile/bin/zsh" exec "$HOME/.nix-profile/bin/zsh" -l
