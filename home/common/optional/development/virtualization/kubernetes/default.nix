@@ -2,7 +2,7 @@
   # kubectl-cloud-shell script and completions
   kubectl-cloud-shell-script = pkgs.writeShellApplication {
     name = "kubectl-cloud-shell";
-    runtimeInputs = [pkgs.kubectl pkgs.socat];
+    runtimeInputs = [pkgs.kubectl pkgs.socat pkgs.pv pkgs.zstd];
     text = builtins.readFile ./scripts/kubectl-cloud-shell.sh;
   };
 

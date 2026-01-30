@@ -12,7 +12,7 @@ _: {
         "icon" = "terminal-bash";
       };
     };
-    "terminal.integrated.fontFamily" = "monospace";
+    "terminal.integrated.fontFamily" = "'JetBrainsMono Nerd Font Mono'";
     "terminal.integrated.fontSize" = 14;
     "terminal.integrated.cursorStyle" = "line";
     "terminal.integrated.cursorBlinking" = true;

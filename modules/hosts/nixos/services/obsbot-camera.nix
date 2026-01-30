@@ -68,11 +68,12 @@
 
       sleep "$DELAY_SECONDS"
 
-      # Try up to 5 times: set, wait, verify with tolerance for stepped PTZ
-      i=1
-      while [ "$i" -le 5 ]; do
+      # Exponential backoff: retry at 1s, 2s, 4s, 8s, 16s intervals (~31s total window)
+      backoff=1
+      max_backoff=16
+      while [ "$backoff" -le "$max_backoff" ]; do
         ${pkgs.v4l-utils}/bin/v4l2-ctl -d "$DEV" --set-ctrl='${settingsCSV}' || true
-        sleep 1
+        sleep "$backoff"
 
         all_ok=1
         for kv in ${settingsSpace}; do
@@ -88,16 +89,19 @@
         done
 
         [ "$all_ok" -eq 1 ] && exit 0
-        i=$((i+1))
+        backoff=$((backoff * 2))
       done
 
       exit 1
     '';
 
   # Build mapping of trigger paths to camera names
-  triggerMap = lib.concatMapAttrs (name: camCfg:
-    lib.listToAttrs (map (path: lib.nameValuePair path name) camCfg.triggerPaths)
-  ) cfg.cameras;
+  triggerMap =
+    lib.concatMapAttrs (
+      name: camCfg:
+        lib.listToAttrs (map (path: lib.nameValuePair path name) camCfg.triggerPaths)
+    )
+    cfg.cameras;
 
   # All trigger paths across all cameras
   allTriggerPaths = lib.concatLists (lib.mapAttrsToList (_: camCfg: camCfg.triggerPaths) cfg.cameras);
@@ -160,16 +164,18 @@ in {
   config = lib.mkIf cfg.enable {
     systemd.user.services =
       # Per-camera oneshot apply services
-      (lib.mapAttrs' (name: camCfg:
-        lib.nameValuePair "obsbot-apply@${name}" {
-          description = "Configure Obsbot controls for ${name}";
-          serviceConfig = {
-            Type = "oneshot";
-            SyslogIdentifier = "obsbot-apply-${name}";
-            ExecStart = "${mkApplyScript name camCfg}";
-          };
-        }
-      ) cfg.cameras)
+      (lib.mapAttrs' (
+          name: camCfg:
+            lib.nameValuePair "obsbot-apply@${name}" {
+              description = "Configure Obsbot controls for ${name}";
+              serviceConfig = {
+                Type = "oneshot";
+                SyslogIdentifier = "obsbot-apply-${name}";
+                ExecStart = "${mkApplyScript name camCfg}";
+              };
+            }
+        )
+        cfg.cameras)
       # Watcher that triggers apply on first OPEN
       // lib.optionalAttrs (allTriggerPaths != []) {
         obsbot-watch = {

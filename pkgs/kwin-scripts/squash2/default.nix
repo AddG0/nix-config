@@ -11,7 +11,7 @@ stdenv.mkDerivation rec {
     owner = "Shaurya-Kalia";
     repo = "squash2";
     rev = "main";
-    sha256 = "095xvhw9cj3z67vlf9xzw09hy5jfp9jk672wh5zmlkk31gv4w6fz";
+    hash = "sha256-lNHWgjDxX2BjB4S9z37JUsR/aUwxS/KhsgJJCsaxa0Y=";
   };
 
   dontBuild = true;
