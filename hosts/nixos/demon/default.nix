@@ -39,11 +39,14 @@
 
         "nixos/obs.nix" # obs
         "nixos/hardware/openrazer.nix" # openrazer
+        "nixos/hardware/wooting.nix" # wooting keyboard
         "nixos/1password.nix"
         "nixos/services/bluetooth.nix"
         "nixos/services/ollama.nix"
         "nixos/services/clamav.nix"
         "nixos/services/earlyoom.nix"
+
+        "nixos/development/mysql.nix"
 
         # "nixos/plymouth.nix" # fancy boot screen
         "nixos/services/greetd.nix"
@@ -51,6 +54,8 @@
       ])
     ))
   ];
+
+  # nix.remoteBuilder.enableClient = true;
 
   # AWS VPN Client with SAML support
   programs.awsvpnclient.enable = true;

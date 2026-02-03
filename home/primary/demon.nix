@@ -106,6 +106,7 @@
   services.gpu-screen-recorder = {
     enable = true;
     matchMonitorName = "LG ULTRAGEAR";
+    codec = "av1";
   };
 
   #

@@ -23,6 +23,9 @@
         }
         // lib.optionalAttrs useSopsPassword {
           hashedPasswordFile = config.sops.secrets."password".path;
+        }
+        // lib.optionalAttrs (!useSopsPassword) {
+          initialPassword = "changeme";
         };
     };
     pubKeys = lib.lists.forEach (lib.filesystem.listFilesRecursive ./keys) (key: builtins.readFile key);

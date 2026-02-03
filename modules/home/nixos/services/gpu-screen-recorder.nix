@@ -105,7 +105,9 @@
       -w "$DISPLAY_NAME" \
       -f ${toString cfg.fps} \
       ${audioArgs} \
-      -c mp4 \
+      -c mkv \
+      -fm vfr \
+      -k ${cfg.codec} \
       -q ${cfg.quality} \
       -r ${toString cfg.replayDuration} \
       -o "${cfg.outputDirectory}"
@@ -155,6 +157,15 @@ in {
       type = lib.types.enum ["medium" "high" "very_high" "ultra"];
       default = "ultra";
       description = "Video encoding quality preset.";
+    };
+
+    codec = lib.mkOption {
+      type = lib.types.enum ["h264" "hevc" "av1" "vp8" "vp9" "hevc_hdr" "av1_hdr" "hevc_10bit" "av1_10bit"];
+      default = "h264";
+      description = ''
+        Video codec to use. For HDR recording, use "hevc_hdr" or "av1_hdr".
+        10-bit options (hevc_10bit, av1_10bit) provide better color depth without HDR metadata.
+      '';
     };
 
     replayDuration = lib.mkOption {

@@ -24,12 +24,13 @@
       max-substitution-jobs = 128; # Default is 16
 
       # Conditional max-jobs based on whether remote builders are enabled
-      # If totalRemoteJobs is 0 (no compatible remote builders): use "auto" for local builds
-      # Otherwise: use total maxJobs from all remote builders (auto-calculated)
-      max-jobs =
+      # max-jobs controls LOCAL builds only. Setting to 0 forces all builds to remote builders.
+      # If no remote builders available: use "auto" for local builds
+      max-jobs = lib.mkDefault (
         if config.nix.remoteBuilder.enableClient && config.nix.remoteBuilder.totalRemoteJobs > 0
         then config.nix.remoteBuilder.totalRemoteJobs
-        else "auto";
+        else "auto"
+      );
       cores = 0; # Let each build use all available cores on the builder (auto-detect)
 
       trusted-users = [config.hostSpec.username];
@@ -60,8 +61,6 @@
       ];
       warn-dirty = false;
     };
-
-    # distributedBuilds and buildMachines are configured in nix-remote-builder.nix
 
     optimise.automatic = true;
   };

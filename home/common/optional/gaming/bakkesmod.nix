@@ -13,6 +13,7 @@
     enable = true;
     plugins = with pkgs.bakkesmod-plugins; [
       ingamerank
+      platformdisplay
       {
         plugin = rocketstats;
         extraConfig = ''

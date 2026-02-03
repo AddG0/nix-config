@@ -10,9 +10,13 @@
 ###############################################################
 {
   lib,
+  modulesPath,
   ...
 }: {
   imports = lib.flatten [
+    # GCE config from nixpkgs - provides filesystem, bootloader, and cloud services
+    "${modulesPath}/virtualisation/google-compute-image.nix"
+
     #################### Misc Inputs ####################
     (map lib.custom.relativeToHosts (
       [
@@ -26,10 +30,11 @@
   ];
 
   hostSpec = {
-    hostName = "gcp";
+    hostName = "gce";
     hostPlatform = "x86_64-linux";
     hostType = "server";
     disableSops = true;
+    isMinimal = builtins.getEnv "NIXOS_MINIMAL" == "true";
   };
 
   # Override to match GCE module expectation (it doesn't use mkDefault)
@@ -42,6 +47,12 @@
     networkmanager.enable = true;
     enableIPv6 = true; # GCP supports IPv6
   };
+
+  documentation.enable = false;
+  documentation.man.enable = false;
+  documentation.nixos.enable = false;
+
+  services.resolved.enable = true;
 
   time.timeZone = "America/Chicago";
 

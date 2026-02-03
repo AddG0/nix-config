@@ -41,8 +41,11 @@ in {
   # Disable the traditional SSH agent plugin
   programs.ssh.enableTraditionalAgent = false;
 
-  # Set SSH_AUTH_SOCK to point to 1Password's agent socket
-  home.sessionVariables = {
-    SSH_AUTH_SOCK = agentPath;
-  };
+  # Set SSH_AUTH_SOCK to 1Password's agent socket, but only for local sessions
+  # (preserve forwarded agent when SSH'd in with -A)
+  programs.zsh.initExtraFirst = ''
+    if [[ -z "$SSH_CONNECTION" ]]; then
+      export SSH_AUTH_SOCK="${agentPath}"
+    fi
+  '';
 }

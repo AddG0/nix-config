@@ -20,23 +20,29 @@ with lib; let
   # Define all builders here
   # Hosts listed here will automatically have the builder user created
   # hostKey is the SSH host public key (ed25519) for known_hosts configuration
+  # Common features for Linux builders with KVM support
+  linuxFeatures = ["big-parallel" "kvm" "nixos-test" "benchmark"];
+
   allBuilders = {
     loki = {
       system = "x86_64-linux";
       maxJobs = 20;
       speedFactor = 100;
+      supportedFeatures = linuxFeatures;
       hostKey = "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIOoqypWaPrUfWk8uUATK/mVM1uMzDVJW5HlNuXRMBFAz";
     };
     odin = {
       system = "x86_64-linux";
       maxJobs = 20;
       speedFactor = 100;
+      supportedFeatures = linuxFeatures;
       hostKey = "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIOZoUzRGlGQDkKc2PkWhANu2EQ75v8J7qGL09L+UXR/U";
     };
     thor = {
       system = "x86_64-linux";
       maxJobs = 20;
       speedFactor = 100;
+      supportedFeatures = linuxFeatures;
       hostKey = "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIHeai+FZVjhCqBFYfvg0YF1xXkywmJSz9n4Q2CODJGsR";
     };
     # Add more builders here as needed:
@@ -44,6 +50,7 @@ with lib; let
     #   system = "aarch64-darwin";
     #   maxJobs = 8;
     #   speedFactor = 50;
+    #   supportedFeatures = ["big-parallel"];
     #   hostKey = "ssh-ed25519 AAAA...";
     # };
   };
@@ -103,6 +110,15 @@ in {
       mode = "0400";
     };
 
+    # Add /etc/hosts entries for all builders so nix-daemon can resolve hostnames
+    # This allows friendly names like "loki" to appear in build output instead of IPs
+    networking.hosts =
+      mapAttrs' (name: _: {
+        name = config.hostSpec.networking.hostsAddr.${name}.ipv4;
+        value = [name];
+      })
+      allBuilders;
+
     # Configure SSH known hosts for all builders to avoid manual host key verification
     # This ensures nix-daemon can connect without prompting for host key acceptance
     # Include both hostname and IP address to handle SSH resolution to either
@@ -119,8 +135,8 @@ in {
       enabledBuilders = filterAttrs (name: _: name != currentHost) allBuilders;
 
       toBuildMachine = name: builderCfg: {
-        hostName = name;
-        inherit (builderCfg) system maxJobs speedFactor;
+        hostName = name; # Use hostname (resolved via /etc/hosts)
+        inherit (builderCfg) system maxJobs speedFactor supportedFeatures;
         protocol = "ssh-ng";
         sshUser = "builder";
         sshKey = config.sops.secrets.nix-builder-key.path;

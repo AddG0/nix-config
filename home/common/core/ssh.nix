@@ -74,11 +74,15 @@ in {
       enable = true;
       enableDefaultConfig = false;
 
-      # req'd for enabling yubikey-agent
-      extraConfig = ''
-        AddKeysToAgent yes
-        IdentityFile ${config.home.homeDirectory}/.ssh/id_ed25519
-      '';
+      # AddKeysToAgent: automatically add keys to agent when used
+      # IdentityFile: only set on non-servers (servers use forwarded agents)
+      extraConfig =
+        ''
+          AddKeysToAgent yes
+        ''
+        + lib.optionalString (hostSpec.hostType != "server") ''
+          IdentityFile ${config.home.homeDirectory}/.ssh/id_ed25519
+        '';
 
       matchBlocks =
         {
@@ -106,7 +110,7 @@ in {
             hostname = "gitlab.com";
             user = "git";
             forwardAgent = false;
-            identitiesOnly = true;
+            identitiesOnly = hostSpec.hostType != "server";
             identityFile = "${config.home.homeDirectory}/.ssh/id_ed25519_personal";
             identityAgent = "none";
             controlMaster = "no";
@@ -116,8 +120,8 @@ in {
           "git" = {
             host = "gitlab.com github.com";
             user = "git";
-            forwardAgent = true;
-            identitiesOnly = true;
+            # Servers use forwarded agents, so don't restrict to local identity files
+            identitiesOnly = hostSpec.hostType != "server";
             identityFile = lib.lists.forEach identityFiles (file: "${config.home.homeDirectory}/.ssh/${file}");
           };
         }
@@ -127,6 +131,11 @@ in {
     programs.zsh.oh-my-zsh.plugins =
       lib.optional cfg.enableTraditionalAgent "ssh-agent"
       ++ ["ssh"];
+
+    # Enable agent-forwarding before oh-my-zsh loads (respects forwarded agents)
+    programs.zsh.oh-my-zsh.extraConfig = lib.mkIf cfg.enableTraditionalAgent ''
+      zstyle :omz:plugins:ssh-agent agent-forwarding yes
+    '';
 
     home.file =
       {

@@ -1,9 +1,12 @@
-{pkgs, ...}: {
-  # Fonts
-  fonts = {
+{
+  pkgs,
+  lib,
+  config,
+  ...
+}: {
+  fonts = lib.mkIf (config.hostSpec.hostType != "server") {
     packages = with pkgs;
       [
-        # packages = with pkgs; [
         # icon fonts
         material-design-icons
         font-awesome

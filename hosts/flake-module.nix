@@ -69,41 +69,41 @@
   # Format generation for NixOS hosts (ISO, VM, Docker, etc.)
   # Build with: nix build .#format-hostname
   perSystem = {system, ...}: let
-    # Currently enabled formats (others commented out for faster evaluation)
-    formats = [
-      # "amazon"
-      # "azure"
-      # "cloudstack"
-      # "do"
-      # "docker"
-      "gce"
-      # "hyperv"
-      # "install-iso"
-      # "install-iso-hyperv"
-      # "iso"
-      # "kexec"
-      # "kexec-bundle"
-      # "kubevirt"
-      # "linode"
-      # "lxc"
-      # "lxc-metadata"
-      # "openstack"
-      # "proxmox"
-      # "proxmox-lxc"
-      # "qcow"
-      # "qcow-efi"
-      # "raw"
-      # "raw-efi"
-      # "sd-aarch64"
-      # "sd-aarch64-installer"
-      # "sd-x86_64"
-      # "vagrant-virtualbox"
-      # "virtualbox"
-      # "vm"
-      # "vm-bootloader"
-      # "vm-nogui"
-      # "vmware"
-    ];
+    # Format to hosts mapping - each format specifies which hosts to build
+    formatHosts = {
+      # amazon = ["aws"];
+      # azure = [];
+      # cloudstack = [];
+      # do = [];
+      # docker = [];
+      gce = ["gce"];
+      # hyperv = [];
+      # install-iso = [];
+      # install-iso-hyperv = [];
+      # iso = [];
+      # kexec = [];
+      # kexec-bundle = [];~
+      # kubevirt = [];
+      # linode = [];
+      # lxc = [];
+      # lxc-metadata = [];
+      # openstack = [];
+      # proxmox = [];
+      # proxmox-lxc = [];
+      # qcow = [];
+      # qcow-efi = [];
+      # raw = [];
+      # raw-efi = [];
+      # sd-aarch64 = [];
+      # sd-aarch64-installer = [];
+      # sd-x86_64 = [];
+      # vagrant-virtualbox = [];
+      # virtualbox = [];
+      # vm = [];
+      # vm-bootloader = [];
+      # vm-nogui = [];
+      # vmware = [];
+    };
 
     # Generate a format-specific configuration for a NixOS host
     mkFormat = format: host: {
@@ -126,23 +126,17 @@
       };
     };
 
-    # Get list of NixOS hosts
-    nixosHosts =
-      if builtins.pathExists ./nixos
-      then builtins.attrNames (builtins.readDir ./nixos)
-      else [];
-
     # Only generate formats for x86_64-linux (most formats are Linux-specific)
     formatPackages =
       if system == "x86_64-linux"
       then
         builtins.listToAttrs (
           lib.flatten (
-            map (
-              format:
-                map (mkFormat format) nixosHosts
+            lib.mapAttrsToList (
+              format: hosts:
+                map (mkFormat format) hosts
             )
-            formats
+            formatHosts
           )
         )
       else {};

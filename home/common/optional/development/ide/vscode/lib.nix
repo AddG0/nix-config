@@ -89,6 +89,7 @@
     toml
     # json
     justfile
+    protobuf
     xml
     markdown
     mermaid

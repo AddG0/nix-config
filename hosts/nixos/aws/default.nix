@@ -11,23 +11,6 @@
   ...
 }: {
   imports = lib.flatten [
-    #################### Every Host Needs This ####################
-    ./hardware-configuration.nix
-
-    #################### Hardware Modules ####################
-    # AWS instances don't need specific hardware modules
-
-    #################### Disk Layout ####################
-    inputs.disko.nixosModules.disko
-    (lib.custom.relativeToHosts "common/disks/ext4-disk.nix")
-    {
-      _module.args = {
-        disk = "/dev/xvda"; # Standard AWS root device
-        withSwap = true;
-      };
-    }
-
-    #################### Misc Inputs ####################
     (map lib.custom.relativeToHosts (
       [
         #################### Required Configs ####################

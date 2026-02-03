@@ -1,4 +1,4 @@
-# Browser MCP - browser automation via Chrome extension
+# Browser MCP addon - browser automation via Chrome extension
 # Requires: https://chromewebstore.google.com/detail/browser-mcp-automate-your/bjfgambnhccakkhmkepdoekmckoijdlc
 {pkgs, ...}: let
   browser-mcp-wrapper = pkgs.writeShellScript "browser-mcp" ''
@@ -6,24 +6,22 @@
     npx -y @browsermcp/mcp@latest
   '';
 in {
-  programs.claude-code = {
-    mcpServers.browser-mcp.command = "${browser-mcp-wrapper}";
+  mcpServers.browser-mcp.command = "${browser-mcp-wrapper}";
 
-    settings.permissions.allow = [
-      "mcp__browser-mcp__browser_navigate"
-      "mcp__browser-mcp__browser_go_back"
-      "mcp__browser-mcp__browser_go_forward"
-      "mcp__browser-mcp__browser_wait"
-      "mcp__browser-mcp__browser_press_key"
-      "mcp__browser-mcp__browser_snapshot"
-      "mcp__browser-mcp__browser_click"
-      "mcp__browser-mcp__browser_drag"
-      "mcp__browser-mcp__browser_hover"
-      "mcp__browser-mcp__browser_type"
-      "mcp__browser-mcp__browser_console_logs"
-      "mcp__browser-mcp__browser_screenshot"
-    ];
+  settings.permissions.allow = [
+    "mcp__browser-mcp__browser_navigate"
+    "mcp__browser-mcp__browser_go_back"
+    "mcp__browser-mcp__browser_go_forward"
+    "mcp__browser-mcp__browser_wait"
+    "mcp__browser-mcp__browser_press_key"
+    "mcp__browser-mcp__browser_snapshot"
+    "mcp__browser-mcp__browser_click"
+    "mcp__browser-mcp__browser_drag"
+    "mcp__browser-mcp__browser_hover"
+    "mcp__browser-mcp__browser_type"
+    "mcp__browser-mcp__browser_console_logs"
+    "mcp__browser-mcp__browser_screenshot"
+  ];
 
-    memory.text = builtins.readFile ./memory.md;
-  };
+  memory.text = builtins.readFile ./memory.md;
 }
