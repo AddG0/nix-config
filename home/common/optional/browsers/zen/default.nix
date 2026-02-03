@@ -18,7 +18,7 @@
     languagePacks = ["en-US"];
     policies = import ./policies-config.nix;
 
-    profiles.default = rec {
+    profiles.default = {
       settings = {
         # Workspaces
         "zen.workspaces.disabled_for_testing" = false;

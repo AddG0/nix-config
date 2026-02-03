@@ -57,96 +57,102 @@
     (builtins.attrValues ext);
 
   # Default profile with all standard extensions
-  defaultProfileExtensions = with ext; [
-    # Core
-    editorSettings
-    terminal
-    remoteSsh
-    materialIcons
-    direnv
-    indentOnEmptyLine
+  defaultProfileExtensions = with ext;
+    [
+      # Core
+      editorSettings
+      terminal
+      remoteSsh
+      materialIcons
+      direnv
+      indentOnEmptyLine
 
-    # UI / Theme
-    catppuccin
-    betterComments
-    indentRainbow
-    colorHighlight
-    svgPreview
-    peacock
-    outputColorizer
+      # UI / Theme
+      catppuccin
+      betterComments
+      indentRainbow
+      colorHighlight
+      svgPreview
+      peacock
+      outputColorizer
 
-    # Git
-    git
-    gitlens
-    gitGraph
-    gitlab
-    githubPr
-    githubActions
+      # Git
+      git
+      gitlens
+      gitGraph
+      gitlab
+      githubPr
+      githubActions
 
-    # Languages
-    nixIde
-    yaml
-    toml
-    # json
-    justfile
-    protobuf
-    xml
-    markdown
-    mermaid
-    docker
-    shellcheck
-    python
-    go
-    rust
-    typescript
-    java
-    kotlin
-    dotenv
-    rainbowCsv
-    tailwind
-    stylelint
-    jupyter
-    logHighlighter
-    neo4j
-    tilt
+      # Languages
+      nixIde
+      yaml
+      toml
+      # json
+      justfile
+      protobuf
+      xml
+      markdown
+      mermaid
+      docker
+      shellcheck
+      python
+      go
+      rust
+      typescript
+      java
+      kotlin
+      dotenv
+      rainbowCsv
+      tailwind
+      stylelint
+      jupyter
+      logHighlighter
+      neo4j
+      tilt
 
-    # Infrastructure
-    kubernetes
-    terraform
-    helm
-    terramate
+      # Infrastructure
+      kubernetes
+      terraform
+      helm
+      terramate
 
-    # Productivity
-    projectManager
-    errorlens
-    todoTree
-    spellChecker
-    editorconfig
-    postman
-    pathIntellisense
-    autoRenameTag
-    liveServer
-    sqltools
-    importCost
-    bookmarks
-    # drawio
-    liveshare
-    regexPreviewer
-    codeRunner
-    hexEditor
-    # excalidraw
-    codesnap
-    partialDiff
+      # Productivity
+      projectManager
+      errorlens
+      todoTree
+      spellChecker
+      editorconfig
+      pathIntellisense
+      autoRenameTag
+      liveServer
+      sqltools
+      importCost
+      bookmarks
+      # drawio
+      liveshare
+      regexPreviewer
+      codeRunner
+      hexEditor
+      # excalidraw
+      codesnap
+      partialDiff
 
-    # AI
-    claudeCode
-    supermaven
-    copilot
-    # continue
+      # AI
+      claudeCode
+      supermaven
+      copilot
+      # continue
 
-    # Keybindings
-    # vim
-  ];
+      # Keybindings
+      # vim
+    ]
+    ++ (lib.optionals pkgs.stdenv.isLinux) [
+      # Productivity
+      # Postman uses hashes in the paths so I can't declaritively control the config so settings file keeps saying can't save
+      # I prefer to disable it to avoid
+      postman
+    ];
 
   defaultProfile = mkProfile defaultProfileExtensions;
 in {

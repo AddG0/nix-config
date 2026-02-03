@@ -73,7 +73,7 @@ in {
   home.packages = with pkgs;
     lib.optionals (config.hostSpec.hostType != "server") [
       lazygit # Git terminal UI.
-      renovate # Dependency update tool.
+      stable.renovate # Dependency update tool.
       gitkraken # Git GUI.
       devcontainer # Dev Container CLI.
       github-cli # GitHub CLI.

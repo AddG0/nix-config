@@ -43,7 +43,7 @@ in {
 
   # Set SSH_AUTH_SOCK to 1Password's agent socket, but only for local sessions
   # (preserve forwarded agent when SSH'd in with -A)
-  programs.zsh.initExtraFirst = ''
+  programs.zsh.initContent = lib.mkBefore ''
     if [[ -z "$SSH_CONNECTION" ]]; then
       export SSH_AUTH_SOCK="${agentPath}"
     fi

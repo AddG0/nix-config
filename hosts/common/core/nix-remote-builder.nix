@@ -110,15 +110,6 @@ in {
       mode = "0400";
     };
 
-    # Add /etc/hosts entries for all builders so nix-daemon can resolve hostnames
-    # This allows friendly names like "loki" to appear in build output instead of IPs
-    networking.hosts =
-      mapAttrs' (name: _: {
-        name = config.hostSpec.networking.hostsAddr.${name}.ipv4;
-        value = [name];
-      })
-      allBuilders;
-
     # Configure SSH known hosts for all builders to avoid manual host key verification
     # This ensures nix-daemon can connect without prompting for host key acceptance
     # Include both hostname and IP address to handle SSH resolution to either
@@ -135,7 +126,7 @@ in {
       enabledBuilders = filterAttrs (name: _: name != currentHost) allBuilders;
 
       toBuildMachine = name: builderCfg: {
-        hostName = name; # Use hostname (resolved via /etc/hosts)
+        hostName = config.hostSpec.networking.hostsAddr.${name}.ipv4; # Use IP directly (macOS lacks networking.hosts)
         inherit (builderCfg) system maxJobs speedFactor supportedFeatures;
         protocol = "ssh-ng";
         sshUser = "builder";

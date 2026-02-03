@@ -117,8 +117,8 @@ in {
       "gnu-tar"
 
       # misc that nix do not have cache for.
-      "git-trim"
-      "terraform"
+      # "git-trim"
+      # "terraform"
       # "terraformer"
 
       "nginx"
@@ -133,6 +133,8 @@ in {
         # "zen-browser"
         # "docker" # Docker Desktop needed for vscode devcontainers
         "caffeine"
+
+        "aws-vpn-client"
 
         # "balenaetcher"
 
