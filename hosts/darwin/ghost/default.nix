@@ -6,7 +6,6 @@
 ###############################################################
 {lib, ...}: {
   imports = lib.flatten [
-    ./databases.nix
     ./monitoring.nix
 
     (map lib.custom.relativeToHosts (
@@ -18,6 +17,7 @@
         #################### Host-specific Optional Configs ####################
         # "darwin/vban-walkie.nix"
         "darwin/services/tailscale.nix" # mesh VPN for secure remote access
+        "darwin/development/mysql.nix"
 
         #################### Optional Applications ####################
         # "darwin/applications/autodesk-fusion.nix"
@@ -42,7 +42,7 @@
         # "darwin/applications/wifiman.nix"
         "darwin/applications/1password.nix"
         # "darwin/applications/stats.nix"
-        "darwin/applications/chatgpt.nix"
+        # "darwin/applications/chatgpt.nix"
 
         #################### Desktop ####################
       ])

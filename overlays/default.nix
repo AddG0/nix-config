@@ -71,7 +71,7 @@
         obs-backgroundremoval = prev.obs-studio-plugins.obs-backgroundremoval.overrideAttrs (old: {
           version = "1.3.6";
           src = prev.fetchFromGitHub {
-            owner = "occ-ai";
+            owner = "royshil";
             repo = "obs-backgroundremoval";
             rev = "1.3.6";
             hash = "sha256-2BVcOH7wh1ibHZmaTMmRph/jYchHcCbq8mn9wo4LQOU=";

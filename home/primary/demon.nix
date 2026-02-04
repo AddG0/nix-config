@@ -42,6 +42,8 @@
         "development/gcloud.nix"
         "development/aws.nix"
         "development/terraform.nix"
+        "development/java.nix"
+        "development/grpc.nix"
         # "development/virtualization"
         "development/virtualization/lens.nix"
         "development/virtualization/kubernetes"

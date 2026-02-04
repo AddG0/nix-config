@@ -28,7 +28,7 @@ in {
     username = lib.mkDefault "addg";
     handle = lib.mkDefault "addg";
 
-    system.stateVersion = lib.mkDefault "24.11";
+    system.stateVersion = lib.mkDefault "25.11";
 
     domain =
       if config.hostSpec.disableSops

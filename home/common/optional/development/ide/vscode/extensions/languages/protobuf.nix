@@ -1,6 +1,6 @@
 {pkgs, ...}: {
   extensions = [
-    pkgs.vscode-extensions.zxh404.vscode-proto3
+    pkgs.vscode-marketplace.drblury.protobuf-vsc
   ];
   userSettings = {
     "protoc" = {

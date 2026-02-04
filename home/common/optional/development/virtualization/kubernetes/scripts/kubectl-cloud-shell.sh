@@ -159,6 +159,7 @@ parse_args() {
 validate() {
 	if [[ $USE_LOCAL_FLAKE == "true" ]]; then
 		if [[ -z ${FLAKE:-} ]]; then
+			# shellcheck disable=SC2016 # Intentional literal $FLAKE in message
 			log_error '$FLAKE environment variable is not set'
 			exit 1
 		fi

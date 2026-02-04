@@ -40,7 +40,9 @@
     ) {}
     configs;
 
-  s = "${pkgs.claude-code-skills-collection}/share/claude-code/plugins/claude-code-skills-collection/skills";
+  skillsCollection = "${pkgs.claude-code-skills-collection}/share/claude-code/plugins/claude-code-skills-collection/skills";
+  anthropicSkills = "${pkgs.anthropic-skills}/share/claude-code/plugins/anthropic-skills/skills";
+  skillFactory = "${pkgs.claude-code-skill-factory}/share/claude-code/plugins/claude-code-skill-factory/.claude";
 in {
   imports = map (f: "${inputs.ai-toolkit}/home/claude-code/addons/${f}") [
     "jira"
@@ -113,10 +115,10 @@ in {
         skills = {
           "software-architecture" = "${pkgs.context-engineering-kit}/share/claude-code/plugins/ddd/skills/software-architecture";
           "frontend-design" = "${pkgs.claude-code-plugins}/share/claude-code/plugins/frontend-design/skills/frontend-design";
-          "decision-matrix" = "${s}/decision-matrix";
-          "design-of-experiments" = "${s}/design-of-experiments";
-          "forecast-premortem" = "${s}/forecast-premortem";
-          "role-switch" = "${s}/role-switch";
+          "decision-matrix" = "${skillsCollection}/decision-matrix";
+          "design-of-experiments" = "${skillsCollection}/design-of-experiments";
+          "forecast-premortem" = "${skillsCollection}/forecast-premortem";
+          "role-switch" = "${skillsCollection}/role-switch";
         };
       };
 
@@ -135,8 +137,8 @@ in {
           extends = "default";
           memory.text = "Focus on operations, monitoring, and incidents. Use PromQL for Prometheus and LogQL for Loki.";
           skills = {
-            "postmortem" = "${s}/postmortem";
-            "security-threat-model" = "${s}/security-threat-model";
+            "postmortem" = "${skillsCollection}/postmortem";
+            "security-threat-model" = "${skillsCollection}/security-threat-model";
           };
         }
       ];
@@ -166,6 +168,23 @@ in {
           - Show common pitfalls and how to avoid them
           - Encourage the user to modify and experiment with the code
         '';
+      };
+
+      claude-code-maker = {
+        description = "Creating Claude Code skills, agents, and configs";
+        extends = "default";
+        skills = {
+          "skill-creator" = "${anthropicSkills}/skill-creator";
+        };
+        agents = {
+          "skills-guide" = builtins.readFile "${skillFactory}/agents/skills-guide.md";
+          "agents-guide" = builtins.readFile "${skillFactory}/agents/agents-guide.md";
+          "hooks-guide" = builtins.readFile "${skillFactory}/agents/hooks-guide.md";
+        };
+        commands = {
+          "build" = "${skillFactory}/commands/build.md";
+          "build-hook" = "${skillFactory}/commands/build-hook.md";
+        };
       };
     };
   };
