@@ -17,6 +17,9 @@ pkgs: {
   # OpenTelemetry
   opentelemetry-javaagent = pkgs.callPackage ./opentelemetry-javaagent {};
 
+  # gRPC tools
+  protoc-gen-grpc-kotlin = pkgs.callPackage ./protoc-gen-grpc-kotlin {};
+
   # System utilities
   bt-proximity-monitor = pkgs.callPackage ./bt-proximity-monitor {};
   bt-scan = pkgs.callPackage ./bt-scan {};

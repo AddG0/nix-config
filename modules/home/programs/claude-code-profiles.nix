@@ -11,13 +11,11 @@
 #     enable = true;
 #     defaultProfile = "default";
 #
-#     # Global MCP servers available to all profiles
-#     mcpServers.context7 = { command = "context7-mcp"; };
-#
 #     # Base configuration merged into all profiles
 #     baseConfig = {
 #       settings.theme = "dark";
 #       memory.text = "Always be helpful and concise.";
+#       mcpServers.context7 = { command = "context7-mcp"; };
 #     };
 #
 #     # Profile definitions
@@ -188,12 +186,11 @@
     in
       mergeConfigs resolved profile;
 
-  # Merge: global mcpServers → baseConfig → resolved profile
+  # Merge: baseConfig → resolved profile
   mergeWithBase = name: profile: let
     resolved = resolveProfile name profile;
-    withGlobal = {inherit (cfg) mcpServers;};
   in
-    mergeConfigs withGlobal (mergeConfigs cfg.baseConfig resolved);
+    mergeConfigs cfg.baseConfig resolved;
 
   # Generate home.file entries for a profile
   mkProfileFiles = name: profile: let
@@ -410,12 +407,6 @@ in {
     enable = lib.mkEnableOption "Claude Code with profile-based configuration management";
 
     package = lib.mkPackageOption pkgs "claude-code" {nullable = true;};
-
-    mcpServers = lib.mkOption {
-      type = lib.types.attrsOf jsonFormat.type;
-      default = {};
-      description = "Global MCP servers merged into all profiles.";
-    };
 
     defaultProfile = lib.mkOption {
       type = lib.types.str;

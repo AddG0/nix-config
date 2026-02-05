@@ -56,7 +56,6 @@ in {
     enable = true;
     enableZshIntegration = true;
     package = claudeWithPlugins;
-    inherit (config.programs.claude-code) mcpServers;
     defaultProfile = "default";
 
     baseConfig = {

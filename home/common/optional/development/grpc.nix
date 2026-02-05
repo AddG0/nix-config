@@ -16,7 +16,8 @@
     protoc-gen-go-grpc # Go code generator for gRPC
 
     # Java gRPC code generation
-    protoc-gen-grpc-java # Java code generator for gRPC
+    protoc-gen-grpc-java
+    protoc-gen-grpc-kotlin
 
     # Additional protoc plugins
     protoc-gen-doc # Documentation generator
