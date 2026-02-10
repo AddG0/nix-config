@@ -125,6 +125,7 @@ in {
       "certbot"
 
       "helmfile"
+      "ical-buddy" # calendar events for sketchybar
     ];
 
     # `brew install --cask`

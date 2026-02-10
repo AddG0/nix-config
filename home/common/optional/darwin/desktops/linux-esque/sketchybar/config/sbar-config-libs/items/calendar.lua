@@ -1,9 +1,6 @@
 local settings = require("sbar-config-libs/settings")
 local colors = require("sbar-config-libs/colors")
 
--- Padding item required because of bracket
-sbar.add("item", { position = "right", width = settings.group_paddings })
-
 local cal = sbar.add("item", {
   icon = {
     color = colors.white,
@@ -16,7 +13,7 @@ local cal = sbar.add("item", {
   label = {
     color = colors.white,
     padding_right = 8,
-    width = 68,
+    width = 78,
     align = "right",
     font = { family = settings.font.numbers },
   },
@@ -29,7 +26,7 @@ local cal = sbar.add("item", {
     border_color = colors.black,
     border_width = 1
   },
-  click_script = "open -a 'Fantastical'"
+  click_script = "open -a 'Notion Calendar'"
 })
 
 -- Double border for calendar using a single item bracket
