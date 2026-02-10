@@ -10,6 +10,7 @@
       "plaintext" = false;
       "markdown" = true;
       "scminput" = false;
+      "dotenv" = false;
     };
 
     # Custom instructions file locations

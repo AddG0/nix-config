@@ -1,4 +1,12 @@
 {pkgs, ...}: {
+  # Autostart applications
+  xdg.autostart = {
+    enable = true;
+    entries = [
+      "${pkgs.spotify}/share/applications/spotify.desktop"
+      "${pkgs.discord-legcord}/share/applications/legcord.desktop"
+    ];
+  };
   # Plasma Monitor Configuration:
   # - Use `kscreen-doctor -o` to list monitors
   # - Set primary monitor: `kscreen-doctor output.3.primary` (replace 3 with output number)
@@ -355,6 +363,9 @@
 
     # Additional KDE configuration files
     configFile = {
+      # Start with empty session (don't restore previous apps)
+      ksmserverrc.General.loginMode = "emptySession";
+
       klaunchrc.FeedbackStyle = {
         BusyCursor = false;
         TaskbarButton = false;
@@ -363,10 +374,12 @@
       kwinrc.Windows = {
         FocusStealingPreventionLevel = 0; # 0=None, 1=Low, 2=Medium, 3=High, 4=Extreme
       };
-      # Disable KZones snap shortcuts (~/.config/kglobalshortcutsrc)
+      # Disable KWin shortcuts (~/.config/kglobalshortcutsrc)
       kglobalshortcutsrc.kwin = {
         "KZones: Snap active window" = "none,none,KZones: Snap active window";
         "KZones: Snap all windows" = "none,none,KZones: Snap all windows";
+        # Free Ctrl+F9 for gromit-mpx (toggle visibility)
+        "Expose" = "none,none,Toggle Present Windows (Current desktop)";
       };
     };
   };

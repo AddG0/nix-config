@@ -1,14 +1,15 @@
-# Prism Launcher module for Home Manager
-# Declarative instances with auto-updating packwiz modpacks
+# Prism Launcher Packwiz Extension for Home Manager
+# Extends upstream programs.prismlauncher with declarative packwiz modpack support
 {
   config,
   lib,
   pkgs,
   ...
 }: let
-  inherit (lib) mkEnableOption mkOption mkIf mkMerge types mapAttrsToList concatStringsSep literalExpression optionalString;
+  inherit (lib) mkOption mkIf mkMerge types mapAttrsToList concatStringsSep literalExpression optionalString;
 
   cfg = config.programs.prismlauncher;
+  hasModpacks = cfg.modpacks != {};
 
   # Import submodules
   loaderComponents = import ./loaders.nix;
@@ -190,15 +191,8 @@
 
   managedInstancesStr = concatStringsSep " " (builtins.attrNames cfg.modpacks);
 in {
+  # Extend upstream programs.prismlauncher with modpack options
   options.programs.prismlauncher = {
-    enable = mkEnableOption "Prism Launcher with packwiz modpacks";
-
-    package = mkOption {
-      type = types.package;
-      default = pkgs.prismlauncher;
-      description = "Prism Launcher package";
-    };
-
     cleanupOrphans = mkOption {
       type = types.bool;
       default = true;
@@ -208,7 +202,7 @@ in {
     modpacks = mkOption {
       type = types.attrsOf (types.submodule modpackOpts);
       default = {};
-      description = "Modpack definitions (versions auto-detected from pack.toml)";
+      description = "Packwiz modpack definitions (versions auto-detected from pack.toml)";
       example = literalExpression ''
         {
           "my-pack" = {
@@ -222,11 +216,9 @@ in {
     };
   };
 
-  config = mkIf cfg.enable {
-    home.packages = [
-      cfg.package
-      pkgs.packwiz
-    ];
+  config = mkIf (cfg.enable && hasModpacks) {
+    # Add packwiz tool (prismlauncher package handled by upstream module)
+    home.packages = [pkgs.packwiz];
 
     home.file = mkMerge [
       # Packwiz bootstrap jar
@@ -245,7 +237,7 @@ in {
       (mkMerge (mapAttrsToList (key: path: {
           "${prismDir}/icons/${key}${
             lib.optionalString (builtins.match ".*\\.[^.]+$" (toString path) != null) (let
-              filename = builtins.baseNameOf (toString path);
+              filename = baseNameOf (toString path);
               ext = lib.last (lib.splitString "." filename);
             in ".${ext}")
           }".source =

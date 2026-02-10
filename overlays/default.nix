@@ -341,6 +341,9 @@
   vscode-marketplace = inputs.nix-vscode-extensions.overlays.default;
 
   bakkesmod = inputs.bakkesmod-nix.overlays.default;
+
+  # CachyOS kernel overlay (provides pkgs.cachyosKernels.*)
+  cachyos-kernel = inputs.nix-cachyos-kernel.overlays.pinned;
 in {
   # Use composeManyExtensions so each overlay sees the result of previous overlays in `prev`
   default = inputs.nixpkgs.lib.composeManyExtensions [
@@ -349,6 +352,7 @@ in {
     unstable-packages
     nur
     bakkesmod
+    cachyos-kernel
     additions
     modifications
     linuxModifications

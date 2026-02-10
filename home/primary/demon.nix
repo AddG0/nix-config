@@ -37,6 +37,7 @@
         "development/ide/vscode/server.nix"
         "development/ide/jetbrains-remote.nix"
         "development/jupyter-notebook.nix"
+        "development/virtualization/nixos-shell.nix"
         "development/ai"
         "development/postman.nix"
         "development/gcloud.nix"
@@ -66,6 +67,10 @@
         "media/spicetify.nix"
         # "media/tidal.nix"
 
+        # Tools
+        "tools"
+        "tools/gromit-mpx.nix"
+
         # NixOS Specific
         "nixos/desktops/plasma6"
         "media/vlc.nix"
@@ -78,6 +83,7 @@
         "secrets"
         "secrets/kubeconfig.nix"
         "secrets/ai.nix"
+        "secrets/elevenlabs.nix"
         # "secrets/1password-ssh.nix"
       ])
     ))

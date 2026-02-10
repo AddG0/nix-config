@@ -13,12 +13,16 @@
   imports = lib.flatten [
     inputs.stylix.nixosModules.stylix
     inputs.awsvpnclient-nix.nixosModules.default
-    (lib.custom.scanPaths ./.)
     #################### Hardware ####################
     inputs.hardware.nixosModules.common-cpu-amd
     inputs.hardware.nixosModules.common-pc-ssd
 
     #################### Misc Inputs ####################
+    ./graphics.nix
+    ./hardware-configuration.nix
+    ./ai.nix
+    ./audio
+    ./media.nix
 
     (map lib.custom.relativeToHosts (
       [
@@ -27,6 +31,7 @@
       ]
       ++ (map (f: "common/optional/${f}") [
         #################### Host-specific Optional Configs ####################
+        "nixos/hardware/cachyos-kernel.nix" # CachyOS kernel
         "nixos/secureboot.nix"
         "nixos/services/openssh.nix" # allow remote SSH access
         "nixos/services/tailscale.nix" # mesh VPN for secure remote access
@@ -35,6 +40,7 @@
         "nixos/gaming.nix" # steam, gamescope, gamemode, and related hardware
         # "nixos/services/home-assistant"
         "nixos/virtualisation/docker.nix" # docker
+        "nixos/libvirt.nix" # QEMU/KVM for VMs (macOS, etc)
         "nixos/services/nginx.nix" # nginx
 
         "nixos/obs.nix" # obs
@@ -45,8 +51,10 @@
         "nixos/services/ollama.nix"
         "nixos/services/clamav.nix"
         "nixos/services/earlyoom.nix"
+        # "nixos/services/sunshine.nix"
 
         "nixos/development/mysql.nix"
+        # "nixos/development/druid"
 
         # "nixos/plymouth.nix" # fancy boot screen
         "nixos/services/greetd.nix"

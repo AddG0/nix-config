@@ -57,6 +57,7 @@
         onepassword-password-manager
         tampermonkey
         stylus # Catppuccin: userstyles.catppuccin.com → download import.json → Stylus Settings → Backup → Import
+        leechblock-ng # Block time-wasting sites (youtube, reddit, etc) with time limits
       ];
 
       search = import ./search-config.nix {inherit pkgs;};

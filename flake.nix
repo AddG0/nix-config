@@ -123,6 +123,11 @@
       inputs.nixpkgs.follows = "nixpkgs";
     };
 
+    nixos-shell = {
+      url = "github:Mic92/nixos-shell";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
+
     pre-commit-hooks = {
       url = "github:cachix/git-hooks.nix";
       inputs.nixpkgs.follows = "nixpkgs";
@@ -202,6 +207,11 @@
       inputs.nixpkgs.follows = "nixpkgs";
     };
 
+    # CachyOS kernel - optimized for desktop performance
+    nix-cachyos-kernel = {
+      url = "github:xddxdd/nix-cachyos-kernel/release";
+    };
+
     #################### Personal Repositories ####################
 
     # Private secrets repo.  See ./docs/secretsmgmt.md
@@ -223,7 +233,7 @@
     };
 
     ai-toolkit = {
-      url = "git+ssh://git@github.com/addg0/ai-toolkit.git?ref=main";
+      url = "git+ssh://git@github.com/addg0/ai-toolkit.git";
       # url = "path:/home/addg/home/code/github/ai-toolkit";
       # Don't follow nixpkgs - ai-toolkit needs its own nixpkgs with working bun version
       # (nix-config's nixpkgs has bun 1.3.4 which produces empty binaries on darwin)

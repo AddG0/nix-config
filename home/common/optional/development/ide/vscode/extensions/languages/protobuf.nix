@@ -7,5 +7,6 @@
       "path" = "${pkgs.protobuf}/bin/protoc";
     };
     "clang-format.executable" = "${pkgs.clang-tools}/bin/clang-format";
+    "protobuf.externalLinter.enabled" = true;
   };
 }

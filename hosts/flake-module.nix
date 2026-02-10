@@ -19,19 +19,6 @@
       inherit (inputs) nix-secrets;
       isDarwin = false;
     };
-
-    # Common modules for NixOS systems
-    commonNixOSModules = [
-      {
-        virtualisation.diskSize = 20 * 1024;
-        nix.registry.nixpkgs.flake = inputs.nixpkgs;
-        nixpkgs.overlays = [
-          (final: _prev: {
-            nixos-generators = inputs.nixos-generators.packages.${final.stdenv.hostPlatform.system}.default;
-          })
-        ];
-      }
-    ];
   in {
     # NixOS configurations
     # Build with: nixos-rebuild --flake .#hostname
@@ -45,7 +32,7 @@
             // {
               inherit (inputs) nixvirt;
             };
-          modules = [./nixos/${host}] ++ commonNixOSModules;
+          modules = [./nixos/${host}];
         };
       };
     in
@@ -116,13 +103,7 @@
           inherit (inputs.self) lib;
           isDarwin = false;
         };
-        modules = [
-          ./nixos/${host}
-          {
-            virtualisation.diskSize = 20 * 1024;
-            nix.registry.nixpkgs.flake = inputs.nixpkgs;
-          }
-        ];
+        modules = [./nixos/${host}];
       };
     };
 

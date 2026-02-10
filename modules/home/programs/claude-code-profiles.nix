@@ -48,10 +48,11 @@
   jsonFormat = pkgs.formats.json {};
   baseDir = ".config/claude-code/profiles";
 
-  # Check if content represents a file path (handles both path types and string paths).
+  # Check if content represents a file path (handles both path types, string paths, and derivations).
   # Guards against calling pathExists on arbitrary content strings.
   isPathContent = content:
     lib.isPath content
+    || lib.isDerivation content
     || (lib.isString content
       && (lib.hasPrefix "/" content || lib.hasPrefix "./" content)
       && builtins.pathExists content);
@@ -234,7 +235,9 @@
     // lib.mapAttrs' (
       skillName: content: let
         isDir =
-          if lib.isPath content
+          if lib.isDerivation content
+          then true
+          else if lib.isPath content
           then lib.pathIsDirectory content
           else if isPathContent content
           then (builtins.readFileType content) == "directory"

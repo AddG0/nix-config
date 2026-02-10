@@ -44,8 +44,11 @@
   anthropicSkills = "${pkgs.anthropic-skills}/share/claude-code/plugins/anthropic-skills/skills";
   skillFactory = "${pkgs.claude-code-skill-factory}/share/claude-code/plugins/claude-code-skill-factory/.claude";
 in {
-  imports = map (f: "${inputs.ai-toolkit}/home/claude-code/addons/${f}") [
-    "jira"
+  imports = lib.flatten [
+    (map (f: "${inputs.ai-toolkit}/home/claude-code/addons/${f}") [
+      "jira"
+    ])
+    inputs.ai-toolkit.homeModules.default
   ];
 
   sops.secrets = {
@@ -59,7 +62,10 @@ in {
     defaultProfile = "default";
 
     baseConfig = {
-      memory.text = "Proactively invoke available skills when they match the task at hand.";
+      memory.text = ''
+        Proactively invoke available skills when relevant.
+        Prefer `-C`/path args over `cd &&` (e.g. `git -C /path status`, `nix develop /path`).
+      '';
 
       settings = {
         env =
@@ -75,7 +81,6 @@ in {
           };
         includeCoAuthoredBy = false;
         permissions = {
-          additionalDirectories = ["../docs/"];
           allow = ["Bash(git diff:*)" "Edit"];
           ask = ["Bash(git push:*)" "Bash(kubectl get secret:*)"];
           defaultMode = "acceptEdits";
@@ -88,11 +93,6 @@ in {
         };
         theme = "dark";
       };
-
-      commands = {
-        "fix-tests" = ./commands/fix-tests.md;
-        "explore-codebase" = ./commands/explore-codebase.md;
-      };
     };
 
     profiles = {
@@ -100,9 +100,24 @@ in {
         (addon ./addons/context7)
         (addon ./addons/code-review)
         (addon ./addons/commit-commands)
+        (addon ./addons/nix-build)
         {
           description = "Everyday development";
-          skills."changelog-generator" = ./skills/changelog-generator;
+          skills = {
+            "changelog-generator" = ./skills/changelog-generator;
+            "dev-flake" = ./skills/dev-flake;
+          };
+
+          commands = {
+            "fix-tests" = ./commands/fix-tests.md;
+            "explore-codebase" = ./commands/explore-codebase.md;
+          };
+
+          rules."nix" = ''
+            Nix conventions:
+            - Flakes only — no `nix-env`, `nix-channel`, or `nix-shell`
+            - Minimal function signatures — only params actually used
+          '';
         }
       ];
 
