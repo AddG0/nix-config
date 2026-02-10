@@ -19,6 +19,8 @@
         "darwin/services/tailscale.nix" # mesh VPN for secure remote access
         "darwin/development/mysql.nix"
 
+        "darwin/desktops/linux-esque"
+
         #################### Optional Applications ####################
         # "darwin/applications/autodesk-fusion.nix"
         "darwin/applications/browsers.nix"

@@ -62,7 +62,7 @@ inner.horizontal = 5
 inner.vertical = 5
 outer.left = 5
 outer.bottom = 5
-outer.top = 55 # 50 is the height for sketchybar
+outer.top = 45 # sketchybar bar height (40) + padding
 outer.right = 5
 
 [exec]
@@ -122,29 +122,20 @@ alt-shift-equal = 'resize smart +50'
 alt-f = 'fullscreen'
 
 # See: https://nikitabobko.github.io/AeroSpace/commands#workspace
-alt-1 = 'workspace 1Kitty'
-alt-2 = 'workspace 2Wez'
-alt-3 = 'workspace 3Work'
-alt-4 = 'workspace 4Firefox'
-alt-5 = 'workspace 5Chrome'
-alt-6 = 'workspace 6Chat'
-alt-7 = 'workspace 7Music'
-alt-8 = 'workspace 8'
-alt-9 = 'workspace 9'
-alt-0 = 'workspace 10'
-
+alt-1 = 'workspace Code'
+alt-2 = 'workspace Browser'
+alt-3 = 'workspace Ghostty'
+alt-4 = 'workspace Slack'
+alt-5 = 'workspace 5'
+alt-6 = 'workspace 6'
 
 # See: https://nikitabobko.github.io/AeroSpace/commands#move-node-to-workspace
-alt-shift-1 = 'move-node-to-workspace 1Kitty'
-alt-shift-2 = 'move-node-to-workspace 2Wez'
-alt-shift-3 = 'move-node-to-workspace 3Work'
-alt-shift-4 = 'move-node-to-workspace 4Firefox'
-alt-shift-5 = 'move-node-to-workspace 5Chrome'
-alt-shift-6 = 'move-node-to-workspace 6Chat'
-alt-shift-7 = 'move-node-to-workspace 7Music'
-alt-shift-8 = 'move-node-to-workspace 8'
-alt-shift-9 = 'move-node-to-workspace 9'
-alt-shift-0 = 'move-node-to-workspace 10'
+alt-shift-1 = 'move-node-to-workspace Code'
+alt-shift-2 = 'move-node-to-workspace Browser'
+alt-shift-3 = 'move-node-to-workspace Ghostty'
+alt-shift-4 = 'move-node-to-workspace Slack'
+alt-shift-5 = 'move-node-to-workspace 5'
+alt-shift-6 = 'move-node-to-workspace 6'
 
 # See: https://nikitabobko.github.io/AeroSpace/commands#workspace-back-and-forth
 alt-tab = 'workspace-back-and-forth'
@@ -198,40 +189,28 @@ alt-shift-l = ['join-with right', 'mode main']
 # =================================================================
 
 [[on-window-detected]]
-if.app-id = 'net.kovidgoyal.kitty'
-run = 'move-node-to-workspace 1Kitty'
+if.app-id = 'com.microsoft.VSCode'
+run = 'move-node-to-workspace Code'
 
 [[on-window-detected]]
-if.app-id = 'com.tencent.WeWorkMac'
-run = 'move-node-to-workspace 3Work'
+if.app-id = 'company.thebrowser.Browser'
+run = 'move-node-to-workspace Browser'
 
 [[on-window-detected]]
 if.app-id = 'org.mozilla.firefox'
-run = 'move-node-to-workspace 4Firefox'
+run = 'move-node-to-workspace Browser'
 
 [[on-window-detected]]
 if.app-id = 'com.google.Chrome'
-run = 'move-node-to-workspace 5Chrome'
+run = 'move-node-to-workspace Browser'
 
 [[on-window-detected]]
-if.app-id = 'ru.keepcoder.Telegram'
-run = 'move-node-to-workspace 6Chat'
+if.app-id = 'com.mitchellh.ghostty'
+run = 'move-node-to-workspace Ghostty'
 
 [[on-window-detected]]
-if.app-id = 'com.tencent.xinWeChat'
-run = 'move-node-to-workspace 6Chat'
-
-[[on-window-detected]]
-if.app-id = 'com.tencent.qq'
-run = 'move-node-to-workspace 6Chat'
-
-[[on-window-detected]]
-if.app-id = 'com.tencent.QQMusicMac'
-run = 'move-node-to-workspace 7Music'
-
-[[on-window-detected]]
-if.app-id = 'com.netease.163music'
-run = 'move-node-to-workspace 7Music'
+if.app-id = 'com.tinyspeck.slackmacgap'
+run = 'move-node-to-workspace Slack'
 
 # Make all windows float by default
 # [[on-window-detected]]
@@ -243,13 +222,9 @@ run = 'move-node-to-workspace 7Music'
 # =================================================================
 
 [workspace-to-monitor-force-assignment]
-'1Kitty' = 'main'  # Non-main monitor in case when there are only two monitors'
-'2Wez' = 'main'         # "Main" monitor ("main" as in System Settings → Displays → Use as)
-'3Work' = 'main'
-'4Firefox' = 'main'
-'5Chrome' = 'main'
-'6Chat' = 'main'
-'7Music' = 'main'
-'8' = 'main'
-'9' = 'main'
-'10' = 'main'
+'Code' = 'main'
+'Browser' = 'main'
+'Ghostty' = 'main'
+'Slack' = 'main'
+'5' = 'main'
+'6' = 'main'

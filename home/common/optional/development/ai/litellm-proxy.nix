@@ -74,7 +74,7 @@
     echo "Usage: claude-lite --model <model-name>"
     echo ""
 
-    exec ${lib.getExe pkgs.litellm} --config ${litellmConfig} "$@"
+    exec ${lib.getExe pkgs.stable.litellm} --config ${litellmConfig} "$@"
   '';
 
   # Claude wrapper that uses LiteLLM proxy

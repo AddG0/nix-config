@@ -26,7 +26,7 @@
         "development/ide"
         "development/ide/vscode"
         # "development/java.nix"
-        "development/jupyter-notebook.nix"
+        # "development/jupyter-notebook.nix"
         "development/node.nix"
         "development/terraform.nix"
         "development/tilt.nix"
@@ -43,6 +43,8 @@
         "comms"
         "ghostty"
         "media/spicetify.nix"
+
+        "darwin/desktops/linux-esque"
       ])
     ))
   ];

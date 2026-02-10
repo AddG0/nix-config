@@ -1,11 +1,23 @@
 {pkgs, ...}: {
-  home.file.".config/sketchybar".source = ./config;
+  programs.sketchybar = {
+    enable = true;
+    configType = "lua";
+    config = {
+      source = ./config;
+      recursive = true;
+    };
+    extraPackages = with pkgs; [
+      jq
+      aerospace
+      nowplaying-cli
+    ];
+    extraLuaPackages = ps:
+      with ps; [
+        luafilesystem
+      ];
+  };
 
   home.packages = [
     pkgs.sketchybar-app-font
   ];
-
-  home.activation.reloadSketchybar = ''
-    ${pkgs.sketchybar}/bin/sketchybar --reload
-  '';
 }

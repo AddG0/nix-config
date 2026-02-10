@@ -145,6 +145,11 @@ in {
         # "parallels" # Get version 19 from here: https://www.parallels.com/products/desktop/download/
         "kiro-cli"
         "flux-app" # blue light filter
+
+        # Fonts for sketchybar
+        "font-sf-pro"
+        "font-sf-mono-for-powerline"
+        "sf-symbols"
       ]
       ++ (
         if config.hostSpec.darwin.hasPaidApps

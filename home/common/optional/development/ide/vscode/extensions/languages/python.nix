@@ -11,7 +11,7 @@
     "python.analysis.autoImportCompletions" = true;
     "python.analysis.inlayHints.functionReturnTypes" = true;
     "python.analysis.inlayHints.variableTypes" = true;
-    "python.poetryPath" = "${pkgs.poetry}/bin/poetry";
+    "python.poetryPath" = "${pkgs.stable.poetry}/bin/poetry";
 
     # Pytest testing
     "python.testing.pytestEnabled" = true;
