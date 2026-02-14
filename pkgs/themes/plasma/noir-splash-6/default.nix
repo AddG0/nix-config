@@ -5,13 +5,13 @@
 }:
 stdenvNoCC.mkDerivation rec {
   pname = "noir-splash-6";
-  version = "2025-11-04";
+  version = "2025-12-09";
 
   src = fetchFromGitHub {
     owner = "L4ki";
     repo = "Breeze-Noir-Dark";
-    rev = "d2e84473128eedbfa2a9697dfbf4b252b84a20a6";
-    sha256 = "sha256-fKxOEjLQoB/NKMXty+hGbFbzF/OhrhmFJoIbgvKbhew=";
+    rev = "d6accb50a43c0c4954c16638b9c5c58c24f58485";
+    sha256 = "sha256-/wP0ByEcxIX+0Ngxin7gfCSR0BvHV3aqVdMwBNt+UtM=";
   };
 
   dontBuild = true;

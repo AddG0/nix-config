@@ -45,7 +45,7 @@
         "nixos/audio.nix" # pipewire and cli controls
         "nixos/gaming.nix" # steam, gamescope, gamemode, and related hardware
         # "nixos/services/home-assistant.nix"
-        "nixos/virtualisation/docker.nix"
+        # "nixos/virtualisation/docker.nix"
         # "nixos/plymouth.nix" # fancy boot screen
         "nixos/services/bluetooth.nix"
         "nixos/services/bt-proximity.nix"
@@ -55,6 +55,7 @@
 
         #################### Desktop ####################
         "nixos/desktops/plasma6"
+        "nixos/services/greetd.nix"
       ])
     ))
   ];

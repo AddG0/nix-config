@@ -12,11 +12,11 @@
         "nixpkgs": "nixpkgs_3"
       },
       "locked": {
-        "lastModified": 1770682243,
-        "narHash": "sha256-yLJRdSR4UTwU9H0GWS5QgRUMbC0bY3l0bmw/HyRX77Q=",
+        "lastModified": 1770756319,
+        "narHash": "sha256-Aw4UArYvv1vG6Fwm5w7/+jx2PI/fgYHB1sVeAnZ6L9Q=",
         "ref": "refs/heads/main",
-        "rev": "136f446961e41164e5e9d85dcf3e56c2af6fce8c",
-        "revCount": 133,
+        "rev": "e56e750e273d050f12ca2ab9abbc4ce7839d1ac2",
+        "revCount": 135,
         "type": "git",
         "url": "ssh://git@github.com/addg0/ai-toolkit.git"
       },
@@ -356,11 +356,11 @@
     "dev-tooling": {
       "flake": false,
       "locked": {
-        "lastModified": 1770681019,
-        "narHash": "sha256-zFuFWA899de18hb488KsdC2ODtbs0kvbT12iYx9bDnU=",
+        "lastModified": 1770756295,
+        "narHash": "sha256-A09Uq+F/yIGPau/FlKPrJS3X5hDHaKYzGhKx8KZFsts=",
         "ref": "main",
-        "rev": "42af514fc36224c7114740a220dbf53e1911871f",
-        "revCount": 55,
+        "rev": "8890071861150942e50ca02a17127b06e5302917",
+        "revCount": 63,
         "type": "git",
         "url": "ssh://git@gitlab.com/ShipperHQ/Tooling/Dev-Env/dev-tooling.git"
       },
@@ -871,11 +871,11 @@
         ]
       },
       "locked": {
-        "lastModified": 1769939035,
-        "narHash": "sha256-Fok2AmefgVA0+eprw2NDwqKkPGEI5wvR+twiZagBvrg=",
+        "lastModified": 1770726378,
+        "narHash": "sha256-kck+vIbGOaM/dHea7aTBxdFYpeUl/jHOy5W3eyRvVx8=",
         "owner": "cachix",
         "repo": "git-hooks.nix",
-        "rev": "a8ca480175326551d6c4121498316261cbb5b260",
+        "rev": "5eaaedde414f6eb1aea8b8525c466dc37bba95ae",
         "type": "github"
       },
       "original": {
@@ -1295,11 +1295,11 @@
         "pre-commit-hooks": "pre-commit-hooks"
       },
       "locked": {
-        "lastModified": 1770604137,
-        "narHash": "sha256-svGZTmJGmGTuozZBX9PzavGUz2ii1kpPmmV40FSr3U8=",
+        "lastModified": 1770736726,
+        "narHash": "sha256-/aG7xgVOn/Dm4EthBV0lD2NraqS1pwpsFB0hClK8U9I=",
         "ref": "main",
-        "rev": "522277b396230f9f25f50473e66e6fe4104cfb9c",
-        "revCount": 260,
+        "rev": "8201c463ba79b0e3d679e01c1c2831eee1b3e082",
+        "revCount": 261,
         "type": "git",
         "url": "ssh://git@github.com/addg0/nix-secrets.git"
       },
@@ -1320,11 +1320,11 @@
         "pre-commit-hooks": "pre-commit-hooks_2"
       },
       "locked": {
-        "lastModified": 1770736726,
-        "narHash": "sha256-/aG7xgVOn/Dm4EthBV0lD2NraqS1pwpsFB0hClK8U9I=",
+        "lastModified": 1770946369,
+        "narHash": "sha256-LCs1uWDOFCTEolB45pgeFbbpZVM2IkPIoC1zDDMYtU8=",
         "ref": "main",
-        "rev": "8201c463ba79b0e3d679e01c1c2831eee1b3e082",
-        "revCount": 261,
+        "rev": "24da66e9e1cd9b29ca832df2fba2c3e1a90d35d3",
+        "revCount": 262,
         "type": "git",
         "url": "ssh://git@github.com/addg0/nix-secrets.git"
       },

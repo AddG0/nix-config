@@ -19,38 +19,72 @@
       ]
       ++ (map (f: "common/optional/${f}") [
         #################### Host-specific Optional Configs ####################
+# Helper Scripts
+        # "helper-scripts"
         "helper-scripts"
 
-        "development/jupyter-notebook.nix"
-        "development/ai"
-        "development/virtualization/kubernetes"
-        "development/virtualization/lens.nix"
-        "development/ide"
-        "development/gcloud.nix"
-        "development/aws.nix"
-        "development/terraform.nix"
-        "development/postman.nix"
-        "development"
-
-        "secrets"
-        "secrets/1password-ssh.nix"
-        # "secrets/kubeconfig.nix"
-
-        "nixos/desktops/plasma6"
+        # Browsers
         "browsers"
 
+        # Communication
+        "comms"
+
+        # Development
+        "development"
+        "development/ide"
+        "development/ide/vscode"
+        "development/ide/vscode/server.nix"
+        "development/ide/jetbrains-remote.nix"
+        "development/jupyter-notebook.nix"
+        "development/virtualization/nixos-shell.nix"
+        "development/ai"
+        "development/postman.nix"
+        "development/gcloud.nix"
+        "development/aws.nix"
+        # "development/virtualization"
+        "development/virtualization/lens.nix"
+        "development/virtualization/kubernetes"
+        "development/ai/litellm-proxy.nix"
+
+        "development/java.nix"
+        "development/grpc.nix"
+        "secrets/buf.nix"
+        "development/node.nix"
+        "development/terraform.nix"
+
+        # Gaming
         "gaming/minecraft"
         "gaming/heroic.nix"
+        "gaming/r2modman.nix"
         "gaming/bakkesmod.nix"
-        "gaming"
 
-        "comms"
+        # Ghostty (Terminal)
         "ghostty"
-        "media/spicetify.nix"
-        "media/tidal.nix"
+
+        # Media
         "media"
+        "media/spicetify.nix"
+        # "media/tidal.nix"
+
+        # Tools
+        "tools"
+        "tools/gromit-mpx.nix"
+
+        # NixOS Specific
+        "nixos/desktops/plasma6"
         "media/vlc.nix"
+
+        # Remote Desktop
         # "remote-desktop/rustdesk.nix"
+        # "remote-desktop/mouseshare/lan-mouse.nix"
+
+        # Secrets
+        "secrets"
+        "secrets/kubeconfig.nix"
+        "secrets/ai.nix"
+        "secrets/elevenlabs.nix"
+        "secrets/1password-ssh.nix"
+        # "secrets/1password-ssh.nix"
       ])
     ))
   ];
