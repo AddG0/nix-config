@@ -40,6 +40,7 @@
     # Clear JAVA_TOOL_OPTIONS to prevent direnv interference
     "java.jdt.ls.vmargs" = "-XX:+UseParallelGC -XX:GCTimeRatio=4 -XX:AdaptiveSizePolicyWeight=90 -Xmx2G -Xms512m";
     "java.configuration.updateBuildConfiguration" = "automatic";
+    "java.debug.settings.hotCodeReplace" = "auto";
     "java.compile.nullAnalysis.mode" = "automatic";
     "java.inlayHints.parameterNames.enabled" = "all";
 

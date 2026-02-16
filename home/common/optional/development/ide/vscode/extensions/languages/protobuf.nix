@@ -8,5 +8,6 @@
     };
     "clang-format.executable" = "${pkgs.clang-tools}/bin/clang-format";
     "protobuf.externalLinter.enabled" = true;
+    "protobuf.externalLinter.linter" = "buf";
   };
 }

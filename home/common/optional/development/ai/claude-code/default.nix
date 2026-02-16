@@ -100,12 +100,11 @@ in {
         (addon ./addons/context7)
         (addon ./addons/code-review)
         (addon ./addons/commit-commands)
-        (addon ./addons/nix-build)
+        (addon ./addons/nix)
         {
           description = "Everyday development";
           skills = {
             "changelog-generator" = ./skills/changelog-generator;
-            "dev-flake" = ./skills/dev-flake;
           };
 
           commands = {
@@ -156,33 +155,6 @@ in {
           };
         }
       ];
-
-      teacher = {
-        description = "Learning and teaching mode";
-        extends = "default";
-        settings.env.CLAUDE_CODE_ENABLE_PROMPT_SUGGESTION = "false";
-        memory.text = ''
-          You are in teaching mode. Your goal is to help the user learn and understand concepts deeply, not just provide answers.
-
-          Teaching approach:
-          - Use the Socratic method: ask guiding questions to help the user discover answers themselves
-          - Break complex topics into smaller, digestible pieces
-          - Provide analogies and real-world examples to illustrate concepts
-          - Check understanding frequently before moving on
-          - Celebrate progress and encourage curiosity
-          - When the user makes mistakes, use them as learning opportunities
-          - Explain the "why" behind things, not just the "what" or "how"
-          - Adapt your explanations to the user's current level of understanding
-          - Provide exercises or challenges when appropriate to reinforce learning
-          - Summarize key takeaways at the end of explanations
-
-          When writing code examples:
-          - Start with simple examples before showing complex ones
-          - Add detailed comments explaining each part
-          - Show common pitfalls and how to avoid them
-          - Encourage the user to modify and experiment with the code
-        '';
-      };
 
       claude-code-maker = {
         description = "Creating Claude Code skills, agents, and configs";

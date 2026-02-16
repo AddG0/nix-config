@@ -4,7 +4,7 @@
 #
 # Manage multiple isolated Claude Code configurations using named profiles.
 # Each profile maintains its own settings, memory, MCP servers, agents, skills,
-# commands, hooks, and rules.
+# commands, hooks, rules, and output styles.
 #
 # USAGE:
 #   programs.claude-code-profiles = {
@@ -120,6 +120,26 @@
       default = {};
       description = "Project rules that guide Claude's behavior.";
     };
+
+    outputStyles = lib.mkOption {
+      type = lib.types.attrsOf (lib.types.either lib.types.lines lib.types.path);
+      default = {};
+      example = lib.literalExpression ''
+        {
+          concise = '''
+            ---
+            name: Concise
+            description: Short, direct responses
+            keep-coding-instructions: true
+            ---
+
+            Be extremely concise. No filler words.
+          ''';
+          reviewer = ./output-styles/reviewer.md;
+        }
+      '';
+      description = "Custom output style definitions (Markdown with frontmatter, inline text or path to file).";
+    };
   };
 
   # Profile submodule with computed profileDir and extends
@@ -168,6 +188,7 @@
     hooks = (base.hooks or {}) // (overlay.hooks or {});
     skills = (base.skills or {}) // (overlay.skills or {});
     rules = (base.rules or {}) // (overlay.rules or {});
+    outputStyles = (base.outputStyles or {}) // (overlay.outputStyles or {});
   };
 
   # Resolve profile extension chain (supports single string or list)
@@ -256,7 +277,12 @@
       ruleName: content:
         lib.nameValuePair "${profileDir}/rules/${ruleName}.md" (mkFileEntry content)
     )
-    finalConfig.rules;
+    finalConfig.rules
+    // lib.mapAttrs' (
+      styleName: content:
+        lib.nameValuePair "${profileDir}/output-styles/${styleName}.md" (mkFileEntry content)
+    )
+    finalConfig.outputStyles;
 
   # Zsh completion package (installed to ~/.nix-profile/share/zsh/site-functions)
   zshCompletion = pkgs.runCommand "claude-zsh-completion" {} ''

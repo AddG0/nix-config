@@ -5,6 +5,7 @@
     entries = [
       "${pkgs.spotify}/share/applications/spotify.desktop"
       "${pkgs.discord-legcord}/share/applications/legcord.desktop"
+      "${pkgs._1password-gui}/share/applications/1password.desktop"
     ];
   };
   # Plasma Monitor Configuration:
@@ -374,6 +375,12 @@
       kwinrc.Windows = {
         FocusStealingPreventionLevel = 0; # 0=None, 1=Low, 2=Medium, 3=High, 4=Extreme
       };
+      # # KRdp - Plasma native Wayland RDP server (hardware-accelerated via VA-API)
+      # krdpserverrc.General = {
+      #   Autostart = true;
+      #   SystemUserEnabled = true; # login with system (PAM) credentials
+      # };
+
       # Disable KWin shortcuts (~/.config/kglobalshortcutsrc)
       kglobalshortcutsrc.kwin = {
         "KZones: Snap active window" = "none,none,KZones: Snap active window";

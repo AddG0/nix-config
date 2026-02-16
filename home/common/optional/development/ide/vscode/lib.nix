@@ -137,6 +137,7 @@
       # excalidraw
       codesnap
       partialDiff
+      leetcode
 
       # AI
       claudeCode

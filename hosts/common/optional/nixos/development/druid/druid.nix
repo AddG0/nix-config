@@ -162,6 +162,7 @@ in {
   };
 
   services.postgresql = {
+    enable = true;
     ensureDatabases = ["druid"];
     ensureUsers = [
       {
@@ -169,8 +170,8 @@ in {
         ensureDBOwnership = true;
       }
     ];
-    # Must match database.nix priority (mkOverride 10)
     authentication = lib.mkOverride 10 ''
+      local all postgres peer
       local druid druid peer
     '';
   };

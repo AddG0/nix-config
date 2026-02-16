@@ -1,11 +1,10 @@
 ---
 name: dev-flake
-description: Scaffold reproducible Nix flake dev environments with devShells, process-compose services, pre-commit hooks, and direnv integration.
+description: Scaffold or update Nix flake dev environments. Use when creating, modernizing, or adding services to a project's flake.nix.
+argument-hint: "[language] [services...] — e.g. python-uv postgres, java redis kafka"
+context: fork
+allowed-tools: Bash, Read, Write, Edit, Glob, Grep
 ---
-
-# Dev Flake
-
-Scaffold a `flake.nix` for reproducible dev environments using flake-parts, services-flake, and git-hooks-nix.
 
 ## When to Use
 
@@ -113,12 +112,19 @@ project/
 | `nix flake update`                     | Update all inputs             |
 | `nix flake lock --update-input <name>` | Update single input           |
 
+## Language References
+
+When the project uses a specific language ecosystem, load the corresponding reference for inputs, patterns, and conventions:
+
+- For Python projects using `uv` (`pyproject.toml` + `uv.lock`), see [references/uv2nix.md](references/uv2nix.md)
+
 ## Steps
 
 1. Ask what language/framework and what local services are needed
-2. Scaffold `flake.nix` from the template, trimming unused sections
-3. Add language-specific packages to `devShells.default.packages`
-4. Add appropriate pre-commit hooks for the language
-5. Configure services if needed, otherwise remove process-compose inputs
-6. Create `.envrc` with `use flake`
-7. Run `nix flake lock` to generate the lock file
+2. Scaffold `flake.nix` from the base template, trimming unused sections
+3. If a language reference exists, load it and merge those inputs/patterns into the flake
+4. Add language-specific packages to `devShells.default.packages`
+5. Add appropriate pre-commit hooks for the language
+6. Configure services if needed, otherwise remove process-compose inputs
+7. Create `.envrc` with `use flake`
+8. Run `nix flake lock` to generate the lock file

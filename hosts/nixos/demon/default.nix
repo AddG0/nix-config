@@ -20,7 +20,7 @@
     #################### Misc Inputs ####################
     ./graphics.nix
     ./hardware-configuration.nix
-    ./ai.nix
+    # ./ai.nix
     ./audio
     ./media.nix
 
@@ -51,7 +51,8 @@
         "nixos/services/ollama.nix"
         "nixos/services/clamav.nix"
         "nixos/services/earlyoom.nix"
-        # "nixos/services/sunshine.nix"
+
+        "nixos/remote-desktop/xrdp.nix"
 
         "nixos/development/mysql.nix"
         # "nixos/development/druid"

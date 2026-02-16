@@ -45,6 +45,7 @@
         "darwin/applications/1password.nix"
         # "darwin/applications/stats.nix"
         # "darwin/applications/chatgpt.nix"
+        "darwin/applications/kde-connect.nix"
 
         #################### Desktop ####################
       ])
