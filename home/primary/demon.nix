@@ -47,10 +47,11 @@
         "development/virtualization/kubernetes"
         "development/ai/litellm-proxy.nix"
 
-        "development/java.nix"
+        "development/languages/java.nix"
+        "development/languages/node.nix"
+        "development/languages/rust.nix"
         "development/grpc.nix"
         "secrets/buf.nix"
-        "development/node.nix"
         "development/terraform.nix"
 
         # Gaming
@@ -70,9 +71,11 @@
         # Tools
         "tools"
         "tools/gromit-mpx.nix"
+        "tools/wayscriber.nix"
 
         # NixOS Specific
         "nixos/desktops/plasma6"
+        "nixos/desktops/niri"
         "media/vlc.nix"
 
         # Remote Desktop
@@ -112,7 +115,7 @@
     polarity = "dark";
   };
 
-  services.safeeyes.enable = true;
+  # services.safeeyes.enable = true;
 
   services.gpu-screen-recorder = {
     enable = true;
@@ -121,52 +124,80 @@
   };
 
   #
+  # ========== Workspaces & App Placement ==========
+  #
+  programs.niri.settings = {
+    workspaces = {
+      "01-browser" = {
+        name = "browser";
+        open-on-output = "DP-1";
+      };
+      "02-dev" = {
+        name = "dev";
+        open-on-output = "DP-3";
+      };
+      "03-chat" = {
+        name = "chat";
+        open-on-output = "DP-2";
+      };
+    };
+
+    window-rules = [
+      {
+        matches = [{app-id = "^zen(-beta)?$";}];
+        open-on-workspace = "browser";
+      }
+      {
+        matches = [{app-id = "^code(-url-handler)?$";}];
+        open-on-workspace = "dev";
+      }
+      {
+        matches = [{app-id = "^Slack$";}];
+        open-on-workspace = "chat";
+      }
+      {
+        matches = [{app-id = "^(discord|legcord)$";}];
+        open-on-workspace = "chat";
+      }
+    ];
+  };
+
+  #
   # ========== Host-specific Monitor Spec ==========
   #
-  # This uses the nix-config/modules/home/montiors.nix module which defaults to enabled.
-  # Your nix-config/home-manger/<user>/common/optional/desktops/foo.nix WM config should parse and apply these values to it's monitor settings
-  # If on hyprland, use `hyprctl monitors` to get monitor info.
-  # https://wiki.hyprland.org/Configuring/Monitors/
-  #           ------
-  #        | HDMI-A-1 |
-  #           ------
-  #  ------   ------   ------
-  # | DP-2 | | DP-1 | | DP-3 |
-  #  ------   ------   ------
+  #  ------   ------
+  # | DP-1 | | DP-3 | ----
+  # | ASUS | |  LG  | |DP-2|
+  #  ------   ------  |(rot)|
+  #                    ----
+  defaultMonitor.enable = false;
+
   monitors = [
     {
-      name = "DP-3";
+      name = "DP-1";
       width = 3840;
       height = 2160;
       refreshRate = 144;
-      vrr = 0;
       x = 0;
       y = 0;
     }
     {
-      name = "DP-4";
-      width = 1080;
-      height = 1920;
-      refreshRate = 60;
-      transform = 3;
-      vrr = 0;
-      x = 7680;
-      y = 240;
-    }
-    {
-      name = "DP-5";
+      name = "DP-3";
       width = 3840;
       height = 2160;
       refreshRate = 240;
-      vrr = 0;
       x = 3840;
       y = 0;
       primary = true;
     }
     {
-      name = "";
-      position = "auto";
-      resolution = "preferred";
+      name = "DP-2";
+      width = 1920;
+      height = 1080;
+      refreshRate = 60;
+      transform = "270";
+      x = 7680;
+      y = 240; # bottom-aligned with DP-3 (2160 - 1920 = 240)
     }
   ];
 }

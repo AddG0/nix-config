@@ -358,7 +358,7 @@ restart-plasma:
     echo "Plasma shell is not running, starting it..."; \
     plasmashell > /dev/null 2>&1 & \
     echo "Plasma shell started"; \
-  fi
+  fie
 
 # K3s cluster management commands
 

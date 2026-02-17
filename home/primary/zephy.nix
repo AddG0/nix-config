@@ -19,7 +19,7 @@
       ]
       ++ (map (f: "common/optional/${f}") [
         #################### Host-specific Optional Configs ####################
-# Helper Scripts
+        # Helper Scripts
         # "helper-scripts"
         "helper-scripts"
 
@@ -46,10 +46,10 @@
         "development/virtualization/kubernetes"
         "development/ai/litellm-proxy.nix"
 
-        "development/java.nix"
+        "development/languages/java.nix"
+        "development/languages/node.nix"
         "development/grpc.nix"
         "secrets/buf.nix"
-        "development/node.nix"
         "development/terraform.nix"
 
         # Gaming
@@ -148,14 +148,12 @@
   monitors = [
     {
       name = "desc:AU Optronics 0x8E9D";
-      use_nwg = true;
       width = 2560;
       height = 1600;
-      resolution = "2560x1600@165.04";
       refreshRate = 165;
       x = 555;
       y = 0;
-      vrr = 1;
+      vrr = "on";
       primary = true;
     }
     {
@@ -163,15 +161,8 @@
       width = 3840;
       height = 1100;
       refreshRate = 60;
-      vrr = 0;
       x = 0;
       y = 1600;
-      # workspace = "0";
-    }
-    {
-      name = "";
-      position = "auto";
-      resolution = "preferred";
     }
   ];
 }

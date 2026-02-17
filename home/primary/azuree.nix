@@ -83,14 +83,12 @@
   monitors = [
     {
       name = "DP-1";
-      use_nwg = false;
       width = 3440;
       height = 1440;
-      # resolution = "2560x1600@165.04";
       refreshRate = 180;
       x = 3840;
       y = 218;
-      vrr = 1;
+      vrr = "on";
       primary = true;
     }
     {
@@ -98,26 +96,17 @@
       width = 3840;
       height = 2160;
       refreshRate = 144;
-      vrr = 0;
       x = 0;
       y = 0;
-      # workspace = "0";
     }
     {
       name = "DP-3";
       width = 1920;
       height = 1080;
       refreshRate = 60;
-      transform = 3;
-      vrr = 0;
+      transform = "270";
       x = 7280;
       y = 0;
-      # workspace = "0";
-    }
-    {
-      name = "";
-      position = "auto";
-      resolution = "preferred";
     }
   ];
 }

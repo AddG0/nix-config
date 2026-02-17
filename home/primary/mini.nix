@@ -10,13 +10,12 @@
       ++ (map (f: "common/optional/${f}") [
         #################### Host-specific Optional Configs ####################
         "helper-scripts"
-        "development/java.nix"
+        "development/languages/java.nix"
+        "development/languages/node.nix"
         "development/jupyter-notebook.nix"
         "comms"
         "development/ide"
         "development/tilt.nix"
-        "development/node.nix"
-        "development/misc-language-servers.nix"
         "ghostty"
       ])
     ))

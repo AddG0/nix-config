@@ -6,6 +6,23 @@
   ...
 }: let
   package = pkgs.hyprland;
+
+  transformToHyprland = {
+    "normal" = 0;
+    "90" = 1;
+    "180" = 2;
+    "270" = 3;
+    "flipped" = 4;
+    "flipped-90" = 5;
+    "flipped-180" = 6;
+    "flipped-270" = 7;
+  };
+
+  vrrToHyprland = {
+    "off" = 0;
+    "on" = 1;
+    "fullscreen-only" = 2;
+  };
 in {
   # NOTE:
   # We have to enable hyprland/i3's systemd user service in home-manager,
@@ -15,12 +32,8 @@ in {
     inherit package;
     enable = true;
     settings = {
-      source = lib.flatten [
+      source = [
         "${nur-ryan4yin.packages.${pkgs.stdenv.hostPlatform.system}.catppuccin-hyprland}/themes/mocha.conf"
-        (lib.optionals (builtins.head config.monitors).use_nwg [
-          "~/.config/hypr/monitors.conf"
-          "~/.config/hypr/workspaces.conf"
-        ])
       ];
       env = [
         "NIXOS_OZONE_WL,1" # for any ozone-based browser & electron apps to run on wayland
@@ -44,24 +57,16 @@ in {
       # ========== Monitor ==========
       #
       # parse the monitor spec defined in nix-config/home/<user>/<host>.nix
-      monitor = lib.mkIf (!(builtins.head config.monitors).use_nwg) (
-        map (
-          m: "${m.name},${
-            if m.enabled
-            then "${
-              if m.resolution != null
-              then m.resolution
-              else "${toString m.width}x${toString m.height}@${toString m.refreshRate}.0"
-            },${
-              if m.position != null
-              then m.position
-              else "${toString m.x}x${toString m.y}"
-            },1,transform,${toString m.transform},vrr,${toString m.vrr}"
-            else "disable"
-          }"
-        )
-        (builtins.filter (m: m.name != "") config.monitors)
-      );
+      monitor =
+        (map (
+            m: "${m.name},${
+              if m.enabled
+              then "${toString m.width}x${toString m.height}@${toString m.refreshRate}.0,${toString m.x}x${toString m.y},1,transform,${toString transformToHyprland.${m.transform}},vrr,${toString vrrToHyprland.${m.vrr}}"
+              else "disable"
+            }"
+          )
+          config.monitors)
+        ++ (lib.optional config.defaultMonitor.enable ",preferred,auto,1");
 
       #
       # ========== hy3 config ==========
