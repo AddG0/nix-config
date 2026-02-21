@@ -13,8 +13,6 @@
     # xserver.enable = true;
   };
 
-  services.greetd.sessionCommand = lib.mkDefault "startplasma-wayland";
-
   security.pam.services = {
     sddm.kwallet.enable = lib.mkIf config.services.displayManager.sddm.enable true;
     greetd.kwallet = lib.mkIf config.services.greetd.enable {

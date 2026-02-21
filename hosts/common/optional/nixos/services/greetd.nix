@@ -17,7 +17,7 @@ in {
       restart = true;
       settings = {
         default_session = {
-          command = "${pkgs.tuigreet}/bin/tuigreet --asterisks --time --time-format '%I:%M %p | %a • %h | %F' --sessions /run/current-system/sw/share/wayland-sessions --cmd ${cfg.sessionCommand}";
+          command = "${pkgs.tuigreet}/bin/tuigreet --asterisks --time --time-format '%I:%M %p | %a • %h | %F' --cmd ${cfg.sessionCommand}";
           user = cfg.username;
         };
 

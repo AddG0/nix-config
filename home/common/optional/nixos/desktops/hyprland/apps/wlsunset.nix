@@ -1,12 +1,13 @@
 {
   services.wlsunset = {
-    enable = true;
-    gamma = 0.8;
+    # Controlled by noctalia
+    enable = false;
+    gamma = 0.9;
     sunrise = "06:30";
     sunset = "18:00";
     temperature = {
-      day = 4000;
-      night = 2400;
+      day = 4500;
+      night = 3400;
     };
   };
 }

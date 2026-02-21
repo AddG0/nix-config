@@ -41,6 +41,7 @@
         "development/ai"
         "development/postman.nix"
         "development/gcloud.nix"
+        "development/gitlab.nix"
         "development/aws.nix"
         # "development/virtualization"
         "development/virtualization/lens.nix"
@@ -70,16 +71,17 @@
 
         # Tools
         "tools"
-        "tools/gromit-mpx.nix"
+        # "tools/gromit-mpx.nix"
         "tools/wayscriber.nix"
 
         # NixOS Specific
-        "nixos/desktops/plasma6"
-        "nixos/desktops/niri"
+        # "nixos/desktops/plasma6"
+        "nixos/desktops/hyprland"
+        "nixos/desktops/hyprland/nvidia.nix"
         "media/vlc.nix"
 
         # Remote Desktop
-        # "remote-desktop/rustdesk.nix"
+        "remote-desktop/rustdesk.nix"
         # "remote-desktop/mouseshare/lan-mouse.nix"
 
         # Secrets
@@ -95,24 +97,51 @@
   home.file."Videos/Movies".source = config.lib.file.mkOutOfStoreSymlink "/mnt/videos";
 
   stylix = {
-    enable = false;
-    image = pkgs.fetchurl {
-      url = "https://unsplash.com/photos/3l3RwQdHRHg/download?ixid=M3wxMjA3fDB8MXxhbGx8fHx8fHx8fHwxNzM2NTE4NDQ2fA&force=true";
-      sha256 = "LtdnBAxruHKYE/NycsA614lL6qbGBlkrlj3EPNZ/phU=";
-    };
+    enable = true;
+    image = "${pkgs.kdePackages.plasma-workspace-wallpapers}/share/wallpapers/Nexus/contents/images_dark/5120x2880.png";
     base16Scheme = "${pkgs.base16-schemes}/share/themes/catppuccin-mocha.yaml";
     cursor = {
       package = pkgs.bibata-cursors;
       name = "Bibata-Original-Classic";
-      size = 24; # adjust to your display
+      size = 18;
+    };
+    fonts = {
+      sansSerif = {
+        package = pkgs.inter;
+        name = "Inter";
+      };
+      serif = {
+        package = pkgs.inter;
+        name = "Inter";
+      };
+      monospace = {
+        package = pkgs.nerd-fonts.meslo-lg;
+        name = "MesloLGS Nerd Font";
+      };
+      emoji = {
+        package = pkgs.noto-fonts-color-emoji;
+        name = "Noto Color Emoji";
+      };
+      sizes = {
+        applications = 11;
+        terminal = 12;
+        desktop = 11;
+        popups = 12;
+      };
     };
     opacity = {
       applications = 1.0;
-      terminal = 1.0;
+      terminal = 0.95;
       desktop = 1.0;
-      popups = 0.8;
+      popups = 0.9;
     };
     polarity = "dark";
+    icons = {
+      enable = true;
+      package = pkgs.papirus-icon-theme;
+      dark = "Papirus-Dark";
+      light = "Papirus-Light";
+    };
   };
 
   # services.safeeyes.enable = true;
@@ -126,41 +155,41 @@
   #
   # ========== Workspaces & App Placement ==========
   #
-  programs.niri.settings = {
-    workspaces = {
-      "01-browser" = {
-        name = "browser";
-        open-on-output = "DP-1";
-      };
-      "02-dev" = {
-        name = "dev";
-        open-on-output = "DP-3";
-      };
-      "03-chat" = {
-        name = "chat";
-        open-on-output = "DP-2";
-      };
-    };
+  # programs.niri.settings = {
+  #   workspaces = {
+  #     "01-browser" = {
+  #       name = "browser";
+  #       open-on-output = "DP-1";
+  #     };
+  #     "02-dev" = {
+  #       name = "dev";
+  #       open-on-output = "DP-3";
+  #     };
+  #     "03-chat" = {
+  #       name = "chat";
+  #       open-on-output = "DP-2";
+  #     };
+  #   };
 
-    window-rules = [
-      {
-        matches = [{app-id = "^zen(-beta)?$";}];
-        open-on-workspace = "browser";
-      }
-      {
-        matches = [{app-id = "^code(-url-handler)?$";}];
-        open-on-workspace = "dev";
-      }
-      {
-        matches = [{app-id = "^Slack$";}];
-        open-on-workspace = "chat";
-      }
-      {
-        matches = [{app-id = "^(discord|legcord)$";}];
-        open-on-workspace = "chat";
-      }
-    ];
-  };
+  #   window-rules = [
+  #     {
+  #       matches = [{app-id = "^zen(-beta)?$";}];
+  #       open-on-workspace = "browser";
+  #     }
+  #     {
+  #       matches = [{app-id = "^code(-url-handler)?$";}];
+  #       open-on-workspace = "dev";
+  #     }
+  #     {
+  #       matches = [{app-id = "^Slack$";}];
+  #       open-on-workspace = "chat";
+  #     }
+  #     {
+  #       matches = [{app-id = "^(discord|legcord)$";}];
+  #       open-on-workspace = "chat";
+  #     }
+  #   ];
+  # };
 
   #
   # ========== Host-specific Monitor Spec ==========
@@ -180,6 +209,8 @@
       refreshRate = 144;
       x = 0;
       y = 0;
+      bitdepth = 10;
+      hdr = true;
     }
     {
       name = "DP-3";
@@ -189,6 +220,8 @@
       x = 3840;
       y = 0;
       primary = true;
+      bitdepth = 10;
+      hdr = true;
     }
     {
       name = "DP-2";

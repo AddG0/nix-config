@@ -7,12 +7,15 @@
   lib,
   ...
 }: {
-  imports = [
-    inputs.zen-browser.homeModules.beta
-    ./xdg.nix
-  ];
+  imports =
+    [
+      inputs.zen-browser.homeModules.beta
+    ]
+    ++ lib.optionals pkgs.stdenv.hostPlatform.isLinux [
+      ./xdg.nix
+    ];
 
-  programs.zen-browser = lib.mkIf pkgs.stdenv.isLinux {
+  programs.zen-browser = {
     enable = true;
     icon = ./icons/zen-catppuccin-mocha-mauve.svg;
     languagePacks = ["en-US"];

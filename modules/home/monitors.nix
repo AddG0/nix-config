@@ -57,6 +57,16 @@
               description = "Variable Refresh Rate (Adaptive Sync / FreeSync).";
               default = "off";
             };
+            bitdepth = lib.mkOption {
+              type = lib.types.enum [8 10];
+              description = "Color bit depth. 10 enables HDR.";
+              default = 8;
+            };
+            hdr = lib.mkOption {
+              type = lib.types.bool;
+              description = "Enable HDR color management.";
+              default = false;
+            };
           };
         }
       );

@@ -1,14 +1,13 @@
 # Define greetd options globally for consistent availability, regardless of greetd configuration import
 {
   config,
-  pkgs,
   lib,
   ...
 }: {
   options.services.greetd = {
     sessionCommand = lib.mkOption {
       type = lib.types.str;
-      default = "${pkgs.hyprland}/bin/Hyprland";
+      default = "start-hyprland";
       description = "Command to run for session";
     };
 

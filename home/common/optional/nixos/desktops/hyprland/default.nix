@@ -1,42 +1,29 @@
-{
-  config,
-  lib,
-  ...
-} @ args:
-with lib; let
-  cfg = config.modules.desktop.hyprland;
+{pkgs, ...}: let
+  package = pkgs.hyprland;
 in {
   imports = [
-    ./options
-    (import ./values args)
+    ./settings.nix
+    ./binds.nix
+    ./plugins
+    ./noctalia.nix
+    ./anyrun.nix
+    ./apps
   ];
 
-  options = {
-    modules.desktop.hyprland = {
-      enable = mkEnableOption "hyprland compositor";
-      settings = lib.mkOption {
-        type = with lib.types; let
-          valueType =
-            nullOr (oneOf [
-              bool
-              int
-              float
-              str
-              path
-              (attrsOf valueType)
-              (listOf valueType)
-            ])
-            // {
-              description = "Hyprland configuration value";
-            };
-        in
-          valueType;
-        default = {};
-      };
-    };
+  # wayland session entry for greetd
+  home.file.".wayland-session" = {
+    source = "${package}/bin/Hyprland";
+    executable = true;
   };
 
-  config = mkIf cfg.enable {
-    wayland.windowManager.hyprland.settings = cfg.settings;
+  # Credential store
+  services.gnome-keyring = {
+    enable = true;
+    components = ["secrets"];
   };
+
+  # Provides org.gnome.keyring.SystemPrompter D-Bus service.
+  # Without it, apps like 1Password fail to store credentials:
+  # "The name org.gnome.keyring.SystemPrompter was not provided by any .service files"
+  home.packages = [pkgs.gcr];
 }

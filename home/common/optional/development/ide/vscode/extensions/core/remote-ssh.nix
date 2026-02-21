@@ -1,6 +1,7 @@
 {pkgs, ...}: {
   extensions = [
     pkgs.vscode-marketplace.ms-vscode-remote.remote-ssh
+    pkgs.vscode-marketplace.ms-vscode-remote.remote-containers
   ];
   userSettings = {
     # Required for -vscode host aliases that use RemoteCommand for nushell workaround

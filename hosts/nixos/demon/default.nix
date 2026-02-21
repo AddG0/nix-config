@@ -52,15 +52,16 @@
         "nixos/services/clamav.nix"
         "nixos/services/earlyoom.nix"
 
-        "nixos/remote-desktop/xrdp.nix"
+        # "nixos/remote-desktop/xrdp.nix"
+        "nixos/remote-desktop/sunshine.nix"
 
         "nixos/development/mysql.nix"
         # "nixos/development/druid"
 
         # "nixos/plymouth.nix" # fancy boot screen
         "nixos/services/greetd.nix"
-        "nixos/desktops/plasma6" # window manager
-        "nixos/desktops/niri" # scrollable tiling compositor + noctalia shell
+        # "nixos/desktops/plasma6" # window manager
+        "nixos/desktops/hyprland"
       ])
     ))
   ];

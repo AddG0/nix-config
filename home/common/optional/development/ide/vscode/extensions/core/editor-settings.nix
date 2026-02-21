@@ -1,4 +1,4 @@
-_: {
+{lib, ...}: {
   extensions = [];
   userSettings = {
     # Auto-save
@@ -6,10 +6,10 @@ _: {
     "files.autoSaveDelay" = 1000;
 
     # Font settings (JetBrains Mono recommended)
-    "editor.fontFamily" = "'JetBrains Mono', 'Fira Code', 'Cascadia Code', monospace";
-    "editor.fontSize" = 14;
-    "editor.fontLigatures" = true;
-    "editor.lineHeight" = 1.5;
+    "editor.fontFamily" = lib.mkForce "'JetBrains Mono', 'Fira Code', 'Cascadia Code', monospace";
+    "editor.fontSize" = lib.mkForce 14;
+    "editor.fontLigatures" = lib.mkForce true;
+    "editor.lineHeight" = lib.mkForce 1.5;
 
     # Cursor
     "editor.cursorBlinking" = "smooth";

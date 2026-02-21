@@ -17,7 +17,7 @@
     ];
   };
 
-  nixpkgs.config.chromium.enableWidevine = true;
+  nixpkgs.config.chromium.enableWideVine = true;
 
   home.packages = [
     # https://www.reddit.com/r/kde/comments/1gjcfpp/window_title_bar_not_fully_maximizing_and_or/

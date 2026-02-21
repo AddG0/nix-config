@@ -101,16 +101,6 @@
     }
   ];
 
-  # modules.desktop.hyprland = {
-  #   enable = true;
-  #   nvidia = true;
-  #   settings = {
-  #     workspace = [
-  #       "1,monitor:desc:AU Optronics 0x8E9D"
-  #     ];
-  #   };
-  # };
-
   stylix = {
     enable = false;
     image = pkgs.fetchurl {

@@ -1,4 +1,4 @@
-_: {
+{lib, ...}: {
   extensions = [];
   userSettings = {
     # Terminal settings
@@ -12,8 +12,8 @@ _: {
         "icon" = "terminal-bash";
       };
     };
-    "terminal.integrated.fontFamily" = "'JetBrainsMono Nerd Font Mono'";
-    "terminal.integrated.fontSize" = 14;
+    "terminal.integrated.fontFamily" = lib.mkForce "'JetBrainsMono Nerd Font Mono'";
+    "terminal.integrated.fontSize" = lib.mkForce 14;
     "terminal.integrated.cursorStyle" = "line";
     "terminal.integrated.cursorBlinking" = true;
     "terminal.integrated.smoothScrolling" = true;

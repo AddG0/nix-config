@@ -19,7 +19,7 @@
         "darwin/services/tailscale.nix" # mesh VPN for secure remote access
         "darwin/development/mysql.nix"
 
-        "darwin/desktops/linux-esque"
+        # "darwin/desktops/linux-esque"
 
         #################### Optional Applications ####################
         # "darwin/applications/autodesk-fusion.nix"
@@ -46,6 +46,7 @@
         # "darwin/applications/stats.nix"
         # "darwin/applications/chatgpt.nix"
         "darwin/applications/kde-connect.nix"
+        "darwin/applications/moonshine.nix"
 
         #################### Desktop ####################
       ])

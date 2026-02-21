@@ -342,6 +342,11 @@ tmpfiles-create:
   sudo systemd-tmpfiles --create
 
 [group('utilities')]
+[doc("Visualize disk usage with Filelight (WinDirStat-like treemap)")]
+disk-usage:
+  nix run nixpkgs#kdePackages.filelight
+
+[group('utilities')]
 [doc("Flush DNS resolver cache")]
 flush-dns:
   resolvectl flush-caches

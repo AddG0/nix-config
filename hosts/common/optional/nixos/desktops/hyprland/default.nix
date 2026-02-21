@@ -1,4 +1,8 @@
-{lib, ...}: {
+{
+  lib,
+  config,
+  ...
+}: {
   imports = lib.custom.scanPaths ./.;
 
   programs.hyprland = {
@@ -10,5 +14,7 @@
   # Allow file managers to discover plugged in devices
   services.udisks2.enable = lib.mkDefault true;
 
-  services.greetd.sessionCommand = lib.mkDefault "Hyprland";
+  # Credential store (replaces kwallet for non-Plasma sessions)
+  services.gnome.gnome-keyring.enable = true;
+  security.pam.services.greetd.enableGnomeKeyring = lib.mkIf config.services.greetd.enable true;
 }
