@@ -1,0 +1,13 @@
+name = "Marlow's Crystal Optimizer"
+filename = "Marlow's Crystal Optimizer-1.21.11-1.0.5.jar"
+side = "client"
+
+[download]
+url = "https://cdn.modrinth.com/data/ozpC8eDC/versions/TamXUoou/Marlow%27s%20Crystal%20Optimizer-1.21.11-1.0.5.jar"
+hash-format = "sha512"
+hash = "8cc1f7c5daefaa5513ee9461688ae0e9bc6b47efbe97b99326ef925892b29a7a6323f01014da49a944fceaaa6b2567eb03727fd7cae481dbc0a234271010cf19"
+
+[update]
+[update.modrinth]
+mod-id = "ozpC8eDC"
+version = "TamXUoou"

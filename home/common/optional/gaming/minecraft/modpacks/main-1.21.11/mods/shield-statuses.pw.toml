@@ -1,0 +1,13 @@
+name = "Shield Statuses"
+filename = "ShieldStatus-4.1.2-1.21.11.jar"
+side = "client"
+
+[download]
+url = "https://cdn.modrinth.com/data/GfoMZ9Ly/versions/TceBEtTK/ShieldStatus-4.1.2-1.21.11.jar"
+hash-format = "sha512"
+hash = "15a0ec21bf8bbe8de2e9de57583d95fb07f56b23d4e61c73869feef7d72b5bb62977bef09e0fefa50911ea08b1324cd0282cdc899346e9d993bba4ccc011172f"
+
+[update]
+[update.modrinth]
+mod-id = "GfoMZ9Ly"
+version = "TceBEtTK"

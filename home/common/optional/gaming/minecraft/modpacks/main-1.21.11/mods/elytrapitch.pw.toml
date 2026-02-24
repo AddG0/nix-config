@@ -1,0 +1,13 @@
+name = "Elytra Pitch"
+filename = "elytrapitch-1.4.5.jar"
+side = "client"
+
+[download]
+url = "https://cdn.modrinth.com/data/NSHJxibg/versions/R6jWgYEl/elytrapitch-1.4.5.jar"
+hash-format = "sha512"
+hash = "c55054f9449c9097486a71af48b11905a9ca1547e6b6cbd362d84ba72c87720000bce5a6d485194b944c13dff75bcedcb2542f295717cf9993aafa934ddc9f70"
+
+[update]
+[update.modrinth]
+mod-id = "NSHJxibg"
+version = "R6jWgYEl"

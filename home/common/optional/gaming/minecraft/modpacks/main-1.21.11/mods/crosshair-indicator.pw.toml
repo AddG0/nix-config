@@ -1,0 +1,13 @@
+name = "Crosshair Indicator"
+filename = "crosshairindicator-1.0.3.jar"
+side = "client"
+
+[download]
+url = "https://cdn.modrinth.com/data/zLAdIOH7/versions/acAUyXRW/crosshairindicator-1.0.3.jar"
+hash-format = "sha512"
+hash = "126520c28c07e305625fefdbd0815c942dc971976aba15810b6d5229c12a19eae2e3675d3211a02487cd6c0e4e57059610ef1deb1b84b0e01ff87c7fdd34f720"
+
+[update]
+[update.modrinth]
+mod-id = "zLAdIOH7"
+version = "acAUyXRW"

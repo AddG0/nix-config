@@ -1,0 +1,13 @@
+name = "No Cave Ambience"
+filename = "NoCaveAmbience.zip"
+side = "client"
+
+[download]
+url = "https://cdn.modrinth.com/data/5HbyqtEc/versions/HNZqMEih/NoCaveAmbience.zip"
+hash-format = "sha512"
+hash = "970967c04f283aefad818c4e9573fd3fe8ea19b3a3fe3b2d6b46caa77b9508db289e4e38eceb780dbc971f7cc1da04446e5f782bd32da7bcda29daaec174aa6a"
+
+[update]
+[update.modrinth]
+mod-id = "5HbyqtEc"
+version = "HNZqMEih"

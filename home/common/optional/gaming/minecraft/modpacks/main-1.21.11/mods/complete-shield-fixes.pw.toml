@@ -1,0 +1,13 @@
+name = "Shield Fixes"
+filename = "ShieldFixes-2.0.1-1.21.11.jar"
+side = "client"
+
+[download]
+url = "https://cdn.modrinth.com/data/HfLFMeJe/versions/1iwKoNx9/ShieldFixes-2.0.1-1.21.11.jar"
+hash-format = "sha512"
+hash = "00c9aa76644600ed585df32c33ad77463cfa4de6387dd600dffc94f447f1737392f0d543d5cfab1768f81a64883dfe4c24e3d49c7259473d7896ef45f7c740a6"
+
+[update]
+[update.modrinth]
+mod-id = "HfLFMeJe"
+version = "1iwKoNx9"

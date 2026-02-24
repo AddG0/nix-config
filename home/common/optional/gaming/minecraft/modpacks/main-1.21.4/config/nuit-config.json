@@ -1,9 +1,0 @@
-{
-  "generalSettings": {
-    "enable": true,
-    "unexpectedTransitionDuration": 20,
-    "fadeCacheDuration": 24000,
-    "debugMode": false,
-    "debugHud": false
-  }
-}

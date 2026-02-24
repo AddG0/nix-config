@@ -139,18 +139,18 @@
     onBattery.brightness = 40; # 40% brightness on battery
     onAC.brightness = 100; # Full brightness on AC
 
-    # KDE backend for display management
-    kde = {
-      enable = true;
-      onBattery = {
-        refreshRate = 60; # 60Hz on battery (saves ~2-4W)
-        modeNumber = 2; # Hard-coded for instant switching
-      };
-      onAC = {
-        refreshRate = 165; # Max refresh rate on AC
-        modeNumber = 1; # Hard-coded for instant switching
-      };
-    };
+    # KDE backend for display management (disabled - using Hyprland)
+    # kde = {
+    #   enable = true;
+    #   onBattery = {
+    #     refreshRate = 60; # 60Hz on battery (saves ~2-4W)
+    #     modeNumber = 2; # Hard-coded for instant switching
+    #   };
+    #   onAC = {
+    #     refreshRate = 165; # Max refresh rate on AC
+    #     modeNumber = 1; # Hard-coded for instant switching
+    #   };
+    # };
 
     # ASUS backend for performance profiles
     asus = {

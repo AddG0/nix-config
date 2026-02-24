@@ -1,0 +1,13 @@
+name = "Clean View"
+filename = "CleanView-1.0.2+1.21.11.jar"
+side = "client"
+
+[download]
+url = "https://cdn.modrinth.com/data/aDIwNM7S/versions/vxdzaOV8/CleanView-1.0.2%2B1.21.11.jar"
+hash-format = "sha512"
+hash = "3e763c6314e0961e7b2f54f67bb264ead6c02fd6beee1bd11d2b5b80f5dfe66edf74f7aaaaf8639056e4f436a8cf667d7096e7b9801d6831d9c96271b41e98e8"
+
+[update]
+[update.modrinth]
+mod-id = "aDIwNM7S"
+version = "vxdzaOV8"

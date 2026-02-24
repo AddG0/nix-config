@@ -1,0 +1,13 @@
+name = "Better Low Shield"
+filename = "Better Low Shield.zip"
+side = "client"
+
+[download]
+url = "https://cdn.modrinth.com/data/ZrAkn01X/versions/uAcReLwA/Better%20Low%20Shield.zip"
+hash-format = "sha512"
+hash = "25cc324193a3f872094daa1be347da82e1813e5841fbe5b5fffd39053441a9eda942bec38f3c0df0fdf7fc133ad5015510116fdbf3a62a605b170bb475e2fdb4"
+
+[update]
+[update.modrinth]
+mod-id = "ZrAkn01X"
+version = "uAcReLwA"

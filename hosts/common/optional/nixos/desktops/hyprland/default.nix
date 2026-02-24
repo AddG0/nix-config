@@ -7,7 +7,10 @@
 
   programs.hyprland = {
     enable = true;
+    withUWSM = true;
   };
+
+  services.greetd.sessionCommand = "uwsm start hyprland-uwsm.desktop";
 
   services.dbus.enable = true;
 

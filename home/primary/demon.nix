@@ -11,6 +11,7 @@
     (map (f: ./common/optional/${f}) [
       "development/aws.nix"
       "nixos/services/rclone.nix"
+      "stylix.nix"
       "work.nix"
     ])
 
@@ -96,55 +97,7 @@
 
   home.file."Videos/Movies".source = config.lib.file.mkOutOfStoreSymlink "/mnt/videos";
 
-  stylix = {
-    enable = true;
-    image = "${pkgs.kdePackages.plasma-workspace-wallpapers}/share/wallpapers/Nexus/contents/images_dark/5120x2880.png";
-    base16Scheme = "${pkgs.base16-schemes}/share/themes/catppuccin-mocha.yaml";
-    cursor = {
-      package = pkgs.bibata-cursors;
-      name = "Bibata-Original-Classic";
-      size = 18;
-    };
-    fonts = {
-      sansSerif = {
-        package = pkgs.inter;
-        name = "Inter";
-      };
-      serif = {
-        package = pkgs.inter;
-        name = "Inter";
-      };
-      monospace = {
-        package = pkgs.nerd-fonts.meslo-lg;
-        name = "MesloLGS Nerd Font";
-      };
-      emoji = {
-        package = pkgs.noto-fonts-color-emoji;
-        name = "Noto Color Emoji";
-      };
-      sizes = {
-        applications = 11;
-        terminal = 12;
-        desktop = 11;
-        popups = 12;
-      };
-    };
-    opacity = {
-      applications = 1.0;
-      terminal = 0.95;
-      desktop = 1.0;
-      popups = 0.9;
-    };
-    polarity = "dark";
-    icons = {
-      enable = true;
-      package = pkgs.papirus-icon-theme;
-      dark = "Papirus-Dark";
-      light = "Papirus-Light";
-    };
-  };
-
-  # services.safeeyes.enable = true;
+  services.safeeyes.enable = true;
 
   services.gpu-screen-recorder = {
     enable = true;
@@ -200,6 +153,29 @@
   #  ------   ------  |(rot)|
   #                    ----
   defaultMonitor.enable = false;
+
+  wayland.windowManager.hyprland.settings = {
+    workspace = [
+      "1, monitor:DP-3, default:true"
+      "2, monitor:DP-1, default:true"
+      "3, monitor:DP-2, default:true"
+    ];
+    windowrule = [
+      "workspace 3 silent, match:class ^(Slack)$"
+      "workspace 3 silent, match:class ^(legcord)$"
+      "workspace 2 silent, match:class ^(zen(-beta)?)$"
+    ];
+  };
+
+  xdg.autostart = {
+    enable = true;
+    entries = [
+      "${pkgs.slack}/share/applications/slack.desktop"
+      "${pkgs.discord-legcord}/share/applications/legcord.desktop"
+      "${config.programs.zen-browser.package}/share/applications/zen-beta.desktop"
+      "${pkgs._1password-gui}/share/applications/1password.desktop"
+    ];
+  };
 
   monitors = [
     {

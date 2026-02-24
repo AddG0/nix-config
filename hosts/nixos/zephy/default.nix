@@ -54,8 +54,12 @@
         "nixos/hardware/openrazer.nix" # openrazer
 
         #################### Desktop ####################
-        "nixos/desktops/plasma6"
+        "nixos/desktops/hyprland"
         "nixos/services/greetd.nix"
+
+        #################### Remote Desktop ####################
+        "nixos/remote-desktop/sunshine.nix"
+        "nixos/services/tailscale.nix"
       ])
     ))
   ];

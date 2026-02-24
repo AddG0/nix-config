@@ -76,16 +76,16 @@ in {
       "SUPERSHIFT,y,movetoworkspace,special"
 
       # ── Monitor Workspace Movement ──
-      # CTRL+SHIFT+{h,j,k,l}    Move workspace to monitor left/down/up/right
-      # CTRL+SHIFT+{arrows}      Move workspace to monitor left/down/up/right
-      "CTRLSHIFT,left,movecurrentworkspacetomonitor,l"
-      "CTRLSHIFT,right,movecurrentworkspacetomonitor,r"
-      "CTRLSHIFT,up,movecurrentworkspacetomonitor,u"
-      "CTRLSHIFT,down,movecurrentworkspacetomonitor,d"
-      "CTRLSHIFT,h,movecurrentworkspacetomonitor,l"
-      "CTRLSHIFT,l,movecurrentworkspacetomonitor,r"
-      "CTRLSHIFT,k,movecurrentworkspacetomonitor,u"
-      "CTRLSHIFT,j,movecurrentworkspacetomonitor,d"
+      # SUPER+CTRL+{h,j,k,l}    Move workspace to monitor left/down/up/right
+      # SUPER+CTRL+{arrows}      Move workspace to monitor left/down/up/right
+      "SUPERCTRL,left,movecurrentworkspacetomonitor,l"
+      "SUPERCTRL,right,movecurrentworkspacetomonitor,r"
+      "SUPERCTRL,up,movecurrentworkspacetomonitor,u"
+      "SUPERCTRL,down,movecurrentworkspacetomonitor,d"
+      "SUPERCTRL,h,movecurrentworkspacetomonitor,l"
+      "SUPERCTRL,l,movecurrentworkspacetomonitor,r"
+      "SUPERCTRL,k,movecurrentworkspacetomonitor,u"
+      "SUPERCTRL,j,movecurrentworkspacetomonitor,d"
 
       # System controls
       "SUPER,escape,exec,hyprlock"
@@ -97,9 +97,6 @@ in {
       # Sunshine: restore physical monitors (safety keybind)
       "SUPERSHIFT,s,exec,sunshine-disconnect"
 
-      # Fcitx5 restart
-      "ALT,E,exec,pkill fcitx5 -9;sleep 1;fcitx5 -d --replace; sleep 1;fcitx5-remote -r"
-
       # ── Monitor Focus ──
       # SUPER+,/.            Focus monitor left/right
       "SUPER,comma,focusmonitor,l"
@@ -110,6 +107,10 @@ in {
       # SUPER+PRINT         Screenshot region
       ",PRINT,exec,${hyprshot} -m output"
       "SUPER,PRINT,exec,${hyprshot} -m region"
+
+      # ── GPU Screen Recorder ──
+      # SUPER+X              Save replay (last 60s)
+      "SUPER,x,exec,save-gsr-replay"
     ];
   };
 }

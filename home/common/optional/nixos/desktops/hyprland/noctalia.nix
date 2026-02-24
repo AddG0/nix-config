@@ -87,7 +87,7 @@ in {
 
   # Wait for Hyprland's Wayland socket before starting, otherwise
   # quickshell fails with "Failed to create wl_display" and crash-loops.
-  systemd.user.services.noctalia-shell.Unit.After = lib.mkForce ["graphical-session.target" "hyprland-session.target"];
+  systemd.user.services.noctalia-shell.Unit.After = lib.mkForce ["graphical-session.target"];
   systemd.user.services.noctalia-shell.Service.ExecStartPre = lib.mkBefore [locate-city];
   systemd.user.services.noctalia-shell.Service.Environment = [
     "NOCTALIA_SETTINGS_FILE=%t/noctalia/settings.json"

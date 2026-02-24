@@ -84,10 +84,16 @@ project/
         };
 
         devShells.default = pkgs.mkShell {
-          inherit (config.pre-commit.devShell) shellHook;
           packages = with pkgs; [
             # Add project-specific tools here
           ];
+          env = {
+            # Static environment variables go here
+            # JAVA_HOME = "${java}";
+          };
+          shellHook = ''
+            ${config.pre-commit.installationScript}
+          '';
         };
       };
     };
@@ -100,6 +106,7 @@ project/
 - **`follows` nixpkgs** on inputs that support it to reduce closure size
 - **Shutdown timeouts** on all process-compose services to prevent hangs
 - **All tools via Nix** — no global installs, no wrapper scripts (e.g., use `gradle` not `./gradlew`)
+- **Prefer `env = { }` over `shellHook` exports** — use `mkShell`'s `env` attr for static environment variables (e.g., `JAVA_HOME`, `UV_NO_SYNC`). Reserve `shellHook` for commands that must run at shell entry (e.g., `pre-commit.installationScript`, `unset`, dynamic values like `$(git rev-parse ...)`)
 - Omit `process-compose-flake` and `services-flake` inputs if no local services needed
 
 ## Commands

@@ -14,6 +14,7 @@
     plugins = with pkgs.bakkesmod-plugins; [
       ingamerank
       platformdisplay
+      better-steam-workshop-loader
       {
         plugin = rocketstats;
         extraConfig = ''

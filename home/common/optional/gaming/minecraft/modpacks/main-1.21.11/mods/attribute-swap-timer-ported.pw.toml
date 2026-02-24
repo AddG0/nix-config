@@ -1,0 +1,13 @@
+name = "Attribute Swap Timer PORTED"
+filename = "attributeswaptimer-2.0.jar"
+side = "client"
+
+[download]
+url = "https://cdn.modrinth.com/data/BF3CoaAR/versions/PVXFlFaT/attributeswaptimer-2.0.jar"
+hash-format = "sha512"
+hash = "4af0766385e4d6aa6b371baf55233ac900ef146f2d2816452b042696c39ea0995f6942d37105e4dbeb4f48056aaeaa902fc2bbb997ac5dbf930669789d6f7168"
+
+[update]
+[update.modrinth]
+mod-id = "BF3CoaAR"
+version = "PVXFlFaT"

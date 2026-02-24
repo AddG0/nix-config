@@ -1,4 +1,8 @@
-{pkgs, ...}: let
+{
+  pkgs,
+  config,
+  ...
+}: let
   extractHereDesktop = ''
     [Desktop Entry]
     Type=Service
@@ -37,11 +41,12 @@
     postBuild = let
       qtPluginPaths = builtins.concatStringsSep ":" (map (p: "${p}/lib/qt-6/plugins") dolphinDeps);
       dataDirs = builtins.concatStringsSep ":" (map (p: "${p}/share") ([pkgs.shared-mime-info] ++ dolphinDeps));
+      iconThemePkg = config.stylix.icons.package;
     in ''
       for exe in $out/bin/dolphin; do
         wrapProgram "$exe" \
           --prefix QT_PLUGIN_PATH : "${qtPluginPaths}" \
-          --prefix XDG_DATA_DIRS : "${dataDirs}" \
+          --prefix XDG_DATA_DIRS : "${iconThemePkg}/share:${dataDirs}" \
           --prefix LD_LIBRARY_PATH : "${pkgs.pipewire}/lib"
       done
     '';
@@ -59,6 +64,11 @@ in {
 
   # 3) Drop in our "Extract Here" service menu
   xdg.configFile."kservices5/ServiceMenus/extracthere.desktop".text = extractHereDesktop;
+
+  xdg.configFile."kdeglobals".text = ''
+    [Icons]
+    Theme=${config.stylix.icons.dark}
+  '';
 
   xdg.configFile."dolphinrc".text = ''
     [UiSettings]

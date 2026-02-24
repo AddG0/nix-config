@@ -1,6 +1,5 @@
 {
   inputs,
-  pkgs,
   lib,
   ...
 }: {
@@ -9,6 +8,7 @@
     ./common/core
     (map (f: ./common/optional/${f}) [
       "development/aws.nix"
+      "stylix.nix"
       "work.nix"
     ])
 
@@ -68,10 +68,11 @@
 
         # Tools
         "tools"
-        "tools/gromit-mpx.nix"
+        "tools/wayscriber.nix"
 
         # NixOS Specific
-        "nixos/desktops/plasma6"
+        "nixos/desktops/hyprland"
+        "nixos/desktops/hyprland/nvidia.nix"
         "media/vlc.nix"
 
         # Remote Desktop
@@ -84,43 +85,21 @@
         "secrets/ai.nix"
         "secrets/elevenlabs.nix"
         "secrets/1password-ssh.nix"
-        # "secrets/1password-ssh.nix"
       ])
     ))
   ];
 
-  programs.plasma.input.mice = [
-    {
-      enable = true;
-      name = "ASUE140F:00 04F3:31F7 Mouse";
-      vendorId = "04F3";
-      productId = "31F7";
-      accelerationProfile = "none";
-      naturalScroll = false;
-      scrollSpeed = 0.2;
-    }
-  ];
-
-  stylix = {
-    enable = false;
-    image = pkgs.fetchurl {
-      url = "https://unsplash.com/photos/3l3RwQdHRHg/download?ixid=M3wxMjA3fDB8MXxhbGx8fHx8fHx8fHwxNzM2NTE4NDQ2fA&force=true";
-      sha256 = "LtdnBAxruHKYE/NycsA614lL6qbGBlkrlj3EPNZ/phU=";
-    };
-    base16Scheme = "${pkgs.base16-schemes}/share/themes/catppuccin-mocha.yaml";
-    cursor = {
-      package = pkgs.catppuccin-cursors.mochaDark;
-      name = "Catppuccin-Mocha-Dark";
-      size = 24; # or 16, 20, 32, etc. — whatever looks right on your display
-    };
-    opacity = {
-      applications = 1.0;
-      terminal = 1.0;
-      desktop = 1.0;
-      popups = 0.8;
-    };
-    polarity = "dark";
-  };
+  # programs.plasma.input.mice = [
+  #   {
+  #     enable = true;
+  #     name = "ASUE140F:00 04F3:31F7 Mouse";
+  #     vendorId = "04F3";
+  #     productId = "31F7";
+  #     accelerationProfile = "none";
+  #     naturalScroll = false;
+  #     scrollSpeed = 0.2;
+  #   }
+  # ];
 
   #
   # ========== Host-specific Monitor Spec ==========

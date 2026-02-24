@@ -50,7 +50,7 @@ in {
       ];
       bind = [
         # Window management
-        "SUPER,q,hy3:killactive"
+        "SUPERSHIFT,q,hy3:killactive"
 
         # Groups
         "SUPER,v,hy3:makegroup,v"

@@ -2,6 +2,10 @@
 #   - "Help: Start Extension Bisect" - Binary search to find problematic extension
 #   - "Developer: Inspect Editor Tokens and Scopes" - See what's styling an element
 #   - "Extensions: Disable All Installed Extensions" - Quick isolation test
+#
+# Keyring fix (Hyprland/non-standard DEs):
+#   Chromium doesn't detect gnome-keyring on Hyprland (upstream bug: github.com/microsoft/vscode/issues/187338).
+#   Fix: add "password-store": "gnome-libsecret" to ~/.vscode/argv.json
 {
   lib,
   pkgs,

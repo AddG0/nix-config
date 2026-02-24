@@ -42,6 +42,7 @@ in {
         "GDK_BACKEND,wayland"
         "OGL_DEDICATED_HW_STATE_PER_CONTEXT,ENABLE_ROBUST"
         "WLR_NO_HARDWARE_CURSORS,1"
+        "XCURSOR_SIZE,${toString config.stylix.cursor.size}"
       ];
 
       cursor.no_hardware_cursors = true;
@@ -137,24 +138,19 @@ in {
         "move 0 0, match:title ^(foot-full)$"
         "size 100% 100%, match:title ^(foot-full)$"
         "float on, match:title ^(Select what to share)$"
-        "pseudo on, match:class ^(fcitx)$"
         "workspace special silent, match:class ^(AWS VPN Client)$"
         "workspace special silent, match:title ^(BakkesModInjectorCpp)$"
         "workspace special silent, match:class ^(steam_app_252950)$, match:title ^$"
+        "workspace special silent, match:title ^(BepInEx)$"
       ];
 
       # ========== Exec Once ==========
       exec-once = [
-        "ln -sf $XDG_RUNTIME_DIR/hypr /tmp/hypr"
-        "exec mpd"
-        "cp ~/.config/fcitx5/profile-bak ~/.config/fcitx5/profile"
-        "fcitx5 -d --replace"
       ];
     };
     plugins = [];
     systemd = {
-      enable = true;
-      variables = ["--all"];
+      enable = false; # UWSM handles session management
     };
   };
 }

@@ -13,11 +13,11 @@
     enable32Bit = true;
   };
 
-  # TODO: Disable in BIOS
+  # TODO: Disable in BIOS`
   boot.kernelParams = ["module_blacklist=amdgpu,amdxcp,snd_hda_codec_atihdmi"];
 
   hardware.nvidia = {
     # Optionally, you may need to select the appropriate driver version for your specific GPU.
-    package = config.boot.kernelPackages.nvidiaPackages.latest;
+    package = config.boot.kernelPackages.nvidiaPackages.stable;
   };
 }

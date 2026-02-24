@@ -1,0 +1,13 @@
+name = "Waypoints (wWaypoints)"
+filename = "wWaypoints 0.4.3 1.21.11.jar"
+side = "client"
+
+[download]
+url = "https://cdn.modrinth.com/data/eQke7g17/versions/EyqQy4FO/wWaypoints%200.4.3%201.21.11.jar"
+hash-format = "sha512"
+hash = "a71742df289b1a64ba9318668a18500a4ad5dece12639587129b689904ed8bf3bf97bc05d366e8e5fdfc0ec6ec42d7173268acb3a0d569641f49073a1ac3057e"
+
+[update]
+[update.modrinth]
+mod-id = "eQke7g17"
+version = "EyqQy4FO"

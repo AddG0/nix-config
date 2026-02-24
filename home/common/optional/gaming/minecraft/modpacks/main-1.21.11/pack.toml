@@ -1,0 +1,16 @@
+name = "Main 1.21.11"
+author = "addg"
+version = "1.0.0"
+pack-format = "packwiz:1.1.0"
+
+[index]
+file = "index.toml"
+hash-format = "sha256"
+hash = "e3132222f22df58d5b7797a4be8842e2834836d1d4899b30d34ef985aa0a1ce5"
+
+[versions]
+fabric = "0.18.4"
+minecraft = "1.21.11"
+
+[options]
+acceptable-game-versions = ["1.21.4"]

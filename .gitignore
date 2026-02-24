@@ -3,6 +3,7 @@
 tmp
 result
 .vscode
+.idea
 .DS_Store
 ._*
 .claude/

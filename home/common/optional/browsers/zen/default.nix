@@ -15,13 +15,16 @@
       ./xdg.nix
     ];
 
+  stylix.targets.zen-browser.profileNames = ["default"];
+
   programs.zen-browser = {
     enable = true;
+    suppressXdgMigrationWarning = true;
     icon = ./icons/zen-catppuccin-mocha-mauve.svg;
     languagePacks = ["en-US"];
     policies = import ./policies-config.nix;
 
-    profiles.default = {
+    profiles.default = rec {
       settings = {
         # Workspaces
         "zen.workspaces.disabled_for_testing" = false;
@@ -60,6 +63,7 @@
         onepassword-password-manager
         tampermonkey
         stylus # Catppuccin: userstyles.catppuccin.com → download import.json → Stylus Settings → Backup → Import
+        darkreader
         leechblock-ng # Block time-wasting sites (youtube, reddit, etc) with time limits
       ];
 
@@ -79,54 +83,65 @@
         };
       };
 
-      # spacesForce = true;
-      # spaces = {
-      #   "Main" = {
-      #     id = "a1b2c3d4-e5f6-4a7b-8c9d-0e1f2a3b4c5d";
-      #     icon = "🏠";
-      #     position = 1000;
-      #     container = containers."Personal".id;
-      #     theme = {
-      #       type = "gradient";
-      #       colors = [
-      #         {
-      #           red = 123;
-      #           green = 56;
-      #           blue = 58;
-      #           algorithm = "analogous";
-      #           type = "explicit-lightness";
-      #           lightness = 35;
-      #           position.x = 301;
-      #           position.y = 176;
-      #         }
-      #       ];
-      #       opacity = 0.8;
-      #       texture = 0.5;
-      #     };
-      #   };
-      #   "Work" = {
-      #     id = "f6e5d4c3-b2a1-4987-6543-210fedcba987";
-      #     icon = "💼";
-      #     position = 2000;
-      #     container = containers."Work".id;
-      #     theme = {
-      #       type = "gradient";
-      #       colors = [
-      #         {
-      #           red = 56;
-      #           green = 100;
-      #           blue = 166;
-      #           algorithm = "floating";
-      #           type = "explicit-lightness";
-      #         }
-      #       ];
-      #       opacity = 0.5;
-      #       texture = 0.3;
-      #     };
-      #   };
-      # };
+      spacesForce = true;
+      pinsForce = true;
+      pins = {
+        "YouTube" = {
+          id = "c02f1740-1a97-41bc-b843-d54651be4e43";
+          url = "https://www.youtube.com";
+          position = 1000;
+          isEssential = true;
+        };
+        "Gmail" = {
+          id = "a654602c-37c8-4ae4-aca0-11d2450c7367";
+          url = "https://mail.google.com";
+          position = 2000;
+          isEssential = true;
+        };
+        "Google Calendar" = {
+          id = "98ae1f6b-f9e9-4820-b3e3-17d09244a482";
+          url = "https://calendar.google.com";
+          position = 3000;
+          isEssential = true;
+        };
+        "JIRA" = {
+          id = "1de5232d-c7cf-4c20-ac7f-62362ea4fa16";
+          url = "https://webshopapps.atlassian.net/jira/software/c/projects/ENG26/boards/192?assignee=62b03e83566f3e7b0a8df8f8";
+          position = 4000;
+          workspace = spaces."Work".id;
+        };
+        "GitLab" = {
+          id = "00427b2d-242d-4fa2-8b92-08f76b23bbc3";
+          url = "https://gitlab.com/ShipperHQ";
+          position = 5000;
+          workspace = spaces."Work".id;
+        };
+        "Home Assistant" = {
+          id = "e9509332-f744-4346-b83a-571592a064c1";
+          url = "https://home-assistant.addg0.com";
+          position = 6000;
+          workspace = spaces."Main".id;
+        };
+      };
 
-      keyboardShortcutsVersion = 14;
+      # Icons: chrome://browser/skin/zen-icons/selectable/{name}.svg
+      # Full list: unzip -l $(nix eval .#homeConfigurations.addg@demon.config.programs.zen-browser.package --raw)/lib/zen/browser/omni.ja | grep selectable
+      spaces = {
+        "Main" = {
+          id = "a1b2c3d4-e5f6-4a7b-8c9d-0e1f2a3b4c5d";
+          icon = "chrome://browser/skin/zen-icons/selectable/star.svg";
+          position = 1000;
+          container = containers."Personal".id;
+        };
+        "Work" = {
+          id = "f6e5d4c3-b2a1-4987-6543-210fedcba987";
+          icon = "chrome://browser/skin/zen-icons/selectable/briefcase.svg";
+          position = 2000;
+          container = containers."Work".id;
+        };
+      };
+
+      keyboardShortcutsVersion = 16;
       keyboardShortcuts = [
         {
           id = "key_quitApplication";

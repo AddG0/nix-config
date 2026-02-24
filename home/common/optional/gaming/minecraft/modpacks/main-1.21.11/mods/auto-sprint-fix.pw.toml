@@ -1,0 +1,13 @@
+name = "Auto Sprint Fix"
+filename = "autosprintfix-1.0.0.jar"
+side = "client"
+
+[download]
+url = "https://cdn.modrinth.com/data/E9SxgOCE/versions/Vz7y1T9m/autosprintfix-1.0.0.jar"
+hash-format = "sha512"
+hash = "0e0784215d4b4543a21abbd9933dbee597856be668759b42e32ec0a2fd24f3c52aece25b264b4e964d15b97e6e650db9431279abc08d2f3b0e9b920bcee42e8a"
+
+[update]
+[update.modrinth]
+mod-id = "E9SxgOCE"
+version = "Vz7y1T9m"

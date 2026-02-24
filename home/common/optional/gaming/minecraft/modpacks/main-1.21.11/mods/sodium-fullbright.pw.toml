@@ -1,0 +1,13 @@
+name = "Sodium Fullbright"
+filename = "sodium-fullbright-1.1.0.jar"
+side = "client"
+
+[download]
+url = "https://cdn.modrinth.com/data/iVSjpXol/versions/ghCK230t/sodium-fullbright-1.1.0.jar"
+hash-format = "sha512"
+hash = "e4acabaf59bbc175b83ba8a24ebf4c23b32adba5d8346dd348971566bae912320c476cd7da653a0febf1341f0f578e986648d4e762c44c08851c6d01d2ce490f"
+
+[update]
+[update.modrinth]
+mod-id = "iVSjpXol"
+version = "ghCK230t"

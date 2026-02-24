@@ -332,7 +332,7 @@ modpack-serve name:
   @echo ""
   @echo "Starting packwiz serve... (Ctrl+C to stop)"
   @echo ""
-  cd home/common/optional/gaming/minecraft/modpacks/{{name}} && packwiz serve
+  @cd home/common/optional/gaming/minecraft/modpacks/{{name}} && packwiz serve
 
 # Below is random commands incase I forget
 

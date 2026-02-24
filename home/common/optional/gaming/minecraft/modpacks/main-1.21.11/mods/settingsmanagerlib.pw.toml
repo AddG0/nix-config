@@ -1,0 +1,13 @@
+name = "SettingsManagerLib"
+filename = "settingsmanager-1.1.3+1.21.11.jar"
+side = "client"
+
+[download]
+url = "https://cdn.modrinth.com/data/1dU3bHt8/versions/hjWxcBAQ/settingsmanager-1.1.3%2B1.21.11.jar"
+hash-format = "sha512"
+hash = "acfb2e8732fde7fa289f2ab53a44a82d94a9b54c77de3394d905ccf64fc736c6287cbe9af2890021b61f3ffe23673704935534b239ee6f373d949e41d03534f8"
+
+[update]
+[update.modrinth]
+mod-id = "1dU3bHt8"
+version = "hjWxcBAQ"
