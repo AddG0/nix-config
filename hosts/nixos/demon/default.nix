@@ -53,7 +53,7 @@
         "nixos/services/earlyoom.nix"
 
         # "nixos/remote-desktop/xrdp.nix"
-        "nixos/remote-desktop/sunshine.nix"
+        "nixos/remote-desktop/sunshine"
 
         "nixos/development/mysql.nix"
         # "nixos/development/druid"
@@ -121,6 +121,8 @@
     hostPlatform = "x86_64-linux";
     telemetry.enabled = true;
   };
+
+  services.greetd.autoLogin.enable = true;
 
   time.timeZone = "America/Chicago";
 

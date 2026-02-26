@@ -79,6 +79,7 @@
         # "nixos/desktops/plasma6"
         "nixos/desktops/hyprland"
         "nixos/desktops/hyprland/nvidia.nix"
+        "nixos/desktops/hyprland/sunshine.nix"
         "media/vlc.nix"
 
         # Remote Desktop

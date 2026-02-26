@@ -7,22 +7,9 @@
 }: let
   package = pkgs.hyprland;
 
-  transformToHyprland = {
-    "normal" = 0;
-    "90" = 1;
-    "180" = 2;
-    "270" = 3;
-    "flipped" = 4;
-    "flipped-90" = 5;
-    "flipped-180" = 6;
-    "flipped-270" = 7;
-  };
-
-  vrrToHyprland = {
-    "off" = 0;
-    "on" = 1;
-    "fullscreen-only" = 2;
-  };
+  hyprLib = import ./lib.nix;
+  transformToHyprland = hyprLib.transformMap;
+  vrrToHyprland = hyprLib.vrrMap;
 in {
   wayland.windowManager.hyprland = {
     inherit package;
@@ -141,7 +128,12 @@ in {
         "workspace special silent, match:class ^(AWS VPN Client)$"
         "workspace special silent, match:title ^(BakkesModInjectorCpp)$"
         "workspace special silent, match:class ^(steam_app_252950)$, match:title ^$"
-        "workspace special silent, match:title ^(BepInEx)$"
+        "workspace special silent, match:title ^(BepInEx)"
+        # Spotify — float on special workspace, centered at a comfortable size
+        "workspace special silent, match:class ^(Spotify|spotify)$"
+        "float on, match:class ^(Spotify|spotify)$"
+        "size 60% 70%, match:class ^(Spotify|spotify)$"
+        "center 1, match:class ^(Spotify|spotify)$"
       ];
 
       # ========== Exec Once ==========

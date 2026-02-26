@@ -58,7 +58,7 @@
         "nixos/services/greetd.nix"
 
         #################### Remote Desktop ####################
-        "nixos/remote-desktop/sunshine.nix"
+        "nixos/remote-desktop/sunshine"
         "nixos/services/tailscale.nix"
       ])
     ))

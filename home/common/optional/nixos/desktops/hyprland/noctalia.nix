@@ -12,7 +12,13 @@
   # If weather is wrong after changing location, delete that file and restart.
   locate-city = pkgs.writeShellScript "noctalia-locate-city" ''
     mkdir -p "$XDG_RUNTIME_DIR/noctalia"
-    cp --no-preserve=mode ${nixSettings} ${settingsPath}
+    HASH_FILE="$XDG_RUNTIME_DIR/noctalia/settings.hash"
+    NEW_HASH=$(sha256sum ${nixSettings} | cut -d' ' -f1)
+    OLD_HASH=$(cat "$HASH_FILE" 2>/dev/null || true)
+    if [ ! -f ${settingsPath} ] || [ "$NEW_HASH" != "$OLD_HASH" ]; then
+      cp --no-preserve=mode ${nixSettings} ${settingsPath}
+      echo "$NEW_HASH" > "$HASH_FILE"
+    fi
     for i in 1 2 3; do
       CITY=$(${pkgs.curl}/bin/curl -sf --max-time 5 "http://ip-api.com/json/?fields=city" | ${pkgs.jq}/bin/jq -r '.city // empty')
       [ -n "$CITY" ] && break
