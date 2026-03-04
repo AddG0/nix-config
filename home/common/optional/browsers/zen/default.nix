@@ -65,6 +65,14 @@
         stylus # Catppuccin: userstyles.catppuccin.com → download import.json → Stylus Settings → Backup → Import
         darkreader
         leechblock-ng # Block time-wasting sites (youtube, reddit, etc) with time limits
+        (buildFirefoxXpiAddon {
+          pname = "jetbrains-toolbox";
+          version = "3.0.0";
+          addonId = "{bf9e77ee-c405-4dd7-9bed-2f55e448d19a}";
+          url = "https://addons.mozilla.org/firefox/downloads/file/4565022/jetbrains_toolbox-3.0.0.xpi";
+          sha256 = "sha256-G6prYKGXideIBlhB/I+Nsx409XPAmFSBdCoiE247eO0=";
+          meta = {};
+        })
       ];
 
       search = import ./search-config.nix {inherit pkgs;};
@@ -85,42 +93,73 @@
 
       spacesForce = true;
       pinsForce = true;
+      # NOTE: container must be set explicitly on each pin to match the workspace's container.
+      # zenDefaultUserContextId doesn't reliably assign containers during session restore,
+      # causing pins to be invisible in the sidebar.
       pins = {
+        # Personal (Main workspace)
         "YouTube" = {
           id = "c02f1740-1a97-41bc-b843-d54651be4e43";
           url = "https://www.youtube.com";
           position = 1000;
           isEssential = true;
+          workspace = spaces."Main".id;
+          container = containers."Personal".id;
         };
         "Gmail" = {
           id = "a654602c-37c8-4ae4-aca0-11d2450c7367";
           url = "https://mail.google.com";
           position = 2000;
           isEssential = true;
+          workspace = spaces."Main".id;
+          container = containers."Personal".id;
         };
         "Google Calendar" = {
           id = "98ae1f6b-f9e9-4820-b3e3-17d09244a482";
           url = "https://calendar.google.com";
           position = 3000;
           isEssential = true;
-        };
-        "JIRA" = {
-          id = "1de5232d-c7cf-4c20-ac7f-62362ea4fa16";
-          url = "https://webshopapps.atlassian.net/jira/software/c/projects/ENG26/boards/192?assignee=62b03e83566f3e7b0a8df8f8";
-          position = 4000;
-          workspace = spaces."Work".id;
-        };
-        "GitLab" = {
-          id = "00427b2d-242d-4fa2-8b92-08f76b23bbc3";
-          url = "https://gitlab.com/ShipperHQ";
-          position = 5000;
-          workspace = spaces."Work".id;
+          workspace = spaces."Main".id;
+          container = containers."Personal".id;
         };
         "Home Assistant" = {
           id = "e9509332-f744-4346-b83a-571592a064c1";
           url = "https://home-assistant.addg0.com";
           position = 6000;
           workspace = spaces."Main".id;
+          container = containers."Personal".id;
+        };
+
+        # Work workspace
+        "Gmail (Work)" = {
+          id = "6003d95b-8446-478e-8a2f-098ec81df105";
+          url = "https://mail.google.com";
+          position = 2000;
+          isEssential = true;
+          workspace = spaces."Work".id;
+          container = containers."Work".id;
+        };
+        "Google Calendar (Work)" = {
+          id = "a767a013-531f-40c7-8f79-47ec3d10bf15";
+          url = "https://calendar.google.com";
+          position = 3000;
+          isEssential = true;
+          workspace = spaces."Work".id;
+          container = containers."Work".id;
+        };
+        "JIRA" = {
+          id = "1de5232d-c7cf-4c20-ac7f-62362ea4fa16";
+          url = "https://webshopapps.atlassian.net/jira/software/c/projects/ENG26/boards/192?assignee=62b03e83566f3e7b0a8df8f8";
+          position = 4000;
+          workspace = spaces."Work".id;
+          container = containers."Work".id;
+        };
+        "GitLab" = {
+          id = "00427b2d-242d-4fa2-8b92-08f76b23bbc3";
+          url = "https://gitlab.com/ShipperHQ";
+          position = 5000;
+          workspace = spaces."Work".id;
+          container = containers."Work".id;
         };
       };
 

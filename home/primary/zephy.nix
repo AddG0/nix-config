@@ -1,6 +1,7 @@
 {
   inputs,
   lib,
+  config,
   ...
 }: {
   imports = lib.flatten [
@@ -73,6 +74,7 @@
         # NixOS Specific
         "nixos/desktops/hyprland"
         "nixos/desktops/hyprland/nvidia.nix"
+        "nixos/desktops/hyprland/sunshine.nix"
         "media/vlc.nix"
 
         # Remote Desktop
@@ -124,6 +126,7 @@
       y = 0;
       vrr = "on";
       primary = true;
+      bitdepth = 10;
     }
     {
       name = "desc:BOE 0x0A68";

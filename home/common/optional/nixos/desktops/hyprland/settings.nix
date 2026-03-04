@@ -101,6 +101,7 @@ in {
       # ========== Input ==========
       input = {
         kb_layout = "us";
+        kb_options = "caps:escape";
         follow_mouse = 1;
         mouse_refocus = false;
         natural_scroll = false;
@@ -128,11 +129,11 @@ in {
         "workspace special silent, match:class ^(AWS VPN Client)$"
         "workspace special silent, match:title ^(BakkesModInjectorCpp)$"
         "workspace special silent, match:class ^(steam_app_252950)$, match:title ^$"
-        "workspace special silent, match:title ^(BepInEx)"
+        "workspace special silent, match:title (Lethal Company\\\\Lethal Company\\.exe)"
         # Spotify — float on special workspace, centered at a comfortable size
         "workspace special silent, match:class ^(Spotify|spotify)$"
         "float on, match:class ^(Spotify|spotify)$"
-        "size 60% 70%, match:class ^(Spotify|spotify)$"
+        "size 60% 44%, match:class ^(Spotify|spotify)$"
         "center 1, match:class ^(Spotify|spotify)$"
       ];
 

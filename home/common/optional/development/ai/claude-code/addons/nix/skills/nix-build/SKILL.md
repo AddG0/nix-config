@@ -1,6 +1,6 @@
 ---
 name: nix-build
-description: Build a Nix flake output, fix errors in a loop until it succeeds. Use after editing Nix files, when a build fails, or when verifying a flake output compiles.
+description: Build a Nix flake output, fix errors in a loop until it succeeds. Use when explicitly requested, when a build fails, or when verifying a flake output compiles.
 argument-hint: "[target] — flake output to build (default: devShell)"
 allowed-tools: Task
 ---

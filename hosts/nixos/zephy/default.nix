@@ -12,7 +12,10 @@
 }: {
   imports = lib.flatten [
     inputs.awsvpnclient-nix.nixosModules.default
-    (lib.custom.scanPaths ./.)
+    ./asus.nix
+    ./graphics.nix
+    ./hardware-configuration.nix
+    ./battery.nix
 
     #################### Hardware ####################
     inputs.hardware.nixosModules.common-cpu-amd
@@ -52,6 +55,7 @@
         "nixos/services/automatic-timezoned.nix"
         "nixos/1password.nix"
         "nixos/hardware/openrazer.nix" # openrazer
+        "nixos/development/mysql.nix"
 
         #################### Desktop ####################
         "nixos/desktops/hyprland"
@@ -102,31 +106,4 @@
     hostName = "zephy";
     hostPlatform = "x86_64-linux";
   };
-
-  #   # Enable CUPS to print documents.
-  # services.printing.enable = true;
-
-  # # Enable sound with pipewire.
-  # NOTE: PipeWire config is in hosts/common/optional/nixos/audio.nix
-  # Keeping this commented duplicate for reference
-  # security.rtkit.enable = true;
-  # services.pipewire = {
-  #   enable = true;
-  #   alsa.enable = true;
-  #   alsa.support32Bit = true;
-  #   pulse.enable = true;
-  #   # Uncomment if you use JACK applications
-  #   # jack.enable = true;
-  #
-  #   # Configure PipeWire to support high sample rates
-  #   extraConfig.pipewire."99-hifi.conf" = {
-  #     "context.properties" = {
-  #       "default.clock.rate" = 96000;
-  #       "default.clock.allowed-rates" = [44100 48000 88200 96000 192000];
-  #       "resample.quality" = 10;
-  #     };
-  #   };
-  # };
-
-  services.upower.enable = true;
 }

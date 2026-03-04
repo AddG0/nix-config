@@ -10,7 +10,9 @@
   hyprctl = "${pkgs.hyprland}/bin/hyprctl";
   jq = "${pkgs.jq}/bin/jq";
 
-  transformToHyprland = (import ./lib.nix).transformMap;
+  hyprLib = import ./lib.nix;
+  transformToHyprland = hyprLib.transformMap;
+  vrrToHyprland = hyprLib.vrrMap;
 
   monitorNames = map (m: m.name) config.monitors;
   primaryNames = map (m: m.name) (builtins.filter (m: m.primary) config.monitors);
@@ -20,10 +22,49 @@
   monitorNames;
 
   restoreMonitors = lib.concatMapStringsSep "\n" (m: ''
-    ${hyprctl} keyword monitor "${m.name},${toString m.width}x${toString m.height}@${toString m.refreshRate},${toString m.x}x${toString m.y},${toString m.scale},transform,${toString transformToHyprland.${m.transform}}"'')
+    ${hyprctl} keyword monitor "${m.name},${toString m.width}x${toString m.height}@${toString m.refreshRate}.0,${toString m.x}x${toString m.y},1,transform,${toString transformToHyprland.${m.transform}},vrr,${toString vrrToHyprland.${m.vrr}}${
+      if m.bitdepth != 8
+      then ",bitdepth,${toString m.bitdepth}"
+      else ""
+    }${
+      if m.hdr
+      then ",cm,hdr"
+      else ""
+    }"'')
   config.monitors;
 
   primaryJson = builtins.toJSON primaryNames;
+  primaryMon = builtins.head primaryNames;
+
+  # Parse workspace rules like "1, monitor:DP-3, default:true" → { ws, mon }
+  wsRules = let
+    rules = config.wayland.windowManager.hyprland.settings.workspace or [];
+    parseRule = rule: let
+      parts = lib.splitString "," rule;
+      wsId = lib.trim (builtins.head parts);
+      monPart = lib.findFirst (p: lib.hasPrefix "monitor:" (lib.trim p)) null (builtins.tail parts);
+      mon =
+        if monPart != null
+        then lib.removePrefix "monitor:" (lib.trim monPart)
+        else null;
+    in
+      if mon != null
+      then {
+        ws = wsId;
+        inherit mon;
+      }
+      else null;
+  in
+    builtins.filter (x: x != null) (map parseRule rules);
+
+  configuredWsIds = map (r: r.ws) wsRules;
+
+  moveConfiguredWs = lib.concatMapStringsSep "\n" (r: ''
+    ${hyprctl} dispatch moveworkspacetomonitor ${r.ws} ${r.mon}'')
+  wsRules;
+
+  # Bash case pattern for configured workspace IDs (e.g. "1|2|3")
+  configuredPattern = lib.concatStringsSep "|" configuredWsIds;
 
   nocSettings = "\${XDG_RUNTIME_DIR:-/run/user/$(id -u)}/noctalia/settings.json";
 
@@ -64,6 +105,22 @@
     text = ''
       # Restore physical monitors
       ${restoreMonitors}
+      sleep 2
+
+      # Move configured workspaces back to their monitors
+      ${moveConfiguredWs}
+
+      # Move any remaining workspaces to primary monitor
+      for ws in $(hyprctl -j workspaces | jq -r '.[].id'); do
+      ${
+        if configuredWsIds != []
+        then ''          case "$ws" in
+                    ${configuredPattern}) ;; # already moved
+                    *) hyprctl dispatch moveworkspacetomonitor "$ws" "${primaryMon}" ;;
+                  esac''
+        else ''hyprctl dispatch moveworkspacetomonitor "$ws" "${primaryMon}"''
+      }
+      done
 
       # Restore Noctalia notifications to primary monitors
       NOC_SETTINGS="${nocSettings}"

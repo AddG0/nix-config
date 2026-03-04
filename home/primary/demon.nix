@@ -98,7 +98,7 @@
 
   home.file."Videos/Movies".source = config.lib.file.mkOutOfStoreSymlink "/mnt/videos";
 
-  services.safeeyes.enable = true;
+  # services.safeeyes.enable = true;
 
   services.gpu-screen-recorder = {
     enable = true;

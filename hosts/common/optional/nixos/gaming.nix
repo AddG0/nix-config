@@ -6,6 +6,11 @@
 }: let
   # Create script files for GameMode hooks
   gamemodeStartScript = pkgs.writeShellScript "gamemode-start" ''
+    ${lib.optionalString config.services.power-profiles-daemon.enable ''
+      # Save current power profile and switch to performance
+      ${pkgs.power-profiles-daemon}/bin/powerprofilesctl get > /tmp/gamemode-power-profile
+      ${pkgs.power-profiles-daemon}/bin/powerprofilesctl set performance
+    ''}
     ${lib.optionalString (config.services.asusd.enable or false) ''
       # Save current ASUS profile
       ${pkgs.asusctl}/bin/asusctl profile -p | grep "Active profile" | awk '{print $4}' > /tmp/gamemode-asus-profile
@@ -16,6 +21,15 @@
   '';
 
   gamemodeEndScript = pkgs.writeShellScript "gamemode-end" ''
+    ${lib.optionalString config.services.power-profiles-daemon.enable ''
+      # Restore previous power profile
+      PREVIOUS_POWER="balanced"
+      if [ -f /tmp/gamemode-power-profile ]; then
+        PREVIOUS_POWER=$(cat /tmp/gamemode-power-profile)
+        rm /tmp/gamemode-power-profile
+      fi
+      ${pkgs.power-profiles-daemon}/bin/powerprofilesctl set "$PREVIOUS_POWER"
+    ''}
     ${lib.optionalString (config.services.asusd.enable or false) ''
       # Restore previous ASUS profile
       PREVIOUS_PROFILE="Balanced"

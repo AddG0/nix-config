@@ -9,14 +9,16 @@
         ],
         "git-hooks-nix": "git-hooks-nix",
         "nix-secrets": "nix-secrets",
-        "nixpkgs": "nixpkgs_3"
+        "nixpkgs": [
+          "nixpkgs"
+        ]
       },
       "locked": {
-        "lastModified": 1771968858,
-        "narHash": "sha256-uZC1/UwqAd5RO7lnorpvyGlVkbKYms2DUBsBOm5dAeU=",
+        "lastModified": 1772467640,
+        "narHash": "sha256-wtlnCGQAxF3rJ4iMCBvDuxE/LnJsN/NgR32fZpz6BJI=",
         "ref": "refs/heads/main",
-        "rev": "c42704c41be44125a264e41b331e72fbc9153e13",
-        "revCount": 141,
+        "rev": "bf0312a1a015b911f7e0e3de07160a796c334388",
+        "revCount": 142,
         "type": "git",
         "url": "ssh://git@github.com/addg0/ai-toolkit.git"
       },
@@ -78,11 +80,11 @@
         ]
       },
       "locked": {
-        "lastModified": 1768880512,
-        "narHash": "sha256-tuhNhIEt2Rfvw7RFVD3O5mJTSe7pFOEEgvOYfGD3RtQ=",
+        "lastModified": 1772157756,
+        "narHash": "sha256-115bddKssMIJFPe37CxlK3GBEHjeal61o/Iy9LpymhU=",
         "owner": "AddG0",
         "repo": "bakkesmod-nix",
-        "rev": "45a79398ead66db14fba9146870f4b584b28f2e2",
+        "rev": "30e42ce4f8e61b935df230ce7944df0525080fe5",
         "type": "github"
       },
       "original": {
@@ -378,7 +380,7 @@
         "git-hooks": "git-hooks",
         "nix": "nix",
         "nixd": "nixd",
-        "nixpkgs": "nixpkgs_7"
+        "nixpkgs": "nixpkgs_6"
       },
       "locked": {
         "lastModified": 1771672827,
@@ -1322,7 +1324,7 @@
         "cachyos-kernel-patches": "cachyos-kernel-patches",
         "flake-compat": "flake-compat_5",
         "flake-parts": "flake-parts_4",
-        "nixpkgs": "nixpkgs_4"
+        "nixpkgs": "nixpkgs_3"
       },
       "locked": {
         "lastModified": 1771525883,
@@ -1702,22 +1704,6 @@
     },
     "nixpkgs_3": {
       "locked": {
-        "lastModified": 1771848320,
-        "narHash": "sha256-0MAd+0mun3K/Ns8JATeHT1sX28faLII5hVLq0L3BdZU=",
-        "owner": "NixOS",
-        "repo": "nixpkgs",
-        "rev": "2fc6539b481e1d2569f25f8799236694180c0993",
-        "type": "github"
-      },
-      "original": {
-        "owner": "NixOS",
-        "ref": "nixos-unstable",
-        "repo": "nixpkgs",
-        "type": "github"
-      }
-    },
-    "nixpkgs_4": {
-      "locked": {
         "lastModified": 1771482645,
         "narHash": "sha256-MpAKyXfJRDTgRU33Hja+G+3h9ywLAJJNRq4Pjbb4dQs=",
         "owner": "NixOS",
@@ -1732,7 +1718,7 @@
         "type": "github"
       }
     },
-    "nixpkgs_5": {
+    "nixpkgs_4": {
       "locked": {
         "lastModified": 1759417375,
         "narHash": "sha256-O7eHcgkQXJNygY6AypkF9tFhsoDQjpNEojw3eFs73Ow=",
@@ -1748,7 +1734,7 @@
         "type": "github"
       }
     },
-    "nixpkgs_6": {
+    "nixpkgs_5": {
       "locked": {
         "lastModified": 1771369470,
         "narHash": "sha256-0NBlEBKkN3lufyvFegY4TYv5mCNHbi5OmBDrzihbBMQ=",
@@ -1764,7 +1750,7 @@
         "type": "github"
       }
     },
-    "nixpkgs_7": {
+    "nixpkgs_6": {
       "locked": {
         "lastModified": 1761313199,
         "narHash": "sha256-wCIACXbNtXAlwvQUo1Ed++loFALPjYUA3dpcUJiXO44=",
@@ -2004,7 +1990,7 @@
       "inputs": {
         "flake-compat": "flake-compat_7",
         "gitignore": "gitignore_4",
-        "nixpkgs": "nixpkgs_5"
+        "nixpkgs": "nixpkgs_4"
       },
       "locked": {
         "lastModified": 1762868777,
@@ -2086,7 +2072,7 @@
         "nix-vscode-extensions": "nix-vscode-extensions",
         "nixos-generators": "nixos-generators",
         "nixos-shell": "nixos-shell",
-        "nixpkgs": "nixpkgs_6",
+        "nixpkgs": "nixpkgs_5",
         "nixpkgs-stable": "nixpkgs-stable_2",
         "nixpkgs-unstable": [
           "nixpkgs"

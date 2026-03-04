@@ -40,5 +40,9 @@ in {
 
     "gfx.webrender.all" = true;
     "network.http.http3.enabled" = true;
+
+    # Auto-enable sideloaded extensions (installed via extensions.packages)
+    # Default 15 = auto-disable all scopes; 0 = auto-enable all
+    "extensions.autoDisableScopes" = 0;
   };
 }

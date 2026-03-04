@@ -112,6 +112,7 @@ in {
             "explore-codebase" = ./commands/explore-codebase.md;
           };
 
+          # TODO: Make this flakes-only but not for nix-shell shebang
           rules."nix" = ''
             Nix conventions:
             - Flakes only — no `nix-env`, `nix-channel`, or `nix-shell`

@@ -259,8 +259,7 @@
     ai-toolkit = {
       url = "git+ssh://git@github.com/addg0/ai-toolkit.git";
       # url = "path:/home/addg/home/code/github/ai-toolkit";
-      # Don't follow nixpkgs - ai-toolkit needs its own nixpkgs with working bun version
-      # (nix-config's nixpkgs has bun 1.3.4 which produces empty binaries on darwin)
+      inputs.nixpkgs.follows = "nixpkgs";
       inputs.flake-parts.follows = "flake-parts";
     };
 

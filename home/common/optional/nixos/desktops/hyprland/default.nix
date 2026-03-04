@@ -16,7 +16,9 @@ in {
     executable = true;
   };
 
-  # Credential store
+  services.hyprpolkitagent.enable = true;
+
+  # Credential store — 1Password needs the secrets component to persist its auth token
   services.gnome-keyring = {
     enable = true;
     components = ["secrets"];

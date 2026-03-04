@@ -54,14 +54,14 @@
               quiet: [
                 (
                   fan: CPU,
-                  pwm: (13, 38, 64, 102, 153, 204, 242, 255),
-                  temp: (30, 40, 50, 60, 70, 80, 90, 95),
+                  pwm: (0, 0, 13, 26, 51, 102, 153, 204),
+                  temp: (30, 45, 55, 65, 70, 80, 85, 95),
                   enabled: true,
                 ),
                 (
                   fan: GPU,
-                  pwm: (13, 38, 64, 102, 153, 204, 242, 255),
-                  temp: (30, 40, 50, 60, 70, 80, 90, 95),
+                  pwm: (0, 0, 13, 26, 51, 102, 153, 204),
+                  temp: (30, 45, 55, 65, 70, 80, 85, 95),
                   enabled: true,
                 ),
               ],
@@ -71,27 +71,22 @@
         '';
       };
 
-      # ASUS profile AC/battery configuration
-      # WARNING: This only works with power-profiles-daemon v0.10.0+
-      # We use TLP instead of power-profiles-daemon (see power-management.nix)
-      # Currently using power-state-manager.asus backend as alternative
-      # To use this: enable power-profiles-daemon, disable TLP, uncomment below
-      # profileConfig = {
-      #   text = ''
-      #     (
-      #       active_profile: Balanced,
-      #       fan_curve_enabled: true,
-      #       mini_led_mode: false,
-      #       profile_on_mains: Balanced,
-      #       profile_on_battery: Quiet,
-      #     )
-      #   '';
-      # };
+      profileConfig = {
+        text = ''
+          (
+            active_profile: Balanced,
+            fan_curve_enabled: true,
+            mini_led_mode: false,
+            profile_on_mains: Balanced,
+            profile_on_battery: Quiet,
+          )
+        '';
+      };
     };
 
-    asus-numberpad-driver = {
-      enable = true;
-      layout = "gx551"; # Layout for Zephyrus Duo models
-    };
+    # asus-numberpad-driver = {
+    #   enable = true;
+    #   layout = "gx551"; # Layout for Zephyrus Duo models
+    # };
   };
 }
