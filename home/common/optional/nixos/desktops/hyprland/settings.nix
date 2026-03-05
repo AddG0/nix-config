@@ -28,11 +28,8 @@ in {
         "SDL_VIDEODRIVER,wayland"
         "GDK_BACKEND,wayland"
         "OGL_DEDICATED_HW_STATE_PER_CONTEXT,ENABLE_ROBUST"
-        "WLR_NO_HARDWARE_CURSORS,1"
         "XCURSOR_SIZE,${toString config.stylix.cursor.size}"
       ];
-
-      cursor.no_hardware_cursors = true;
 
       # ========== Monitor ==========
       monitor =
@@ -130,6 +127,8 @@ in {
         "workspace special silent, match:title ^(BakkesModInjectorCpp)$"
         "workspace special silent, match:class ^(steam_app_252950)$, match:title ^$"
         "workspace special silent, match:title (Lethal Company\\\\Lethal Company\\.exe)"
+        "workspace special silent, match:class ^(me\\.kavishdevar\\.librepods|librepods|applinux)$"
+        "float on, match:class ^(me\\.kavishdevar\\.librepods|librepods|applinux)$"
         # Spotify — float on special workspace, centered at a comfortable size
         "workspace special silent, match:class ^(Spotify|spotify)$"
         "float on, match:class ^(Spotify|spotify)$"

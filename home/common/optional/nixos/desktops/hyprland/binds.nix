@@ -88,7 +88,7 @@ in {
       "SUPERCTRL,j,movecurrentworkspacetomonitor,d"
 
       # System controls
-      "SUPER,escape,exec,hyprlock"
+      "SUPER,escape,exec,noctalia-shell ipc call lockScreen lock"
       "SUPERSHIFT,e,exit,"
 
       # Screen annotation (wayscriber)

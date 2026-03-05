@@ -43,6 +43,7 @@
       ]
       ++ (map (f: "common/optional/${f}") [
         #################### Host-specific Optional Configs ####################
+        "nixos/hardware/cachyos-kernel.nix" # CachyOS kernel
         "nixos/services/openssh.nix" # allow remote SSH access
         # "nixos/nvtop.nix" # GPU monitor (not available in home-manager)
         "nixos/audio.nix" # pipewire and cli controls
@@ -74,7 +75,6 @@
   };
 
   programs.awsvpnclient.enable = true;
-  programs.librepods.enable = true;
 
   programs.kdeconnect.enable = true;
 
@@ -105,5 +105,6 @@
   hostSpec = {
     hostName = "zephy";
     hostPlatform = "x86_64-linux";
+    hostType = "laptop";
   };
 }

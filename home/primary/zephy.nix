@@ -91,6 +91,8 @@
     ))
   ];
 
+  programs.librepods.enable = true;
+
   # programs.plasma.input.mice = [
   #   {
   #     enable = true;

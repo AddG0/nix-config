@@ -1,4 +1,4 @@
-{_}: {
+_: {
   # Reduce disk writes and enable laptop mode for longer battery life
   boot.kernel.sysctl = {
     "vm.dirty_writeback_centisecs" = 6000;

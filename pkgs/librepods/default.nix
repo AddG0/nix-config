@@ -14,23 +14,17 @@
 }:
 stdenv.mkDerivation rec {
   pname = "librepods";
-  version = "0.1.0-rc.4";
+  version = "0.1.0";
 
   src = fetchFromGitHub {
     owner = "kavishdevar";
     repo = "librepods";
-    rev = "v${version}";
-    hash = "sha256-FnDYQ3EPx2hpeCCZvbf5PJo+KCj+YO+DNg+++UpZ7Xs=";
+    rev = "linux-v${version}";
+    hash = "sha256-ZvHbSSW0rfcsNUORZURe0oBHQbnqmS5XT9ffVMwjIMU=";
   };
 
   # We only want to build the Linux desktop app, not Android components
   sourceRoot = "${src.name}/linux";
-
-  patches = [
-    ./patches/fix-pipewire-sink-detection.patch
-  ];
-
-  patchFlags = ["-p0"];
 
   nativeBuildInputs = [
     cmake
@@ -91,7 +85,6 @@ stdenv.mkDerivation rec {
       rm $out/bin/applinux
     fi
 
-    # Add bluetoothctl and pactl to PATH for runtime
     wrapProgram $out/bin/.librepods-wrapped \
       --prefix PATH : ${lib.makeBinPath runtimeDeps}
   '';

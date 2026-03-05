@@ -36,11 +36,31 @@
   # Default: Set GPU to Hybrid mode (NVIDIA available when needed)
   services.supergfxd.settings.mode = lib.mkDefault "Hybrid";
 
+  # Hybrid: AMD iGPU as primary compositor, NVIDIA for its connected displays
+  environment.sessionVariables.AQ_DRM_DEVICES = "/dev/dri/card2:/dev/dri/card1";
+
   # Specialisation: Battery-saver mode with integrated GPU only
   specialisation.battery-saver.configuration = lib.mkIf config.hardware.nvidia.primeBatterySaverSpecialisation {
     system.nixos.tags = ["battery-saver" "integrated-only"];
 
     # Force Integrated GPU mode on boot
     services.supergfxd.settings.mode = lib.mkForce "Integrated";
+    environment.sessionVariables.AQ_DRM_DEVICES = lib.mkForce "/dev/dri/card2";
+  };
+
+  # Specialisation: NVIDIA-only mode for docked/performance use
+  specialisation.nvidia-only.configuration = {
+    system.nixos.tags = ["nvidia-only" "discrete-only"];
+
+    services.supergfxd.settings.mode = lib.mkForce "Dedicated";
+    environment.sessionVariables.AQ_DRM_DEVICES = lib.mkForce "/dev/dri/card1";
+
+    hardware.nvidia = {
+      powerManagement.finegrained = lib.mkForce false;
+      prime = {
+        offload.enable = lib.mkForce false;
+        sync.enable = lib.mkForce true;
+      };
+    };
   };
 }

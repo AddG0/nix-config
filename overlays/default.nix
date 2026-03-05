@@ -283,18 +283,15 @@
       '';
     };
 
-    # Lens with custom icon
-    # lens = prev.lens.overrideAttrs (oldAttrs: {
-    #   postInstall =
-    #     (oldAttrs.postInstall or "")
-    #     + ''
-    #       # Replace the icon with the custom one
-    #       ${prev.imagemagick}/bin/convert ${prev.fetchurl {
-    #         url = "https://k8slens.dev/apple-icon1.png?85effbc6ebf0dbe5";
-    #         sha256 = "0frva3inbw35ym19wjsgblbas4c47dpjq9qmsv8l9ijndiq3d3db";
-    #       }} -resize 512x512 $out/share/icons/hicolor/512x512/apps/lens-desktop.png
-    #     '';
-    # });
+    # Lens: disable GPU compositing to fix GBM scanout crash on hybrid GPU (NVIDIA+AMD)
+    lens = prev.lens.overrideAttrs (oldAttrs: {
+      buildCommand =
+        (oldAttrs.buildCommand or "")
+        + ''
+          substituteInPlace $out/bin/lens-desktop \
+            --replace-fail '"$@"' '--disable-gpu-compositing "$@"'
+        '';
+    });
   };
 
   stable-packages = final: _prev: {

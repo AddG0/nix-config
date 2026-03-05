@@ -32,7 +32,7 @@
   };
 in {
   programs.jetbrains.ides = with pkgs.jetbrains; {
-    idea = mkIde idea ["nix-idea" "net.ashald.envfile"];
+    idea = mkIde idea ["nix-idea" "net.ashald.envfile" "org.jetbrains.plugins.go-template"];
     pycharm = mkIde pycharm [];
     datagrip = mkIde datagrip [];
     webstorm = mkIde webstorm [];

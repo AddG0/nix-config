@@ -62,7 +62,7 @@
         ublock-origin
         onepassword-password-manager
         tampermonkey
-        stylus # Catppuccin: userstyles.catppuccin.com → download import.json → Stylus Settings → Backup → Import
+        stylus # Catppuccin: userstyles.catppuccin.com/getting-started/usage → download import.json → Stylus Settings → Backup → Import
         darkreader
         leechblock-ng # Block time-wasting sites (youtube, reddit, etc) with time limits
         (buildFirefoxXpiAddon {
