@@ -14,11 +14,11 @@
         ]
       },
       "locked": {
-        "lastModified": 1772467640,
-        "narHash": "sha256-wtlnCGQAxF3rJ4iMCBvDuxE/LnJsN/NgR32fZpz6BJI=",
+        "lastModified": 1772739930,
+        "narHash": "sha256-5mVsusrsDsfQQddi/q1ySkjKH9wv+ZCl45JS0ZO7zD0=",
         "ref": "refs/heads/main",
-        "rev": "bf0312a1a015b911f7e0e3de07160a796c334388",
-        "revCount": 142,
+        "rev": "131d456acc18ebf0ea492f3b77b4ad8432a3f132",
+        "revCount": 154,
         "type": "git",
         "url": "ssh://git@github.com/addg0/ai-toolkit.git"
       },

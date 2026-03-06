@@ -46,9 +46,11 @@ alias r := rebuild
 
 # Add --option eval-cache false if you end up caching a failure you can't get around
 [group('system')]
-[doc("Rebuild system configuration for specified hostname")]
-rebuild hostname="" use-nh=USE_NH_DEFAULT: rebuild-pre
-  USE_NH={{use-nh}} scripts/rebuild.sh {{hostname}}
+[doc("Rebuild system configuration (--boot to only set next boot)")]
+[arg("boot", long, value="boot")]
+[arg("use-nh", long="no-nh", value="false")]
+rebuild hostname="" boot="switch" use-nh=USE_NH_DEFAULT: rebuild-pre
+  USE_NH={{use-nh}} scripts/rebuild.sh -m {{boot}} {{hostname}}
 
 [group('system')]
 [doc("Rollback to previous generation or specific generation number")]

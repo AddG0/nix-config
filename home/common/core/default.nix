@@ -47,7 +47,7 @@ in {
     fd # tree style ls
     findutils # find
     jq # JSON pretty printer and manipulator
-    neofetch # fancier system info than pfetch
+    fastfetch # system info
     #  ncdu # TUI disk usage
 
     pciutils

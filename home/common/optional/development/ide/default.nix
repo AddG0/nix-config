@@ -25,7 +25,11 @@
       keymap = {
         name = "VSCode Custom";
         parent = "VSCode";
-        actions.EditorEscape = [];
+        actions = {
+          EditorEscape = [];
+          "Terminal.CopySelectedText" = ["ctrl shift C"];
+          "Terminal.Paste" = ["ctrl shift V"];
+        };
       };
       ignoredFilePatterns = [".direnv" ".git" ".gradle" ".kotlin" ".pre-commit-config.yaml" "bin" "build" "gradlew" "gradlew.bat"];
     };

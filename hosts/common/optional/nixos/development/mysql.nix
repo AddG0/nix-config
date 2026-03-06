@@ -64,6 +64,6 @@
 
   environment.systemPackages = with pkgs; [
     mysql84
-    mycli
+    stable.mycli
   ];
 }
