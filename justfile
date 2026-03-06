@@ -354,6 +354,12 @@ flush-dns:
   resolvectl flush-caches
 
 [group('utilities')]
+[doc("Unblock WiFi radio (fixes rfkill soft-block after suspend/resume)")]
+wifi-unblock:
+  rfkill unblock wifi
+  sudo systemctl restart NetworkManager
+
+[group('utilities')]
 [doc("Restart Plasma shell (KDE Plasma desktop)")]
 restart-plasma:
   #!/usr/bin/env bash

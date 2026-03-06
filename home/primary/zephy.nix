@@ -72,9 +72,10 @@
         "tools/wayscriber.nix"
 
         # NixOS Specific
-        "nixos/desktops/hyprland"
-        "nixos/desktops/hyprland/nvidia.nix"
-        "nixos/desktops/hyprland/sunshine.nix"
+        # "nixos/desktops/hyprland"
+        # "nixos/desktops/hyprland/nvidia.nix"
+        # "nixos/desktops/hyprland/sunshine.nix"
+        "nixos/desktops/plasma6"
         "media/vlc.nix"
 
         # Remote Desktop
@@ -90,6 +91,9 @@
       ])
     ))
   ];
+
+  # Doesn't work on plasma saddly
+  stylix.enable = lib.mkForce false;
 
   programs.librepods.enable = true;
 

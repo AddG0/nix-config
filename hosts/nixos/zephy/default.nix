@@ -54,12 +54,14 @@
         "nixos/services/bluetooth.nix"
         "nixos/services/bt-proximity.nix"
         "nixos/services/automatic-timezoned.nix"
+        # "nixos/services/openvpn.nix" # home VPN
         "nixos/1password.nix"
         "nixos/hardware/openrazer.nix" # openrazer
+        "nixos/hardware/wooting.nix" # wooting keyboard
         "nixos/development/mysql.nix"
 
         #################### Desktop ####################
-        "nixos/desktops/hyprland"
+        "nixos/desktops/plasma6"
         "nixos/services/greetd.nix"
 
         #################### Remote Desktop ####################

@@ -64,5 +64,10 @@
       ".direnv"
       ".devenv"
     ];
+
+    # Hide .gradle directories from file explorer
+    "files.exclude" = {
+      "**/.gradle" = true;
+    };
   };
 }
