@@ -1,4 +1,10 @@
-{config, ...}: {
+{
+  config,
+  lib,
+  ...
+}: let
+  hostIface = config.hostSpec.networking.hostsAddr.${config.hostSpec.hostName}.iface or null;
+in {
   virtualisation.docker.enable = true;
 
   # Required for Docker NAT to work with NixOS firewall
@@ -12,9 +18,9 @@
   #   Check masquerade rules: sudo iptables-save | grep MASQUERADE
   #   Check nftables rules:   sudo nft list ruleset | grep masq
   #   Firewall script lives at: /nix/store/...-firewall-start/bin/firewall-start
-  networking.nat = {
+  networking.nat = lib.mkIf (hostIface != null) {
     enable = true;
     internalInterfaces = ["docker0" "br-+"];
-    externalInterface = config.hostSpec.networking.hostsAddr.${config.hostSpec.hostName}.iface;
+    externalInterface = hostIface;
   };
 }

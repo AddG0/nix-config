@@ -94,12 +94,14 @@
       xml
       markdown
       mermaid
+      html
       docker
       shellcheck
       python
       go
       rust
       typescript
+      vue
       java
       kotlin
       dotenv
@@ -108,6 +110,7 @@
       stylelint
       jupyter
       logHighlighter
+      caddyfile
       neo4j
       tilt
 

@@ -16,6 +16,7 @@ in {
   imports = [
     ./process-compose.nix
     ./gsync.nix
+    ./gita.nix
   ];
 
   home.packages = with pkgs; [

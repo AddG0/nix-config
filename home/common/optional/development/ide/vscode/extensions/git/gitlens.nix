@@ -1,6 +1,6 @@
 {pkgs, ...}: {
   extensions = [
-    pkgs.vscode-marketplace.eamodio.gitlens
+    pkgs.vscode-marketplace-release.eamodio.gitlens
   ];
   userSettings = {
     # Current line blame

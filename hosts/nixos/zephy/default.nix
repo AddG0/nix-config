@@ -16,6 +16,7 @@
     ./graphics.nix
     ./hardware-configuration.nix
     ./battery.nix
+    ./amd-performance.nix
 
     #################### Hardware ####################
     inputs.hardware.nixosModules.common-cpu-amd
@@ -48,6 +49,7 @@
         # "nixos/nvtop.nix" # GPU monitor (not available in home-manager)
         "nixos/audio.nix" # pipewire and cli controls
         "nixos/gaming.nix" # steam, gamescope, gamemode, and related hardware
+        "nixos/virtualisation/docker.nix" # docker
         # "nixos/services/home-assistant.nix"
         # "nixos/virtualisation/docker.nix"
         # "nixos/plymouth.nix" # fancy boot screen
@@ -109,4 +111,9 @@
     hostPlatform = "x86_64-linux";
     hostType = "laptop";
   };
+
+  # Fix bluetooth headphone disconnections - disable USB autosuspend for bluetooth adapter
+  services.udev.extraRules = ''
+    ACTION=="add", SUBSYSTEM=="usb", ATTR{idVendor}=="13d3", ATTR{idProduct}=="3568", ATTR{power/control}="on"
+  '';
 }

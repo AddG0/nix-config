@@ -32,7 +32,8 @@ in {
                     plugin = "${pkgs.zam-plugins}/lib/ladspa/ZamGate-ladspa.so";
                     label = "ZamGate";
                     control = {
-                      "Threshold" = -62.0; # Audio below this level is muted
+                      # Was -62, Needs testing at lower levels
+                      "Threshold" = -55.0; # Audio below this level is muted
                       "Makeup" = 2.3; # Boost because my mic is quiet (≈1.3x volume)
                     };
                   }

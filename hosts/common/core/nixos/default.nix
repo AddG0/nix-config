@@ -15,4 +15,6 @@
   networking.hostName = config.hostSpec.hostName;
 
   system.stateVersion = config.hostSpec.system.stateVersion;
+
+  powerManagement.cpuFreqGovernor = lib.mkIf (config.hostSpec.hostType == "desktop") "performance";
 }

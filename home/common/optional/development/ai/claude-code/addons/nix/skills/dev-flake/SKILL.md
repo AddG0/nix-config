@@ -1,6 +1,6 @@
 ---
 name: dev-flake
-description: Scaffold or update Nix flake dev environments. Use when creating, modernizing, or adding services to a project's flake.nix.
+description: Scaffolds and updates Nix flake dev environments including flake.nix, devShells, .envrc, process-compose services, and pre-commit hooks. Use when creating a new flake, adding services (PostgreSQL, Redis, Kafka) to an existing flake, modernizing a dev shell, or any task involving flake.nix, nix develop, or nix flake.
 argument-hint: "[language] [services...] — e.g. python-uv postgres, java redis kafka"
 context: fork
 allowed-tools: Bash, Read, Write, Edit, Glob, Grep

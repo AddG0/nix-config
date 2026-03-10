@@ -1,7 +1,9 @@
 {pkgs, ...}: {
   home.packages =
     (with pkgs; [
-      nodejs_22
+      nodejs_24
+      pnpm
+      bun
     ])
     ++ (with pkgs.nodePackages; [
       yarn

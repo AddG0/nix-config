@@ -102,8 +102,10 @@
 
   services.gpu-screen-recorder = {
     enable = true;
-    matchMonitorName = "LG ULTRAGEAR";
-    codec = "av1";
+    # Portal mode captures via xdg-desktop-portal, converting HDR to SDR
+    # Direct capture with bitdepth 10 + HDR produces oversaturated colors
+    # https://wiki.hyprland.org/Configuring/Monitors/#10-bit-support
+    display = "portal";
   };
 
   #

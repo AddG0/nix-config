@@ -15,6 +15,8 @@
 #     matchMonitorName = "LG ULTRAGEAR";  # Auto-detect by EDID model name
 #     # OR
 #     display = "DP-3";                   # Use static display identifier
+#     # OR
+#     display = "portal";                 # Use xdg-desktop-portal (converts HDR to SDR)
 #   };
 #
 # SAVING REPLAYS:
@@ -78,8 +80,14 @@
 
   # Generates shell code to resolve the display name at runtime.
   # Either uses a static name or dynamically looks up by EDID model.
+  usePortal = cfg.display == "portal";
+
   resolveDisplay =
-    if cfg.matchMonitorName != null
+    if usePortal
+    then ''
+      DISPLAY_NAME="portal"
+    ''
+    else if cfg.matchMonitorName != null
     then ''
       DISPLAY_NAME=$(${lib.getExe findMonitorScript} "${cfg.matchMonitorName}")
       if [ -z "$DISPLAY_NAME" ]; then
@@ -110,6 +118,7 @@
       -k ${cfg.codec} \
       -q ${cfg.quality} \
       -r ${toString cfg.replayDuration} \
+      ${lib.optionalString usePortal "-restore-portal-session yes"} \
       -o "${cfg.outputDirectory}"
   '';
 in {
@@ -128,7 +137,8 @@ in {
       example = "DP-3";
       description = ''
         Static display identifier. Use `screen` for all monitors, `focused` for
-        the active monitor, or a specific connector like `DP-3`.
+        the active monitor, `portal` to capture via xdg-desktop-portal (converts
+        HDR to SDR), or a specific connector like `DP-3`.
         Mutually exclusive with matchMonitorName.
       '';
     };
@@ -201,7 +211,7 @@ in {
     assertions = [
       {
         assertion = cfg.display != null || cfg.matchMonitorName != null;
-        message = "gpu-screen-recorder: Set either 'display' or 'matchMonitorName'";
+        message = "gpu-screen-recorder: Set 'display' (e.g. \"DP-3\" or \"portal\") or 'matchMonitorName'";
       }
     ];
 
