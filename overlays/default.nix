@@ -283,13 +283,13 @@
       '';
     };
 
-    # Lens: disable GPU compositing to fix GBM scanout crash on hybrid GPU (NVIDIA+AMD)
+    # Lens: disable GPU to fix invisible window on NVIDIA + Wayland (Electron rendering issue)
     lens = prev.lens.overrideAttrs (oldAttrs: {
       buildCommand =
         (oldAttrs.buildCommand or "")
         + ''
           substituteInPlace $out/bin/lens-desktop \
-            --replace-fail '"$@"' '--disable-gpu-compositing "$@"'
+            --replace-fail '"$@"' '--disable-gpu "$@"'
         '';
     });
   };

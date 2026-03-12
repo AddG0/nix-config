@@ -81,6 +81,7 @@
 | **settingsmanagerlib** | Save/load settings profiles |
 | **replaymod** | Record and replay gameplay |
 | **bindcommands** | Bind chat commands to keys |
+| **client-kits** | Save/load inventory kits with commands |
 | **litematica** | Schematic/building tool |
 | **wwaypoints** | In-game waypoints |
 | **simple-voice-chat** | Proximity voice chat |

@@ -1,0 +1,13 @@
+name = "Client Kits"
+filename = "ClientKits-2.0.0-1.21.11.jar"
+side = "client"
+
+[download]
+url = "https://cdn.modrinth.com/data/oOgpKFQ2/versions/6V3ucwdh/ClientKits-2.0.0-1.21.11.jar"
+hash-format = "sha512"
+hash = "0e87ef2f171202f83aa7dc4f274346269ebd70f2f709da27a648d50fe028c630ce62971fd6bfc2788e39e1db2efd9b4067fe10161451f96a73317a2f427d2531"
+
+[update]
+[update.modrinth]
+mod-id = "oOgpKFQ2"
+version = "6V3ucwdh"
