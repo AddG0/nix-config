@@ -1,7 +1,3 @@
-{
-  config,
-  lib,
-  ...
-}: {
+_: {
   services.tailscale.enable = true;
 }

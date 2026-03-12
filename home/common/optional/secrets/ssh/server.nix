@@ -1,8 +1,4 @@
-{
-  config,
-  nix-secrets,
-  ...
-}: {
+_: {
   # sops.secrets = {
   #   ssh_id_ed25519_server = {
   #     format = "binary";

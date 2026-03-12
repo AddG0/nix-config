@@ -1,8 +1,4 @@
-{
-  pkgs,
-  config,
-  ...
-}: {
+{pkgs, ...}: {
   # Redis with high-performance configuration
   services.redis = {
     enable = true;

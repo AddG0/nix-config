@@ -1,5 +1,5 @@
-{nix-secrets, ...}: {
+{inputs, ...}: {
   imports = [
-    "${nix-secrets}/modules/shipperhq"
+    "${inputs.nix-secrets}/modules/shipperhq"
   ];
 }

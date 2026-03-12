@@ -8,65 +8,50 @@
       # Used to find the project root
       projectRootFile = "flake.nix";
 
-      # Enable formatters
-      programs.alejandra.enable = true;
-      programs.deadnix.enable = true;
-      programs.statix.enable = true;
-      programs.shellcheck.enable = true;
-      programs.shfmt.enable = true;
-      programs.prettier.enable = true;
-      programs.yamlfmt.enable = true;
+      programs = {
+        alejandra.enable = true;
+        deadnix.enable = true;
+        statix.enable = true;
+        shellcheck.enable = true;
+        shfmt.enable = true;
+        prettier.enable = true;
+        yamlfmt.enable = true;
+      };
 
-      # Configure shellcheck
-      settings.formatter.shellcheck.options = [
-        "--external-sources"
-        "--source-path=SCRIPTDIR"
-      ];
-
-      # Configure shfmt to include common shell files
-      settings.formatter.shfmt.includes = [
-        "*.envrc"
-        "*.bashrc"
-        "*.bash_profile"
-        "*.zshrc"
-      ];
-
-      # Global excludes
-      settings.global.excludes = [
-        # Secrets and sensitive files
-        "*.age"
-        "*.sops.*"
-        "secrets/*"
-        "*.pem"
-        "*.pub"
-
-        # Build artifacts
-        "result"
-        "result-*"
-        ".direnv"
-
-        # Nix-specific
-        "*.lock"
-
-        # Version control
-        ".git/*"
-        ".gitignore"
-        ".gitmodules"
-
-        # Documentation that shouldn't be auto-formatted
-        "*.md"
-        "*.txt"
-
-        # Configuration files
-        "*.conf"
-        "*.config"
-        "*.toml"
-        "*.yaml"
-        "*.yml"
-
-        # Scripts directory
-        "scripts/*"
-      ];
+      settings = {
+        formatter.shellcheck.options = [
+          "--external-sources"
+          "--source-path=SCRIPTDIR"
+        ];
+        formatter.shfmt.includes = [
+          "*.envrc"
+          "*.bashrc"
+          "*.bash_profile"
+          "*.zshrc"
+        ];
+        global.excludes = [
+          "*.age"
+          "*.sops.*"
+          "secrets/*"
+          "*.pem"
+          "*.pub"
+          "result"
+          "result-*"
+          ".direnv"
+          "*.lock"
+          ".git/*"
+          ".gitignore"
+          ".gitmodules"
+          "*.md"
+          "*.txt"
+          "*.conf"
+          "*.config"
+          "*.toml"
+          "*.yaml"
+          "*.yml"
+          "scripts/*"
+        ];
+      };
     };
 
     # Use treefmt as the formatter

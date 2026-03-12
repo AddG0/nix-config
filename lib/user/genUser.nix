@@ -79,7 +79,6 @@
       extraSpecialArgs = {
         inherit pkgs inputs hostSpec desktops;
         inherit (inputs) nix-secrets;
-        inherit (inputs) nur-ryan4yin;
       };
       users.${user} = buildHomeConfig;
     };

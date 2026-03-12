@@ -31,10 +31,9 @@
     extensions
   ));
 
-  # Read settings from the module system (config) so mkForce/mkDefault are already
-  # resolved, and Stylix overrides are properly merged — matching what home-manager's
-  # VSCode module does internally.
-  settingsJson = jsonFormat.generate "vscode-server-settings.json" config.programs.vscode.profiles.default.userSettings;
+  # Use settings from vscodeLib directly so server.nix works independently of
+  # default.nix (which defines programs.vscode.profiles.default).
+  settingsJson = jsonFormat.generate "vscode-server-settings.json" vscodeLib.defaultProfile.userSettings;
 
   # Create individual extension symlinks (like home-manager vscode module)
   extensionLinks = lib.listToAttrs (map (ext: {

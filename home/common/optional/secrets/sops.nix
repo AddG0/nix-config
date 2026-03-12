@@ -1,6 +1,5 @@
 {
   config,
-  nix-secrets,
   inputs,
   ...
 }: {
@@ -9,7 +8,7 @@
   ];
 
   sops = {
-    defaultSopsFile = "${nix-secrets}/users/${config.hostSpec.username}/personal.yaml";
+    defaultSopsFile = "${inputs.nix-secrets}/users/${config.hostSpec.username}/personal.yaml";
     age = {
       sshKeyPaths = ["${config.home.homeDirectory}/.ssh/id_ed25519"];
       keyFile = "${config.home.homeDirectory}/.config/sops-nix/age/keys.txt";

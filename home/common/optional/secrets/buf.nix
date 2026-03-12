@@ -1,11 +1,11 @@
 {
-  nix-secrets,
+  inputs,
   config,
   ...
 }: {
   sops.secrets = {
     "buf/api_key" = {
-      sopsFile = "${nix-secrets}/global/api-keys/buf.yaml";
+      sopsFile = "${inputs.nix-secrets}/global/api-keys/buf.yaml";
     };
   };
 

@@ -3,7 +3,6 @@
 {
   pkgs,
   lib,
-  nur-ryan4yin,
   ...
 }: {
   programs.bat = {
@@ -21,7 +20,7 @@
     themes = {
       # https://raw.githubusercontent.com/catppuccin/bat/main/Catppuccin-mocha.tmTheme
       catppuccin-mocha = {
-        src = nur-ryan4yin.packages.${pkgs.stdenv.hostPlatform.system}.catppuccin-bat;
+        src = pkgs.themes.catppuccin.bat;
         file = "Catppuccin-mocha.tmTheme";
       };
     };

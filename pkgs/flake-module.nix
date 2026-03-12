@@ -40,20 +40,4 @@ in {
   in {
     packages = flattenedPackages;
   };
-
-  flake = {
-    # Using legacyPackages to preserve nested structure
-    legacyPackages = let
-      systems = ["x86_64-linux" "x86_64-darwin" "aarch64-darwin" "aarch64-linux"];
-    in
-      lib.genAttrs systems (system: let
-        pkgs = import inputs.nixpkgs {
-          inherit system;
-          config = {
-            allowUnfree = true;
-          };
-        };
-      in
-        mkCustomPackages pkgs);
-  };
 }

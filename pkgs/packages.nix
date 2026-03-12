@@ -5,7 +5,6 @@ pkgs: {
   # Development tools
   gke-gcloud-auth-plugin = pkgs.callPackage ./gke-gcloud-auth-plugin {};
   openhands = pkgs.callPackage ./openhands {};
-  claude-flow = pkgs.callPackage ./claude-flow {};
   wifiman-desktop = pkgs.callPackage ./wifiman-desktop {};
   superpowers-skills = pkgs.callPackage ./superpowers-skills {};
   context-engineering-kit = pkgs.callPackage ./context-engineering-kit {};

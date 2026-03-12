@@ -1,9 +1,4 @@
-{
-  pkgs,
-  config,
-  lib,
-  ...
-}: let
+{pkgs, ...}: let
   muteSound = pkgs.fetchurl {
     url = "https://www.myinstants.com/media/sounds/discordmute_IZNcLx2.mp3";
     sha256 = "4c73fcd425d8dddfef0d2ad970f2fd414be7eb1d190f49b7098e8d638f438039";

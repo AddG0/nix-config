@@ -1,7 +1,6 @@
 {
   pkgs,
   lib,
-  nur-ryan4yin,
   config,
   ...
 }: let
@@ -16,7 +15,7 @@ in {
     enable = true;
     settings = {
       source = [
-        "${nur-ryan4yin.packages.${pkgs.stdenv.hostPlatform.system}.catppuccin-hyprland}/themes/mocha.conf"
+        "${pkgs.themes.catppuccin.hyprland}/themes/mocha.conf"
       ];
       env = [
         "NIXOS_OZONE_WL,1"

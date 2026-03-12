@@ -1,7 +1,6 @@
 {
   inputs,
   lib,
-  config,
   ...
 }: {
   imports = lib.flatten [

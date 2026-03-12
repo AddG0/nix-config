@@ -1,7 +1,7 @@
 {
   config,
   pkgs,
-  nix-secrets,
+  inputs,
   ...
 }: {
   home.packages = with pkgs; [
@@ -10,7 +10,7 @@
 
   sops.secrets = {
     "cachix/auth_token" = {
-      sopsFile = "${nix-secrets}/global/api-keys/development.yaml";
+      sopsFile = "${inputs.nix-secrets}/global/api-keys/development.yaml";
     };
   };
 

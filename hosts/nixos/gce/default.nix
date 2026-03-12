@@ -3,9 +3,9 @@
 #  GCP Compute Engine Instance
 #  NixOS running on Google Cloud Platform
 #
-#  NOTE: This host does NOT use disko because the GCE format
-#  from nixos-generators includes google-compute-config.nix
-#  which handles disk/filesystem configuration automatically.
+#  NOTE: Uses google-compute-config.nix (runtime config only).
+#  Image building is handled by nixos-rebuild build-image
+#  --image-variant google-compute.
 #
 ###############################################################
 {
@@ -14,8 +14,8 @@
   ...
 }: {
   imports = lib.flatten [
-    # GCE config from nixpkgs - provides filesystem, bootloader, and cloud services
-    "${modulesPath}/virtualisation/google-compute-image.nix"
+    # GCE runtime config - provides filesystem, bootloader, and cloud services
+    "${modulesPath}/virtualisation/google-compute-config.nix"
 
     #################### Misc Inputs ####################
     (map lib.custom.relativeToHosts (

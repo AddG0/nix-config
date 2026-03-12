@@ -2,7 +2,6 @@
   pkgs,
   hostName,
   networking,
-  config,
   ...
 }: let
   inherit (networking.hostsAddr.${hostName}) iface;

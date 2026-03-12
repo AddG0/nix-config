@@ -51,9 +51,7 @@
         },
         {
           "background": "#2e9599",
-          "background_templates": [
-            "{{ if gt .Code 0 }}#f1184c{{ end }}"
-          ],
+          "background_templates": ["{{ if gt .Code 0 }}#f1184c{{ end }}"],
           "foreground": "#ffffff",
           "leading_diamond": "<transparent,background></>",
           "properties": {
@@ -141,13 +139,7 @@
   ],
   "tooltips": [
     {
-      "tips": [
-        "py",
-        "python",
-        "pip",
-        "python3",
-        "pip3"
-      ],
+      "tips": ["py", "python", "pip", "python3", "pip3"],
       "background": "#FFDE57",
       "foreground": "#111111",
       "properties": {
@@ -162,10 +154,7 @@
       "type": "python"
     },
     {
-      "tips": [
-        "j",
-        "java"
-      ],
+      "tips": ["j", "java"],
       "type": "java",
       "powerline_symbol": "",
       "leading_powerline_symbol": "",
@@ -175,10 +164,7 @@
       "template": "  {{ .Full }}"
     },
     {
-      "tips": [
-        "d",
-        "docker"
-      ],
+      "tips": ["d", "docker"],
       "type": "docker",
       "invert_powerline": true,
       "powerline_symbol": "",
@@ -188,9 +174,7 @@
       "template": "  {{ .Context }} "
     },
     {
-      "tips": [
-        "helm"
-      ],
+      "tips": ["helm"],
       "background": "#a7cae1",
       "foreground": "#100e23",
       "invert_powerline": true,
@@ -201,10 +185,7 @@
     },
     {
       "type": "aws",
-      "tips": [
-        "terraform",
-        "tf"
-      ],
+      "tips": ["terraform", "tf"],
       "invert_powerline": true,
       "powerline_symbol": "",
       "style": "accordion",
@@ -213,11 +194,7 @@
     },
     {
       "type": "az",
-      "tips": [
-        "az",
-        "terraform",
-        "tf"
-      ],
+      "tips": ["az", "terraform", "tf"],
       "invert_powerline": true,
       "powerline_symbol": "",
       "style": "accordion",

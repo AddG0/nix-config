@@ -197,16 +197,15 @@ update-personal-repos:
   nix flake update nix-secrets pterodactyl-addons lumenboard-player ai-toolkit bakkesmod-nix awsvpnclient-nix || true
 
 [group('installation')]
-[doc("Build NixOS ISO image")]
-iso:
-  # If we dont remove this folder, libvirtd VM doesnt run with the new iso...
+[doc("Build NixOS image (iso, gce, amazon, etc.)")]
+build-image hostname="" variant="iso":
   rm -rf result
-  nix build ./nixos-installer#nixosConfigurations.iso.config.system.build.isoImage
+  nixos-rebuild build-image --image-variant {{variant}} --flake .#{{ if hostname != "" { hostname } else { "$(hostname)" } }}
 
 [group('installation')]
 [confirm("This will overwrite the target drive. Continue?")]
 [doc("Install ISO to specified drive")]
-iso-install DRIVE: iso
+iso-install DRIVE hostname="": (build-image hostname "iso")
   sudo dd if=$(eza --sort changed result/iso/*.iso | tail -n1) of={{DRIVE}} bs=4M status=progress oflag=sync
 
 [group('installation')]

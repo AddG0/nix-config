@@ -1,8 +1,4 @@
-{
-  pkgs,
-  nur-ryan4yin,
-  ...
-}: {
+{pkgs, ...}: {
   programs = {
     k9s = {
       enable = true;
@@ -12,7 +8,7 @@
         skin = "catppuccino-mocha";
       };
       skins.catppuccin-mocha = let
-        skin_file = "${nur-ryan4yin.packages.${pkgs.stdenv.hostPlatform.system}.catppuccin-k9s}/dist/mocha.yml"; # theme - catppuccin mocha
+        skin_file = "${pkgs.themes.catppuccin.k9s}/dist/mocha.yml"; # theme - catppuccin mocha
         skin_attr = builtins.fromJSON (
           builtins.readFile
           # replace 'base: &base "#1e1e2e"' with 'base: &base "default"'

@@ -1,7 +1,6 @@
 {
   hostName,
   networking,
-  config,
   ...
 }: let
   inherit (networking) defaultGateway nameservers;

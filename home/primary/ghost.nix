@@ -1,8 +1,4 @@
-{
-  lib,
-  pkgs,
-  ...
-}: {
+{lib, ...}: {
   imports = lib.flatten [
     ./common/core
     (map (f: ./common/optional/${f}) [

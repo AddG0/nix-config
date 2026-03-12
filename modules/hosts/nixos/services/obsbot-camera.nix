@@ -7,7 +7,7 @@
   cfg = config.services.obsbot-camera;
 
   # Camera submodule type
-  cameraOpts = {name, ...}: {
+  cameraOpts = _: {
     options = {
       triggerPaths = lib.mkOption {
         type = lib.types.listOf lib.types.str;

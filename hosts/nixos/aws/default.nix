@@ -3,14 +3,20 @@
 #  AWS EC2 Instance
 #  NixOS running on AWS EC2
 #
+#  NOTE: This host does NOT use disko because the amazon-image
+#  module from nixpkgs handles disk/filesystem configuration
+#  automatically.
+#
 ###############################################################
 {
-  inputs,
   lib,
-  config,
+  modulesPath,
   ...
 }: {
   imports = lib.flatten [
+    # EC2 config from nixpkgs - provides filesystem, bootloader, and cloud services
+    "${modulesPath}/virtualisation/amazon-image.nix"
+
     (map lib.custom.relativeToHosts (
       [
         #################### Required Configs ####################
@@ -34,18 +40,4 @@
   };
 
   time.timeZone = "America/Chicago";
-
-  # Required for AWS EC2 instances
-  boot = {
-    loader.grub = {
-      enable = lib.mkDefault true;
-      # Let disko handle the device configuration
-      device = lib.mkDefault "nodev";
-      efiSupport = lib.mkDefault false;
-      useOSProber = lib.mkDefault false;
-    };
-    initrd = {
-      systemd.enable = lib.mkDefault true;
-    };
-  };
 }

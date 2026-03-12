@@ -1,6 +1,5 @@
 {
   config,
-  nix-secrets,
   inputs,
   ...
 }: {
@@ -9,7 +8,7 @@
   ];
 
   sops = {
-    defaultSopsFile = "${nix-secrets}/users/${config.hostSpec.username}/personal.yaml";
+    defaultSopsFile = "${inputs.nix-secrets}/users/${config.hostSpec.username}/personal.yaml";
     age = {
       sshKeyPaths = ["${config.home.homeDirectory}/.ssh/id_ed25519"];
       keyFile = "${config.home.homeDirectory}/.config/sops-nix/age/keys.txt";
@@ -20,19 +19,19 @@
   sops.secrets = {
     "personal_accounts/github_personal_token" = {};
     "openai/api_key" = {
-      sopsFile = "${nix-secrets}/global/api-keys/ai.yaml";
+      sopsFile = "${inputs.nix-secrets}/global/api-keys/ai.yaml";
     };
     "langchain/api_key" = {
-      sopsFile = "${nix-secrets}/global/api-keys/ai.yaml";
+      sopsFile = "${inputs.nix-secrets}/global/api-keys/ai.yaml";
     };
     "tavily/api_key" = {
-      sopsFile = "${nix-secrets}/global/api-keys/search.yaml";
+      sopsFile = "${inputs.nix-secrets}/global/api-keys/search.yaml";
     };
     "anthropic/api_key" = {
-      sopsFile = "${nix-secrets}/global/api-keys/ai.yaml";
+      sopsFile = "${inputs.nix-secrets}/global/api-keys/ai.yaml";
     };
     "gemini/api_key" = {
-      sopsFile = "${nix-secrets}/global/api-keys/ai.yaml";
+      sopsFile = "${inputs.nix-secrets}/global/api-keys/ai.yaml";
     };
   };
 
