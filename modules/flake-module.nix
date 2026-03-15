@@ -25,5 +25,11 @@ _: {
         ./home
       ];
     };
+
+    homeModules.plasma6 = {
+      imports = [
+        ./home/nixos/desktops/plasma6
+      ];
+    };
   };
 }

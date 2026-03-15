@@ -1,3 +1,3 @@
-{lib, ...}: {
-  imports = lib.custom.scanPaths ./.;
+_: {
+  # Plasma is imported as a seperate module
 }

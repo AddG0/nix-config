@@ -1,10 +1,12 @@
 {
   pkgs,
   inputs,
+  self,
   ...
 }: {
   imports = [
     inputs.plasma-manager.homeModules.plasma-manager
+    self.homeModules.plasma6
   ];
 
   # Autostart applications
