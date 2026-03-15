@@ -22,6 +22,14 @@
 # SAVING REPLAYS:
 #   Run `save-gsr-replay` or bind it to a hotkey to save the replay buffer.
 #
+# CHANGING PORTAL MONITOR:
+#   Portal mode restores the previous session automatically. To re-trigger
+#   the monitor picker dialog:
+#     1. systemctl --user stop gpu-screen-recorder-replay.service
+#     2. rm -f ~/.local/share/flatpak/db/screencast
+#     3. systemctl --user restart xdg-desktop-portal-hyprland.service
+#     4. systemctl --user start gpu-screen-recorder-replay.service
+#
 # =============================================================================
 {
   config,

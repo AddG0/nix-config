@@ -1,4 +1,12 @@
-{pkgs, ...}: {
+{
+  pkgs,
+  inputs,
+  ...
+}: {
+  imports = [
+    inputs.plasma-manager.homeModules.plasma-manager
+  ];
+
   # Autostart applications
   xdg.autostart = {
     enable = true;

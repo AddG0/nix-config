@@ -11,7 +11,6 @@
     buildInputs = [pkgs.makeWrapper];
     postBuild = ''
       wrapProgram $out/bin/claude \
-        --append-flags "--plugin-dir ${pkgs.claude-code-plugins}/share/claude-code/plugins/ralph-wiggum" \
         --prefix PATH : ${lib.makeBinPath ([pkgs.socat] ++ lib.optionals pkgs.stdenv.hostPlatform.isLinux [pkgs.bubblewrap])}
     '';
   };
@@ -28,11 +27,13 @@
           extends = c.extends or acc.extends or null;
           settings = lib.recursiveUpdate (acc.settings or {}) (c.settings or {});
           mcpServers = (acc.mcpServers or {}) // (c.mcpServers or {});
+          lspServers = (acc.lspServers or {}) // (c.lspServers or {});
           agents = (acc.agents or {}) // (c.agents or {});
           commands = (acc.commands or {}) // (c.commands or {});
           hooks = (acc.hooks or {}) // (c.hooks or {});
           skills = (acc.skills or {}) // (c.skills or {});
           rules = (acc.rules or {}) // (c.rules or {});
+          pluginDirs = (acc.pluginDirs or []) ++ (c.pluginDirs or []);
         }
         // lib.optionalAttrs (texts != []) {
           memory.text = lib.concatStringsSep "\n\n" texts;
@@ -62,6 +63,36 @@ in {
     defaultProfile = "default";
 
     baseConfig = {
+      pluginDirs = [
+        "${pkgs.claude-code-plugins}/share/claude-code/plugins/ralph-wiggum"
+      ];
+
+      lspServers = {
+        rust = {
+          command = "${pkgs.rust-analyzer}/bin/rust-analyzer";
+          extensionToLanguage = {".rs" = "rust";};
+        };
+        typescript = {
+          command = "${pkgs.nodePackages.typescript-language-server}/bin/typescript-language-server";
+          args = ["--stdio"];
+          extensionToLanguage = {
+            ".ts" = "typescript";
+            ".tsx" = "typescriptreact";
+            ".js" = "javascript";
+            ".jsx" = "javascriptreact";
+            ".mts" = "typescript";
+            ".cts" = "typescript";
+            ".mjs" = "javascript";
+            ".cjs" = "javascript";
+          };
+        };
+        java = {
+          command = "${pkgs.jdt-language-server}/bin/jdtls";
+          extensionToLanguage = {".java" = "java";};
+          startupTimeout = 120000;
+        };
+      };
+
       memory.text = ''
         Proactively invoke available skills when relevant.
         Prefer `-C`/path args over `cd &&` (e.g. `git -C /path status`, `nix develop /path`).
@@ -81,10 +112,10 @@ in {
           };
         includeCoAuthoredBy = false;
         permissions = {
-          allow = ["Bash(git diff:*)" "Edit"];
+          allow = ["Bash(git diff:*)" "Bash(nix build:*)" "Bash(nix flake:*)" "Edit"];
           ask = ["Bash(git push:*)" "Bash(kubectl get secret:*)"];
           defaultMode = "acceptEdits";
-          deny = ["Read(./.env)"];
+          deny = ["Read(./.env)" "Read(**/terraform.tfvars)"];
         };
         statusLine = {
           command = "input=$(cat); echo \"[$(echo \"$input\" | jq -r '.model.display_name')] 📁 $(basename \"$(echo \"$input\" | jq -r '.workspace.current_dir')\")\"";
@@ -105,6 +136,11 @@ in {
           description = "Everyday development";
           skills = {
             "changelog-generator" = ./skills/changelog-generator;
+            "software-architecture" = "${pkgs.context-engineering-kit}/share/claude-code/plugins/ddd/skills/software-architecture";
+            "frontend-design" = "${pkgs.claude-code-plugins}/share/claude-code/plugins/frontend-design/skills/frontend-design";
+            "decision-matrix" = "${skillsCollection}/decision-matrix";
+            "forecast-premortem" = "${skillsCollection}/forecast-premortem";
+            "postmortem" = "${skillsCollection}/postmortem";
           };
 
           commands = {

@@ -22,7 +22,7 @@ in {
       init.defaultBranch = "main";
       push.autoSetupRemote = true;
       pull.rebase = "true";
-      core.pager = "bat --paging=always --plain";
+
       url = {
         "ssh://git@github.com" = {
           insteadOf = "https://github.com";
@@ -79,12 +79,14 @@ in {
       github-cli # GitHub CLI.
     ];
 
-  programs.difftastic = {
+  programs.delta = {
     enable = true;
-    git.enable = true;
+    enableGitIntegration = true;
     options = {
-      background = "dark"; # matches catppuccin-mocha
-      display = "side-by-side";
+      syntax-theme = "Catppuccin Mocha";
+      side-by-side = true;
+      line-numbers = true;
+      navigate = true;
     };
   };
 

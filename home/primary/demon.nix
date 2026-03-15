@@ -52,6 +52,7 @@
         "development/languages/java.nix"
         "development/languages/node.nix"
         "development/languages/rust.nix"
+        "development/tilt.nix"
         "development/grpc.nix"
         "secrets/buf.nix"
         "development/terraform.nix"

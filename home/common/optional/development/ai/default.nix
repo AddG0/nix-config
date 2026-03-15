@@ -5,16 +5,18 @@
 }: {
   imports = [
     ./claude-code
+    ./opencode
+    ./claude-desktop.nix
   ];
 
-  home.packages = with pkgs;
-    [
-      # Development tools
-      claude-code-router
-      # claude-flow
-      repomix
-    ]
-    ++ lib.optionals pkgs.stdenv.isLinux [
-      claude-desktop
-    ];
+  programs.zsh.shellAliases = {
+    mcp-inspector = "${pkgs.nodejs}/bin/npx --yes @modelcontextprotocol/inspector";
+  };
+
+  home.packages = with pkgs; [
+    # Development tools
+    claude-code-router
+    repomix
+    pkgs.claude-desktop
+  ];
 }

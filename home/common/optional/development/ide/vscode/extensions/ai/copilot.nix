@@ -16,6 +16,7 @@
     # Custom instructions file locations
     "chat.instructionsFilesLocations" = {
       ".github/instructions" = true;
+      "~/.copilot/instructions" = true;
     };
 
     # Enable nested AGENTS.md files

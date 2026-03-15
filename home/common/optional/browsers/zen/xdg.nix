@@ -1,11 +1,13 @@
-{config, ...}: {
+{
+  pkgs,
+  lib,
+  ...
+}:
+lib.mkIf pkgs.stdenv.hostPlatform.isLinux {
   xdg.mimeApps = let
     associations = builtins.listToAttrs (map (name: {
         inherit name;
-        value = let
-          zen-browser = config.programs.zen-browser.package;
-        in
-          zen-browser.meta.desktopFileName;
+        value = "zen-beta.desktop";
       }) [
         "application/x-extension-shtml"
         "application/x-extension-xhtml"

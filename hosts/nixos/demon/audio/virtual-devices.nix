@@ -47,6 +47,7 @@ in {
               "playback.props" = {
                 "node.name" = "gate_source";
                 "media.class" = "Audio/Source";
+                "audio.position" = ["MONO"];
               };
             };
           }

@@ -31,7 +31,25 @@
           "Terminal.Paste" = ["ctrl shift V"];
         };
       };
-      ignoredFilePatterns = [".direnv" ".git" ".gradle" ".kotlin" ".pre-commit-config.yaml" "bin" "build" "gradlew" "gradlew.bat"];
+      ignoredFilePatterns = [
+        # VCS
+        ".git"
+        # Nix
+        ".direnv"
+        ".pre-commit-config.yaml"
+        # Gradle
+        ".gradle"
+        ".kotlin"
+        "bin"
+        "build"
+        "gradlew"
+        "gradlew.bat"
+        # Java LSP (jdtls) project files
+        ".classpath"
+        ".factorypath"
+        ".project"
+        ".settings"
+      ];
     };
   };
 in {
@@ -42,17 +60,11 @@ in {
     webstorm = mkIde webstorm [];
   };
 
-  home.packages = with pkgs;
-    [
-      # jetbrains.phpstorm
-      # vscode
-      code-cursor
+  home.packages = with pkgs; (
+    if pkgs.stdenv.isLinux
+    then [
+      android-studio
     ]
-    ++ (
-      if pkgs.stdenv.isLinux
-      then [
-        android-studio
-      ]
-      else []
-    );
+    else []
+  );
 }

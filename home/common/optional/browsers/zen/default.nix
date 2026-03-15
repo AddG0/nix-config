@@ -7,19 +7,15 @@
   lib,
   ...
 }: {
-  imports =
-    [
-      inputs.zen-browser.homeModules.beta
-    ]
-    ++ lib.optionals pkgs.stdenv.hostPlatform.isLinux [
-      ./xdg.nix
-    ];
+  imports = [
+    inputs.zen-browser.homeModules.beta
+    ./xdg.nix
+  ];
 
   stylix.targets.zen-browser.profileNames = ["default"];
 
   programs.zen-browser = {
     enable = true;
-    suppressXdgMigrationWarning = true;
     icon = ./icons/zen-catppuccin-mocha-mauve.svg;
     languagePacks = ["en-US"];
     policies = import ./policies-config.nix;

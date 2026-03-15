@@ -8,6 +8,12 @@
 
     # Open in sidebar (not as editor tab)
     "claudeCode.preferredLocation" = "sidebar";
+
+    # Custom instructions file locations
+    "chat.instructionsFilesLocations" = {
+      ".claude/rules" = true;
+      "~/.claude/rules" = true;
+    };
   };
   keybindings = [
     {

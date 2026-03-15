@@ -90,7 +90,15 @@ in {
     # kubebuilder
     # kubevpn
     helmfile
-    kubernetes-helm
+    (pkgs.symlinkJoin {
+      name = "kubernetes-helm-wrapped";
+      paths = [pkgs.kubernetes-helm];
+      nativeBuildInputs = [pkgs.makeWrapper];
+      postBuild = ''
+        wrapProgram $out/bin/helm \
+          --set HELM_PLUGINS "${pkgs.kubernetes-helmPlugins.helm-unittest}"
+      '';
+    })
     kubie
 
     istioctl

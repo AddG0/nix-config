@@ -9,6 +9,14 @@
     JAVA_HOME = "${pkgs.jdk}";
   };
 
+  programs.git.ignores = [
+    # Java LSP (jdtls) project files
+    ".classpath"
+    ".factorypath"
+    ".project"
+    ".settings/"
+  ];
+
   home.file.".gradle/gradle.properties".text = ''
     # NixOS Compatibility
     org.gradle.java.installations.auto-detect=false

@@ -65,9 +65,13 @@
       ".devenv"
     ];
 
-    # Hide .gradle directories from file explorer
+    # Hide Java LSP (jdtls) project files and .gradle directories from file explorer
     "files.exclude" = {
       "**/.gradle" = true;
+      "**/.classpath" = true;
+      "**/.project" = true;
+      "**/.settings" = true;
+      "**/.factorypath" = true;
     };
   };
 }

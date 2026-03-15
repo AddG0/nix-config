@@ -1,6 +1,7 @@
 {pkgs, ...}: let
   shellAliases = {
     "t" = "tmux";
+    "mux" = "tmuxinator";
   };
 in {
   programs.tmux = {
