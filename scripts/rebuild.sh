@@ -26,14 +26,11 @@ command_exists() {
 TRACE="false"
 MODE="switch"
 
-# Handle verbose flag first
-handle_verbose_flag "$@"
-OPTIND=1
-
-# Parse remaining options
-while getopts "htm:" opt; do
+# Parse options
+while getopts "hvtm:" opt; do
 	case "$opt" in
 	h) usage ;;
+	v) DEBUG_MODE=true ;;
 	t) TRACE="true" ;;
 	m) MODE="$OPTARG" ;;
 	*) usage ;;
@@ -51,8 +48,10 @@ fi
 HOST="${1:-$(hostname)}"
 
 # Build switch arguments for nix commands
+TRACE_FLAG=""
 switch_args=""
 if [ "${TRACE}" = "true" ]; then
+	TRACE_FLAG="--show-trace"
 	switch_args+="--show-trace "
 fi
 switch_args+="--impure --flake .#${HOST} ${MODE}"
@@ -80,7 +79,7 @@ rebuild_darwin() {
 	log_info "====== REBUILD ======"
 	if command_exists nh && [ "${USE_NH:-true}" = "true" ]; then
 		log_debug "Using nh darwin command for rebuild"
-		nh darwin ${MODE} . -- --show-trace
+		nh darwin ${MODE} . ${TRACE_FLAG:+-- $TRACE_FLAG}
 	elif command_exists darwin-rebuild; then
 		log_debug "Using darwin-rebuild with arguments: ${switch_args}"
 		# Run darwin-rebuild with sudo as required by the new activation model
@@ -97,7 +96,7 @@ rebuild_linux() {
 	log_info "====== REBUILD ======"
 	if command_exists nh && [ "${USE_NH:-true}" = "true" ]; then
 		log_debug "Using nh command for rebuild"
-		nh os ${MODE} . -- --show-trace
+		nh os ${MODE} . ${TRACE_FLAG:+-- $TRACE_FLAG}
 	else
 		log_debug "Using sudo nixos-rebuild with arguments: ${switch_args}"
 		sudo nixos-rebuild ${switch_args}

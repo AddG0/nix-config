@@ -46,11 +46,12 @@ alias r := rebuild
 
 # Add --option eval-cache false if you end up caching a failure you can't get around
 [group('system')]
-[doc("Rebuild system configuration (--boot to only set next boot)")]
+[doc("Rebuild system configuration (--boot to only set next boot, --show-trace for debug)")]
 [arg("boot", long, value="boot")]
+[arg("show-trace", long, value="true")]
 [arg("use-nh", long="no-nh", value="false")]
-rebuild hostname="" boot="switch" use-nh=USE_NH_DEFAULT: rebuild-pre
-  USE_NH={{use-nh}} scripts/rebuild.sh -m {{boot}} {{hostname}}
+rebuild hostname="" boot="switch" show-trace="false" use-nh=USE_NH_DEFAULT: rebuild-pre
+  USE_NH={{use-nh}} scripts/rebuild.sh {{ if show-trace == "true" { "-t" } else { "" } }} -m {{boot}} {{hostname}}
 
 [group('system')]
 [doc("Rollback to previous generation or specific generation number")]
@@ -69,13 +70,6 @@ alias rf := rebuild-full
 [doc("Full system rebuild with validation - requires SOPS and reboot after initial rebuild")]
 rebuild-full hostname="": rebuild-pre && rebuild-post
   scripts/rebuild.sh {{hostname}}
-  just check
-
-# Requires sops to be running and you must have reboot after initial rebuild
-[group('system')]
-[doc("Rebuild with trace output for debugging")]
-rebuild-trace hostname="": rebuild-pre && rebuild-post
-  scripts/rebuild.sh -t {{hostname}}
   just check
 
 [group('maintenance')]

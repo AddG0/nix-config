@@ -16,7 +16,7 @@
 
   programs.zen-browser = {
     enable = true;
-    icon = ./icons/zen-catppuccin-mocha-mauve.svg;
+    icon = lib.mkIf pkgs.stdenv.isLinux ./icons/zen-catppuccin-mocha-mauve.svg;
     languagePacks = ["en-US"];
     policies = import ./policies-config.nix;
 
@@ -176,7 +176,10 @@
         };
       };
 
-      keyboardShortcutsVersion = 16;
+      keyboardShortcutsVersion =
+        if pkgs.stdenv.isLinux
+        then 16
+        else 14;
       keyboardShortcuts = [
         {
           id = "key_quitApplication";

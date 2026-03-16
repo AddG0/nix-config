@@ -1,8 +1,14 @@
-{lib, ...}: {
+{
+  inputs,
+  lib,
+  ...
+}: {
   imports = lib.flatten [
+    inputs.stylix.homeModules.stylix
     ./common/core
     (map (f: ./common/optional/${f}) [
       "development/aws.nix"
+      "darwin/stylix.nix"
       "work.nix"
     ])
 
@@ -14,6 +20,8 @@
       ++ (map (f: "common/optional/${f}") [
         #################### Host-specific Optional Configs ####################
         "helper-scripts"
+
+        "browsers"
 
         "development"
         "development/ai"
@@ -39,7 +47,7 @@
         "ghostty"
         "media/spicetify.nix"
 
-        "darwin/desktops/linux-esque"
+        # "darwin/desktops/linux-esque"
       ])
     ))
   ];
