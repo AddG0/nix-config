@@ -29,7 +29,7 @@
         "development/aws.nix"
         "development/ide"
         "development/ide/vscode"
-        # "development/languages/java.nix"
+        "development/languages/java.nix"
         # "development/languages/go.nix"
         "development/languages/node.nix"
         # "development/jupyter-notebook.nix"
@@ -48,6 +48,9 @@
         "media/spicetify.nix"
 
         # "darwin/desktops/linux-esque"
+
+        "secrets"
+        "secrets/ai.nix"
       ])
     ))
   ];

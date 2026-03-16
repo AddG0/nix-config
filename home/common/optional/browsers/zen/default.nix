@@ -176,10 +176,7 @@
         };
       };
 
-      keyboardShortcutsVersion =
-        if pkgs.stdenv.isLinux
-        then 16
-        else 14;
+      keyboardShortcutsVersion = 16;
       keyboardShortcuts = [
         {
           id = "key_quitApplication";

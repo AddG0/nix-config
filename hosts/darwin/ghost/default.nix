@@ -39,7 +39,7 @@
         # "darwin/applications/ollama.nix"
         "darwin/applications/synology.nix"
         # "darwin/applications/tencent-lemon.nix"
-        # "darwin/applications/claude.nix"
+        "darwin/applications/claude.nix"
         "darwin/applications/vpn.nix"
         "darwin/applications/ghostty.nix"
         "darwin/applications/bleunlock.nix"
