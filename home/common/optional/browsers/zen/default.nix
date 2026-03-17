@@ -9,13 +9,13 @@
 }: {
   imports = [
     inputs.zen-browser.homeModules.beta
-    ./xdg.nix
   ];
 
   stylix.targets.zen-browser.profileNames = ["default"];
 
   programs.zen-browser = {
     enable = true;
+    setAsDefaultBrowser = true;
     icon = lib.mkIf pkgs.stdenv.isLinux ./icons/zen-catppuccin-mocha-mauve.svg;
     languagePacks = ["en-US"];
     policies = import ./policies-config.nix;
