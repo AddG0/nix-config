@@ -10,7 +10,7 @@
   hyprctl = "${pkgs.hyprland}/bin/hyprctl";
   jq = "${pkgs.jq}/bin/jq";
 
-  hyprLib = import ./lib.nix;
+  hyprLib = import ./common/lib.nix;
   transformToHyprland = hyprLib.transformMap;
   vrrToHyprland = hyprLib.vrrMap;
 

@@ -5,7 +5,7 @@
 #
 # Keyring fix (Hyprland/non-standard DEs):
 #   Chromium doesn't detect gnome-keyring on Hyprland (upstream bug: github.com/microsoft/vscode/issues/187338).
-#   Fix: add "password-store": "gnome-libsecret" to ~/.vscode/argv.json
+#   Applied below via --password-store=gnome-libsecret wrapper flag.
 {
   lib,
   pkgs,
@@ -25,7 +25,8 @@
       buildInputs = [pkgs.makeWrapper];
       postBuild = ''
         wrapProgram $out/bin/code \
-          ${lib.optionalString hasKubeconfig ''--set KUBECONFIG "${config.home.sessionVariables.KUBECONFIG}"''}
+          ${lib.optionalString hasKubeconfig ''--set KUBECONFIG "${config.home.sessionVariables.KUBECONFIG}"''} \
+          ${lib.optionalString pkgs.stdenv.isLinux "--add-flags --password-store=gnome-libsecret"}
       '';
     })
     // {
