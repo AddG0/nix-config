@@ -17,3 +17,7 @@ key_key.hotbar.9:key.keyboard.r
 key_key.inventory:key.keyboard.e
 key_key.swapOffhand:key.keyboard.q
 key_key.loadToolbarActivator:key.keyboard.unknown
+key_key.quickActions:key.keyboard.unknown
+key_keybind.name.MENU_ACCESS:key.keyboard.unknown
+key_iris.keybind.reload:key.keyboard.unknown
+key_keybind.name.EMOTE_WHEEL:key.keyboard.unknown

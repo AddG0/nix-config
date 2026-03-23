@@ -2,279 +2,11 @@ hash-format = "sha256"
 
 [[files]]
 file = "MODS.md"
-hash = "6abe8f0cf313023b1f60eb2ffe73eca12af1962f7dcb8c7892f80cfb1e6e961c"
+hash = "78f11e34e06132b85b4335555b973db89e66a9f4eb86f0705be9950d46272d0f"
 
 [[files]]
 file = "OPTIONS.md"
-hash = "6529ed191392f890f8c56a8f34707ee5b1490bc5d7e7134c5cd517c84f2f2de2"
-
-[[files]]
-file = "config-archived/Better-Stack-Count-config.json"
-hash = "d216e56a36e6bfdb3a75d66bf6a397d4643c870469b68ba3e72d46b348268d85"
-
-[[files]]
-file = "config-archived/CleanView.json"
-hash = "f87ad52dbe666eaf7508e35c54309e4d0c163101ecaad376dda15ebe21991682"
-
-[[files]]
-file = "config-archived/NoChatReports/NCR-Client.json"
-hash = "959e8c6596226e892424baa4845afef843172d818688109b68b3d6420daeb19b"
-
-[[files]]
-file = "config-archived/NoChatReports/NCR-Common.json"
-hash = "8309da0706c1a704d1ddd8865b1f4143f472563c286c184ebe7b44d607138279"
-
-[[files]]
-file = "config-archived/NoChatReports/NCR-Encryption.json"
-hash = "d276b062d4eb599fc8110b71c6f31f875a54eae2541f275c17b281dc7edf0755"
-
-[[files]]
-file = "config-archived/NoChatReports/NCR-ServerPreferences.json"
-hash = "f6950e59bd073d3740e49a88167ccf20cee29cb6a61ab673a4fb28cd7fccd509"
-
-[[files]]
-file = "config-archived/NoChatReports/README.md"
-hash = "c52b76ccad2bd1063a22c7f6bb9e7c5db6b00fb53a6fd605585972ee0e5fc01f"
-
-[[files]]
-file = "config-archived/anchoroptimizer.json"
-hash = "9536f7b6b7be4c6d3abdfce03d1ed4ac8071897ac033e9812352a0ab5d4776e3"
-
-[[files]]
-file = "config-archived/appleskin.json5"
-hash = "161f9103e28ed86fbfab7859da833bccd00f9c6d5404dc1f9716b869b2887abc"
-
-[[files]]
-file = "config-archived/better_crosshair.json"
-hash = "ac5e12f61b4d160b2c5e86f300e289169873ad7fbbbb4adafcdc80b2b3d00e17"
-
-[[files]]
-file = "config-archived/betterhurtcam.toml"
-hash = "4580744030f0e75cea55b75f6e10c33b6a02e5fef750d6592147991d9d577b0c"
-
-[[files]]
-file = "config-archived/bettershields.toml"
-hash = "1fc4719f03cf9e6202935222617bf4d6bbdf8e5157241d0c0bad3bb99a0c92ab"
-
-[[files]]
-file = "config-archived/bobby.conf"
-hash = "268dec92df483058dbfbb779766afcec91741c2851f3dd5e22a42e713a6c064e"
-
-[[files]]
-file = "config-archived/carpet/default_carpet.conf"
-hash = "76f87589fb0d40c495ef1d61a926cd75b70dc26304d65d89fa08840bee43671c"
-
-[[files]]
-file = "config-archived/collective.json5"
-hash = "191970b04075f4fe27258dd9e1cf1a971420eea473fde5b1843d21881742d4e9"
-
-[[files]]
-file = "config-archived/consumableoptimizer.json"
-hash = "9536f7b6b7be4c6d3abdfce03d1ed4ac8071897ac033e9812352a0ab5d4776e3"
-
-[[files]]
-file = "config-archived/controlify.json"
-hash = "6d75608272157edc5ddb69ac667f58ca473d69af58615954f6b312a7407e62d4"
-
-[[files]]
-file = "config-archived/controllermod-common.toml"
-hash = "9b5d457f2a5661f8a08ef9ae86b72cde28e6edaf2f4e6d89d8770bbc4896e89a"
-
-[[files]]
-file = "config-archived/crosshairaddons.json"
-hash = "d1d570963c3f7dd107286ce123b720c3c89f95bb6e27ffc508ccee1f45d7a55f"
-
-[[files]]
-file = "config-archived/custom-hud/config.json"
-hash = "12ad6fbbee825fd02e813e465335b2a410af743d746de8d5a6a9a52098e963bf"
-
-[[files]]
-file = "config-archived/custom-hud/profiles/Example Profile.txt"
-hash = "0cadaa245fb3ff1ac8a74b1674979af2f9c5ee30aad969e1a7ec49015360926a"
-
-[[files]]
-file = "config-archived/custom-hud/profiles/F3 Clone.txt"
-hash = "cde21323a888b6b6e5e67b397edec17636e8f50fd04a43320d04bce9b9b8ecfa"
-
-[[files]]
-file = "config-archived/custom-hud/profiles/New Profile 1.txt"
-hash = "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
-
-[[files]]
-file = "config-archived/custom-hud/profiles/Simple.txt"
-hash = "f341bb5fe4a5af73316e38118ed7f4fb38b562efe80fd378d7145fecfff834a3"
-
-[[files]]
-file = "config-archived/customtooltips_config.json5"
-hash = "95d7b432a36d0fe839358dbcafd82bb8108cbff31b4002ae2e8304a2567c9872"
-
-[[files]]
-file = "config-archived/dho.json"
-hash = "a0e21432b263c45ccf92b5f341bfcf67dcf4bc4d5ba6fe9e50056b574b4a61c2"
-
-[[files]]
-file = "config-archived/dynamic_fps.json"
-hash = "ca3d163bab055381827226140568f3bef7eaac187cebd76878e0b63e9e442356"
-
-[[files]]
-file = "config-archived/dynamichud.json5"
-hash = "01f302edf38524df2a3efebc891bd642ed933cdee869c998edeebadd436403e8"
-
-[[files]]
-file = "config-archived/elytra-pitch-helper.json"
-hash = "e2e3629983f5dbd2cb51638697d8fd4656a0548e84ae75578131fb6c18b567ff"
-
-[[files]]
-file = "config-archived/entityculling.json"
-hash = "8de69f9ca665da220cd9d542e0321287ade1701154f9d322063ebd47756ef783"
-
-[[files]]
-file = "config-archived/exordium.json"
-hash = "9a56830d4d371b7a3c6be4318bda5814ecdd8b3c3d89ea7804b9838c84ecc813"
-
-[[files]]
-file = "config-archived/fabric/indigo-renderer.properties"
-hash = "2f138a43277188377036d83a9d875dcef02d06f714e20f9405ef07d3fbf56779"
-
-[[files]]
-file = "config-archived/ferritecore.mixin.properties"
-hash = "a2091a291309db8920c8a80e913ed31c24c29687d8cd25ac18076ad85a90ddb8"
-
-[[files]]
-file = "config-archived/forgeconfigapiport.toml"
-hash = "40dbe5b348f89b8ded62bcdfe32807ffc3e78fa8e0f81607a739580019fe5450"
-
-[[files]]
-file = "config-archived/fullbrightnesstoggle/laststate.txt"
-hash = "fa43a4356cc0f41f64f01012753cda9e713dd4d0751ad53bdee39e27fdac1ccd"
-
-[[files]]
-file = "config-archived/guiscalesplitter.json"
-hash = "beb6f1a50fad28a121d23e60b27a1675236b0c6609218f76e8d955bcdef03218"
-
-[[files]]
-file = "config-archived/ias.json"
-hash = "92e3e4bbf87447b2f0bbb5a5eb765d72b0ff6b56b7a71c2d6f011941f2b39db8"
-
-[[files]]
-file = "config-archived/inventoryscale.json"
-hash = "bb124fd092539607f5fb7929d6826d4221acad1702039b5c61195caac264c45d"
-
-[[files]]
-file = "config-archived/item-name-changer/item_data.json"
-hash = "ca3d163bab055381827226140568f3bef7eaac187cebd76878e0b63e9e442356"
-
-[[files]]
-file = "config-archived/lithium.properties"
-hash = "76765e8e5ff8e927d80beb0739aababcf36e7babfd94262f2afece256cc5cd2e"
-
-[[files]]
-file = "config-archived/modelfix-client.json"
-hash = "6f83b7ac4309509c3c51d112ee40494aa38359bac63cebb2732a9df61610b022"
-
-[[files]]
-file = "config-archived/modmenu.json"
-hash = "72d9d0986e0ee20e13e9989e7f0cd8e5aae3ad37a9505de231aba31e15ac16b3"
-
-[[files]]
-file = "config-archived/nuit-config.json"
-hash = "b7f5e76bdfd058500fb70be10c64937083e757f3a8325eaaa815610ebabfd870"
-
-[[files]]
-file = "config-archived/nuit-interop.json"
-hash = "7fad585ae3813048a472316cf06c4fd2a10dce7fa9f21009a067405f1fa853f3"
-
-[[files]]
-file = "config-archived/shieldfixes.json"
-hash = "6bda227b8bf9ef82f284ec1b6e0e7e734982ecb61060a7abfb18586c96e8ca60"
-
-[[files]]
-file = "config-archived/sodium-extra-options.json"
-hash = "e376579723352a4565aee734fa7d8d9d44f6c9bb3852ba3b258dbae684228902"
-
-[[files]]
-file = "config-archived/sodium-extra.properties"
-hash = "a2f1b47c1eaa119ab34727f1d43c2506cb3d7f17ba8fb4efb49e20c8e0b58e70"
-
-[[files]]
-file = "config-archived/sodium-fingerprint.json"
-hash = "5b52388ae233475946db33266446be7300ecce01f89218089ef9ae945dda4f3c"
-
-[[files]]
-file = "config-archived/sodium-mixins.properties"
-hash = "b627c4456e6fa0bc4b5f85e2f1cd949faedae3cb9afdaf2a5f52e6f3b6ae1f01"
-
-[[files]]
-file = "config-archived/sodium-options.json"
-hash = "0853f28d7fce5b58307b48a9f149efaec9d7816c761cbb845a6a45eb267ac79d"
-
-[[files]]
-file = "config-archived/sodiumextras-client.toml"
-hash = "135bc55c484c11c07e2abfdb2bb9e9eb7f799b6a959cad277c333db83160982a"
-
-[[files]]
-file = "config-archived/totemcounter.toml"
-hash = "ac47a7ee7371a7dfb94eb8ea2c593cba9b42c0091a981dcb484b34eab60df724"
-
-[[files]]
-file = "config-archived/totemtweaks.json"
-hash = "21e4fed7ab108c55b616bc87dbb99aca592d2f4307c86f99283492d3ed316849"
-
-[[files]]
-file = "config-archived/ukulib.toml"
-hash = "381b3be9c8daf611db35e018b71080be5d459385523d08e8e43568bb51dd11ce"
-
-[[files]]
-file = "config-archived/ukus-armor-hud.toml"
-hash = "e4a259bd24d18f6904f469b1303f5ff130a19d0368600804062e874fcd860443"
-
-[[files]]
-file = "config-archived/unionlib-client.toml"
-hash = "90defb93bef373cc4092f8e4c00d97c658f8f3deb1fce5996bd5db7c7dee70b3"
-
-[[files]]
-file = "config-archived/unionlib-common.toml"
-hash = "eb32da02cf9b1528f6682d160aa33f983e2847badb204ee7dd5900dc69b29148"
-
-[[files]]
-file = "config-archived/unionlib-server.toml"
-hash = "fc800170c148a3e533d9efc8633d92b98f12c3e48ad44db5500f31598131535b"
-
-[[files]]
-file = "config-archived/walksyambienceV2.json"
-hash = "82e44ceca2d2831a45c75c63ca81754819c3f71b2e1a8568f62cd35b4b67df44"
-
-[[files]]
-file = "config-archived/walksycustomhitboxes.json"
-hash = "80bd07a0b2476746e146c5794d864f8d4bb5b44e8f4698740bd9bde61ce4c50a"
-
-[[files]]
-file = "config-archived/walksyshieldstatus.json"
-hash = "d64f899da4d8cabe0850edde3caf6bcdcfebc8f7a8b3752cde2673d06fce0170"
-
-[[files]]
-file = "config-archived/walksytotempopchams.json"
-hash = "a0d385866dfcb4e408dbe2ee4f2162af22c87b00a620ed6e343e3fc6658548bb"
-
-[[files]]
-file = "config-archived/widgets.nbt"
-hash = "c4b20aae5891e637e2e0c24944182311f5ab70ffb403757062c554c62d821262"
-
-[[files]]
-file = "config-archived/widgets.nbt.backup"
-hash = "c4b20aae5891e637e2e0c24944182311f5ab70ffb403757062c554c62d821262"
-
-[[files]]
-file = "config-archived/xaerominimap.txt"
-hash = "066cbfbde05ca9458c1eaea1a4625195a456fcde7052e75fe9d8cc99633777c1"
-
-[[files]]
-file = "config-archived/yacl.json5"
-hash = "e59973486e143c57eeffb7962076106059f3baef39bd2d62a1e4b052b4cf9de6"
-
-[[files]]
-file = "config-archived/zoomify.json"
-hash = "b8aeffc7a72bdc136046cf7434e26e9cc46d3d8ebc2fcf07a3ad8fd3b06fe280"
+hash = "11f085e44bbf29d77ae12ea9ee29a473b62ce672ce51e7e12fbdb21224471ed3"
 
 [[files]]
 file = "config/inventoryhud.json"
@@ -383,11 +115,6 @@ metafile = true
 [[files]]
 file = "mods/custom-tooltips.pw.toml"
 hash = "8c1d3b0b73d2a463b8acaa1e46f7458dc3e56240d09e5fd673734b15b9d6f66d"
-metafile = true
-
-[[files]]
-file = "mods/dynamic-fps.pw.toml"
-hash = "7b83af5380faba6641a6fdf27e239eba79846f6b66a65da810860a8cb1e86ee4"
 metafile = true
 
 [[files]]
@@ -582,7 +309,11 @@ metafile = true
 
 [[files]]
 file = "options.txt"
-hash = "e0c00b4eb7c9cc81f947e3fff9c2e80903425893fbb83fb4817350cc2855ee29"
+hash = "4cb54b5616b6ad7e0214cb007cb4ff0e6416a7f26a4aaf4df8db51a9d4fc2a93"
+
+[[files]]
+file = "overrides/config/clientkits/kits/Main.json"
+hash = "cb25e8f62efce7f0f79b1ba56b6ffc7588abfd9787c62b6687e0baaca7c4bc10"
 
 [[files]]
 file = "resourcepacks/better-low-shield.pw.toml"

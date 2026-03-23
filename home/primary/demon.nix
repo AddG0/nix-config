@@ -69,6 +69,7 @@
         # Media
         "media"
         "media/spicetify.nix"
+        "media/davinci-resolve.nix"
         # "media/tidal.nix"
 
         # Tools

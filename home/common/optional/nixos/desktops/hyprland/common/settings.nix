@@ -93,6 +93,7 @@ in {
         "size 100% 100%, match:title ^(foot-full)$"
         "float on, match:title ^(Select what to share)$"
         "workspace special silent, match:class ^(AWS VPN Client)$"
+        "float on, match:title ^(BakkesModInjectorCpp)$"
         "workspace special silent, match:title ^(BakkesModInjectorCpp)$"
         "workspace special silent, match:class ^(steam_app_252950)$, match:title ^$"
         "workspace special silent, match:title (Lethal Company\\\\Lethal Company\\.exe)"

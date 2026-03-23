@@ -36,6 +36,9 @@
         "browser.ctrlTab.sortByRecentlyUsed" = true;
         # Scrolling
         "general.autoScroll" = true;
+        # Disable Caret Browsing (F7 prompt)
+        "accessibility.browsewithcaret" = false;
+        "accessibility.warn_on_browsewithcaret" = false;
       };
 
       mods = [
@@ -67,6 +70,22 @@
           addonId = "{bf9e77ee-c405-4dd7-9bed-2f55e448d19a}";
           url = "https://addons.mozilla.org/firefox/downloads/file/4565022/jetbrains_toolbox-3.0.0.xpi";
           sha256 = "sha256-G6prYKGXideIBlhB/I+Nsx409XPAmFSBdCoiE247eO0=";
+          meta = {};
+        })
+        (buildFirefoxXpiAddon {
+          pname = "react-devtools";
+          version = "6.1.1";
+          addonId = "@react-devtools";
+          url = "https://addons.mozilla.org/firefox/downloads/file/4432990/react_devtools-6.1.1.xpi";
+          sha256 = "sha256-staeIgQCvWuLx9gzlIkVsdbcq7RTodUIcqPbhg/ZLEY=";
+          meta = {};
+        })
+        (buildFirefoxXpiAddon {
+          pname = "tailwind-css-devtools";
+          version = "0.1.1";
+          addonId = "{0aa0ea34-0517-4d6f-bc3a-8b220c102d21}";
+          url = "https://addons.mozilla.org/firefox/downloads/file/3963180/tailwind_css_devtools-0.1.1.xpi";
+          sha256 = "sha256-LfwDY1JFhGBkF6fqfY25tP2qK21nF0tTnGqPDGf7aNw=";
           meta = {};
         })
       ];

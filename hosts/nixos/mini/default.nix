@@ -29,7 +29,7 @@
       ]
       ++ (map (f: "common/optional/${f}") [
         #################### Host-specific Optional Configs ####################
-        # "nixos/hardware/cachyos-kernel.nix" # CachyOS kernel
+        "nixos/hardware/cachyos-kernel.nix" # CachyOS kernel
         "nixos/services/openssh.nix" # allow remote SSH access
         "nixos/services/tailscale.nix" # mesh VPN for secure remote access
         "nixos/audio.nix" # pipewire and cli controls

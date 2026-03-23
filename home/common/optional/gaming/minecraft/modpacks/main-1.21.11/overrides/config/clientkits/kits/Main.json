@@ -1,0 +1,214 @@
+{
+    creator: "AddG0",
+    data_version: 4671,
+    inv: [
+        {
+            Slot: 0b,
+            components: {
+                "minecraft:container": [
+                    {
+                        item: {
+                            components: {
+                                "minecraft:custom_name": "Panda Punch",
+                                "minecraft:enchantments": {
+                                    "minecraft:fire_aspect": 2,
+                                    "minecraft:knockback": 2,
+                                    "minecraft:looting": 3,
+                                    "minecraft:mending": 1,
+                                    "minecraft:sharpness": 5,
+                                    "minecraft:sweeping_edge": 3,
+                                    "minecraft:unbreaking": 3
+                                }
+                            },
+                            count: 1,
+                            id: "minecraft:netherite_sword"
+                        },
+                        slot: 0
+                    },
+                    {
+                        item: {
+                            components: {
+                                "minecraft:custom_name": "Panda Fury",
+                                "minecraft:enchantments": {
+                                    "minecraft:fire_aspect": 2,
+                                    "minecraft:looting": 3,
+                                    "minecraft:mending": 1,
+                                    "minecraft:sharpness": 5,
+                                    "minecraft:sweeping_edge": 3,
+                                    "minecraft:unbreaking": 3
+                                }
+                            },
+                            count: 1,
+                            id: "minecraft:netherite_sword"
+                        },
+                        slot: 1
+                    },
+                    {
+                        item: {
+                            components: {
+                                "minecraft:custom_name": "Ascendant Lance",
+                                "minecraft:enchantments": {
+                                    "minecraft:looting": 3,
+                                    "minecraft:lunge": 3,
+                                    "minecraft:mending": 1,
+                                    "minecraft:sharpness": 5,
+                                    "minecraft:unbreaking": 3
+                                }
+                            },
+                            count: 1,
+                            id: "minecraft:netherite_spear"
+                        },
+                        slot: 2
+                    },
+                    {
+                        item: {
+                            components: {
+                                "minecraft:custom_name": "Comet",
+                                "minecraft:enchantments": {
+                                    "minecraft:channeling": 1,
+                                    "minecraft:loyalty": 3,
+                                    "minecraft:mending": 1,
+                                    "minecraft:riptide": 3,
+                                    "minecraft:sharpness": 5,
+                                    "minecraft:unbreaking": 3
+                                }
+                            },
+                            count: 1,
+                            id: "minecraft:trident"
+                        },
+                        slot: 3
+                    },
+                    {
+                        item: {
+                            components: {
+                                "minecraft:custom_name": "Bamboo Splitter",
+                                "minecraft:enchantments": {
+                                    "minecraft:efficiency": 5,
+                                    "minecraft:looting": 3,
+                                    "minecraft:mending": 1,
+                                    "minecraft:sharpness": 5,
+                                    "minecraft:unbreaking": 3
+                                }
+                            },
+                            count: 1,
+                            id: "minecraft:netherite_axe"
+                        },
+                        slot: 4
+                    },
+                    {
+                        item: {
+                            components: {
+                                "minecraft:enchantments": {
+                                    "minecraft:aqua_affinity": 1,
+                                    "minecraft:mending": 1,
+                                    "minecraft:protection": 4,
+                                    "minecraft:respiration": 3,
+                                    "minecraft:unbreaking": 3
+                                },
+                                "minecraft:trim": {
+                                    material: "minecraft:amethyst",
+                                    pattern: "minecraft:flow"
+                                }
+                            },
+                            count: 1,
+                            id: "minecraft:netherite_helmet"
+                        },
+                        slot: 5
+                    },
+                    {
+                        item: {
+                            components: {
+                                "minecraft:enchantments": {
+                                    "minecraft:mending": 1,
+                                    "minecraft:protection": 4,
+                                    "minecraft:unbreaking": 3
+                                },
+                                "minecraft:trim": {
+                                    material: "minecraft:amethyst",
+                                    pattern: "minecraft:silence"
+                                }
+                            },
+                            count: 1,
+                            id: "minecraft:netherite_chestplate"
+                        },
+                        slot: 6
+                    },
+                    {
+                        item: {
+                            components: {
+                                "minecraft:enchantments": {
+                                    "minecraft:mending": 1,
+                                    "minecraft:protection": 4,
+                                    "minecraft:swift_sneak": 3,
+                                    "minecraft:unbreaking": 3
+                                },
+                                "minecraft:trim": {
+                                    material: "minecraft:amethyst",
+                                    pattern: "minecraft:tide"
+                                }
+                            },
+                            count: 1,
+                            id: "minecraft:netherite_leggings"
+                        },
+                        slot: 7
+                    },
+                    {
+                        item: {
+                            components: {
+                                "minecraft:enchantments": {
+                                    "minecraft:depth_strider": 3,
+                                    "minecraft:feather_falling": 4,
+                                    "minecraft:mending": 1,
+                                    "minecraft:protection": 4,
+                                    "minecraft:unbreaking": 3
+                                },
+                                "minecraft:trim": {
+                                    material: "minecraft:amethyst",
+                                    pattern: "minecraft:silence"
+                                }
+                            },
+                            count: 1,
+                            id: "minecraft:netherite_boots"
+                        },
+                        slot: 8
+                    },
+                    {
+                        item: {
+                            components: {
+                                "minecraft:custom_name": "Panda Slam",
+                                "minecraft:enchantments": {
+                                    "minecraft:density": 5,
+                                    "minecraft:mending": 1,
+                                    "minecraft:unbreaking": 3,
+                                    "minecraft:wind_burst": 3
+                                }
+                            },
+                            count: 1,
+                            id: "minecraft:mace"
+                        },
+                        slot: 9
+                    },
+                    {
+                        item: {
+                            components: {
+                                "minecraft:custom_name": "Ascendant Maul",
+                                "minecraft:enchantments": {
+                                    "minecraft:breach": 4,
+                                    "minecraft:density": 5,
+                                    "minecraft:mending": 1,
+                                    "minecraft:unbreaking": 3
+                                }
+                            },
+                            count: 1,
+                            id: "minecraft:mace"
+                        },
+                        slot: 10
+                    }
+                ]
+            },
+            count: 1,
+            id: "minecraft:pink_shulker_box"
+        }
+    ],
+    mc_version: "1.21.11"
+}

@@ -1,4 +1,9 @@
-{pkgs, ...}: let
+{
+  config,
+  pkgs,
+  ...
+}: let
+  isLaptop = config.hostSpec.hostType == "laptop";
   shellAliases = {
     "t" = "tmux";
     "mux" = "tmuxinator";
@@ -11,83 +16,94 @@ in {
     mouse = true;
     clock24 = false;
     terminal = "tmux-256color";
-    plugins = with pkgs.tmuxPlugins; [
-      vim-tmux-navigator
-      better-mouse-mode
-      yank
-      tmux-thumbs
-      cpu
-      battery
-      {
-        plugin = tmux-fzf;
-        extraConfig = ''
-          set -g @fzf-url-fzf-options '-p 60%,30% --prompt="   " --border-label=" Open URL "'
-          set -g @fzf-url-history-limit '2000'
-        '';
-      }
-      {
-        plugin = tmux-floax;
-        extraConfig = ''
-          set -g @floax-width '80%'
-          set -g @floax-height '80%'
-          set -g @floax-border-color 'magenta'
-          set -g @floax-text-color 'blue'
-          set -g @floax-bind 'p'
-          set -g @floax-change-path 'true'
-        '';
-      }
-      {
-        plugin = catppuccin;
-        extraConfig = ''
-          set -g @catppuccin_flavour 'mocha'
-          set -g @catppuccin_window_status_style "rounded"
+    plugins = with pkgs.tmuxPlugins;
+      [
+        vim-tmux-navigator
+        better-mouse-mode
+        yank
+        tmux-thumbs
+        {
+          plugin = tmux-fzf;
+          extraConfig = ''
+            set -g @fzf-url-fzf-options '-p 60%,30% --prompt="   " --border-label=" Open URL "'
+            set -g @fzf-url-history-limit '2000'
+          '';
+        }
+        {
+          plugin = tmux-floax;
+          extraConfig = ''
+            set -g @floax-width '80%'
+            set -g @floax-height '80%'
+            set -g @floax-border-color 'magenta'
+            set -g @floax-text-color 'blue'
+            set -g @floax-bind 'p'
+            set -g @floax-change-path 'true'
+          '';
+        }
+        {
+          plugin = catppuccin;
+          extraConfig = ''
+            set -g @catppuccin_flavour 'mocha'
+            set -g @catppuccin_window_status_style "rounded"
 
-          # Fix to show the window name by default
-          set -g @catppuccin_window_default_text "#W"
-          set -g @catppuccin_window_text "#W"
-          # This will show a magnifying glass icon when the window is zoomed
-          set -g @catppuccin_window_current_text "#W#{?window_zoomed_flag,(),}"
+            # Fix to show the window name by default
+            set -g @catppuccin_window_default_text "#W"
+            set -g @catppuccin_window_text "#W"
+            # This will show a magnifying glass icon when the window is zoomed
+            set -g @catppuccin_window_current_text "#W#{?window_zoomed_flag,(),}"
 
-          # Left Status Modules
-          set -g @catppuccin_status_modules_left "session"
+            # Left Status Modules
+            set -g @catppuccin_status_modules_left "session"
+            set -g status-left "#{E:@catppuccin_status_session} "
 
-          # Right Status Modules
-          set -g status-right-length 100
-          set -g status-left-length 100
-          set -g status-right "#{E:@catppuccin_status_application}"
-          set -agF status-right "#{E:@catppuccin_status_cpu}"
-          set -ag status-right "#{E:@catppuccin_status_date_time}"
-          set -agF status-right "#{E:@catppuccin_status_battery}"
-          set -agF status-right "#{@catppuccin_status_gitmux}"
+            # Right Status Modules
+            set -g status-right-length 100
+            set -g status-left-length 100
+            set -g status-right "#{E:@catppuccin_status_application}"
+            set -agF status-right "#{E:@catppuccin_status_cpu}"
+            set -ag status-right "#{E:@catppuccin_status_date_time}"
+            ${
+              if isLaptop
+              then ''set -agF status-right "#{E:@catppuccin_status_battery}"''
+              else ""
+            }
 
-          set -g @catppuccin_status_connect_separator "no"
-          set -g @catppuccin_window_left_separator ""
-          # set -g @catppuccin_window_right_separator " "
-          set -g @catppuccin_window_middle_separator " █"
-          set -g @catppuccin_status_left_separator  " "
-          set -g @catppuccin_status_right_separator ""
-          # set -g @catppuccin_status_right_separator_inverse "no"
-          set -g @catppuccin_window_number_position "right"
+            set -g @catppuccin_status_connect_separator "no"
+            set -g @catppuccin_window_left_separator ""
+            # set -g @catppuccin_window_right_separator " "
+            set -g @catppuccin_window_middle_separator " █"
+            set -g @catppuccin_status_left_separator  " "
+            set -g @catppuccin_status_right_separator ""
+            # set -g @catppuccin_status_right_separator_inverse "no"
+            set -g @catppuccin_window_number_position "right"
 
 
-          set -g @catppuccin_directory_text "#{b:pane_current_path}"
-          set -g @catppuccin_date_time_text " %I:%M %p %d/%m/%y "
-        '';
-      }
-      # {
-      #   plugin = resurrect;
-      #   extraConfig = ''
-      #     set -g @resurrect-strategy-nvim 'session'
-      #     set -g @resurrect-capture-pane-contents 'on'
-      #   '';
-      # }
-      {
-        plugin = continuum;
-        extraConfig = ''
-          set -g @continuum-restore 'on'
-        '';
-      }
-    ];
+            set -g @catppuccin_directory_text "#{b:pane_current_path}"
+            set -g @catppuccin_date_time_text " %I:%M %p %d/%m/%y "
+          '';
+        }
+        cpu
+      ]
+      ++ (
+        if isLaptop
+        then [battery]
+        else []
+      )
+      ++ [
+        # {
+        #   plugin = resurrect;
+        #   extraConfig = ''
+        #     set -g @resurrect-strategy-nvim 'session'
+        #     set -g @resurrect-capture-pane-contents 'on'
+        #   '';
+        # }
+        {
+          plugin = continuum;
+          extraConfig = ''
+            set -g @continuum-restore 'on'
+          '';
+        }
+      ];
     extraConfig = ''
       set -g pane-active-border-style 'fg=magenta,bg=default'
       set -g pane-border-style 'fg=brightblack,bg=default'
@@ -103,6 +119,10 @@ in {
 
       set -g status-bg default
       set -g status-style bg=default
+
+      # Module styling (must be set before catppuccin loads)
+      set -g @catppuccin_session_icon " "
+      set -g @catppuccin_session_color "#{?client_prefix,#{@thm_red},#{@thm_green}}"
 
       ${builtins.readFile ./binds.conf}
 

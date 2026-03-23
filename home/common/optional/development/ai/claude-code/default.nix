@@ -56,6 +56,8 @@ in {
     context7.sopsFile = "${inputs.nix-secrets}/global/api-keys/context7.yaml";
   };
 
+  programs.git.ignores = [".playwright-mcp"];
+
   programs.claude-code-profiles = {
     enable = true;
     enableZshIntegration = true;
@@ -180,6 +182,14 @@ in {
         }
       ];
 
+      playwright = merge [
+        (addon ./addons/browser-mcp)
+        {
+          description = "Default with Playwright browser automation";
+          extends = "default";
+        }
+      ];
+
       ops = merge [
         (addon ./addons/grafana)
         {
@@ -190,6 +200,14 @@ in {
             "postmortem" = "${skillsCollection}/postmortem";
             "security-threat-model" = "${skillsCollection}/security-threat-model";
           };
+        }
+      ];
+
+      google-workspace = merge [
+        (addon ./addons/google-workspace)
+        {
+          description = "Default with Google Workspace (Gmail, Sheets, Drive, Calendar, Docs)";
+          extends = "default";
         }
       ];
 

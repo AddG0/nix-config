@@ -12,6 +12,7 @@ pkgs: {
   claude-code-skills-collection = pkgs.callPackage ./claude-code-skills-collection {};
   anthropic-skills = pkgs.callPackage ./anthropic-skills {};
   claude-code-skill-factory = pkgs.callPackage ./claude-code-skill-factory {};
+  node-sqlite3 = pkgs.callPackage ./node-sqlite3 {};
 
   # OpenTelemetry
   opentelemetry-javaagent = pkgs.callPackage ./opentelemetry-javaagent {};
@@ -28,6 +29,7 @@ pkgs: {
 
   # Desktop environment
   blueprint = pkgs.callPackage ./blueprint {};
+  claude-desktop = pkgs.callPackage ./claude-desktop {};
   rofi-presets = pkgs.callPackage ./rofi-presets {};
 
   # KDE/KWin - modular namespace

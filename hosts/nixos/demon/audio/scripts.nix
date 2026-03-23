@@ -66,6 +66,20 @@ in {
         ${pkgs.pipewire}/bin/pw-play --volume=0.2 --target=${headsetDevice} ${unmuteSound} &
       fi
     '')
+    (pkgs.writeShellScriptBin "music-monitor" ''
+      # Toggle music routing to headphones
+      # When disabled, music only goes to the Discord music input
+      LINK1=$(${pkgs.pipewire}/bin/pw-link -l 2>/dev/null | ${pkgs.gnugrep}/bin/grep -A5 "^music_source:capture_1" | ${pkgs.gnugrep}/bin/grep "${headsetDevice}" || true)
+      if [ -n "$LINK1" ]; then
+        ${pkgs.pipewire}/bin/pw-link -d music_source:capture_1 ${headsetDevice}:playback_FL 2>/dev/null
+        ${pkgs.pipewire}/bin/pw-link -d music_source:capture_2 ${headsetDevice}:playback_FR 2>/dev/null
+        echo "Music monitor: OFF (Discord only)"
+      else
+        ${pkgs.pipewire}/bin/pw-link music_source:capture_1 ${headsetDevice}:playback_FL 2>/dev/null
+        ${pkgs.pipewire}/bin/pw-link music_source:capture_2 ${headsetDevice}:playback_FR 2>/dev/null
+        echo "Music monitor: ON (Discord + headphones)"
+      fi
+    '')
     (pkgs.writeShellScriptBin "soundboard" ''
       # Play audio files to the soundboard sink
       # Usage: soundboard file.mp3 [additional mpv options]

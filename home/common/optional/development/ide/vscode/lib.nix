@@ -113,6 +113,7 @@
       caddyfile
       neo4j
       tilt
+      minecraft
 
       # Infrastructure
       kubernetes

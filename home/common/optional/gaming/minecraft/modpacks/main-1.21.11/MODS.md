@@ -14,7 +14,6 @@
 | **entityculling** | Skip rendering hidden entities |
 | **moreculling** | Additional culling optimizations |
 | **immediatelyfast** | Immediate mode rendering optimization |
-| **dynamic-fps** | Reduce FPS when unfocused |
 | **c2me-fabric** | Chunk loading optimization |
 | **consumableoptimizer** | Faster consuming animations |
 | **bobby** | Fake chunks beyond server render distance |

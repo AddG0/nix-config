@@ -1,7 +1,7 @@
 {pkgs, ...}: {
   xdg.mimeApps = {
     defaultApplications = {
-      "image/png" = "eog.desktop";
+      "image/png" = "org.gnome.eog.desktop";
     };
   };
 
