@@ -9,10 +9,10 @@
     inputs.stylix.homeModules.stylix
     ./common/core
     (map (f: ./common/optional/${f}) [
-      #  "development/aws.nix"
+      "development/aws.nix"
       #  "nixos/services/rclone.nix"
       # "stylix.nix" # using work rice stylix instead
-      # "work.nix"
+      "work.nix"
     ])
 
     (map lib.custom.relativeToHome (

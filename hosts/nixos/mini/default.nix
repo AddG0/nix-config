@@ -42,6 +42,7 @@
         "nixos/hardware/fprintd.nix" # fingerprint reader (Realtek 2541:fa03)
         "nixos/1password.nix"
         "nixos/services/bluetooth.nix"
+        "nixos/services/openvpn.nix"
 
         "nixos/development/mysql.nix"
         # "nixos/development/druid"

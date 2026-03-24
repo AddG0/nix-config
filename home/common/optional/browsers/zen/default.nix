@@ -144,6 +144,13 @@
           workspace = spaces."Main".id;
           container = containers."Personal".id;
         };
+        "UniFi" = {
+          id = "b3f8a1d2-7c4e-4f9a-a5b6-2d1e0f3c8b7a";
+          url = "https://unifi.ui.com";
+          position = 7000;
+          workspace = spaces."Main".id;
+          container = containers."Personal".id;
+        };
 
         # Work workspace
         "Gmail (Work)" = {
