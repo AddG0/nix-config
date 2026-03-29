@@ -1,6 +1,10 @@
 version:4189
 mouseSensitivity:0.25
 narrator:0
+onboardAccessibility:false
+tutorialStep:none
+guiScale:5
+pauseOnLostFocus:false
 maxFps:260
 fov:0.75
 toggleSprint:true
@@ -17,7 +21,23 @@ key_key.hotbar.9:key.keyboard.r
 key_key.inventory:key.keyboard.e
 key_key.swapOffhand:key.keyboard.q
 key_key.loadToolbarActivator:key.keyboard.unknown
-key_key.quickActions:key.keyboard.unknown
-key_keybind.name.MENU_ACCESS:key.keyboard.unknown
 key_iris.keybind.reload:key.keyboard.unknown
-key_keybind.name.EMOTE_WHEEL:key.keyboard.unknown
+key_key.replaymod.marker:key.keyboard.unknown
+key_gui.xaero_open_map:key.keyboard.j
+key_key.mute_microphone:key.keyboard.unknown
+key_iris.keybind.shaderPackSelection:key.keyboard.unknown
+key_gui.xaero_toggle_minimap:key.keyboard.f9
+key_key.hide_icons:key.keyboard.unknown
+key_rsmm.keybind.toggleMeter:key.keyboard.backslash
+key_rsmm.keybind.resetMeter:key.keyboard.unknown
+key_rsmm.keybind.toggleHud:key.keyboard.unknown
+key_rsmm.keybind.toggleFocusMode:key.keyboard.unknown
+key_rsmm.keybind.pauseTimeline:key.keyboard.up
+key_rsmm.keybind.stepBackwardTimeline:key.keyboard.left
+key_rsmm.keybind.stepForwardTimeline:key.keyboard.right
+key_rsmm.keybind.toggleTickMarker:key.keyboard.down
+key_rsmm.keybind.openMultimeterScreen:key.keyboard.f8
+key_Toggle Flight HUD:key.keyboard.unknown
+key_key.inventoryhud.toggle:key.keyboard.unknown
+resourcePacks:["file/Redstone Tweaks 2.5.3.zip","file/Better Low Shield.zip","file/CleanView.zip","file/Low Fire.zip","file/NoCaveAmbience.zip"]
+incompatibleResourcePacks:["file/Better Low Shield.zip","file/CleanView.zip"]

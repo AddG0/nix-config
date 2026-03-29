@@ -91,6 +91,9 @@
 
   security.firewall.enable = true;
 
+  # Allow ESP32 CSI data for RuView WiFi sensing
+  networking.firewall.allowedUDPPorts = [ 5005 11000 ];
+
   services.obsbot-camera = {
     enable = true;
     cameras.obsbot-tiny-2 = {

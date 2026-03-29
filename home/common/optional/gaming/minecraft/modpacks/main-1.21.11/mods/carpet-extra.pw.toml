@@ -1,0 +1,13 @@
+name = "Carpet Extra"
+filename = "carpet-extra-1.21.4-1.4.161.jar"
+side = "server"
+
+[download]
+url = "https://cdn.modrinth.com/data/VX3TgwQh/versions/jLwlJK0f/carpet-extra-1.21.4-1.4.161.jar"
+hash-format = "sha512"
+hash = "8afefbc2827151209141b3cbb7d7f3b3ed84befe497446ba384dc0d5cd4e63149aac91c10eb3f6bcc1e942b94df504703fd5cba7814419ead3d0154b229d3203"
+
+[update]
+[update.modrinth]
+mod-id = "VX3TgwQh"
+version = "jLwlJK0f"

@@ -12,5 +12,6 @@
     hujohner.mc-datapack # Datapack creation helper
     exatom.better-datapack # Datapack quality-of-life tweaks
     minecraftcommands.syntax-mcfunction # mcfunction syntax highlighting (required by Spyglass)
+    misodee.vscode-nbt # NBT viewer for .litematic, .nbt, .dat files
   ];
 }

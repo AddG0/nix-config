@@ -62,6 +62,7 @@
         "gaming/heroic.nix"
         "gaming/r2modman.nix"
         "gaming/bakkesmod.nix"
+        "gaming/nitrox.nix"
 
         # Ghostty (Terminal)
         "ghostty"
@@ -167,7 +168,7 @@
     ];
     windowrule = [
       "workspace 3 silent, match:class ^(Slack)$"
-      "workspace 3 silent, match:class ^(legcord)$"
+      "workspace 3 silent, match:title Legcord$"
       "workspace 2 silent, match:class ^(zen(-beta)?)$"
     ];
   };

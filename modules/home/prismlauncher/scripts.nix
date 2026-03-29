@@ -71,7 +71,7 @@
     ${mmcPackJson}
     MMCPACK
 
-    # Always update instance.cfg (for config changes like javaArgs, icon)
+    # Always overwrite instance.cfg with managed config
     run cat > "${prismDir}/instances/${name}/instance.cfg" << 'INSTCFG'
     ${instanceCfg}
     INSTCFG

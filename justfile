@@ -188,7 +188,7 @@ check-sops:
 [doc("Update personal repositories and flake inputs")]
 update-personal-repos:
   (cd {{NIX_SECRETS_DIR}} && git fetch && git rebase) || true
-  nix flake update nix-secrets pterodactyl-addons lumenboard-player ai-toolkit bakkesmod-nix awsvpnclient-nix || true
+  nix flake update nix-secrets pterodactyl-addons lumenboard-player ai-toolkit bakkesmod-nix awsvpnclient-nix nitrox-nix || true
 
 [group('installation')]
 [doc("Build NixOS image (iso, gce, amazon, etc.)")]
@@ -322,12 +322,17 @@ modpack-list:
 [group('minecraft')]
 [doc("Start packwiz dev server for rapid modpack iteration")]
 modpack-serve name:
-  @echo "Set Prism Launcher Pre-launch command to:"
-  @echo '  "$INST_JAVA" -jar $HOME/.local/share/packwiz/packwiz-installer-bootstrap.jar http://localhost:8080/pack.toml'
-  @echo ""
-  @echo "Starting packwiz serve... (Ctrl+C to stop)"
-  @echo ""
-  @cd home/common/optional/gaming/minecraft/modpacks/{{name}} && packwiz serve
+  scripts/modpack.sh serve {{name}}
+
+[group('minecraft')]
+[doc("Refresh packwiz index for a modpack")]
+modpack-refresh name:
+  scripts/modpack.sh refresh {{name}}
+
+[group('minecraft')]
+[doc("Check mod compatibility for a Minecraft version")]
+modpack-compat name version:
+  scripts/modpack.sh compat {{name}} {{version}}
 
 # Below is random commands incase I forget
 

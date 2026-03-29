@@ -18,6 +18,24 @@
 
   inherit (prismLib) validateInstanceName parsePackToml resolveIcon;
 
+  # Build a filtered modpack source when excludeMods is set
+  filterModpackSource = source: excludeMods:
+    if excludeMods == []
+    then source
+    else
+      pkgs.runCommand "filtered-modpack" {
+        nativeBuildInputs = [pkgs.packwiz];
+        src = source;
+      } ''
+        cp -r $src $out
+        chmod -R u+w $out
+        for mod in ${lib.escapeShellArgs excludeMods}; do
+          rm -f "$out/mods/$mod.pw.toml"
+        done
+        cd $out
+        packwiz refresh
+      '';
+
   # Directories
   packwizDir = "${config.home.homeDirectory}/.local/share/packwiz";
   prismDir = "${config.home.homeDirectory}/.local/share/PrismLauncher";
@@ -31,11 +49,13 @@
   # Resolve modpack config (merge parsed pack.toml with user overrides)
   resolveModpack = name: modpack: let
     validName = validateInstanceName name;
-    parsed = parsePackToml modpack.source;
+    filteredSource = filterModpackSource modpack.source modpack.excludeMods;
+    parsed = parsePackToml filteredSource;
     iconResolved = resolveIcon modpack.icon;
   in {
     name = validName;
-    inherit (modpack) source group javaArgs;
+    source = filteredSource;
+    inherit (modpack) group javaArgs javaPackage excludeMods enableGameMode enableMangoHud;
     icon = iconResolved.key;
     iconPath = iconResolved.path;
     iconIsCustom = iconResolved.isCustom;
@@ -81,6 +101,20 @@
       OverrideJavaArgs=true
       JvmArgs=${modpack.javaArgs}
     ''}
+    ${optionalString (modpack.javaPackage != null) ''
+      AutomaticJava=false
+      IgnoreJavaCompatibility=true
+      OverrideJavaLocation=true
+      JavaPath=${modpack.javaPackage}/bin/java
+    ''}
+    ${optionalString modpack.enableGameMode ''
+      OverridePerformance=true
+      EnableFeralGameMode=true
+    ''}
+    ${optionalString modpack.enableMangoHud ''
+      ${optionalString (!modpack.enableGameMode) "OverridePerformance=true"}
+      EnableMangoHud=true
+    ''}
   '';
 
   # Modpack submodule options
@@ -89,6 +123,13 @@
       source = mkOption {
         type = types.path;
         description = "Path to packwiz modpack directory containing pack.toml";
+      };
+
+      excludeMods = mkOption {
+        type = types.listOf types.str;
+        default = [];
+        example = ["tweakeroo" "tweakermore"];
+        description = "List of mod names to exclude (matches mods/<name>.pw.toml)";
       };
 
       mcVersion = mkOption {
@@ -137,6 +178,25 @@
         example = "-Xmx4G -Xms2G";
         description = "JVM arguments for this instance";
       };
+
+      javaPackage = mkOption {
+        type = types.nullOr types.package;
+        default = null;
+        example = literalExpression "pkgs.jdk25";
+        description = "Java package for this instance (overrides Prism's auto-detect)";
+      };
+
+      enableGameMode = mkOption {
+        type = types.bool;
+        default = false;
+        description = "Enable Feral GameMode for CPU/IO optimizations while playing";
+      };
+
+      enableMangoHud = mkOption {
+        type = types.bool;
+        default = false;
+        description = "Enable MangoHud FPS/GPU/CPU overlay";
+      };
     };
   };
 
@@ -178,16 +238,17 @@
       instanceGroups;
   };
 
+  # Pre-resolve all modpacks (applies excludeMods filtering)
+  resolvedModpacks = lib.mapAttrs resolveModpack cfg.modpacks;
+
   # Generate instance setup scripts
-  instanceSetups = mapAttrsToList (name: modpack: let
-    resolved = resolveModpack name modpack;
-  in
+  instanceSetups = mapAttrsToList (name: resolved:
     scripts.mkInstanceSetup {
       inherit name prismDir;
       mmcPackJson = mkMmcPackJson resolved;
       instanceCfg = mkInstanceCfg name resolved;
     })
-  cfg.modpacks;
+  resolvedModpacks;
 
   managedInstancesStr = concatStringsSep " " (builtins.attrNames cfg.modpacks);
 in {
@@ -224,14 +285,14 @@ in {
       # Packwiz bootstrap jar
       {"${packwizDir}/packwiz-installer-bootstrap.jar".source = packwizBootstrap;}
 
-      # Packwiz modpack files
-      (mkMerge (mapAttrsToList (name: modpack: {
+      # Packwiz modpack files (uses filtered source when excludeMods is set)
+      (mkMerge (mapAttrsToList (name: resolved: {
           "${packwizDir}/${name}" = {
-            inherit (modpack) source;
+            inherit (resolved) source;
             recursive = true;
           };
         })
-        cfg.modpacks))
+        resolvedModpacks))
 
       # Custom icons
       (mkMerge (mapAttrsToList (key: path: {

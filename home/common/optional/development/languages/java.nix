@@ -2,7 +2,8 @@
   home.packages = with pkgs; [
     jdk
     maven
-    gradle
+    gradle_9
+    gradle-completion
   ];
 
   home.sessionVariables = {

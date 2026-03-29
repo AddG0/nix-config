@@ -256,6 +256,14 @@
       inputs.flake-parts.follows = "flake-parts";
     };
 
+    # Nitrox - Subnautica multiplayer
+    nitrox-nix = {
+      url = "git+ssh://git@github.com/AddG0/nitrox-nix";
+      # url = "path:/home/addg/home/code/github/nitrox-nix";
+      inputs.nixpkgs.follows = "nixpkgs";
+      inputs.flake-parts.follows = "flake-parts";
+    };
+
     # AWS VPN Client
     awsvpnclient-nix = {
       url = "github:AddG0/awsvpnclient-nix";

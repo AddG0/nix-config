@@ -1,0 +1,13 @@
+name = "WorldEdit"
+filename = "worldedit-mod-7.4.1.jar"
+side = "both"
+
+[download]
+url = "https://cdn.modrinth.com/data/1u6JkXh5/versions/T3LFkV36/worldedit-mod-7.4.1.jar"
+hash-format = "sha512"
+hash = "47683836b47f5c708ba7e9c6606c92e4665deee2e6c858accdda113a70eee4b4440475c4e6eb3cc52862363404872120786ab7b3b267005aed01a7d2e367cdf3"
+
+[update]
+[update.modrinth]
+mod-id = "1u6JkXh5"
+version = "T3LFkV36"

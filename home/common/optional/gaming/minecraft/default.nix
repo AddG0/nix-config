@@ -1,11 +1,23 @@
-_: {
+{pkgs, ...}: let
+  mainSource = ./modpacks/main-1.21.11;
+  mainIcon = ../../../../../assets/avatars/addg-halloween.png;
+in {
   programs.prismlauncher = {
     enable = true;
     modpacks = {
       "main-1.21.11" = {
-        source = ./modpacks/main-1.21.11;
-        # Versions auto-detected from pack.toml
-        icon = ../../../../../assets/avatars/addg-halloween.png;
+        source = mainSource;
+        icon = mainIcon;
+        javaPackage = pkgs.jdk25;
+        enableGameMode = true;
+      };
+      "main-1.21.11-smp" = {
+        source = mainSource;
+        excludeMods = ["tweakeroo" "tweakermore"];
+        icon = mainIcon;
+        javaPackage = pkgs.jdk25;
+        enableGameMode = true;
+        group = "SMP";
       };
     };
   };

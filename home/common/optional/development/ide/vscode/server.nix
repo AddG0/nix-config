@@ -12,6 +12,18 @@
   vscodeLib = import ./lib.nix {inherit lib pkgs config hostSpec;};
   jsonFormat = pkgs.formats.json {};
 
+  # Strip lib.mkForce / lib.mkOverride wrappers that only the NixOS module
+  # system knows how to resolve.  jsonFormat.generate serialises them as
+  # literal {_type, content, priority} objects, breaking VS Code settings.
+  stripOverrides = val:
+    if builtins.isAttrs val && val ? _type && val._type == "override"
+    then stripOverrides val.content
+    else if builtins.isAttrs val
+    then builtins.mapAttrs (_: stripOverrides) val
+    else if builtins.isList val
+    then map stripOverrides val
+    else val;
+
   inherit (vscodeLib.defaultProfile) extensions;
 
   # Generate extensions.json manifest (required for VS Code to recognize extensions)
@@ -33,7 +45,7 @@
 
   # Use settings from vscodeLib directly so server.nix works independently of
   # default.nix (which defines programs.vscode.profiles.default).
-  settingsJson = jsonFormat.generate "vscode-server-settings.json" vscodeLib.defaultProfile.userSettings;
+  settingsJson = jsonFormat.generate "vscode-server-settings.json" (stripOverrides vscodeLib.defaultProfile.userSettings);
 
   # Create individual extension symlinks (like home-manager vscode module)
   extensionLinks = lib.listToAttrs (map (ext: {

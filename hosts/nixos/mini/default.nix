@@ -43,6 +43,7 @@
         "nixos/1password.nix"
         "nixos/services/bluetooth.nix"
         "nixos/services/openvpn.nix"
+        "nixos/services/gitlab-runner.nix"
 
         "nixos/development/mysql.nix"
         # "nixos/development/druid"
