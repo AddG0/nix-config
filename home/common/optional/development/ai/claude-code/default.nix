@@ -105,6 +105,7 @@ in {
           {
             DISABLE_ERROR_REPORTING = "1";
             DISABLE_BUG_COMMAND = "1";
+            CLAUDE_CODE_DISABLE_FEEDBACK_SURVEY = "1";
           }
           // lib.optionalAttrs (config.hostSpec.telemetry.enabled && config.hostSpec.telemetry.claude-code.enabled) {
             CLAUDE_CODE_ENABLE_TELEMETRY = "1";

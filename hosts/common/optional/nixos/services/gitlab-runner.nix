@@ -1,7 +1,7 @@
 # GitLab Runner using Docker executor with host Nix store mounted read-only.
 #
 # How it works:
-#   - Each CI job runs in a fresh Docker container (default: ubuntu:latest)
+#   - Each CI job runs in a fresh Docker container (default: alpine:latest)
 #   - The host's /nix/store, DB, and daemon socket are bind-mounted into the container
 #   - A preBuildScript bootstraps the Nix directory structure and installs nix + essential tools
 #   - Jobs can then use `nix build`, `nix develop`, `nix print-dev-env`, etc.
@@ -11,8 +11,7 @@
 #   - The daemon socket allows triggering builds on the host, so limit to trusted CI jobs
 #
 # Image compatibility:
-#   - The default image must have bash as /bin/sh (e.g. ubuntu, debian)
-#   - Alpine won't work — its ash shell can't parse `nix print-dev-env` output
+#   - Nix images should not be used here since we mount the host's Nix store and that would overrite it, nix is included by this runner so no need to use a nix image anyway
 #   - Kaniko is auto-detected and skips the nix setup entirely
 {
   # config,
@@ -49,9 +48,8 @@
       # authenticationTokenConfigFile = config.sops.secrets."gitlab-runner-token".path;
       authenticationTokenConfigFile = "/etc/gitlab-runner/token-env";
 
-      # Ubuntu provides bash as /bin/sh, which is required for `nix print-dev-env` output.
-      # Do not use alpine — its ash shell can't parse the bash functions nix emits.
-      dockerImage = "ubuntu:latest";
+      # Alpine is used as a minimal base
+      dockerImage = "alpine:latest";
 
       # Mount the host's Nix store, database, and daemon socket into every container.
       # This lets CI jobs run nix commands via the host's nix-daemon without a full
@@ -66,6 +64,11 @@
         "/srv/gitlab-runner/cache:/cache"
       ];
       dockerDisableCache = true;
+
+      # TODO: Set per-container resource limits to prevent host starvation
+      # dockerCpus = "2";
+      # dockerMemory = "4g";
+      # dockerMemorySwap = "6g";
 
       # Runs before every job's script. Sets up the Nix directory structure and
       # installs essential tools (nix, git, openssh, cacert) into the container.

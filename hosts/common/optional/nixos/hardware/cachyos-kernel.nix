@@ -20,9 +20,5 @@
 {pkgs, ...}: {
   boot.kernelPackages = pkgs.cachyosKernels.linuxPackages-cachyos-bore;
 
-  # Binary cache for prebuilt CachyOS kernels
-  nix.settings = {
-    substituters = ["https://attic.xuyh0120.win/lantian"];
-    trusted-public-keys = ["lantian:EeAUQ+W+6r7EtwnmYjeVwx5kOGEBpjlBfPlzGlTNvHc="];
-  };
+
 }

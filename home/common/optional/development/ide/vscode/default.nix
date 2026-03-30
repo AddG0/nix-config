@@ -33,6 +33,7 @@
       inherit (pkgs.vscode) pname version;
       meta = pkgs.vscode.meta // {mainProgram = "code";};
     };
+
 in
   vscodeLib.extraAttrs
   // {
@@ -42,7 +43,11 @@ in
       # Must be true - some extensions (vscode-java-debug) write to their own directory
       mutableExtensionsDir = true;
       profiles = {
-        default = vscodeLib.defaultProfile;
+        default =
+          vscodeLib.defaultProfile
+          // {
+            userSettings = vscodeLib.mkSettingsJson "vscode-user-settings" vscodeLib.defaultProfile.userSettings;
+          };
       };
     };
   }

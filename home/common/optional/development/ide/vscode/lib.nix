@@ -160,6 +160,44 @@
     ];
 
   defaultProfile = mkProfile defaultProfileExtensions;
+
+  # Strip lib.mkForce/mkOverride wrappers that only the NixOS module
+  # system knows how to resolve. jsonFormat.generate serialises them as
+  # literal {_type, content, priority} objects, breaking VS Code settings.
+  stripOverrides = val:
+    if builtins.isAttrs val && val ? _type && val._type == "override"
+    then stripOverrides val.content
+    else if builtins.isAttrs val
+    then builtins.mapAttrs (_: stripOverrides) val
+    else if builtins.isList val
+    then map stripOverrides val
+    else val;
+
+  # Generate settings.json with VSCode-compatible key ordering.
+  # Nix attrsets are always alphabetically sorted, but VSCode expects
+  # chat.instructionsFilesLocations in a specific order and marks the
+  # read-only settings file as dirty when the order doesn't match.
+  mkSettingsJson = name: settings:
+    pkgs.runCommand name {
+      nativeBuildInputs = [pkgs.jq];
+      json = builtins.toJSON (stripOverrides settings);
+      passAsFile = ["json"];
+    } ''
+      jq '
+        .["chat.instructionsFilesLocations"] |= (
+          to_entries
+          | sort_by(
+              if .key | startswith(".github/") then 0
+              elif .key | startswith(".claude/") then 1
+              elif .key | startswith("~/.copilot/") then 2
+              elif .key | startswith("~/.claude/") then 3
+              else 4
+              end
+            )
+          | from_entries
+        )
+      ' "$jsonPath" > "$out"
+    '';
 in {
-  inherit ext mkProfile profileAttrs extraAttrs defaultProfile defaultProfileExtensions;
+  inherit ext mkProfile profileAttrs extraAttrs defaultProfile defaultProfileExtensions stripOverrides mkSettingsJson;
 }

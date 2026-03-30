@@ -5,14 +5,6 @@
     pkgs.vscode-marketplace-release.github.copilot-chat # A companion extension that provides conversational AI assistance.
   ];
   userSettings = {
-    "github.copilot.enable" = {
-      "*" = true;
-      "plaintext" = false;
-      "markdown" = true;
-      "scminput" = false;
-      "dotenv" = false;
-    };
-
     # Custom instructions file locations
     "chat.instructionsFilesLocations" = {
       ".github/instructions" = true;
