@@ -50,6 +50,7 @@
           "*.yaml"
           "*.yml"
           "scripts/*"
+          "home/common/optional/gaming/minecraft/modpacks/*/overrides/**"
         ];
       };
     };

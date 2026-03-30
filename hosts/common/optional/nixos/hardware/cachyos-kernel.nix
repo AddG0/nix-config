@@ -19,6 +19,4 @@
 # - zen4: For AMD Zen4/Zen5 CPUs (Ryzen 7000/9000 series)
 {pkgs, ...}: {
   boot.kernelPackages = pkgs.cachyosKernels.linuxPackages-cachyos-bore;
-
-
 }

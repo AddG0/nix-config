@@ -11,7 +11,8 @@
     buildInputs = [pkgs.makeWrapper];
     postBuild = ''
       wrapProgram $out/bin/claude \
-        --prefix PATH : ${lib.makeBinPath ([pkgs.socat] ++ lib.optionals pkgs.stdenv.hostPlatform.isLinux [pkgs.bubblewrap])}
+        --prefix PATH : ${lib.makeBinPath ([pkgs.socat pkgs.sox] ++ lib.optionals pkgs.stdenv.hostPlatform.isLinux [pkgs.bubblewrap])} \
+        ${lib.optionalString pkgs.stdenv.hostPlatform.isLinux "--set ALSA_PLUGIN_DIR ${pkgs.pipewire}/lib/alsa-lib"}
     '';
   };
 
@@ -130,6 +131,7 @@ in {
           type = "command";
         };
         theme = "dark";
+        voiceEnabled = true;
       };
     };
 

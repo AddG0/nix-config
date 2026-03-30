@@ -14,7 +14,6 @@
   services = {
     asusd = {
       enable = lib.mkDefault true;
-      enableUserService = true;
 
       # Aggressive fan curves for better cooling during gaming
       # Prevents thermal throttling by ramping fans faster and hitting max at lower temps

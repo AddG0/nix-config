@@ -53,6 +53,15 @@ in {
       '';
     };
 
+    rebootAfterBuild = mkOption {
+      type = types.bool;
+      default = false;
+      description = ''
+        Reboot after a successful rebuild.
+        Useful with rebuildCommand = "boot" to apply changes via a clean reboot.
+      '';
+    };
+
     autoRollback = mkOption {
       type = types.bool;
       default = true;
@@ -170,6 +179,19 @@ in {
             log "Running post-rebuild hook..."
             ${cfg.postRebuildHook}
           ''}
+
+            ${optionalString cfg.rebootAfterBuild (
+            if cfg.notifications.enable
+            then ''
+              log "Scheduling reboot in 2 minutes..."
+              notify -u critical "NixOS Remote Rebuild" "Configuration updated. Rebooting in 2 minutes. Run 'sudo shutdown -c' to cancel."
+              shutdown --reboot +2 "NixOS remote rebuild complete. Rebooting in 2 minutes. Run 'sudo shutdown -c' to cancel."
+            ''
+            else ''
+              log "Rebooting now..."
+              systemctl reboot
+            ''
+          )}
           else
             REBUILD_EXIT="''${PIPESTATUS[0]}"
             log "ERROR: Rebuild failed (exit code $REBUILD_EXIT)!"
@@ -200,7 +222,7 @@ in {
       # Prevent nixos-rebuild switch from killing this service mid-run
       restartIfChanged = false;
       stopIfChanged = false;
-      
+
       serviceConfig = {
         Type = "oneshot";
         ExecStart = "${rebuild-script}/bin/nix-remote-rebuild";

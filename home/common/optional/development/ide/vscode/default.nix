@@ -33,7 +33,6 @@
       inherit (pkgs.vscode) pname version;
       meta = pkgs.vscode.meta // {mainProgram = "code";};
     };
-
 in
   vscodeLib.extraAttrs
   // {

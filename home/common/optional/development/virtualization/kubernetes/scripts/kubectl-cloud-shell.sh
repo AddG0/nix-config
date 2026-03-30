@@ -35,7 +35,7 @@ log() { echo "[cloud-shell] $*"; }
 log_error() { echo "[cloud-shell] ERROR: $*" >&2; }
 
 usage() {
-	cat <<-EOF
+  cat <<-EOF
 		Usage: kubectl-cloud-shell [OPTIONS] [-- KUBECTL_ARGS...]
 
 		Options:
@@ -70,277 +70,277 @@ usage() {
 }
 
 parse_args() {
-	while [[ $# -gt 0 ]]; do
-		case "$1" in
-		--bare)
-			BARE_MODE=true
-			shift
-			;;
-		--local-flake)
-			USE_LOCAL_FLAKE=true
-			shift
-			;;
-		--copy | -c)
-			if [[ -n ${2:-} && $2 != --* ]]; then
-				COPY_LOCAL+=("$(realpath "$2")")
-				shift 2
-			else
-				log_error "--copy requires a local directory path"
-				exit 1
-			fi
-			;;
-		--ssh-agent)
-			SSH_AGENT=true
-			shift
-			;;
-		--memory)
-			if [[ -n ${2:-} && $2 != --* ]]; then
-				MEMORY_REQUEST="$2"
-				MEMORY_LIMIT="$2"
-				shift 2
-			else
-				log_error "--memory requires a size (e.g., 2Gi)"
-				exit 1
-			fi
-			;;
-		--cpu)
-			if [[ -n ${2:-} && $2 != --* ]]; then
-				CPU_REQUEST="$2"
-				CPU_LIMIT="$2"
-				shift 2
-			else
-				log_error "--cpu requires a value (e.g., 2)"
-				exit 1
-			fi
-			;;
-		--storage)
-			if [[ -n ${2:-} && $2 != --* ]]; then
-				EPHEMERAL_STORAGE="$2"
-				shift 2
-			else
-				log_error "--storage requires a size (e.g., 10Gi)"
-				exit 1
-			fi
-			;;
-		--attach)
-			if [[ -n ${2:-} && $2 != --* ]]; then
-				ATTACH_POD="$2"
-				shift 2
-			else
-				log_error "--attach requires a pod name"
-				exit 1
-			fi
-			;;
-		--list)
-			LIST_PODS=true
-			shift
-			;;
-		--clean)
-			CLEAN_ALL=true
-			shift
-			;;
-		--help | -h)
-			usage
-			exit 0
-			;;
-		--)
-			shift
-			KUBECTL_ARGS+=("$@")
-			break
-			;;
-		*)
-			KUBECTL_ARGS+=("$1")
-			shift
-			;;
-		esac
-	done
+  while [[ $# -gt 0 ]]; do
+    case "$1" in
+    --bare)
+      BARE_MODE=true
+      shift
+      ;;
+    --local-flake)
+      USE_LOCAL_FLAKE=true
+      shift
+      ;;
+    --copy | -c)
+      if [[ -n ${2:-} && $2 != --* ]]; then
+        COPY_LOCAL+=("$(realpath "$2")")
+        shift 2
+      else
+        log_error "--copy requires a local directory path"
+        exit 1
+      fi
+      ;;
+    --ssh-agent)
+      SSH_AGENT=true
+      shift
+      ;;
+    --memory)
+      if [[ -n ${2:-} && $2 != --* ]]; then
+        MEMORY_REQUEST="$2"
+        MEMORY_LIMIT="$2"
+        shift 2
+      else
+        log_error "--memory requires a size (e.g., 2Gi)"
+        exit 1
+      fi
+      ;;
+    --cpu)
+      if [[ -n ${2:-} && $2 != --* ]]; then
+        CPU_REQUEST="$2"
+        CPU_LIMIT="$2"
+        shift 2
+      else
+        log_error "--cpu requires a value (e.g., 2)"
+        exit 1
+      fi
+      ;;
+    --storage)
+      if [[ -n ${2:-} && $2 != --* ]]; then
+        EPHEMERAL_STORAGE="$2"
+        shift 2
+      else
+        log_error "--storage requires a size (e.g., 10Gi)"
+        exit 1
+      fi
+      ;;
+    --attach)
+      if [[ -n ${2:-} && $2 != --* ]]; then
+        ATTACH_POD="$2"
+        shift 2
+      else
+        log_error "--attach requires a pod name"
+        exit 1
+      fi
+      ;;
+    --list)
+      LIST_PODS=true
+      shift
+      ;;
+    --clean)
+      CLEAN_ALL=true
+      shift
+      ;;
+    --help | -h)
+      usage
+      exit 0
+      ;;
+    --)
+      shift
+      KUBECTL_ARGS+=("$@")
+      break
+      ;;
+    *)
+      KUBECTL_ARGS+=("$1")
+      shift
+      ;;
+    esac
+  done
 }
 
 validate() {
-	if [[ $USE_LOCAL_FLAKE == "true" ]]; then
-		if [[ -z ${FLAKE:-} ]]; then
-			# shellcheck disable=SC2016 # Intentional literal $FLAKE in message
-			log_error '$FLAKE environment variable is not set'
-			exit 1
-		fi
-		if [[ ! -d $FLAKE ]]; then
-			log_error "Flake directory '$FLAKE' does not exist"
-			exit 1
-		fi
-	fi
+  if [[ $USE_LOCAL_FLAKE == "true" ]]; then
+    if [[ -z ${FLAKE:-} ]]; then
+      # shellcheck disable=SC2016 # Intentional literal $FLAKE in message
+      log_error '$FLAKE environment variable is not set'
+      exit 1
+    fi
+    if [[ ! -d $FLAKE ]]; then
+      log_error "Flake directory '$FLAKE' does not exist"
+      exit 1
+    fi
+  fi
 
-	for dir in "${COPY_LOCAL[@]}"; do
-		if [[ ! -d $dir ]]; then
-			log_error "Copy directory '$dir' does not exist"
-			exit 1
-		fi
-	done
+  for dir in "${COPY_LOCAL[@]}"; do
+    if [[ ! -d $dir ]]; then
+      log_error "Copy directory '$dir' does not exist"
+      exit 1
+    fi
+  done
 
-	if [[ $SSH_AGENT == "true" ]]; then
-		if [[ -z ${SSH_AUTH_SOCK:-} ]]; then
-			log_error "SSH_AUTH_SOCK is not set. Is ssh-agent running?"
-			exit 1
-		fi
-		if [[ ! -S $SSH_AUTH_SOCK ]]; then
-			log_error "SSH_AUTH_SOCK ($SSH_AUTH_SOCK) is not a valid socket"
-			exit 1
-		fi
-	fi
+  if [[ $SSH_AGENT == "true" ]]; then
+    if [[ -z ${SSH_AUTH_SOCK:-} ]]; then
+      log_error "SSH_AUTH_SOCK is not set. Is ssh-agent running?"
+      exit 1
+    fi
+    if [[ ! -S $SSH_AUTH_SOCK ]]; then
+      log_error "SSH_AUTH_SOCK ($SSH_AUTH_SOCK) is not a valid socket"
+      exit 1
+    fi
+  fi
 }
 
 # List running cloud-shell pods
 list_pods() {
-	log "Cloud-shell pods:"
-	kubectl "${KUBECTL_ARGS[@]}" get pods \
-		--selector="$POD_LABEL" \
-		-o custom-columns='NAME:.metadata.name,STATUS:.status.phase,AGE:.metadata.creationTimestamp' \
-		2>/dev/null || echo "No cloud-shell pods found"
+  log "Cloud-shell pods:"
+  kubectl "${KUBECTL_ARGS[@]}" get pods \
+    --selector="$POD_LABEL" \
+    -o custom-columns='NAME:.metadata.name,STATUS:.status.phase,AGE:.metadata.creationTimestamp' \
+    2>/dev/null || echo "No cloud-shell pods found"
 }
 
 # Delete all cloud-shell pods
 clean_all() {
-	log "Deleting all cloud-shell pods..."
-	kubectl "${KUBECTL_ARGS[@]}" delete pods --selector="$POD_LABEL" --wait=false 2>/dev/null || true
-	log "Done"
+  log "Deleting all cloud-shell pods..."
+  kubectl "${KUBECTL_ARGS[@]}" delete pods --selector="$POD_LABEL" --wait=false 2>/dev/null || true
+  log "Done"
 }
 
 # Attach to existing pod
 attach_pod() {
-	local pod="$1"
-	POD_NAME="$pod"
+  local pod="$1"
+  POD_NAME="$pod"
 
-	# Verify pod exists and is running
-	local pod_status
-	pod_status=$(kubectl "${KUBECTL_ARGS[@]}" get pod "$pod" -o jsonpath='{.status.phase}' 2>/dev/null || echo "NotFound")
-	if [[ $pod_status != "Running" ]]; then
-		log_error "Pod '$pod' is not running (status: $pod_status)"
-		exit 1
-	fi
+  # Verify pod exists and is running
+  local pod_status
+  pod_status=$(kubectl "${KUBECTL_ARGS[@]}" get pod "$pod" -o jsonpath='{.status.phase}' 2>/dev/null || echo "NotFound")
+  if [[ $pod_status != "Running" ]]; then
+    log_error "Pod '$pod' is not running (status: $pod_status)"
+    exit 1
+  fi
 
-	log "Attaching to pod $pod..."
+  log "Attaching to pod $pod..."
 
-	# Copy local directory if requested
-	copy_setup
+  # Copy local directory if requested
+  copy_setup
 
-	# Setup SSH agent if requested
-	if [[ $SSH_AGENT == "true" ]]; then
-		# Remove stale socket if exists
-		kubectl "${KUBECTL_ARGS[@]}" exec "$pod" -- rm -f "$SSH_AGENT_SOCK" 2>/dev/null || true
-		ssh_agent_setup
-	fi
+  # Setup SSH agent if requested
+  if [[ $SSH_AGENT == "true" ]]; then
+    # Remove stale socket if exists
+    kubectl "${KUBECTL_ARGS[@]}" exec "$pod" -- rm -f "$SSH_AGENT_SOCK" 2>/dev/null || true
+    ssh_agent_setup
+  fi
 
-	trap 'ssh_agent_cleanup' EXIT
-	trap '' SIGINT SIGTERM
+  trap 'ssh_agent_cleanup' EXIT
+  trap '' SIGINT SIGTERM
 
-	# Write SSH_AUTH_SOCK to .zshrc.imperitive so it persists past zsh init
-	if [[ $SSH_AGENT == "true" ]]; then
-		kubectl "${KUBECTL_ARGS[@]}" exec "$pod" -- \
-			sh -c "echo 'export SSH_AUTH_SOCK=\"$SSH_AGENT_SOCK\"' > $POD_HOME/.zshrc.imperitive"
-	fi
+  # Write SSH_AUTH_SOCK to .zshrc.imperitive so it persists past zsh init
+  if [[ $SSH_AGENT == "true" ]]; then
+    kubectl "${KUBECTL_ARGS[@]}" exec "$pod" -- \
+      sh -c "echo 'export SSH_AUTH_SOCK=\"$SSH_AGENT_SOCK\"' > $POD_HOME/.zshrc.imperitive"
+  fi
 
-	# shellcheck disable=SC2016 # PATH must expand in pod, not locally
-	kubectl "${KUBECTL_ARGS[@]}" exec -it "$pod" -- \
-		sh -c 'cd "'"$POD_HOME"'"; N="'"$POD_HOME"'/.nix-profile/bin"; PATH="$N:$PATH" SHELL="$N/zsh" exec "$N/zsh" -l'
+  # shellcheck disable=SC2016 # PATH must expand in pod, not locally
+  kubectl "${KUBECTL_ARGS[@]}" exec -it "$pod" -- \
+    sh -c 'cd "'"$POD_HOME"'"; N="'"$POD_HOME"'/.nix-profile/bin"; PATH="$N:$PATH" SHELL="$N/zsh" exec "$N/zsh" -l'
 }
 
 # Feature: Copy local flake to pod
 flake_setup() {
-	[[ $USE_LOCAL_FLAKE != "true" ]] && return 0
-	log "Copying flake $FLAKE -> $POD_NAME:$FLAKE_REMOTE"
-	kubectl "${KUBECTL_ARGS[@]}" cp "$FLAKE" "$POD_NAME:$FLAKE_REMOTE"
+  [[ $USE_LOCAL_FLAKE != "true" ]] && return 0
+  log "Copying flake $FLAKE -> $POD_NAME:$FLAKE_REMOTE"
+  kubectl "${KUBECTL_ARGS[@]}" cp "$FLAKE" "$POD_NAME:$FLAKE_REMOTE"
 }
 
 # Feature: Copy local directory to pod
 COPY_EXCLUDES=(--exclude='.git' --exclude='node_modules' --exclude='target' --exclude='.direnv' --exclude='__pycache__' --exclude='.venv')
 
 copy_setup() {
-	[[ ${#COPY_LOCAL[@]} -eq 0 ]] && return 0
-	local pids=()
-	for dir in "${COPY_LOCAL[@]}"; do
-		local name dest
-		name=$(basename "$dir")
-		dest="$COPY_REMOTE/$name"
-		log "Copying $dir -> $POD_NAME:$dest"
-		kubectl "${KUBECTL_ARGS[@]}" exec "$POD_NAME" -- mkdir -p "$dest"
-		(tar cf - "${COPY_EXCLUDES[@]}" -C "$dir" . | zstd -T0 | pv -N "$name" -c |
-			kubectl "${KUBECTL_ARGS[@]}" exec -i "$POD_NAME" -- \
-				nix --extra-experimental-features 'nix-command flakes' shell nixpkgs#zstd -c sh -c "zstd -d | tar xf - -C $dest") &
-		pids+=($!)
-	done
-	wait "${pids[@]}"
+  [[ ${#COPY_LOCAL[@]} -eq 0 ]] && return 0
+  local pids=()
+  for dir in "${COPY_LOCAL[@]}"; do
+    local name dest
+    name=$(basename "$dir")
+    dest="$COPY_REMOTE/$name"
+    log "Copying $dir -> $POD_NAME:$dest"
+    kubectl "${KUBECTL_ARGS[@]}" exec "$POD_NAME" -- mkdir -p "$dest"
+    (tar cf - "${COPY_EXCLUDES[@]}" -C "$dir" . | zstd -T0 | pv -N "$name" -c |
+      kubectl "${KUBECTL_ARGS[@]}" exec -i "$POD_NAME" -- \
+        nix --extra-experimental-features 'nix-command flakes' shell nixpkgs#zstd -c sh -c "zstd -d | tar xf - -C $dest") &
+    pids+=($!)
+  done
+  wait "${pids[@]}"
 }
 
 # SSH agent forwarding: local socket <-> kubectl exec stdio <-> pod socket
 SSH_TUNNEL_PID=""
 
 ssh_agent_setup() {
-	[[ $SSH_AGENT != "true" ]] && return 0
-	log "Setting up SSH agent forwarding..."
+  [[ $SSH_AGENT != "true" ]] && return 0
+  log "Setting up SSH agent forwarding..."
 
-	if [[ $BARE_MODE == "true" ]]; then
-		log "Copying git and ssh config to pod..."
-		kubectl "${KUBECTL_ARGS[@]}" cp "$HOME/.config/git/config" "$POD_NAME:$POD_HOME/.gitconfig"
-		kubectl "${KUBECTL_ARGS[@]}" exec "$POD_NAME" -- mkdir -p "$POD_HOME/.ssh"
-		[[ -f "$HOME/.ssh/known_hosts" ]] && kubectl "${KUBECTL_ARGS[@]}" cp "$HOME/.ssh/known_hosts" "$POD_NAME:$POD_HOME/.ssh/known_hosts"
-	fi
+  if [[ $BARE_MODE == "true" ]]; then
+    log "Copying git and ssh config to pod..."
+    kubectl "${KUBECTL_ARGS[@]}" cp "$HOME/.config/git/config" "$POD_NAME:$POD_HOME/.gitconfig"
+    kubectl "${KUBECTL_ARGS[@]}" exec "$POD_NAME" -- mkdir -p "$POD_HOME/.ssh"
+    [[ -f "$HOME/.ssh/known_hosts" ]] && kubectl "${KUBECTL_ARGS[@]}" cp "$HOME/.ssh/known_hosts" "$POD_NAME:$POD_HOME/.ssh/known_hosts"
+  fi
 
-	local kubectl_cmd="kubectl"
-	[[ ${#KUBECTL_ARGS[@]} -gt 0 ]] && kubectl_cmd="kubectl ${KUBECTL_ARGS[*]}"
+  local kubectl_cmd="kubectl"
+  [[ ${#KUBECTL_ARGS[@]} -gt 0 ]] && kubectl_cmd="kubectl ${KUBECTL_ARGS[*]}"
 
-	local tunnel_log="/tmp/cloud-shell-tunnel-$$.log"
-	log "Starting SSH tunnel (log: $tunnel_log)"
+  local tunnel_log="/tmp/cloud-shell-tunnel-$$.log"
+  log "Starting SSH tunnel (log: $tunnel_log)"
 
-	socat \
-		"EXEC:$kubectl_cmd exec -i $POD_NAME -- nix --extra-experimental-features nix-command --extra-experimental-features flakes run nixpkgs\#socat -- UNIX-LISTEN\:${SSH_AGENT_SOCK} STDIO" \
-		"UNIX:$SSH_AUTH_SOCK" 2>"$tunnel_log" &
-	SSH_TUNNEL_PID=$!
+  socat \
+    "EXEC:$kubectl_cmd exec -i $POD_NAME -- nix --extra-experimental-features nix-command --extra-experimental-features flakes run nixpkgs\#socat -- UNIX-LISTEN\:${SSH_AGENT_SOCK} STDIO" \
+    "UNIX:$SSH_AUTH_SOCK" 2>"$tunnel_log" &
+  SSH_TUNNEL_PID=$!
 
-	log "Waiting for SSH agent socket..."
-	for _ in {1..60}; do
-		if kubectl "${KUBECTL_ARGS[@]}" exec "$POD_NAME" -- test -S "$SSH_AGENT_SOCK" 2>/dev/null; then
-			log "SSH agent forwarding active (socket: $SSH_AGENT_SOCK)"
-			return 0
-		fi
-		if ! kill -0 "$SSH_TUNNEL_PID" 2>/dev/null; then
-			log_error "SSH agent tunnel failed. Log:"
-			cat "$tunnel_log" >&2 2>/dev/null || true
-			return 1
-		fi
-		sleep 0.5
-	done
+  log "Waiting for SSH agent socket..."
+  for _ in {1..60}; do
+    if kubectl "${KUBECTL_ARGS[@]}" exec "$POD_NAME" -- test -S "$SSH_AGENT_SOCK" 2>/dev/null; then
+      log "SSH agent forwarding active (socket: $SSH_AGENT_SOCK)"
+      return 0
+    fi
+    if ! kill -0 "$SSH_TUNNEL_PID" 2>/dev/null; then
+      log_error "SSH agent tunnel failed. Log:"
+      cat "$tunnel_log" >&2 2>/dev/null || true
+      return 1
+    fi
+    sleep 0.5
+  done
 
-	log_error "SSH agent socket creation timed out. Log:"
-	cat "$tunnel_log" >&2 2>/dev/null || true
-	return 1
+  log_error "SSH agent socket creation timed out. Log:"
+  cat "$tunnel_log" >&2 2>/dev/null || true
+  return 1
 }
 
 ssh_agent_cleanup() {
-	[[ $SSH_AGENT != "true" ]] && return 0
-	log "Stopping SSH agent forwarding..."
-	[[ -n $SSH_TUNNEL_PID ]] && kill "$SSH_TUNNEL_PID" 2>/dev/null || true
+  [[ $SSH_AGENT != "true" ]] && return 0
+  log "Stopping SSH agent forwarding..."
+  [[ -n $SSH_TUNNEL_PID ]] && kill "$SSH_TUNNEL_PID" 2>/dev/null || true
 }
 
 # Pod management
 build_pod_overrides() {
-	local flake_url
-	if [[ $USE_LOCAL_FLAKE == "true" ]]; then
-		flake_url="$FLAKE_REMOTE#cloud-shell"
-	else
-		flake_url="git+https://github.com/AddG0/nix-config?ref=main#cloud-shell"
-	fi
+  local flake_url
+  if [[ $USE_LOCAL_FLAKE == "true" ]]; then
+    flake_url="$FLAKE_REMOTE#cloud-shell"
+  else
+    flake_url="git+https://github.com/AddG0/nix-config?ref=main#cloud-shell"
+  fi
 
-	local env_json='[
+  local env_json='[
 		{"name": "HOME", "value": "'"$POD_HOME"'"},
 		{"name": "USER", "value": "addg"},
 		{"name": "BARE_MODE", "value": "'"$BARE_MODE"'"},
 		{"name": "BARE_PACKAGES_STR", "value": "'"${BARE_NIX_PACKAGES[*]}"'"},
 		{"name": "FLAKE_URL", "value": "'"$flake_url"'"}'
 
-	[[ $SSH_AGENT == "true" ]] && env_json="$env_json"',
+  [[ $SSH_AGENT == "true" ]] && env_json="$env_json"',
 		{"name": "SSH_AUTH_SOCK", "value": "'"$SSH_AGENT_SOCK"'"}'
-	env_json="$env_json]"
+  env_json="$env_json]"
 
-	cat <<-EOF
+  cat <<-EOF
 		{
 			"metadata": {
 				"labels": {"app": "nix-cloud-shell"}
@@ -363,7 +363,7 @@ build_pod_overrides() {
 }
 
 get_init_script() {
-	cat <<-'INIT_EOF'
+  cat <<-'INIT_EOF'
 		set -e
 
 		mkdir -p ~/.config/nix
@@ -425,89 +425,89 @@ get_init_script() {
 CLEANUP_DONE=false
 
 cleanup() {
-	[[ $CLEANUP_DONE == "true" ]] && return 0
-	CLEANUP_DONE=true
-	trap '' SIGINT SIGTERM
+  [[ $CLEANUP_DONE == "true" ]] && return 0
+  CLEANUP_DONE=true
+  trap '' SIGINT SIGTERM
 
-	echo ""
-	ssh_agent_cleanup
+  echo ""
+  ssh_agent_cleanup
 
-	# Check if pod is still running
-	local pod_status
-	pod_status=$(kubectl "${KUBECTL_ARGS[@]}" get pod "$POD_NAME" -o jsonpath='{.status.phase}' 2>/dev/null || echo "NotFound")
+  # Check if pod is still running
+  local pod_status
+  pod_status=$(kubectl "${KUBECTL_ARGS[@]}" get pod "$POD_NAME" -o jsonpath='{.status.phase}' 2>/dev/null || echo "NotFound")
 
-	if [[ $pod_status == "Running" ]]; then
-		# Pod is still running, ask user if they want to keep it
-		echo ""
-		read -r -p "[cloud-shell] Keep pod running for later? [y/N] " -t 30 response || response="n"
-		if [[ $response =~ ^[Yy]$ ]]; then
-			log "Pod kept running: $POD_NAME"
-			log "Reattach with: kubectl-cloud-shell --attach $POD_NAME"
-			return 0
-		fi
-	fi
+  if [[ $pod_status == "Running" ]]; then
+    # Pod is still running, ask user if they want to keep it
+    echo ""
+    read -r -p "[cloud-shell] Keep pod running for later? [y/N] " -t 30 response || response="n"
+    if [[ $response =~ ^[Yy]$ ]]; then
+      log "Pod kept running: $POD_NAME"
+      log "Reattach with: kubectl-cloud-shell --attach $POD_NAME"
+      return 0
+    fi
+  fi
 
-	log "Deleting pod..."
-	kubectl "${KUBECTL_ARGS[@]}" delete pod "$POD_NAME" --ignore-not-found=true --wait=false 2>/dev/null || true
+  log "Deleting pod..."
+  kubectl "${KUBECTL_ARGS[@]}" delete pod "$POD_NAME" --ignore-not-found=true --wait=false 2>/dev/null || true
 }
 
 run_pod() {
-	local overrides init_script
-	overrides="$(build_pod_overrides)"
-	init_script="$(get_init_script)"
+  local overrides init_script
+  overrides="$(build_pod_overrides)"
+  init_script="$(get_init_script)"
 
-	log "Starting pod $POD_NAME..."
-	echo "Type 'exit' to leave. You'll be asked if you want to keep the pod running."
+  log "Starting pod $POD_NAME..."
+  echo "Type 'exit' to leave. You'll be asked if you want to keep the pod running."
 
-	# Ctrl+C during setup triggers cleanup; disabled once attached to pod
-	trap 'exit 130' SIGINT SIGTERM
-	trap cleanup EXIT
+  # Ctrl+C during setup triggers cleanup; disabled once attached to pod
+  trap 'exit 130' SIGINT SIGTERM
+  trap cleanup EXIT
 
-	kubectl "${KUBECTL_ARGS[@]}" run "$POD_NAME" --restart=Never \
-		--image="$POD_IMAGE" \
-		--overrides="$overrides"
+  kubectl "${KUBECTL_ARGS[@]}" run "$POD_NAME" --restart=Never \
+    --image="$POD_IMAGE" \
+    --overrides="$overrides"
 
-	log "Waiting for pod to be ready..."
-	kubectl "${KUBECTL_ARGS[@]}" wait --for=condition=Ready "pod/$POD_NAME" --timeout=120s
+  log "Waiting for pod to be ready..."
+  kubectl "${KUBECTL_ARGS[@]}" wait --for=condition=Ready "pod/$POD_NAME" --timeout=120s
 
-	flake_setup &
-	local flake_pid=$!
-	copy_setup &
-	local copy_pid=$!
-	ssh_agent_setup &
-	local ssh_pid=$!
-	wait "$flake_pid" "$copy_pid" "$ssh_pid"
+  flake_setup &
+  local flake_pid=$!
+  copy_setup &
+  local copy_pid=$!
+  ssh_agent_setup &
+  local ssh_pid=$!
+  wait "$flake_pid" "$copy_pid" "$ssh_pid"
 
-	trap '' SIGINT SIGTERM
-	log "Attaching to pod..."
-	kubectl "${KUBECTL_ARGS[@]}" exec -it "$POD_NAME" -- sh -c "$init_script"
+  trap '' SIGINT SIGTERM
+  log "Attaching to pod..."
+  kubectl "${KUBECTL_ARGS[@]}" exec -it "$POD_NAME" -- sh -c "$init_script"
 }
 
 main() {
-	parse_args "$@"
+  parse_args "$@"
 
-	# Handle --list mode
-	if [[ $LIST_PODS == "true" ]]; then
-		list_pods
-		exit 0
-	fi
+  # Handle --list mode
+  if [[ $LIST_PODS == "true" ]]; then
+    list_pods
+    exit 0
+  fi
 
-	# Handle --clean mode
-	if [[ $CLEAN_ALL == "true" ]]; then
-		clean_all
-		exit 0
-	fi
+  # Handle --clean mode
+  if [[ $CLEAN_ALL == "true" ]]; then
+    clean_all
+    exit 0
+  fi
 
-	# Handle --attach mode
-	if [[ -n $ATTACH_POD ]]; then
-		validate
-		attach_pod "$ATTACH_POD"
-		exit 0
-	fi
+  # Handle --attach mode
+  if [[ -n $ATTACH_POD ]]; then
+    validate
+    attach_pod "$ATTACH_POD"
+    exit 0
+  fi
 
-	# Normal mode: create new pod
-	validate
-	run_pod
+  # Normal mode: create new pod
+  validate
+  run_pod
 }
 
 main "$@"

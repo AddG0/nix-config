@@ -1,4 +1,8 @@
-{inputs, config, ...}: {
+{
+  inputs,
+  config,
+  ...
+}: {
   imports = [inputs.nitrox-nix.nixosModules.default];
   services.nitrox-server = {
     enable = true;
