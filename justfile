@@ -46,12 +46,13 @@ alias r := rebuild
 
 # Add --option eval-cache false if you end up caching a failure you can't get around
 [group('system')]
-[doc("Rebuild system configuration (--boot to only set next boot, --show-trace for debug)")]
+[doc("Rebuild system configuration (--boot to only set next boot, --test for temporary, --show-trace for debug)")]
 [arg("boot", long, value="boot")]
+[arg("test", long, value="test")]
 [arg("show-trace", long, value="true")]
 [arg("use-nh", long="no-nh", value="false")]
-rebuild hostname="" boot="switch" show-trace="false" use-nh=USE_NH_DEFAULT: rebuild-pre
-  USE_NH={{use-nh}} scripts/rebuild.sh {{ if show-trace == "true" { "-t" } else { "" } }} -m {{boot}} {{hostname}}
+rebuild hostname="" boot="switch" test="false" show-trace="false" use-nh=USE_NH_DEFAULT: rebuild-pre
+  USE_NH={{use-nh}} scripts/rebuild.sh {{ if show-trace == "true" { "-t" } else { "" } }} -m {{ if test == "test" { "test" } else { boot } }} {{hostname}}
 
 [group('system')]
 [doc("Rollback to previous generation or specific generation number")]
@@ -333,6 +334,11 @@ modpack-refresh name:
 [doc("Check mod compatibility for a Minecraft version")]
 modpack-compat name version:
   scripts/modpack.sh compat {{name}} {{version}}
+
+[group('validation')]
+[doc("Check package compatibility of a host against a target platform")]
+check-platform-compat hostname target="aarch64-linux":
+  scripts/check-platform-compat.sh {{hostname}} {{target}}
 
 # Below is random commands incase I forget
 

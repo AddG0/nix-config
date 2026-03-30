@@ -31,6 +31,7 @@
           "Terminal.Paste" = ["ctrl shift V"];
         };
       };
+      terminal.audibleBell = false;
       ignoredFilePatterns = [
         # VCS
         ".git"

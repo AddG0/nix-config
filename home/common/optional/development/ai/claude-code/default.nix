@@ -56,7 +56,11 @@ in {
     context7.sopsFile = "${inputs.nix-secrets}/global/api-keys/context7.yaml";
   };
 
-  programs.git.ignores = [".playwright-mcp"];
+  programs.git.ignores = [
+    ".playwright-mcp"
+    ".claude/settings.local.json"
+    "CLAUDE.local.md"
+  ];
 
   programs.claude-code-profiles = {
     enable = true;

@@ -9,7 +9,7 @@ source "$(dirname "${BASH_SOURCE[0]}")/helpers.sh"
 #  -h             Display this help message.
 #  -t             Enable trace mode (adds --show-trace flag).
 #  -v             Enable verbose/debug output.
-#  -m mode        Rebuild mode: switch (default) or boot.
+#  -m mode        Rebuild mode: switch (default), boot, or test.
 #  host           Host name; if not provided, defaults to the output of hostname.
 
 usage() {
@@ -39,8 +39,8 @@ done
 shift $((OPTIND - 1))
 
 # Validate mode
-if [[ $MODE != "switch" && $MODE != "boot" ]]; then
-	log_error "Invalid mode: $MODE (must be 'switch' or 'boot')"
+if [[ $MODE != "switch" && $MODE != "boot" && $MODE != "test" ]]; then
+	log_error "Invalid mode: $MODE (must be 'switch', 'boot', or 'test')"
 	exit 1
 fi
 

@@ -58,6 +58,11 @@
         default = null;
         description = "Custom keymap inheriting from a parent with action overrides.";
       };
+      terminal.audibleBell = lib.mkOption {
+        type = lib.types.bool;
+        default = true;
+        description = "Whether to play a sound on terminal bell.";
+      };
       ignoredFilePatterns = lib.mkOption {
         type = lib.types.listOf lib.types.str;
         default = [];
@@ -138,6 +143,12 @@
       "${root}/keymaps/${s.keymap.name}.xml".text = mkKeymapXml s.keymap;
       "${opt}/${platformKeymapDir}/keymap.xml".text = mkSettingsXml {
         KeymapManager = ''<active_keymap name="${s.keymap.name}" />'';
+      };
+    }
+    // lib.optionalAttrs (!s.terminal.audibleBell) {
+      "${opt}/terminal.xml".text = mkSettingsXml {
+        TerminalOptionsProvider = ''<option name="mySoundBell" value="false" />'';
+        TerminalProjectOptionsProvider = ''<option name="mySoundBell" value="false" />'';
       };
     }
     // lib.mapAttrs' (filename: components: {
