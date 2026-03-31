@@ -16,7 +16,16 @@
     builtins.attrValues (pluginsForIde pkgs ide ids);
   commonPlugins = ["com.github.catppuccin.jetbrains" "com.intellij.mermaid" "org.mvnsearch.plugins.justPlugin" "com.intellij.plugins.vscodekeymap"];
   bigDataPlugins = [
+    # Required for all Big Data tools. None of these can be removed without breaking the plugins.
     "com.intellij.bigdatatools"
+    "com.intellij.bigdatatools.core"
+    "com.intellij.bigdatatools.binary.files"
+    "intellij.bigdatatools.coreUi"
+    "intellij.bigdatatools.gcloud"
+    "intellij.bigdatatools.azure"
+    "intellij.bigdatatools.awsBase"
+    "com.intellij.bigdatatools.zeppelin"
+    # Addons
     "com.intellij.bigdatatools.kafka"
     "com.intellij.bigdatatools.flink"
     "com.intellij.bigdatatools.metastore.core"
