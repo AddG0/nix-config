@@ -89,7 +89,7 @@ stdenv.mkDerivation rec {
       --prefix PATH : ${lib.makeBinPath runtimeDeps}
   '';
 
-  passthru.updateScript = [ "nix-update" "--flake" "librepods" "--version-regex" "linux-v(.*)" ];
+  passthru.updateScript = ["nix-update" "--flake" "librepods" "--version-regex" "linux-v(.*)"];
 
   meta = with lib; {
     description = "AirPods desktop user experience enhancement program for Linux";

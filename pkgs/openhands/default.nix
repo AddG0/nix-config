@@ -31,7 +31,7 @@ stdenv.mkDerivation {
     runHook postInstall
   '';
 
-  passthru.updateScript = [ "nix-update" "--flake" "openhands" "--version=stable" "--url=https://github.com/All-Hands-AI/OpenHands" ];
+  passthru.updateScript = ["nix-update" "--flake" "openhands" "--version=stable" "--url=https://github.com/All-Hands-AI/OpenHands"];
 
   meta = with lib; {
     description = "OpenHands: Code Less, Make More - A platform for software development agents powered by AI";

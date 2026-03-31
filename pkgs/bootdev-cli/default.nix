@@ -4,11 +4,9 @@
   buildGoModule,
   fetchFromGitHub,
   installShellFiles,
-
   versionCheckHook,
   writableTmpDirAsHomeHook,
 }:
-
 buildGoModule rec {
   pname = "bootdev-cli";
   version = "1.27.4";
@@ -39,7 +37,7 @@ buildGoModule rec {
       --fish <($out/bin/bootdev completion fish)
   '';
 
-  nativeInstallCheckInputs = [ versionCheckHook ];
+  nativeInstallCheckInputs = [versionCheckHook];
   versionCheckProgram = "${placeholder "out"}/bin/bootdev";
   versionCheckProgramArg = "--version";
   doInstallCheck = true;
@@ -49,7 +47,7 @@ buildGoModule rec {
     homepage = "https://github.com/bootdotdev/bootdev";
     changelog = "https://github.com/bootdotdev/bootdev/releases/tag/v${version}";
     license = lib.licenses.mit;
-    maintainers = with lib.maintainers; [ vinnymeller ];
+    maintainers = with lib.maintainers; [vinnymeller];
     mainProgram = "bootdev";
   };
 }

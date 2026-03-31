@@ -32,7 +32,7 @@ stdenvNoCC.mkDerivation rec {
     runHook postInstall
   '';
 
-  passthru.updateScript = [ "nix-update" "--flake" "protoc-gen-grpc-kotlin" "--version=stable" "--url=https://github.com/grpc/grpc-kotlin" ];
+  passthru.updateScript = ["nix-update" "--flake" "protoc-gen-grpc-kotlin" "--version=stable" "--url=https://github.com/grpc/grpc-kotlin"];
 
   meta = with lib; {
     description = "gRPC Kotlin protoc plugin for generating Kotlin gRPC service stubs";

@@ -19,7 +19,7 @@ pkgs.buildGoModule rec {
     "-w"
   ];
 
-  passthru.updateScript = [ "nix-update" "--flake" "gke-gcloud-auth-plugin" "--version-regex" "ccm/v(.*)" ];
+  passthru.updateScript = ["nix-update" "--flake" "gke-gcloud-auth-plugin" "--version-regex" "ccm/v(.*)"];
 
   meta = with pkgs.lib; {
     description = "GKE gcloud authentication plugin for kubectl";

@@ -80,5 +80,4 @@ in {
   systemd.user.services.noctalia-shell.Service.Environment = [
     "NOCTALIA_SETTINGS_FILE=%t/noctalia/settings.json"
   ];
-
 }
