@@ -9,10 +9,23 @@
     name = "claude-code-with-plugins";
     paths = [pkgs.claude-code];
     buildInputs = [pkgs.makeWrapper];
-    postBuild = ''
+    postBuild = let
+      telemetryEnabled = config.hostSpec.telemetry.enabled && config.hostSpec.telemetry.claude-code.enabled;
+      # Set via wrapper, not settings.json env — telemetry init reads process env
+      # before settings are loaded, so CLAUDE_CODE_ENABLE_TELEMETRY must be set early
+      telemetryFlags = lib.optionalString telemetryEnabled ''
+        --set CLAUDE_CODE_ENABLE_TELEMETRY 1 \
+        --set OTEL_METRICS_EXPORTER otlp \
+        --set OTEL_LOGS_EXPORTER otlp \
+        --set OTEL_EXPORTER_OTLP_PROTOCOL grpc \
+        --set OTEL_EXPORTER_OTLP_ENDPOINT http://localhost:4317 \
+        --set OTEL_EXPORTER_OTLP_METRICS_TEMPORALITY_PREFERENCE cumulative
+      '';
+    in ''
       wrapProgram $out/bin/claude \
         --prefix PATH : ${lib.makeBinPath ([pkgs.socat pkgs.sox] ++ lib.optionals pkgs.stdenv.hostPlatform.isLinux [pkgs.bubblewrap])} \
-        ${lib.optionalString pkgs.stdenv.hostPlatform.isLinux "--set ALSA_PLUGIN_DIR ${pkgs.pipewire}/lib/alsa-lib"}
+        ${lib.optionalString pkgs.stdenv.hostPlatform.isLinux "--set ALSA_PLUGIN_DIR ${pkgs.pipewire}/lib/alsa-lib"} \
+        ${telemetryFlags}
     '';
   };
 
@@ -106,18 +119,11 @@ in {
       '';
 
       settings = {
-        env =
-          {
-            DISABLE_ERROR_REPORTING = "1";
-            DISABLE_BUG_COMMAND = "1";
-            CLAUDE_CODE_DISABLE_FEEDBACK_SURVEY = "1";
-          }
-          // lib.optionalAttrs (config.hostSpec.telemetry.enabled && config.hostSpec.telemetry.claude-code.enabled) {
-            CLAUDE_CODE_ENABLE_TELEMETRY = "1";
-            OTEL_METRICS_EXPORTER = "otlp";
-            OTEL_LOGS_EXPORTER = "otlp";
-            OTEL_EXPORTER_OTLP_PROTOCOL = "grpc";
-          };
+        env = {
+          DISABLE_ERROR_REPORTING = "1";
+          DISABLE_BUG_COMMAND = "1";
+          CLAUDE_CODE_DISABLE_FEEDBACK_SURVEY = "1";
+        };
         includeCoAuthoredBy = false;
         permissions = {
           allow = ["Bash(git diff:*)" "Bash(nix build:*)" "Bash(nix flake:*)" "Edit"];

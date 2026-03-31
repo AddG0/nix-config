@@ -87,7 +87,7 @@
   hostSpec = {
     hostName = "mini";
     hostPlatform = "x86_64-linux";
-    # telemetry.enabled = true;
+    telemetry.enabled = true;
   };
 
   time.timeZone = "America/Chicago";

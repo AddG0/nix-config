@@ -29,8 +29,8 @@ in {
   # Firewall - open k3s ports
   # ==========================================================================
   networking.firewall = {
-    allowedTCPPorts = lib.optionals isServer [6443]; # k3s API server
-    allowedUDPPorts = [8472]; # flannel VXLAN
+    allowedTCPPorts = lib.optionals isServer [6443] ++ [7946]; # k3s API server, MetalLB memberlist
+    allowedUDPPorts = [8472 7946]; # flannel VXLAN, MetalLB memberlist
   };
 
   # ==========================================================================

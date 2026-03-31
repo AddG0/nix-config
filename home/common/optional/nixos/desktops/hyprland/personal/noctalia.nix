@@ -31,6 +31,10 @@
 in {
   imports = [inputs.noctalia.homeModules.default];
 
+  wayland.windowManager.hyprland.settings.bind = [
+    "SUPER,escape,exec,noctalia-shell ipc call lockScreen lock"
+  ];
+
   programs.noctalia-shell = {
     enable = true;
     systemd.enable = true;

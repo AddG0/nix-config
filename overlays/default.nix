@@ -273,6 +273,17 @@
         '';
     });
 
+    # TODO: Remove once upstream just fixes --completions zsh to include #compdef header
+    # Fix just zsh completions: upstream --completions zsh emits a lazy shim
+    # that compinit can't autodiscover. Capture real completions at build time.
+    just = prev.just.overrideAttrs (old: {
+      postInstall =
+        (old.postInstall or "")
+        + ''
+          JUST_COMPLETE=zsh $out/bin/just > $out/share/zsh/site-functions/_just
+        '';
+    });
+
     ghostty = inputs.ghostty.packages.${prev.stdenv.hostPlatform.system}.default;
 
     firefox-addons = import inputs.firefox-addons {

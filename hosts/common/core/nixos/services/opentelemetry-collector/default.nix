@@ -99,7 +99,7 @@ in {
 
         exporters = {
           otlphttp = {
-            endpoint = "https://otlp.addg0.com";
+            endpoint = "https://otlp.${config.hostSpec.domain}";
             auth.authenticator = "oauth2client";
             # Retry on transient failures
             retry_on_failure = {

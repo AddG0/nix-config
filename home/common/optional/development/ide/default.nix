@@ -15,6 +15,14 @@
   resolvePlugins = ide: ids:
     builtins.attrValues (pluginsForIde pkgs ide ids);
   commonPlugins = ["com.github.catppuccin.jetbrains" "com.intellij.mermaid" "org.mvnsearch.plugins.justPlugin" "com.intellij.plugins.vscodekeymap"];
+  bigDataPlugins = [
+    "com.intellij.bigdatatools"
+    "com.intellij.bigdatatools.kafka"
+    "com.intellij.bigdatatools.flink"
+    "com.intellij.bigdatatools.metastore.core"
+    "com.intellij.bigdatatools.rfs"
+    "com.intellij.bigdatatools.spark"
+  ];
 
   mkIde = pkg: extraPlugins: {
     package = pkg;
@@ -55,12 +63,11 @@
   };
 in {
   programs.jetbrains.ides = with pkgs.jetbrains; {
-    idea = mkIde idea ["nix-idea" "net.ashald.envfile" "org.jetbrains.plugins.go-template"];
+    idea = mkIde idea (["nix-idea" "net.ashald.envfile" "org.jetbrains.plugins.go-template"] ++ bigDataPlugins);
     pycharm = mkIde pycharm [];
-    datagrip = mkIde datagrip [];
+    datagrip = mkIde datagrip bigDataPlugins;
     webstorm = mkIde webstorm [];
   };
-
   home.packages = with pkgs; (
     if pkgs.stdenv.isLinux
     then [

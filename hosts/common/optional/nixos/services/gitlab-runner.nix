@@ -14,7 +14,7 @@
 #   - Nix images should not be used here since we mount the host's Nix store and that would overrite it, nix is included by this runner so no need to use a nix image anyway
 #   - Kaniko is auto-detected and skips the nix setup entirely
 {
-  # config,
+  config,
   # inputs,
   lib,
   pkgs,
@@ -32,10 +32,24 @@
   boot.kernel.sysctl."net.ipv4.ip_forward" = true;
   virtualisation.docker.enable = true;
 
+  # Feed gitlab-runner Prometheus metrics into the OTel collector when telemetry is on
+  services.opentelemetry-collector.settings = lib.mkIf config.hostSpec.telemetry.enabled {
+    receivers.prometheus.config.scrape_configs = [
+      {
+        job_name = "gitlab-runner";
+        scrape_interval = "30s";
+        static_configs = [{targets = ["127.0.0.1:9252"];}];
+      }
+    ];
+    service.pipelines.metrics.receivers = ["prometheus"];
+  };
+
   services.gitlab-runner = {
     enable = true;
     # Max number of jobs running simultaneously across all runners
     settings.concurrent = 20;
+    # Expose Prometheus metrics (jobs, durations, errors, API calls)
+    settings.listen_address = "127.0.0.1:9252";
 
     services.nix = {
       # Token file should contain:

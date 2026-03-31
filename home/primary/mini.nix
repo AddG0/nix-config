@@ -11,7 +11,7 @@
     (map (f: ./common/optional/${f}) [
       "development/aws.nix"
       #  "nixos/services/rclone.nix"
-      # "stylix.nix" # using work rice stylix instead
+      "stylix.nix" # using work rice stylix instead
       "work.nix"
     ])
 
@@ -78,7 +78,7 @@
 
         # NixOS Specific
         # "nixos/desktops/plasma6"
-        "nixos/desktops/hyprland/work"
+        "nixos/desktops/hyprland/personal"
         # "nixos/desktops/hyprland/nvidia.nix"
         # "nixos/desktops/hyprland/sunshine.nix"
         "media/vlc.nix"
@@ -154,6 +154,11 @@
     workspace = [
       "1, monitor:DP-3, default:true"
       "2, monitor:HDMI-A-1, default:true"
+    ];
+
+    # Mini keyboard has no Print Screen key — remap screenshots to Home
+    bind = [
+      "SUPER,Home,exec,${pkgs.hyprshot}/bin/hyprshot -m region"
     ];
   };
 
