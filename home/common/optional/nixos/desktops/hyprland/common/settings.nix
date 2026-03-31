@@ -21,7 +21,7 @@ in {
         "_JAVA_AWT_WM_NONREPARENTING,1"
         "QT_WAYLAND_DISABLE_WINDOWDECORATION,1"
         "QT_QPA_PLATFORM,wayland"
-        "SDL_VIDEODRIVER,wayland"
+
         "GDK_BACKEND,wayland"
         "OGL_DEDICATED_HW_STATE_PER_CONTEXT,ENABLE_ROBUST"
         "XCURSOR_SIZE,${toString config.stylix.cursor.size}"

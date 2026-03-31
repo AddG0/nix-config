@@ -161,16 +161,36 @@
         github =
           prev.vscode-marketplace-release.github
           // {
-            # Fix Copilot Chat copying read-only files to globalStorage
-            # Node.js copyFile preserves permissions from nix store (read-only).
-            # Patch to chmod files writable after copying.
-            # Uses regex to match pattern regardless of minified variable names.
+            # Fix Copilot Chat on read-only Nix store:
+            # 1. ensureShims() copies node-pty + ripgrep into extension node_modules at runtime,
+            #    which fails on the Nix store. Pre-create the shims at build time from VS Code's
+            #    bundled copies and write the marker file so ensureShims skips entirely.
+            # 2. copyFile from Nix store preserves read-only perms — chmod writable after copy.
             copilot-chat = prev.vscode-marketplace-release.github.copilot-chat.overrideAttrs (old: {
               postInstall =
                 (old.postInstall or "")
                 + ''
-                  sed -i -E 's/await ([a-zA-Z0-9]+)\.promises\.copyFile\(xr\(__dirname,([a-zA-Z0-9]+)\),xr\(([a-zA-Z0-9]+),\2\)\)/await \1.promises.copyFile(xr(__dirname,\2),xr(\3,\2)),await \1.promises.chmod(xr(\3,\2),438)/g' \
-                    $out/share/vscode/extensions/github.copilot-chat/dist/extension.js
+                  extDir="$out/share/vscode/extensions/github.copilot-chat"
+                  extJs="$extDir/dist/extension.js"
+                  sdkDir="$extDir/node_modules/@github/copilot/sdk"
+
+                  # Pre-create node-pty shim (SQn) — must be a copy, not symlink,
+                  # because Electron blocks native module loads from outside the app.
+                  mkdir -p "$sdkDir/prebuilds/linux-x64"
+                  cp "${prev.vscode}/lib/vscode/resources/app/node_modules/node-pty/build/Release/pty.node" \
+                    "$sdkDir/prebuilds/linux-x64/pty.node"
+
+                  # Pre-create ripgrep shim (TQn)
+                  mkdir -p "$sdkDir/ripgrep/bin/linux-x64"
+                  cp "${prev.vscode}/lib/vscode/resources/app/node_modules/@vscode/ripgrep/bin/rg" \
+                    "$sdkDir/ripgrep/bin/linux-x64/rg"
+
+                  # Write marker so ensureShims() skips at runtime
+                  echo "Shims created successfully" > "$extDir/node_modules/@github/copilot/shims.txt"
+
+                  # chmod copied files writable (Nix store sources are read-only).
+                  # Regex matches copyFile calls regardless of minified variable names.
+                  sed -i -E 's/await ([a-zA-Z0-9]+)\.promises\.copyFile\(jr\(__dirname,MQt\),jr\(([a-zA-Z0-9]+),MQt\)\)/await \1.promises.copyFile(jr(__dirname,MQt),jr(\2,MQt)),await \1.promises.chmod(jr(\2,MQt),438)/g' "$extJs"
                 '';
             });
           };
@@ -207,6 +227,35 @@
                 + ''
                   sed -i -E 's/([a-zA-Z0-9]+)\.join\([a-zA-Z0-9]+,"\.noConfigDebugAdapterEndpoints"\)/\1.join(process.env.XDG_STATE_HOME||(process.env.HOME+"\/.local\/state"),"vscode-debugpy")/g' \
                     $out/share/vscode/extensions/ms-python.debugpy/dist/extension.js
+                '';
+            });
+          };
+      }
+      // {
+        # Fix Volar activation crash on read-only Nix store.
+        # Volar's bi() unconditionally calls writeFileSync to create vue-typescript-plugin-pack/index.js.
+        # Patch to skip the write when the file already exists, then pre-create it at build time.
+        vue =
+          prev.vscode-marketplace.vue
+          // {
+            volar = prev.vscode-marketplace.vue.volar.overrideAttrs (old: {
+              postInstall =
+                (old.postInstall or "")
+                + ''
+                  extJs="$out/share/vscode/extensions/vue.volar/dist/extension.js"
+
+                  # Guard writeFileSync with existsSync so it skips when file is pre-created
+                  substituteInPlace "$extJs" \
+                    --replace-fail \
+                      'r.writeFileSync(t,`try { module.exports = require("../@vue/typescript-plugin"); } catch { module.exports = require("../../dist/typescript-plugin.js"); }`)' \
+                      'r.existsSync(t)||r.writeFileSync(t,`try { module.exports = require("../@vue/typescript-plugin"); } catch { module.exports = require("../../dist/typescript-plugin.js"); }`)'
+
+                  # Pre-create the plugin shim so the guard above skips at runtime
+                  pluginDir="$out/share/vscode/extensions/vue.volar/node_modules/vue-typescript-plugin-pack"
+                  mkdir -p "$pluginDir"
+                  cat > "$pluginDir/index.js" <<'PLUGIN'
+                  try { module.exports = require("../@vue/typescript-plugin"); } catch { module.exports = require("../../dist/typescript-plugin.js"); }
+                  PLUGIN
                 '';
             });
           };
