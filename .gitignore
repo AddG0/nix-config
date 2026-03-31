@@ -11,3 +11,6 @@ CLAUDE.local.md
 
 # Profiling artifacts
 trace.log
+
+# Package update logs
+.update-logs/

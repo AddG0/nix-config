@@ -1,93 +1,106 @@
-#!/usr/bin/env bash
+#!/usr/bin/env nix
+#!nix shell nixpkgs#bash nixpkgs#nix-update nixpkgs#jq nixpkgs#parallel --command bash
 
 set -euo pipefail
 
-# Source helpers
-source "$(dirname "${BASH_SOURCE[0]}")/helpers.sh"
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+FLAKE_DIR="$(dirname "$SCRIPT_DIR")"
+LOG_DIR="$FLAKE_DIR/.update-logs"
 
-# Function to check if a package has a new version
-check_package_version() {
-  local package=$1
-  local pkg_file="$package/package.nix"
+source "$SCRIPT_DIR/helpers.sh"
 
-  if [ ! -f "$pkg_file" ]; then
-    log_error "Package file not found: $pkg_file"
-    return 1
-  fi
+# Discover packages as "name:version_policy:has_update_script" lines.
+# Packages without a version attr or with nixUpdate.version = "skip" get "skip".
+discover_packages() {
+  local system
+  system="$(nix eval --impure --raw --expr 'builtins.currentSystem')"
+  nix eval "$FLAKE_DIR#packages.$system" --apply '
+    pkgs: builtins.mapAttrs (name: pkg: {
+      version = if !(pkg ? version) then "skip"
+        else (pkg.passthru.nixUpdate or {}).version or "stable";
+      hasUpdateScript = (pkg.passthru or {}) ? updateScript;
+    }) pkgs
+  ' --json | jq -r 'to_entries[] | "\(.key):\(.value.version):\(.value.hasUpdateScript)"'
+}
 
-  # Extract current version from package.nix
-  local current_version
-  current_version=$(grep -m 1 "version = " "$pkg_file" | sed 's/.*version = "\(.*\)";/\1/')
-  log_debug "Current version of $(basename "$package"): $current_version"
+export -f log_info log_error log_debug
+export DEBUG_MODE FLAKE_DIR LOG_DIR RED GREEN YELLOW BLUE NC
 
-  # For GitHub-based packages, check for new releases
-  if grep -q "fetchFromGitHub" "$pkg_file"; then
-    local owner
-    owner=$(grep -m 1 "owner = " "$pkg_file" | sed 's/.*owner = "\(.*\)";/\1/')
-    local repo
-    repo=$(grep -m 1 "repo = " "$pkg_file" | sed 's/.*repo = "\(.*\)";/\1/')
+update_one() {
+  local pkg_name="${1%%:*}" rest="${1#*:}"
+  local version_policy="${rest%%:*}" has_update_script="${rest#*:}"
+  local log_file="$LOG_DIR/$pkg_name.log"
 
-    if [ -n "$owner" ] && [ -n "$repo" ]; then
-      log_debug "Checking GitHub releases for $owner/$repo..."
-      # Use nix-update to check for updates
-      if nix-update "$(basename "$package")" --version=stable; then
-        log_info "New version available for $(basename "$package")"
-      else
-        log_warning "No new version available for $(basename "$package")"
-      fi
+  [[ "$version_policy" == "skip" ]] && return 0
+
+  {
+    echo "=== $pkg_name ($version_policy) === $(date '+%Y-%m-%d %H:%M:%S')"
+    if [[ "$has_update_script" == "true" ]]; then
+      nix-update --flake "$pkg_name" --use-update-script 2>&1
+    else
+      nix-update --flake "$pkg_name" "--version=$version_policy" 2>&1
     fi
-  fi
+  } > "$log_file" 2>&1 && {
+    log_info "$pkg_name - updated"
+  } || {
+    cp "$log_file" "$LOG_DIR/failed/$pkg_name.log"
+    log_error "$pkg_name - failed (see .update-logs/failed/$pkg_name.log)"
+    return 1
+  }
 }
+export -f update_one
 
-# Function to update a package
-update_package() {
-  local package=$1
-  local pkg_name
-  pkg_name=$(basename "$package")
-  log_debug "Updating $pkg_name..."
-
-  # First check if there's a new version
-  check_package_version "$package"
-
-  # Then try to update using nix-update
-  if nix-update --flake "$pkg_name" --commit --version=stable; then
-    log_info "Successfully updated $pkg_name"
-  else
-    log_error "Failed to update $pkg_name"
-  fi
-}
-
-# Handle verbose flag first
-handle_verbose_flag "$@"
-
-# Parse remaining options
-CHECK_ONLY=false
-while getopts "c" opt; do
+JOBS=10
+while getopts "vj:" opt; do
   case "$opt" in
-  c) CHECK_ONLY=true ;;
-  *) usage ;;
+  v) DEBUG_MODE=true ;;
+  j) JOBS="$OPTARG" ;;
+  *) echo "Usage: $(basename "$0") [-v] [-j N] [package...]"; exit 1 ;;
   esac
 done
 shift $((OPTIND - 1))
 
-log_info "Starting package updates..."
-
-# Find all package.nix files recursively in pkgs directory
-while IFS= read -r -d '' pkg_file; do
-  pkg_dir=$(dirname "$pkg_file")
-  if [ "$CHECK_ONLY" = true ]; then
-    check_package_version "$pkg_dir"
-  else
-    update_package "$pkg_dir"
-  fi
-done < <(find pkgs -name "package.nix" -print0)
-
-# Update nixpkgs itself
-log_debug "Updating nixpkgs..."
-if nix-channel --update; then
-  log_info "Successfully updated nixpkgs"
+if [ $# -gt 0 ]; then
+  entries=("${@/%/:stable:false}")
 else
-  log_error "Failed to update nixpkgs"
+  log_info "Discovering packages from flake..."
+  mapfile -t entries < <(discover_packages)
+  log_info "Found ${#entries[@]} packages"
 fi
 
-log_info "All updates completed!"
+# Split into updatable and skipped
+to_update=()
+skipped=0
+skipped_names=()
+for entry in "${entries[@]}"; do
+  rest="${entry#*:}"
+  if [[ "${rest%%:*}" == "skip" ]]; then
+    ((skipped++)) || true
+    skipped_names+=("${entry%%:*}")
+  else
+    to_update+=("$entry")
+  fi
+done
+
+if [[ $skipped -gt 0 ]]; then
+  log_info "Skipped $skipped packages: ${skipped_names[*]}"
+fi
+[[ ${#to_update[@]} -eq 0 ]] && { log_info "Nothing to update"; exit 0; }
+
+rm -rf "$LOG_DIR" && mkdir -p "$LOG_DIR/failed"
+
+log_info "Updating ${#to_update[@]} packages with $JOBS parallel jobs..."
+printf '%s\n' "${to_update[@]}" | parallel --halt never --line-buffer -j "$JOBS" update_one {}
+
+# Summary
+failed_count=$(find "$LOG_DIR/failed" -name '*.log' | wc -l)
+echo ""
+log_info "Results: $(( ${#to_update[@]} - failed_count )) succeeded, $failed_count failed, $skipped skipped"
+
+if [ "$failed_count" -gt 0 ]; then
+  log_warning "Failed packages:"
+  for f in "$LOG_DIR/failed"/*.log; do
+    echo "  - $(basename "$f" .log)"
+  done
+  log_info "Review: cat .update-logs/failed/<package>.log"
+fi

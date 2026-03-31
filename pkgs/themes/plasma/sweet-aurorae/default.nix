@@ -5,13 +5,13 @@
 }:
 stdenvNoCC.mkDerivation rec {
   pname = "sweet-aurorae";
-  version = "2024-11-08";
+  version = "6.0-unstable-2026-03-17";
 
   src = fetchFromGitHub {
     owner = "EliverLara";
     repo = "Sweet";
-    rev = "f865a47ed41a870d278fcd47fdb0300fdeaa0c01"; # nova branch
-    sha256 = "sha256-ohiZkwY3ii2JSxZFM2vTSNovar4QxQjDh/tO41Rm138=";
+    rev = "33fb31cf959cdc7b5a7ce7816abcc2b55e1e1c60"; # nova branch
+    sha256 = "sha256-CiG99F66FH/5XpjgbAofoFzulSrBz60k4spsBYyPuio=";
   };
 
   dontBuild = true;
@@ -28,6 +28,8 @@ stdenvNoCC.mkDerivation rec {
 
     runHook postInstall
   '';
+
+  passthru.nixUpdate.version = "branch";
 
   meta = with lib; {
     description = "Sweet window decoration theme for KDE/Aurorae";

@@ -6,9 +6,9 @@
   makeWrapper,
   ...
 }:
-stdenv.mkDerivation rec {
+stdenv.mkDerivation {
   pname = "openhands";
-  version = "0.53.0";
+  version = "1.6.0";
 
   # No source needed, we're just creating a wrapper
   dontUnpack = true;
@@ -30,6 +30,8 @@ stdenv.mkDerivation rec {
 
     runHook postInstall
   '';
+
+  passthru.updateScript = [ "nix-update" "--flake" "openhands" "--version=stable" "--url=https://github.com/All-Hands-AI/OpenHands" ];
 
   meta = with lib; {
     description = "OpenHands: Code Less, Make More - A platform for software development agents powered by AI";

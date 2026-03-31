@@ -5,7 +5,7 @@
 }:
 stdenv.mkDerivation {
   pname = "catppuccin-process-compose";
-  version = "main";
+  version = "0-unstable-2024-07-20";
 
   src = fetchFromGitHub {
     owner = "catppuccin";
@@ -18,6 +18,8 @@ stdenv.mkDerivation {
     mkdir -p $out/share/process-compose-catppuccin
     cp -r themes/* $out/share/process-compose-catppuccin/
   '';
+
+  passthru.nixUpdate.version = "branch";
 
   meta = with lib; {
     description = "Soothing pastel theme for process-compose";

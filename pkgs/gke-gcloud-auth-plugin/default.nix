@@ -1,13 +1,13 @@
 {pkgs}:
 pkgs.buildGoModule rec {
   pname = "gke-gcloud-auth-plugin";
-  version = "34.0.0";
+  version = "35.0.5";
 
   src = pkgs.fetchFromGitHub {
     owner = "kubernetes";
     repo = "cloud-provider-gcp";
     rev = "ccm/v${version}";
-    sha256 = "sha256-35ANmQmv2xrN/gemP5peNcaEUnaVbGk35KtviBHfNsc=";
+    sha256 = "sha256-dWpqmihUoD+bnT+uoobyvMc8vi8J8HHQqMDOpIRXqfU=";
   };
 
   modRoot = "./cmd/gke-gcloud-auth-plugin";
@@ -18,6 +18,8 @@ pkgs.buildGoModule rec {
     "-s"
     "-w"
   ];
+
+  passthru.updateScript = [ "nix-update" "--flake" "gke-gcloud-auth-plugin" "--version-regex" "ccm/v(.*)" ];
 
   meta = with pkgs.lib; {
     description = "GKE gcloud authentication plugin for kubectl";

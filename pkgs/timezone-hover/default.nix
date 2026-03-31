@@ -56,6 +56,8 @@ stdenv.mkDerivation {
     runHook postInstall
   '';
 
+  passthru.nixUpdate.version = "skip";
+
   meta = with lib; {
     description = "Interactive timezone viewer with timeline hover for KDE Plasma";
     license = licenses.gpl2Plus;

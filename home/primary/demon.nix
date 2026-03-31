@@ -56,6 +56,7 @@
         "development/grpc.nix"
         "secrets/buf.nix"
         "development/terraform.nix"
+        "development/bootdev.nix"
 
         # Gaming
         "gaming/minecraft"

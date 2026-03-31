@@ -5,7 +5,7 @@
 }:
 stdenvNoCC.mkDerivation rec {
   pname = "sweet-kde";
-  version = "2024-11-08";
+  version = "0-unstable-2025-04-25";
 
   src = fetchFromGitHub {
     owner = "EliverLara";
@@ -31,6 +31,8 @@ stdenvNoCC.mkDerivation rec {
 
     runHook postInstall
   '';
+
+  passthru.nixUpdate.version = "branch";
 
   meta = with lib; {
     description = "A dark and modern theme for KDE Plasma";

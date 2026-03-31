@@ -5,11 +5,11 @@
   ...
 }: let
   pname = "helium";
-  version = "0.6.4.1";
+  version = "0.10.7.1";
 
   src = fetchurl {
     url = "https://github.com/imputnet/helium-linux/releases/download/${version}/helium-${version}-x86_64.AppImage";
-    sha256 = "0e5105b85c31d908ebf5e6faba2498cccfc5debda176d90c5b976b27226dfd81";
+    sha256 = "sha256-+vmxXcg8TkR/GAiHKnjq4b04bGtQzErfJkOb4P4nZUk=";
   };
 
   appimageContents = appimageTools.extractType2 {

@@ -5,19 +5,21 @@
 }:
 stdenv.mkDerivation rec {
   pname = "catppuccin-ghostty";
-  version = "main";
+  version = "0-unstable-2026-01-07";
 
   src = fetchFromGitHub {
     owner = "catppuccin";
     repo = "ghostty";
-    rev = "0eeefa637affe0b5f29d7005cfe4e143c244a781";
-    sha256 = "sha256-j0HCakM9R/xxEjWd5A0j8VVlg0vQivjlAYHRW/4OpGU=";
+    rev = "5a58926563ddacbde4a12b4a347464c2c6945393";
+    sha256 = "sha256-Y6RFften1/6+1xdhIzEh/E7FBJTwY5a8NH4301HbgOM=";
   };
 
   installPhase = ''
     mkdir -p $out/share/ghostty-catppuccin
     cp -r themes/* $out/share/ghostty-catppuccin/
   '';
+
+  passthru.nixUpdate.version = "branch";
 
   meta = with lib; {
     description = "Soothing pastel theme for Ghostty";

@@ -12,8 +12,8 @@
   src = fetchFromGitHub {
     owner = "TryGhost";
     repo = "node-sqlite3";
-    rev = "v5.1.7";
-    hash = "sha256-UAYWr/bjRWCBw/8ThmFVvgpJxnU8WGAfVJBN1BCEUrw=";
+    rev = "v6.0.1";
+    hash = "sha256-CZSD3uuS5VT9+oeZCG4cCoOv3cKryHUBdPCCfXEoG6o=";
   };
 
   # Runtime deps fetched as tarballs for the sandbox
@@ -32,7 +32,7 @@
 in
   stdenv.mkDerivation {
     pname = "node-sqlite3";
-    version = "5.1.7";
+    version = "6.0.1";
     inherit src;
 
     nativeBuildInputs = [nodejs python3 pkg-config nodePackages.node-gyp];

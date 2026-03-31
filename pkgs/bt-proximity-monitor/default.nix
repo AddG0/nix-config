@@ -29,6 +29,8 @@ in
         --set PYTHONPATH ${pythonEnv}/${python3.sitePackages}
     '';
 
+    passthru.nixUpdate.version = "skip";
+
     meta = with lib; {
       description = "Bluetooth proximity-based screen locking monitor using bleak (no pairing required)";
       license = licenses.mit;

@@ -11,7 +11,10 @@ in {
     "test-coverage-reviewer" = builtins.readFile "${cek}/plugins/code-review/agents/test-coverage-reviewer.md";
   };
   commands = {
-    "review-local-changes" = builtins.readFile "${cek}/plugins/code-review/commands/review-local-changes.md";
     "review-branch" = ./commands/review-branch.md;
+  };
+  skills = {
+    "review-local-changes" = builtins.readFile "${cek}/plugins/code-review/skills/review-local-changes/SKILL.md";
+    "review-pr" = builtins.readFile "${cek}/plugins/code-review/skills/review-pr/SKILL.md";
   };
 }

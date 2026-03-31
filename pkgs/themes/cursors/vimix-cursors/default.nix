@@ -5,13 +5,13 @@
 }:
 stdenv.mkDerivation rec {
   pname = "vimix-cursors";
-  version = "2020-02-24";
+  version = "2020-02-24-unstable-2021-09-18";
 
   src = fetchFromGitHub {
     owner = "vinceliuice";
     repo = "Vimix-cursors";
-    rev = "2020-02-24";
-    sha256 = "sha256-TfcDer85+UOtDMJVZJQr81dDy4ekjYgEvH1RE1IHMi4=";
+    rev = "9bc292f40904e0a33780eda5c5d92eb9a1154e9c";
+    sha256 = "sha256-zW7nJjmB3e+tjEwgiCrdEe5yzJuGBNdefDdyWvgYIUU=";
   };
 
   # No build dependencies needed since we're using pre-built cursors
@@ -28,6 +28,8 @@ stdenv.mkDerivation rec {
 
     runHook postInstall
   '';
+
+  passthru.nixUpdate.version = "branch";
 
   meta = with lib; {
     description = "Vimix cursor theme inspired by Materia design";

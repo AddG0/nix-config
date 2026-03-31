@@ -16,5 +16,5 @@ in {
     "mcp__context7__query-docs"
   ];
 
-  memory.text = builtins.readFile ./memory.md;
+  rules."context7" = builtins.readFile ./memory.md;
 }

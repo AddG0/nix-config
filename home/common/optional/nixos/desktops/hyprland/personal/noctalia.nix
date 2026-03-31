@@ -5,7 +5,6 @@
   lib,
   ...
 }: let
-  noc = "${config.programs.noctalia-shell.package}/bin/noctalia-shell";
   settingsPath = "$XDG_RUNTIME_DIR/noctalia/settings.json";
   nixSettings = config.xdg.configFile."noctalia/settings.json".source;
   # Noctalia caches weather in ~/.cache/noctalia/location.json
@@ -27,23 +26,6 @@
     if [ -n "$CITY" ]; then
       ${pkgs.jq}/bin/jq --arg city "$CITY" '.location.name = $city' ${settingsPath} > ${settingsPath}.tmp \
         && mv ${settingsPath}.tmp ${settingsPath}
-    fi
-  '';
-  muteSound = pkgs.fetchurl {
-    url = "https://www.myinstants.com/media/sounds/discordmute_IZNcLx2.mp3";
-    sha256 = "4c73fcd425d8dddfef0d2ad970f2fd414be7eb1d190f49b7098e8d638f438039";
-  };
-  unmuteSound = pkgs.fetchurl {
-    url = "https://www.myinstants.com/media/sounds/discord-unmute-sound.mp3";
-    sha256 = "b7f6ec23ccabb8183ee2e8073fd4213cffa2241a312bdb1105ee9f0b2cca5576";
-  };
-  mic-toggle = pkgs.writeShellScriptBin "hypr-mic-toggle" ''
-    MUTED=$(${pkgs.wireplumber}/bin/wpctl get-volume @DEFAULT_AUDIO_SOURCE@ | ${pkgs.gnugrep}/bin/grep -o 'MUTED' || echo "")
-    ${noc} ipc call volume muteInput
-    if [ -z "$MUTED" ]; then
-      ${pkgs.pipewire}/bin/pw-play --volume=0.2 ${muteSound} &
-    else
-      ${pkgs.pipewire}/bin/pw-play --volume=0.2 ${unmuteSound} &
     fi
   '';
 in {
@@ -99,21 +81,4 @@ in {
     "NOCTALIA_SETTINGS_FILE=%t/noctalia/settings.json"
   ];
 
-  # Noctalia IPC binds
-  wayland.windowManager.hyprland.settings = {
-    binde = [
-      ",XF86AudioRaiseVolume,exec,${noc} ipc call volume increase"
-      ",XF86AudioLowerVolume,exec,${noc} ipc call volume decrease"
-      ",XF86MonBrightnessUp,exec,${noc} ipc call brightness increase"
-      ",XF86MonBrightnessDown,exec,${noc} ipc call brightness decrease"
-    ];
-    bindl = [
-      ",XF86AudioMute,exec,${noc} ipc call volume muteOutput"
-      ",XF86AudioMicMute,exec,${noc} ipc call volume muteInput"
-    ];
-    bind = [
-      "SUPER,m,exec,${mic-toggle}/bin/hypr-mic-toggle"
-      "SUPER,escape,exec,noctalia-shell ipc call lockScreen lock"
-    ];
-  };
 }

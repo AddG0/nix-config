@@ -5,13 +5,13 @@
 }:
 stdenvNoCC.mkDerivation {
   pname = "claude-code-skills-collection";
-  version = "unstable-2025-01-08";
+  version = "0-unstable-2026-02-15";
 
   src = fetchFromGitHub {
     owner = "lyndonkl";
     repo = "claude";
-    rev = "8ad8952e280809bdb120330715e6139d07ac91a2";
-    sha256 = "08hsd5ivf68d34p1y25kg91wahzah2lza6y56vximmj92dbs4aj1";
+    rev = "5433aa4ec62dc19736e21c7b95c0aaa50afc4b25";
+    sha256 = "sha256-q1wpccPV2Y+pGwXKQcB3HVdsQWOW6LWnyf5djZ376TU=";
   };
 
   installPhase = ''
@@ -20,6 +20,8 @@ stdenvNoCC.mkDerivation {
     cp -r . $out/share/claude-code/plugins/claude-code-skills-collection/
     runHook postInstall
   '';
+
+  passthru.nixUpdate.version = "branch";
 
   meta = with lib; {
     description = "74 production-ready skills for Claude Code across strategic thinking, product development, research, and specialized domains";

@@ -51,6 +51,8 @@ in
       runHook postInstall
     '';
 
+    passthru.nixUpdate.version = "skip"; # non-standard URL, no GitHub releases
+
     meta = {
       description = "WiFiMan Desktop - Network scanner and speed test by Ubiquiti";
       homepage = "https://ui.com/download/app/wifiman-desktop";

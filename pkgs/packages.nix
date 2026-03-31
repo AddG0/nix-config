@@ -3,6 +3,7 @@
 # Namespaces with multiple packages have their own default.nix for modularity
 pkgs: {
   # Development tools
+  bootdev-cli = pkgs.callPackage ./bootdev-cli {};
   gke-gcloud-auth-plugin = pkgs.callPackage ./gke-gcloud-auth-plugin {};
   openhands = pkgs.callPackage ./openhands {};
   wifiman-desktop = pkgs.callPackage ./wifiman-desktop {};

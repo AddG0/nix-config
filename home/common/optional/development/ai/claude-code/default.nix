@@ -140,21 +140,23 @@ in {
         (addon ./addons/context7)
         (addon ./addons/code-review)
         (addon ./addons/commit-commands)
+        (addon ./addons/architecture)
+        (addon ./addons/documentation)
         (addon ./addons/nix)
         {
           description = "Everyday development";
           skills = {
-            "changelog-generator" = ./skills/changelog-generator;
-            "software-architecture" = "${pkgs.context-engineering-kit}/share/claude-code/plugins/ddd/skills/software-architecture";
             "frontend-design" = "${pkgs.claude-code-plugins}/share/claude-code/plugins/frontend-design/skills/frontend-design";
-            "decision-matrix" = "${skillsCollection}/decision-matrix";
-            "forecast-premortem" = "${skillsCollection}/forecast-premortem";
-            "postmortem" = "${skillsCollection}/postmortem";
           };
 
           commands = {
             "fix-tests" = ./commands/fix-tests.md;
             "explore-codebase" = ./commands/explore-codebase.md;
+          };
+
+          agents = {
+            "graphrag-specialist" = builtins.readFile "${pkgs.claude-code-skills-collection}/share/claude-code/plugins/claude-code-skills-collection/agents/graphrag-specialist.md";
+            "deep-research-agent" = ./agents/deep-research.md;
           };
 
           # TODO: Make this flakes-only but not for nix-shell shebang
@@ -163,23 +165,18 @@ in {
             - Flakes only — no `nix-env`, `nix-channel`, or `nix-shell`
             - Minimal function signatures — only params actually used
           '';
+
+          rules."multi-agent" = ''
+            Multi-agent orchestration:
+            - Batch ALL independent agent spawns in ONE message for parallel execution
+            - Use `run_in_background: true` for all agent Task calls
+            - After spawning agents, STOP — do not poll TaskOutput or check status
+            - Trust agents to return results; review ALL results before proceeding
+            - Batch independent file reads/writes/edits in one message
+            - Batch independent Bash commands in one message
+          '';
         }
       ];
-
-      architect = {
-        description = "Architecture and design";
-        extends = "default";
-        memory.text = "Focus on architecture, design patterns, and system structure.";
-        agents."graphrag-specialist" = builtins.readFile "${pkgs.claude-code-skills-collection}/share/claude-code/plugins/claude-code-skills-collection/agents/graphrag_specialist.md";
-        skills = {
-          "software-architecture" = "${pkgs.context-engineering-kit}/share/claude-code/plugins/ddd/skills/software-architecture";
-          "frontend-design" = "${pkgs.claude-code-plugins}/share/claude-code/plugins/frontend-design/skills/frontend-design";
-          "decision-matrix" = "${skillsCollection}/decision-matrix";
-          "design-of-experiments" = "${skillsCollection}/design-of-experiments";
-          "forecast-premortem" = "${skillsCollection}/forecast-premortem";
-          "role-switch" = "${skillsCollection}/role-switch";
-        };
-      };
 
       grafana = merge [
         (addon ./addons/grafana)
@@ -203,10 +200,6 @@ in {
           description = "Operations and monitoring";
           extends = "default";
           memory.text = "Focus on operations, monitoring, and incidents. Use PromQL for Prometheus and LogQL for Loki.";
-          skills = {
-            "postmortem" = "${skillsCollection}/postmortem";
-            "security-threat-model" = "${skillsCollection}/security-threat-model";
-          };
         }
       ];
 

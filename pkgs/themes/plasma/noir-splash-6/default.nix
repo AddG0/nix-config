@@ -5,7 +5,7 @@
 }:
 stdenvNoCC.mkDerivation rec {
   pname = "noir-splash-6";
-  version = "2025-12-09";
+  version = "0-unstable-2025-12-09";
 
   src = fetchFromGitHub {
     owner = "L4ki";
@@ -25,6 +25,8 @@ stdenvNoCC.mkDerivation rec {
 
     runHook postInstall
   '';
+
+  passthru.nixUpdate.version = "branch";
 
   meta = with lib; {
     description = "Noir Splash Screen for Plasma 6";

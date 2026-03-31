@@ -5,12 +5,12 @@
 }:
 stdenv.mkDerivation rec {
   pname = "squash2";
-  version = "unstable-2024-12-19";
+  version = "0-unstable-2026-01-23";
 
   src = fetchFromGitHub {
     owner = "Shaurya-Kalia";
     repo = "squash2";
-    rev = "main";
+    rev = "2aedc7c5ea9f988631cf8fb79903d2ec7d8dce8b";
     hash = "sha256-lNHWgjDxX2BjB4S9z37JUsR/aUwxS/KhsgJJCsaxa0Y=";
   };
 
@@ -24,6 +24,8 @@ stdenv.mkDerivation rec {
 
     runHook postInstall
   '';
+
+  passthru.nixUpdate.version = "branch";
 
   meta = with lib; {
     description = "An effect to minimise and unminimise windows, modified from the default effect to be more in line with gnome animation schemes";

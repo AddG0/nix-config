@@ -5,19 +5,21 @@
 }:
 stdenv.mkDerivation {
   pname = "catppuccin-nushell";
-  version = "1.0.0";
+  version = "0-unstable-2025-12-24";
 
   src = fetchFromGitHub {
     owner = "catppuccin";
     repo = "nushell";
-    rev = "c0568b4a78f04be24f68c80284755d4635647aa1";
-    sha256 = "sha256-vaGiZHoGkHr1QcshO8abIQL/zIuw3hFcBhDYcKhOpNw=";
+    rev = "815dfc6ea61f2746ff27b54ef425cfeb7b51dda8";
+    sha256 = "sha256-124T2pCmwirl8eLAy3h1fDOQZJf//3KJ7GwIP+u6YQ4=";
   };
 
   installPhase = ''
     mkdir -p $out/share/nu-themes
     cp themes/*.nu $out/share/nu-themes/
   '';
+
+  passthru.nixUpdate.version = "branch";
 
   meta = with lib; {
     description = "Soothing pastel theme for Nushell";

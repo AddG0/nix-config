@@ -5,7 +5,7 @@
 }:
 stdenvNoCC.mkDerivation {
   pname = "claude-code-skill-factory";
-  version = "unstable-2025-02-04";
+  version = "0-unstable-2025-11-12";
 
   src = fetchFromGitHub {
     owner = "alirezarezvani";
@@ -20,6 +20,8 @@ stdenvNoCC.mkDerivation {
     cp -r . $out/share/claude-code/plugins/claude-code-skill-factory/
     runHook postInstall
   '';
+
+  passthru.nixUpdate.version = "branch";
 
   meta = with lib; {
     description = "Toolkit for building Claude Skills, Agents, Commands, and Hooks with interactive builders";

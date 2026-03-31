@@ -15,7 +15,7 @@
 }:
 stdenv.mkDerivation rec {
   pname = "blueprint";
-  version = "unstable";
+  version = "beta-2026-01";
 
   src = fetchFromGitHub {
     owner = "BlueprintFramework";
@@ -68,11 +68,7 @@ stdenv.mkDerivation rec {
       chmod +x $out/bin/blueprint
   '';
 
-  passthru = {
-    updateScript = {
-      command = "nix-update blueprint --version=unstable";
-    };
-  };
+  passthru.nixUpdate.version = "unstable";
 
   meta = with lib; {
     description = "A framework for Pterodactyl panel extensions";

@@ -5,13 +5,13 @@
 }:
 stdenvNoCC.mkDerivation {
   pname = "anthropic-skills";
-  version = "unstable-2025-02-04";
+  version = "0-unstable-2026-03-25";
 
   src = fetchFromGitHub {
     owner = "anthropics";
     repo = "skills";
-    rev = "a5bcdd7e58cdff48566bf876f0a72a2008dcefbc";
-    sha256 = "1kfbppbw7g3xpmlmf9n991nps4rwli3a81a2vz1bdg3mdwn0vl7j";
+    rev = "98669c11ca63e9c81c11501e1437e5c47b556621";
+    sha256 = "sha256-w//9LB1OVG9jlllY+VDse7Js0dn5x6Ys2vPuQACKsTM=";
   };
 
   installPhase = ''
@@ -20,6 +20,8 @@ stdenvNoCC.mkDerivation {
     cp -r . $out/share/claude-code/plugins/anthropic-skills/
     runHook postInstall
   '';
+
+  passthru.nixUpdate.version = "branch";
 
   meta = with lib; {
     description = "Official Anthropic skills including skill-creator, mcp-builder, web-artifacts-builder, and more";

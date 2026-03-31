@@ -28,6 +28,8 @@ in
         --set PYTHONPATH ${pythonEnv}/${python3.sitePackages}
     '';
 
+    passthru.nixUpdate.version = "skip";
+
     meta = with lib; {
       description = "Continuous BLE device scanner with live table display";
       license = licenses.mit;
