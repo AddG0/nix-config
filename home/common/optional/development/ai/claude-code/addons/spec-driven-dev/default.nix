@@ -8,11 +8,12 @@
 #   04-quality        — review, validation, acceptance testing, mutation testing
 #   05-bugs           — structured bug reporting & fixing
 {pkgs, ...}: let
-  mkHook = name: inputs: pkgs.writeShellApplication {
-    inherit name;
-    runtimeInputs = [pkgs.jq pkgs.coreutils] ++ inputs;
-    text = builtins.readFile ./hooks/${name}.sh;
-  };
+  mkHook = name: inputs:
+    pkgs.writeShellApplication {
+      inherit name;
+      runtimeInputs = [pkgs.jq pkgs.coreutils] ++ inputs;
+      text = builtins.readFile ./hooks/${name}.sh;
+    };
 
   specAwarenessHook = mkHook "spec-awareness" [pkgs.gnugrep pkgs.gnused];
   protectSteeringHook = mkHook "protect-steering" [];
@@ -22,7 +23,9 @@
   specChangelogHook = mkHook "spec-changelog" [];
 in {
   agents = {
-    # 02-spec: validation agents (read-only, opus)
+    # 02-spec: architecture + validation agents
+    "system-architect" = ./02-spec/agents/system-architect.md;
+    "adr-architect" = ./02-spec/agents/adr-architect.md;
     "spec-requirements-validator" = ./02-spec/agents/spec-requirements-validator.md;
     "spec-design-validator" = ./02-spec/agents/spec-design-validator.md;
     "spec-task-validator" = ./02-spec/agents/spec-task-validator.md;
@@ -50,6 +53,8 @@ in {
     # 02-spec
     "spec-create" = ./02-spec/skills/spec-create;
     "spec-status" = ./02-spec/skills/spec-status;
+    "architecture-standards" = ./02-spec/skills/architecture-standards;
+    "adr" = ./02-spec/skills/adr;
 
     # 03-implementation
     "tdd-cycle" = ./03-implementation/skills/tdd-cycle;
@@ -66,7 +71,28 @@ in {
   rules = {
     "spec-driven" = builtins.readFile ./rules.md;
     "quality-standards" = builtins.readFile ./04-quality/rules/quality-standards.md;
+    "architecture" = ''
+      Architecture conventions:
+      - Document significant decisions as ADRs in .claude/specs/decisions/ (MADR 3.0 format)
+      - Use Mermaid for inline diagrams, C4 model for system-level views
+      - Always document trade-offs — what was chosen AND what was rejected and why
+      - Respect existing ADRs — flag contradictions, create new ADR if overriding
+    '';
   };
+
+  settings.permissions.allow = [
+    "Write(.claude/specs:*)"
+    "Edit(.claude/specs:*)"
+    "Write(.claude/steering:*)"
+    "Edit(.claude/steering:*)"
+    "Write(.claude/specs/**)"
+    "Edit(.claude/specs/**)"
+    "Write(.claude/steering/**)"
+    "Edit(.claude/steering/**)"
+    "Bash(git checkout:*)"
+    "Bash(git merge:*)"
+    "Bash(git branch:*)"
+  ];
 
   settings.companyAnnouncements = let
     lines = [
@@ -76,9 +102,10 @@ in {
       "  /spec-steering-setup       Set up project context (one-time)"
       "  /interview [topic]         Gather requirements interactively"
       "  /spec-create <feature>     Requirements → Design → Tasks with validation"
-      "  /spec-execute <feat> <N>   Execute a task (isolated worktree)"
+      "  /spec-execute <feat> [N]   Execute task in worktree (auto-continues, --no-worktree to skip)"
       "  /spec-status [feature]     Check progress"
       "  /tdd-cycle <feature>       RED → GREEN → BLUE TDD cycle"
+      "  /adr <decision-title>      Create an Architecture Decision Record"
       "  /spec-mutate <feat> [N]    Mutation testing (optional)"
       "  /bug-create <description>  Structured bug report"
       "  /bug-fix <slug>            Fix + regression test + validate"

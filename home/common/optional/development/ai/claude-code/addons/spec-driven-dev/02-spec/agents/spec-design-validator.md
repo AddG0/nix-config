@@ -3,6 +3,7 @@ name: spec-design-validator
 description: "Validates design documents for feasibility, completeness, and alignment with requirements. Use when a design.md has been created or updated. Never modifies files."
 tools: Read, Glob, Grep
 disallowedTools: Write, Edit, Bash
+skills: ["architecture-standards"]
 model: opus
 effort: high
 maxTurns: 20

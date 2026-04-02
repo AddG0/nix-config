@@ -2,10 +2,10 @@
 name: spec-task-executor
 description: "Executes exactly one task from a spec, verifies acceptance criteria, and marks it complete. Use when implementing individual tasks from a feature specification. Stops after one task."
 tools: Read, Glob, Grep, Bash, Edit, Write
+skills: ["architecture-standards"]
 model: sonnet
 effort: high
 maxTurns: 50
-isolation: worktree
 ---
 
 # Spec Task Executor
@@ -39,11 +39,7 @@ You execute exactly ONE task from a specification. When that task is complete an
 5. **Mark complete**
    - Edit `tasks.md` to change the task-level checkbox from `- [ ] ### Task N` to `- [x] ### Task N`
 
-6. **Commit changes**
-   - This agent runs in an isolated worktree. Commit all changes (code + tasks.md update) so they persist when the worktree branch is merged back.
-   - Use a descriptive commit message: `feat({feature}): complete task {N} — {title}`
-
-7. **STOP**
+6. **STOP**
    - Do NOT proceed to the next task
    - Do NOT start additional work
    - Report your results and stop

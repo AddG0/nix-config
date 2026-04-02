@@ -66,11 +66,17 @@
   #   opencode: { type = "local"; command = ["bin" "a"]; environment = { K = "V"; }; }
   adaptMcp = lib.mapAttrs (
     _: server:
-      {
-        type = "local";
-        command = [server.command] ++ (server.args or []);
+      if (server.type or "") == "http"
+      then {
+        type = "remote";
+        inherit (server) url;
       }
-      // lib.optionalAttrs (server ? env) {environment = server.env;}
+      else
+        {
+          type = "local";
+          command = [server.command] ++ (server.args or []);
+        }
+        // lib.optionalAttrs (server ? env) {environment = server.env;}
   );
 
   rulesTexts = lib.mapAttrsToList (

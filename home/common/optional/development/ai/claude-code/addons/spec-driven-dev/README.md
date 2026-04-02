@@ -14,8 +14,8 @@ A structured development workflow for Claude Code that enforces specs before cod
 /spec-create <feature>         Requirements → Design → Tasks (with validation gates)
         │                      Runs in forked context to keep main session clean
         ▼
-/spec-execute <feature> <N>    Execute tasks one at a time (in isolated worktree)
-        │                      Validates completion after each task
+/spec-execute <feature> [N]    Execute tasks (auto-continues, validates each)
+        │                      Say "keep going" to run all remaining
         ▼
 /spec-status [feature]         Check progress at any point
         │
@@ -86,12 +86,25 @@ Context isolation is enforced by running each agent as a separate subagent — t
 
 `/spec-execute <feature> <N>` runs a single task from a spec:
 
-1. Loads steering + spec context
-2. Validates the task is ready (deps met, not already done)
-3. Delegates to `spec-task-executor` agent (sonnet, `effort: high`, **`isolation: worktree`** — failed tasks leave the main branch clean)
-4. Merges the worktree branch back into the current branch
-5. Validates completion via `task-completion-validator` agent (opus, `effort: max`)
-6. Reports results and suggests the next task
+1. Ensures we're on the `feature/{name}` branch (creates it if needed)
+2. Finds the next incomplete task (or uses the specified task number)
+3. Creates a **worktree** branched from the feature branch (each task gets its own branch)
+4. Delegates to `spec-task-executor` agent (sonnet, `effort: high`) — runs in the worktree
+5. Validates via `task-completion-validator` agent (opus, `effort: max`) — runs in the **same** worktree
+6. On PASS: exits worktree, merges task branch back into feature branch
+7. On FAIL: exits worktree, feature branch is untouched — retry the task
+8. Offers to **auto-continue** to the next task ("keep going" runs all remaining)
+
+**Git branch structure:**
+```
+main
+  └── feature/my-feature              ← created by /spec-create
+        ├── worktree-my-feature-task-1  ← merged back on PASS
+        ├── worktree-my-feature-task-2  ← merged back on PASS
+        └── ...                         ← PR: feature/my-feature → main
+```
+
+Pass `--no-worktree` to skip worktree isolation and work directly on the feature branch.
 
 ### 04-quality — Review & Validation
 
@@ -155,7 +168,7 @@ All agents use calibrated frontmatter:
 | `tdd-test-writer` | sonnet | — | 30 | — | Cannot read implementation files |
 | `tdd-implementer` | sonnet | — | 40 | — | Cannot modify test files |
 | `tdd-refactorer` | opus | high | 25 | — | — |
-| `spec-task-executor` | sonnet | high | 50 | **worktree** | Failed tasks leave main branch clean |
+| `spec-task-executor` | sonnet | high | 50 | — | Executes one task in worktree, marks complete, stops |
 | `task-completion-validator` | opus | **max** | 30 | — | `disallowedTools: Write, Edit` |
 | `spec-reviewer` | opus | high | 30 | — | `memory: project` (read-only via `tools` allowlist) |
 | `silent-failure-hunter` | sonnet | — | 25 | — | `disallowedTools: Write, Edit` |
@@ -211,7 +224,9 @@ spec-driven-dev/
 
 **`context: fork` on bug-create** — Bug investigation runs in an isolated subagent context to keep the main conversation clean. `spec-create` runs inline because it needs to spawn validator agents (subagents can't spawn sub-subagents).
 
-**`isolation: worktree` on spec-task-executor** — Task execution happens in a temporary git worktree. If validation fails, the worktree is discarded — no dirty main branch. If it passes, changes merge back.
+**Feature branch + worktree-per-task** — `/spec-create` creates `feature/{name}` branch. Each `/spec-execute` task runs in a worktree branched from the feature branch. Passed tasks merge back; failed tasks are discarded. The result is a clean feature branch with one merge per task, ready for PR.
+
+**Auto-continue** — After each task, spec-execute offers to continue. "Keep going" runs all remaining tasks without waiting.
 
 **Platform-enforced read-only validators** — `disallowedTools: Write, Edit, Bash` on validators ensures they physically cannot modify files, regardless of prompt instructions.
 

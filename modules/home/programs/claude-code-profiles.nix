@@ -152,6 +152,18 @@
       default = [];
       description = "Plugin directories to load via --plugin-dir.";
     };
+
+    extraFiles = lib.mkOption {
+      type = lib.types.attrsOf lib.types.attrs;
+      default = {};
+      example = lib.literalExpression ''
+        {
+          "plugins/claude-hud/config.json".source = jsonFormat.generate "hud.json" { ... };
+          "some-file.txt".text = "hello";
+        }
+      '';
+      description = "Extra files to place in the profile directory. Keys are relative paths, values are home.file-compatible attrsets ({ source = ...; } or { text = ...; }).";
+    };
   };
 
   # Profile submodule with computed profileDir and extends
@@ -203,6 +215,7 @@
     rules = (base.rules or {}) // (overlay.rules or {});
     outputStyles = (base.outputStyles or {}) // (overlay.outputStyles or {});
     pluginDirs = (base.pluginDirs or []) ++ (overlay.pluginDirs or []);
+    extraFiles = (base.extraFiles or {}) // (overlay.extraFiles or {});
   };
 
   # Resolve profile extension chain (supports single string or list)
@@ -300,7 +313,12 @@
       styleName: content:
         lib.nameValuePair "${profileDir}/output-styles/${styleName}.md" (mkFileEntry content)
     )
-    finalConfig.outputStyles;
+    finalConfig.outputStyles
+    // lib.mapAttrs' (
+      relPath: attrs:
+        lib.nameValuePair "${profileDir}/${relPath}" attrs
+    )
+    finalConfig.extraFiles;
 
   # Zsh completion package (installed to ~/.nix-profile/share/zsh/site-functions)
   zshCompletion = pkgs.runCommand "claude-zsh-completion" {} ''

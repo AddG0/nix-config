@@ -54,14 +54,25 @@ Launch `spec-requirements-validator` agent to review the document.
 
 ## Phase 2: Design
 
+### Architectural Design
+
+Launch the `system-architect` agent to design the technical approach:
+- Provide the approved requirements document
+- The architect explores the codebase, identifies component boundaries, data flow, and integration points
+- If a significant architectural decision is involved, the architect creates an ADR at `.claude/specs/decisions/ADR-NNN-title.md`
+
 ### Write `.claude/specs/{feature-name}/design.md`
 
-Read the template at `${CLAUDE_SKILL_DIR}/templates/design.md.template` and fill it in.
+Read the template at `${CLAUDE_SKILL_DIR}/templates/design.md.template` and incorporate the architect's output:
+- Component boundaries and responsibilities
+- Data models and interfaces
+- Integration points and cross-service impact
+- Reference any ADRs created: "See ADR-NNN for rationale"
 
 ### Validation Gate 2
 
 Launch `spec-design-validator` with both `requirements.md` and `design.md`.
-Same gate logic as Phase 1.
+Same gate logic as Phase 1. The validator has `architecture-standards` preloaded and checks for architectural compliance.
 
 ## Phase 3: Tasks
 
@@ -83,15 +94,28 @@ Task atomicity rules:
 Launch `spec-task-validator` with all three documents.
 Same gate logic.
 
+## Create Feature Branch
+
+After all three documents are written and validated, create a feature branch for implementation:
+
+```bash
+git checkout -b feature/{feature-name}
+```
+
+This branch will be the base for all task worktrees. Each `/spec-execute` task branches from it, merges back into it, and the final result is a single feature branch ready for PR.
+
+If a branch `feature/{feature-name}` already exists (e.g., resuming work), switch to it instead of creating a new one.
+
 ## Completion
 
 ```markdown
 ## Spec Created: {feature-name}
 
 **Location**: `.claude/specs/{feature-name}/`
+**Branch**: `feature/{feature-name}`
 **Documents**: requirements.md, design.md, tasks.md
 **Tasks**: {count} tasks ready for execution
 **Validation**: All gates passed
 
-**Next step**: Run `/spec-execute {feature-name} 1` to begin implementation.
+**Next step**: Run `/spec-execute {feature-name}` to begin implementation.
 ```

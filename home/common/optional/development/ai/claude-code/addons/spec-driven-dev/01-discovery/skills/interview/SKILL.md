@@ -1,81 +1,101 @@
 ---
 name: interview
-description: "Interviews the user about a feature to produce a structured spec. Covers technical implementation, edge cases, security, and tradeoffs."
+description: "Explores the codebase autonomously, then interviews the user about decisions only humans can make. Produces a structured spec covering problem, scope, tradeoffs, and edge cases."
 argument-hint: "[topic or feature name]"
 ---
 
 # Feature Interview
 
-Conduct a structured interview with the user to produce a feature specification.
+Research first, then ask only what you can't find yourself.
 
-## When to Trigger
+## Phase 0: Autonomous Research (before asking any questions)
 
-Activate when the user asks to: "interview me about", "help me think through", "let's discuss", "brainstorm", or when a feature request is too vague to spec directly.
+Before asking the user a single question, gather as much context as you can:
 
-## Interview Process
+1. **Explore the codebase** — Use Glob, Grep, and Read to understand:
+   - Project structure (directory layout, key entry points)
+   - Tech stack (languages, frameworks, test runners, build tools — from config files)
+   - Existing patterns in the area the feature will touch
+   - Related code, prior art, similar features already implemented
+   - Database schemas, API routes, service boundaries
+   - Test patterns and conventions
 
-### Round 1: Core Understanding (3-5 questions)
+2. **Read project context** if it exists:
+   - `.claude/steering/product.md`, `tech.md`, `structure.md`
+   - `README.md`, `CLAUDE.md`
+   - Recent git history in the affected area: `git log --oneline -20 -- {relevant paths}`
 
-Ask one question at a time. Wait for each answer before the next.
+3. **Build a mental model** of:
+   - What already exists that this feature could reuse or extend
+   - What technical constraints the codebase imposes
+   - What patterns the implementation should follow
+   - What integration points exist
 
-Focus on:
-1. **The problem**: What are you trying to solve? For whom?
-2. **Success criteria**: How will you know this works correctly?
-3. **Scope**: What is explicitly NOT part of this?
-4. **Existing context**: Is there existing code, prior art, or constraints to know about?
+**Present a brief summary of what you found** before starting questions. This shows the user you've done your homework and lets them correct any misunderstandings early.
 
-Adapt based on answers — skip questions the user already addressed.
+## Phase 1: Human-Only Questions (3-5 questions)
 
-### Round 2: Technical Depth (3-5 questions)
+Now ask ONLY questions that require human judgment — things you cannot determine from the code:
 
-Based on Round 1, ask about:
-1. **Data**: What data does this create, read, update, or delete? What's the schema?
-2. **Integration**: What existing systems or components does this touch?
-3. **State**: What states can this be in? What transitions are valid?
-4. **API surface**: What does the public interface look like?
+1. **The problem**: What are you trying to solve? For whom? Why now?
+2. **Success criteria**: How will you know this works? What's the business outcome?
+3. **Scope**: What is explicitly NOT part of this? What can wait for v2?
+4. **Priorities**: If you had to choose between {X} and {Y}, which matters more?
 
-Skip questions that aren't relevant to the specific feature.
+**Do NOT ask about:**
+- Tech stack, test framework, build commands (you already know)
+- Directory structure, file naming conventions (you already know)
+- Existing patterns, schemas, API routes (you already know)
+- How existing features work (you already know)
 
-### Round 3: Edge Cases and Risks (3-5 questions)
+One question at a time. Wait for each answer. Skip questions the user already addressed in their initial description.
 
-1. **Failure modes**: What happens when things go wrong? (network failure, invalid input, concurrent access, partial failure)
-2. **Security**: Who should NOT be able to do this? What data is sensitive? What needs authorization?
-3. **Scale**: Expected load? Data volume? Latency requirements?
-4. **Migration**: Is there existing data or behavior to migrate from?
+## Phase 2: Targeted Depth (2-4 questions)
 
-### Round 4: Tradeoffs (2-3 questions)
+Based on Phase 0 research + Phase 1 answers, ask about gaps only a human can fill:
 
-1. **Priorities**: If you had to choose between {X} and {Y}, which matters more?
-2. **MVP scope**: What could be cut from v1 to ship faster?
-3. **Evolution**: How might this need to change in the future?
+1. **Business rules**: Are there domain-specific rules or edge cases that aren't in the code?
+2. **User expectations**: What should the user experience be? Any UX requirements?
+3. **Security/authorization**: Who should NOT have access? Any compliance requirements?
+4. **External dependencies**: Are there third-party services, APIs, or teams involved?
+
+Skip anything you can infer from the codebase.
+
+## Phase 3: Tradeoffs (1-3 questions)
+
+1. **MVP scope**: What could be cut to ship faster?
+2. **Evolution**: How might this need to change in 6 months?
+3. **Risk tolerance**: Any areas where we should be extra careful vs. move fast?
 
 ## Adaptive Behavior
 
 - If the user gives comprehensive answers, skip redundant questions
-- If the user says "I don't know" or "whatever you think", note it as an open question rather than pressing
-- If security or data concerns emerge, dig deeper — don't let those be vague
-- Track coverage mentally: Problem, Users, Data, Integration, Errors, Security, Scale, Tradeoffs
-- End the interview when all relevant areas are covered
+- If the user says "I don't know" or "whatever you think", note it as an open question and move on
+- If security or data concerns emerge, dig deeper
+- Total questions across all phases should typically be **5-10**, not 15+
+- End the interview when coverage is sufficient
 
 ## Output
 
-After the interview, synthesize into a structured document:
+Synthesize everything (your research + user answers) into a structured document:
 
 ```markdown
 # {Feature Name} — Interview Summary
 
 ## Problem
-{Synthesized from Round 1}
+{What this solves and for whom}
 
 ## Users & Actors
 {Who uses this and how}
 
+## Codebase Context
+{What you found during autonomous research — existing patterns, related code, integration points, tech constraints}
+
 ## Requirements
-{Extracted from all rounds, using EARS format where applicable}
+{Extracted from all phases, using EARS format where applicable}
 
 ### Must Have
 1. {requirement}
-2. {requirement}
 
 ### Should Have
 1. {requirement}
@@ -83,20 +103,20 @@ After the interview, synthesize into a structured document:
 ### Won't Have (v1)
 1. {explicit non-goal}
 
-## Technical Notes
-{Key technical decisions and constraints from Round 2}
+## Technical Approach (preliminary)
+{Based on codebase research — existing patterns to follow, components to extend, suggested architecture}
 
 ## Edge Cases & Error Handling
-{From Round 3}
+{From research + user input}
 
 ## Security Considerations
-{From Round 3}
+{From research + user input}
 
 ## Tradeoffs & Decisions
-{From Round 4}
+{From Phase 3}
 
 ## Open Questions
-{Anything the user wasn't sure about}
+{Anything unresolved}
 
 ## Recommended Next Step
 Run `/spec-create {feature-name}` to formalize this into a full specification with validation.
@@ -104,8 +124,9 @@ Run `/spec-create {feature-name}` to formalize this into a full specification wi
 
 ## Rules
 
-- One question at a time — ask directly, wait for the answer
-- Maximum 5 questions per round, but often fewer is better
-- Never ask questions the user already answered
+- Research FIRST, ask SECOND — never ask what you can find yourself
+- One question at a time — wait for the answer
+- Maximum 10 questions total across all phases
+- Present your research summary before the first question
+- Never ask about implementation details you can read from the code
 - Always end with the synthesized summary
-- Recommend spec-create as the next step

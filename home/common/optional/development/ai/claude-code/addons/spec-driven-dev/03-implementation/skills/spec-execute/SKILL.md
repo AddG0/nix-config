@@ -1,16 +1,16 @@
 ---
 name: spec-execute
-description: "Executes a specific task from a spec in an isolated worktree, merges changes back, then validates completion. Use when ready to implement a spec task."
+description: "Executes tasks from a spec using worktree isolation per task. Each task gets its own branch, merged back to the feature branch on success. Auto-continues on request."
 disable-model-invocation: true
-allowed-tools: [Read, Glob, Grep, Bash, Edit, Write, Agent]
-argument-hint: "<feature-name> <task-number>"
+allowed-tools: [Read, Glob, Grep, Bash, Edit, Write, Agent, EnterWorktree, ExitWorktree]
+argument-hint: "<feature-name> [task-number] [--no-worktree]"
 ---
 
 # Execute Spec Task
 
 **Arguments:** $ARGUMENTS
 
-Parse arguments to extract `feature-name` and `task-number`.
+Parse arguments to extract `feature-name`, optional `task-number`, and optional `--no-worktree` flag.
 
 ## Step 1: Load Context
 
@@ -22,61 +22,79 @@ Read these files (skip any that don't exist):
 - `.claude/specs/{feature-name}/design.md`
 - `.claude/specs/{feature-name}/tasks.md`
 
-If `.claude/specs/{feature-name}/` doesn't exist, list available specs and stop:
-```
-Error: No spec found for "{feature-name}".
-Available specs: {list from .claude/specs/}
-```
+If `.claude/specs/{feature-name}/` doesn't exist, list available specs and stop.
 
-## Step 2: Validate Task
+## Step 2: Ensure Feature Branch
 
-Parse `tasks.md` to find Task {task-number}. Task-level items use the format `- [ ] ### Task N: Title`.
-- If the task doesn't exist, list available tasks and stop
-- If the task is already `[x]`, report it's complete and suggest the next incomplete task
-- If dependency tasks are not `[x]`, report which must be completed first and stop
+Check the current branch:
+- If already on `feature/{feature-name}`, proceed
+- If `feature/{feature-name}` exists but we're not on it, switch to it: `git checkout feature/{feature-name}`
+- If it doesn't exist, create it: `git checkout -b feature/{feature-name}`
 
-## Step 3: Execute
+All task work happens on the feature branch (or in worktrees branched from it).
 
-Launch a `spec-task-executor` agent:
+## Step 3: Identify Task
+
+If a task number was given, find that task. Otherwise find the **next incomplete task** — the first `- [ ] ### Task N` whose dependencies are all `[x]`.
+
+Task-level items use the format `- [ ] ### Task N: Title`.
+- If no incomplete tasks remain, report "All tasks complete" and suggest creating a PR from the feature branch
+- If the identified task has unmet dependencies, report which must be completed first and stop
+
+## Step 4: Enter Worktree (default)
+
+Unless `--no-worktree` was passed:
+1. Use `EnterWorktree` with name `{feature-name}-task-{N}`
+2. This creates a worktree branched from HEAD (the feature branch), so it has all previous tasks' changes
+3. Both the executor and validator will run in this worktree
+
+If `--no-worktree` was passed, work directly on the feature branch.
+
+## Step 5: Execute
+
+Launch a `spec-task-executor` agent (foreground):
 - Provide all loaded context
 - Specify the exact task to execute
-- Include the project root path
+- Include the current working directory
 
-The executor runs in an **isolated worktree** (`isolation: worktree`). It commits all changes (code + tasks.md update) in the worktree branch.
+Wait for it to complete before proceeding.
 
-## Step 4: Merge Worktree Changes
+## Step 6: Validate Completion
 
-After the executor completes, merge its worktree branch back into the current branch:
-
-1. The agent result includes the worktree branch name
-2. Merge the branch: `git merge <worktree-branch> --no-edit`
-3. If merge conflicts occur on `tasks.md`, accept the worktree version (it has the updated checkbox)
-4. Verify `tasks.md` shows the task as `[x]`
-
-If the executor failed or produced no changes, skip the merge.
-
-## Step 5: Validate Completion
-
-After merging, launch a `task-completion-validator` agent:
-- Provide the list of files created/modified
+Launch a `task-completion-validator` agent (foreground):
+- Provide the list of files created/modified by the executor
 - Provide the task's acceptance criteria
 
-## Step 6: Report
+The validator runs in the **same directory** as the executor (worktree or feature branch), so it sees all changes.
+
+## Step 7: Exit Worktree and Merge (if applicable)
+
+If a worktree was entered in Step 4:
+- If validator **PASSED**:
+  1. `ExitWorktree` to return to the feature branch
+  2. Merge the task branch: `git merge worktree-{feature-name}-task-{N} --no-edit`
+  3. The feature branch now has this task's changes
+- If validator **FAILED**:
+  1. `ExitWorktree` to return to the feature branch
+  2. Report what failed — the feature branch is untouched
+  3. The user can retry the task
+
+## Step 8: Report and Continue
 
 ```markdown
-## Task Execution: {feature-name} / Task {number}
+## Task {N}: {title}
 
-**Task**: {title}
-**Status**: {Complete | Failed | Blocked}
-**Files Modified**: {list}
+**Status**: {Complete | Failed}
+**Branch**: `worktree-{feature-name}-task-{N}` → merged to `feature/{feature-name}`
+**Files**: {list}
 
-### Execution
-{Summary of what was implemented}
-
-### Validation
-**Verdict**: {PASS | FAIL}
-{Violation details if FAIL}
-
-### Next Task
-{Next incomplete task, or "All tasks complete — run spec-reviewer to verify the full feature"}
+### Validation: {PASS | FAIL}
+{Details}
 ```
+
+### Auto-Continue
+
+After reporting, check for more incomplete tasks:
+- If **yes**: "Continue to Task {N+1}? (say 'keep going' to run all remaining)"
+- If **"keep going"**: proceed through remaining tasks without waiting
+- If **no more tasks**: "All tasks complete on `feature/{feature-name}`. Ready for PR."

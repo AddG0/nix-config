@@ -92,7 +92,10 @@
   security.firewall.enable = true;
 
   # Allowed for Nitrox server
-  networking.firewall.allowedUDPPorts = [11000];
+  networking.firewall = {
+    allowedTCPPorts = [8811 50051];
+    allowedUDPPorts = [11000];
+  };
 
   services.obsbot-camera = {
     enable = true;

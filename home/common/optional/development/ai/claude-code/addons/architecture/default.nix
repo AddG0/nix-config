@@ -3,8 +3,9 @@
   skillsCollection = "${pkgs.claude-code-skills-collection}/share/claude-code/plugins/claude-code-skills-collection/skills";
 in {
   agents = {
-    "adr-architect" = ./agents/adr-architect.md;
-    "system-architect" = ./agents/system-architect.md;
+    # adr-architect and system-architect moved to spec-driven-dev addon
+    # "adr-architect" = ./agents/adr-architect.md;
+    # "system-architect" = ./agents/system-architect.md;
     "ddd-expert" = ./agents/ddd-expert.md;
   };
 

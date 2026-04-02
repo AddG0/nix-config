@@ -74,57 +74,9 @@ in {
   programs.git.ignores = [
     ".playwright-mcp"
     ".claude/settings.local.json"
+    ".claude/worktrees"
     "CLAUDE.local.md"
   ];
-
-  # Claude HUD config — "Full" preset, expanded layout, no setup needed
-  home.file.".claude/plugins/claude-hud/config.json".source = jsonFormat.generate "claude-hud-config.json" {
-    lineLayout = "expanded";
-    showSeparators = false;
-    pathLevels = 1;
-    gitStatus = {
-      enabled = true;
-      showDirty = true;
-      showAheadBehind = true;
-      showFileStats = false;
-    };
-    display = {
-      showModel = true;
-      showProject = true;
-      showContextBar = true;
-      contextValue = "both";
-      showConfigCounts = true;
-      showDuration = true;
-      showSpeed = false;
-      showTokenBreakdown = true;
-      showUsage = true;
-      usageBarEnabled = true;
-      showTools = true;
-      showAgents = true;
-      showTodos = true;
-      showSessionName = true;
-      showClaudeCodeVersion = false;
-      showMemoryUsage = false;
-      autocompactBuffer = "enabled";
-      usageThreshold = 0;
-      sevenDayThreshold = 80;
-      environmentThreshold = 0;
-      customLine = "";
-    };
-    colors = {
-      context = "green";
-      usage = "brightBlue";
-      warning = "yellow";
-      usageWarning = "brightMagenta";
-      critical = "red";
-      model = "cyan";
-      project = "yellow";
-      git = "magenta";
-      gitBranch = "cyan";
-      label = "dim";
-      custom = 208;
-    };
-  };
 
   programs.claude-code-profiles = {
     enable = true;
@@ -167,6 +119,55 @@ in {
         Proactively invoke available skills when relevant.
         Prefer `-C`/path args over `cd &&` (e.g. `git -C /path status`, `nix develop /path`).
       '';
+
+      # Claude HUD config — "Full" preset, expanded layout
+      extraFiles."plugins/claude-hud/config.json".source = jsonFormat.generate "claude-hud-config.json" {
+        lineLayout = "expanded";
+        showSeparators = false;
+        pathLevels = 1;
+        gitStatus = {
+          enabled = true;
+          showDirty = true;
+          showAheadBehind = true;
+          showFileStats = false;
+        };
+        display = {
+          showModel = true;
+          showProject = true;
+          showContextBar = true;
+          contextValue = "both";
+          showConfigCounts = true;
+          showDuration = true;
+          showSpeed = false;
+          showTokenBreakdown = true;
+          showUsage = true;
+          usageBarEnabled = true;
+          showTools = true;
+          showAgents = true;
+          showTodos = true;
+          showSessionName = true;
+          showClaudeCodeVersion = false;
+          showMemoryUsage = false;
+          autocompactBuffer = "enabled";
+          usageThreshold = 0;
+          sevenDayThreshold = 80;
+          environmentThreshold = 0;
+          customLine = "${config.hostSpec.hostName}";
+        };
+        colors = {
+          context = "green";
+          usage = "brightBlue";
+          warning = "yellow";
+          usageWarning = "brightMagenta";
+          critical = "red";
+          model = "cyan";
+          project = "yellow";
+          git = "magenta";
+          gitBranch = "cyan";
+          label = "dim";
+          custom = 208;
+        };
+      };
 
       settings = {
         env = {

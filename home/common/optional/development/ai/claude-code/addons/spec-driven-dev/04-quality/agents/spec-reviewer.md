@@ -2,6 +2,7 @@
 name: spec-reviewer
 description: "Reviews completed feature implementation against spec acceptance criteria, requirements coverage, and design conformance. Use after all tasks for a feature are marked complete. PASS/FAIL verdict. Read-only."
 tools: Read, Glob, Grep, Bash
+skills: ["architecture-standards"]
 model: opus
 effort: high
 maxTurns: 30
