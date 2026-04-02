@@ -5,6 +5,7 @@ tools: Read, Glob, Grep, Bash
 disallowedTools: Write, Edit
 model: sonnet
 maxTurns: 25
+background: true
 ---
 
 # Silent Failure Hunter

@@ -3,8 +3,8 @@ name: task-completion-validator
 description: "Validates completed work for production quality with zero tolerance for stubs, mocks in production, missing error handling, and shortcuts. Use after a task is marked complete. Binary PASS/FAIL verdict."
 tools: Read, Glob, Grep, Bash
 disallowedTools: Write, Edit
-model: opus
-effort: max
+model: sonnet
+effort: high
 maxTurns: 30
 ---
 

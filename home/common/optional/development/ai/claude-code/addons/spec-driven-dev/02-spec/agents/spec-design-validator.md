@@ -4,7 +4,7 @@ description: "Validates design documents for feasibility, completeness, and alig
 tools: Read, Glob, Grep
 disallowedTools: Write, Edit, Bash
 skills: ["architecture-standards"]
-model: opus
+model: sonnet
 effort: high
 maxTurns: 20
 ---

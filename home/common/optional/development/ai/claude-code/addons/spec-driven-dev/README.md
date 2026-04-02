@@ -60,7 +60,7 @@ Produces a synthesized summary and recommends `/spec-create` as the next step.
 | Design | `design.md` | `spec-design-validator` | Same |
 | Tasks | `tasks.md` | `spec-task-validator` | Same |
 
-Each validator is **platform-enforced read-only** (opus, `effort: high`, `disallowedTools: Write, Edit, Bash`) and scores on weighted criteria (0-100). Human approval is required between each phase.
+Each validator is **platform-enforced read-only** (sonnet, `effort: high`, `disallowedTools: Write, Edit, Bash`) and scores on weighted criteria (0-100). Human approval is required between each phase.
 
 Templates are flexible — irrelevant sections are omitted, not left empty.
 
@@ -131,16 +131,26 @@ All quality agents except `acceptance-tester` are **read-only** (restricted via 
 
 ## Hooks
 
-Six hooks are configured automatically:
+Six hook scripts configured across five lifecycle events:
 
 | Hook | Event | Behavior |
 |------|-------|----------|
 | `session-start.sh` | `SessionStart` | Loads steering context summary and active spec status once at session start. |
-| `spec-awareness.sh` | `UserPromptSubmit` | Injects active spec status into every prompt. Suggests `/spec-create` when feature implementation is requested without a spec. |
-| `protect-steering.sh` | `PreToolUse` (Edit/Write) | Advisory prompt when editing `.claude/steering/` files. |
-| `protect-specs.sh` | `PreToolUse` (Edit/Write) | Advisory prompt when editing `requirements.md` or `design.md` during implementation. Prevents spec drift. `tasks.md` is allowed for marking completion. |
-| `spec-changelog.sh` | `PostToolUse` (Edit/Write) | Tracks changes to spec documents by appending timestamped entries to `changelog.md` within the spec directory. Runs async. |
-| `post-compact.sh` | `SessionStart` (matcher: `compact`) | Re-injects active spec context and current task details after auto-compaction. Prevents spec drift in long sessions. |
+| `post-compact.sh` | `SessionStart` (matcher: `compact`) | Re-injects active spec context after auto-compaction. Prevents spec drift in long sessions. |
+| `spec-awareness.sh` | `UserPromptSubmit` | Injects active spec status into every prompt. Suggests `/spec-create` when feature implementation is requested without a spec. 10s timeout. |
+| `protect-specs.sh` | `PreToolUse` (Edit/Write) | Protects steering docs (always) and spec requirements/design (only once implementation has started — at least one task `[x]`). Advisory `"ask"`, not blocking. |
+| `spec-changelog.sh` | `PostToolUse` (Edit/Write) | Tracks changes to spec documents by appending timestamped entries to `changelog.md`. Async. |
+| `task-completed.sh` | `TaskCompleted` | **Blocks** task completion if build fails, tests fail, or TODO/FIXME markers remain. Surfaces build/test output in error messages. |
+
+### Task System Integration
+
+`/spec-execute` syncs `tasks.md` with Claude Code's native task system:
+- Each task becomes a `TaskCreate` entry with dependencies (`addBlockedBy`)
+- Spinner UI shows task progress in the terminal (Ctrl+T to toggle)
+- Blocked tasks cannot be started (native dependency enforcement)
+- `TaskCompleted` hook runs build/test validation — completion is **blocked** if checks fail
+- `tasks.md` checkboxes updated in sync for human-readable record
+- Dual validation: `task-completion-validator` agent checks code quality, `task-completed` hook checks build/tests
 
 ## Auto-Triggering
 
@@ -148,31 +158,33 @@ Six hooks are configured automatically:
 |-------|------------|-----------|
 | `interview` | "help me think through", "brainstorm", "let's discuss" | No — Claude suggests it |
 | `spec-create` | "spec out", "plan", "design", "write a spec" | No — Claude suggests it |
-| `spec-steering-setup` | — | Yes (`/spec-steering-setup` only) |
-| `spec-status` | — | Yes (`/spec-status` only) |
-| `tdd-cycle` | — | Yes (`/tdd-cycle` only) |
-| `spec-execute` | — | Yes (`/spec-execute` only) |
-| `spec-mutate` | — | Yes (`/spec-mutate` only) |
-| `bug-create` | — | Yes (`/bug-create` only, runs in fork) |
-| `bug-fix` | — | Yes (`/bug-fix` only) |
+| `spec-steering-setup` | — | Yes |
+| `spec-status` | — | Yes |
+| `tdd-cycle` | — | Yes |
+| `spec-execute` | — | Yes |
+| `adr` | — | Yes |
+| `spec-mutate` | — | Yes |
+| `bug-create` | — | Yes (runs in fork) |
+| `bug-fix` | — | Yes |
 
 ## Agent Configuration
 
-All agents use calibrated frontmatter:
+Only 2 agents use Opus (deep cross-file reasoning). All others use Sonnet for cost efficiency.
 
-| Agent | Model | Effort | maxTurns | Isolation | Special |
-|-------|-------|--------|----------|-----------|---------|
-| `spec-requirements-validator` | opus | high | 15 | — | `disallowedTools: Write, Edit, Bash` |
-| `spec-design-validator` | opus | high | 20 | — | `disallowedTools: Write, Edit, Bash` |
-| `spec-task-validator` | opus | high | 20 | — | `disallowedTools: Write, Edit, Bash` |
-| `tdd-test-writer` | sonnet | — | 30 | — | Cannot read implementation files |
-| `tdd-implementer` | sonnet | — | 40 | — | Cannot modify test files |
-| `tdd-refactorer` | opus | high | 25 | — | — |
-| `spec-task-executor` | sonnet | high | 50 | — | Executes one task in worktree, marks complete, stops |
-| `task-completion-validator` | opus | **max** | 30 | — | `disallowedTools: Write, Edit` |
-| `spec-reviewer` | opus | high | 30 | — | `memory: project` (read-only via `tools` allowlist) |
-| `silent-failure-hunter` | sonnet | — | 25 | — | `disallowedTools: Write, Edit` |
-| `acceptance-tester` | sonnet | high | 35 | — | Generates behavioral tests from EARS requirements |
+| Agent | Model | Effort | maxTurns | Special |
+|-------|-------|--------|----------|---------|
+| `system-architect` | **opus** | high | 25 | `memory: project`, `skills: [architecture-standards]` |
+| `spec-reviewer` | **opus** | high | 30 | `memory: project`, `skills: [architecture-standards]` |
+| `spec-requirements-validator` | sonnet | high | 15 | `disallowedTools: Write, Edit, Bash` |
+| `spec-design-validator` | sonnet | high | 20 | `disallowedTools: Write, Edit, Bash`, `skills: [architecture-standards]` |
+| `spec-task-validator` | sonnet | high | 20 | `disallowedTools: Write, Edit, Bash` |
+| `tdd-test-writer` | sonnet | — | 30 | Cannot read implementation files |
+| `tdd-implementer` | sonnet | — | 40 | Cannot modify test files |
+| `tdd-refactorer` | sonnet | high | 25 | — |
+| `spec-task-executor` | sonnet | high | 50 | `skills: [architecture-standards]` |
+| `task-completion-validator` | sonnet | high | 30 | `disallowedTools: Write, Edit` |
+| `silent-failure-hunter` | sonnet | — | 25 | `background: true`, `disallowedTools: Write, Edit` |
+| `acceptance-tester` | sonnet | high | 35 | Generates behavioral tests from EARS requirements |
 
 ## File Structure
 
@@ -183,11 +195,11 @@ spec-driven-dev/
 ├── README.md
 ├── hooks/
 │   ├── session-start.sh
+│   ├── post-compact.sh
 │   ├── spec-awareness.sh
-│   ├── protect-steering.sh
 │   ├── protect-specs.sh
 │   ├── spec-changelog.sh
-│   └── post-compact.sh
+│   └── task-completed.sh
 ├── 00-steering/
 │   └── skills/spec-steering-setup/
 │       ├── SKILL.md
@@ -195,8 +207,12 @@ spec-driven-dev/
 ├── 01-discovery/
 │   └── skills/interview/SKILL.md
 ├── 02-spec/
-│   ├── agents/{requirements,design,task}-validator.md
+│   ├── agents/{system-architect,spec-{requirements,design,task}-validator}.md
 │   └── skills/
+│       ├── architecture-standards/
+│       │   ├── SKILL.md
+│       │   └── references/{adr-template,ddd-patterns}.md
+│       ├── adr/SKILL.md
 │       ├── spec-create/
 │       │   ├── SKILL.md
 │       │   └── templates/{requirements,design,tasks}.md.template
@@ -218,30 +234,30 @@ spec-driven-dev/
 
 ## Design Decisions
 
-**Skills over commands** — Commands are legacy in Claude Code. Skills support auto-triggering, supporting files (templates), `context: fork`, and scoped hooks.
+**Skills over commands** — Commands are legacy in Claude Code. Skills support auto-triggering, supporting files, `context: fork`, and scoped hooks.
 
-**`disable-model-invocation: true` on dangerous skills** — `spec-execute`, `bug-fix`, `tdd-cycle`, and other skills that modify code require explicit `/command` invocation. Claude cannot auto-trigger them.
+**`disable-model-invocation: true` on dangerous skills** — `spec-execute`, `bug-fix`, `tdd-cycle`, and other skills that modify code require explicit `/command` invocation.
 
-**`context: fork` on bug-create** — Bug investigation runs in an isolated subagent context to keep the main conversation clean. `spec-create` runs inline because it needs to spawn validator agents (subagents can't spawn sub-subagents).
+**Only 2 Opus agents** — `system-architect` (cross-file architectural reasoning) and `spec-reviewer` (cross-file spec verification). All others use Sonnet with `effort: high` for ~60-70% cost savings with equivalent quality on structured tasks.
 
-**Feature branch + worktree-per-task** — `/spec-create` creates `feature/{name}` branch. Each `/spec-execute` task runs in a worktree branched from the feature branch. Passed tasks merge back; failed tasks are discarded. The result is a clean feature branch with one merge per task, ready for PR.
+**`context: fork` on bug-create** — Bug investigation runs in an isolated subagent context. `spec-create` runs inline because it spawns validator agents (subagents can't spawn sub-subagents).
+
+**Feature branch + worktree-per-task** — `/spec-create` creates `feature/{name}` branch. `/spec-execute` creates worktrees branched from the feature branch. Passed tasks merge back; failed tasks are discarded.
 
 **Auto-continue** — After each task, spec-execute offers to continue. "Keep going" runs all remaining tasks without waiting.
 
-**Platform-enforced read-only validators** — `disallowedTools: Write, Edit, Bash` on validators ensures they physically cannot modify files, regardless of prompt instructions.
+**Dual validation** — `task-completion-validator` agent checks code quality (stubs, error handling, test coverage). `TaskCompleted` hook checks build/tests deterministically. Defense in depth.
 
-**`effort` calibration** — `max` on `task-completion-validator` (zero-tolerance gate), `high` on opus validators and `spec-task-executor`, default on sonnet implementers.
+**Smart spec protection** — PreToolUse hook only warns about spec edits when implementation is underway (tasks started). During spec creation, edits flow freely.
 
-**`maxTurns` on all agents** — Safety net against runaway costs. 15 for validators, 25-50 for implementers.
+**`memory: project`** on `system-architect` and `spec-reviewer` — accumulates architectural knowledge and review patterns across sessions.
 
-**`memory: project` on spec-reviewer** — Accumulates project patterns across reviews, improving effectiveness over time.
+**`background: true`** on `silent-failure-hunter` — runs concurrently without blocking.
 
-**Six lifecycle hooks** — SessionStart (context loading + post-compaction restoration), UserPromptSubmit (spec awareness), PreToolUse (steering/spec protection), PostToolUse (changelog tracking).
-
-**Advisory hooks, not blocking** — PreToolUse hooks use `"permissionDecision": "ask"` rather than hard deny. This avoids friction for legitimate quick fixes.
+**Architecture integrated into pipeline** — `system-architect` agent runs during spec-create Phase 2, creates ADRs for significant decisions. `architecture-standards` skill preloaded on executor, reviewer, and design validator via `skills` frontmatter.
 
 **Template flexibility** — Templates are starting points. Irrelevant sections are omitted, not left as empty headers.
 
 **EARS format for requirements** — Easy Approach to Requirements Syntax (When/While/Where/If → SHALL) makes every requirement unambiguous and directly testable.
 
-**Confidence scores (0-100) on all agent outputs** — Enables automated phase gates. Validators fail when weighted average drops below thresholds.
+**Confidence scores (0-100) on all agent outputs** — Enables automated phase gates.

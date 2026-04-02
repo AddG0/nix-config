@@ -136,13 +136,13 @@ in {
           showProject = true;
           showContextBar = true;
           contextValue = "both";
-          showConfigCounts = true;
+          showConfigCounts = false;
           showDuration = true;
           showSpeed = false;
           showTokenBreakdown = true;
           showUsage = true;
           usageBarEnabled = true;
-          showTools = true;
+          showTools = false;
           showAgents = true;
           showTodos = true;
           showSessionName = true;
@@ -152,7 +152,14 @@ in {
           usageThreshold = 0;
           sevenDayThreshold = 80;
           environmentThreshold = 0;
-          customLine = "${config.hostSpec.hostName}";
+          customLine = let
+            apple = ""; # U+F179 — Nerd Font Apple icon
+            nixos = ""; # U+F313 — Nerd Font NixOS icon
+            osIcon =
+              if config.hostSpec.isDarwin
+              then apple
+              else nixos;
+          in "${osIcon} ${config.hostSpec.hostName}";
         };
         colors = {
           context = "green";
@@ -165,7 +172,7 @@ in {
           git = "magenta";
           gitBranch = "cyan";
           label = "dim";
-          custom = 208;
+          custom = "brightCyan";
         };
       };
 

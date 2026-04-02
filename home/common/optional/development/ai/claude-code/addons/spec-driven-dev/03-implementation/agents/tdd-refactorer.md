@@ -2,7 +2,7 @@
 name: tdd-refactorer
 description: "Evaluates implementation for refactoring opportunities and applies improvements while keeping tests green (TDD BLUE phase). Use after the GREEN phase produces passing tests."
 tools: Read, Glob, Grep, Bash, Edit, Write
-model: opus
+model: sonnet
 effort: high
 maxTurns: 25
 ---

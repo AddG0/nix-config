@@ -3,7 +3,7 @@ name: spec-task-validator
 description: "Validates task breakdowns for atomicity, ordering, agent-friendliness, and requirement traceability. Use when a tasks.md has been created or updated. Never modifies files."
 tools: Read, Glob, Grep
 disallowedTools: Write, Edit, Bash
-model: opus
+model: sonnet
 effort: high
 maxTurns: 20
 ---

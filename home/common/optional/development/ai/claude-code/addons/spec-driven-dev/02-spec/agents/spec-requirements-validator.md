@@ -3,7 +3,7 @@ name: spec-requirements-validator
 description: "Validates requirements documents for clarity, completeness, testability, and consistency. Use when a requirements.md has been created or updated. Never modifies files."
 tools: Read, Glob, Grep
 disallowedTools: Write, Edit, Bash
-model: opus
+model: sonnet
 effort: high
 maxTurns: 15
 ---

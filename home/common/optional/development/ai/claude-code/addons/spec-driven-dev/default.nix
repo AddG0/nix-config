@@ -16,16 +16,15 @@
     };
 
   specAwarenessHook = mkHook "spec-awareness" [pkgs.gnugrep pkgs.gnused];
-  protectSteeringHook = mkHook "protect-steering" [];
-  protectSpecsHook = mkHook "protect-specs" [];
+  protectSpecsHook = mkHook "protect-specs" [pkgs.gnugrep];
   sessionStartHook = mkHook "session-start" [pkgs.gnugrep pkgs.gnused];
   postCompactHook = mkHook "post-compact" [pkgs.gnugrep];
   specChangelogHook = mkHook "spec-changelog" [];
+  taskCompletedHook = mkHook "task-completed" [pkgs.gnugrep pkgs.git];
 in {
   agents = {
     # 02-spec: architecture + validation agents
     "system-architect" = ./02-spec/agents/system-architect.md;
-    "adr-architect" = ./02-spec/agents/adr-architect.md;
     "spec-requirements-validator" = ./02-spec/agents/spec-requirements-validator.md;
     "spec-design-validator" = ./02-spec/agents/spec-design-validator.md;
     "spec-task-validator" = ./02-spec/agents/spec-task-validator.md;
@@ -145,6 +144,7 @@ in {
           {
             type = "command";
             command = "${specAwarenessHook}/bin/spec-awareness";
+            timeout = 10;
           }
         ];
       }
@@ -155,10 +155,6 @@ in {
       {
         matcher = "Edit|Write";
         hooks = [
-          {
-            type = "command";
-            command = "${protectSteeringHook}/bin/protect-steering";
-          }
           {
             type = "command";
             command = "${protectSpecsHook}/bin/protect-specs";
@@ -176,6 +172,19 @@ in {
             type = "command";
             command = "${specChangelogHook}/bin/spec-changelog";
             async = true;
+          }
+        ];
+      }
+    ];
+
+    # Validate task completion — blocks if build/tests fail or TODOs remain
+    TaskCompleted = [
+      {
+        hooks = [
+          {
+            type = "command";
+            command = "${taskCompletedHook}/bin/task-completed";
+            timeout = 120;
           }
         ];
       }
