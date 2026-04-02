@@ -1,0 +1,25 @@
+# {Feature Name} — Tasks
+
+## Prerequisites
+- {Any setup required before starting}
+
+## Tasks
+
+- [ ] ### Task 1: {Title}
+  **Files**: {exact files to create/modify}
+  **Depends on**: None
+  **Acceptance criteria**:
+  - {Verifiable criterion}
+  - Tests: {specific test command or description}
+
+- [ ] ### Task 2: {Title}
+  **Files**: {files}
+  **Depends on**: Task 1
+  **Acceptance criteria**:
+  - {criterion}
+
+## Completion Checklist
+- All tasks marked complete
+- All tests passing
+- No TODOs or stubs remaining
+- Documentation updated (if applicable)

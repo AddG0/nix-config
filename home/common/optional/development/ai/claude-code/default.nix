@@ -5,6 +5,7 @@
   pkgs,
   ...
 }: let
+  jsonFormat = pkgs.formats.json {};
   claudeWithPlugins = pkgs.symlinkJoin {
     name = "claude-code-with-plugins";
     paths = [pkgs.claude-code];
@@ -76,6 +77,55 @@ in {
     "CLAUDE.local.md"
   ];
 
+  # Claude HUD config — "Full" preset, expanded layout, no setup needed
+  home.file.".claude/plugins/claude-hud/config.json".source = jsonFormat.generate "claude-hud-config.json" {
+    lineLayout = "expanded";
+    showSeparators = false;
+    pathLevels = 1;
+    gitStatus = {
+      enabled = true;
+      showDirty = true;
+      showAheadBehind = true;
+      showFileStats = false;
+    };
+    display = {
+      showModel = true;
+      showProject = true;
+      showContextBar = true;
+      contextValue = "both";
+      showConfigCounts = true;
+      showDuration = true;
+      showSpeed = false;
+      showTokenBreakdown = true;
+      showUsage = true;
+      usageBarEnabled = true;
+      showTools = true;
+      showAgents = true;
+      showTodos = true;
+      showSessionName = true;
+      showClaudeCodeVersion = false;
+      showMemoryUsage = false;
+      autocompactBuffer = "enabled";
+      usageThreshold = 0;
+      sevenDayThreshold = 80;
+      environmentThreshold = 0;
+      customLine = "";
+    };
+    colors = {
+      context = "green";
+      usage = "brightBlue";
+      warning = "yellow";
+      usageWarning = "brightMagenta";
+      critical = "red";
+      model = "cyan";
+      project = "yellow";
+      git = "magenta";
+      gitBranch = "cyan";
+      label = "dim";
+      custom = 208;
+    };
+  };
+
   programs.claude-code-profiles = {
     enable = true;
     enableZshIntegration = true;
@@ -132,7 +182,7 @@ in {
           deny = ["Read(./.env)" "Read(**/terraform.tfvars)"];
         };
         statusLine = {
-          command = "input=$(cat); echo \"[$(echo \"$input\" | jq -r '.model.display_name')] 📁 $(basename \"$(echo \"$input\" | jq -r '.workspace.current_dir')\")\"";
+          command = "${pkgs.nodejs}/bin/node ${pkgs.claude-hud}/share/claude-code/plugins/claude-hud/dist/index.js";
           padding = 0;
           type = "command";
         };
@@ -149,6 +199,7 @@ in {
         (addon ./addons/architecture)
         (addon ./addons/documentation)
         (addon ./addons/nix)
+        (addon ./addons/spec-driven-dev)
         {
           description = "Everyday development";
           skills = {

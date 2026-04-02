@@ -1,0 +1,26 @@
+# {Feature Name} — Requirements
+
+## Problem Statement
+{What problem this solves and for whom}
+
+## Actors
+{Who interacts with this feature}
+
+## Functional Requirements
+
+### FR-1: {Requirement Name}
+**EARS**: When {trigger}, the system shall {behavior}
+**Acceptance Criteria**:
+- [ ] {Measurable criterion}
+- [ ] {Measurable criterion}
+
+## Non-Functional Requirements
+- **Performance**: {constraints}
+- **Security**: {requirements}
+- **Accessibility**: {standards}
+
+## Out of Scope
+- {Explicit non-goal}
+
+## Open Questions
+- {Unresolved decisions}

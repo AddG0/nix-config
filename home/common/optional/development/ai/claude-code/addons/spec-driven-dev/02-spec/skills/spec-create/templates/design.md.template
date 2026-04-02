@@ -1,0 +1,30 @@
+# {Feature Name} — Design
+
+## Overview
+{High-level approach in 2-3 sentences}
+
+## Architecture
+{How this fits into the existing system}
+
+## Data Model
+{New or modified types, schemas, database changes}
+
+## API / Interface Changes
+{New endpoints, component props, CLI flags}
+
+## State Management
+{State transitions, lifecycle}
+
+## Error Handling
+{Expected errors and recovery strategies}
+
+## Security Considerations
+{Auth, input validation, data protection}
+
+## Dependencies
+{New libraries, services, system requirements}
+
+## Alternatives Considered
+| Approach | Pros | Cons | Why Rejected |
+|----------|------|------|-------------|
+| {alt 1} | {pros} | {cons} | {reason} |

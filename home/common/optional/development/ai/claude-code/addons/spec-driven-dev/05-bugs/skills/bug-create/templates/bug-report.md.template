@@ -1,0 +1,45 @@
+# Bug: {Title}
+
+## Summary
+{One-line description}
+
+## Observed Behavior
+{What happens — be specific}
+
+## Expected Behavior
+{What should happen instead}
+
+## Reproduction Steps
+1. {Step}
+2. {Step}
+3. {Step}
+
+## Environment
+{Relevant environment details if applicable}
+
+## Root Cause Analysis
+
+**File**: `{file}:{line}`
+**Cause**: {Technical explanation of why the bug occurs}
+**Confidence**: {score}/100
+
+## Affected Areas
+- {Component/module that exhibits the bug}
+- {Other components that might be affected}
+
+## Suggested Fix
+
+### Approach
+{How to fix it}
+
+### Risk Assessment
+{What could go wrong with the fix, what to watch for}
+
+## Fix Tasks
+
+### Task 1: {Fix description}
+**Files**: {files to modify}
+**Acceptance criteria**:
+- [ ] Bug no longer reproduces via steps above
+- [ ] Existing tests still pass
+- [ ] New regression test added covering this scenario

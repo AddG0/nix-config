@@ -267,19 +267,19 @@ nixos-anywhere HOSTNAME IP USER="root" SSH_OPTS="": rebuild-pre
 alias d := deploy
 
 [group('deployment')]
-[doc("Deploy using colmena (specify hostname or deploys to all, use --dry for dry-run)")]
-deploy hostname="" dry="false": rebuild-pre
-  colmena apply --impure {{ if hostname != "" { "--on " + hostname } else { "" } }} {{ if dry == "true" { "dry-activate" } else { "" } }}
+[doc("Deploy using colmena (specify hostnames or deploys to all, use --dry for dry-run)")]
+deploy *hostnames: rebuild-pre
+  colmena apply --impure {{ if hostnames != "" { "--on " + replace(hostnames, " ", ",") } else { "" } }}
 
 [group('deployment')]
-[doc("Build configuration without deploying (specify hostname or builds all)")]
-deploy-build hostname="":
-  colmena build --impure {{ if hostname != "" { "--on " + hostname } else { "" } }}
+[doc("Build configuration without deploying (specify hostnames or builds all)")]
+deploy-build *hostnames:
+  colmena build --impure {{ if hostnames != "" { "--on " + replace(hostnames, " ", ",") } else { "" } }}
 
 [group('deployment')]
-[doc("Upload keys (specify hostname or uploads to all)")]
-deploy-keys hostname="":
-  colmena upload-keys --impure {{ if hostname != "" { "--on " + hostname } else { "" } }}
+[doc("Upload keys (specify hostnames or uploads to all)")]
+deploy-keys *hostnames:
+  colmena upload-keys --impure {{ if hostnames != "" { "--on " + replace(hostnames, " ", ",") } else { "" } }}
 
 [group('deployment')]
 [doc("List all available colmena hosts")]
@@ -287,10 +287,10 @@ deploy-list:
   @nix eval .#colmena --apply 'x: builtins.filter (n: n != "meta") (builtins.attrNames x)' --json | jq -r '.[]'
 
 [group('deployment')]
-[doc("Execute command via colmena (specify hostname or executes on all)")]
-deploy-exec cmd="" hostname="":
+[doc("Execute command via colmena (specify hostnames or executes on all)")]
+deploy-exec cmd="" *hostnames:
   @{{ if cmd == "" { error("cmd parameter is required") } else { "" } }}
-  colmena exec --impure {{ if hostname != "" { "--on " + hostname } else { "" } }} -- {{cmd}}
+  colmena exec --impure {{ if hostnames != "" { "--on " + replace(hostnames, " ", ",") } else { "" } }} -- {{cmd}}
 
 
 # Minecraft modpack management (see scripts/modpack.sh)

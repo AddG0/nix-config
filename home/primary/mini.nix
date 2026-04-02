@@ -97,7 +97,7 @@
     ))
   ];
 
-  home.file."Videos/Movies".source = config.lib.file.mkOutOfStoreSymlink "/mnt/videos";
+  programs.librepods.enable = true;
 
   # services.safeeyes.enable = true;
 

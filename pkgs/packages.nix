@@ -13,6 +13,7 @@ pkgs: {
   claude-code-skills-collection = pkgs.callPackage ./claude-code-skills-collection {};
   anthropic-skills = pkgs.callPackage ./anthropic-skills {};
   claude-code-skill-factory = pkgs.callPackage ./claude-code-skill-factory {};
+  claude-hud = pkgs.callPackage ./claude-hud {};
   node-sqlite3 = pkgs.callPackage ./node-sqlite3 {};
 
   # OpenTelemetry

@@ -41,6 +41,7 @@
         "nixos/services/nginx.nix" # nginx
         # "nixos/services/n8n.nix" # n8n
         "nixos/services/kubernetes/clusters/asgard.nix"
+        "nixos/services/nomad/clusters/midgard/client.nix"
       ])
     ))
   ];

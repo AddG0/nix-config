@@ -57,6 +57,7 @@
         "secrets/buf.nix"
         "development/terraform.nix"
         "development/bootdev.nix"
+        "development/nomad.nix"
 
         # Gaming
         "gaming/minecraft"
