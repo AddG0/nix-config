@@ -41,7 +41,18 @@ update_one() {
       nix-update --flake "$pkg_name" "--version=$version_policy" 2>&1
     fi
   } > "$log_file" 2>&1 && {
-    log_info "$pkg_name - updated"
+    local after_file="$LOG_DIR/snapshots/$pkg_name.after"
+    local pkg_dir="$FLAKE_DIR/pkgs/$pkg_name"
+    if [[ -d "$pkg_dir" ]]; then
+      find "$pkg_dir" -type f -print0 | sort -z | xargs -0 md5sum 2>/dev/null > "$after_file" || true
+    else
+      : > "$after_file"
+    fi
+    if diff -q "$LOG_DIR/snapshots/$pkg_name.before" "$after_file" >/dev/null 2>&1; then
+      log_info "$pkg_name - already up-to-date"
+    else
+      log_info "$pkg_name - updated"
+    fi
   } || {
     cp "$log_file" "$LOG_DIR/failed/$pkg_name.log"
     log_error "$pkg_name - failed (see .update-logs/failed/$pkg_name.log)"
@@ -87,15 +98,36 @@ if [[ $skipped -gt 0 ]]; then
 fi
 [[ ${#to_update[@]} -eq 0 ]] && { log_info "Nothing to update"; exit 0; }
 
-rm -rf "$LOG_DIR" && mkdir -p "$LOG_DIR/failed"
+rm -rf "$LOG_DIR" && mkdir -p "$LOG_DIR/failed" "$LOG_DIR/snapshots"
+
+# Snapshot file hashes before updating so we can detect real changes
+for entry in "${to_update[@]}"; do
+  pkg="${entry%%:*}"
+  pkg_dir="$FLAKE_DIR/pkgs/$pkg"
+  if [[ -d "$pkg_dir" ]]; then
+    find "$pkg_dir" -type f -print0 | sort -z | xargs -0 md5sum 2>/dev/null > "$LOG_DIR/snapshots/$pkg.before" || true
+  else
+    : > "$LOG_DIR/snapshots/$pkg.before"
+  fi
+done
 
 log_info "Updating ${#to_update[@]} packages with $JOBS parallel jobs..."
 printf '%s\n' "${to_update[@]}" | parallel --halt never --line-buffer -j "$JOBS" update_one {}
 
 # Summary
 failed_count=$(find "$LOG_DIR/failed" -name '*.log' | wc -l)
+changed_count=0
+for entry in "${to_update[@]}"; do
+  pkg="${entry%%:*}"
+  [[ -f "$LOG_DIR/failed/$pkg.log" ]] && continue
+  after_file="$LOG_DIR/snapshots/$pkg.after"
+  if [[ -f "$after_file" ]] && ! diff -q "$LOG_DIR/snapshots/$pkg.before" "$after_file" >/dev/null 2>&1; then
+    ((changed_count++)) || true
+  fi
+done
+unchanged_count=$(( ${#to_update[@]} - failed_count - changed_count ))
 echo ""
-log_info "Results: $(( ${#to_update[@]} - failed_count )) succeeded, $failed_count failed, $skipped skipped"
+log_info "Results: $changed_count updated, $unchanged_count unchanged, $failed_count failed, $skipped skipped"
 
 if [ "$failed_count" -gt 0 ]; then
   log_warning "Failed packages:"

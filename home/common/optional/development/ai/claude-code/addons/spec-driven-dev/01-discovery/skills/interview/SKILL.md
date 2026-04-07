@@ -33,6 +33,8 @@ Before asking the user a single question, gather as much context as you can:
 
 **Present a brief summary of what you found** before starting questions. This shows the user you've done your homework and lets them correct any misunderstandings early.
 
+**IMPORTANT**: For ALL questions across all phases, use the `AskUserQuestion` tool — never ask inline in chat text. One question per `AskUserQuestion` call.
+
 ## Phase 1: Human-Only Questions (3-5 questions)
 
 Now ask ONLY questions that require human judgment — things you cannot determine from the code:
@@ -48,7 +50,7 @@ Now ask ONLY questions that require human judgment — things you cannot determi
 - Existing patterns, schemas, API routes (you already know)
 - How existing features work (you already know)
 
-One question at a time. Wait for each answer. Skip questions the user already addressed in their initial description.
+Use `AskUserQuestion` for questions. Skip questions the user already addressed in their initial description.
 
 ## Phase 2: Targeted Depth (2-4 questions)
 

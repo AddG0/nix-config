@@ -5,13 +5,13 @@
 }:
 stdenvNoCC.mkDerivation {
   pname = "superpowers-skills";
-  version = "5.0.6-unstable-2026-03-25";
+  version = "5.0.7-unstable-2026-04-02";
 
   src = fetchFromGitHub {
     owner = "obra";
     repo = "superpowers";
-    rev = "eafe962b18f6c5dc70fb7c8cc7e83e61f4cdde06";
-    sha256 = "sha256-r/Z+UxSFQIx99HnSPoU/toWMddXDcnLsbFXpQfLfj1k=";
+    rev = "b7a8f76985f1e93e75dd2f2a3b424dc731bd9d37";
+    sha256 = "sha256-hGEMwmSojy3cNtUQvB5djExlD39O2dwcnLOMUNaVIHg=";
   };
 
   installPhase = ''

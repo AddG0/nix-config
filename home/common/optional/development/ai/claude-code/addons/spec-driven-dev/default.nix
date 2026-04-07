@@ -80,10 +80,6 @@ in {
   };
 
   settings.permissions.allow = [
-    "Write(.claude/specs:*)"
-    "Edit(.claude/specs:*)"
-    "Write(.claude/steering:*)"
-    "Edit(.claude/steering:*)"
     "Write(.claude/specs/**)"
     "Edit(.claude/specs/**)"
     "Write(.claude/steering/**)"
@@ -91,6 +87,8 @@ in {
     "Bash(git checkout:*)"
     "Bash(git merge:*)"
     "Bash(git branch:*)"
+    "Bash(git rebase:*)"
+    "Bash(git worktree:*)"
   ];
 
   settings.companyAnnouncements = let

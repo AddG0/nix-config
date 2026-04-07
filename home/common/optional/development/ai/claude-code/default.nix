@@ -95,7 +95,7 @@ in {
           extensionToLanguage = {".rs" = "rust";};
         };
         typescript = {
-          command = "${pkgs.nodePackages.typescript-language-server}/bin/typescript-language-server";
+          command = "${pkgs.typescript-language-server}/bin/typescript-language-server";
           args = ["--stdio"];
           extensionToLanguage = {
             ".ts" = "typescript";

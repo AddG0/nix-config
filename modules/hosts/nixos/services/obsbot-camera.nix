@@ -25,6 +25,27 @@
         description = "V4L device path for PTZ controls (usually index0).";
       };
 
+      format = {
+        width = lib.mkOption {
+          type = lib.types.nullOr lib.types.int;
+          default = null;
+          example = 3840;
+          description = "Video capture width. Null to leave unset (application decides).";
+        };
+        height = lib.mkOption {
+          type = lib.types.nullOr lib.types.int;
+          default = null;
+          example = 2160;
+          description = "Video capture height. Null to leave unset (application decides).";
+        };
+        pixelformat = lib.mkOption {
+          type = lib.types.nullOr (lib.types.enum ["MJPG" "YUYV" "H264"]);
+          default = null;
+          example = "MJPG";
+          description = "Pixel format fourcc. Null to leave unset.";
+        };
+      };
+
       settings = lib.mkOption {
         type = lib.types.attrs;
         default = {
@@ -55,6 +76,15 @@
     settingsPairs = lib.mapAttrsToList (n: v: "${n}=${toString v}") camCfg.settings;
     settingsCSV = lib.concatStringsSep "," settingsPairs;
     settingsSpace = lib.concatStringsSep " " settingsPairs;
+    fmt = camCfg.format;
+    fmtParts =
+      lib.optional (fmt.width != null) "width=${toString fmt.width}"
+      ++ lib.optional (fmt.height != null) "height=${toString fmt.height}"
+      ++ lib.optional (fmt.pixelformat != null) "pixelformat=${fmt.pixelformat}";
+    fmtArg =
+      if fmtParts != []
+      then "--set-fmt-video=${lib.concatStringsSep "," fmtParts}"
+      else "";
   in
     pkgs.writeShellScript "obsbot-apply-${name}.sh" ''
       set -eu
@@ -67,6 +97,11 @@
       abs() { n=$1; [ "$n" -lt 0 ] && n=$((-n)); echo "$n"; }
 
       sleep "$DELAY_SECONDS"
+
+      ${lib.optionalString (fmtArg != "") ''
+      # Apply video format (resolution/pixelformat)
+      ${pkgs.v4l-utils}/bin/v4l2-ctl -d "$DEV" '${fmtArg}' || true
+      ''}
 
       # Exponential backoff: retry at 1s, 2s, 4s, 8s, 16s intervals (~31s total window)
       backoff=1

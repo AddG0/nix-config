@@ -49,6 +49,9 @@
         };
       };
       terminal.audibleBell = false;
+      extra."editor.xml".EditorSettings = ''
+        <option name="IS_HORIZONTAL_SCROLLING_ENABLED" value="true" />
+      '';
       ignoredFilePatterns = [
         # VCS
         ".git"

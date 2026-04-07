@@ -84,6 +84,21 @@
       hash = "sha256-jK/PdwsGdXxOrO0hsaiOV/0rZt4BuARfNfAVNbp0Lg8=";
     };
   in {
+    # Pin claude-code to 2.1.90 (npm removed 2.1.88)
+    claude-code = let
+      version = "2.1.90";
+      src = prev.fetchzip {
+        url = "https://registry.npmjs.org/@anthropic-ai/claude-code/-/claude-code-${version}.tgz";
+        hash = "sha256-4/hqWrY2fncQ8p0TxwBAI+mNH98ZDhjvFqB9us7GJK0=";
+      };
+    in prev.claude-code.overrideAttrs (old: {
+      inherit version src;
+      npmDeps = old.npmDeps.overrideAttrs {
+        inherit src;
+        outputHash = "sha256-izy3dQProZIdUF5Z11fvGQOm/TBcWGhDK8GvNs8gG5E=";
+      };
+    });
+
     # OBS Background Removal with CUDA support
     # Updated to 1.3.6 which has proper CUDA support on Linux
     # Patches RVM to support ResNet50 backbone for better quality

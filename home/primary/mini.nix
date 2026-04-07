@@ -72,7 +72,6 @@
         # "media/tidal.nix"
 
         # Tools
-        "tools"
         # "tools/gromit-mpx.nix"
         "tools/wayscriber.nix"
 

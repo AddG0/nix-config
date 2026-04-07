@@ -80,6 +80,13 @@ in {
       description = "Shell commands to run after successful rebuild";
     };
 
+    sshKey = mkOption {
+      type = types.nullOr types.path;
+      default = "${config.hostSpec.home}/.ssh/id_ed25519";
+      description = "Path to SSH private key for fetching private flake inputs (e.g. nix-secrets)";
+      example = "/root/.ssh/id_ed25519";
+    };
+
     notifications = {
       enable = mkOption {
         type = types.bool;
@@ -120,6 +127,8 @@ in {
             gnugrep
             iputils
             util-linux
+            git
+            openssh
           ]
           ++ optionals cfg.notifications.enable [
             libnotify
@@ -155,6 +164,10 @@ in {
             ''
           }
           }
+
+          ${optionalString (cfg.sshKey != null) ''
+            export GIT_SSH_COMMAND="ssh -i ${cfg.sshKey} -o StrictHostKeyChecking=accept-new"
+          ''}
 
           ${lib.custom.mkNetworkWaitScript {host = "github.com";}}
 

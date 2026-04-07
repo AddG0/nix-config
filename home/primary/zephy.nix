@@ -67,7 +67,6 @@
         # "media/tidal.nix"
 
         # Tools
-        "tools"
         "tools/wayscriber.nix"
 
         # NixOS Specific

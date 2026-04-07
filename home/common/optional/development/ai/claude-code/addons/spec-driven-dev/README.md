@@ -84,27 +84,36 @@ Context isolation is enforced by running each agent as a separate subagent — t
 
 #### Task Execution
 
-`/spec-execute <feature> <N>` runs a single task from a spec:
+`/spec-execute <feature> [N]` uses **wave-based parallel execution**:
 
 1. Ensures we're on the `feature/{name}` branch (creates it if needed)
-2. Finds the next incomplete task (or uses the specified task number)
-3. Creates a **worktree** branched from the feature branch (each task gets its own branch)
-4. Delegates to `spec-task-executor` agent (sonnet, `effort: high`) — runs in the worktree
-5. Validates via `task-completion-validator` agent (opus, `effort: max`) — runs in the **same** worktree
-6. On PASS: exits worktree, merges task branch back into feature branch
-7. On FAIL: exits worktree, feature branch is untouched — retry the task
-8. Offers to **auto-continue** to the next task ("keep going" runs all remaining)
+2. Syncs `tasks.md` with Claude Code's native task system (dependencies, blocking)
+3. Computes the next **wave** — all unblocked tasks with no pending dependencies
+4. Creates a worktree per task, launches `spec-task-executor` agents **in parallel** (one per task)
+5. Validates each task via `task-completion-validator` agents **in parallel**
+6. Merges passing tasks back **in task-number order** (rebase then merge for clean linear history)
+7. Failed tasks don't merge — retry individually with `/spec-execute {feature} {N}`
+8. Offers to **auto-continue** to the next wave ("keep going" runs all remaining waves)
+
+**Wave execution:**
+```
+Wave 1: [Task 1, Task 4]       ← independent, run in parallel
+Wave 2: [Task 2, Task 3]       ← unblocked after Wave 1, run in parallel
+Wave 3: [Task 5]               ← depends on Task 2 + Task 3
+```
 
 **Git branch structure:**
 ```
 main
-  └── feature/my-feature              ← created by /spec-create
-        ├── worktree-my-feature-task-1  ← merged back on PASS
-        ├── worktree-my-feature-task-2  ← merged back on PASS
-        └── ...                         ← PR: feature/my-feature → main
+  └── feature/my-feature                  ← created by /spec-create
+        ├── worktree-my-feature-task-1     ← Wave 1, merged in order
+        ├── worktree-my-feature-task-4     ← Wave 1, rebased then merged
+        ├── worktree-my-feature-task-2     ← Wave 2, merged in order
+        └── ...                            ← PR: feature/my-feature → main
 ```
 
-Pass `--no-worktree` to skip worktree isolation and work directly on the feature branch.
+**Single-task mode**: Pass a specific task number (`/spec-execute feature 3`) to run one task sequentially.
+**No worktree**: Pass `--no-worktree` to work directly on the feature branch.
 
 ### 04-quality — Review & Validation
 
@@ -242,9 +251,11 @@ spec-driven-dev/
 
 **`context: fork` on bug-create** — Bug investigation runs in an isolated subagent context. `spec-create` runs inline because it spawns validator agents (subagents can't spawn sub-subagents).
 
-**Feature branch + worktree-per-task** — `/spec-create` creates `feature/{name}` branch. `/spec-execute` creates worktrees branched from the feature branch. Passed tasks merge back; failed tasks are discarded.
+**Wave-based parallel execution** — Tasks without mutual dependencies run in parallel within a wave. Each task gets its own worktree. Passing tasks merge back in task-number order (rebase then merge) for clean linear history. Failed tasks are discarded. Next wave starts after the current one completes.
 
-**Auto-continue** — After each task, spec-execute offers to continue. "Keep going" runs all remaining tasks without waiting.
+**Merge-in-order-then-rebase** — Even though tasks run in parallel, they merge sequentially by task number. Each subsequent task's worktree branch is rebased onto the updated feature branch before merging, ensuring a linear commit history.
+
+**Auto-continue** — After each wave, spec-execute offers to continue. "Keep going" runs all remaining waves without waiting.
 
 **Dual validation** — `task-completion-validator` agent checks code quality (stubs, error handling, test coverage). `TaskCompleted` hook checks build/tests deterministically. Defense in depth.
 

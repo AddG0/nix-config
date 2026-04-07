@@ -2,7 +2,7 @@
 name: spec-create
 description: "Create a complete specification through Requirements → Design → Tasks with validation gates at each stage. Creates .claude/specs/{feature}/ directory."
 argument-hint: "<feature-name> [description]"
-allowed-tools: [Read, Glob, Grep, Bash, Write, Edit, Agent]
+allowed-tools: [Read, Glob, Grep, Bash, Write, Edit, Agent, AskUserQuestion]
 ---
 
 # Spec Creation
@@ -24,7 +24,7 @@ Templates for each document are in `${CLAUDE_SKILL_DIR}/templates/`. Read them t
 
 ### Gather Information
 
-If the user provided a description, use it. If thin, ask 3-5 targeted questions:
+If the user provided a description, use it. If thin, use the `AskUserQuestion` tool to ask targeted questions:
 - Who is the user/actor?
 - What problem does this solve?
 - What are the boundaries (explicitly NOT in scope)?
@@ -46,11 +46,11 @@ EARS format types for acceptance criteria:
 
 Launch `spec-requirements-validator` agent to review the document.
 
-- **PASS**: Present to user for approval. Wait for explicit approval before Phase 2.
-- **NEEDS_IMPROVEMENT**: Show issues to user, ask whether to fix now or proceed.
+- **PASS**: Use `AskUserQuestion` to present results and ask for approval. Wait for explicit approval before Phase 2.
+- **NEEDS_IMPROVEMENT**: Use `AskUserQuestion` to show issues and ask whether to fix now or proceed.
 - **MAJOR_ISSUES**: Present issues, revise, re-validate before proceeding.
 
-**CRITICAL**: Do not proceed to Phase 2 without user approval.
+**CRITICAL**: Do not proceed to Phase 2 without user approval. Always use `AskUserQuestion` for approval gates.
 
 ## Phase 2: Design
 
@@ -72,7 +72,7 @@ Read the template at `${CLAUDE_SKILL_DIR}/templates/design.md.template` and inco
 ### Validation Gate 2
 
 Launch `spec-design-validator` with both `requirements.md` and `design.md`.
-Same gate logic as Phase 1. The validator has `architecture-standards` preloaded and checks for architectural compliance.
+Same gate logic as Phase 1 (use `AskUserQuestion` for approval). The validator has `architecture-standards` preloaded and checks for architectural compliance.
 
 ## Phase 3: Tasks
 
@@ -92,7 +92,7 @@ Task atomicity rules:
 ### Validation Gate 3
 
 Launch `spec-task-validator` with all three documents.
-Same gate logic.
+Same gate logic (use `AskUserQuestion` for approval).
 
 ## Create Feature Branch
 

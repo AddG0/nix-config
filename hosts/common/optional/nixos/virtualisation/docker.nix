@@ -1,26 +1,13 @@
-{
-  config,
-  lib,
-  ...
-}: let
-  hostIface = config.hostSpec.networking.hostsAddr.${config.hostSpec.hostName}.iface or null;
-in {
+{...}: {
   virtualisation.docker.enable = true;
+
+  # After a firewall reload, Docker's per-network iptables masquerade rules
+  # get flushed. partOf ensures Docker restarts to re-add them.
+  # Note: this will restart running containers on firewall reload.
+  # See: https://github.com/moby/moby/issues/12294
+  systemd.services.docker.after = ["firewall.service"];
+  systemd.services.docker.partOf = ["firewall.service"];
 
   # Required for Docker NAT to work with NixOS firewall
   networking.firewall.checkReversePath = "loose";
-
-  # Fix for Docker/kind NAT - NixOS firewall flushes iptables rules on reload,
-  # which removes Docker's masquerade rules. This ensures they get re-added.
-  #
-  # Debugging if NAT rules are missing:
-  #   Check firewall reloads: journalctl -u firewall --since "1 hour ago"
-  #   Check masquerade rules: sudo iptables-save | grep MASQUERADE
-  #   Check nftables rules:   sudo nft list ruleset | grep masq
-  #   Firewall script lives at: /nix/store/...-firewall-start/bin/firewall-start
-  networking.nat = lib.mkIf (hostIface != null) {
-    enable = true;
-    internalInterfaces = ["docker0" "br-+"];
-    externalInterface = hostIface;
-  };
 }

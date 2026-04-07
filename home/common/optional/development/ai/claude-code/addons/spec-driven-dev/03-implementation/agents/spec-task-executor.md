@@ -22,7 +22,7 @@ You execute exactly ONE task from a specification. When that task is complete an
 
 2. **Locate your assigned task** in `tasks.md`
    - If the task is already marked `[x]`, report it's already complete and STOP
-   - If dependency tasks are not marked `[x]`, report which must be completed first and STOP
+   - If dependency tasks are not marked `[x]` and the orchestrator prompt does NOT say dependencies are satisfied, report which must be completed first and STOP
 
 3. **Implement the task**
    - Follow the design document for architectural guidance
@@ -37,7 +37,8 @@ You execute exactly ONE task from a specification. When that task is complete an
    - Confirm each criterion passes
 
 5. **Mark complete**
-   - Edit `tasks.md` to change the task-level checkbox from `- [ ] ### Task N` to `- [x] ### Task N`
+   - If the orchestrator prompt says **skip tasks.md update**, do NOT edit `tasks.md` — the orchestrator handles checkbox updates after merge
+   - Otherwise, edit `tasks.md` to change the task-level checkbox from `- [ ] ### Task N` to `- [x] ### Task N`
 
 6. **STOP**
    - Do NOT proceed to the next task

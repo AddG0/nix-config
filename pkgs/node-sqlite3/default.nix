@@ -7,7 +7,7 @@
   pkg-config,
   sqlite,
   lib,
-  nodePackages,
+  node-gyp,
 }: let
   src = fetchFromGitHub {
     owner = "TryGhost";
@@ -35,7 +35,7 @@ in
     version = "6.0.1";
     inherit src;
 
-    nativeBuildInputs = [nodejs python3 pkg-config nodePackages.node-gyp];
+    nativeBuildInputs = [nodejs python3 pkg-config node-gyp];
     buildInputs = [sqlite nodejs];
 
     postPatch = ''

@@ -5,7 +5,7 @@
 }:
 stdenvNoCC.mkDerivation {
   pname = "claude-code-plugins";
-  version = "2.1.88";
+  version = "2.1.92";
 
   src = fetchFromGitHub {
     owner = "anthropics";

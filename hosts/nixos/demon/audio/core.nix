@@ -55,5 +55,20 @@ _: {
         };
       };
     };
+
+    wireplumber.extraConfig."99-hugoTT2-usb-resilience" = {
+      "monitor.alsa.rules" = [
+        {
+          # Keep the device open once initialized to avoid suspend/resume
+          # race conditions on boot
+          matches = [
+            {"node.name" = "~alsa_output.usb-Chord_Electronics_Ltd_HugoTT2*";}
+          ];
+          actions.update-props = {
+            "session.suspend-timeout-seconds" = 0;
+          };
+        }
+      ];
+    };
   };
 }

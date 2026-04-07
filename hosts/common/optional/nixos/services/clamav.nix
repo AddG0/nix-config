@@ -121,7 +121,7 @@ in {
       # Scheduled filesystem scan
       scanner = {
         enable = true;
-        interval = "*-*-* 04:00:00"; # 4 AM daily
+        interval = "Tue *-*-* 04:00:00"; # Tuesday 4 AM
         scanDirectories = [
           "/home"
           "/etc"

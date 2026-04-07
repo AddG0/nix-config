@@ -76,9 +76,9 @@
         # "media/tidal.nix"
 
         # Tools
-        "tools"
         # "tools/gromit-mpx.nix"
         "tools/wayscriber.nix"
+        "tools/freecad.nix"
 
         # NixOS Specific
         # "nixos/desktops/plasma6"
@@ -88,7 +88,7 @@
         "media/vlc.nix"
 
         # Remote Desktop
-        "remote-desktop/rustdesk.nix"
+        # "remote-desktop/rustdesk.nix"
         # "remote-desktop/mouseshare/lan-mouse.nix"
 
         # Secrets

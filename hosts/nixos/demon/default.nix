@@ -107,6 +107,10 @@
       ];
       # PTZ controls are only on index0
       controlPath = "/dev/v4l/by-id/usb-Remo_Tech_Co.__Ltd._OBSBOT_Tiny_2-video-index0";
+      format = {
+        width = 3840;
+        height = 2160;
+      };
       settings = {
         pan_absolute = 20000;
         tilt_absolute = -50000;
@@ -117,6 +121,8 @@
   };
 
   security.allow-poweroff.enable = true;
+
+  boot.kernelModules = ["ntsync"]; # NT sync primitives for Wine/Proton gaming performance
 
   boot.initrd = {
     systemd.enable = true;
