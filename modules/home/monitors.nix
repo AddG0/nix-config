@@ -67,6 +67,11 @@
               description = "Enable HDR color management.";
               default = false;
             };
+            oled = lib.mkOption {
+              type = lib.types.bool;
+              description = "Whether this monitor is OLED (used for burn-in protection automation).";
+              default = false;
+            };
           };
         }
       );

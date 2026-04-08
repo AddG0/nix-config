@@ -1,4 +1,4 @@
-{...}: {
+_: {
   virtualisation.docker.enable = true;
 
   # After a firewall reload, Docker's per-network iptables masquerade rules

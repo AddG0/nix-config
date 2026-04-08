@@ -32,7 +32,7 @@ in {
         (map (
             m: "${m.name},${
               if m.enabled
-              then "${toString m.width}x${toString m.height}@${toString m.refreshRate}.0,${toString m.x}x${toString m.y},1,transform,${toString transformToHyprland.${m.transform}},vrr,${toString vrrToHyprland.${m.vrr}}${
+              then "${toString m.width}x${toString m.height}@${toString m.refreshRate}.0,${toString m.x}x${toString m.y},${toString m.scale},transform,${toString transformToHyprland.${m.transform}},vrr,${toString vrrToHyprland.${m.vrr}}${
                 if m.bitdepth != 8
                 then ",bitdepth,${toString m.bitdepth}"
                 else ""
@@ -71,7 +71,10 @@ in {
         follow_mouse = 1;
         mouse_refocus = false;
         natural_scroll = false;
-        touchpad.natural_scroll = true;
+        touchpad = {
+          natural_scroll = true;
+          disable_while_typing = true;
+        };
         force_no_accel = false;
         numlock_by_default = true;
       };
@@ -97,7 +100,7 @@ in {
         "float on, match:title ^(BakkesModInjectorCpp)$"
         "workspace special silent, match:title ^(BakkesModInjectorCpp)$"
         "workspace special silent, match:class ^(steam_app_252950)$, match:title ^$"
-        "workspace special silent, match:title (Lethal Company\\\\Lethal Company\\.exe)"
+        "workspace special silent, match:title (Lethal Company.*\\.exe)"
         "workspace special silent, match:class ^(me\\.kavishdevar\\.librepods|librepods|applinux)$"
         "float on, match:class ^(me\\.kavishdevar\\.librepods|librepods|applinux)$"
         # Spotify — float on special workspace, centered at a comfortable size

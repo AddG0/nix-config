@@ -11,7 +11,7 @@
       nativeBuildInputs = [pkgs.makeWrapper];
       postBuild = lib.optionalString pkgs.stdenv.isLinux ''
         wrapProgram $out/bin/btop \
-          --prefix LD_LIBRARY_PATH : "/run/opengl-driver/lib:${pkgs.rocmPackages.rocm-smi}/lib"
+          --prefix LD_LIBRARY_PATH : "/run/opengl-driver/lib:${pkgs.intel-gpu-tools}/lib:${pkgs.rocmPackages.rocm-smi}/lib"
       '';
     };
     settings = {

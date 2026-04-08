@@ -2,6 +2,8 @@
   imports = [
     ./settings.nix
     ./binds.nix
+    ./oled-protection.nix
+    ./laptop-lid-display.nix
     ./plugins
     ./apps
   ];

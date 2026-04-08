@@ -5,6 +5,7 @@
   lib,
   ...
 }: let
+  isLaptop = config.hostSpec.hostType == "laptop";
   settingsPath = "$XDG_RUNTIME_DIR/noctalia/settings.json";
   nixSettings = config.xdg.configFile."noctalia/settings.json".source;
   # Noctalia caches weather in ~/.cache/noctalia/location.json
@@ -54,13 +55,19 @@ in {
         {id = "ActiveWindow";}
         {id = "MediaMini";}
       ];
-      bar.widgets.right = [
-        {id = "Tray";}
-        {id = "Microphone";}
-        {id = "NotificationHistory";}
-        {id = "Volume";}
-        {id = "ControlCenter";}
-      ];
+      bar.widgets.right =
+        [
+          {id = "Tray";}
+          {id = "Microphone";}
+          {id = "NotificationHistory";}
+          {id = "Volume";}
+        ]
+        ++ lib.optionals isLaptop [
+          {id = "Battery";}
+        ]
+        ++ [
+          {id = "ControlCenter";}
+        ];
       notifications.monitors = map (m: m.name) (builtins.filter (m: m.primary) config.monitors);
       location.useFahrenheit = true;
       location.use12hourFormat = true;

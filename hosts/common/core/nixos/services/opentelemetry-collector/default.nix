@@ -19,6 +19,9 @@ in {
   config = lib.mkIf cfg.enabled {
     environment.systemPackages = [otlp-ingest];
 
+    # Takes 90 seconds by default and can wait for that whole time. I don't mind the lost data so we lower to 10s.
+    systemd.services.opentelemetry-collector.serviceConfig.TimeoutStopSec = "10s";
+
     # Create the user/group early so sops can set ownership
     users.users.opentelemetry-collector = {
       isSystemUser = true;

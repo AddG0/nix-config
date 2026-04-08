@@ -72,6 +72,8 @@ in {
 
     input.touchpad = {
       tap = true;
+      dwt = true;
+      drag = false;
       natural-scroll = true;
     };
 

@@ -78,8 +78,8 @@ rebuild_darwin() {
 
 	log_info "====== REBUILD ======"
 	if command_exists nh && [ "${USE_NH:-true}" = "true" ]; then
-		log_debug "Using nh darwin command for rebuild"
-		nh darwin ${MODE} . ${TRACE_FLAG:+-- $TRACE_FLAG}
+		log_debug "Using nh darwin command for rebuild (host: ${HOST})"
+		nh darwin ${MODE} . --hostname "${HOST}" --impure ${TRACE_FLAG:+-- $TRACE_FLAG}
 	elif command_exists darwin-rebuild; then
 		log_debug "Using darwin-rebuild with arguments: ${switch_args}"
 		# Run darwin-rebuild with sudo as required by the new activation model
@@ -95,8 +95,8 @@ rebuild_linux() {
 	log_info "Starting Linux rebuild"
 	log_info "====== REBUILD ======"
 	if command_exists nh && [ "${USE_NH:-true}" = "true" ]; then
-		log_debug "Using nh command for rebuild"
-		nh os ${MODE} . ${TRACE_FLAG:+-- $TRACE_FLAG}
+		log_debug "Using nh command for rebuild (host: ${HOST})"
+		nh os ${MODE} . --hostname "${HOST}" --impure ${TRACE_FLAG:+-- $TRACE_FLAG}
 	else
 		log_debug "Using sudo nixos-rebuild with arguments: ${switch_args}"
 		sudo nixos-rebuild ${switch_args}

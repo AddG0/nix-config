@@ -4,6 +4,7 @@
   programs.opencode = {
     enable = true;
     settings.theme = lib.mkDefault "catppuccin";
+    settings.autoupdate = false;
     settings.provider.ollama = {
       npm = "@ai-sdk/openai-compatible";
       name = "Ollama (local)";
