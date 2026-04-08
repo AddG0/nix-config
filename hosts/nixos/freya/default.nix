@@ -1,6 +1,6 @@
 #############################################################
 #
-#  demon - Main Desktop
+#  freya - Main Desktop
 #  NixOS running on Ryzen 9 9900X3D, GTX 5090, 128GB RAM
 #
 ###############################################################
@@ -87,7 +87,7 @@
   };
 
   hostSpec = {
-    hostName = "freyr";
+    hostName = "freya";
     hostPlatform = "x86_64-linux";
     telemetry.enabled = true;
     hostType = "laptop";

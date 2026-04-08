@@ -129,4 +129,9 @@
       };
     };
   };
+
+  systemd.services.gitlab-runner.serviceConfig = {
+    Restart = "on-failure";
+    RestartSec = "5s";
+  };
 }

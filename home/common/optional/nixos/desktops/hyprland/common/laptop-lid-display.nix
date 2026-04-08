@@ -153,7 +153,7 @@ in {
       };
       Service = {
         Type = "oneshot";
-        ExecStart = "${pkgs.bash}/bin/bash -lc 'if [ -n \"$HYPRLAND_INSTANCE_SIGNATURE\" ]; then ${hyprLaptopLid}/bin/hypr-laptop-lid sync; fi'";
+        ExecStart = "${pkgs.bash}/bin/bash -lc '${hyprctl} -j monitors all >/dev/null 2>&1 && ${hyprLaptopLid}/bin/hypr-laptop-lid sync || true'";
       };
     };
 

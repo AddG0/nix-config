@@ -62,7 +62,7 @@ in {
         disable_splash_rendering = true;
       };
 
-      debug.disable_logs = false;
+      debug.disable_logs = true;
 
       # ========== Input ==========
       input = {

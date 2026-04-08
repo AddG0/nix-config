@@ -85,7 +85,7 @@
     extraModprobeConfigByMode.${audioMode}
     or (throw "Unknown audioMode '${audioMode}' in audio-workarounds.nix");
 
-  # Audio workaround module for freyr (PTL + RT721).
+  # Audio workaround module for freya (PTL + RT721).
   #
   # Background:
   # - Kernel machine selection requests: intel/sof-ipc4-tplg/sof-ptl-rt721-2ch.tplg
