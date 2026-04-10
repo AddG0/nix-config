@@ -22,7 +22,7 @@
     ./hardware-configuration.nix
     # ./ai.nix
     # ./audio
-    # ./media.nix
+    ./media.nix
 
     (map lib.custom.relativeToHosts (
       [
@@ -99,4 +99,7 @@
   #   powerprofilesctl set power-saver|balanced|performance
   #   asusctl profile -P Quiet|Balanced|Performance
   services.power-profiles-daemon.enable = true;
+
+  # Battery status reporting for desktop widgets
+  services.upower.enable = true;
 }

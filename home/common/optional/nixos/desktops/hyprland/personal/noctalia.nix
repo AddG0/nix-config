@@ -64,8 +64,6 @@ in {
         ]
         ++ lib.optionals isLaptop [
           {id = "Battery";}
-        ]
-        ++ [
           {id = "ControlCenter";}
         ];
       notifications.monitors = map (m: m.name) (builtins.filter (m: m.primary) config.monitors);

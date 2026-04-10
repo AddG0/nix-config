@@ -136,7 +136,7 @@ update-packages *ARGS:
 [group('development')]
 [doc("Show git diff excluding flake.lock")]
 diff:
-  git diff ':!flake.lock'
+  git diff HEAD ':!flake.lock'
 
 [group('vscode')]
 [doc("Compare VS Code extension versions between marketplace and release")]

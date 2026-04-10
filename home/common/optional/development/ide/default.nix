@@ -25,6 +25,7 @@
     "intellij.bigdatatools.azure"
     "intellij.bigdatatools.awsBase"
     "com.intellij.bigdatatools.zeppelin"
+    "Pythonid" # Required by Zeppelin (intellij.python.community.execService is bundled in Pythonid)
     # Addons
     "com.intellij.bigdatatools.kafka"
     "com.intellij.bigdatatools.flink"

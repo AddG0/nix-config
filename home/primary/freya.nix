@@ -82,6 +82,7 @@
         # NixOS Specific
         # "nixos/desktops/plasma6"
         "nixos/desktops/hyprland"
+        "nixos/desktops/hyprland/common/software-dimming"
         "nixos/desktops/hyprland/nvidia.nix"
         "nixos/desktops/hyprland/sunshine.nix"
         "media/vlc.nix"
@@ -100,7 +101,19 @@
     ))
   ];
 
+  programs.librepods.enable = true;
+
   home.file."Videos/Movies".source = config.lib.file.mkOutOfStoreSymlink "/mnt/videos";
+
+  stylix.image = lib.mkForce (pkgs.runCommand "freya-black-wallpaper.png" {} ''
+    ${lib.getExe pkgs.imagemagick} -size 3840x2160 xc:black $out
+  '');
+
+  programs.noctalia-shell.settings.bar = {
+    displayMode = "auto_hide";
+    autoHideDelay = 500;
+    autoShowDelay = 150;
+  };
 
   # services.safeeyes.enable = true;
 
@@ -182,6 +195,9 @@
       scale = 1.25;
       primary = true;
       oled = true;
+      vrr = "on";
+      hdr = true;
+      bitdepth = 10;
     }
   ];
 }

@@ -8,7 +8,7 @@
   jsonFormat = pkgs.formats.json {};
   claudeWithPlugins = pkgs.symlinkJoin {
     name = "claude-code-with-plugins";
-    paths = [pkgs.claude-code];
+    paths = [pkgs.claude-code-bin];
     buildInputs = [pkgs.makeWrapper];
     postBuild = let
       telemetryEnabled = config.hostSpec.telemetry.enabled && config.hostSpec.telemetry.claude-code.enabled;

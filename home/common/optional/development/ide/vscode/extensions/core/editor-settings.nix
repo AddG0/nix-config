@@ -54,6 +54,7 @@
     "workbench.editor.enablePreview" = false;
     "workbench.tree.indent" = 16;
     "workbench.editor.highlightModifiedTabs" = true;
+    "chat.signInTitleBar.enabled" = false;
 
     # Workspace trust
     "security.workspace.trust.enabled" = true;

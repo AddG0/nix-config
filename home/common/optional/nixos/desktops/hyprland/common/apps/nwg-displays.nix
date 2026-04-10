@@ -30,7 +30,9 @@ lib.mkIf (hostSpec.hostType == "laptop") {
   '';
 
   wayland.windowManager.hyprland = {
-    # Sourced last so nwg-displays overrides declarative monitor rules
+    # Sourced last so nwg-displays overrides declarative monitor rules.
+    # This also means rebuild/reload will re-apply monitors.conf as the final
+    # monitor state, including any previously saved disable directives.
     extraConfig = ''
       source = ~/.config/hypr/monitors.conf
     '';

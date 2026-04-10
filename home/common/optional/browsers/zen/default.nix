@@ -5,6 +5,7 @@
   inputs,
   pkgs,
   lib,
+  hostSpec,
   ...
 }: {
   imports = [
@@ -151,6 +152,20 @@
           workspace = spaces."Main".id;
           container = containers."Personal".id;
         };
+        "LLM Arena" = {
+          id = "22ec3ca8-4c26-45da-93f4-e7ec675f89d6";
+          url = "https://arena.ai/leaderboard/text/coding";
+          position = 8000;
+          workspace = spaces."Main".id;
+          container = containers."Personal".id;
+        };
+        "GitLab Groups" = {
+          id = "fd6f90e2-1f93-4c76-87f1-7c9f4de63f43";
+          url = "https://gitlab.com/${hostSpec.username}09";
+          position = 9000;
+          workspace = spaces."Main".id;
+          container = containers."Personal".id;
+        };
 
         # Work workspace
         "Gmail (Work)" = {
@@ -202,7 +217,7 @@
         };
       };
 
-      keyboardShortcutsVersion = 16;
+      keyboardShortcutsVersion = 17;
       keyboardShortcuts = [
         {
           id = "key_quitApplication";

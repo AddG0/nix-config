@@ -1,6 +1,6 @@
 {pkgs, ...}: {
   extensions = [
-    pkgs.stable.vscode-extensions.anthropic.claude-code
+    pkgs.vscode-marketplace.anthropic.claude-code
   ];
   userSettings = {
     # Use system claude binary (NixOS can't run bundled dynamically linked binary)

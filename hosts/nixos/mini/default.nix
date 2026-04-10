@@ -88,6 +88,7 @@
     hostName = "mini";
     hostPlatform = "x86_64-linux";
     telemetry.enabled = true;
+    networking.homeWifiSsids = ["Karen_5G-1"];
   };
 
   time.timeZone = "America/Chicago";
