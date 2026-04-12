@@ -2,6 +2,7 @@
   imports = [
     ./settings.nix
     ./binds.nix
+    ./hyprlock.nix
     ./oled-protection.nix
     ./plugins
     ./apps

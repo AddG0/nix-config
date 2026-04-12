@@ -365,9 +365,6 @@ in {
       ",XF86AudioMute,exec,swayosd-client --output-volume mute-toggle"
       ",XF86AudioMicMute,exec,swayosd-client --input-volume mute-toggle"
     ];
-    bind = [
-      "SUPER,escape,exec,hyprlock"
-    ];
   };
 
   programs.hyprlock.enable = true;

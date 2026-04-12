@@ -6,8 +6,6 @@
   oledMonitorNames = map (m: m.name) (lib.filter (m: m.oled) config.monitors);
 in {
   config = lib.mkIf (oledMonitorNames != []) {
-    programs.hyprlock.enable = true;
-
     services.hypridle = {
       enable = true;
       settings = {

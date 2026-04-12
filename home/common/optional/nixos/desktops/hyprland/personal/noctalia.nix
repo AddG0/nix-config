@@ -63,6 +63,7 @@ in {
           {id = "Volume";}
         ]
         ++ lib.optionals isLaptop [
+          {id = "PowerProfile";}
           {id = "Battery";}
           {id = "ControlCenter";}
         ];

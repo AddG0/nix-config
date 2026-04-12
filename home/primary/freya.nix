@@ -78,6 +78,7 @@
         # "tools/gromit-mpx.nix"
         "tools/wayscriber.nix"
         "tools/freecad.nix"
+        "tools/obsidian.nix"
 
         # NixOS Specific
         # "nixos/desktops/plasma6"
