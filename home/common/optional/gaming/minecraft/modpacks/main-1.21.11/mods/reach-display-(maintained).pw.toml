@@ -1,0 +1,13 @@
+name = "Reach Display (maintained)"
+filename = "ReachDisplay-2.3.1-1.21.11.jar"
+side = "client"
+
+[download]
+url = "https://cdn.modrinth.com/data/7YvgkyR1/versions/bwnMvOMH/ReachDisplay-2.3.1-1.21.11.jar"
+hash-format = "sha512"
+hash = "1004a824f69bc8541b8b33bb55efd341847e964a2aba5d36af9e47ebca5d08762bf13a2763a673a4811dc8b380e2a29d98b30157c0c7858801f21740e2e21570"
+
+[update]
+[update.modrinth]
+mod-id = "7YvgkyR1"
+version = "bwnMvOMH"

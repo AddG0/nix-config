@@ -41,6 +41,7 @@
         #################### Host-specific Optional Configs ####################
         "nixos/services/openssh.nix" # allow remote SSH access
         "nixos/services/tailscale.nix" # mesh VPN for secure remote access
+        "nixos/services/gitlab-runner.nix" # GitLab CI runner
       ])
     ))
   ];

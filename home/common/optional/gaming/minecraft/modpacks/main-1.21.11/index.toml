@@ -6,7 +6,7 @@ hash = "75fe68aebbc3e9dd74c811824938368b332c1819bd26a1e486e2d40f59688c7c"
 
 [[files]]
 file = "MODS.md"
-hash = "31ee3ad69193dbb2a7c54ba42b38838b72fe5398a693cbad9a071a59bdf9d8c7"
+hash = "0c2d7691662612bdcb300b78e1c59de7875e0826e879d36c96a01b1b5add45a9"
 
 [[files]]
 file = "USEFUL_KEYS.md"
@@ -22,7 +22,7 @@ hash = "499b83912137cf6ba5518bb2fa608acf30e54c3954bf976b27a0db7a0be79813"
 
 [[files]]
 file = "config/techutils.json"
-hash = "5d7828150418ebdbc416c4b79825c750b8f583d099695a0da2ff21570ed38d53"
+hash = "bfb937838b250fb0ca4d05e9fe47c974398af14cd520c34696434a11f0247580"
 
 [[files]]
 file = "g4mespeed/cache/hotkeys.cfg"
@@ -279,6 +279,11 @@ hash = "f751fe3e11a8989b880bd12ebe14688944289c5359e026ff414cd00f0051a576"
 metafile = true
 
 [[files]]
+file = "mods/midnightlib.pw.toml"
+hash = "7f26c8df78d02b1d63a723a3a45b838415126da5296ac67b0414e564da30a421"
+metafile = true
+
+[[files]]
 file = "mods/minihud.pw.toml"
 hash = "61a707b93264a0f4339d168ce3d63d4dfcf6748d2ea71c2f032f2b68eb30a355"
 metafile = true
@@ -326,6 +331,11 @@ metafile = true
 [[files]]
 file = "mods/placeholder-api.pw.toml"
 hash = "ab6def9d98d3f5bf12f78845bdb770a19d5ca590c571e60184e537ffa14dcbee"
+metafile = true
+
+[[files]]
+file = "mods/reach-display-(maintained).pw.toml"
+hash = "b059bc4b2d3a47665c9dea77ef2f7728d92324e7554daaa6b0deb04c50e31d40"
 metafile = true
 
 [[files]]

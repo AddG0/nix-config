@@ -72,6 +72,8 @@
     "files.exclude" = {
       # We don't want to see dump.rdb from redis-server cmd
       "**/dump.rdb" = true;
+      # This is managed by Nix
+      "**/.pre-commit-config.yaml" = true;
     };
 
     # Search (language-specific exclusions in their respective files)

@@ -21,7 +21,7 @@
       # https://raw.githubusercontent.com/catppuccin/bat/main/Catppuccin-mocha.tmTheme
       catppuccin-mocha = {
         src = pkgs.themes.catppuccin.bat;
-        file = "Catppuccin-mocha.tmTheme";
+        file = "themes/Catppuccin Mocha.tmTheme";
       };
     };
   };

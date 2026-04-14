@@ -138,6 +138,39 @@
         });
       };
 
+    # Fix nixpkgs addPlugins deleting plugin-classpath.txt, which IntelliJ 2026.1+
+    # needs to resolve embedded module descriptors in bundled plugins (e.g. cwm-plugin).
+    # Without it: "contains invalid plugin descriptor" errors on startup.
+    jetbrains =
+      prev.jetbrains
+      // {
+        plugins =
+          prev.jetbrains.plugins
+          // {
+            addPlugins = ide: plugins:
+              (prev.jetbrains.plugins.addPlugins ide plugins).overrideAttrs (old: {
+                buildPhase =
+                  old.buildPhase
+                  + ''
+                    # Restore plugin-classpath.txt deleted by upstream addPlugins.
+                    # The index is needed for bundled plugin module resolution.
+                    src_classpath="${ide}/${
+                      if prev.stdenv.hostPlatform.isDarwin
+                      then "Applications/${prev.lib.escapeShellArg ide.product}.app/Contents"
+                      else old.meta.mainProgram
+                    }/plugins/plugin-classpath.txt"
+                    if [ -f "$src_classpath" ]; then
+                      cp "$src_classpath" "$out/${
+                      if prev.stdenv.hostPlatform.isDarwin
+                      then "Applications/${prev.lib.escapeShellArg ide.product}.app/Contents"
+                      else old.meta.mainProgram
+                    }/plugins/plugin-classpath.txt"
+                    fi
+                  '';
+              });
+          };
+      };
+
     # VSCode extension patches
     vscode-marketplace-release =
       prev.vscode-marketplace-release
@@ -276,13 +309,13 @@
     # TODO: Remove once upstream just fixes --completions zsh to include #compdef header
     # Fix just zsh completions: upstream --completions zsh emits a lazy shim
     # that compinit can't autodiscover. Capture real completions at build time.
-    just = prev.just.overrideAttrs (old: {
-      postInstall =
-        (old.postInstall or "")
-        + ''
-          JUST_COMPLETE=zsh $out/bin/just > $out/share/zsh/site-functions/_just
-        '';
-    });
+    # just = prev.just.overrideAttrs (old: {
+    #   postInstall =
+    #     (old.postInstall or "")
+    #     + ''
+    #       JUST_COMPLETE=zsh $out/bin/just > $out/share/zsh/site-functions/_just
+    #     '';
+    # });
 
     ghostty = inputs.ghostty.packages.${prev.stdenv.hostPlatform.system}.default;
 

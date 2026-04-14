@@ -134,6 +134,7 @@
 | [**Map In Slot**](https://modrinth.com/mod/map-in-slot) | Makes maps render in inventory/hotbar slots |
 | [**Crosshair Addons Public**](https://modrinth.com/mod/crosshair-addons-public) | Crosshair indicators |
 | [**Crosshair Indicator**](https://modrinth.com/mod/crosshair-indicator) | Hit indicator on crosshair |
+| [**Reach Display (maintained)**](https://modrinth.com/mod/reach-display-(maintained)) | Shows target distance and hit reach on the HUD |
 
 ## Fixes
 
@@ -177,6 +178,7 @@
 | [**YetAnotherConfigLib (YACL)**](https://modrinth.com/mod/yacl) | Mods using Yet Another Config Lib |
 | [**ukulib**](https://modrinth.com/mod/ukulib) | uku's mods (totemcounter, armor-hud) |
 | [**WalksyLib**](https://modrinth.com/mod/walksylib) | Walksy's mods (shield fixes, crosshair) |
+| [**MidnightLib**](https://modrinth.com/mod/midnightlib) | Reach Display |
 | [**Text Placeholder API**](https://modrinth.com/mod/placeholder-api) | Mod Menu |
 | [**MaLiLib**](https://modrinth.com/mod/malilib) | Litematica |
 | [**Fzzy Config**](https://modrinth.com/mod/fzzy-config) | Particle Core |
