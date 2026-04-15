@@ -67,10 +67,6 @@ in {
     inputs.ai-toolkit.homeModules.default
   ];
 
-  sops.secrets = {
-    context7.sopsFile = "${inputs.nix-secrets}/global/api-keys/context7.yaml";
-  };
-
   programs.git.ignores = [
     ".playwright-mcp"
     ".claude/settings.local.json"
@@ -88,37 +84,6 @@ in {
       pluginDirs = [
         "${pkgs.claude-code-plugins}/share/claude-code/plugins/ralph-wiggum"
       ];
-
-      lspServers = {
-        rust = {
-          command = "${pkgs.rust-analyzer}/bin/rust-analyzer";
-          extensionToLanguage = {".rs" = "rust";};
-        };
-        typescript = {
-          command = "${pkgs.typescript-language-server}/bin/typescript-language-server";
-          args = ["--stdio"];
-          extensionToLanguage = {
-            ".ts" = "typescript";
-            ".tsx" = "typescriptreact";
-            ".js" = "javascript";
-            ".jsx" = "javascriptreact";
-            ".mts" = "typescript";
-            ".cts" = "typescript";
-            ".mjs" = "javascript";
-            ".cjs" = "javascript";
-          };
-        };
-        java = {
-          command = "${pkgs.jdt-language-server}/bin/jdtls";
-          extensionToLanguage = {".java" = "java";};
-          startupTimeout = 120000;
-        };
-      };
-
-      memory.text = ''
-        Proactively invoke available skills when relevant.
-        Prefer `-C`/path args over `cd &&` (e.g. `git -C /path status`, `nix develop /path`).
-      '';
 
       # Claude HUD config — "Full" preset, expanded layout
       extraFiles."plugins/claude-hud/config.json".source = jsonFormat.generate "claude-hud-config.json" {
@@ -184,7 +149,7 @@ in {
         };
         includeCoAuthoredBy = false;
         permissions = {
-          allow = ["Bash(git diff:*)" "Bash(nix build:*)" "Bash(nix flake:*)" "Edit"];
+          allow = ["Bash(git diff:*)" "Bash(nix build:*)" "Bash(nix flake:*)" "Edit" "mcp__context7__resolve-library-id" "mcp__context7__query-docs"];
           ask = ["Bash(git push:*)" "Bash(kubectl get secret:*)"];
           defaultMode = "acceptEdits";
           deny = ["Read(./.env)" "Read(**/terraform.tfvars)"];
@@ -201,78 +166,120 @@ in {
 
     profiles = {
       default = merge [
-        (addon ./addons/context7)
-        (addon ./addons/code-review)
-        (addon ./addons/commit-commands)
-        (addon ./addons/architecture)
-        (addon ./addons/documentation)
-        (addon ./addons/nix)
         (addon ./addons/spec-driven-dev)
-        {
-          description = "Everyday development";
-          skills = {
-            "frontend-design" = "${pkgs.claude-code-plugins}/share/claude-code/plugins/frontend-design/skills/frontend-design";
-          };
-
-          commands = {
-            "fix-tests" = ./commands/fix-tests.md;
-            "explore-codebase" = ./commands/explore-codebase.md;
-          };
-
-          agents = {
-            "graphrag-specialist" = builtins.readFile "${pkgs.claude-code-skills-collection}/share/claude-code/plugins/claude-code-skills-collection/agents/graphrag-specialist.md";
-            "deep-research-agent" = ./agents/deep-research.md;
-          };
-
-          # TODO: Make this flakes-only but not for nix-shell shebang
-          rules."nix" = ''
-            Nix conventions:
-            - Flakes only — no `nix-env`, `nix-channel`, or `nix-shell`
-            - Minimal function signatures — only params actually used
-          '';
-
-          rules."multi-agent" = ''
-            Multi-agent orchestration:
-            - Batch ALL independent agent spawns in ONE message for parallel execution
-            - Use `run_in_background: true` for all agent Task calls
-            - After spawning agents, STOP — do not poll TaskOutput or check status
-            - Trust agents to return results; review ALL results before proceeding
-            - Batch independent file reads/writes/edits in one message
-            - Batch independent Bash commands in one message
-          '';
-        }
       ];
 
       grafana = merge [
-        (addon ./addons/grafana)
         {
           description = "Default with Grafana";
-          extends = "default";
+          settings.permissions.allow = [
+            # Search
+            "mcp__mcp-grafana__search_dashboards"
+            "mcp__mcp-grafana__search_folders"
+            # Dashboard (read)
+            "mcp__mcp-grafana__get_dashboard_by_uid"
+            "mcp__mcp-grafana__get_dashboard_summary"
+            "mcp__mcp-grafana__get_dashboard_property"
+            "mcp__mcp-grafana__get_dashboard_panel_queries"
+            # Datasources
+            "mcp__mcp-grafana__list_datasources"
+            "mcp__mcp-grafana__get_datasource"
+            # Prometheus
+            "mcp__mcp-grafana__query_prometheus"
+            "mcp__mcp-grafana__query_prometheus_histogram"
+            "mcp__mcp-grafana__list_prometheus_metric_metadata"
+            "mcp__mcp-grafana__list_prometheus_metric_names"
+            "mcp__mcp-grafana__list_prometheus_label_names"
+            "mcp__mcp-grafana__list_prometheus_label_values"
+            # Loki
+            "mcp__mcp-grafana__query_loki_logs"
+            "mcp__mcp-grafana__query_loki_stats"
+            "mcp__mcp-grafana__query_loki_patterns"
+            "mcp__mcp-grafana__list_loki_label_names"
+            "mcp__mcp-grafana__list_loki_label_values"
+            # Incident
+            "mcp__mcp-grafana__list_incidents"
+            "mcp__mcp-grafana__get_incident"
+            # OnCall
+            "mcp__mcp-grafana__list_oncall_schedules"
+            "mcp__mcp-grafana__get_oncall_shift"
+            "mcp__mcp-grafana__get_current_oncall_users"
+            "mcp__mcp-grafana__list_oncall_teams"
+            "mcp__mcp-grafana__list_oncall_users"
+            "mcp__mcp-grafana__list_alert_groups"
+            "mcp__mcp-grafana__get_alert_group"
+            # Sift
+            "mcp__mcp-grafana__get_sift_investigation"
+            "mcp__mcp-grafana__get_sift_analysis"
+            "mcp__mcp-grafana__list_sift_investigations"
+            "mcp__mcp-grafana__find_error_pattern_logs"
+            "mcp__mcp-grafana__find_slow_requests"
+            # Pyroscope
+            "mcp__mcp-grafana__list_pyroscope_label_names"
+            "mcp__mcp-grafana__list_pyroscope_label_values"
+            "mcp__mcp-grafana__list_pyroscope_profile_types"
+            "mcp__mcp-grafana__fetch_pyroscope_profile"
+            # Assertions
+            "mcp__mcp-grafana__get_assertions"
+            # Navigation
+            "mcp__mcp-grafana__generate_deeplink"
+            # Rendering
+            "mcp__mcp-grafana__get_panel_image"
+            # Annotations (read)
+            "mcp__mcp-grafana__get_annotations"
+            "mcp__mcp-grafana__get_annotation_tags"
+          ];
         }
       ];
 
       playwright = merge [
-        (addon ./addons/browser-mcp)
         {
           description = "Default with Playwright browser automation";
-          extends = "default";
+          settings.permissions.allow = [
+            "mcp__playwright__browser_navigate"
+            "mcp__playwright__browser_go_back"
+            "mcp__playwright__browser_go_forward"
+            "mcp__playwright__browser_wait"
+            "mcp__playwright__browser_press_key"
+            "mcp__playwright__browser_snapshot"
+            "mcp__playwright__browser_click"
+            "mcp__playwright__browser_drag"
+            "mcp__playwright__browser_hover"
+            "mcp__playwright__browser_type"
+            "mcp__playwright__browser_console_logs"
+            "mcp__playwright__browser_screenshot"
+          ];
         }
       ];
 
       ops = merge [
-        (addon ./addons/grafana)
         {
           description = "Operations and monitoring";
-          extends = "default";
-          memory.text = "Focus on operations, monitoring, and incidents. Use PromQL for Prometheus and LogQL for Loki.";
+          extends = "grafana";
         }
       ];
 
       google-workspace = merge [
-        (addon ./addons/google-workspace)
         {
           description = "Default with Google Workspace (Gmail, Sheets, Drive, Calendar, Docs)";
-          extends = "default";
+          settings.permissions.allow = [
+            # Gmail
+            "mcp__google-workspace__gmail_search"
+            "mcp__google-workspace__gmail_read"
+            "mcp__google-workspace__gmail_list_labels"
+            # Calendar
+            "mcp__google-workspace__calendar_list"
+            "mcp__google-workspace__calendar_get_events"
+            # Drive
+            "mcp__google-workspace__drive_search"
+            "mcp__google-workspace__drive_read"
+            "mcp__google-workspace__drive_list"
+            # Sheets
+            "mcp__google-workspace__sheets_read"
+            "mcp__google-workspace__sheets_list"
+            # Docs
+            "mcp__google-workspace__docs_read"
+          ];
         }
       ];
 

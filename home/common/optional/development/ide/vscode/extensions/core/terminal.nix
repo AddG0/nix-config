@@ -3,6 +3,8 @@
   userSettings = {
     # Terminal settings
     "terminal.integrated.defaultProfile.linux" = "zsh";
+    # Disable the integrated terminal exit alert because the zsh code 130 message was annoying since I run exit and it shows up.
+    "terminal.integrated.showExitAlert" = false;
     "terminal.integrated.profiles.linux" = {
       "nushell" = {
         "path" = "nu";

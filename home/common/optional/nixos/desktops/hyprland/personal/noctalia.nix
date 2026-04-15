@@ -32,10 +32,6 @@
 in {
   imports = [inputs.noctalia.homeModules.default];
 
-  wayland.windowManager.hyprland.settings.bind = [
-    "SUPER,escape,exec,noctalia-shell ipc call lockScreen lock"
-  ];
-
   programs.noctalia-shell = {
     enable = true;
     systemd.enable = true;
@@ -65,9 +61,10 @@ in {
         ++ lib.optionals isLaptop [
           {id = "PowerProfile";}
           {id = "Battery";}
-          {id = "ControlCenter";}
-        ];
-      notifications.monitors = map (m: m.name) (builtins.filter (m: m.primary) config.monitors);
+        ]
+        ++ [{id = "ControlCenter";}];
+      notifications.monitors = lib.optionals (!isLaptop) (map (m: m.name) (builtins.filter (m: m.primary) config.monitors)); # When on a laptop we want to show notifications on all monitors since we don't know which is the primary
+      dock.enabled = false;
       location.useFahrenheit = true;
       location.use12hourFormat = true;
       nightLight = {
@@ -80,6 +77,7 @@ in {
       };
       colorSchemes.predefinedScheme = "Catppuccin";
       general.avatarImage = "/var/lib/AccountsService/icons/${config.home.username}";
+      wallpaper.enabled = false;
     };
   };
 

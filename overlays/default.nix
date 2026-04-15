@@ -306,6 +306,25 @@
         '';
     });
 
+    # Track upstream PR #1457 for Intel Xe GPU support.
+    btop = prev.btop.overrideAttrs (_old: {
+      version = "pr-1457";
+      src = prev.fetchFromGitHub {
+        owner = "aristocratos";
+        repo = "btop";
+        rev = "pull/1457/head";
+        hash = "sha256-c6C7Vn6BzOh8DjJvc111wV1hD1sh2WdyQOQ9V2XmBR0=";
+      };
+      # Upstream main still prints the latest release version, so nixpkgs'
+      # versionCheckHook fails if we rename the package version to a branch/PR ref.
+      doInstallCheck = false;
+      meta =
+        prev.btop.meta
+        // {
+          changelog = "https://github.com/aristocratos/btop/blob/main/CHANGELOG.md";
+        };
+    });
+
     # TODO: Remove once upstream just fixes --completions zsh to include #compdef header
     # Fix just zsh completions: upstream --completions zsh emits a lazy shim
     # that compinit can't autodiscover. Capture real completions at build time.

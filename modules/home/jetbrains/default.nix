@@ -129,18 +129,7 @@
     root = ideConfigRoot ide;
     opt = "${root}/options";
   in
-    lib.optionalAttrs (s.theme != null) {
-      "${opt}/laf.xml".text = mkSettingsXml {
-        LafManager = ''<laf themeId="${s.theme}" />'';
-      };
-    }
-    // lib.optionalAttrs (s.colorScheme != null) {
-      "${opt}/colors.scheme.xml".text = mkSettingsXml {
-        EditorColorsManagerImpl = ''<global_color_scheme name="${s.colorScheme}" />'';
-      };
-    }
-    // lib.optionalAttrs (s.keymap != null) {
-      "${root}/keymaps/${s.keymap.name}.xml".text = mkKeymapXml s.keymap;
+    lib.optionalAttrs (s.keymap != null) {
       "${opt}/${platformKeymapDir}/keymap.xml".text = mkSettingsXml {
         KeymapManager = ''<active_keymap name="${s.keymap.name}" />'';
       };
@@ -159,15 +148,25 @@
 
   allFiles = lib.concatMapAttrs mkIdeFiles cfg.ides;
 
-  # Merge script only needed for ignoredFilePatterns
-  ideIgnoreConfigs =
+  # Merge script only needed for settings that share files with IDE-managed state.
+  ideMergeConfigs =
     lib.mapAttrsToList (_: ide: {
-      configDir = "${config.xdg.configHome}/${ideConfigRoot ide}/options";
+      rootDir = "${config.xdg.configHome}/${ideConfigRoot ide}";
+      packageDir = "${wrapIde ide}";
       inherit (ide.settings) ignoredFilePatterns;
+      inherit (ide.settings) theme;
+      inherit (ide.settings) colorScheme;
+      keymap =
+        if ide.settings.keymap == null
+        then null
+        else
+          with ide.settings.keymap; {
+            inherit name parent actions;
+          };
     })
     cfg.ides;
 
-  configJson = builtins.toJSON {ides = ideIgnoreConfigs;};
+  configJson = builtins.toJSON {ides = ideMergeConfigs;};
 
   mergeScript =
     pkgs.writeShellScript "jetbrains-settings-merge"
@@ -175,12 +174,23 @@
 
   settingsHash = builtins.hashString "sha256" (builtins.toJSON (lib.mapAttrsToList (_: ide: {
       inherit (ide.settings) ignoredFilePatterns;
+      inherit (ide.settings) theme;
+      inherit (ide.settings) colorScheme;
+      keymap =
+        if ide.settings.keymap == null
+        then null
+        else ide.settings.keymap.name;
       name = configDirName ide.package;
       inherit (ide.package) version;
     })
     cfg.ides));
 
-  hasIgnoreWork = lib.any (ide: ide.settings.ignoredFilePatterns != []) (lib.attrValues cfg.ides);
+  hasMergeWork = lib.any (ide:
+    ide.settings.ignoredFilePatterns
+    != []
+    || ide.settings.theme != null
+    || ide.settings.colorScheme != null
+    || ide.settings.keymap != null) (lib.attrValues cfg.ides);
 
   wrapIde = ide:
     if ide.plugins != []
@@ -198,10 +208,10 @@ in {
       home.packages = lib.mapAttrsToList (_: wrapIde) cfg.ides;
       xdg.configFile = allFiles;
     }
-    (lib.mkIf hasIgnoreWork {
+    (lib.mkIf hasMergeWork {
       systemd.user.startServices = "sd-switch";
       systemd.user.services.jetbrains-settings-sync = {
-        Unit.Description = "JetBrains ignored files merge [${settingsHash}]";
+        Unit.Description = "JetBrains settings merge [${settingsHash}]";
         Service = {
           Type = "oneshot";
           RemainAfterExit = true;

@@ -16,69 +16,11 @@
     };
 
   specAwarenessHook = mkHook "spec-awareness" [pkgs.gnugrep pkgs.gnused];
-  protectSpecsHook = mkHook "protect-specs" [pkgs.gnugrep];
   sessionStartHook = mkHook "session-start" [pkgs.gnugrep pkgs.gnused];
   postCompactHook = mkHook "post-compact" [pkgs.gnugrep];
   specChangelogHook = mkHook "spec-changelog" [];
   taskCompletedHook = mkHook "task-completed" [pkgs.gnugrep pkgs.git];
 in {
-  agents = {
-    # 02-spec: architecture + validation agents
-    "system-architect" = ./02-spec/agents/system-architect.md;
-    "spec-requirements-validator" = ./02-spec/agents/spec-requirements-validator.md;
-    "spec-design-validator" = ./02-spec/agents/spec-design-validator.md;
-    "spec-task-validator" = ./02-spec/agents/spec-task-validator.md;
-
-    # 03-implementation: TDD agents + task executor
-    "tdd-test-writer" = ./03-implementation/agents/tdd-test-writer.md;
-    "tdd-implementer" = ./03-implementation/agents/tdd-implementer.md;
-    "tdd-refactorer" = ./03-implementation/agents/tdd-refactorer.md;
-    "spec-task-executor" = ./03-implementation/agents/spec-task-executor.md;
-
-    # 04-quality: review, validation & acceptance agents
-    "task-completion-validator" = ./04-quality/agents/task-completion-validator.md;
-    "spec-reviewer" = ./04-quality/agents/spec-reviewer.md;
-    "silent-failure-hunter" = ./04-quality/agents/silent-failure-hunter.md;
-    "acceptance-tester" = ./04-quality/agents/acceptance-tester.md;
-  };
-
-  skills = {
-    # 00-steering
-    "spec-steering-setup" = ./00-steering/skills/spec-steering-setup;
-
-    # 01-discovery
-    "interview" = ./01-discovery/skills/interview;
-
-    # 02-spec
-    "spec-create" = ./02-spec/skills/spec-create;
-    "spec-status" = ./02-spec/skills/spec-status;
-    "architecture-standards" = ./02-spec/skills/architecture-standards;
-    "adr" = ./02-spec/skills/adr;
-
-    # 03-implementation
-    "tdd-cycle" = ./03-implementation/skills/tdd-cycle;
-    "spec-execute" = ./03-implementation/skills/spec-execute;
-
-    # 04-quality
-    "spec-mutate" = ./04-quality/skills/spec-mutate;
-
-    # 05-bugs
-    "bug-create" = ./05-bugs/skills/bug-create;
-    "bug-fix" = ./05-bugs/skills/bug-fix;
-  };
-
-  rules = {
-    "spec-driven" = builtins.readFile ./rules.md;
-    "quality-standards" = builtins.readFile ./04-quality/rules/quality-standards.md;
-    "architecture" = ''
-      Architecture conventions:
-      - Document significant decisions as ADRs in .claude/specs/decisions/ (MADR 3.0 format)
-      - Use Mermaid for inline diagrams, C4 model for system-level views
-      - Always document trade-offs — what was chosen AND what was rejected and why
-      - Respect existing ADRs — flag contradictions, create new ADR if overriding
-    '';
-  };
-
   settings.permissions.allow = [
     "Write(.claude/specs/**)"
     "Edit(.claude/specs/**)"
@@ -143,19 +85,6 @@ in {
             type = "command";
             command = "${specAwarenessHook}/bin/spec-awareness";
             timeout = 10;
-          }
-        ];
-      }
-    ];
-
-    # Protect steering and spec docs from accidental modification
-    PreToolUse = [
-      {
-        matcher = "Edit|Write";
-        hooks = [
-          {
-            type = "command";
-            command = "${protectSpecsHook}/bin/protect-specs";
           }
         ];
       }

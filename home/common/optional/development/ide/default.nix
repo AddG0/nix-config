@@ -16,7 +16,6 @@
     builtins.attrValues (pluginsForIde pkgs ide ids);
   commonPlugins = ["com.github.catppuccin.jetbrains" "com.intellij.mermaid" "org.mvnsearch.plugins.justPlugin" "com.intellij.plugins.vscodekeymap"];
   bigDataPlugins = [
-    # Required for all Big Data tools. None of these can be removed without breaking the plugins.
     "com.intellij.bigdatatools"
     "com.intellij.bigdatatools.core"
     "com.intellij.bigdatatools.binary.files"
@@ -24,14 +23,16 @@
     "intellij.bigdatatools.gcloud"
     "intellij.bigdatatools.azure"
     "intellij.bigdatatools.awsBase"
-    "com.intellij.bigdatatools.zeppelin"
-    "Pythonid" # Required by Zeppelin (intellij.python.community.execService is bundled in Pythonid)
-    # Addons
     "com.intellij.bigdatatools.kafka"
     "com.intellij.bigdatatools.flink"
     "com.intellij.bigdatatools.metastore.core"
     "com.intellij.bigdatatools.rfs"
     "com.intellij.bigdatatools.spark"
+  ];
+  # Zeppelin requires Python support (com.intellij.modules.python) — only works in IDEs that bundle it
+  zeppelinPlugins = [
+    "com.intellij.bigdatatools.zeppelin"
+    "Pythonid"
   ];
 
   mkIde = pkg: extraPlugins: {
@@ -58,6 +59,7 @@
         ".git"
         # Nix
         ".direnv"
+        ".devenv"
         ".pre-commit-config.yaml"
         # Gradle
         ".gradle"
@@ -76,7 +78,7 @@
   };
 in {
   programs.jetbrains.ides = with pkgs.jetbrains; {
-    idea = mkIde idea (["nix-idea" "net.ashald.envfile" "org.jetbrains.plugins.go-template"] ++ bigDataPlugins);
+    idea = mkIde idea (["nix-idea" "net.ashald.envfile" "org.jetbrains.plugins.go-template"] ++ bigDataPlugins ++ zeppelinPlugins);
     pycharm = mkIde pycharm [];
     datagrip = mkIde datagrip bigDataPlugins;
     webstorm = mkIde webstorm [];

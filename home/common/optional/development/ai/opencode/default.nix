@@ -1,6 +1,4 @@
 {lib, ...}: {
-  imports = [./adapter.nix];
-
   programs.opencode = {
     enable = true;
     tui.theme = lib.mkDefault "catppuccin";

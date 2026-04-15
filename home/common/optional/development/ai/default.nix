@@ -4,6 +4,7 @@
   ...
 }: {
   imports = [
+    ./code-assistant-profiles
     ./claude-code
     ./opencode
   ];
