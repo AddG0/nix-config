@@ -41,6 +41,8 @@
     attrs = {
       description = command.description or null;
       "argument-hint" = command.argumentHint or null;
+      agent = command.agent or null;
+      model = command.model or null;
       "allowed-tools" =
         if (command.tools or []) == []
         then null
@@ -53,15 +55,43 @@
     };
 
   renderSkillContent = name: skill: let
+    publicName = skill.name or name;
+    description = fallbackString skill.description publicName;
+    promptBody = readContent skill.prompt;
+    usageSection =
+      if guidance == []
+      then null
+      else "## Usage\n${lib.concatStringsSep "\n\n" guidance}";
+    guidance = lib.filter (line: line != null && line != "") [
+      skill.whenToUse or null
+      (
+        if (skill.paths or []) == []
+        then null
+        else "Applies to: ${lib.concatStringsSep ", " skill.paths}"
+      )
+      (
+        if (skill.invocation.model or true)
+        then null
+        else "Manual invocation only."
+      )
+      (
+        if (skill.invocation.user or true)
+        then null
+        else "Background skill; not intended for direct user invocation."
+      )
+    ];
+    body = lib.concatStringsSep "\n\n" (lib.filter (part: part != null && part != "") [promptBody usageSection]);
     rendered = frontmatter.toFile {
       attrs = {
-        inherit name;
-        description = fallbackString skill.description name;
+        name = publicName;
+        inherit description;
         compatibility = "opencode";
         metadata = {
           "argument-hint" = skill.argumentHint or null;
           context = skill.context or null;
           model = skill.model or null;
+          agent = skill.agent or null;
+          effort = skill.effort or null;
           tools =
             if skill.tools == []
             then null
@@ -69,7 +99,7 @@
           version = skill.version or null;
         };
       };
-      body = readContent skill.prompt;
+      inherit body;
     };
   in
     if (skill.resourcesRoot or null) != null
@@ -116,6 +146,20 @@
       // lib.optionalAttrs (server.extensionToLanguage != {}) {extensions = lib.attrNames server.extensionToLanguage;}
   ) (profile.lspServers or {});
 
+  derivedSkillCommands = lib.mapAttrs' (
+    _: skill: let
+      commandName = skill.name;
+      command = {
+        description = fallbackString skill.description commandName;
+        inherit (skill) argumentHint agent model tools;
+        content = skill.prompt;
+      };
+    in
+      lib.nameValuePair commandName command
+  ) (lib.filterAttrs (_: skill: skill.invocation.user) (profile.skills or {}));
+
+  commands = derivedSkillCommands // (profile.commands or {});
+
   combinedRules = lib.concatStringsSep "\n\n" (
     lib.filter (s: s != "") (
       lib.optional ((profile.instructions.text or null) != null) profile.instructions.text
@@ -126,9 +170,9 @@ in {
   config = lib.mkIf (config.programs.opencode.enable && hasProfile) {
     programs.opencode = {
       agents = lib.mkDefault (lib.mapAttrs renderAgent (profile.agents or {}));
-      commands = lib.mkDefault (lib.mapAttrs renderCommand (profile.commands or {}));
+      commands = lib.mkDefault (lib.mapAttrs renderCommand commands);
       skills = lib.mkDefault (lib.mapAttrs renderSkillContent (profile.skills or {}));
-      rules = lib.mkDefault combinedRules;
+      context = lib.mkDefault combinedRules;
       settings = {
         mcp = lib.mkDefault adaptMcp;
         lsp = lib.mkDefault adaptLsp;

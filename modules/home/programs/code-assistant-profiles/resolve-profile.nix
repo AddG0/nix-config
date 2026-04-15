@@ -81,19 +81,49 @@
 
   normalizeSkill = skill: let
     parsed = parseContentSource skill.prompt;
+    normalizedName =
+      if skill.name != null && skill.name != ""
+      then skill.name
+      else parsed.attrs.name or null;
+    invocationUser =
+      if !skill.invocation.user
+      then false
+      else if skill ? userInvocable && !skill.userInvocable
+      then false
+      else !(parsed.attrs ? "user-invocable") || parsed.attrs."user-invocable" != "false";
+    invocationModel =
+      if !skill.invocation.model
+      then false
+      else if skill ? disableModelInvocation && skill.disableModelInvocation
+      then false
+      else !(parsed.attrs ? "disable-model-invocation") || parsed.attrs."disable-model-invocation" != "true";
   in
     skill
     // {
+      name = normalizedName;
       description = skill.description or parsed.attrs.description or null;
+      whenToUse = skill.whenToUse or parsed.attrs.when_to_use or null;
       argumentHint = skill.argumentHint or parsed.attrs."argument-hint" or null;
       context = skill.context or parsed.attrs.context or null;
+      effort = skill.effort or parsed.attrs.effort or null;
+      agent = skill.agent or parsed.attrs.agent or null;
       version = skill.version or parsed.attrs.version or null;
       prompt = normalizeContentSpec skill.prompt;
       tools =
         if skill.tools != []
         then skill.tools
         else normalizeStringList (parsed.attrs."allowed-tools" or parsed.attrs.tools or null);
+      invocation = {
+        user = invocationUser;
+        model = invocationModel;
+      };
+      paths =
+        if skill.paths != []
+        then skill.paths
+        else normalizeStringList (parsed.attrs.paths or null);
       model = skill.model or parsed.attrs.model or null;
+      userInvocable = invocationUser;
+      disableModelInvocation = !invocationModel;
     };
 
   normalizeRule = rule: let

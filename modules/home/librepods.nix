@@ -30,8 +30,14 @@ in {
     systemd.user.services.librepods = mkIf cfg.autoStart {
       Unit = {
         Description = "LibrePods - AirPods integration for Linux";
-        After = ["bluetooth.target" "pipewire.service"];
+        After = [
+          "bluetooth.target"
+          "pipewire.service"
+          "graphical-session.target"
+          "graphical-session-pre.target"
+        ];
         Wants = ["bluetooth.target"];
+        PartOf = ["graphical-session.target"];
       };
 
       Service = {
@@ -51,7 +57,7 @@ in {
         RestartSec = 5;
       };
 
-      Install.WantedBy = ["default.target"];
+      Install.WantedBy = ["graphical-session.target"];
     };
   };
 }

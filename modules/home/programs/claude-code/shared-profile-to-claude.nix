@@ -44,11 +44,23 @@
   renderSkill = name: skill: let
     renderedSkill = frontmatter.toFile {
       attrs = {
-        inherit name;
+        name = skill.name or name;
         inherit (skill) description;
+        when_to_use = skill.whenToUse or null;
         "argument-hint" = skill.argumentHint or null;
         context = skill.context or null;
-        "allowed-tools" = lib.optional (skill.tools != []) (lib.concatStringsSep ", " skill.tools);
+        effort = skill.effort or null;
+        agent = skill.agent or null;
+        "user-invocable" = skill.invocation.user or null;
+        "disable-model-invocation" = !(skill.invocation.model or true);
+        paths =
+          if (skill.paths or []) == []
+          then null
+          else skill.paths;
+        "allowed-tools" =
+          if (skill.tools or []) == []
+          then null
+          else skill.tools;
         model = skill.model or null;
         version = skill.version or null;
       };

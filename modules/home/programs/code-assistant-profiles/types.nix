@@ -87,8 +87,7 @@
       name = lib.mkOption {
         type = lib.types.str;
         default = name;
-        readOnly = true;
-        description = "Skill name.";
+        description = "Exported skill name.";
       };
 
       description = lib.mkOption {
@@ -97,16 +96,61 @@
         description = "Short description of what the skill does.";
       };
 
+      whenToUse = lib.mkOption {
+        type = lib.types.nullOr lib.types.lines;
+        default = null;
+        description = "Additional guidance describing when the skill should be selected automatically.";
+      };
+
       argumentHint = lib.mkOption {
         type = lib.types.nullOr lib.types.str;
         default = null;
         description = "Optional argument hint shown by tools that support skill arguments.";
       };
 
+      invocation = lib.mkOption {
+        type = lib.types.submodule {
+          options = {
+            user = lib.mkOption {
+              type = lib.types.bool;
+              default = true;
+              description = "Whether the skill can be invoked directly by the user.";
+            };
+
+            model = lib.mkOption {
+              type = lib.types.bool;
+              default = true;
+              description = "Whether assistants may invoke the skill automatically.";
+            };
+          };
+        };
+        default = {};
+        description = "Invocation behavior shared across assistants.";
+      };
+
+      paths = lib.mkOption {
+        type = lib.types.listOf lib.types.str;
+        default = [];
+        example = ["src/api/**/*.ts" "**/*.test.ts"];
+        description = "Optional glob patterns that scope when the skill should auto-activate.";
+      };
+
       context = lib.mkOption {
         type = lib.types.nullOr lib.types.str;
         default = null;
         description = "Optional execution context hint for tools that support it.";
+      };
+
+      effort = lib.mkOption {
+        type = lib.types.nullOr (lib.types.enum ["low" "medium" "high" "max"]);
+        default = null;
+        description = "Preferred reasoning effort for tools that support per-skill effort selection.";
+      };
+
+      agent = lib.mkOption {
+        type = lib.types.nullOr lib.types.str;
+        default = null;
+        description = "Optional subagent identifier for tools that support delegated skill execution.";
       };
 
       version = lib.mkOption {
@@ -137,6 +181,20 @@
         type = lib.types.nullOr lib.types.str;
         default = null;
         description = "Preferred model for tools that support per-skill model selection.";
+      };
+
+      userInvocable = lib.mkOption {
+        type = lib.types.bool;
+        default = true;
+        visible = false;
+        description = "Deprecated compatibility alias for invocation.user.";
+      };
+
+      disableModelInvocation = lib.mkOption {
+        type = lib.types.bool;
+        default = false;
+        visible = false;
+        description = "Deprecated compatibility alias for the inverse of invocation.model.";
       };
     };
   });
