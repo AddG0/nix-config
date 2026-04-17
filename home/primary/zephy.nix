@@ -28,6 +28,7 @@
 
         # Communication
         "comms"
+        "librepods.nix"
 
         # Development
         "development"
@@ -92,8 +93,6 @@
 
   # Doesn't work on plasma saddly
   stylix.enable = lib.mkForce false;
-
-  programs.librepods.enable = true;
 
   # programs.plasma.input.mice = [
   #   {

@@ -18,7 +18,6 @@
 
     #################### Misc Inputs ####################
     ./graphics.nix
-    ./audio-workarounds.nix
     ./hardware-configuration.nix
     # ./ai.nix
     # ./audio
@@ -81,6 +80,11 @@
   security.firewall.enable = true;
 
   boot.kernelModules = ["ntsync"]; # NT sync primitives for Wine/Proton gaming performance
+
+  # RT721 (codec) + RT1320 (amp) on SoundWire link 3, SOF driver auto-detects.
+  # All multi-speaker topologies fail (SmartMic DAI missing on this board) —
+  # default function topology gives working 2ch. Needs upstream Razer RZ09-0581
+  # quirk or SmartMic-free topology for full 4-speaker support.
 
   boot.initrd = {
     systemd.enable = true;

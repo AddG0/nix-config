@@ -30,6 +30,7 @@
 
         # Communication
         "comms"
+        "librepods.nix"
 
         # Development
         "development"
@@ -95,8 +96,6 @@
       ])
     ))
   ];
-
-  programs.librepods.enable = true;
 
   # services.safeeyes.enable = true;
 

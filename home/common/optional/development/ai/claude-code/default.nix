@@ -146,6 +146,7 @@ in {
           DISABLE_ERROR_REPORTING = "1";
           DISABLE_BUG_COMMAND = "1";
           CLAUDE_CODE_DISABLE_FEEDBACK_SURVEY = "1";
+          CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS = "1";
         };
         includeCoAuthoredBy = false;
         permissions = {
@@ -161,6 +162,8 @@ in {
         };
         theme = "dark";
         voiceEnabled = true;
+        # This is largly hidden and I want to see what its doing
+        showThinkingSummaries = true;
       };
     };
 

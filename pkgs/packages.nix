@@ -26,7 +26,6 @@ pkgs: {
   bt-proximity-monitor = pkgs.callPackage ./bt-proximity-monitor {};
   bt-scan = pkgs.callPackage ./bt-scan {};
   helium = pkgs.callPackage ./helium {};
-  librepods = pkgs.callPackage ./librepods {};
   timezone-hover = pkgs.callPackage ./timezone-hover {};
 
   # Desktop environment

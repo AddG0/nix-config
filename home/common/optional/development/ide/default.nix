@@ -39,7 +39,7 @@
     package = pkg;
     plugins = resolvePlugins pkg (commonPlugins ++ extraPlugins);
     settings = {
-      theme = "com.github.catppuccin.mocha.jetbrains";
+      theme = "com.github.catppuccin.mocha.islands.jetbrains";
       colorScheme = "Catppuccin Mocha";
       keymap = {
         name = "VSCode Custom";
@@ -73,6 +73,8 @@
         ".factorypath"
         ".project"
         ".settings"
+        # Python
+        "__pycache__"
       ];
     };
   };

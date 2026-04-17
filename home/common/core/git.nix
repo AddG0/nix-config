@@ -66,6 +66,7 @@ in {
     ignores = [
       ".csvignore"
       ".direnv"
+      ".devenv"
       "result"
     ];
   };

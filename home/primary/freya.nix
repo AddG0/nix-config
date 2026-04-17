@@ -29,6 +29,7 @@
 
         # Communication
         "comms"
+        "librepods.nix"
 
         # Development
         "development"
@@ -101,8 +102,6 @@
       ])
     ))
   ];
-
-  programs.librepods.enable = true;
 
   home.file."Videos/Movies".source = config.lib.file.mkOutOfStoreSymlink "/mnt/videos";
 
@@ -182,6 +181,7 @@
       "${pkgs.discord-legcord}/share/applications/legcord.desktop"
       "${config.programs.zen-browser.package}/share/applications/zen-beta.desktop"
       "${pkgs._1password-gui}/share/applications/1password.desktop"
+      "${config.programs.spicetify.spicedSpotify}/share/applications/spotify.desktop"
     ];
   };
 
