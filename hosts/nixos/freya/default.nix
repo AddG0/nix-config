@@ -104,6 +104,25 @@
   #   asusctl profile -P Quiet|Balanced|Performance
   services.power-profiles-daemon.enable = true;
 
+  # 64GB swap file for hibernate support (RAM is 62GB)
+  swapDevices = [
+    {
+      device = "/var/lib/swapfile";
+      size = 64 * 1024;
+    }
+  ];
+
+  boot.resumeDevice = "/dev/disk/by-uuid/8d35d53d-c3c1-4ed0-8a09-513992136532";
+
   # Battery status reporting for desktop widgets
   services.upower.enable = true;
+
+  # More aggressive palm rejection for built-in touchpad —
+  # lower values = lighter touches rejected as palms
+  environment.etc."libinput/local-overrides.quirks".text = ''
+    [Touchpad Palm Threshold Override]
+    MatchUdevType=touchpad
+    AttrPalmSizeThreshold=70
+    AttrPalmPressureThreshold=100
+  '';
 }

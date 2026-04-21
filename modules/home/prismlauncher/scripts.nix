@@ -62,6 +62,7 @@
     prismDir,
     mmcPackJson,
     instanceCfg,
+    worldSetupScript ? "",
   }: ''
     # Instance: ${name}
     run mkdir -p "${prismDir}/instances/${name}/.minecraft"
@@ -75,5 +76,7 @@
     run cat > "${prismDir}/instances/${name}/instance.cfg" << 'INSTCFG'
     ${instanceCfg}
     INSTCFG
+
+    ${worldSetupScript}
   '';
 }

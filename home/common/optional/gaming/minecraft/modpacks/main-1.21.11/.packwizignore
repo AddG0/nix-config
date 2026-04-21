@@ -1,0 +1,3 @@
+config/clientkits/.venv/
+config/clientkits/split-kits.py
+config/clientkits/.gitignore

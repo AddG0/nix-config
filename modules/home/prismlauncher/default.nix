@@ -18,6 +18,52 @@
 
   inherit (prismLib) validateInstanceName parsePackToml resolveIcon;
 
+  # Resolve a world entry to { folderName, storePath }
+  resolveWorld = worldName: world: let
+    hasSource = world.source != null;
+    hasUrl = world.url != null;
+    storePath =
+      if hasSource && hasUrl
+      then throw "World '${worldName}': 'source' and 'url' are mutually exclusive"
+      else if hasSource
+      then world.source
+      else if hasUrl
+      then
+        if world.hash == null
+        then throw "World '${worldName}': 'hash' is required when using 'url'"
+        else
+          pkgs.fetchzip {
+            inherit (world) url hash;
+          }
+      else throw "World '${worldName}': either 'source' or 'url' must be set";
+  in {
+    folderName =
+      if world.folderName != null
+      then world.folderName
+      else worldName;
+    inherit storePath;
+  };
+
+  # Generate shell script to install world saves for an instance
+  mkWorldSetupScript = instanceName: worlds: let
+    savesDir = "${prismDir}/instances/${instanceName}/.minecraft/saves";
+    worldScripts =
+      mapAttrsToList (_: world: ''
+        if [ ! -d ${lib.escapeShellArg "${savesDir}/${world.folderName}"} ]; then
+          run cp -r ${lib.escapeShellArg (toString world.storePath)} ${lib.escapeShellArg "${savesDir}/${world.folderName}"}
+          chmod -R u+w ${lib.escapeShellArg "${savesDir}/${world.folderName}"}
+          noteEcho "Installed world: ${world.folderName}"
+        fi
+      '')
+      worlds;
+  in
+    if worlds == {}
+    then ""
+    else ''
+      run mkdir -p ${lib.escapeShellArg savesDir}
+      ${concatStringsSep "\n" worldScripts}
+    '';
+
   # Build a filtered modpack source when excludeMods is set
   filterModpackSource = source: excludeMods:
     if excludeMods == []
@@ -56,6 +102,7 @@
     name = validName;
     source = filteredSource;
     inherit (modpack) group javaArgs javaPackage excludeMods enableGameMode enableMangoHud;
+    worlds = lib.mapAttrs resolveWorld modpack.worlds;
     icon = iconResolved.key;
     iconPath = iconResolved.path;
     iconIsCustom = iconResolved.isCustom;
@@ -197,6 +244,50 @@
         default = false;
         description = "Enable MangoHud FPS/GPU/CPU overlay";
       };
+
+      worlds = mkOption {
+        type = types.attrsOf (types.submodule worldOpts);
+        default = {};
+        description = "World saves to install into this instance's saves directory";
+        example = literalExpression ''
+          {
+            "pvp-practice" = {
+              url = "https://example.com/pvp-map.zip";
+              hash = "sha256-...";
+              folderName = "PVP Practice Map";
+            };
+          }
+        '';
+      };
+    };
+  };
+
+  # World save submodule options
+  worldOpts = {
+    options = {
+      source = mkOption {
+        type = types.nullOr types.path;
+        default = null;
+        description = "Path to an extracted world save directory";
+      };
+
+      url = mkOption {
+        type = types.nullOr types.str;
+        default = null;
+        description = "URL to a world save zip archive";
+      };
+
+      hash = mkOption {
+        type = types.nullOr types.str;
+        default = null;
+        description = "SRI hash for the zip download (required with url)";
+      };
+
+      folderName = mkOption {
+        type = types.nullOr types.str;
+        default = null;
+        description = "Save folder name in .minecraft/saves/ (defaults to attribute name)";
+      };
     };
   };
 
@@ -247,6 +338,7 @@
       inherit name prismDir;
       mmcPackJson = mkMmcPackJson resolved;
       instanceCfg = mkInstanceCfg name resolved;
+      worldSetupScript = mkWorldSetupScript name resolved.worlds;
     })
   resolvedModpacks;
 

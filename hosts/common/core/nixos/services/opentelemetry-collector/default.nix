@@ -43,7 +43,8 @@ in {
           oauth2client = {
             client_id = "otlp";
             client_secret_file = config.sops.secrets."otlp/client_secret".path;
-            token_url = "https://auth.${config.hostSpec.domain}/realms/platform/protocol/openid-connect/token";
+            token_url = "https://auth.${config.hostSpec.domain}/oauth/v2/token";
+            scopes = ["openid"];
           };
         };
 

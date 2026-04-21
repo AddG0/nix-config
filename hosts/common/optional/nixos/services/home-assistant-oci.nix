@@ -1,3 +1,5 @@
+# This command will pull the update home assistant to the latest version
+# sudo podman pull ghcr.io/home-assistant/home-assistant:stable && sudo systemctl restart podman-homeassistant.service
 {config, ...}: {
   virtualisation.oci-containers = {
     containers.homeassistant = {

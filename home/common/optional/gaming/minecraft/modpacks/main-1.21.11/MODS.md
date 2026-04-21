@@ -167,6 +167,7 @@
 | [**Anchor Optimizer**](https://modrinth.com/mod/anchoroptimizer) | Anchor optimization |
 | [**Marlow's Crystal Optimizer**](https://modrinth.com/mod/marlow-crystal-optimizer) | End crystal optimization |
 | [**Attribute Swap Timer PORTED**](https://modrinth.com/mod/attribute-swap-timer-ported) | Attribute swap timing HUD |
+| [**HeroBot**](https://modrinth.com/mod/herobot) | Carpet bot automation for PvP practice |
 
 ## Libraries (Required Dependencies)
 

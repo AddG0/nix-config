@@ -76,7 +76,7 @@
             source = content;
             recursive = true;
           }
-        else lib.nameValuePair "${profileDir}/skills/${skillName}.md" (mkFileEntry content)
+        else lib.nameValuePair "${profileDir}/skills/${skillName}/SKILL.md" (mkFileEntry content)
     )
     finalConfig.skills
     // lib.mapAttrs' (

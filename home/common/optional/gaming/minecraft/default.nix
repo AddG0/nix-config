@@ -7,17 +7,26 @@ in {
     modpacks = {
       "main-1.21.11" = {
         source = mainSource;
+        excludeMods = ["herobot"];
         icon = mainIcon;
         javaPackage = pkgs.jdk25;
         enableGameMode = true;
       };
       "main-1.21.11-smp" = {
         source = mainSource;
-        excludeMods = ["tweakeroo" "tweakermore"];
+        excludeMods = ["tweakeroo" "tweakermore" "herobot"];
         icon = mainIcon;
         javaPackage = pkgs.jdk25;
         enableGameMode = true;
         group = "SMP";
+      };
+      # World save: https://shelledturtle.gumroad.com/l/TheosPVPPractice
+      "main-1.21.11-pvp-practice" = {
+        source = mainSource;
+        excludeMods = ["carpet" "carpet-extra" "carpet-tis-addition" "carpet-pvp"];
+        icon = mainIcon;
+        javaPackage = pkgs.jdk25;
+        enableGameMode = true;
       };
     };
   };

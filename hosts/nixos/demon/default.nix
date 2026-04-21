@@ -23,6 +23,7 @@
     # ./ai.nix
     ./audio
     ./media.nix
+    ./awsvpn-home-dns-fix.nix
 
     (map lib.custom.relativeToHosts (
       [

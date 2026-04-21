@@ -1,0 +1,13 @@
+name = "HeroBot"
+filename = "herobot-1.21.11-1.4.3+v260315.jar"
+side = "both"
+
+[download]
+url = "https://cdn.modrinth.com/data/wt23fpWX/versions/9ig2SGA7/herobot-1.21.11-1.4.3%2Bv260315.jar"
+hash-format = "sha512"
+hash = "7cea832cafafafba8bdd9b7c69c1b3bbb91a88f3d00c2f959635fc8c6c597c1508a35db8e91c958a2568afad4e6dfdbaeb8a19369c369f84c6d62358d132cc5d"
+
+[update]
+[update.modrinth]
+mod-id = "wt23fpWX"
+version = "9ig2SGA7"

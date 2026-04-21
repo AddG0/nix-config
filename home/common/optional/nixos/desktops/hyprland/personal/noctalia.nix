@@ -29,12 +29,17 @@
         && mv ${settingsPath}.tmp ${settingsPath}
     fi
   '';
+
+  noctalia-start = pkgs.writeShellScript "noctalia-start" ''
+    ${locate-city}
+    export NOCTALIA_SETTINGS_FILE="$XDG_RUNTIME_DIR/noctalia/settings.json"
+    exec noctalia-shell
+  '';
 in {
   imports = [inputs.noctalia.homeModules.default];
 
   programs.noctalia-shell = {
     enable = true;
-    systemd.enable = true;
 
     settings = {
       settingsVersion = 53;
@@ -81,11 +86,7 @@ in {
     };
   };
 
-  # Wait for Hyprland's Wayland socket before starting, otherwise
-  # quickshell fails with "Failed to create wl_display" and crash-loops.
-  systemd.user.services.noctalia-shell.Unit.After = lib.mkForce ["graphical-session.target"];
-  systemd.user.services.noctalia-shell.Service.ExecStartPre = lib.mkBefore [locate-city];
-  systemd.user.services.noctalia-shell.Service.Environment = [
-    "NOCTALIA_SETTINGS_FILE=%t/noctalia/settings.json"
-  ];
+  # Systemd service deprecated upstream — launch via Hyprland exec-once instead.
+  # The wrapper runs locate-city (copies settings + geo-lookup) then execs noctalia-shell.
+  wayland.windowManager.hyprland.settings.exec-once = ["${noctalia-start}"];
 }

@@ -76,9 +76,9 @@
         # "media/tidal.nix"
 
         # Tools
-        # "tools/gromit-mpx.nix"
         "tools/wayscriber.nix"
         "tools/freecad.nix"
+        "tools/obsidian.nix"
 
         # NixOS Specific
         # "nixos/desktops/plasma6"
@@ -182,6 +182,7 @@
       "${pkgs.discord-legcord}/share/applications/legcord.desktop"
       "${config.programs.zen-browser.package}/share/applications/zen-beta.desktop"
       "${pkgs._1password-gui}/share/applications/1password.desktop"
+      "${config.programs.spicetify.spicedSpotify}/share/applications/spotify.desktop"
     ];
   };
 

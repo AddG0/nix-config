@@ -93,7 +93,6 @@
       protobuf
       xml
       markdown
-      mermaid
       html
       docker
       shellcheck
