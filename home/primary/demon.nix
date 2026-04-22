@@ -85,6 +85,7 @@
         "nixos/desktops/hyprland"
         "nixos/desktops/hyprland/nvidia.nix"
         "nixos/desktops/hyprland/sunshine.nix"
+        "nixos/services/hass-agent.nix"
         "media/vlc.nix"
 
         # Remote Desktop

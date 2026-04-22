@@ -128,6 +128,7 @@
           installPhase =
             (old.installPhase or "")
             + ''
+              mkdir -p $out/share/obs/obs-plugins/obs-backgroundremoval/models
               # RVM: MobileNetV3 -> ResNet50 (107MB)
               rm -f $out/share/obs/obs-plugins/obs-backgroundremoval/models/rvm_mobilenetv3_fp32.onnx
               cp ${rvmResnet50Model} $out/share/obs/obs-plugins/obs-backgroundremoval/models/rvm_mobilenetv3_fp32.onnx
@@ -136,39 +137,6 @@
               cp ${rmbgFp32Model} $out/share/obs/obs-plugins/obs-backgroundremoval/models/bria_rmbg_1_4_qint8.onnx
             '';
         });
-      };
-
-    # Fix nixpkgs addPlugins deleting plugin-classpath.txt, which IntelliJ 2026.1+
-    # needs to resolve embedded module descriptors in bundled plugins (e.g. cwm-plugin).
-    # Without it: "contains invalid plugin descriptor" errors on startup.
-    jetbrains =
-      prev.jetbrains
-      // {
-        plugins =
-          prev.jetbrains.plugins
-          // {
-            addPlugins = ide: plugins:
-              (prev.jetbrains.plugins.addPlugins ide plugins).overrideAttrs (old: {
-                buildPhase =
-                  old.buildPhase
-                  + ''
-                    # Restore plugin-classpath.txt deleted by upstream addPlugins.
-                    # The index is needed for bundled plugin module resolution.
-                    src_classpath="${ide}/${
-                      if prev.stdenv.hostPlatform.isDarwin
-                      then "Applications/${prev.lib.escapeShellArg ide.product}.app/Contents"
-                      else old.meta.mainProgram
-                    }/plugins/plugin-classpath.txt"
-                    if [ -f "$src_classpath" ]; then
-                      cp "$src_classpath" "$out/${
-                      if prev.stdenv.hostPlatform.isDarwin
-                      then "Applications/${prev.lib.escapeShellArg ide.product}.app/Contents"
-                      else old.meta.mainProgram
-                    }/plugins/plugin-classpath.txt"
-                    fi
-                  '';
-              });
-          };
       };
 
     # VSCode extension patches

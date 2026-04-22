@@ -1,5 +1,6 @@
 {
   pkgs,
+  lib,
   config,
   ...
 }: let
@@ -92,7 +93,6 @@ in {
   };
 
   programs.zsh.oh-my-zsh.plugins = [
-    "git-auto-fetch"
     "github"
     "gitignore"
     "gh"
@@ -584,5 +584,53 @@ in {
         $new_alias"
     done
     unset old_alias new_alias
+
+    # Background git fetch (replaces git-auto-fetch oh-my-zsh plugin).
+    # Uses --no-write-fetch-head to avoid FETCH_HEAD race with git pull.
+
+    : ''${GIT_AUTO_FETCH_INTERVAL:=60}
+    zmodload zsh/datetime
+    zmodload -F zsh/stat b:zstat
+
+    function git-fetch-all {
+      (
+        if ! gitdir="$(command git rev-parse --git-dir 2>/dev/null)"; then
+          return 0
+        fi
+        if [[ ! -w "$gitdir" || -f "$gitdir/NO_AUTO_FETCH" ]] ||
+           [[ -f "$gitdir/FETCH_LOG" && ! -w "$gitdir/FETCH_LOG" ]]; then
+          return 0
+        fi
+        lastrun="$(zstat +mtime "$gitdir/FETCH_LOG" 2>/dev/null || echo 0)"
+        if (( EPOCHSECONDS - lastrun < GIT_AUTO_FETCH_INTERVAL )); then
+          return 0
+        fi
+        date -R &>! "$gitdir/FETCH_LOG"
+        GIT_SSH_COMMAND="command ssh -o BatchMode=yes" \
+        GIT_TERMINAL_PROMPT=0 \
+          command git fetch --all --no-write-fetch-head --recurse-submodules=yes 2>/dev/null &>> "$gitdir/FETCH_LOG"
+      ) &|
+    }
+
+    function git-auto-fetch {
+      command git rev-parse --is-inside-work-tree &>/dev/null || return 0
+      local guard="$(command git rev-parse --git-dir)/NO_AUTO_FETCH"
+      if [[ -f "$guard" ]]; then
+        command rm "$guard" && echo "''${fg_bold[green]}enabled''${reset_color}"
+      else
+        command touch "$guard" && echo "''${fg_bold[red]}disabled''${reset_color}"
+      fi
+    }
+
+    (( ! ''${+functions[_git-auto-fetch_zle-line-init]} )) || return 0
+    case "$widgets[zle-line-init]" in
+      builtin|"") function _git-auto-fetch_zle-line-init() { git-fetch-all } ;;
+      user:*) zle -N _git-auto-fetch_orig_zle-line-init "''${widgets[zle-line-init]#user:}"
+        function _git-auto-fetch_zle-line-init() {
+          git-fetch-all
+          zle _git-auto-fetch_orig_zle-line-init -- "$@"
+        } ;;
+    esac
+    zle -N zle-line-init _git-auto-fetch_zle-line-init
   '';
 }
