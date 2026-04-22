@@ -76,6 +76,10 @@
         # Persistent cache directory — survives container restarts so gradle,
         # npm, etc. caches are reused across jobs
         "/srv/gitlab-runner/cache:/cache"
+        # Persistent OCI blob cache — compressed layer blobs written here on first
+        # push so subsequent releases can HEAD-check with the correct compressed
+        # digest and skip re-uploading unchanged layers
+        "/srv/gitlab-runner/oci-cache:/oci-cache"
       ];
       dockerDisableCache = true;
 
@@ -134,4 +138,8 @@
     Restart = "on-failure";
     RestartSec = "5s";
   };
+
+  systemd.tmpfiles.rules = [
+    "d /srv/gitlab-runner/oci-cache 0755 root root -"
+  ];
 }

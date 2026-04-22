@@ -43,6 +43,27 @@ _: {
       };
     };
 
+    ## Force A2DP-only for AirPods.
+    ## Stops WirePlumber from auto-switching to the HFP/LC3-SWB headset
+    ## profile (mono, low-bitrate) — which happens whenever an app opens
+    ## a mic source. Mic is intentionally unreachable on this device.
+    ## Does NOT affect other BT headphones' profile behavior.
+    wireplumber.extraConfig."51-airpods-a2dp-only" = {
+      "monitor.bluez.rules" = [
+        {
+          matches = [
+            # Add's AirPods Pro 2
+            {"device.name" = "bluez_card.98_1C_A2_DF_A1_A2";}
+          ];
+          actions.update-props = {
+            "device.profile" = "a2dp-sink";
+            "bluez5.auto-connect" = ["a2dp_sink"];
+            "bluez5.hw-volume" = ["a2dp_sink"];
+          };
+        }
+      ];
+    };
+
     ## Optimize PipeWire audio processing for maximum quality
     extraConfig.pipewire."99-quality-settings" = {
       "context.properties" = {

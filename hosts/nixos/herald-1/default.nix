@@ -14,7 +14,7 @@
     inputs.stylix.nixosModules.stylix
     inputs.lumenboard-player.nixosModules.lumenboard-player
     ./hardware-configuration.nix
-    (lib.custom.scanPaths ./.)
+    ./plymouth-theme.nix
     #################### Hardware ####################
     inputs.hardware.nixosModules.common-cpu-intel
     inputs.hardware.nixosModules.common-pc-ssd
@@ -42,6 +42,7 @@
         "nixos/services/openssh.nix" # allow remote SSH access
         "nixos/services/tailscale.nix" # mesh VPN for secure remote access
         "nixos/services/gitlab-runner.nix" # GitLab CI runner
+        "nixos/plymouth.nix" # fancy boot screen
       ])
     ))
   ];
@@ -54,7 +55,6 @@
   boot.loader = {
     systemd-boot.enable = true;
     efi.canTouchEfiVariables = true;
-    timeout = 3;
   };
 
   security.firewall.enable = true;

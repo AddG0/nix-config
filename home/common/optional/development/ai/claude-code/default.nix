@@ -71,6 +71,7 @@ in {
     ".playwright-mcp"
     ".claude/settings.local.json"
     ".claude/worktrees"
+    ".claude/scheduled_tasks.lock"
     "CLAUDE.local.md"
   ];
 

@@ -82,9 +82,41 @@
       kind-stop-nu-completion
     ];
   };
+
+  # kubectl-btop: attaches btop to any container via an ephemeral debug container.
+  # The binary is named `kubectl-<x>` so kubectl auto-discovers it as a plugin
+  # (invoke as `kubectl btop`). It's intentionally NOT in home.packages — instead,
+  # kubectl is wrapped below with this bin directory prefixed onto its PATH,
+  # so `kubectl btop` works but the plain `kubectl-btop` binary doesn't leak
+  # into the user's PATH.
+  kubectl-btop = pkgs.writeShellApplication {
+    name = "kubectl-btop";
+    runtimeInputs = [pkgs.kubectl];
+    text = builtins.readFile ./scripts/kubectl-btop.sh;
+  };
+
+  # Plugin shell-completion helper, invoked by kubectl's completion machinery
+  # (kubectl ≥ 1.26) when the user tabs after `kubectl btop`. Lives on the
+  # wrapped-kubectl's PATH so kubectl can locate it; not exposed to user PATH.
+  kubectl-complete-btop = pkgs.writeShellApplication {
+    name = "kubectl_complete-btop";
+    runtimeInputs = [pkgs.kubectl];
+    text = builtins.readFile ./scripts/kubectl_complete-btop.sh;
+  };
+
+  kubectl-wrapped = pkgs.symlinkJoin {
+    name = "kubectl-wrapped";
+    paths = [pkgs.kubectl];
+    nativeBuildInputs = [pkgs.makeWrapper];
+    postBuild = ''
+      wrapProgram $out/bin/kubectl \
+        --prefix PATH : ${kubectl-btop}/bin \
+        --prefix PATH : ${kubectl-complete-btop}/bin
+    '';
+  };
 in {
   home.packages = with pkgs; [
-    kubectl
+    kubectl-wrapped
     kustomize_4
     # kubectx
     # kubebuilder
