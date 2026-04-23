@@ -112,6 +112,7 @@ in {
       set -g base-index 1              # start indexing windows at 1 instead of 0
       set -g detach-on-destroy off     # don't exit from tmux when closing a session
       set -g escape-time 0             # zero-out escape time delay
+      set -g focus-events on           # forward terminal focus events to programs (e.g. Claude Code, nvim autoread)
       set -g history-limit 1000000     # increase history size (from 2,000)
       set -g renumber-windows on       # renumber all windows when any window is closed
       set -g set-clipboard on          # use system clipboard
@@ -119,6 +120,9 @@ in {
 
       set -g status-bg default
       set -g status-style bg=default
+
+      # Advertise truecolor support to programs running inside tmux (e.g. process-compose)
+      set -ag terminal-features ",*:RGB"
 
       # Module styling (must be set before catppuccin loads)
       set -g @catppuccin_session_icon " "

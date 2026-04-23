@@ -84,7 +84,7 @@
         # NixOS Specific
         # "nixos/desktops/plasma6"
         "nixos/desktops/hyprland"
-        "nixos/desktops/hyprland/common/software-dimming"
+        "nixos/desktops/hyprland/common/software-dimming.nix"
         "nixos/desktops/hyprland/nvidia.nix"
         "nixos/desktops/hyprland/sunshine.nix"
         "media/vlc.nix"

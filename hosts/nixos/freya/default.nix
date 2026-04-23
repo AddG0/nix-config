@@ -7,6 +7,7 @@
 {
   inputs,
   lib,
+  pkgs,
   ...
 }: {
   imports = lib.flatten [
@@ -30,7 +31,7 @@
       ]
       ++ (map (f: "common/optional/${f}") [
         #################### Host-specific Optional Configs ####################
-        "nixos/hardware/cachyos-kernel.nix" # CachyOS kernel
+        # "nixos/hardware/cachyos-kernel.nix" # CachyOS kernel
         # "nixos/secureboot.nix"
         "nixos/services/openssh.nix" # allow remote SSH access
         "nixos/services/tailscale.nix" # mesh VPN for secure remote access
@@ -78,6 +79,8 @@
   };
 
   security.firewall.enable = true;
+
+  boot.kernelPackages = pkgs.linuxPackages_latest;
 
   boot.kernelModules = ["ntsync"]; # NT sync primitives for Wine/Proton gaming performance
 
