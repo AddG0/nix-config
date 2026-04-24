@@ -73,6 +73,7 @@
       indentRainbow
       colorHighlight
       svgPreview
+      pdfPreview
       peacock
       outputColorizer
 

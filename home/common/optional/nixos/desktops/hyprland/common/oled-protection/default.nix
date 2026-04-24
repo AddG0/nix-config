@@ -1,11 +1,20 @@
 {
   lib,
+  pkgs,
   config,
   ...
 }: let
   oledMonitorNames = map (m: m.name) (lib.filter (m: m.oled) config.monitors);
+
+  no-sleep = pkgs.writeShellApplication {
+    name = "no-sleep";
+    runtimeInputs = with pkgs; [systemd coreutils];
+    text = builtins.readFile ./no-sleep.sh;
+  };
 in {
   config = lib.mkIf (oledMonitorNames != []) {
+    home.packages = [no-sleep];
+
     services.hypridle = {
       enable = true;
       settings = {
