@@ -1,7 +1,7 @@
 {
   imports = [
     # ./brave.nix
-    ./chromium.nix
+    # ./chromium.nix
     # ./firefox.nix
     # ./floorp.nix
     ./zen

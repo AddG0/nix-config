@@ -177,7 +177,6 @@
   xdg.autostart = {
     enable = true;
     entries = [
-      "${pkgs.slack}/share/applications/slack.desktop"
       "${pkgs.discord-legcord}/share/applications/legcord.desktop"
       "${config.programs.zen-browser.package}/share/applications/zen-beta.desktop"
       "${pkgs._1password-gui}/share/applications/1password.desktop"
