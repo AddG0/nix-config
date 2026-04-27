@@ -364,6 +364,21 @@ wifi-unblock:
   sudo systemctl restart NetworkManager
 
 [group('utilities')]
+[doc("Restart Noctalia (Hyprland quickshell bar) preserving Hyprland env")]
+restart-noctalia:
+  #!/usr/bin/env bash
+  set -euo pipefail
+  start=$(grep -oE '/nix/store/[^ ]*-noctalia-start' "$HOME/.config/hypr/hyprland.conf" | head -n1)
+  if [ -z "$start" ]; then
+    echo "Could not find noctalia-start in ~/.config/hypr/hyprland.conf" >&2
+    exit 1
+  fi
+  pkill -f '/bin/quickshell$' 2>/dev/null || true
+  sleep 1
+  hyprctl dispatch exec "$start"
+  echo "Restarted noctalia via $start"
+
+[group('utilities')]
 [doc("Restart Plasma shell (KDE Plasma desktop)")]
 restart-plasma:
   #!/usr/bin/env bash

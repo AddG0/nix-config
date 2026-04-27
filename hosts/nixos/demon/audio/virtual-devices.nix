@@ -52,7 +52,7 @@ in {
                   {
                     type = "ladspa";
                     name = "gate";
-                    plugin = "${pkgs.zam-plugins}/lib/ladspa/ZamGate-ladspa.so";
+                    plugin = "ZamGate-ladspa";
                     label = "ZamGate";
                     control = {
                       # Was -62, Needs testing at lower levels
@@ -195,10 +195,10 @@ in {
           '';
         };
       };
-
-      # Make ZamGate plugin available to PipeWire
-      extraLv2Packages = [pkgs.zam-plugins];
     };
+
+    # Make ZamGate (LADSPA) available on LADSPA_PATH for filter-chain
+    extraLadspaPackages = [pkgs.zam-plugins];
   };
 
   # Port-level linking requires pw-link commands since WirePlumber's Lua API

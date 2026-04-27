@@ -22,10 +22,10 @@
   taskCompletedHook = mkHook "task-completed" [pkgs.gnugrep pkgs.git];
 in {
   settings.permissions.allow = [
-    "Write(.claude/specs/**)"
-    "Edit(.claude/specs/**)"
-    "Write(.claude/steering/**)"
-    "Edit(.claude/steering/**)"
+    "Write(.sdd/specs/**)"
+    "Edit(.sdd/specs/**)"
+    "Write(.sdd/steering/**)"
+    "Edit(.sdd/steering/**)"
     "Bash(git checkout:*)"
     "Bash(git merge:*)"
     "Bash(git branch:*)"

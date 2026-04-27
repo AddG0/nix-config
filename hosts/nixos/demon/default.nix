@@ -47,6 +47,7 @@
         "nixos/obs.nix" # obs
         "nixos/hardware/openrazer.nix" # openrazer
         "nixos/hardware/wooting.nix" # wooting keyboard
+        "nixos/hardware/flipperzero.nix" # flipper zero udev rules + qFlipper
         "nixos/1password.nix"
         "nixos/services/bluetooth.nix"
         "nixos/services/ollama.nix"
@@ -134,8 +135,6 @@
     hostPlatform = "x86_64-linux";
     telemetry.enabled = true;
   };
-
-  services.greetd.autoLogin.enable = true;
 
   time.timeZone = "America/Chicago";
 

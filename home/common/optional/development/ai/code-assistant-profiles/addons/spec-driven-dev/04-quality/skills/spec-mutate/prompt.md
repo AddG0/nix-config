@@ -36,7 +36,7 @@ Parse `$ARGUMENTS` for feature name and optional task number.
 
 - If task number given: mutate only files listed in that task
 - If only feature name: mutate all files listed across completed tasks
-- Read `.claude/specs/{feature}/tasks.md` for the file lists
+- Read `.sdd/specs/{feature}/tasks.md` for the file lists
 
 ### Step 3: Run Mutations
 

@@ -15,14 +15,14 @@ Parse arguments to extract `feature-name`, optional `task-number`, and optional 
 ## Step 1: Load Context
 
 Read these files (skip any that don't exist):
-- `.claude/steering/product.md`
-- `.claude/steering/tech.md`
-- `.claude/steering/structure.md`
-- `.claude/specs/{feature-name}/requirements.md`
-- `.claude/specs/{feature-name}/design.md`
-- `.claude/specs/{feature-name}/tasks.md`
+- `.sdd/steering/product.md`
+- `.sdd/steering/tech.md`
+- `.sdd/steering/structure.md`
+- `.sdd/specs/{feature-name}/requirements.md`
+- `.sdd/specs/{feature-name}/design.md`
+- `.sdd/specs/{feature-name}/tasks.md`
 
-If `.claude/specs/{feature-name}/` doesn't exist, list available specs and stop.
+If `.sdd/specs/{feature-name}/` doesn't exist, list available specs and stop.
 
 ## Step 2: Ensure Feature Branch
 
@@ -40,7 +40,7 @@ Parse `tasks.md` and sync with Claude Code's native task system:
    - `TaskCreate` with:
      - `subject`: "Task {N}: {title}"
      - `description`: The full task body (files, acceptance criteria)
-     - `metadata`: `{"spec": "{feature-name}", "taskNumber": {N}, "specFile": ".claude/specs/{feature-name}/tasks.md"}`
+     - `metadata`: `{"spec": "{feature-name}", "taskNumber": {N}, "specFile": ".sdd/specs/{feature-name}/tasks.md"}`
    - Set up dependencies with `TaskUpdate(addBlockedBy: [...])` matching the "Depends on" field
 3. For tasks already marked `[x]` in `tasks.md`, ensure their Task tool status is `completed`
 

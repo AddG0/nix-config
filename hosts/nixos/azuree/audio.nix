@@ -58,7 +58,7 @@
                   {
                     type = "ladspa";
                     name = "rnnoise";
-                    plugin = "${pkgs.rnnoise-plugin}/lib/ladspa/librnnoise_ladspa.so";
+                    plugin = "librnnoise_ladspa";
                     label = "noise_suppressor_mono";
                     control = {
                       "VAD Threshold (%)" = 85.0;
@@ -94,5 +94,8 @@
         '';
       };
     };
+
+    # Make rnnoise (LADSPA) available on LADSPA_PATH for filter-chain
+    extraLadspaPackages = [pkgs.rnnoise-plugin];
   };
 }

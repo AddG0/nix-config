@@ -1,6 +1,6 @@
 ---
 name: spec-create
-description: "Create a complete specification through Requirements → Design → Tasks with validation gates at each stage. Creates .claude/specs/{feature}/ directory."
+description: "Create a complete specification through Requirements → Design → Tasks with validation gates at each stage. Creates .sdd/specs/{feature}/ directory."
 argument-hint: "<feature-name> [description]"
 allowed-tools: [Read, Glob, Grep, Bash, Write, Edit, Agent, AskUserQuestion]
 ---
@@ -16,8 +16,8 @@ Templates for each document are in `${CLAUDE_SKILL_DIR}/templates/`. Read them t
 ## Setup
 
 1. Parse the feature name from arguments (kebab-case)
-2. Create `.claude/specs/{feature-name}/` directory
-3. If steering files exist (`.claude/steering/`), read them for project context
+2. Create `.sdd/specs/{feature-name}/` directory
+3. If steering files exist (`.sdd/steering/`), read them for project context
 4. If no steering files exist, note that `/spec-steering-setup` can create them
 
 ## Phase 1: Requirements
@@ -31,7 +31,7 @@ If the user provided a description, use it. If thin, use the `AskUserQuestion` t
 - Are there existing patterns in the codebase to follow?
 - What are the acceptance criteria?
 
-### Write `.claude/specs/{feature-name}/requirements.md`
+### Write `.sdd/specs/{feature-name}/requirements.md`
 
 Read the template at `${CLAUDE_SKILL_DIR}/templates/requirements.md.template` and fill it in.
 
@@ -59,9 +59,9 @@ Launch `spec-requirements-validator` agent to review the document.
 Launch the `system-architect` agent to design the technical approach:
 - Provide the approved requirements document
 - The architect explores the codebase, identifies component boundaries, data flow, and integration points
-- If a significant architectural decision is involved, the architect creates an ADR at `.claude/specs/decisions/ADR-NNN-title.md`
+- If a significant architectural decision is involved, the architect creates an ADR at `.sdd/specs/decisions/ADR-NNN-title.md`
 
-### Write `.claude/specs/{feature-name}/design.md`
+### Write `.sdd/specs/{feature-name}/design.md`
 
 Read the template at `${CLAUDE_SKILL_DIR}/templates/design.md.template` and incorporate the architect's output:
 - Component boundaries and responsibilities
@@ -76,7 +76,7 @@ Same gate logic as Phase 1 (use `AskUserQuestion` for approval). The validator h
 
 ## Phase 3: Tasks
 
-### Write `.claude/specs/{feature-name}/tasks.md`
+### Write `.sdd/specs/{feature-name}/tasks.md`
 
 Read the template at `${CLAUDE_SKILL_DIR}/templates/tasks.md.template` and fill it in.
 
@@ -111,7 +111,7 @@ If a branch `feature/{feature-name}` already exists (e.g., resuming work), switc
 ```markdown
 ## Spec Created: {feature-name}
 
-**Location**: `.claude/specs/{feature-name}/`
+**Location**: `.sdd/specs/{feature-name}/`
 **Branch**: `feature/{feature-name}`
 **Documents**: requirements.md, design.md, tasks.md
 **Tasks**: {count} tasks ready for execution

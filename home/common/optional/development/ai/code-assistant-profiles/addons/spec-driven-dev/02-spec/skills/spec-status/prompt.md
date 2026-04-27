@@ -13,7 +13,7 @@ argument-hint: "[feature-name]"
 ## If No Feature Name Given
 
 List all specs:
-1. Glob for `.claude/specs/*/tasks.md`
+1. Glob for `.sdd/specs/*/tasks.md`
 2. For each, count completed vs total tasks
 3. Display summary table
 
@@ -27,7 +27,7 @@ List all specs:
 
 ## If Feature Name Given
 
-1. Check `.claude/specs/{feature-name}/` exists. If not, list available specs and stop.
+1. Check `.sdd/specs/{feature-name}/` exists. If not, list available specs and stop.
 
 2. Determine current phase:
    - Only `requirements.md` exists → **Requirements**

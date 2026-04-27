@@ -11,8 +11,8 @@ TOOL_NAME=$(echo "$INPUT" | jq -r '.tool_name // empty') || true
 [ -n "$FILE_PATH" ] || exit 0
 
 # Only track changes to spec documents (not tasks.md checkbox toggles)
-if [[ $FILE_PATH == *".claude/specs/"*"/requirements.md" ]] ||
-	[[ $FILE_PATH == *".claude/specs/"*"/design.md" ]]; then
+if [[ $FILE_PATH == *".sdd/specs/"*"/requirements.md" ]] ||
+	[[ $FILE_PATH == *".sdd/specs/"*"/design.md" ]]; then
 
 	SPEC_DIR=$(dirname "$FILE_PATH")
 	CHANGELOG="$SPEC_DIR/changelog.md"

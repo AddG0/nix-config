@@ -3,9 +3,10 @@
 #  GCP Compute Engine Instance
 #  NixOS running on Google Cloud Platform
 #
-#  NOTE: Uses google-compute-config.nix (runtime config only).
-#  Image building is handled by nixos-rebuild build-image
-#  --image-variant google-compute.
+#  Uses google-compute-image.nix so the EFI bootloader settings
+#  (grub efiSupport, ESP /boot mount) persist at runtime — required
+#  because we build a UEFI image for Shielded VM support.
+#  Build: `just build-image gce google-compute`.
 #
 ###############################################################
 {
@@ -14,8 +15,9 @@
   ...
 }: {
   imports = lib.flatten [
-    # GCE runtime config - provides filesystem, bootloader, and cloud services
-    "${modulesPath}/virtualisation/google-compute-config.nix"
+    # GCE image + runtime config (declares virtualisation.googleComputeImage.efi
+    # and wires the EFI bootloader when enabled)
+    "${modulesPath}/virtualisation/google-compute-image.nix"
 
     #################### Misc Inputs ####################
     (map lib.custom.relativeToHosts (
@@ -36,6 +38,11 @@
     disableSops = true;
     isMinimal = builtins.getEnv "NIXOS_MINIMAL" == "true";
   };
+
+  # Build a UEFI image so the VM can run as a Shielded VM (vTPM +
+  # integrity monitoring + secure boot). Switches grub to EFI mode and
+  # adds an ESP at /dev/disk/by-label/ESP mounted at /boot.
+  virtualisation.googleComputeImage.efi = true;
 
   # Override to match GCE module expectation (it doesn't use mkDefault)
   services.openssh.settings.PermitRootLogin = lib.mkForce "prohibit-password";

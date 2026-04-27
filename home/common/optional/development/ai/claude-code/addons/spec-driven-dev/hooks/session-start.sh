@@ -7,7 +7,7 @@ INPUT=$(cat) || true
 
 CWD=$(echo "$INPUT" | jq -r '.cwd // empty') || true
 CWD="${CWD:-${CLAUDE_PROJECT_DIR:-$(pwd)}}"
-STEERING_DIR="$CWD/.claude/steering"
+STEERING_DIR="$CWD/.sdd/steering"
 
 # Load steering context summary
 if [ -d "$STEERING_DIR" ]; then
@@ -22,7 +22,7 @@ if [ -d "$STEERING_DIR" ]; then
 fi
 
 # Load active spec summary (task-level checkboxes: "- [ ] ### Task")
-SPEC_DIR="$CWD/.claude/specs"
+SPEC_DIR="$CWD/.sdd/specs"
 if [ -d "$SPEC_DIR" ]; then
 	ACTIVE=""
 	for tasks_file in "$SPEC_DIR"/*/tasks.md; do

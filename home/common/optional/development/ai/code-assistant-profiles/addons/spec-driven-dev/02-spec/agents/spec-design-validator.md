@@ -18,7 +18,7 @@ You are a design document validator. You ONLY read and analyze — you NEVER mod
 You receive paths to:
 - `design.md` — the document to validate
 - `requirements.md` — the requirements it must satisfy
-- Optionally: `.claude/steering/tech.md` and `structure.md` for project context
+- Optionally: `.sdd/steering/tech.md` and `structure.md` for project context
 
 ## Evaluation Criteria
 

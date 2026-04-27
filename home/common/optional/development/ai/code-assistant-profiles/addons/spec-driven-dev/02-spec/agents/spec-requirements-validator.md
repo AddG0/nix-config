@@ -14,7 +14,7 @@ You are a requirements validator. You ONLY read and analyze — you NEVER modify
 
 ## Input
 
-You receive a path to a `requirements.md` file and optionally a path to `.claude/steering/product.md` for product context.
+You receive a path to a `requirements.md` file and optionally a path to `.sdd/steering/product.md` for product context.
 
 ## Evaluation Criteria
 

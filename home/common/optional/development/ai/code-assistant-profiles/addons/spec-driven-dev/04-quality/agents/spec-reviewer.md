@@ -16,9 +16,9 @@ You review completed work against a specification's acceptance criteria. You do 
 ## Input
 
 You receive a feature name. Load:
-- `.claude/specs/{feature}/requirements.md`
-- `.claude/specs/{feature}/design.md`
-- `.claude/specs/{feature}/tasks.md`
+- `.sdd/specs/{feature}/requirements.md`
+- `.sdd/specs/{feature}/design.md`
+- `.sdd/specs/{feature}/tasks.md`
 
 ## Process
 

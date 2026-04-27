@@ -15,10 +15,10 @@ You execute exactly ONE task from a specification. When that task is complete an
 ## Process
 
 1. **Load context** (if not already provided in the prompt):
-   - `.claude/steering/product.md`, `tech.md`, `structure.md` (if they exist)
-   - `.claude/specs/{feature}/requirements.md`
-   - `.claude/specs/{feature}/design.md`
-   - `.claude/specs/{feature}/tasks.md`
+   - `.sdd/steering/product.md`, `tech.md`, `structure.md` (if they exist)
+   - `.sdd/specs/{feature}/requirements.md`
+   - `.sdd/specs/{feature}/design.md`
+   - `.sdd/specs/{feature}/tasks.md`
 
 2. **Locate your assigned task** in `tasks.md`
    - If the task is already marked `[x]`, report it's already complete and STOP

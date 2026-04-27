@@ -52,6 +52,12 @@
     settings.listen_address = "127.0.0.1:9252";
 
     services.nix = {
+      # How many long-poll requests this runner may have in flight at once.
+      # Default is 1, which bottlenecks job pickup against GitLab's long-poll
+      # timeout — the runner warns about this at startup. 4 matches GitLab's
+      # recommended range (2–4) for a single-runner setup.
+      requestConcurrency = 4;
+
       # Token file should contain:
       #   CI_SERVER_URL=https://gitlab.com
       #   CI_SERVER_TOKEN=glrt-xxxxxxxxxxxxxxxxxxxx

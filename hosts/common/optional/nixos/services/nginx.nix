@@ -29,7 +29,7 @@
     defaults.email = config.hostSpec.email.user;
     certs."${config.hostSpec.domain}" = {
       dnsProvider = "cloudflare";
-      credentialsFile = config.sops.secrets.cloudflare.path;
+      credentialFiles."CF_DNS_API_TOKEN_FILE" = config.sops.secrets.cloudflare.path;
       group = "nginx";
       postRun = "systemctl --no-block reload nginx.service";
       extraDomainNames = ["*.${config.hostSpec.domain}"];

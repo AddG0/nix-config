@@ -29,7 +29,7 @@ Bug workflow: `/bug-create <description>` → `/bug-fix <bug-slug>`
 
 ### 00-steering — Project Context
 
-`/spec-steering-setup` analyzes the project and creates three steering documents in `.claude/steering/`:
+`/spec-steering-setup` analyzes the project and creates three steering documents in `.sdd/steering/`:
 
 | Document | Contents |
 |----------|----------|
@@ -64,7 +64,7 @@ Each validator is **platform-enforced read-only** (sonnet, `effort: high`, `disa
 
 Templates are flexible — irrelevant sections are omitted, not left empty.
 
-Specs are stored in `.claude/specs/{feature-name}/`. Templates are in `02-spec/skills/spec-create/templates/`.
+Specs are stored in `.sdd/specs/{feature-name}/`. Templates are in `02-spec/skills/spec-create/templates/`.
 
 `/spec-status [feature]` shows progress — phase, task completion, and the next task to execute.
 
@@ -134,7 +134,7 @@ All quality agents except `acceptance-tester` are **read-only** (restricted via 
 
 ### 05-bugs — Bug Reporting & Fixing
 
-`/bug-create <description>` runs in a **forked context** to investigate the codebase, identify root cause, and write a structured report to `.claude/specs/bug-{slug}/bug-report.md` with fix tasks.
+`/bug-create <description>` runs in a **forked context** to investigate the codebase, identify root cause, and write a structured report to `.sdd/specs/bug-{slug}/bug-report.md` with fix tasks.
 
 `/bug-fix <bug-slug>` implements the fix, adds a regression test, and validates via the completion validator.
 

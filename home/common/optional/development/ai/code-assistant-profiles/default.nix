@@ -79,6 +79,7 @@ in {
       (addon ./addons/documentation)
       (addon ./addons/architecture)
       (addon ./addons/spec-driven-dev)
+      (addon ./addons/caveman)
       {
         description = "Everyday development";
 

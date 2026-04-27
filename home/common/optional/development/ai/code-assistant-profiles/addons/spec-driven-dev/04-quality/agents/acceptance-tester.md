@@ -21,8 +21,8 @@ Both must pass for a task to be complete.
 
 ## Process
 
-1. **Read the requirements document** (`.claude/specs/{feature}/requirements.md`)
-2. **Read the design document** (`.claude/specs/{feature}/design.md`) for integration context
+1. **Read the requirements document** (`.sdd/specs/{feature}/requirements.md`)
+2. **Read the design document** (`.sdd/specs/{feature}/design.md`) for integration context
 3. **Detect the project's test framework** by checking config files:
 
    | Config File | Language | Common Frameworks |

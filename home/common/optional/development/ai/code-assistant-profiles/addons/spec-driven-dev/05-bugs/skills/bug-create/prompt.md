@@ -30,14 +30,14 @@ Extract the bug description from arguments. Ask the user for any missing details
 ## Step 3: Write Bug Report
 
 Create a slug from the description (kebab-case, max 40 chars).
-Read the template at `${CLAUDE_SKILL_DIR}/templates/bug-report.md.template`, fill it in, and write to `.claude/specs/bug-{slug}/bug-report.md`.
+Read the template at `${CLAUDE_SKILL_DIR}/templates/bug-report.md.template`, fill it in, and write to `.sdd/specs/bug-{slug}/bug-report.md`.
 
 ## Step 4: Report
 
 ```markdown
 ## Bug Report Created
 
-**Location**: `.claude/specs/bug-{slug}/bug-report.md`
+**Location**: `.sdd/specs/bug-{slug}/bug-report.md`
 **Root Cause**: `{file}:{line}` — {brief cause}
 **Confidence**: {score}/100
 **Fix Tasks**: {count}

@@ -14,13 +14,13 @@ Parse argument to extract the bug slug (e.g., `bug-login-timeout`).
 
 ## Step 1: Load Bug Report
 
-Read `.claude/specs/{bug-slug}/bug-report.md`.
+Read `.sdd/specs/{bug-slug}/bug-report.md`.
 
 If it doesn't exist:
 ```
 Error: No bug report found for "{bug-slug}".
 Run `/bug-create {description}` first.
-Available bug reports: {list from .claude/specs/bug-*/}
+Available bug reports: {list from .sdd/specs/bug-*/}
 ```
 
 ## Step 2: Implement Fix

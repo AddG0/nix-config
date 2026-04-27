@@ -21,7 +21,7 @@ Before asking the user a single question, gather as much context as you can:
    - Test patterns and conventions
 
 2. **Read project context** if it exists:
-   - `.claude/steering/product.md`, `tech.md`, `structure.md`
+   - `.sdd/steering/product.md`, `tech.md`, `structure.md`
    - `README.md`, `CLAUDE.md`
    - Recent git history in the affected area: `git log --oneline -20 -- {relevant paths}`
 

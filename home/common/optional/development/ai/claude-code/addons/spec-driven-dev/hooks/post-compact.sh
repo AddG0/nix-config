@@ -7,7 +7,7 @@ INPUT=$(cat) || true
 
 CWD=$(echo "$INPUT" | jq -r '.cwd // empty') || true
 CWD="${CWD:-${CLAUDE_PROJECT_DIR:-$(pwd)}}"
-SPEC_DIR="$CWD/.claude/specs"
+SPEC_DIR="$CWD/.sdd/specs"
 
 [ -d "$SPEC_DIR" ] || exit 0
 
@@ -30,6 +30,6 @@ done
 
 if [ -n "$ACTIVE" ]; then
 	printf "CONTEXT RESTORED AFTER COMPACTION:\n%s\n" "$ACTIVE"
-	printf "Spec files are in .claude/specs/. Re-read them if you need full context.\n"
+	printf "Spec files are in .sdd/specs/. Re-read them if you need full context.\n"
 	printf "Use /spec-status for current progress.\n"
 fi

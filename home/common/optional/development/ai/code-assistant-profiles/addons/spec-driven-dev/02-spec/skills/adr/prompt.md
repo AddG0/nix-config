@@ -15,20 +15,20 @@ argument-hint: "<decision-title>"
 ### 1. Research Context
 
 Before writing, understand the landscape:
-- Read existing ADRs in `.claude/specs/decisions/` to avoid duplicates and find related decisions
+- Read existing ADRs in `.sdd/specs/decisions/` to avoid duplicates and find related decisions
 - Explore the codebase area affected by this decision
-- Read `.claude/steering/tech.md` for current stack and constraints
+- Read `.sdd/steering/tech.md` for current stack and constraints
 
 ### 2. Determine Next Number
 
-Find the highest existing ADR number in `.claude/specs/decisions/` and increment by 1.
+Find the highest existing ADR number in `.sdd/specs/decisions/` and increment by 1.
 If no ADRs exist, start at ADR-001.
 
 ### 3. Write the ADR
 
 Read the template at `${CLAUDE_SKILL_DIR}/../architecture-standards/references/adr-template.md`.
 
-Create `.claude/specs/decisions/ADR-{NNN}-{kebab-case-title}.md` filling in:
+Create `.sdd/specs/decisions/ADR-{NNN}-{kebab-case-title}.md` filling in:
 - **Context**: What problem or question motivated this decision
 - **Decision**: What we chose and why
 - **Options Considered**: At least 2 alternatives with pros/cons for each
@@ -46,7 +46,7 @@ If this decision supersedes an existing ADR:
 ```markdown
 ## ADR Created
 
-**File**: `.claude/specs/decisions/ADR-{NNN}-{title}.md`
+**File**: `.sdd/specs/decisions/ADR-{NNN}-{title}.md`
 **Status**: Proposed
 **Decision**: {one-line summary}
 **Alternatives considered**: {count}

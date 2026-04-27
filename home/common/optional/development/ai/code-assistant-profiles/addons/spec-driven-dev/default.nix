@@ -45,7 +45,7 @@ _: {
     "quality-standards".content.source = ./04-quality/rules/quality-standards.md;
     architecture.content.text = ''
       Architecture conventions:
-      - Document significant decisions as ADRs in .claude/specs/decisions/ (MADR 3.0 format)
+      - Document significant decisions as ADRs in .sdd/specs/decisions/ (MADR 3.0 format)
       - Use Mermaid for inline diagrams, C4 model for system-level views
       - Always document trade-offs — what was chosen AND what was rejected and why
       - Respect existing ADRs — flag contradictions, create new ADR if overriding

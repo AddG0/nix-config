@@ -8,7 +8,7 @@ INPUT=$(cat) || true
 PROMPT=$(echo "$INPUT" | jq -r '.prompt // empty') || true
 CWD=$(echo "$INPUT" | jq -r '.cwd // empty') || true
 CWD="${CWD:-${CLAUDE_PROJECT_DIR:-$(pwd)}}"
-SPEC_DIR="$CWD/.claude/specs"
+SPEC_DIR="$CWD/.sdd/specs"
 
 # Check for active specs with incomplete tasks
 # Task-level checkboxes match: "- [ ] ### Task" or "- [x] ### Task"
