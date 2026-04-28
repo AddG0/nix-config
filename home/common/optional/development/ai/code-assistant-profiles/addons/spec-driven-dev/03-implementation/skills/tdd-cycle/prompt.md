@@ -1,7 +1,8 @@
 ---
 name: tdd-cycle
 description: "Orchestrates RED-GREEN-BLUE TDD cycle using context-isolated agents. Enforces phase gates between test writing, implementation, and refactoring."
-disable-model-invocation: true
+invocation:
+  model: false
 allowed-tools: [Read, Glob, Grep, Bash, Edit, Write, Agent]
 argument-hint: "<feature-description>"
 ---

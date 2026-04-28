@@ -1,0 +1,29 @@
+{pkgs, ...}: {
+  extensions = [
+    pkgs.vscode-marketplace.esbenp.prettier-vscode
+  ];
+  userSettings = {
+    "prettier.enable" = true;
+    "[javascript]" = {
+      "editor.defaultFormatter" = "esbenp.prettier-vscode";
+    };
+    "[javascriptreact]" = {
+      "editor.defaultFormatter" = "esbenp.prettier-vscode";
+    };
+    "[typescript]" = {
+      "editor.defaultFormatter" = "esbenp.prettier-vscode";
+    };
+    "[typescriptreact]" = {
+      "editor.defaultFormatter" = "esbenp.prettier-vscode";
+    };
+    "[json]" = {
+      "editor.defaultFormatter" = "esbenp.prettier-vscode";
+    };
+    "[html]" = {
+      "editor.defaultFormatter" = "esbenp.prettier-vscode";
+    };
+    "[css]" = {
+      "editor.defaultFormatter" = "esbenp.prettier-vscode";
+    };
+  };
+}

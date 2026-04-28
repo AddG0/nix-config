@@ -17,23 +17,29 @@
   in
     first + lib.concatStrings (map capitalize rest);
 
-  # Get all category directories
-  categories = builtins.attrNames (builtins.readDir extensionsDir);
-
-  # Import all .nix files from a category directory
-  importCategory = category: let
-    categoryPath = extensionsDir + "/${category}";
-    files = builtins.readDir categoryPath;
-    nixFiles = lib.filterAttrs (name: type: type == "regular" && lib.hasSuffix ".nix" name) files;
-  in
-    lib.mapAttrs' (name: _: {
-      name = toCamelCase (lib.removeSuffix ".nix" name);
-      value = import (categoryPath + "/${name}") {inherit pkgs config lib hostSpec;};
-    })
-    nixFiles;
+  # Recursively collect every .nix file under extensionsDir.
+  # Subdirectories are purely organizational - file names (camelCased) become
+  # the attribute keys, so file names must be unique across the tree.
+  findNixFiles = dir:
+    lib.flatten (lib.mapAttrsToList (
+      name: type:
+        if type == "directory"
+        then findNixFiles (dir + "/${name}")
+        else if type == "regular" && lib.hasSuffix ".nix" name
+        then [
+          {
+            name = toCamelCase (lib.removeSuffix ".nix" name);
+            path = dir + "/${name}";
+          }
+        ]
+        else []
+    ) (builtins.readDir dir));
 
   # All extensions merged into one attribute set
-  ext = lib.foldl (acc: cat: acc // (importCategory cat)) {} categories;
+  ext = builtins.listToAttrs (map (f: {
+    inherit (f) name;
+    value = import f.path {inherit pkgs config lib hostSpec;};
+  }) (findNixFiles extensionsDir));
 
   # Known VS Code profile attributes with special merge logic
   profileAttrs = ["extensions" "userSettings" "keybindings" "globalSnippets" "languageSnippets" "userMcp" "userTasks"];
@@ -66,6 +72,9 @@
       materialIcons
       direnv
       indentOnEmptyLine
+
+      # Formatting
+      formatting
 
       # UI / Theme
       catppuccin

@@ -18,6 +18,12 @@
       description = "Base shared configuration merged into all profiles by future adapters.";
     };
 
+    addons = lib.mkOption {
+      type = lib.types.attrsOf (lib.types.submodule {options = typesModule.sharedProfileOptions;});
+      default = {};
+      description = "Named, reusable shared-profile content blocks that profiles can include via the `include` option.";
+    };
+
     profiles = lib.mkOption {
       type = lib.types.attrsOf typesModule.profileType;
       default = {};

@@ -1,7 +1,8 @@
 ---
 name: bug-fix
 description: "Implement a bug fix per the bug report, add regression test, and validate."
-disable-model-invocation: true
+invocation:
+  model: false
 allowed-tools: [Read, Glob, Grep, Bash, Edit, Write, Agent]
 argument-hint: "<bug-slug>"
 ---

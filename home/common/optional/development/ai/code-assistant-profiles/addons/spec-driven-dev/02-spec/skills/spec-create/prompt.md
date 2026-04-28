@@ -59,7 +59,7 @@ Launch `spec-requirements-validator` agent to review the document.
 Launch the `system-architect` agent to design the technical approach:
 - Provide the approved requirements document
 - The architect explores the codebase, identifies component boundaries, data flow, and integration points
-- If a significant architectural decision is involved, the architect creates an ADR at `.sdd/specs/decisions/ADR-NNN-title.md`
+- If a significant architectural decision is involved, the architect creates an ADR at `.sdd/decisions/ADR-NNN-title.md`
 
 ### Write `.sdd/specs/{feature-name}/design.md`
 

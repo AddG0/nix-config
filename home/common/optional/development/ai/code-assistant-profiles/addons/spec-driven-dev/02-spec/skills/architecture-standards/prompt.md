@@ -1,7 +1,8 @@
 ---
 name: architecture-standards
 description: "Architecture conventions, ADR process, design principles, and component patterns. Preloaded by agents that need architectural context."
-user-invocable: false
+invocation:
+  user: false
 ---
 
 # Architecture Standards
@@ -25,7 +26,7 @@ Significant architectural decisions MUST be documented as ADRs using MADR 3.0 fo
 - Data storage decisions
 - Security architecture choices
 
-**Where:** `.sdd/specs/decisions/ADR-NNN-title.md`
+**Where:** `.sdd/decisions/ADR-NNN-title.md`
 
 **Template:** See `${CLAUDE_SKILL_DIR}/references/adr-template.md`
 

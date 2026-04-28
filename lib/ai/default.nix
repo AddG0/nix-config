@@ -2,26 +2,7 @@
   frontmatter,
   lib,
 }: let
-  normalizeStringList = value:
-    if value == null || value == ""
-    then []
-    else if lib.isList value
-    then value
-    else let
-      trimmed = lib.strings.trim value;
-      unwrapped =
-        if lib.hasPrefix "[" trimmed && lib.hasSuffix "]" trimmed
-        then lib.removeSuffix "]" (lib.removePrefix "[" trimmed)
-        else trimmed;
-    in
-      map (value': let
-        trimmed = lib.strings.trim value';
-      in
-        if lib.hasPrefix "\"" trimmed && lib.hasSuffix "\"" trimmed
-        then lib.removeSuffix "\"" (lib.removePrefix "\"" trimmed)
-        else if lib.hasPrefix "'" trimmed && lib.hasSuffix "'" trimmed
-        then lib.removeSuffix "'" (lib.removePrefix "'" trimmed)
-        else trimmed) (lib.splitString "," unwrapped);
+  inherit (frontmatter) normalizeStringList;
 
   parseClaudeFile = input: let
     parsed = frontmatter.fromFile input;
@@ -30,52 +11,42 @@
     attrs = parsed.attrs or {};
   };
 
-  attrOrNull = attrs: name: attrs.${name} or null;
-
-  parseClaudeMarkdown = input: let
-    parsed = parseClaudeFile input;
-  in {
-    metadata = parsed.attrs;
-    inherit (parsed) body;
-  };
-
   fromClaudeAgent = input: let
     parsed = parseClaudeFile input;
   in {
-    description = attrOrNull parsed.attrs "description";
+    description = parsed.attrs.description or null;
     prompt.text = parsed.body;
-    tools = normalizeStringList (attrOrNull parsed.attrs "tools");
-    skills = normalizeStringList (attrOrNull parsed.attrs "skills");
-    model = attrOrNull parsed.attrs "model";
-    color = attrOrNull parsed.attrs "color";
-    category = attrOrNull parsed.attrs "category";
+    tools = normalizeStringList (parsed.attrs.tools or null);
+    skills = normalizeStringList (parsed.attrs.skills or null);
+    model = parsed.attrs.model or null;
+    color = parsed.attrs.color or null;
+    category = parsed.attrs.category or null;
   };
 
   fromClaudeCommand = input: let
     parsed = parseClaudeFile input;
-    allowedTools = attrOrNull parsed.attrs "allowed-tools";
   in {
-    description = attrOrNull parsed.attrs "description";
-    argumentHint = attrOrNull parsed.attrs "argument-hint";
-    tools = normalizeStringList allowedTools;
+    description = parsed.attrs.description or null;
+    argumentHint = parsed.attrs."argument-hint" or null;
+    allowedTools = normalizeStringList (parsed.attrs."allowed-tools" or null);
     content.text = parsed.body;
   };
 
   fromClaudeSkillFile = input: let
     parsed = parseClaudeFile input;
-    allowedTools = attrOrNull parsed.attrs "allowed-tools";
-    tools = attrOrNull parsed.attrs "tools";
+    allowedTools = parsed.attrs."allowed-tools" or null;
+    tools = parsed.attrs.tools or null;
   in {
-    description = attrOrNull parsed.attrs "description";
-    argumentHint = attrOrNull parsed.attrs "argument-hint";
-    context = attrOrNull parsed.attrs "context";
-    tools = normalizeStringList (
+    description = parsed.attrs.description or null;
+    argumentHint = parsed.attrs."argument-hint" or null;
+    context = parsed.attrs.context or null;
+    allowedTools = normalizeStringList (
       if allowedTools != null
       then allowedTools
       else tools
     );
-    model = attrOrNull parsed.attrs "model";
-    version = attrOrNull parsed.attrs "version";
+    model = parsed.attrs.model or null;
+    version = parsed.attrs.version or null;
     prompt.text = parsed.body;
   };
 
@@ -104,6 +75,5 @@ in {
     fromClaudeCommand
     fromClaudeSkillDir
     fromClaudeSkillFile
-    parseClaudeMarkdown
     ;
 }

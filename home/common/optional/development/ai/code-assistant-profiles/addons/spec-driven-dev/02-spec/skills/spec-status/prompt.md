@@ -1,7 +1,8 @@
 ---
 name: spec-status
 description: "Display workflow phase and task completion progress for a spec."
-disable-model-invocation: true
+invocation:
+  model: false
 allowed-tools: [Read, Glob, Grep]
 argument-hint: "[feature-name]"
 ---

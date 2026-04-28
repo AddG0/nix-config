@@ -201,7 +201,7 @@ build-image hostname="" variant="iso":
 [confirm("This will overwrite the target drive. Continue?")]
 [doc("Install ISO to specified drive")]
 iso-install DRIVE hostname="": (build-image hostname "iso")
-  sudo dd if=$(eza --sort changed result/iso/*.iso | tail -n1) of={{DRIVE}} bs=4M status=progress oflag=sync
+  sudo dd if=$(echo result/iso/*.iso) of={{DRIVE}} bs=4M status=progress oflag=sync
 
 [group('installation')]
 [confirm("This will partition and encrypt the drive. All data will be lost. Continue?")]

@@ -44,9 +44,9 @@
       agent = command.agent or null;
       model = command.model or null;
       "allowed-tools" =
-        if (command.tools or []) == []
+        if (command.allowedTools or []) == []
         then null
-        else command.tools;
+        else command.allowedTools;
     };
   in
     frontmatter.toFile {
@@ -93,9 +93,9 @@
           agent = skill.agent or null;
           effort = skill.effort or null;
           tools =
-            if skill.tools == []
+            if skill.allowedTools == []
             then null
-            else skill.tools;
+            else skill.allowedTools;
           version = skill.version or null;
         };
       };
@@ -151,7 +151,7 @@
       commandName = skill.name;
       command = {
         description = fallbackString skill.description commandName;
-        inherit (skill) argumentHint agent model tools;
+        inherit (skill) argumentHint agent model allowedTools;
         content = skill.prompt;
       };
     in

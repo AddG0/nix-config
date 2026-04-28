@@ -1,7 +1,8 @@
 ---
 name: bug-create
 description: "Create a structured bug report with reproduction steps, root cause analysis, and fix tasks."
-disable-model-invocation: true
+invocation:
+  model: false
 allowed-tools: [Read, Glob, Grep, Bash, Write]
 context: fork
 argument-hint: "<short-description>"

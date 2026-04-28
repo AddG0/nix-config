@@ -1,6 +1,7 @@
 {
   pkgs,
   config,
+  inputs,
   ...
 }: let
   context7-wrapper = pkgs.writeShellScript "context7" ''
@@ -8,9 +9,11 @@
     npx -y @upstash/context7-mcp --api-key $(cat ${config.sops.secrets.context7.path})
   '';
 in {
-  mcpServers.context7 = {
-    command = "${context7-wrapper}";
-  };
+  sops.secrets.context7.sopsFile = "${inputs.nix-secrets}/global/api-keys/context7.yaml";
 
-  rules.context7.content.source = ./rule.md;
+  programs.code-assistant-profiles.addons.context7 = {
+    mcpServers.context7.command = "${context7-wrapper}";
+
+    rules.context7.content.source = ./rule.md;
+  };
 }

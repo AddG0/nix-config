@@ -2,9 +2,18 @@
   cfg,
   lib,
 }: let
-  mergeConfigs = base: overlay: {
-    settings = lib.recursiveUpdate (base.settings or {}) (overlay.settings or {});
-    memory = let
+  recursiveMerge = field: base: overlay:
+    lib.recursiveUpdate (base.${field} or {}) (overlay.${field} or {});
+
+  shallowMerge = field: base: overlay:
+    (base.${field} or {}) // (overlay.${field} or {});
+
+  concatLists = field: base: overlay:
+    (base.${field} or []) ++ (overlay.${field} or []);
+
+  mergeStrategies = {
+    settings = recursiveMerge "settings";
+    memory = base: overlay: let
       texts = lib.filter (t: t != null) [(base.memory.text or null) (overlay.memory.text or null)];
     in {
       text =
@@ -13,21 +22,29 @@
         else null;
       source = overlay.memory.source or base.memory.source or null;
     };
-    mcpServers = (base.mcpServers or {}) // (overlay.mcpServers or {});
-    lspServers = (base.lspServers or {}) // (overlay.lspServers or {});
-    agents = (base.agents or {}) // (overlay.agents or {});
-    commands = (base.commands or {}) // (overlay.commands or {});
-    hooks = (base.hooks or {}) // (overlay.hooks or {});
-    skills = (base.skills or {}) // (overlay.skills or {});
-    rules = (base.rules or {}) // (overlay.rules or {});
-    outputStyles = (base.outputStyles or {}) // (overlay.outputStyles or {});
-    pluginDirs = (base.pluginDirs or []) ++ (overlay.pluginDirs or []);
-    extraFiles = (base.extraFiles or {}) // (overlay.extraFiles or {});
+    mcpServers = shallowMerge "mcpServers";
+    lspServers = shallowMerge "lspServers";
+    agents = shallowMerge "agents";
+    commands = shallowMerge "commands";
+    hooks = shallowMerge "hooks";
+    skills = shallowMerge "skills";
+    rules = shallowMerge "rules";
+    outputStyles = shallowMerge "outputStyles";
+    pluginDirs = concatLists "pluginDirs";
+    extraFiles = shallowMerge "extraFiles";
   };
+
+  mergeConfigs = base: overlay:
+    lib.mapAttrs (_: f: f base overlay) mergeStrategies;
+
+  applyInclude = base: profile: let
+    withIncludes = lib.foldl mergeConfigs base (profile.include or []);
+  in
+    mergeConfigs withIncludes (removeAttrs profile ["include"]);
 
   resolveProfile = name: profile:
     if profile.extends == null
-    then profile
+    then applyInclude {} profile
     else let
       extendsList =
         if lib.isList profile.extends
@@ -39,7 +56,7 @@
         resolveProfile parentName parent;
       resolved = lib.foldl mergeConfigs {} (map resolveOne extendsList);
     in
-      mergeConfigs resolved profile;
+      applyInclude resolved profile;
 
   mergeWithBase = name: profile: let
     resolved = resolveProfile name profile;

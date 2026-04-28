@@ -34,9 +34,9 @@
         description = command.description or null;
         "argument-hint" = command.argumentHint or null;
         "allowed-tools" =
-          if (command.tools or []) == []
+          if (command.allowedTools or []) == []
           then null
-          else command.tools;
+          else command.allowedTools;
       };
       body = readContent command.content;
     };
@@ -58,9 +58,9 @@
           then null
           else skill.paths;
         "allowed-tools" =
-          if (skill.tools or []) == []
+          if (skill.allowedTools or []) == []
           then null
-          else skill.tools;
+          else skill.allowedTools;
         model = skill.model or null;
         version = skill.version or null;
       };

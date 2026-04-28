@@ -1,7 +1,8 @@
 ---
 name: spec-steering-setup
 description: "Create product.md, tech.md, and structure.md steering documents in .sdd/steering/ by analyzing the project."
-disable-model-invocation: true
+invocation:
+  model: false
 allowed-tools: [Read, Glob, Grep, Bash, Write]
 ---
 

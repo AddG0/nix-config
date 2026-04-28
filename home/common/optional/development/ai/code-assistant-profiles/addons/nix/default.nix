@@ -1,16 +1,14 @@
 _: {
-  skills = {
-    "nix-build" = {
-      prompt.source = ./skills/nix-build/prompt.md;
+  programs.code-assistant-profiles.addons.nix = {
+    skills = {
+      "nix-build".prompt.source = ./skills/nix-build/prompt.md;
+
+      "dev-flake" = {
+        prompt.source = ./skills/dev-flake/prompt.md;
+        resourcesRoot = ./skills/dev-flake/resources;
+      };
     };
 
-    "dev-flake" = {
-      prompt.source = ./skills/dev-flake/prompt.md;
-      resourcesRoot = ./skills/dev-flake/resources;
-    };
-  };
-
-  agents."nix-builder" = {
-    prompt.source = ./agents/nix-builder.md;
+    agents."nix-builder".prompt.source = ./agents/nix-builder.md;
   };
 }

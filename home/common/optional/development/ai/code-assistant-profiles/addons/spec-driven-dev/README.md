@@ -245,7 +245,7 @@ spec-driven-dev/
 
 **Skills over commands** — Commands are legacy in Claude Code. Skills support auto-triggering, supporting files, `context: fork`, and scoped hooks.
 
-**`disable-model-invocation: true` on dangerous skills** — `spec-execute`, `bug-fix`, `tdd-cycle`, and other skills that modify code require explicit `/command` invocation.
+**`invocation.model: false` on dangerous skills** — `spec-execute`, `bug-fix`, `tdd-cycle`, and other skills that modify code require explicit `/command` invocation.
 
 **Only 2 Opus agents** — `system-architect` (cross-file architectural reasoning) and `spec-reviewer` (cross-file spec verification). All others use Sonnet with `effort: high` for ~60-70% cost savings with equivalent quality on structured tasks.
 

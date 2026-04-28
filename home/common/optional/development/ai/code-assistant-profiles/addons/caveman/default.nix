@@ -16,14 +16,16 @@
   caveman = "${pkgs.caveman}/share/caveman/skills";
   inherit (lib.custom.ai) fromClaudeSkillDir;
 in {
-  skills = {
-    "caveman" = fromClaudeSkillDir {
-      inherit pkgs;
-      source = "${caveman}/caveman";
-    };
-    "caveman-compress" = fromClaudeSkillDir {
-      inherit pkgs;
-      source = "${caveman}/compress";
+  programs.code-assistant-profiles.addons.caveman = {
+    skills = {
+      "caveman" = fromClaudeSkillDir {
+        inherit pkgs;
+        source = "${caveman}/caveman";
+      };
+      "caveman-compress" = fromClaudeSkillDir {
+        inherit pkgs;
+        source = "${caveman}/compress";
+      };
     };
   };
 }

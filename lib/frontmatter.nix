@@ -31,11 +31,19 @@
     then lib.removeSuffix "'" (lib.removePrefix "'" value)
     else value;
 
-  appendAttrList = attrs: key: value:
-    attrs
-    // {
-      ${key} = (attrs.${key} or []) ++ [value];
-    };
+  normalizeStringList = value:
+    if value == null || value == ""
+    then []
+    else if lib.isList value
+    then value
+    else let
+      trimmed = lib.strings.trim value;
+      unwrapped =
+        if lib.hasPrefix "[" trimmed && lib.hasSuffix "]" trimmed
+        then lib.removeSuffix "]" (lib.removePrefix "[" trimmed)
+        else trimmed;
+    in
+      map (item: stripQuotes (lib.strings.trim item)) (lib.splitString "," unwrapped);
 
   parseDocument = input: let
     text = readInput input;
@@ -62,38 +70,75 @@
   parse = text: let
     lines = lib.splitString "\n" text;
     step = state: line: let
-      keyMatch = builtins.match ''([A-Za-z0-9_-]+):[[:space:]]*(.*)'' line;
-      listMatch = builtins.match ''[[:space:]]*-[[:space:]]+(.*)'' line;
+      indentMatch = builtins.match ''([[:space:]]*)(.*)'' line;
+      indent =
+        if indentMatch == null
+        then 0
+        else lib.stringLength (builtins.elemAt indentMatch 0);
+      content =
+        if indentMatch == null
+        then line
+        else builtins.elemAt indentMatch 1;
+      keyMatch = builtins.match ''([A-Za-z0-9_-]+):[[:space:]]*(.*)'' content;
+      listMatch = builtins.match ''-[[:space:]]+(.*)'' content;
+      setPending = key: value:
+        state
+        // {
+          attrs = state.attrs // {${key} = value;};
+          pending = key;
+        };
+      setScalar = key: value:
+        state
+        // {
+          attrs = state.attrs // {${key} = value;};
+          pending = null;
+        };
+      appendNested = list:
+        state
+        // {
+          attrs = state.attrs // {${state.pending} = list;};
+        };
     in
-      if keyMatch != null
-      then let
-        key = builtins.elemAt keyMatch 0;
-        rawValue = builtins.elemAt keyMatch 1;
-      in
-        if rawValue == ""
-        then {
-          attrs = state.attrs // {${key} = state.attrs.${key} or [];};
-          currentListKey = key;
-        }
-        else {
-          attrs = state.attrs // {${key} = stripQuotes rawValue;};
-          currentListKey = null;
-        }
-      else if listMatch != null && state.currentListKey != null
-      then {
-        attrs = appendAttrList state.attrs state.currentListKey (stripQuotes (builtins.elemAt listMatch 0));
-        inherit (state) currentListKey;
-      }
-      else if line == ""
+      if content == ""
       then state
-      else {
-        inherit (state) attrs;
-        currentListKey = null;
-      };
+      else if indent == 0
+      then
+        if keyMatch != null
+        then let
+          key = builtins.elemAt keyMatch 0;
+          rawValue = builtins.elemAt keyMatch 1;
+        in
+          if rawValue == ""
+          then setPending key null
+          else setScalar key (stripQuotes rawValue)
+        else state // {pending = null;}
+      else if state.pending == null
+      then state
+      else if listMatch != null
+      then let
+        existing = state.attrs.${state.pending};
+        existingList =
+          if lib.isList existing
+          then existing
+          else [];
+      in
+        appendNested (existingList ++ [(stripQuotes (builtins.elemAt listMatch 0))])
+      else if keyMatch != null
+      then let
+        nestedKey = builtins.elemAt keyMatch 0;
+        rawValue = builtins.elemAt keyMatch 1;
+        existing = state.attrs.${state.pending};
+        existingMap =
+          if lib.isAttrs existing
+          then existing
+          else {};
+      in
+        appendNested (existingMap // {${nestedKey} = stripQuotes rawValue;})
+      else state;
   in
     (lib.foldl step {
         attrs = {};
-        currentListKey = null;
+        pending = null;
       }
       lines).attrs;
 
@@ -186,5 +231,5 @@
     then cleanBody
     else lib.concatStringsSep "\n" (["---"] ++ frontmatterLines ++ ["---" "" cleanBody]);
 in {
-  inherit fromFile toFile;
+  inherit fromFile normalizeStringList toFile;
 }

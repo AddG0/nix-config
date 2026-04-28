@@ -1,7 +1,8 @@
 ---
 name: spec-execute
 description: "Executes tasks from a spec using wave-based parallel execution, worktree isolation, and auto-continue. Syncs tasks.md with Claude Code's task system for dependency tracking and validation hooks."
-disable-model-invocation: true
+invocation:
+  model: false
 allowed-tools: [Read, Glob, Grep, Bash, Edit, Write, Agent, EnterWorktree, ExitWorktree, TaskCreate, TaskUpdate, TaskGet, TaskList, AskUserQuestion]
 argument-hint: "<feature-name> [task-number] [--no-worktree]"
 ---

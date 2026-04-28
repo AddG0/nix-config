@@ -13,5 +13,7 @@
       --user-data-dir "$PROFILE_DIR"
   '';
 in {
-  mcpServers.playwright.command = "${playwright-wrapper}";
+  programs.code-assistant-profiles.addons.browser-mcp = {
+    mcpServers.playwright.command = "${playwright-wrapper}";
+  };
 }

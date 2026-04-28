@@ -15,5 +15,9 @@
     "yaml.completion" = true;
     "yaml.hover" = true;
     "yaml.schemaStore.enable" = true;
+    "yaml.format.enable" = true;
+    "[yaml]" = {
+      "editor.defaultFormatter" = "redhat.vscode-yaml";
+    };
   };
 }

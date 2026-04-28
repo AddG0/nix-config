@@ -21,103 +21,105 @@
   specChangelogHook = mkHook "spec-changelog" [];
   taskCompletedHook = mkHook "task-completed" [pkgs.gnugrep pkgs.git];
 in {
-  settings.permissions.allow = [
-    "Write(.sdd/specs/**)"
-    "Edit(.sdd/specs/**)"
-    "Write(.sdd/steering/**)"
-    "Edit(.sdd/steering/**)"
-    "Bash(git checkout:*)"
-    "Bash(git merge:*)"
-    "Bash(git branch:*)"
-    "Bash(git rebase:*)"
-    "Bash(git worktree:*)"
-  ];
-
-  settings.companyAnnouncements = let
-    lines = [
-      "Spec-Driven Development"
-      ""
-      "Commands:"
-      "  /spec-steering-setup       Set up project context (one-time)"
-      "  /interview [topic]         Gather requirements interactively"
-      "  /spec-create <feature>     Requirements → Design → Tasks with validation"
-      "  /spec-execute <feat> [N]   Execute task in worktree (auto-continues, --no-worktree to skip)"
-      "  /spec-status [feature]     Check progress"
-      "  /tdd-cycle <feature>       RED → GREEN → BLUE TDD cycle"
-      "  /adr <decision-title>      Create an Architecture Decision Record"
-      "  /spec-mutate <feat> [N]    Mutation testing (optional)"
-      "  /bug-create <description>  Structured bug report"
-      "  /bug-fix <slug>            Fix + regression test + validate"
-      ""
-      "Quick fix:     /tdd-cycle → done"
-      "Bug triage:    /bug-create → /bug-fix"
-      "Full pipeline: /interview → /spec-create → /spec-execute → /spec-status"
-    ];
-  in [(builtins.concatStringsSep "\n" lines)];
-
-  settings.hooks = {
-    # Load steering context at session start; re-inject spec context after compaction
-    SessionStart = [
-      {
-        hooks = [
-          {
-            type = "command";
-            command = "${sessionStartHook}/bin/session-start";
-          }
-        ];
-      }
-      {
-        matcher = "compact";
-        hooks = [
-          {
-            type = "command";
-            command = "${postCompactHook}/bin/post-compact";
-          }
-        ];
-      }
+  programs.claude-code-profiles.addons.spec-driven-dev = {
+    settings.permissions.allow = [
+      "Write(.sdd/specs/**)"
+      "Edit(.sdd/specs/**)"
+      "Write(.sdd/steering/**)"
+      "Edit(.sdd/steering/**)"
+      "Bash(git checkout:*)"
+      "Bash(git merge:*)"
+      "Bash(git branch:*)"
+      "Bash(git rebase:*)"
+      "Bash(git worktree:*)"
     ];
 
-    # Inject active spec context before every prompt
-    UserPromptSubmit = [
-      {
-        hooks = [
-          {
-            type = "command";
-            command = "${specAwarenessHook}/bin/spec-awareness";
-            timeout = 10;
-          }
-        ];
-      }
-    ];
+    settings.companyAnnouncements = let
+      lines = [
+        "Spec-Driven Development"
+        ""
+        "Commands:"
+        "  /spec-steering-setup       Set up project context (one-time)"
+        "  /interview [topic]         Gather requirements interactively"
+        "  /spec-create <feature>     Requirements → Design → Tasks with validation"
+        "  /spec-execute <feat> [N]   Execute task in worktree (auto-continues, --no-worktree to skip)"
+        "  /spec-status [feature]     Check progress"
+        "  /tdd-cycle <feature>       RED → GREEN → BLUE TDD cycle"
+        "  /adr <decision-title>      Create an Architecture Decision Record"
+        "  /spec-mutate <feat> [N]    Mutation testing (optional)"
+        "  /bug-create <description>  Structured bug report"
+        "  /bug-fix <slug>            Fix + regression test + validate"
+        ""
+        "Quick fix:     /tdd-cycle → done"
+        "Bug triage:    /bug-create → /bug-fix"
+        "Full pipeline: /interview → /spec-create → /spec-execute → /spec-status"
+      ];
+    in [(builtins.concatStringsSep "\n" lines)];
 
-    # Track changes to spec documents
-    PostToolUse = [
-      {
-        matcher = "Edit|Write";
-        hooks = [
-          {
-            type = "command";
-            command = "${specChangelogHook}/bin/spec-changelog";
-            async = true;
-          }
-        ];
-      }
-    ];
+    settings.hooks = {
+      # Load steering context at session start; re-inject spec context after compaction
+      SessionStart = [
+        {
+          hooks = [
+            {
+              type = "command";
+              command = "${sessionStartHook}/bin/session-start";
+            }
+          ];
+        }
+        {
+          matcher = "compact";
+          hooks = [
+            {
+              type = "command";
+              command = "${postCompactHook}/bin/post-compact";
+            }
+          ];
+        }
+      ];
 
-    # Validate task completion — blocks if build/tests fail or TODOs remain
-    TaskCompleted = [
-      {
-        hooks = [
-          {
-            type = "command";
-            command = "${taskCompletedHook}/bin/task-completed";
-            timeout = 120;
-          }
-        ];
-      }
-    ];
+      # Inject active spec context before every prompt
+      UserPromptSubmit = [
+        {
+          hooks = [
+            {
+              type = "command";
+              command = "${specAwarenessHook}/bin/spec-awareness";
+              timeout = 10;
+            }
+          ];
+        }
+      ];
 
-    # Note: PostCompact is not a valid hook event. Post-compaction context
-    # restoration is handled via SessionStart with matcher="compact" above.
+      # Track changes to spec documents
+      PostToolUse = [
+        {
+          matcher = "Edit|Write";
+          hooks = [
+            {
+              type = "command";
+              command = "${specChangelogHook}/bin/spec-changelog";
+              async = true;
+            }
+          ];
+        }
+      ];
+
+      # Validate task completion — blocks if build/tests fail or TODOs remain
+      TaskCompleted = [
+        {
+          hooks = [
+            {
+              type = "command";
+              command = "${taskCompletedHook}/bin/task-completed";
+              timeout = 120;
+            }
+          ];
+        }
+      ];
+
+      # Note: PostCompact is not a valid hook event. Post-compaction context
+      # restoration is handled via SessionStart with matcher="compact" above.
+    };
   };
 }

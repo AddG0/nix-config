@@ -22,12 +22,14 @@
   skillsPath = "${pkgs.superpowers-skills}/share/claude-code/skills";
   inherit (lib.custom.ai) fromClaudeSkillDir;
 in {
-  skills = lib.listToAttrs (map (skill: {
-      name = skill;
-      value = fromClaudeSkillDir {
-        inherit pkgs;
-        source = "${skillsPath}/${skill}";
-      };
-    })
-    skillNames);
+  programs.code-assistant-profiles.addons.superpowers = {
+    skills = lib.listToAttrs (map (skill: {
+        name = skill;
+        value = fromClaudeSkillDir {
+          inherit pkgs;
+          source = "${skillsPath}/${skill}";
+        };
+      })
+      skillNames);
+  };
 }

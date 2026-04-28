@@ -38,10 +38,10 @@
         description = "Optional argument hint shown by tools that support command arguments.";
       };
 
-      tools = lib.mkOption {
+      allowedTools = lib.mkOption {
         type = lib.types.listOf lib.types.str;
         default = [];
-        description = "Tool names the command expects or requires.";
+        description = "Tool names the command is allowed to invoke.";
       };
 
       content = lib.mkOption {
@@ -171,30 +171,16 @@
         description = "Optional directory containing supplementary files referenced by the skill.";
       };
 
-      tools = lib.mkOption {
+      allowedTools = lib.mkOption {
         type = lib.types.listOf lib.types.str;
         default = [];
-        description = "Tool names the skill expects or requires.";
+        description = "Tool names the skill is allowed to invoke.";
       };
 
       model = lib.mkOption {
         type = lib.types.nullOr lib.types.str;
         default = null;
         description = "Preferred model for tools that support per-skill model selection.";
-      };
-
-      userInvocable = lib.mkOption {
-        type = lib.types.bool;
-        default = true;
-        visible = false;
-        description = "Deprecated compatibility alias for invocation.user.";
-      };
-
-      disableModelInvocation = lib.mkOption {
-        type = lib.types.bool;
-        default = false;
-        visible = false;
-        description = "Deprecated compatibility alias for the inverse of invocation.model.";
       };
     };
   });
@@ -411,6 +397,12 @@
           default = null;
           example = ["default" "monitoring"];
           description = "Profile or profiles to extend.";
+        };
+
+        include = lib.mkOption {
+          type = lib.types.listOf lib.types.attrs;
+          default = [];
+          description = "Addon configs (shared-profile shape) merged into this profile. Profile-own content wins on conflicts.";
         };
 
         name = lib.mkOption {

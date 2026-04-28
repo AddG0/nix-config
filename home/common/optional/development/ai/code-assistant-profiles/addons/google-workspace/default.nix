@@ -15,5 +15,7 @@
     uvx workspace-mcp --single-user
   '';
 in {
-  mcpServers.google-workspace.command = "${workspace-mcp-wrapper}";
+  programs.code-assistant-profiles.addons.google-workspace = {
+    mcpServers.google-workspace.command = "${workspace-mcp-wrapper}";
+  };
 }

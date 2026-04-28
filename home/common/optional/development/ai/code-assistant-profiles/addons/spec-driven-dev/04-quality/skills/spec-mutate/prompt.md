@@ -1,7 +1,8 @@
 ---
 name: spec-mutate
 description: "Runs mutation testing on files modified by a spec task to verify tests actually catch bugs. Optional quality gate. Reports surviving mutants."
-disable-model-invocation: true
+invocation:
+  model: false
 allowed-tools: [Read, Glob, Grep, Bash]
 argument-hint: "<feature-name> [task-number]"
 ---

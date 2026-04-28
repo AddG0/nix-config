@@ -125,6 +125,12 @@
           description = "Profile(s) to extend. Can be a single name or list of names.";
         };
 
+        include = lib.mkOption {
+          type = lib.types.listOf lib.types.attrs;
+          default = [];
+          description = "Addon configs (claude-code config-shape) merged into this profile. Profile-own content wins on conflicts.";
+        };
+
         profileDir = lib.mkOption {
           type = lib.types.str;
           default = "${baseDir}/${name}";
@@ -151,6 +157,12 @@ in {
       type = lib.types.submodule {options = configOptions;};
       default = {};
       description = "Base configuration merged into all profiles.";
+    };
+
+    addons = lib.mkOption {
+      type = lib.types.attrsOf (lib.types.submodule {options = configOptions;});
+      default = {};
+      description = "Named, reusable claude-code config blocks that profiles can include via the `include` option.";
     };
 
     profiles = lib.mkOption {
