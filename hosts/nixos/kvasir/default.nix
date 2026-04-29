@@ -34,6 +34,7 @@
   networking = {
     networkmanager.enable = true;
     enableIPv6 = false;
+    interfaces.en01.wakeOnLan.enable = true;
   };
 
   boot.loader = {

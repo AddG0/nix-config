@@ -80,6 +80,7 @@
   networking = {
     networkmanager.enable = true;
     enableIPv6 = false;
+    interfaces.enp12s0.wakeOnLan.enable = true;
   };
 
   # Press 'w' at boot menu to jump to Windows
