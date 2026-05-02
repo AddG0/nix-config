@@ -4,6 +4,11 @@ _: {
   hardware.bluetooth.settings = {
     General = {
       Experimental = true; # Enables better codec support
+      ## Make the adapter respond faster when known devices (AirPods) start
+      ## advertising on wake — without this, BlueZ often misses the brief
+      ## advertisement window when AirPods leave the case.
+      FastConnectable = true;
+      JustWorksRepairing = "always";
     };
     Policy = {
       AutoEnable = true;

@@ -6,6 +6,7 @@
     ./oled-protection
     ./plugins
     ./apps
+    ./pip.nix
   ];
 
   # wayland session entry for greetd

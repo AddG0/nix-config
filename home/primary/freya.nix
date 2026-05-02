@@ -63,7 +63,6 @@
         "gaming/minecraft"
         "gaming/heroic.nix"
         "gaming/r2modman.nix"
-        "gaming/bakkesmod.nix"
         "gaming/nitrox.nix"
 
         # Ghostty (Terminal)
@@ -86,7 +85,6 @@
         "nixos/desktops/hyprland"
         "nixos/desktops/hyprland/common/software-dimming.nix"
         "nixos/desktops/hyprland/nvidia.nix"
-        "nixos/desktops/hyprland/sunshine.nix"
         "media/vlc.nix"
 
         # Remote Desktop
@@ -164,13 +162,14 @@
   # | 2560x1600@240Hz |
   # | Samsung built-in |
   # --------
-  defaultMonitor.enable = false;
+  display.defaultMonitor.enable = false;
 
   wayland.windowManager.hyprland.settings = {
     windowrule = [
       "workspace 3 silent, match:class ^(Slack)$"
-      "workspace 3 silent, match:title Legcord$"
+      "workspace 3 silent, match:title .*([Dd]iscord|[Ll]egcord).*"
       "workspace 2 silent, match:class ^(zen(-beta)?)$"
+      "workspace 6 silent, match:class ^([Ss]team)$"
     ];
   };
 
@@ -181,10 +180,11 @@
       "${config.programs.zen-browser.package}/share/applications/zen-beta.desktop"
       "${pkgs._1password-gui}/share/applications/1password.desktop"
       "${config.programs.spicetify.spicedSpotify}/share/applications/spotify.desktop"
+      "${pkgs.steam}/share/applications/steam.desktop"
     ];
   };
 
-  monitors = [
+  display.monitors = [
     {
       name = "eDP-1";
       width = 2560;

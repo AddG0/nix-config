@@ -8,6 +8,13 @@
     then spec.text
     else builtins.readFile spec.source;
 
+  # Claude Code accepts low/medium/high/xhigh/max. The agnostic 'minimal'
+  # has no Claude equivalent and is dropped.
+  claudeEffort = effort:
+    if effort == "minimal"
+    then null
+    else effort;
+
   renderAgent = name: agent:
     frontmatter.toFile {
       attrs = {
@@ -24,6 +31,8 @@
         model = agent.model or null;
         color = agent.color or null;
         category = agent.category or null;
+        effort = claudeEffort (agent.reasoningEffort or null);
+        maxTurns = agent.maxTurns or null;
       };
       body = readContent agent.prompt;
     };
@@ -49,7 +58,7 @@
         when_to_use = skill.whenToUse or null;
         "argument-hint" = skill.argumentHint or null;
         context = skill.context or null;
-        effort = skill.effort or null;
+        effort = claudeEffort (skill.reasoningEffort or null);
         agent = skill.agent or null;
         "user-invocable" = skill.invocation.user or null;
         "disable-model-invocation" = !(skill.invocation.model or true);

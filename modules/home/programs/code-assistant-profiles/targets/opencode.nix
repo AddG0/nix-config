@@ -33,6 +33,8 @@
           if (agent.skills or []) == []
           then null
           else agent.skills;
+        reasoningEffort = agent.reasoningEffort or null;
+        steps = agent.maxTurns or null;
       };
       body = readContent agent.prompt;
     };
@@ -91,7 +93,7 @@
           context = skill.context or null;
           model = skill.model or null;
           agent = skill.agent or null;
-          effort = skill.effort or null;
+          reasoningEffort = skill.reasoningEffort or null;
           tools =
             if skill.allowedTools == []
             then null
@@ -167,7 +169,7 @@
     )
   );
 in {
-  config = lib.mkIf (config.programs.opencode.enable && hasProfile) {
+  config = lib.mkIf (codingCfg.enable && codingCfg.targets.opencode.enable && hasProfile) {
     programs.opencode = {
       agents = lib.mkDefault (lib.mapAttrs renderAgent (profile.agents or {}));
       commands = lib.mkDefault (lib.mapAttrs renderCommand commands);

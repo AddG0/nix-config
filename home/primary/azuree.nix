@@ -80,7 +80,7 @@
   #  ------   ------   ------
   # | DP-2 | | DP-1 | | DP-3 |
   #  ------   ------   ------
-  monitors = [
+  display.monitors = [
     {
       name = "DP-1";
       width = 3440;

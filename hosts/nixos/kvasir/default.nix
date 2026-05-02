@@ -31,6 +31,11 @@
     ))
   ];
 
+  nix.git-sync = {
+    enable = true;
+    schedule = "04:00";
+  };
+
   networking = {
     networkmanager.enable = true;
     enableIPv6 = false;
@@ -52,9 +57,7 @@
   hostSpec = {
     hostName = "kvasir";
     hostPlatform = "x86_64-linux";
-    colmena = {
-      enable = true;
-    };
+    colmena.enable = true;
   };
 
   time.timeZone = "America/Chicago";

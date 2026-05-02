@@ -64,10 +64,21 @@
       model = "model";
       color = "color";
       category = "category";
+      reasoningEffort = "effort";
     };
     listFields = {
       tools = "tools";
       skills = "skills";
+    };
+    extra = agent: parsed: let
+      rawMaxTurns = parsed.attrs.maxTurns or null;
+    in {
+      maxTurns =
+        if agent.maxTurns != null
+        then agent.maxTurns
+        else if rawMaxTurns == null
+        then null
+        else lib.toInt rawMaxTurns;
     };
   };
 
@@ -93,7 +104,7 @@
       whenToUse = "when_to_use";
       argumentHint = "argument-hint";
       context = "context";
-      effort = "effort";
+      reasoningEffort = "effort";
       agent = "agent";
       version = "version";
       model = "model";

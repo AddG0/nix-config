@@ -62,7 +62,6 @@
         "gaming/minecraft"
         "gaming/heroic.nix"
         "gaming/r2modman.nix"
-        "gaming/bakkesmod.nix"
 
         # Ghostty (Terminal)
         "ghostty"
@@ -146,7 +145,7 @@
   # | Samsung   | | Samsung  |
   # | U32J59x   | | U32J59x  |
   #  -----------   -----------
-  defaultMonitor.enable = false;
+  display.defaultMonitor.enable = false;
 
   wayland.windowManager.hyprland.settings = {
     workspace = [
@@ -170,7 +169,7 @@
     ];
   };
 
-  monitors = [
+  display.monitors = [
     {
       name = "HDMI-A-1";
       width = 3840;

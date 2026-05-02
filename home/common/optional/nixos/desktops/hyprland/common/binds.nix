@@ -57,14 +57,53 @@
       ${pkgs.pipewire}/bin/pw-play --volume=0.2 ${unmuteSound} &
     fi
   '';
+  # Hyprland silently refuses fullscreen on pinned windows. This wrapper unpins
+  # before fullscreening and re-pins when fullscreen is exited, so SUPER+F /
+  # SUPER+SHIFT+F work on pinned floating windows like browser PiP.
+  smart-fullscreen = pkgs.writeShellScriptBin "hypr-smart-fullscreen" ''
+    set -eu
+    target="''${1:?usage: hypr-smart-fullscreen <1|2>}"
+
+    state_dir="''${XDG_RUNTIME_DIR:-/tmp}/hypr-fs-repin"
+    mkdir -p "$state_dir"
+
+    win=$(${pkgs.hyprland}/bin/hyprctl activewindow -j)
+    addr=$(printf '%s' "$win" | ${pkgs.jq}/bin/jq -r '.address')
+    pinned=$(printf '%s' "$win" | ${pkgs.jq}/bin/jq -r '.pinned')
+    fs=$(printf '%s' "$win" | ${pkgs.jq}/bin/jq -r '.fullscreen')
+    marker="$state_dir/$addr"
+
+    if [ "$fs" = "$target" ]; then
+      # already at target — exit fullscreen, repin if we unpinned earlier
+      if [ -e "$marker" ]; then
+        ${pkgs.hyprland}/bin/hyprctl --batch "dispatch fullscreenstate 0 -1 ; dispatch pin address:$addr"
+        rm -f "$marker"
+      else
+        ${pkgs.hyprland}/bin/hyprctl dispatch fullscreenstate "0 -1"
+      fi
+    elif [ "$fs" != "0" ]; then
+      # fullscreen at a different mode — just switch modes, leave pin alone
+      ${pkgs.hyprland}/bin/hyprctl dispatch fullscreenstate "$target -1"
+    else
+      # not fullscreen — unpin if needed, then fullscreen
+      if [ "$pinned" = "true" ]; then
+        touch "$marker"
+        ${pkgs.hyprland}/bin/hyprctl --batch "dispatch pin address:$addr ; dispatch fullscreenstate $target -1"
+      else
+        ${pkgs.hyprland}/bin/hyprctl dispatch fullscreenstate "$target -1"
+      fi
+    fi
+  '';
 in {
   wayland.windowManager.hyprland.settings = {
     # ── Mouse Binds ──
     # SUPER+LMB            Drag to move window
     # SUPER+RMB            Drag to resize window
+    # SUPER+CTRL+LMB       Trackpad-friendly resize (1-finger drag)
     bindm = [
       "SUPER,mouse:272,movewindow"
       "SUPER,mouse:273,resizewindow"
+      "SUPERCTRL,mouse:272,resizewindow"
     ];
 
     # ── Resize / Volume / Brightness (hold to repeat) ──
@@ -105,8 +144,8 @@ in {
       # SUPER+SHIFT+F       True fullscreen (hides bar)
       # SUPER+B             Toggle floating
       # SUPER+SHIFT+P       Pin window (stays on all workspaces)
-      "SUPER,f,fullscreenstate,1 -1"
-      "SUPERSHIFT,F,fullscreenstate,2 -1"
+      "SUPER,f,exec,${smart-fullscreen}/bin/hypr-smart-fullscreen 1"
+      "SUPERSHIFT,F,exec,${smart-fullscreen}/bin/hypr-smart-fullscreen 2"
       "SUPER,b,togglefloating"
       "SUPERSHIFT,p,pin,active"
 
@@ -161,9 +200,6 @@ in {
 
       # Screen annotation (wayscriber)
       "SUPER,a,exec,${pkgs.procps}/bin/pkill -SIGUSR1 wayscriber"
-
-      # Sunshine: restore physical monitors (safety keybind)
-      "SUPERSHIFT,s,exec,sunshine-disconnect"
 
       # ── Monitor Focus ──
       # SUPER+,/.            Focus monitor left/right

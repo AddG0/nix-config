@@ -44,8 +44,8 @@ in {
               else "disable"
             }"
           )
-          config.monitors)
-        ++ (lib.optional config.defaultMonitor.enable ",preferred,auto,1");
+          config.display.monitors)
+        ++ (lib.optional config.display.defaultMonitor.enable ",preferred,auto,1");
 
       # ========== Layout ==========
       general = {
@@ -97,8 +97,6 @@ in {
         "float on, match:title ^(Select what to share)$"
         "workspace special silent, match:class ^(AWS VPN Client)$"
         "float on, match:title ^(ProtonFixes)$"
-        "float on, match:title ^(BakkesModInjectorCpp)$"
-        "workspace special silent, match:title ^(BakkesModInjectorCpp)$"
         "workspace special silent, match:class ^(steam_app_252950)$, match:title ^$"
         "workspace special silent, match:title (Lethal Company.*\\.exe)"
         "workspace special silent, match:class ^(me\\.kavishdevar\\.librepods|librepods|applinux)$"

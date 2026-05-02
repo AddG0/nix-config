@@ -63,7 +63,6 @@
         "gaming/minecraft"
         "gaming/heroic.nix"
         "gaming/r2modman.nix"
-        "gaming/bakkesmod.nix"
         "gaming/nitrox.nix"
 
         # Ghostty (Terminal)
@@ -161,7 +160,7 @@
   # | ASUS | |  LG  | |DP-2|
   #  ------   ------  |(rot)|
   #                    ----
-  defaultMonitor.enable = false;
+  display.defaultMonitor.enable = false;
 
   wayland.windowManager.hyprland.settings = {
     workspace = [
@@ -187,7 +186,7 @@
     ];
   };
 
-  monitors = [
+  display.monitors = [
     {
       name = "DP-1";
       width = 3840;

@@ -30,6 +30,17 @@
       description = "Named shared profile definitions for coding tools.";
     };
 
+    targets = lib.mkOption {
+      type = lib.types.submodule {
+        options = {
+          claude-code.enable = lib.mkEnableOption "rendering shared profiles for Claude Code (drives programs.claude-code-profiles.enable)";
+          opencode.enable = lib.mkEnableOption "rendering shared profiles for opencode (drives programs.opencode.enable)";
+        };
+      };
+      default = {};
+      description = "Per-tool rendering target toggles. Enable each target to flow shared profiles into the corresponding tool module.";
+    };
+
     resolved = lib.mkOption {
       type = lib.types.attrsOf typesModule.resolvedProfileType;
       readOnly = true;

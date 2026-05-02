@@ -12,6 +12,11 @@ in {
     enable = true;
     defaultProfile = "default";
 
+    targets = {
+      claude-code.enable = true;
+      opencode.enable = true;
+    };
+
     baseConfig = {
       lspServers = {
         rust = {

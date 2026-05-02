@@ -20,5 +20,6 @@
     "terminal.integrated.cursorBlinking" = true;
     "terminal.integrated.smoothScrolling" = true;
     "terminal.integrated.scrollback" = 10000;
+    "terminal.integrated.initialHint" = false;
   };
 }

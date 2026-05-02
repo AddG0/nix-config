@@ -16,12 +16,12 @@
     inherit cfg lib;
   };
 
-  sharedProfileToClaude = import ./shared-profile-to-claude.nix {
+  sharedProfileToClaude = import ../code-assistant-profiles/targets/claude-code.nix {
     inherit lib pkgs;
   };
 
   sharedOverlayFor = name:
-    if !codingCfg.enable
+    if !(codingCfg.enable && codingCfg.targets.claude-code.enable)
     then {}
     else if codingCfg.resolved ? ${name}
     then sharedProfileToClaude codingCfg.resolved.${name}

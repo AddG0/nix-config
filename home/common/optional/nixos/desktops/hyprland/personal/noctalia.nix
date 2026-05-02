@@ -68,7 +68,7 @@ in {
           {id = "Battery";}
         ]
         ++ [{id = "ControlCenter";}];
-      notifications.monitors = lib.optionals (!isLaptop) (map (m: m.name) (builtins.filter (m: m.primary) config.monitors)); # When on a laptop we want to show notifications on all monitors since we don't know which is the primary
+      notifications.monitors = lib.optionals (!isLaptop) (map (m: m.name) (builtins.filter (m: m.primary) config.display.monitors)); # When on a laptop we want to show notifications on all monitors since we don't know which is the primary
       dock.enabled = false;
       location.useFahrenheit = true;
       location.use12hourFormat = true;

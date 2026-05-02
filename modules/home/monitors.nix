@@ -3,7 +3,7 @@
   config,
   ...
 }: {
-  options = {
+  options.display = {
     monitors = lib.mkOption {
       type = lib.types.listOf (
         lib.types.submodule {
@@ -89,8 +89,8 @@
     assertions = [
       {
         assertion =
-          ((lib.length config.monitors) != 0)
-          -> ((lib.length (lib.filter (m: m.primary) config.monitors)) == 1);
+          ((lib.length config.display.monitors) != 0)
+          -> ((lib.length (lib.filter (m: m.primary) config.display.monitors)) == 1);
         message = "Exactly one monitor must be set to primary.";
       }
     ];

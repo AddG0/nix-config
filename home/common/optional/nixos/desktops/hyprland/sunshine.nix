@@ -1,6 +1,6 @@
 # Hyprland-specific Sunshine integration: virtual monitor management + Noctalia notification redirection.
 # Scripts are placed in ~/.config/sunshine/ and executed by the NixOS Sunshine service via global_prep_cmd.
-# Monitor layout is baked at build time from config.monitors — no runtime state needed.
+# Monitor layout is baked at build time from config.display.monitors — no runtime state needed.
 {
   config,
   lib,
@@ -14,8 +14,8 @@
   transformToHyprland = hyprLib.transformMap;
   vrrToHyprland = hyprLib.vrrMap;
 
-  monitorNames = map (m: m.name) config.monitors;
-  primaryNames = map (m: m.name) (builtins.filter (m: m.primary) config.monitors);
+  monitorNames = map (m: m.name) config.display.monitors;
+  primaryNames = map (m: m.name) (builtins.filter (m: m.primary) config.display.monitors);
 
   disableMonitors = lib.concatMapStringsSep "\n" (name: ''
     ${hyprctl} keyword monitor "${name},disable"'')
@@ -31,7 +31,7 @@
       then ",cm,hdr"
       else ""
     }"'')
-  config.monitors;
+  config.display.monitors;
 
   primaryJson = builtins.toJSON primaryNames;
   primaryMon = builtins.head primaryNames;
@@ -68,10 +68,34 @@
 
   nocSettings = "\${XDG_RUNTIME_DIR:-/run/user/$(id -u)}/noctalia/settings.json";
 
+  # Sunshine starts before Hyprland imports its env into the systemd user manager,
+  # so the service inherits no HYPRLAND_INSTANCE_SIGNATURE. Detect the running
+  # compositor's socket dir at script time so hyprctl can find it.
+  detectHyprSig = ''
+    if [ -z "''${HYPRLAND_INSTANCE_SIGNATURE:-}" ]; then
+      HYPR_DIR="''${XDG_RUNTIME_DIR:-/run/user/$(id -u)}/hypr"
+      shopt -s nullglob
+      for d in "$HYPR_DIR"/*/; do
+        if [ -S "''${d}.socket.sock" ]; then
+          sig="''${d%/}"
+          HYPRLAND_INSTANCE_SIGNATURE="''${sig##*/}"
+          export HYPRLAND_INSTANCE_SIGNATURE
+          break
+        fi
+      done
+      if [ -z "''${HYPRLAND_INSTANCE_SIGNATURE:-}" ]; then
+        echo "Error: no running Hyprland instance found in $HYPR_DIR" >&2
+        exit 1
+      fi
+    fi
+  '';
+
   sunshine-connect = pkgs.writeShellApplication {
     name = "sunshine-connect";
     runtimeInputs = [pkgs.hyprland pkgs.jq];
     text = ''
+      ${detectHyprSig}
+
       # Create headless output
       hyprctl output create headless
       sleep 1
@@ -103,6 +127,8 @@
     name = "sunshine-disconnect";
     runtimeInputs = [pkgs.hyprland pkgs.jq];
     text = ''
+      ${detectHyprSig}
+
       # Restore physical monitors
       ${restoreMonitors}
       sleep 2
@@ -144,4 +170,10 @@ in {
   };
 
   home.packages = [sunshine-disconnect];
+
+  # Safety keybind: restore physical monitors if sunshine's disconnect hook
+  # didn't fire (e.g. crashed client, killed service).
+  wayland.windowManager.hyprland.settings.bind = [
+    "SUPERSHIFT,s,exec,sunshine-disconnect"
+  ];
 }

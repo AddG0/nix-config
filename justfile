@@ -189,7 +189,7 @@ check-sops:
 [doc("Update personal repositories and flake inputs")]
 update-personal-repos:
   (cd {{NIX_SECRETS_DIR}} && git fetch && git rebase) || true
-  nix flake update nix-secrets pterodactyl-addons lumenboard-player ai-toolkit bakkesmod-nix awsvpnclient-nix nitrox-nix || true
+  nix flake update nix-secrets pterodactyl-addons lumenboard-player ai-toolkit awsvpnclient-nix nitrox-nix || true
 
 [group('installation')]
 [doc("Build NixOS image (iso, gce, amazon, etc.)")]
@@ -362,6 +362,17 @@ flush-dns:
 wifi-unblock:
   rfkill unblock wifi
   sudo systemctl restart NetworkManager
+
+[group('utilities')]
+[doc("Full audio stack restart (PipeWire + WirePlumber + pipewire-pulse), then restart Noctalia")]
+restart-audio:
+  #!/usr/bin/env bash
+  set -euo pipefail
+  echo "Restarting audio stack..."
+  systemctl --user restart wireplumber.service pipewire-pulse.service pipewire.service
+  sleep 1
+  echo "Restarting Noctalia..."
+  just restart-noctalia
 
 [group('utilities')]
 [doc("Restart Noctalia (Hyprland quickshell bar) preserving Hyprland env")]

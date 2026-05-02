@@ -141,10 +141,10 @@
         description = "Optional execution context hint for tools that support it.";
       };
 
-      effort = lib.mkOption {
-        type = lib.types.nullOr (lib.types.enum ["low" "medium" "high" "max"]);
+      reasoningEffort = lib.mkOption {
+        type = lib.types.nullOr (lib.types.enum ["minimal" "low" "medium" "high" "max"]);
         default = null;
-        description = "Preferred reasoning effort for tools that support per-skill effort selection.";
+        description = "Preferred reasoning effort level. Higher levels trade latency and cost for deeper analysis.";
       };
 
       agent = lib.mkOption {
@@ -333,6 +333,18 @@
         type = lib.types.nullOr lib.types.str;
         default = null;
         description = "Display color for tools that support agent color metadata.";
+      };
+
+      reasoningEffort = lib.mkOption {
+        type = lib.types.nullOr (lib.types.enum ["minimal" "low" "medium" "high" "max"]);
+        default = null;
+        description = "Preferred reasoning effort level. Higher levels trade latency and cost for deeper analysis.";
+      };
+
+      maxTurns = lib.mkOption {
+        type = lib.types.nullOr lib.types.int;
+        default = null;
+        description = "Maximum number of agentic iterations before the agent must stop and return a final response.";
       };
     };
   });

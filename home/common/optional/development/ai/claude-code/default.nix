@@ -8,7 +8,7 @@
   jsonFormat = pkgs.formats.json {};
   claudeWrapped = pkgs.symlinkJoin {
     name = "claude-code-wrapped";
-    paths = [pkgs.claude-code-bin];
+    paths = [pkgs.claude-code];
     buildInputs = [pkgs.makeWrapper];
     postBuild = let
       telemetryEnabled = config.hostSpec.telemetry.enabled && config.hostSpec.telemetry.claude-code.enabled;
@@ -31,7 +31,6 @@
   };
 
   inherit (config.programs.claude-code-profiles) addons;
-  skillsCollection = "${pkgs.claude-code-skills-collection}/share/claude-code/plugins/claude-code-skills-collection/skills";
   anthropicSkills = "${pkgs.anthropic-skills}/share/claude-code/plugins/anthropic-skills/skills";
   skillFactory = "${pkgs.claude-code-skill-factory}/share/claude-code/plugins/claude-code-skill-factory/.claude";
 in {

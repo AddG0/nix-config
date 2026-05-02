@@ -57,7 +57,6 @@
         "gaming/minecraft"
         "gaming/heroic.nix"
         "gaming/r2modman.nix"
-        "gaming/bakkesmod.nix"
 
         # Ghostty (Terminal)
         "ghostty"
@@ -119,7 +118,7 @@
   #  ------   ------   ------
   # | DP-2 | | DP-1 | | DP-3 |
   #  ------   ------   ------
-  monitors = [
+  display.monitors = [
     {
       name = "desc:AU Optronics 0x8E9D";
       width = 2560;

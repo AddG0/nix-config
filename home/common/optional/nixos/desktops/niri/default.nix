@@ -34,7 +34,7 @@ in {
   #
   programs.niri.settings = {
     #
-    # ---- Outputs (from config.monitors) ----
+    # ---- Outputs (from config.display.monitors) ----
     #
     outputs = builtins.listToAttrs (
       map (m: {
@@ -55,7 +55,7 @@ in {
             variable-refresh-rate = m.vrr != "off";
           };
       })
-      config.monitors
+      config.display.monitors
     );
 
     #
@@ -158,7 +158,7 @@ in {
         {id = "ControlCenter";}
       ];
       # Show notifications only on the primary monitor
-      notifications.monitors = map (m: m.name) (builtins.filter (m: m.primary) config.monitors);
+      notifications.monitors = map (m: m.name) (builtins.filter (m: m.primary) config.display.monitors);
       location.useFahrenheit = true;
       location.use12hourFormat = true;
       colorSchemes.predefinedScheme = "Catppuccin";

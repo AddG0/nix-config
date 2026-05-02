@@ -23,6 +23,10 @@
     inherit cfg lib;
   };
 in {
+  imports = [
+    ./targets/opencode.nix
+  ];
+
   inherit (optionsModule) options;
 
   config = lib.mkIf cfg.enable {

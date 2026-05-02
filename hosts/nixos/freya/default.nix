@@ -31,7 +31,10 @@
       ]
       ++ (map (f: "common/optional/${f}") [
         #################### Host-specific Optional Configs ####################
-        "nixos/hardware/cachyos-kernel.nix" # CachyOS kernel
+        # cachyos-kernel.nix intentionally NOT imported here — freya pins its
+        # own LTS variant below to avoid 7.0-only regressions (NVIDIA jump_label,
+        # xe DPMS wake). Other hosts (zephy/mini/demon) use cachyos-bore via
+        # that shared import.
         # "nixos/secureboot.nix"
         "nixos/services/openssh.nix" # allow remote SSH access
         "nixos/services/tailscale.nix" # mesh VPN for secure remote access
@@ -39,16 +42,15 @@
         "nixos/audio.nix" # pipewire and cli controls - using local audio.nix instead
         "nixos/gaming.nix" # steam, gamescope, gamemode, and related hardware
         "nixos/virtualisation/docker.nix" # docker
+        "nixos/services/automatic-timezoned.nix"
 
         # "nixos/obs.nix" # obs
         "nixos/hardware/openrazer.nix" # openrazer
         "nixos/hardware/wooting.nix" # wooting keyboard
         "nixos/1password.nix"
         "nixos/services/bluetooth.nix"
-        # "nixos/services/ollama.nix"
+        "nixos/services/ollama.nix"
         # "nixos/services/clamav.nix"
-
-        "nixos/remote-desktop/sunshine"
 
         "nixos/development/mysql.nix"
 
@@ -69,6 +71,11 @@
     enableIPv6 = false;
   };
 
+  programs.captive-browser = {
+    enable = true;
+    interface = "wlo1";
+  };
+
   # Press 'w' at boot menu to jump to Windows
   boot.loader = {
     systemd-boot = {
@@ -79,6 +86,16 @@
   };
 
   security.firewall.enable = true;
+
+  # Pin to cachyos LTS (currently 6.18.x) on this host. 7.0 has two open
+  # upstream regressions affecting freya's hardware (Panther Lake + RTX 5090):
+  #   - NVIDIA open-driver jump_label suspend hang
+  #     https://github.com/NVIDIA/open-gpu-kernel-modules/issues/1117
+  #   - xe DPMS / suspend wake failure on PTL/LNL/BMG
+  #     https://gitlab.freedesktop.org/drm/xe/kernel/-/work_items/7791
+  #     https://gitlab.freedesktop.org/drm/xe/kernel/-/work_items/7764
+  # Switch back to cachyos-bore (the shared default) when both are fixed.
+  boot.kernelPackages = pkgs.cachyosKernels.linuxPackages-cachyos-lts;
 
   boot.kernelModules = ["ntsync"]; # NT sync primitives for Wine/Proton gaming performance
 
@@ -97,8 +114,6 @@
     telemetry.enabled = true;
     hostType = "laptop";
   };
-
-  time.timeZone = "America/Chicago";
 
   # Runtime profile switching — no rebuild needed
   #   powerprofilesctl set power-saver|balanced|performance

@@ -71,9 +71,7 @@
   hostSpec = {
     hostName = "thor";
     hostPlatform = "x86_64-linux";
-    colmena = {
-      enable = true;
-    };
+    colmena.enable = true;
   };
 
   time.timeZone = "America/Chicago";

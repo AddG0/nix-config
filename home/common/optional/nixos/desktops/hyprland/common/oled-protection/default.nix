@@ -4,7 +4,7 @@
   config,
   ...
 }: let
-  oledMonitorNames = map (m: m.name) (lib.filter (m: m.oled) config.monitors);
+  oledMonitorNames = map (m: m.name) (lib.filter (m: m.oled) config.display.monitors);
 
   no-sleep = pkgs.writeShellApplication {
     name = "no-sleep";

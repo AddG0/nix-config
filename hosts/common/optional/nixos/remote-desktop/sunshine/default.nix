@@ -25,11 +25,16 @@
       [ -x "$SCRIPT" ] && exec "$SCRIPT"
     '';
 in {
+  # Streaming/pairing ports are open on LAN; the web UI (47990) is intentionally
+  # NOT in the LAN allow-list — reach it via localhost or Tailscale only.
+  networking.firewall.allowedTCPPorts = [47984 47989 48010];
+  networking.firewall.allowedUDPPorts = [47998 47999 48000 48002 48010];
+
   services.sunshine = {
     enable = true;
     autoStart = true;
     capSysAdmin = true;
-    openFirewall = true;
+    openFirewall = false;
     package = pkgs.sunshine.override {cudaSupport = true;};
     settings = {
       # NVENC (RTX 5090)

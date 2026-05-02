@@ -422,8 +422,6 @@
 
   vscode-marketplace = inputs.nix-vscode-extensions.overlays.default;
 
-  bakkesmod = inputs.bakkesmod-nix.overlays.default;
-
   # CachyOS kernel overlay (provides pkgs.cachyosKernels.*)
   cachyos-kernel = inputs.nix-cachyos-kernel.overlays.pinned;
 in {
@@ -433,7 +431,6 @@ in {
     stable-packages
     unstable-packages
     nur
-    bakkesmod
     cachyos-kernel
     additions
     modifications
