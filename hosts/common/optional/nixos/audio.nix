@@ -73,11 +73,21 @@ _: {
       end
 
       SimpleEventHook {
-        name = "airpods/block-headset-profile",
+        name = "airpods/force-a2dp-sink",
         interests = {
+          -- Initial profile selection / first appearance
+          EventInterest {
+            Constraint { "event.type", "=", "device-added" },
+          },
+          -- Active profile changed (e.g. autoswitch to headset on mic open)
           EventInterest {
             Constraint { "event.type", "=", "device-params-changed" },
             Constraint { "event.subject.param-id", "=", "Profile" },
+          },
+          -- New codec/profile became available after card creation
+          EventInterest {
+            Constraint { "event.type", "=", "device-params-changed" },
+            Constraint { "event.subject.param-id", "=", "EnumProfile" },
           },
         },
         execute = function (event)
@@ -87,20 +97,28 @@ _: {
           local cur = getCurrentProfile (device)
           if cur == nil then return end
 
-          if not (string.find (cur.name, "^headset%-head%-unit") or
-                  cur.name == "bap-duplex") then
-            return
-          end
+          -- Revert any non-A2DP state to highest-prio a2dp-sink:
+          --   * "off" — WP often parks AirPods cards here at connect time
+          --     and never transitions on its own
+          --   * headset-head-unit-* — autoswitch policy switching to HFP
+          --     when an app opens a mic source (we never want this)
+          --   * bap-duplex — LE Audio fallback (mono, low quality)
+          local connected =
+              device.properties ["api.bluez5.connection"] == "connected"
+          local is_bad =
+              (cur.name == "off" and connected)
+              or string.find (cur.name, "^headset%-head%-unit") ~= nil
+              or cur.name == "bap-duplex"
+          if not is_bad then return end
 
           local target = highestPrioA2dpSink (device)
           if target == nil then
-            log:warning (device, "on " .. cur.name ..
-                " but no a2dp-sink available; not reverting")
+            -- Profiles not yet enumerated — EnumProfile event will retry
             return
           end
 
-          log:info (device, "reverting " .. cur.name .. " -> " ..
-              target.name .. " (AirPods HFP block)")
+          log:info (device, "forcing " .. cur.name .. " -> " ..
+              target.name .. " (AirPods A2DP enforcement)")
           device:set_params ("Profile", Pod.Object {
             "Spa:Pod:Object:Param:Profile", "Profile",
             index = target.index,

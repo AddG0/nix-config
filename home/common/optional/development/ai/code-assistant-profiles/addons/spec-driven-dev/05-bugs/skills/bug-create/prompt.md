@@ -12,7 +12,7 @@ argument-hint: "<short-description>"
 
 **Arguments:** $ARGUMENTS
 
-A bug report template is available at `${CLAUDE_SKILL_DIR}/templates/bug-report.md.template`.
+A bug report template is available at `${SKILL_DIR}/templates/bug-report.md.template`.
 
 ## Step 1: Gather Information
 
@@ -31,7 +31,7 @@ Extract the bug description from arguments. Ask the user for any missing details
 ## Step 3: Write Bug Report
 
 Create a slug from the description (kebab-case, max 40 chars).
-Read the template at `${CLAUDE_SKILL_DIR}/templates/bug-report.md.template`, fill it in, and write to `.sdd/specs/bug-{slug}/bug-report.md`.
+Read the template at `${SKILL_DIR}/templates/bug-report.md.template`, fill it in, and write to `.sdd/specs/bug-{slug}/bug-report.md`.
 
 ## Step 4: Report
 

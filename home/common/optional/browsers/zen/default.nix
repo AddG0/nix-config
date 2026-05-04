@@ -166,6 +166,13 @@
           workspace = spaces."Main".id;
           container = containers."Personal".id;
         };
+        "GitHub" = {
+          id = "535f283d-2667-4f4c-9376-327baeda765d";
+          url = "https://github.com";
+          position = 10000;
+          workspace = spaces."Main".id;
+          container = containers."Personal".id;
+        };
 
         # Work workspace
         "Gmail (Work)" = {

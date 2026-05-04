@@ -50,7 +50,6 @@
         "nixos/1password.nix"
         "nixos/services/bluetooth.nix"
         "nixos/services/ollama.nix"
-        # "nixos/services/clamav.nix"
 
         "nixos/development/mysql.nix"
 
@@ -99,10 +98,22 @@
 
   boot.kernelModules = ["ntsync"]; # NT sync primitives for Wine/Proton gaming performance
 
-  # RT721 (codec) + RT1320 (amp) on SoundWire link 3, SOF driver auto-detects.
-  # All multi-speaker topologies fail (SmartMic DAI missing on this board) —
-  # default function topology gives working 2ch. Needs upstream Razer RZ09-0581
-  # quirk or SmartMic-free topology for full 4-speaker support.
+  # hardware.bluetooth.powerOnBoot = true only fires its udev rule on
+  # initial controller registration at boot — after suspend/resume the
+  # controller hardware comes back but stays Powered: no. Toggle it on
+  # every resume so the controller is usable without manual intervention.
+  # bluetoothd is in a transient state right at resume (D-Bus answers but
+  # the power-on doesn't stick), so retry until the controller actually
+  # reports Powered: yes.
+  powerManagement.resumeCommands = ''
+    for i in 1 2 3 4 5 6 7 8 9 10; do
+      ${pkgs.bluez}/bin/bluetoothctl power on >/dev/null 2>&1 || true
+      sleep 1
+      if ${pkgs.bluez}/bin/bluetoothctl show 2>/dev/null | ${pkgs.gnugrep}/bin/grep -q "Powered: yes"; then
+        break
+      fi
+    done
+  '';
 
   boot.initrd = {
     systemd.enable = true;
@@ -141,4 +152,17 @@
     AttrPalmSizeThreshold=70
     AttrPalmPressureThreshold=100
   '';
+
+  # Tuning for 24 GiB VRAM (RTX 5090 Laptop). The 65k context default in the
+  # shared ollama module pushes qwen3.5:27b past VRAM (KV cache alone ~7.7 GiB),
+  # causing Ollama to evict and reload the model whenever GPU pressure shifts.
+  # 32k context + q8_0 KV cache keeps the model fully resident; keep_alive=-1
+  # prevents idle unloads on top of that.
+  services.ollama.environmentVariables = {
+    OLLAMA_CONTEXT_LENGTH = lib.mkForce "32768";
+    OLLAMA_KV_CACHE_TYPE = "q8_0";
+    OLLAMA_FLASH_ATTENTION = "1";
+    OLLAMA_KEEP_ALIVE = "-1";
+    OLLAMA_MAX_LOADED_MODELS = "1";
+  };
 }

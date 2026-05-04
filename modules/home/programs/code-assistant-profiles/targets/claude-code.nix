@@ -8,6 +8,8 @@
     then spec.text
     else builtins.readFile spec.source;
 
+  substituteSkillDir = lib.replaceStrings ["\${SKILL_DIR}"] ["\${CLAUDE_SKILL_DIR}"];
+
   # Claude Code accepts low/medium/high/xhigh/max. The agnostic 'minimal'
   # has no Claude equivalent and is dropped.
   claudeEffort = effort:
@@ -73,7 +75,7 @@
         model = skill.model or null;
         version = skill.version or null;
       };
-      body = readContent skill.prompt;
+      body = substituteSkillDir (readContent skill.prompt);
     };
   in
     if (skill.resourcesRoot or null) != null

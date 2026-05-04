@@ -30,7 +30,10 @@ _: {
         prompt.source = ./02-spec/skills/architecture-standards/prompt.md;
         resourcesRoot = ./02-spec/skills/architecture-standards/resources;
       };
-      "adr".prompt.source = ./02-spec/skills/adr/prompt.md;
+      "adr" = {
+        prompt.source = ./02-spec/skills/adr/prompt.md;
+        resourcesRoot = ./02-spec/skills/adr/resources;
+      };
       "tdd-cycle".prompt.source = ./03-implementation/skills/tdd-cycle/prompt.md;
       "spec-execute".prompt.source = ./03-implementation/skills/spec-execute/prompt.md;
       "spec-mutate".prompt.source = ./04-quality/skills/spec-mutate/prompt.md;

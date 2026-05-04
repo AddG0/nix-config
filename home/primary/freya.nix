@@ -180,7 +180,6 @@
       "${config.programs.zen-browser.package}/share/applications/zen-beta.desktop"
       "${pkgs._1password-gui}/share/applications/1password.desktop"
       "${config.programs.spicetify.spicedSpotify}/share/applications/spotify.desktop"
-      "${pkgs.steam}/share/applications/steam.desktop"
     ];
   };
 

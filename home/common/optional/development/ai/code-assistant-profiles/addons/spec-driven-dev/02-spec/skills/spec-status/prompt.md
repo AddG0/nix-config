@@ -9,50 +9,51 @@ argument-hint: "[feature-name]"
 
 # Spec Status
 
-**Arguments:** $ARGUMENTS
+Report progress for spec `$1`. If `$1` is empty, report on every spec under `.sdd/specs/`.
 
-## If No Feature Name Given
+## When `$1` is empty — list all specs
 
-List all specs:
-1. Glob for `.sdd/specs/*/tasks.md`
-2. For each, count completed vs total tasks
-3. Display summary table
+1. Glob `.sdd/specs/*/tasks.md`.
+2. For each, count completed (`[x]`) vs total tasks.
+3. Print:
 
-```markdown
-## All Specs
+   ```markdown
+   ## All Specs
 
-| Spec | Phase | Progress | Next Task |
-|------|-------|----------|-----------|
-| {name} | {phase} | {done}/{total} ({pct}%) | Task {N} |
-```
+   | Spec | Phase | Progress | Next Task |
+   |------|-------|----------|-----------|
+   | {name} | {phase} | {done}/{total} ({pct}%) | Task {N} |
+   ```
 
-## If Feature Name Given
+## When `$1` names a spec
 
-1. Check `.sdd/specs/{feature-name}/` exists. If not, list available specs and stop.
+1. Verify `.sdd/specs/$1/` exists. If not, list available specs and stop.
 
-2. Determine current phase:
-   - Only `requirements.md` exists → **Requirements**
-   - `requirements.md` + `design.md` → **Design**
-   - All three docs exist, no tasks started → **Ready**
-   - Some tasks `[x]` → **Execution**
-   - All tasks `[x]` → **Complete**
+2. Determine phase:
+   - only `requirements.md` → **Requirements**
+   - + `design.md` → **Design**
+   - all three docs, no tasks started → **Ready**
+   - some tasks `[x]` → **Execution**
+   - all tasks `[x]` → **Complete**
 
-3. Parse `tasks.md` for task details:
-   - Total tasks, completed count, remaining count
-   - Dependencies for each task
-   - Next available task (first uncompleted with all deps met)
+3. Parse `tasks.md`:
+   - total / completed / remaining counts
+   - dependencies per task
+   - next available task (first uncompleted with all deps met)
 
-```markdown
-## Spec Status: {feature-name}
+4. Print:
 
-**Phase**: {Requirements | Design | Ready | Execution | Complete}
-**Progress**: {completed}/{total} tasks ({percentage}%)
+   ```markdown
+   ## Spec Status: $1
 
-| # | Task | Status | Depends On |
-|---|------|--------|------------|
-| 1 | {title} | {done/pending/blocked} | {deps or "—"} |
-| 2 | {title} | {done/pending/blocked} | {deps or "—"} |
+   **Phase**: {Requirements | Design | Ready | Execution | Complete}
+   **Progress**: {completed}/{total} tasks ({percentage}%)
 
-**Next task**: Task {N} — {title}
-**Run**: `/spec-execute {feature-name} {N}`
-```
+   | # | Task | Status | Depends On |
+   |---|------|--------|------------|
+   | 1 | {title} | {done/pending/blocked} | {deps or "—"} |
+   | 2 | {title} | {done/pending/blocked} | {deps or "—"} |
+
+   **Next task**: Task {N} — {title}
+   **Run**: `/spec-execute $1 {N}`
+   ```

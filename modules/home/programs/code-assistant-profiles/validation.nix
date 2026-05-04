@@ -24,7 +24,15 @@
           assertExactlyOneTextSource "${scope} command '${name}' content" command.content
       ) (sharedConfig.commands or {}))
       (lib.mapAttrsToList (
-        name: skill:
+        name: skill: let
+          promptText =
+            if skill.prompt.text != null
+            then skill.prompt.text
+            else if skill.prompt.source != null
+            then builtins.readFile skill.prompt.source
+            else "";
+          referencesSkillDir = lib.hasInfix "\${SKILL_DIR}" promptText;
+        in
           assertExactlyOneTextSource "${scope} skill '${name}' prompt" skill.prompt
           ++ [
             {
@@ -34,6 +42,10 @@
             {
               assertion = skill.resourcesRoot == null || !(builtins.pathExists (skill.resourcesRoot + "/prompt.md"));
               message = "${scope} skill '${name}' resourcesRoot must not contain prompt.md; prompt must be provided via skill.prompt";
+            }
+            {
+              assertion = !referencesSkillDir || skill.resourcesRoot != null;
+              message = "${scope} skill '${name}' prompt references \${SKILL_DIR} but no resourcesRoot is set; either point resourcesRoot at a directory containing the referenced files, or remove the \${SKILL_DIR} references";
             }
           ]
       ) (sharedConfig.skills or {}))

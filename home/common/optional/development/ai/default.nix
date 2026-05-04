@@ -17,6 +17,7 @@
     [
       # Development tools
       claude-code-router
+      ollama-zsh-completion
       repomix
     ]
     ++ (lib.optionals pkgs.stdenv.isLinux) [claude-desktop];

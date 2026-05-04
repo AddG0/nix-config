@@ -27,7 +27,7 @@ If no ADRs exist, start at ADR-001.
 
 ### 3. Write the ADR
 
-Read the template at `${CLAUDE_SKILL_DIR}/../architecture-standards/references/adr-template.md`.
+Read the template at `${SKILL_DIR}/templates/adr-template.md`.
 
 Create `.sdd/decisions/ADR-{NNN}-{kebab-case-title}.md` filling in:
 - **Context**: What problem or question motivated this decision

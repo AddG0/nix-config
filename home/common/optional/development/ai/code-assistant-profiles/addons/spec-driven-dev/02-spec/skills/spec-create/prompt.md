@@ -9,7 +9,7 @@ allowed-tools: [Read, Glob, Grep, Bash, Write, Edit, Agent, AskUserQuestion]
 
 Create a complete specification for a feature through a structured pipeline with validation at each stage.
 
-Templates for each document are in `${CLAUDE_SKILL_DIR}/templates/`. Read them to use as the starting structure.
+Templates for each document are in `${SKILL_DIR}/templates/`. Read them to use as the starting structure.
 
 **Template flexibility**: Templates are starting points, not rigid forms. Omit sections that are not relevant to this feature (e.g., skip "API / Interface Changes" for a CLI tool, skip "State Management" for a stateless utility). Do not leave sections as empty headers — either fill them or remove them.
 
@@ -33,7 +33,7 @@ If the user provided a description, use it. If thin, use the `AskUserQuestion` t
 
 ### Write `.sdd/specs/{feature-name}/requirements.md`
 
-Read the template at `${CLAUDE_SKILL_DIR}/templates/requirements.md.template` and fill it in.
+Read the template at `${SKILL_DIR}/templates/requirements.md.template` and fill it in.
 
 EARS format types for acceptance criteria:
 - **Ubiquitous**: The system shall {requirement}
@@ -63,7 +63,7 @@ Launch the `system-architect` agent to design the technical approach:
 
 ### Write `.sdd/specs/{feature-name}/design.md`
 
-Read the template at `${CLAUDE_SKILL_DIR}/templates/design.md.template` and incorporate the architect's output:
+Read the template at `${SKILL_DIR}/templates/design.md.template` and incorporate the architect's output:
 - Component boundaries and responsibilities
 - Data models and interfaces
 - Integration points and cross-service impact
@@ -78,7 +78,7 @@ Same gate logic as Phase 1 (use `AskUserQuestion` for approval). The validator h
 
 ### Write `.sdd/specs/{feature-name}/tasks.md`
 
-Read the template at `${CLAUDE_SKILL_DIR}/templates/tasks.md.template` and fill it in.
+Read the template at `${SKILL_DIR}/templates/tasks.md.template` and fill it in.
 
 **Important**: Each task MUST have a top-level checkbox in the format `- [ ] ### Task N: Title`. This is what the hooks and executor use to track progress. Acceptance criteria are indented sub-items without checkboxes.
 

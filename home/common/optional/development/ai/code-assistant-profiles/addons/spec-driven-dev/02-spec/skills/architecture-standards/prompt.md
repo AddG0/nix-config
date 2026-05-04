@@ -28,7 +28,7 @@ Significant architectural decisions MUST be documented as ADRs using MADR 3.0 fo
 
 **Where:** `.sdd/decisions/ADR-NNN-title.md`
 
-**Template:** See `${CLAUDE_SKILL_DIR}/references/adr-template.md`
+**Template:** Use the `adr` skill, which fills in the MADR 3.0 template for you.
 
 **Numbering:** Sequential, never reuse. Check existing ADRs first.
 
@@ -57,7 +57,7 @@ When the feature involves complex domain logic:
 - Define **domain events** for cross-context communication
 - Establish **ubiquitous language** — consistent terms across code and docs
 
-For detailed DDD patterns, see `${CLAUDE_SKILL_DIR}/references/ddd-patterns.md`.
+For detailed DDD patterns, see `${SKILL_DIR}/references/ddd-patterns.md`.
 
 ## Architectural Review Checklist
 

@@ -25,7 +25,7 @@ Gather information automatically:
 
 ## Step 3: Create Documents
 
-Use the templates in `${CLAUDE_SKILL_DIR}/templates/` as starting points. Read each template, fill in the detected values, and write to `.sdd/steering/`.
+Use the templates in `${SKILL_DIR}/templates/` as starting points. Read each template, fill in the detected values, and write to `.sdd/steering/`.
 
 - `product.md` — Product context, users, value proposition, workflows
 - `tech.md` — Stack, architecture, build/test commands, conventions, dependencies

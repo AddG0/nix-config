@@ -18,6 +18,11 @@
     then spec.text
     else builtins.readFile spec.source;
 
+  skillInstallDir = name: "${config.xdg.configHome}/opencode/skills/${name}";
+
+  substituteSkillDir = name:
+    lib.replaceStrings ["\${SKILL_DIR}"] [(skillInstallDir name)];
+
   fallbackString = preferred: fallback:
     if preferred != null
     then preferred
@@ -28,38 +33,27 @@
       attrs = {
         description = fallbackString agent.description name;
         mode = "subagent";
-        category = agent.category or null;
-        skills =
-          if (agent.skills or []) == []
-          then null
-          else agent.skills;
+        model = agent.model or null;
         reasoningEffort = agent.reasoningEffort or null;
         steps = agent.maxTurns or null;
       };
       body = readContent agent.prompt;
     };
 
-  renderCommand = _: command: let
-    attrs = {
-      description = command.description or null;
-      "argument-hint" = command.argumentHint or null;
-      agent = command.agent or null;
-      model = command.model or null;
-      "allowed-tools" =
-        if (command.allowedTools or []) == []
-        then null
-        else command.allowedTools;
-    };
-  in
+  renderCommand = _: command:
     frontmatter.toFile {
-      inherit attrs;
+      attrs = {
+        description = command.description or null;
+        agent = command.agent or null;
+        model = command.model or null;
+      };
       body = readContent command.content;
     };
 
   renderSkillContent = name: skill: let
     publicName = skill.name or name;
     description = fallbackString skill.description publicName;
-    promptBody = readContent skill.prompt;
+    promptBody = substituteSkillDir name (readContent skill.prompt);
     usageSection =
       if guidance == []
       then null
@@ -89,15 +83,10 @@
         inherit description;
         compatibility = "opencode";
         metadata = {
-          "argument-hint" = skill.argumentHint or null;
           context = skill.context or null;
           model = skill.model or null;
           agent = skill.agent or null;
           reasoningEffort = skill.reasoningEffort or null;
-          tools =
-            if skill.allowedTools == []
-            then null
-            else skill.allowedTools;
           version = skill.version or null;
         };
       };
@@ -148,17 +137,25 @@
       // lib.optionalAttrs (server.extensionToLanguage != {}) {extensions = lib.attrNames server.extensionToLanguage;}
   ) (profile.lspServers or {});
 
-  derivedSkillCommands = lib.mapAttrs' (
-    _: skill: let
-      commandName = skill.name;
-      command = {
-        description = fallbackString skill.description commandName;
-        inherit (skill) argumentHint agent model allowedTools;
-        content = skill.prompt;
-      };
-    in
-      lib.nameValuePair commandName command
-  ) (lib.filterAttrs (_: skill: skill.invocation.user) (profile.skills or {}));
+  allSkills = profile.skills or {};
+  userInvocableSkills = lib.filterAttrs (_: skill: skill.invocation.user) allSkills;
+
+  derivedSkillCommands =
+    lib.mapAttrs' (
+      name: skill: let
+        commandName = skill.name;
+        command = {
+          description = fallbackString skill.description commandName;
+          inherit (skill) argumentHint agent model allowedTools;
+          content = {
+            text = substituteSkillDir name (readContent skill.prompt);
+            source = null;
+          };
+        };
+      in
+        lib.nameValuePair commandName command
+    )
+    userInvocableSkills;
 
   commands = derivedSkillCommands // (profile.commands or {});
 
@@ -173,7 +170,7 @@ in {
     programs.opencode = {
       agents = lib.mkDefault (lib.mapAttrs renderAgent (profile.agents or {}));
       commands = lib.mkDefault (lib.mapAttrs renderCommand commands);
-      skills = lib.mkDefault (lib.mapAttrs renderSkillContent (profile.skills or {}));
+      skills = lib.mkDefault (lib.mapAttrs renderSkillContent allSkills);
       context = lib.mkDefault combinedRules;
       settings = {
         mcp = lib.mkDefault adaptMcp;
