@@ -35,6 +35,7 @@
         options = {
           claude-code.enable = lib.mkEnableOption "rendering shared profiles for Claude Code (drives programs.claude-code-profiles.enable)";
           opencode.enable = lib.mkEnableOption "rendering shared profiles for opencode (drives programs.opencode.enable)";
+          codex.enable = lib.mkEnableOption "rendering shared profiles for OpenAI Codex CLI (drives programs.codex.enable)";
         };
       };
       default = {};

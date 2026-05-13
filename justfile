@@ -189,7 +189,7 @@ check-sops:
 [doc("Update personal repositories and flake inputs")]
 update-personal-repos:
   (cd {{NIX_SECRETS_DIR}} && git fetch && git rebase) || true
-  nix flake update nix-secrets pterodactyl-addons lumenboard-player ai-toolkit awsvpnclient-nix nitrox-nix || true
+  nix flake update nix-secrets pterodactyl-addons lumenboard-player ai-toolkit awsvpnclient-nix nitrox-nix queued-build-hook || true
 
 [group('installation')]
 [doc("Build NixOS image (iso, gce, amazon, etc.)")]

@@ -35,6 +35,9 @@ pkgs: {
   claude-desktop = pkgs.callPackage ./claude-desktop {};
   rofi-presets = pkgs.callPackage ./rofi-presets {};
 
+  # Gaming
+  proton-cachyos = pkgs.callPackage ./proton-cachyos {};
+
   # KDE/KWin - modular namespace
   kwin-scripts = import ./kwin-scripts pkgs;
 

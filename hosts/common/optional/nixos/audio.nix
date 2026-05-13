@@ -13,13 +13,30 @@ _: {
     # no need to redefine it in your config for now)
     # media-session.enable = true;
 
-    ## Per-device HFP block for AirPods. WP's bluez5.roles and the
-    ## global bluetooth.autoswitch-to-headset-profile setting are not
-    ## per-device-overridable, so to keep HFP working for other
-    ## headsets we use a small Lua hook that watches this card and
-    ## reverts any switch to a headset-head-unit-* profile back to the
-    ## highest-priority a2dp-sink profile.
-    wireplumber.extraConfig."52-airpods-block-headset" = {
+    ## Optimize PipeWire audio processing for maximum quality
+    extraConfig.pipewire."99-quality-settings" = {
+      "context.properties" = {
+        ## Use highest quality resampling algorithm
+        ## Valid range: 0-14 (default is 4)
+        ## Quality 10 = good balance, 14 = maximum quality (uses significantly more CPU)
+        "resample.quality" = 14;
+
+        ## Reduce quantum (buffer size) for lower latency while maintaining quality
+        ## 1024 frames gives a good latency / stability tradeoff
+        "default.clock.quantum" = 1024;
+        "default.clock.min-quantum" = 1024;
+        "default.clock.max-quantum" = 2048;
+      };
+    };
+  };
+
+  # Per-device HFP block for AirPods. WP's bluez5.roles and the global
+  # bluetooth.autoswitch-to-headset-profile setting are not per-device-overridable,
+  # so to keep HFP working for other headsets we use a small Lua hook that
+  # watches this card and reverts any switch to a headset-head-unit-* profile
+  # back to the highest-priority a2dp-sink profile.
+  services.pipewire.wireplumber = {
+    extraConfig."52-airpods-block-headset" = {
       "wireplumber.components" = [
         {
           name = "airpods/block-headset.lua";
@@ -31,7 +48,8 @@ _: {
         main = {"custom.airpods-block-headset" = "required";};
       };
     };
-    wireplumber.extraScripts."airpods/block-headset.lua" = ''
+
+    extraScripts."airpods/block-headset.lua" = ''
       cutils = require ("common-utils")
       log = Log.open_topic ("s-bluez-policy")
 
@@ -127,21 +145,5 @@ _: {
         end,
       }:register ()
     '';
-
-    ## Optimize PipeWire audio processing for maximum quality
-    extraConfig.pipewire."99-quality-settings" = {
-      "context.properties" = {
-        ## Use highest quality resampling algorithm
-        ## Valid range: 0-14 (default is 4)
-        ## Quality 10 = good balance, 14 = maximum quality (uses significantly more CPU)
-        "resample.quality" = 14;
-
-        ## Reduce quantum (buffer size) for lower latency while maintaining quality
-        ## 1024 frames gives a good latency / stability tradeoff
-        "default.clock.quantum" = 1024;
-        "default.clock.min-quantum" = 1024;
-        "default.clock.max-quantum" = 2048;
-      };
-    };
   };
 }

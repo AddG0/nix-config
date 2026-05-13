@@ -164,6 +164,11 @@
       inputs.nixpkgs.follows = "nixpkgs";
     };
 
+    nix-index-database = {
+      url = "github:nix-community/nix-index-database";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
+
     #################### Desktop Environments ####################
 
     niri = {
@@ -262,6 +267,13 @@
     awsvpnclient-nix = {
       url = "github:AddG0/awsvpnclient-nix";
       # url = "path:/home/addg/home/code/github/awsvpnclient-nix";
+      inputs.nixpkgs.follows = "nixpkgs";
+      inputs.flake-parts.follows = "flake-parts";
+    };
+
+    queued-build-hook = {
+      url = "github:AddG0/queued-build-hook";
+      # url = "git+file:///home/addg/home/code/github/queued-build-hook";
       inputs.nixpkgs.follows = "nixpkgs";
       inputs.flake-parts.follows = "flake-parts";
     };

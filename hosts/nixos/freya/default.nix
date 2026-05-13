@@ -20,6 +20,7 @@
     #################### Misc Inputs ####################
     ./graphics.nix
     ./hardware-configuration.nix
+    ./razer-blade-keyboard.nix
     # ./ai.nix
     # ./audio
     ./media.nix
@@ -49,6 +50,7 @@
         "nixos/hardware/wooting.nix" # wooting keyboard
         "nixos/1password.nix"
         "nixos/services/bluetooth.nix"
+        # "nixos/services/bt-proximity.nix"
         "nixos/services/ollama.nix"
 
         "nixos/development/mysql.nix"
@@ -56,6 +58,8 @@
         "nixos/plymouth.nix" # fancy boot screen
         "nixos/services/greetd.nix"
         "nixos/desktops/hyprland"
+
+        "nix-cache.nix"
       ])
     ))
   ];
@@ -67,7 +71,6 @@
 
   networking = {
     networkmanager.enable = true;
-    enableIPv6 = false;
   };
 
   programs.captive-browser = {
@@ -126,7 +129,7 @@
     hostType = "laptop";
   };
 
-  # Runtime profile switching — no rebuild needed
+  # Runtime profile switching
   #   powerprofilesctl set power-saver|balanced|performance
   #   asusctl profile -P Quiet|Balanced|Performance
   services.power-profiles-daemon.enable = true;
@@ -160,6 +163,7 @@
   # prevents idle unloads on top of that.
   services.ollama.environmentVariables = {
     OLLAMA_CONTEXT_LENGTH = lib.mkForce "32768";
+    OLLAMA_NUM_PARALLEL = "4";
     OLLAMA_KV_CACHE_TYPE = "q8_0";
     OLLAMA_FLASH_ATTENTION = "1";
     OLLAMA_KEEP_ALIVE = "-1";

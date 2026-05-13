@@ -50,24 +50,30 @@
 in {
   inherit (optionsModule) options;
 
-  config = lib.mkIf cfg.enable {
-    programs.claude-code-profiles.resolved = resolvedProfiles;
+  config = lib.mkMerge [
+    (lib.mkIf (codingCfg.enable && codingCfg.targets.claude-code.enable) {
+      programs.claude-code-profiles.enable = lib.mkDefault true;
+    })
 
-    assertions = [
-      {
-        assertion = cfg.profiles != {};
-        message = "At least one profile must be defined in programs.claude-code-profiles.profiles";
-      }
-      {
-        assertion = cfg.profiles ? ${cfg.defaultProfile};
-        message = "Default profile '${cfg.defaultProfile}' must exist in programs.claude-code-profiles.profiles";
-      }
-    ];
+    (lib.mkIf cfg.enable {
+      programs.claude-code-profiles.resolved = resolvedProfiles;
 
-    home.packages = [wrapperScriptModule.wrapperScript] ++ lib.optional cfg.enableZshIntegration zshCompletionModule.zshCompletion;
+      assertions = [
+        {
+          assertion = cfg.profiles != {};
+          message = "At least one profile must be defined in programs.claude-code-profiles.profiles";
+        }
+        {
+          assertion = cfg.profiles ? ${cfg.defaultProfile};
+          message = "Default profile '${cfg.defaultProfile}' must exist in programs.claude-code-profiles.profiles";
+        }
+      ];
 
-    home.file = lib.foldl' (
-      acc: name: acc // profileFilesModule.mkProfileFiles name cfg.profiles.${name}
-    ) {} (lib.attrNames cfg.profiles);
-  };
+      home.packages = [wrapperScriptModule.wrapperScript] ++ lib.optional cfg.enableZshIntegration zshCompletionModule.zshCompletion;
+
+      home.file = lib.foldl' (
+        acc: name: acc // profileFilesModule.mkProfileFiles name cfg.profiles.${name}
+      ) {} (lib.attrNames cfg.profiles);
+    })
+  ];
 }

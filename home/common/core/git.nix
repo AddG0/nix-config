@@ -72,15 +72,6 @@ in {
     ];
   };
 
-  home.packages = with pkgs;
-    lib.optionals (config.hostSpec.hostType != "server") [
-      lazygit # Git terminal UI.
-      stable.renovate # Dependency update tool.
-      gitkraken # Git GUI.
-      devcontainer # Dev Container CLI.
-      github-cli # GitHub CLI.
-    ];
-
   programs.delta = {
     enable = true;
     enableGitIntegration = true;

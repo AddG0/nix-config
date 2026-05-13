@@ -5,13 +5,13 @@
 }:
 stdenvNoCC.mkDerivation {
   pname = "context-engineering-kit";
-  version = "2.2.2-unstable-2026-03-29";
+  version = "3.0.0-unstable-2026-04-22";
 
   src = fetchFromGitHub {
     owner = "NeoLabHQ";
     repo = "context-engineering-kit";
-    rev = "c4da85aef8c486148c33131e736c896dfa302bf0";
-    sha256 = "sha256-YGnZA4EDrcCnM8zPJphB2G0gEPhRrkt2Gec5pWRftcE=";
+    rev = "dedca19ced62758f68a8a34cd2329ec065ecce6a";
+    sha256 = "sha256-X/BKLcf+Y+arYvu6ezvGg+KbynJUm7GnBkXTRSR34VA=";
   };
 
   installPhase = ''

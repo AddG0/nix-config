@@ -1,0 +1,13 @@
+name = "SkinMC: Minecraft Capes"
+filename = "skinmc_mod-fabric-2.1.1.jar"
+side = "client"
+
+[download]
+url = "https://cdn.modrinth.com/data/qlnkqYf7/versions/jaDG8nYm/skinmc_mod-fabric-2.1.1.jar"
+hash-format = "sha512"
+hash = "99885c5f4e61345459125f4317dd71149a37d5d2bd05dc667ee23368c1266169947fe25761ed060e0df779de5ce088c994bf60adc767d10bf8213d44bcb7d192"
+
+[update]
+[update.modrinth]
+mod-id = "qlnkqYf7"
+version = "jaDG8nYm"

@@ -24,6 +24,11 @@
         runtimeInputs = with pkgs; [imagemagick];
         text = builtins.readFile ./gitlab-avatar.sh;
       };
+      steam-download-wait = pkgs.writeShellApplication {
+        name = "steam-download-wait";
+        runtimeInputs = with pkgs; [coreutils gawk];
+        text = builtins.readFile ./steam-download-wait.sh;
+      };
     }
     // pkgs.lib.optionalAttrs pkgs.stdenv.isDarwin {
       kill-cursor-rag = pkgs.writeShellApplication {

@@ -6,7 +6,8 @@
   imports = [
     ./code-assistant-profiles
     ./claude-code
-    ./opencode
+    ./codex.nix
+    ./opencode.nix
   ];
 
   programs.zsh.shellAliases = {

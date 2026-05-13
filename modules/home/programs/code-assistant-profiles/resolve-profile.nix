@@ -68,6 +68,7 @@
     };
     listFields = {
       tools = "tools";
+      disallowedTools = "disallowedTools";
       skills = "skills";
     };
     extra = agent: parsed: let

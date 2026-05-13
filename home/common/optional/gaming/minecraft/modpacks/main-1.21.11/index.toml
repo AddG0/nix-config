@@ -99,6 +99,11 @@ hash = "ca3ae2608987185814c118388f28057f729d866ee1abbc97f3650141d213fa35"
 metafile = true
 
 [[files]]
+file = "mods/architectury-api.pw.toml"
+hash = "ff1763afa21669a76a9ca65735944986ec4ef7a0d440b98ee2154aafa46356c8"
+metafile = true
+
+[[files]]
 file = "mods/attribute-swap-timer-ported.pw.toml"
 hash = "93cf273e116d97502d20753c76b6c86358c5609c8ebf07c9171b660150758cd5"
 metafile = true
@@ -436,6 +441,11 @@ metafile = true
 [[files]]
 file = "mods/simple-voice-chat.pw.toml"
 hash = "c064e431015fe06786c17e18b8cfc28751a994e2ee251a357c0043a72f649403"
+metafile = true
+
+[[files]]
+file = "mods/skinmc.pw.toml"
+hash = "89bb7d885874cb50e44805448368df8bf108619121ce37feb89f3cf23ec0e75a"
 metafile = true
 
 [[files]]

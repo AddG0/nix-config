@@ -2,61 +2,6 @@
   hyprshot = "${pkgs.hyprshot}/bin/hyprshot";
   wpctl = "${pkgs.wireplumber}/bin/wpctl";
   brightnessctl = "${pkgs.brightnessctl}/bin/brightnessctl";
-  brightness-step = pkgs.writeShellScriptBin "hypr-brightness" ''
-    set -eu
-
-    if [ "$#" -ne 1 ]; then
-      echo "hypr-brightness failed: expected one step arg like 5%+ or 5%-" >&2
-      exit 2
-    fi
-
-    step="$1"
-    fallback=""
-    device=""
-
-    for node in /sys/class/backlight/*; do
-      [ -e "$node" ] || continue
-      name="''${node##*/}"
-      if [ -z "$fallback" ]; then
-        fallback="$name"
-      fi
-      case "$name" in
-        nvidia_*) ;;
-        *)
-          device="$name"
-          break
-          ;;
-      esac
-    done
-
-    if [ -z "$device" ]; then
-      device="$fallback"
-    fi
-
-    if [ -z "$device" ]; then
-      echo "hypr-brightness failed: no backlight device found under /sys/class/backlight" >&2
-      exit 1
-    fi
-
-    exec ${brightnessctl} -d "$device" set "$step"
-  '';
-  muteSound = pkgs.fetchurl {
-    url = "https://www.myinstants.com/media/sounds/discordmute_IZNcLx2.mp3";
-    sha256 = "4c73fcd425d8dddfef0d2ad970f2fd414be7eb1d190f49b7098e8d638f438039";
-  };
-  unmuteSound = pkgs.fetchurl {
-    url = "https://www.myinstants.com/media/sounds/discord-unmute-sound.mp3";
-    sha256 = "b7f6ec23ccabb8183ee2e8073fd4213cffa2241a312bdb1105ee9f0b2cca5576";
-  };
-  mic-toggle = pkgs.writeShellScriptBin "hypr-mic-toggle" ''
-    MUTED=$(${wpctl} get-volume @DEFAULT_AUDIO_SOURCE@ | ${pkgs.gnugrep}/bin/grep -o 'MUTED' || echo "")
-    ${wpctl} set-mute @DEFAULT_AUDIO_SOURCE@ toggle
-    if [ -z "$MUTED" ]; then
-      ${pkgs.pipewire}/bin/pw-play --volume=0.2 ${muteSound} &
-    else
-      ${pkgs.pipewire}/bin/pw-play --volume=0.2 ${unmuteSound} &
-    fi
-  '';
   # Hyprland silently refuses fullscreen on pinned windows. This wrapper unpins
   # before fullscreening and re-pins when fullscreen is exited, so SUPER+F /
   # SUPER+SHIFT+F work on pinned floating windows like browser PiP.
@@ -114,8 +59,8 @@ in {
       "Control_L&Shift_L&Alt_L,l,resizeactive,15 0"
       ",XF86AudioRaiseVolume,exec,${wpctl} set-volume -l 1.0 @DEFAULT_AUDIO_SINK@ 5%+"
       ",XF86AudioLowerVolume,exec,${wpctl} set-volume @DEFAULT_AUDIO_SINK@ 5%-"
-      ",XF86MonBrightnessUp,exec,${brightness-step}/bin/hypr-brightness 5%+"
-      ",XF86MonBrightnessDown,exec,${brightness-step}/bin/hypr-brightness 5%-"
+      ",XF86MonBrightnessUp,exec,${brightnessctl} set 5%+"
+      ",XF86MonBrightnessDown,exec,${brightnessctl} set 5%-"
     ];
 
     # ── Mute (trigger on lid/lock too) ──
@@ -131,8 +76,8 @@ in {
       "CTRL_ALT,v,exec,$term $EDITOR"
       "CTRL_ALT,f,exec,thunar"
 
-      # Mic toggle with sound feedback
-      "SUPER,m,exec,${mic-toggle}/bin/hypr-mic-toggle"
+      # Mic toggle (sound cue handled by mic-mute-sound.nix daemon)
+      "SUPER,m,exec,${wpctl} set-mute @DEFAULT_AUDIO_SOURCE@ toggle"
 
       # Media controls
       ",XF86AudioPlay,exec,playerctl --ignore-player=firefox,chromium,brave play-pause"

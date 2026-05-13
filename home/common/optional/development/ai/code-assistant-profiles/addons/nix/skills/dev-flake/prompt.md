@@ -1,5 +1,5 @@
 ---
-description: Scaffolds and updates Nix flake dev environments including flake.nix, devShells, .envrc, process-compose services, and pre-commit hooks. Use when creating a new flake, adding services (PostgreSQL, Redis, Kafka) to an existing flake, modernizing a dev shell, or any task involving flake.nix, nix develop, or nix flake.
+description: Scaffolds and updates Nix flake dev environments — flake.nix, devShells, .envrc, direnv, process-compose services, pre-commit hooks. Use when setting up project dev shells with Nix or adding services to an existing flake.
 argument-hint: "[language] [services...] - e.g. python-uv postgres, java redis kafka"
 allowed-tools:
   - Bash
@@ -10,11 +10,11 @@ allowed-tools:
   - Grep
 ---
 
-## When to Use
+## Scope
 
-- Setting up a new project's dev environment
-- Adding local services (PostgreSQL, Redis, Kafka) to an existing flake
-- Fixing or modernizing a project's Nix dev shell
+In: project-level dev shells, language toolchains, local service stacks via process-compose, pre-commit hook wiring, `.envrc` for direnv.
+
+Out: NixOS system configs, home-manager modules, packaging for nixpkgs. Stop and clarify if the request is one of those.
 
 ## Required Files
 
@@ -128,10 +128,11 @@ project/
 When the project uses a specific language ecosystem, load the corresponding reference for inputs, patterns, and conventions:
 
 - For Python projects using `uv` (`pyproject.toml` + `uv.lock`), see [references/uv2nix.md](references/uv2nix.md)
+- For Rust projects (`Cargo.toml` + `Cargo.lock`) using `crane` + `rust-overlay`, see [references/rust.md](references/rust.md)
 
 ## Steps
 
-1. Ask what language/framework and what local services are needed
+1. If language/services weren't passed as arguments or aren't obvious from the repo (`pyproject.toml`, `build.gradle`, `package.json`, etc.), ask. Otherwise skip to step 2.
 2. Scaffold `flake.nix` from the base template, trimming unused sections
 3. If a language reference exists, load it and merge those inputs/patterns into the flake
 4. Add language-specific packages to `devShells.default.packages`

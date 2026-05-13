@@ -115,6 +115,7 @@
 | [**Auth Me**](https://modrinth.com/mod/auth-me) | Makes it possible to authenticate yourself and re-validate your session without having to close the game |
 | [**Zoomify**](https://modrinth.com/mod/zoomify) | Customizable zoom |
 | [**Cubes Without Borders**](https://modrinth.com/mod/cubes-without-borders) | Borderless fullscreen |
+| [**SkinMC: Minecraft Capes**](https://modrinth.com/mod/skinmc) | Free custom capes via skinmc.net (visible to other mod users) |
 
 ## HUD & Information
 
@@ -185,3 +186,4 @@
 | [**Fzzy Config**](https://modrinth.com/mod/fzzy-config) | Particle Core |
 | [**MagicLib (NOT ADDED DUE TO VERSION)**](https://modrinth.com/mod/magiclib) | Masa Gadget |
 | [**Owo Lib (NOT ADDED DUE TO VERSION)**](https://modrinth.com/mod/owo-lib) | Isometric Renders |
+| [**Architectury API**](https://modrinth.com/mod/architectury-api) | SkinMC |

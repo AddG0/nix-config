@@ -16,10 +16,10 @@ from statistics import mean
 from typing import Optional, List
 
 from bleak import BleakScanner
+from bleak.args.bluez import BlueZScannerArgs, OrPattern
 from bleak.backends.device import BLEDevice
 from bleak.backends.scanner import AdvertisementData
 from bleak.backends.bluezdbus.manager import get_global_bluez_manager
-from bleak.backends.bluezdbus.scanner import BlueZScannerArgs
 from bleak.exc import BleakError
 from pydantic import model_validator
 from pydantic_settings import BaseSettings, SettingsConfigDict
@@ -147,6 +147,31 @@ class ContinuousScanner:
         self._watchdog_task: Optional[asyncio.Task] = None
         self._detected_device_address: Optional[str] = None  # Store matched device address
 
+    def _build_or_patterns(self) -> List[OrPattern]:
+        # BlueZ AdvertisementMonitor1 patterns are matched against the raw
+        # advertisement payload by the kernel. For a service UUID derived from
+        # the BLE base (0000XXXX-0000-1000-8000-00805F9B34FB), advertisements
+        # carry only the 16-bit short form, so we have to match that — not the
+        # 128-bit string. Bytes are little-endian on the wire.
+        uuid = self.settings.device_service_uuid
+        if uuid:
+            compact = uuid.lower().replace("-", "")
+            base_suffix = "00001000800000805f9b34fb"
+            if len(compact) == 32 and compact[:4] == "0000" and compact[8:] == base_suffix:
+                le = bytes.fromhex(compact[4:8])[::-1]
+                return [
+                    OrPattern(0, 0x03, le),  # Complete List of 16-bit Service UUIDs
+                    OrPattern(0, 0x02, le),  # Incomplete List of 16-bit Service UUIDs
+                    OrPattern(0, 0x16, le),  # Service Data - 16-bit UUID
+                ]
+            le = bytes.fromhex(compact)[::-1]
+            return [
+                OrPattern(0, 0x07, le),  # Complete List of 128-bit Service UUIDs
+                OrPattern(0, 0x06, le),  # Incomplete List of 128-bit Service UUIDs
+            ]
+        # No service UUID configured — match any LE-only discoverable device.
+        return [OrPattern(0, 0x01, b"\x06")]  # FLAGS: LE General Discoverable + BR/EDR Not Supported
+
     async def _check_adapter_available(self) -> bool:
         """Check if a powered Bluetooth adapter is available"""
         try:
@@ -198,20 +223,18 @@ class ContinuousScanner:
         logger.info(f"Starting continuous BLE scanner in passive mode...")
 
         try:
-            # Use passive scanning with service UUID filter to reduce interference with audio devices
-            scanner_kwargs = {
-                "detection_callback": self._detection_callback,
-                "scanning_mode": "passive",  # Passive mode: no scan requests, reduces interference
-            }
-
-            # Add service UUID filter if configured (more efficient, less interference)
+            # Passive mode: no scan requests, reduces interference with A2DP audio.
+            # BlueZ requires AdvertisementMonitor1 or_patterns in passive mode —
+            # SetDiscoveryFilter (the `filters=` form) is active-scan only.
+            or_patterns = self._build_or_patterns()
             if self.settings.device_service_uuid:
                 logger.info(f"Filtering for service UUID: {self.settings.device_service_uuid}")
-                scanner_kwargs["bluez"] = BlueZScannerArgs(
-                    filters={"UUIDs": [self.settings.device_service_uuid]}
-                )
 
-            self.scanner = BleakScanner(**scanner_kwargs)
+            self.scanner = BleakScanner(
+                detection_callback=self._detection_callback,
+                scanning_mode="passive",
+                bluez=BlueZScannerArgs(or_patterns=or_patterns),
+            )
             await self.scanner.start()
             self._running = True
 

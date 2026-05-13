@@ -25,6 +25,7 @@
 in {
   imports = [
     ./targets/opencode.nix
+    ./targets/codex.nix
   ];
 
   inherit (optionsModule) options;

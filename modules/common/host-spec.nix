@@ -189,6 +189,18 @@
         default = true;
         description = "Enable OTLP telemetry for Claude Code";
       };
+
+      codex.enabled = lib.mkOption {
+        type = lib.types.bool;
+        default = true;
+        description = "Enable OTLP telemetry for Codex";
+      };
+
+      opencode.enabled = lib.mkOption {
+        type = lib.types.bool;
+        default = true;
+        description = "Enable OTLP telemetry for OpenCode";
+      };
     };
   };
 

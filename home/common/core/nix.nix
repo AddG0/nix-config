@@ -1,16 +1,22 @@
 {
   pkgs,
   hostSpec,
+  inputs,
   self,
   lib,
   ...
 }: {
+  imports = [
+    inputs.nix-index-database.homeModules.nix-index
+  ];
+
+  programs.nix-index.enable = true;
+
   home.packages = with pkgs;
     [
       fh # The official nix flake hub
       nix-output-monitor # it provides the command `nom` works just like `nix with more details log output
       hydra-check # check hydra(nix's build farm) for the build status of a package
-      nix-index # A small utility to index nix store paths
       nix-init # generate nix derivation from url
       nix-melt # A TUI flake.lock viewer
       nixpkgs-fmt # formatter for nixpkgs

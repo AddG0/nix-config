@@ -36,9 +36,6 @@
 in {
   imports = lib.flatten [
     (lib.custom.scanPaths ./addons)
-    (map (f: "${inputs.ai-toolkit}/home/claude-code/addons/${f}") [
-      "jira"
-    ])
     inputs.ai-toolkit.homeModules.default
   ];
 
@@ -49,6 +46,8 @@ in {
     ".claude/scheduled_tasks.lock"
     "CLAUDE.local.md"
   ];
+
+  programs.code-assistant-profiles.targets.claude-code.enable = true;
 
   programs.claude-code-profiles = {
     enable = true;

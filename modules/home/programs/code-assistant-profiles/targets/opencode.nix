@@ -28,6 +28,16 @@
     then preferred
     else fallback;
 
+  agentPermission = agent: let
+    denies = lib.listToAttrs (map (tool: {
+      name = lib.toLower tool;
+      value = "deny";
+    }) (agent.disallowedTools or []));
+  in
+    if denies == {}
+    then null
+    else denies;
+
   renderAgent = name: agent:
     frontmatter.toFile {
       attrs = {
@@ -36,6 +46,7 @@
         model = agent.model or null;
         reasoningEffort = agent.reasoningEffort or null;
         steps = agent.maxTurns or null;
+        permission = agentPermission agent;
       };
       body = readContent agent.prompt;
     };
@@ -52,14 +63,18 @@
 
   renderSkillContent = name: skill: let
     publicName = skill.name or name;
-    description = fallbackString skill.description publicName;
+    baseDescription = fallbackString skill.description publicName;
+    whenToUse = skill.whenToUse or null;
+    description =
+      if whenToUse != null && whenToUse != ""
+      then "${baseDescription}\n\n${whenToUse}"
+      else baseDescription;
     promptBody = substituteSkillDir name (readContent skill.prompt);
     usageSection =
       if guidance == []
       then null
       else "## Usage\n${lib.concatStringsSep "\n\n" guidance}";
     guidance = lib.filter (line: line != null && line != "") [
-      skill.whenToUse or null
       (
         if (skill.paths or []) == []
         then null
@@ -168,6 +183,7 @@
 in {
   config = lib.mkIf (codingCfg.enable && codingCfg.targets.opencode.enable && hasProfile) {
     programs.opencode = {
+      enable = lib.mkDefault true;
       agents = lib.mkDefault (lib.mapAttrs renderAgent (profile.agents or {}));
       commands = lib.mkDefault (lib.mapAttrs renderCommand commands);
       skills = lib.mkDefault (lib.mapAttrs renderSkillContent allSkills);

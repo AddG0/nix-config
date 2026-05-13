@@ -5,13 +5,13 @@
 }:
 stdenv.mkDerivation rec {
   pname = "rofi-presets";
-  version = "0-unstable-2025-07-26";
+  version = "0-unstable-2026-04-30";
 
   src = fetchFromGitHub {
     owner = "adi1090x";
     repo = "rofi";
-    rev = "093c1a79f58daab358199c4246de50357e5bf462";
-    sha256 = "sha256-iUX0Quae06tGd7gDgXZo1B3KYgPHU+ADPBrowHlv02A=";
+    rev = "b0bfe927531e365f009d01810c26878c003f7cb8";
+    sha256 = "sha256-pM183MHOMuKJyLgthozM1MRsmhBM25VQgWc7CmLL2HI=";
   };
 
   installPhase = ''

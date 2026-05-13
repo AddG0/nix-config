@@ -3,11 +3,27 @@
 usage() {
 	cat <<'EOF'
 Usage:
-  no-sleep [--why <reason>] -- <command> [args...]   inhibit idle while command runs
+  no-sleep [--why <reason>] -- <command> [args...]   inhibit while command runs
   no-sleep [--why <reason>] <duration>               inhibit for duration (e.g. 2h, 30m)
   no-sleep [--why <reason>]                          inhibit until Ctrl-C
+  no-sleep status                                    list current sleep/idle inhibitors
+
+Blocks: idle timeout, programmatic suspend, and lid-close suspend.
 EOF
 }
+
+if [[ ${1:-} == status ]]; then
+	# Only MODE=block actually prevents sleep/idle; MODE=delay rows are 5s
+	# cleanup hooks and aren't this script's concern.
+	out=$(systemd-inhibit --list --no-pager)
+	blockers=$(printf '%s\n' "$out" | awk 'NR>1 && $NF=="block"')
+	if [[ -z $blockers ]]; then
+		echo "no sleep/idle blockers"
+		exit 0
+	fi
+	printf '%s\n%s\n' "$(printf '%s\n' "$out" | head -n 1)" "$blockers"
+	exit 0
+fi
 
 why="user-requested"
 
@@ -41,4 +57,11 @@ else
 	set -- sleep "$1"
 fi
 
-exec systemd-inhibit --what=idle --who=no-sleep --why="$why" -- "$@"
+# idle             — blocks hypridle/systemd idle timeout
+# sleep            — blocks `systemctl suspend` and other programmatic suspends
+# handle-lid-switch — blocks logind from acting on lid close (default: suspend)
+exec systemd-inhibit \
+	--what=idle:sleep:handle-lid-switch \
+	--who=no-sleep \
+	--why="$why" \
+	-- "$@"

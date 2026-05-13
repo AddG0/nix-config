@@ -30,6 +30,7 @@
         # Communication
         "comms"
         "librepods.nix"
+        "mic-mute-sound.nix"
 
         # Development
         "development"
@@ -170,6 +171,17 @@
       "workspace 3 silent, match:title .*([Dd]iscord|[Ll]egcord).*"
       "workspace 2 silent, match:class ^(zen(-beta)?)$"
       "workspace 6 silent, match:class ^([Ss]team)$"
+    ];
+    # Razer Blade 16 macro keys (remapped in hosts/nixos/freya). xkb's us
+    # layout does not produce the F13/F14/F15 keysyms for those kernel
+    # keycodes — it emits XF86Tools/XF86Launch5/XF86Launch6 instead.
+    # Hyprland matches on keysym name, so the binds use those.
+    #   M3 → kernel KEY_F13 → keysym XF86Tools     (hwdb, was 0x700d5)
+    #   M4 → kernel KEY_F14 → keysym XF86Launch5   (hwdb, was 0x700d3)
+    #   M5 → kernel KEY_F15 → keysym XF86Launch6   (keyd, was Meta+Alt+K)
+    bind = [
+      ", XF86Launch5, exec, ${config.programs.noctalia-shell.package}/bin/noctalia-shell ipc call powerProfile cycle"
+      ", XF86Launch6, exec, ${pkgs.wireplumber}/bin/wpctl set-mute @DEFAULT_AUDIO_SOURCE@ toggle"
     ];
   };
 

@@ -274,38 +274,12 @@
         '';
     });
 
-    # TODO: Remove once upstream just fixes --completions zsh to include #compdef header
-    # Fix just zsh completions: upstream --completions zsh emits a lazy shim
-    # that compinit can't autodiscover. Capture real completions at build time.
-    # just = prev.just.overrideAttrs (old: {
-    #   postInstall =
-    #     (old.postInstall or "")
-    #     + ''
-    #       JUST_COMPLETE=zsh $out/bin/just > $out/share/zsh/site-functions/_just
-    #     '';
-    # });
-
     ghostty = inputs.ghostty.packages.${prev.stdenv.hostPlatform.system}.default;
 
     firefox-addons = import inputs.firefox-addons {
       inherit (prev) fetchurl lib stdenv;
       buildMozillaXpiAddon = (import "${inputs.firefox-addons}/../../lib/mozilla.nix" {inherit (prev) lib;}).mkBuildMozillaXpiAddon {inherit (prev) fetchurl stdenv;};
     };
-
-    # Cursor with fixed StartupWMClass
-    code-cursor = prev.code-cursor.overrideAttrs (oldAttrs: {
-      postFixup =
-        (oldAttrs.postFixup or "")
-        + ''
-          # Fix StartupWMClass to match actual window class in both desktop files
-          if [ -f "$out/share/applications/cursor.desktop" ]; then
-            sed -i 's/StartupWMClass=cursor/StartupWMClass=Cursor/' $out/share/applications/cursor.desktop
-          fi
-          if [ -f "$out/share/applications/cursor-url-handler.desktop" ]; then
-            sed -i 's/StartupWMClass=cursor/StartupWMClass=Cursor/' $out/share/applications/cursor-url-handler.desktop
-          fi
-        '';
-    });
 
     # LosslessCut with desktop entry
     losslesscut = prev.losslesscut-bin.overrideAttrs (oldAttrs: {

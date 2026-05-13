@@ -32,11 +32,12 @@
   libxcb,
 }: let
   pname = "claude-desktop";
-  version = "1.1.7714";
+  version = "1.6259.0";
+  wrapperVersion = "2.0.10";
 
   src = fetchurl {
-    url = "https://github.com/aaddrick/claude-desktop-debian/releases/download/v1.3.23%2Bclaude${version}/claude-desktop_${version}-1.3.23_amd64.deb";
-    hash = "sha256-ZJ1m2kUL+pctEXgHjFyEKAbX/cJV4w4aELS0FneoyfY=";
+    url = "https://github.com/aaddrick/claude-desktop-debian/releases/download/v${wrapperVersion}%2Bclaude${version}/claude-desktop_${version}-${wrapperVersion}_amd64.deb";
+    hash = "sha256-BOHlxMibCb39grnqahp6JhJ7NLxflN5otirUeq+mPRs=";
   };
 
   unwrapped = stdenvNoCC.mkDerivation {
@@ -52,12 +53,17 @@
       mkdir -p $out
       cp -r usr/* $out/
 
-      # Patch launcher script to use $out paths instead of /usr
-      substituteInPlace $out/bin/claude-desktop \
-        --replace-fail '/usr/lib/claude-desktop' "$out/lib/claude-desktop"
-
-      substituteInPlace $out/lib/claude-desktop/launcher-common.sh \
-        --replace-fail '/usr/lib/claude-desktop' "$out/lib/claude-desktop"
+      # Patch launcher scripts to use $out paths instead of /usr.
+      # Use --replace-quiet because the set of files holding the path varies
+      # across upstream versions (e.g. launcher-common.sh dropped its reference
+      # in 2.0.10).
+      for f in \
+        "$out/bin/claude-desktop" \
+        "$out/lib/claude-desktop/launcher-common.sh" \
+        "$out/lib/claude-desktop/doctor.sh"; do
+        [ -f "$f" ] && substituteInPlace "$f" \
+          --replace-quiet '/usr/lib/claude-desktop' "$out/lib/claude-desktop"
+      done
 
       # Fix desktop file
       substituteInPlace $out/share/applications/claude-desktop.desktop \
@@ -66,7 +72,8 @@
   };
 in
   buildFHSEnv {
-    name = pname;
+    inherit pname version;
+    passthru.updateScript = [./update.sh];
     targetPkgs = _: [
       unwrapped
       alsa-lib

@@ -3,9 +3,9 @@
     enable = true;
     deviceServiceUuid = "0000180d-0000-1000-8000-00805f9b34fb";
     deviceName = "Add's WHOOP";
-    proximityTimeout = 30.0;
-    lockThreshold = -75;
+    proximityTimeout = 90.0;
+    lockThreshold = -80;
     unlockThreshold = -68;
-    rssiSamples = 2;
+    rssiSamples = 4;
   };
 }

@@ -26,6 +26,12 @@ in {
     cpulimit # limit the cpu usage of a process
     caddy # A webserver with automatic HTTPS via Let's Encrypt(replacement of nginx)
     devenv
+
+    # Git tools
+    lazygit # Git terminal UI.
+    renovate # Dependency update tool.
+    gitkraken # Git GUI.
+    github-cli # GitHub CLI.
   ];
 
   programs.git.ignores = [

@@ -96,7 +96,10 @@ in {
         });
       };
 
-      extraCompatPackages = [pkgs.unstable.proton-ge-bin];
+      extraCompatPackages = [
+        pkgs.proton-ge-bin
+        pkgs.proton-cachyos
+      ];
     };
     #gamescope launch args set dynamically in home/<user>/common/optional/gaming
     gamescope = {

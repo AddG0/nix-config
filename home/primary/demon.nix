@@ -30,6 +30,7 @@
 
         # Communication
         "comms"
+        "mic-mute-sound.nix"
 
         # Development
         "development"

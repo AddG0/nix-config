@@ -20,6 +20,10 @@ in {
       settings = {
         general = {
           lock_cmd = "pidof hyprlock || hyprlock";
+          # SIGUSR1 is hyprlock's documented graceful-unlock signal (PR
+          # hyprwm/hyprlock#756, v0.8.2+) — same code path as a correct
+          # password. Lets `loginctl unlock-session` actually dismiss the lock.
+          unlock_cmd = "${pkgs.procps}/bin/pkill -USR1 hyprlock";
           before_sleep_cmd = "loginctl lock-session";
           after_sleep_cmd = "hyprctl dispatch dpms on";
         };

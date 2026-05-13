@@ -5,13 +5,13 @@
 }:
 stdenvNoCC.mkDerivation {
   pname = "caveman";
-  version = "0-unstable-2026-04-25";
+  version = "1.7.0-unstable-2026-05-01";
 
   src = fetchFromGitHub {
     owner = "JuliusBrussee";
     repo = "caveman";
-    rev = "84cc3c14fa1e10182adaced856e003406ccd250d";
-    hash = "sha256-M+NoWXxrhtbkbe/lmq7P0/KpmqOZzJjhgeUVjY+7N2k=";
+    rev = "ef6050c5e1848b6880ff47c32ade1a608a64f85e";
+    hash = "sha256-LlyBlFsKUHKzsOXEwENoVSsZHtKENVY4vFMRf08vzoU=";
   };
 
   installPhase = ''

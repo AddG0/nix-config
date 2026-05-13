@@ -26,6 +26,10 @@
           if agent.tools == []
           then null
           else agent.tools;
+        disallowedTools =
+          if (agent.disallowedTools or []) == []
+          then null
+          else agent.disallowedTools;
         skills =
           if (agent.skills or []) == []
           then null

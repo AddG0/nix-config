@@ -5,13 +5,13 @@
 }:
 stdenvNoCC.mkDerivation {
   pname = "claude-code-skills-collection";
-  version = "0-unstable-2026-02-15";
+  version = "0.1-unstable-2026-04-25";
 
   src = fetchFromGitHub {
     owner = "lyndonkl";
     repo = "claude";
-    rev = "5433aa4ec62dc19736e21c7b95c0aaa50afc4b25";
-    sha256 = "sha256-q1wpccPV2Y+pGwXKQcB3HVdsQWOW6LWnyf5djZ376TU=";
+    rev = "cb8da039d2ecda0b4ebc74af41d2de64b8a3be9d";
+    sha256 = "sha256-B3orwkLikwhPVslyhBGEiUflkiHUhQ/reBmkQIUc4Y8=";
   };
 
   installPhase = ''

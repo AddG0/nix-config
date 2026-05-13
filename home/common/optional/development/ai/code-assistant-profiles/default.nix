@@ -1,21 +1,22 @@
 {
   config,
+  inputs,
   lib,
   pkgs,
   ...
 }: let
   inherit (config.programs.code-assistant-profiles) addons;
 in {
-  imports = lib.custom.scanPaths ./addons;
+  imports = lib.flatten [
+    (lib.custom.scanPaths ./addons)
+    (map (f: "${inputs.ai-toolkit}/home/claude-code/addons/${f}") [
+      "jira"
+    ])
+  ];
 
   programs.code-assistant-profiles = {
     enable = true;
     defaultProfile = "default";
-
-    targets = {
-      claude-code.enable = true;
-      opencode.enable = true;
-    };
 
     baseConfig = {
       lspServers = {
@@ -61,6 +62,8 @@ in {
         architecture
         spec-driven-dev
         caveman
+        tmux-dev
+        jira
       ];
 
       skills."frontend-design" = lib.custom.ai.fromClaudeSkillDir {

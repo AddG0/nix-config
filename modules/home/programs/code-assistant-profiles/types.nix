@@ -311,6 +311,12 @@
         description = "Tool names the agent should be allowed or expected to use.";
       };
 
+      disallowedTools = lib.mkOption {
+        type = lib.types.listOf lib.types.str;
+        default = [];
+        description = "Tool names the agent must never use. Projected per-tool: claude-code emits a denylist field; opencode emits a `permission` map with each name lowercased and set to `deny`.";
+      };
+
       skills = lib.mkOption {
         type = lib.types.listOf lib.types.str;
         default = [];
