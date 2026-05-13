@@ -15,14 +15,17 @@
         ]
       },
       "locked": {
-        "lastModified": 1778561804,
-        "narHash": "sha256-X+c94VhnJrHtHztKVp0AN7okD0EnzkV1ltZ4njlYWaM=",
-        "path": "/home/addg/home/code/github/ai-toolkit",
-        "type": "path"
+        "lastModified": 1778561316,
+        "narHash": "sha256-dqYnXrqt1Ck6vnydPH+ZvAiYsfmVZ3y1dtm6b5C7Kjc=",
+        "ref": "refs/heads/main",
+        "rev": "d14a50d58818f6913494557a054ee67f7f39ddea",
+        "revCount": 177,
+        "type": "git",
+        "url": "ssh://git@github.com/addg0/ai-toolkit.git"
       },
       "original": {
-        "path": "/home/addg/home/code/github/ai-toolkit",
-        "type": "path"
+        "type": "git",
+        "url": "ssh://git@github.com/addg0/ai-toolkit.git"
       }
     },
     "asus-numberpad-driver": {
