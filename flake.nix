@@ -218,6 +218,11 @@
       inputs.nixpkgs.follows = "nixpkgs";
     };
 
+    steam-config-nix = {
+      url = "github:different-name/steam-config-nix";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
+
     asus-numberpad-driver = {
       url = "github:asus-linux-drivers/asus-numberpad-driver";
       inputs.nixpkgs.follows = "nixpkgs";

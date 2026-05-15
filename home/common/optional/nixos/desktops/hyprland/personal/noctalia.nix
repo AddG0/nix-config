@@ -41,34 +41,44 @@ in {
   programs.noctalia-shell = {
     enable = true;
 
+    # Functional/structural noctalia settings. Pure visual choices (bar
+    # rounding/margins/opacity, shadow direction, color scheme) live in
+    # ./visuals.nix to keep all personal-flavor theming centralized.
     settings = {
       settingsVersion = 53;
-      bar.position = "top";
-      bar.widgets.left = [
-        {id = "Launcher";}
-        {
-          id = "Clock";
-          formatHorizontal = "hh:mm AP ddd, MMM dd";
-          formatVertical = "hh\nmm AP";
-          tooltipFormat = "hh:mm AP ddd, MMM dd";
-        }
-        {id = "SystemMonitor";}
-        {id = "ActiveWindow";}
-        {id = "MediaMini";}
-      ];
-      bar.widgets.right =
-        [
-          {id = "Tray";}
-          {id = "Microphone";}
-          {id = "NotificationHistory";}
-          {id = "Volume";}
-        ]
-        ++ lib.optionals isLaptop [
-          {id = "PowerProfile";}
-          {id = "Battery";}
-        ]
-        ++ [{id = "ControlCenter";}];
-      notifications.monitors = lib.optionals (!isLaptop) (map (m: m.name) (builtins.filter (m: m.primary) config.display.monitors)); # When on a laptop we want to show notifications on all monitors since we don't know which is the primary
+      bar = {
+        position = "top";
+        widgets = {
+          left = [
+            {id = "Launcher";}
+            {
+              id = "Clock";
+              formatHorizontal = "hh:mm AP ddd, MMM dd";
+              formatVertical = "hh\nmm AP";
+              tooltipFormat = "hh:mm AP ddd, MMM dd";
+            }
+            {id = "SystemMonitor";}
+            {id = "ActiveWindow";}
+            {id = "MediaMini";}
+          ];
+          right =
+            [
+              {id = "Tray";}
+              {id = "Bluetooth";}
+              {id = "Microphone";}
+              {id = "NotificationHistory";}
+              {id = "Volume";}
+            ]
+            ++ lib.optionals isLaptop [
+              {id = "PowerProfile";}
+              {id = "Battery";}
+            ]
+            ++ [{id = "ControlCenter";}];
+        };
+      };
+      # When on a laptop we want to show notifications on all monitors since
+      # we don't know which is the primary.
+      notifications.monitors = lib.optionals (!isLaptop) (map (m: m.name) (builtins.filter (m: m.primary) config.display.monitors));
       dock.enabled = false;
       location.useFahrenheit = true;
       location.use12hourFormat = true;
@@ -80,7 +90,6 @@ in {
         dayTemp = 6000;
         nightTemp = 4500;
       };
-      colorSchemes.predefinedScheme = "Catppuccin";
       general.avatarImage = "/var/lib/AccountsService/icons/${config.home.username}";
       wallpaper.enabled = false;
     };

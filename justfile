@@ -348,6 +348,50 @@ tmpfiles-create:
   sudo systemd-tmpfiles --create
 
 [group('utilities')]
+[doc("Show firewall-allowed TCP/UDP ports with the .nix file that opened each (requires sudo)")]
+firewall-ports:
+  #!/usr/bin/env bash
+  set -euo pipefail
+  config_dir="{{justfile_directory()}}"
+
+  this_host=$(hostname)
+  exclude_args=()
+  for d in "$config_dir"/hosts/nixos/*/ "$config_dir"/hosts/darwin/*/; do
+    [ -d "$d" ] || continue
+    name=$(basename "$d")
+    [ "$name" != "$this_host" ] && exclude_args+=("--exclude-dir=$name")
+  done
+
+  lookup() {
+    local port="$1"
+    local needle="${port%%-*}"
+    local match
+    match=$(grep -rlE "allowed(TCP|UDP)(Ports|PortRanges)" "$config_dir" --include='*.nix' "${exclude_args[@]}" 2>/dev/null \
+      | xargs grep -lE "\\b${needle}\\b" 2>/dev/null | head -n1)
+    if [ -n "$match" ]; then
+      echo "${match#$config_dir/}"
+    else
+      echo "(NixOS upstream module)"
+    fi
+  }
+
+  extract() {
+    sudo "$1" -S nixos-fw | awk -v proto="$2" '
+      $0 ~ "-p "proto" .* --dport" {
+        for (i=1; i<=NF; i++) if ($i == "--dport") { print $(i+1); break }
+      }
+    ' | sed 's/:/-/'
+  }
+
+  printf "%-4s %-12s %s\n" PROTO PORT SOURCE
+  for proto in tcp udp; do
+    while read -r port; do
+      [ -z "$port" ] && continue
+      printf "%-4s %-12s %s\n" "${proto^^}" "$port" "$(lookup "$port")"
+    done < <(extract iptables "$proto")
+  done
+
+[group('utilities')]
 [doc("Visualize disk usage with Filelight (WinDirStat-like treemap)")]
 disk-usage:
   nix run nixpkgs#kdePackages.filelight

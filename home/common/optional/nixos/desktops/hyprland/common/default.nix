@@ -3,7 +3,7 @@
     ./settings.nix
     ./binds.nix
     ./hyprlock.nix
-    ./oled-protection
+    ./oled-care
     ./plugins
     ./apps
     ./pip.nix

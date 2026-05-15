@@ -13,7 +13,7 @@ source "$(dirname "${BASH_SOURCE[0]}")/helpers.sh"
 #  host           Host name; if not provided, defaults to the output of hostname.
 
 usage() {
-	echo "Usage: $0 [-h] [-t] [-v] [host]"
+	echo "Usage: $0 [-h] [-t] [-v] [-m mode] [host]"
 	exit 1
 }
 

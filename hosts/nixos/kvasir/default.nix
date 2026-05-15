@@ -27,6 +27,7 @@
       ++ (map (f: "common/optional/${f}") [
         #################### Host-specific Optional Configs ####################
         "nixos/services/openssh.nix" # allow remote SSH access
+        "nixos/nix-access-token.nix"
       ])
     ))
   ];

@@ -32,15 +32,19 @@
       # Overrides settings.nix defaults of 5/10.
       gaps_in = lib.mkForce 4;
       gaps_out = lib.mkForce 8;
-      # Near-invisible white gradient on focus — focus is communicated by
-      # shadow/opacity, not by the border itself.
-      "col.active_border" = lib.mkForce "rgba(ffffff40) rgba(ffffff10) 45deg";
+      # Soft white gradient on focus — still secondary to the shadow, but
+      # bumped a touch (60/20 alpha vs prior 40/10) so the active window has
+      # a perceptible edge against dark wallpapers.
+      "col.active_border" = lib.mkForce "rgba(ffffff60) rgba(ffffff20) 45deg";
       "col.inactive_border" = lib.mkForce "rgba(00000020)";
     };
 
     decoration = {
-      # macOS windows are ~10–12px. 14 read as "Linux trying too hard".
-      rounding = 12;
+      # macOS Tahoe (26) uses 16px on plain windows, up to ~24px on windows
+      # with toolbars. 12 was Sequoia-leaning; 16 matches the current Apple
+      # default. (Some devs push back to 10 for usability — bigger corners
+      # shrink the resize hot-zone.)
+      rounding = 16;
       # Squircle exponent (Hyprland >=0.45). 2.0 = circular arc; 3.0 = Apple
       # superellipse — corners look slightly "fatter" near the midpoint.
       rounding_power = 3.0;
@@ -60,6 +64,11 @@
         color_inactive = lib.mkForce "rgba(00000028)"; # Lighter — subtle focus cue.
         scale = 0.97; # Slight shrink so shadow doesn't bleed past rounded corners.
       };
+
+      # Dim everything behind the special workspace when it's active. Gives
+      # special-workspace apps (Spotify scratchpad, AWS VPN, etc.) a modal /
+      # macOS Notification Center feel instead of just floating windows.
+      dim_special = 0.4;
 
       # Frosted glass. Big Sur uses ~30px Gaussian; size 8 + passes 3
       # approximates it. vibrancy + noise are end-4's widely-copied magic
@@ -129,6 +138,20 @@
       workspace_swipe_use_r = true;
     };
 
+    # Window rules — visual treatment for specific app classes.    # Subtle frosted terminal: ghostty drops to 96/88% opacity so the
+    # desktop bleeds through just enough to feel "alive". Tighter range
+    # than the typical Linux 90/80 — text readability matters more than
+    # transparency theatre.
+    #
+    # Note: Hyprland's `dim_around` effect is layer-only, not a windowrule;
+    # polkit/auth prompts can't get a macOS-modal dim through windowrules.
+    # The closest equivalents would be `decoration.dim_inactive = true` (dims
+    # everything unfocused, globally) or a polkit theme that draws its own
+    # dim overlay.
+    windowrule = [
+      "opacity 0.96 0.88, match:class ^(com\\.mitchellh\\.ghostty|ghostty)$"
+    ];
+
     # Layer rules govern blur for shell-surfaces (waybar, rofi, notifications).
     # `ignore_alpha N` skips blur on pixels with alpha < N — this is what kills
     # the dark halo around panels and is the single biggest panel-blur upgrade.
@@ -156,45 +179,80 @@
     animations = {
       enabled = true;
       # Bezier curves are `name, x1, y1, x2, y2` — same as CSS cubic-bezier.
-      # Y values >1 cause overshoot (animation briefly goes past endpoint).
+      # All curves keep Y values within [0,1] so nothing overshoots. macOS
+      # uses smooth ease-out curves throughout — no springy/bouncy motion.
       bezier = [
-        # Gentle overshoot for close/dismiss (the 1.05 at the end).
-        "wind, 0.05, 0.9, 0.1, 1.05"
-        # Open with overshoot at peak, settles cleanly at endpoint.
-        # End Y was 1.1 — implausible (settled past target); 1.05 reads natural.
-        "winIn, 0.1, 1.1, 0.1, 1.05"
-        # Apple-standard ease-out: fast start, smooth glide to stop.
-        # Used everywhere a smooth, non-overshooting curve is needed.
+        # Snappy ease-out — sharper than easeOutExpo, less time hanging at
+        # the end. Used for window/workspace/layer motion.
+        "snappy, 0.25, 0.8, 0.25, 1"
+        # Apple-standard ease-out for cases where snappy is too aggressive
+        # (fades, scratchpad, color blends).
         "easeOutExpo, 0.16, 1, 0.3, 1"
-        # Constant velocity — only useful for slow color blends.
+        # Constant velocity — only for slow color blends.
         "liner, 1, 1, 1, 1"
       ];
-      # Durations are in deciseconds (5 = 0.5s).
+      # Durations in deciseconds (3 = 0.3s). Roughly half of the previous
+      # "macOS deliberate" timings — feels fast and responsive without
+      # losing the ease-out polish.
       animation = [
-        # Window open: overshoot bezier, popin starts at 90% (less zoom than
-        # the 87% default — macOS uses ~92–95%).
-        "windows, 1, 5, winIn, popin 90%"
-        "windowsOut, 1, 4, wind, popin 90%"
-        "fadeOut, 1, 3, default"
-        "fadeIn, 1, 3, default"
-        # The three "feels alive" events — transitions between focus states.
-        "fadeSwitch, 1, 3, easeOutExpo"
-        "fadeShadow, 1, 5, easeOutExpo"
-        "fadeDim, 1, 4, easeOutExpo"
-        # Workspace slide: clean ease-out, NO overshoot (overshoot on a
-        # full-screen slide reads as broken). 4 deciseconds is Apple-snappy.
-        "workspaces, 1, 4, easeOutExpo, slide"
-        # Scratchpad drops from top — distinct from regular workspace switch.
-        "specialWorkspace, 1, 4, easeOutExpo, slidefadevert -50%"
-        # Asymmetric layer animations: IN slow + overshoot (deliberate
-        # entrance), OUT faster + simple ease (snappy exit). Polished feel.
-        "layersIn, 1, 3, winIn, slide"
-        "layersOut, 1, 2, wind, slide"
-        "fadeLayersIn, 1, 2, easeOutExpo"
-        "fadeLayersOut, 1, 2, easeOutExpo"
-        # Slow border color blend on focus change — barely conscious, but felt.
-        "border, 1, 10, liner"
+        # Window open: snappy with minimal zoom (92% start = barely scales).
+        "windows, 1, 3, snappy, popin 92%"
+        "windowsOut, 1, 2, snappy, popin 92%"
+        "fadeOut, 1, 2, default"
+        "fadeIn, 1, 2, default"
+        # Focus-transition events.
+        "fadeSwitch, 1, 2, easeOutExpo"
+        "fadeShadow, 1, 3, easeOutExpo"
+        "fadeDim, 1, 2, easeOutExpo"
+        # Workspace transition: tighter slide (20%), snappy curve.
+        "workspaces, 1, 3, snappy, slidefade 20%"
+        # Scratchpad still gets the deliberate full slide-from-top, but
+        # quicker than before. Distinct feel from regular workspace switches.
+        "specialWorkspace, 1, 4, easeOutExpo, slidefadevert -100%"
+        # Layers (menus, notifications) — symmetric snappy in/out.
+        "layersIn, 1, 2, snappy, slide"
+        "layersOut, 1, 2, snappy, slide"
+        "fadeLayersIn, 1, 1, easeOutExpo"
+        "fadeLayersOut, 1, 1, easeOutExpo"
+        # Border color blend — was 10 (liner, very slow); 5 with ease-out
+        # reads as deliberate without being sluggish.
+        "border, 1, 5, easeOutExpo"
       ];
     };
   };
+
+  # Noctalia (Quickshell bar) — styling-only settings live here so all the
+  # personal-flavor visual choices are in one file. Functional config
+  # (widgets, exec-once, locate-city script, settings version, preferences
+  # like nightLight/location) stays in noctalia.nix.
+  # Noctalia styling — only the fields stylix doesn't already drive. Stylix
+  # flows colors, fonts, and opacity.{desktop,popups} into the bar/dock/OSD/
+  # notifications via its noctalia target module, so we don't set those here.
+  # What's left is shape/layout (floating bar, margins, rounding) and shadow
+  # direction.
+  programs.noctalia-shell.settings = {
+    bar = {
+      # Floating bar — required for margin/frameRadius/outerCorners to take
+      # effect. "simple" mode is edge-to-edge and ignores them.
+      marginVertical = 6;
+      marginHorizontal = 8;
+      frameRadius = 16; # Matches decoration.rounding above
+      outerCorners = true;
+      showCapsule = true; # Pill-shaped widget backgrounds (Control Center vibe)
+      showOutline = false; # Shadow + transparency do the framing
+      widgetSpacing = 6;
+      contentPadding = 4;
+    };
+    general = {
+      # macOS-style drop shadow — straight down, never horizontal offset.
+      # Pairs with the Hyprland window shadow (offset "0 8") above.
+      shadowDirection = "bottom";
+      shadowOffsetX = 0;
+      shadowOffsetY = 4;
+      enableShadows = true;
+      enableBlurBehind = true; # Frosted glass behind the bar
+    };
+  };
+
+  # Hyprlock styling lives in ./hyprlock.nix.
 }

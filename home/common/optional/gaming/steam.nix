@@ -1,4 +1,14 @@
-_: {
+{inputs, ...}: {
+  imports = [
+    inputs.steam-config-nix.homeModules.default
+  ];
+
+  programs.steam.config = {
+    enable = true;
+    closeSteam = true;
+    defaultCompatTool = "GE-Proton";
+  };
+
   # Enable multi-threaded Vulkan shader compilation for Steam
   # By default Steam uses only 1 thread, causing slow shader processing
   #

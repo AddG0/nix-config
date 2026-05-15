@@ -4,7 +4,7 @@
   config,
   ...
 }: let
-  oledMonitorNames = map (m: m.name) (lib.filter (m: m.oled) config.display.monitors);
+  cfg = config.services.oledCare.idleDpms;
 
   no-sleep = pkgs.writeShellApplication {
     name = "no-sleep";
@@ -12,7 +12,7 @@
     text = builtins.readFile ./no-sleep.sh;
   };
 in {
-  config = lib.mkIf (oledMonitorNames != []) {
+  config = lib.mkIf cfg.enable {
     home.packages = [no-sleep];
 
     services.hypridle = {

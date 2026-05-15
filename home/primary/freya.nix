@@ -61,6 +61,7 @@
         "development/nomad.nix"
 
         # Gaming
+        "gaming/steam.nix"
         "gaming/minecraft"
         "gaming/heroic.nix"
         "gaming/r2modman.nix"
@@ -103,10 +104,6 @@
   ];
 
   home.file."Videos/Movies".source = config.lib.file.mkOutOfStoreSymlink "/mnt/videos";
-
-  stylix.image = lib.mkForce (pkgs.runCommand "freya-black-wallpaper.png" {} ''
-    ${lib.getExe pkgs.imagemagick} -size 3840x2160 xc:black $out
-  '');
 
   programs.noctalia-shell.settings.bar = {
     displayMode = "auto_hide";

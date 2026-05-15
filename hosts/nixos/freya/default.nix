@@ -50,6 +50,7 @@
         "nixos/hardware/wooting.nix" # wooting keyboard
         "nixos/1password.nix"
         "nixos/services/bluetooth.nix"
+        "nixos/services/airpods-autoconnect.nix"
         # "nixos/services/bt-proximity.nix"
         "nixos/services/ollama.nix"
 

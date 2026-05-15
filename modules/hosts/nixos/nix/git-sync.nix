@@ -82,9 +82,21 @@ in {
 
     sshKey = mkOption {
       type = types.nullOr types.path;
-      default = "${config.hostSpec.home}/.ssh/id_ed25519";
+      default = null;
       description = "Path to SSH private key for fetching private flake inputs (e.g. nix-secrets)";
       example = "/root/.ssh/id_ed25519";
+    };
+
+    accessTokensFile = mkOption {
+      type = types.nullOr types.path;
+      default = null;
+      description = ''
+        Optional root-readable nix.conf fragment containing access-tokens for private flake inputs.
+
+        Example content:
+          access-tokens = github.com=ghp_... gitlab.com=PAT:glpat-...
+      '';
+      example = "/etc/nix/access-tokens.conf";
     };
 
     notifications = {
@@ -167,6 +179,12 @@ in {
 
           ${optionalString (cfg.sshKey != null) ''
             export GIT_SSH_COMMAND="ssh -i ${cfg.sshKey} -o StrictHostKeyChecking=accept-new"
+          ''}
+
+          ${optionalString (cfg.accessTokensFile != null) ''
+            if [ -f "${cfg.accessTokensFile}" ]; then
+              export NIX_USER_CONF_FILES="${cfg.accessTokensFile}''${NIX_USER_CONF_FILES:+:}''${NIX_USER_CONF_FILES:-}"
+            fi
           ''}
 
           ${lib.custom.mkNetworkWaitScript {host = "github.com";}}

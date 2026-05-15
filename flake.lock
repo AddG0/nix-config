@@ -15,11 +15,11 @@
         ]
       },
       "locked": {
-        "lastModified": 1778561316,
-        "narHash": "sha256-dqYnXrqt1Ck6vnydPH+ZvAiYsfmVZ3y1dtm6b5C7Kjc=",
+        "lastModified": 1778642534,
+        "narHash": "sha256-OoITkahzr+S7hJrig1inNINdlms++Thjx7yxA8mJ/kk=",
         "ref": "refs/heads/main",
-        "rev": "d14a50d58818f6913494557a054ee67f7f39ddea",
-        "revCount": 177,
+        "rev": "758046e26f6cabdaa454e50497bbff83e32b9965",
+        "revCount": 178,
         "type": "git",
         "url": "ssh://git@github.com/addg0/ai-toolkit.git"
       },
@@ -864,6 +864,27 @@
         "type": "github"
       }
     },
+    "flake-parts_10": {
+      "inputs": {
+        "nixpkgs-lib": [
+          "steam-config-nix",
+          "nixpkgs"
+        ]
+      },
+      "locked": {
+        "lastModified": 1765835352,
+        "narHash": "sha256-XswHlK/Qtjasvhd1nOa1e8MgZ8GS//jBoTqWtrS1Giw=",
+        "owner": "hercules-ci",
+        "repo": "flake-parts",
+        "rev": "a34fae9c08a15ad73f295041fec82323541400a9",
+        "type": "github"
+      },
+      "original": {
+        "owner": "hercules-ci",
+        "repo": "flake-parts",
+        "type": "github"
+      }
+    },
     "flake-parts_2": {
       "inputs": {
         "nixpkgs-lib": [
@@ -1032,7 +1053,7 @@
     },
     "flake-utils": {
       "inputs": {
-        "systems": "systems_10"
+        "systems": "systems_11"
       },
       "locked": {
         "lastModified": 1681202837,
@@ -1050,7 +1071,7 @@
     },
     "flake-utils_2": {
       "inputs": {
-        "systems": "systems_11"
+        "systems": "systems_12"
       },
       "locked": {
         "lastModified": 1731533236,
@@ -1717,11 +1738,11 @@
         "rev": "38c0bfc7ce803e0ffef52e86f8730ea878f4aaec",
         "revCount": 76,
         "type": "git",
-        "url": "ssh://git@github.com/AddG0/ks-agent.git"
+        "url": "ssh://git@gitlab.com/addg09/projects/ai-assistant/ks-agent.git"
       },
       "original": {
         "type": "git",
-        "url": "ssh://git@github.com/AddG0/ks-agent.git"
+        "url": "ssh://git@gitlab.com/addg09/projects/ai-assistant/ks-agent.git"
       }
     },
     "lanzaboote": {
@@ -2060,11 +2081,11 @@
         "pre-commit-hooks": "pre-commit-hooks_2"
       },
       "locked": {
-        "lastModified": 1778109015,
-        "narHash": "sha256-mrm9vXKCbuePcG1w4eLCa6fYVykdjQcbxSk0welz54I=",
+        "lastModified": 1778830876,
+        "narHash": "sha256-HD/1RVHZbDARqSeMOEshkE6R7Pyi5tyDhhN7VanUbaE=",
         "ref": "main",
-        "rev": "b55f80810b2aa75b20a4fc0afc31a5127f88dafe",
-        "revCount": 281,
+        "rev": "590aa69627c0aca8b8ad20811d31f509ace1ee3e",
+        "revCount": 283,
         "type": "git",
         "url": "ssh://git@github.com/addg0/nix-secrets.git"
       },
@@ -2890,6 +2911,7 @@
         "rust-overlay": "rust-overlay_4",
         "sops-nix": "sops-nix",
         "spicetify-nix": "spicetify-nix",
+        "steam-config-nix": "steam-config-nix",
         "stylix": "stylix",
         "treefmt-nix": "treefmt-nix_5",
         "tt-schemes": "tt-schemes",
@@ -3040,6 +3062,28 @@
         "type": "github"
       }
     },
+    "steam-config-nix": {
+      "inputs": {
+        "flake-parts": "flake-parts_10",
+        "nixpkgs": [
+          "nixpkgs"
+        ],
+        "systems": "systems_9"
+      },
+      "locked": {
+        "lastModified": 1773421780,
+        "narHash": "sha256-bkZGvIWV8JavLMQ2KzddrMCf9YBeiIM4OgdiwKcFx8M=",
+        "owner": "different-name",
+        "repo": "steam-config-nix",
+        "rev": "7b8021b2739733c547e2fe02739e6b8452813aa7",
+        "type": "github"
+      },
+      "original": {
+        "owner": "different-name",
+        "repo": "steam-config-nix",
+        "type": "github"
+      }
+    },
     "stylix": {
       "inputs": {
         "base16": "base16_2",
@@ -3055,7 +3099,7 @@
           "nixpkgs"
         ],
         "nur": "nur_2",
-        "systems": "systems_9",
+        "systems": "systems_10",
         "tinted-kitty": "tinted-kitty",
         "tinted-schemes": "tinted-schemes",
         "tinted-tmux": "tinted-tmux",
@@ -3106,6 +3150,21 @@
       }
     },
     "systems_11": {
+      "locked": {
+        "lastModified": 1681028828,
+        "narHash": "sha256-Vy1rq5AaRuLzOxct8nz4T6wlgyUR7zLU309k9mBC768=",
+        "owner": "nix-systems",
+        "repo": "default",
+        "rev": "da67096a3b9bf56a91d16901293e51ba5b49a27e",
+        "type": "github"
+      },
+      "original": {
+        "owner": "nix-systems",
+        "repo": "default",
+        "type": "github"
+      }
+    },
+    "systems_12": {
       "locked": {
         "lastModified": 1681028828,
         "narHash": "sha256-Vy1rq5AaRuLzOxct8nz4T6wlgyUR7zLU309k9mBC768=",

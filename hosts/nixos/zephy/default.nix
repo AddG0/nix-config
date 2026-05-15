@@ -72,11 +72,6 @@
     ))
   ];
 
-  nix.git-sync = {
-    enable = false;
-    notifications.enable = true;
-  };
-
   programs.awsvpnclient.enable = true;
 
   programs.kdeconnect.enable = true;

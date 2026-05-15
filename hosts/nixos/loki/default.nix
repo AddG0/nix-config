@@ -40,6 +40,7 @@
         "nixos/services/home-assistant-oci.nix"
         "nixos/services/nginx.nix" # nginx
         # "nixos/services/n8n.nix" # n8n
+        "nixos/nix-access-token.nix"
         "nixos/services/kubernetes/clusters/asgard.nix"
         "nixos/services/nomad/clusters/midgard/client.nix"
       ])
