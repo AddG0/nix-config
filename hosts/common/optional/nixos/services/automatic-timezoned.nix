@@ -1,34 +1,43 @@
 {pkgs, ...}: {
-  # Enable IP-based automatic timezone detection
-  # services.ip-timezone.enable = true;
-
   services.automatic-timezoned.enable = true;
 
-  # Update system TZ environment variable after timezone changes
-  systemd.services.automatic-timezoned.serviceConfig.ExecStartPost = pkgs.writeShellScript "update-tz-env" ''
-    # Extract timezone from /etc/localtime symlink
-    if [ -L /etc/localtime ]; then
-      TZ=$(${pkgs.coreutils}/bin/readlink -f /etc/localtime | ${pkgs.gnugrep}/bin/grep -oP '(?<=zoneinfo/).*' || echo "UTC")
-      # Update systemd environment for services
-      ${pkgs.systemd}/bin/systemctl set-environment TZ="$TZ"
-      # Update user session environments for running graphical sessions
-      for user_runtime in /run/user/*; do
-        if [ -d "$user_runtime" ]; then
-          uid=$(${pkgs.coreutils}/bin/basename "$user_runtime")
-          sudo -u "#$uid" DBUS_SESSION_BUS_ADDRESS="unix:path=$user_runtime/bus" \
-            ${pkgs.dbus}/bin/dbus-update-activation-environment --systemd TZ="$TZ" 2>/dev/null || true
-        fi
-      done
-    fi
-  '';
+  # The "+" prefix runs ExecStartPost with full privileges, bypassing the
+  # service's `User=automatic-timezoned`. Without it, `systemctl set-environment`
+  # fails with "Access denied as the requested operation requires interactive
+  # authentication" and the per-user dbus updates can't escalate either.
+  systemd.services.automatic-timezoned.serviceConfig.ExecStartPost = "+${pkgs.writeShellScript "update-tz-env" ''
+    set -u
+    [ -L /etc/localtime ] || exit 0
+    TZ=$(${pkgs.coreutils}/bin/readlink -f /etc/localtime | ${pkgs.gnugrep}/bin/grep -oP '(?<=zoneinfo/).*' || echo "UTC")
 
-  # Trigger timezone update when WiFi connects
-  # NetworkManager dispatcher runs scripts when network connections change
+    # System-wide env for future system services
+    ${pkgs.systemd}/bin/systemctl set-environment TZ="$TZ"
+
+    # Per active user session: push TZ into the dbus activation env + user
+    # systemd manager (affects newly-spawned user services/apps), then drop
+    # a marker file that a user-level path unit can watch to restart already-
+    # running graphical apps that captured the old TZ at launch.
+    for user_runtime in /run/user/*; do
+      [ -d "$user_runtime" ] || continue
+      uid=$(${pkgs.coreutils}/bin/basename "$user_runtime")
+      user=$(${pkgs.glibc.bin}/bin/getent passwd "$uid" | ${pkgs.coreutils}/bin/cut -d: -f1) || continue
+      [ -n "$user" ] || continue
+
+      XDG_RUNTIME_DIR="$user_runtime" \
+      DBUS_SESSION_BUS_ADDRESS="unix:path=$user_runtime/bus" \
+        ${pkgs.util-linux}/bin/runuser -u "$user" -- \
+        ${pkgs.dbus}/bin/dbus-update-activation-environment --systemd TZ="$TZ" 2>/dev/null || true
+
+      ${pkgs.coreutils}/bin/install -o "$uid" -g "$uid" -m 644 /dev/null "$user_runtime/tz-changed" || true
+    done
+  ''}";
+
+  # NetworkManager dispatcher: re-run timezone detection when any non-loopback
+  # interface comes up, so reconnecting to wifi in a new region updates TZ.
   networking.networkmanager.dispatcherScripts = [
     {
       source = pkgs.writeText "update-timezone" ''
         #!/bin/sh
-        # Only run on WiFi up events
         if [ "$2" = "up" ] && [ "$DEVICE_IFACE" != "lo" ]; then
           ${pkgs.systemd}/bin/systemctl restart automatic-timezoned.service
         fi
@@ -37,12 +46,8 @@
     }
   ];
 
-  # Set TZ environment variable from /etc/localtime for browsers
-  # automatic-timezoned only updates /etc/localtime symlink, not the TZ env var
-  # Browsers need an explicit timezone name (e.g., "Australia/Perth") in TZ variable
-  # The syntax TZ=:/etc/localtime doesn't work due to Chromium bug:
-  # https://bugs.chromium.org/p/chromium/issues/detail?id=811403
-  # This script extracts the actual timezone name from the symlink at login
+  # New login shells get TZ from /etc/localtime — covers SSH/tty sessions
+  # opened after a timezone change without going through the systemd dance.
   environment.loginShellInit = ''
     if [ -L /etc/localtime ]; then
       export TZ=$(readlink -f /etc/localtime | grep -oP '(?<=zoneinfo/).*' || echo "UTC")

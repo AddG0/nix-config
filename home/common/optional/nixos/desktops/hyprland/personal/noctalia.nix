@@ -98,4 +98,43 @@ in {
   # Systemd service deprecated upstream — launch via Hyprland exec-once instead.
   # The wrapper runs locate-city (copies settings + geo-lookup) then execs noctalia-shell.
   wayland.windowManager.hyprland.settings.exec-once = ["${noctalia-start}"];
+
+  # Restart noctalia when the system timezone changes. The system-level
+  # automatic-timezoned ExecStartPost (running as root) touches
+  # $XDG_RUNTIME_DIR/tz-changed after updating env; this path unit reacts and
+  # respawns noctalia so its Qt QDateTime picks up the new zone (running
+  # processes don't see TZ env-var changes).
+  systemd.user.paths.noctalia-tz-watch = {
+    Unit.Description = "Watch TZ-change marker to restart noctalia";
+    Path = {
+      PathChanged = "%t/tz-changed";
+      Unit = "noctalia-tz-restart.service";
+    };
+    Install.WantedBy = ["default.target"];
+  };
+
+  systemd.user.services.noctalia-tz-restart = {
+    Unit = {
+      Description = "Respawn noctalia after timezone change";
+      After = ["graphical-session.target"];
+      PartOf = ["graphical-session.target"];
+    };
+    Service = {
+      Type = "oneshot";
+      ExecStart = pkgs.writeShellScript "noctalia-tz-restart" ''
+        TZ=$(${pkgs.coreutils}/bin/readlink -f /etc/localtime | ${pkgs.gnugrep}/bin/grep -oP '(?<=zoneinfo/).*' || echo "UTC")
+        export TZ
+        ${pkgs.procps}/bin/pkill -f quickshell || true
+        ${pkgs.coreutils}/bin/sleep 0.5
+        # Spawn noctalia in an auto-named transient user service so it outlives
+        # this oneshot (--scope would block until noctalia exits, leaving the
+        # restart unit stuck in "activating" and preventing re-triggers). No
+        # fixed --unit name to avoid name collisions across rapid re-triggers.
+        ${pkgs.systemd}/bin/systemd-run --user --collect \
+          --description="Noctalia shell (respawned)" \
+          --setenv=TZ="$TZ" \
+          ${noctalia-start}
+      '';
+    };
+  };
 }
