@@ -6,10 +6,15 @@
         runtimeInputs = [];
         text = builtins.readFile ./linktree.sh;
       };
-      close-port = pkgs.writeShellApplication {
-        name = "close-port";
+      kill-port = pkgs.writeShellApplication {
+        name = "kill-port";
         runtimeInputs = with pkgs; [lsof];
-        text = builtins.readFile ./close-port.sh;
+        text = builtins.readFile ./kill-port.sh;
+      };
+      open-port = pkgs.writeShellApplication {
+        name = "open-port";
+        runtimeInputs = with pkgs; [iptables];
+        text = builtins.readFile ./open-port.sh;
       };
       toggle-internet = pkgs.writeShellApplication {
         name = "toggle-internet";

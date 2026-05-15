@@ -6,13 +6,22 @@
 # the user avatar (circle), greeting, and pill-shaped password input. Matches
 # the macOS Sequoia/Tahoe lock-screen vertical stack.
 #
+# OLED gating: if any monitor on this host is OLED, the full rich lock is
+# swapped for a minimal one — just the pill input field with fade-on-empty.
+# A static clock/date/avatar at the same screen position every lock event
+# accumulates localized wear on OLED panels (~5-10 min per lock × many
+# locks/day). The minimal version keeps the screen pure black until the
+# user starts typing, mirroring iPhone/iPad OLED unlock behavior.
+#
 # The base `programs.hyprlock.enable = true` and the SUPER+escape bind live in
 # ../common/hyprlock.nix. This file only adds styling.
 {
   lib,
   config,
   ...
-}: {
+}: let
+  hostHasOled = lib.any (m: m.oled) config.display.monitors;
+in {
   programs.hyprlock.settings = {
     general = {
       grace = 2; # 2-second window to dismiss without auth after lock fires
@@ -57,7 +66,7 @@
     # Frosted-glass card behind the avatar / greeting / input stack — the
     # Tahoe "liquid glass" cue. Reintroduces the depth that aggressive
     # background blur flattens. zindex -1 keeps it behind labels & inputs.
-    shape = [
+    shape = lib.mkIf (!hostHasOled) [
       {
         size = "380, 300";
         color = "rgba(14141c59)"; # Catppuccin base @ ~35% alpha
@@ -71,7 +80,7 @@
       }
     ];
 
-    label =
+    label = lib.mkIf (!hostHasOled) (
       [
         # Big time, top-center. Inter Thin at 140px mimics the iconic macOS
         # Tahoe ultra-light clock face. Thin weights need more size to read
@@ -136,10 +145,11 @@
           halign = "right";
           valign = "bottom";
         }
-      ];
+      ]
+    );
 
     # User avatar — round circle above the greeting.
-    image = [
+    image = lib.mkIf (!hostHasOled) [
       {
         path = "/var/lib/AccountsService/icons/${config.home.username}";
         size = 96;
@@ -153,34 +163,49 @@
       }
     ];
 
-    # Password input — pill-shaped, near bottom-center.
+    # Password input — pill-shaped, centered. On OLED hosts we strip the
+    # placeholder text and turn on fade_on_empty so the screen returns to
+    # pure black when the user stops typing — only lit pixels are the
+    # password dots while actively entering. On LCD we keep the richer
+    # variant with persistent placeholder text matching macOS.
     input-field = lib.mkForce [
-      {
-        size = "320, 52";
-        outline_thickness = 1;
-        dots_size = 0.22;
-        dots_spacing = 0.4;
-        dots_center = true;
-        dots_rounding = -1;
-        outer_color = "rgba(ffffff20)"; # Hairline border, matches windows
-        inner_color = "rgba(00000060)"; # Translucent dark fill
-        font_color = "rgba(cdd6f4ee)";
-        font_family = "Inter";
-        fade_on_empty = false;
-        placeholder_text = "<i>Enter password</i>";
-        check_color = "rgba(89b4faff)"; # Catppuccin blue while checking
-        fail_color = "rgba(f38ba8ee)"; # Catppuccin red on fail
-        fail_text = "<i>$FAIL ($ATTEMPTS)</i>";
-        fail_transition = 300;
-        capslock_color = "rgba(fab387ee)"; # Catppuccin peach
-        rounding = 26; # Half of height — full pill
-        shadow_passes = 1;
-        shadow_size = 4;
-        shadow_color = "rgba(00000050)";
-        position = "0, -240";
-        halign = "center";
-        valign = "center";
-      }
+      ({
+          size = "320, 52";
+          outline_thickness = 1;
+          dots_size = 0.22;
+          dots_spacing = 0.4;
+          dots_center = true;
+          dots_rounding = -1;
+          outer_color = "rgba(ffffff20)"; # Hairline border, matches windows
+          inner_color = "rgba(00000060)"; # Translucent dark fill
+          font_color = "rgba(cdd6f4ee)";
+          font_family = "Inter";
+          check_color = "rgba(89b4faff)"; # Catppuccin blue while checking
+          fail_color = "rgba(f38ba8ee)"; # Catppuccin red on fail
+          fail_text = "<i>$FAIL ($ATTEMPTS)</i>";
+          fail_transition = 300;
+          capslock_color = "rgba(fab387ee)"; # Catppuccin peach
+          rounding = 26; # Half of height — full pill
+          shadow_passes = 1;
+          shadow_size = 4;
+          shadow_color = "rgba(00000050)";
+          halign = "center";
+          valign = "center";
+        }
+        // (
+          if hostHasOled
+          then {
+            position = "0, 0"; # Centered — no labels above/below to anchor to
+            fade_on_empty = true;
+            fade_timeout = 2000;
+            placeholder_text = "";
+          }
+          else {
+            position = "0, -240";
+            fade_on_empty = false;
+            placeholder_text = "<i>Enter password</i>";
+          }
+        ))
     ];
   };
 }
