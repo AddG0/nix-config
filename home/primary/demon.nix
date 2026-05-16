@@ -171,19 +171,20 @@
     ];
     windowrule = [
       "workspace 3 silent, match:class ^(Slack)$"
-      "workspace 3 silent, match:title Legcord$"
+      "workspace 3 silent, match:title .*([Dd]iscord|[Ll]egcord).*"
       "workspace 2 silent, match:class ^(zen(-beta)?)$"
+      "workspace 6 silent, match:class ^([Ss]team)$"
     ];
   };
 
   xdg.autostart = {
     enable = true;
     entries = [
-      "${pkgs.slack}/share/applications/slack.desktop"
       "${pkgs.discord-legcord}/share/applications/legcord.desktop"
       "${config.programs.zen-browser.package}/share/applications/zen-beta.desktop"
       "${pkgs._1password-gui}/share/applications/1password.desktop"
       "${config.programs.spicetify.spicedSpotify}/share/applications/spotify.desktop"
+      "${pkgs.steam}/share/applications/steam.desktop"
     ];
   };
 

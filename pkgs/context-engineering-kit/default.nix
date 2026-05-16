@@ -5,7 +5,7 @@
 }:
 stdenvNoCC.mkDerivation {
   pname = "context-engineering-kit";
-  version = "3.0.0-unstable-2026-04-22";
+  version = "0-unstable-2026-04-22";
 
   src = fetchFromGitHub {
     owner = "NeoLabHQ";

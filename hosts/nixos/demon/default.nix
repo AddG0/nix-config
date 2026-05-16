@@ -64,6 +64,8 @@
         "nixos/services/greetd.nix"
         # "nixos/desktops/plasma6" # window manager
         "nixos/desktops/hyprland"
+
+        "nix-cache.nix"
       ])
     ))
   ];

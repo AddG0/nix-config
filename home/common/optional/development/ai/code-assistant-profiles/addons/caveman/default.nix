@@ -24,7 +24,7 @@ in {
       };
       "caveman-compress" = fromClaudeSkillDir {
         inherit pkgs;
-        source = "${caveman}/compress";
+        source = "${caveman}/caveman-compress";
       };
     };
   };

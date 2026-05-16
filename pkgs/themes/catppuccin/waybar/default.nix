@@ -5,7 +5,7 @@
 }:
 stdenv.mkDerivation rec {
   pname = "waybar-catppuccin";
-  version = "1.1-unstable-2024-07-13";
+  version = "0-unstable-2024-07-13";
 
   src = fetchFromGitHub {
     owner = "catppuccin";
