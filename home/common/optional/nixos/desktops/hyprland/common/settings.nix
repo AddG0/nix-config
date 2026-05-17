@@ -24,7 +24,6 @@ in {
 
         "GDK_BACKEND,wayland"
         "OGL_DEDICATED_HW_STATE_PER_CONTEXT,ENABLE_ROBUST"
-        "XCURSOR_SIZE,${toString config.stylix.cursor.size}"
       ];
 
       # ========== Monitor ==========

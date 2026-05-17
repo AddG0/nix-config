@@ -1,3 +1,4 @@
+# Steam overlay missing in games: Steam → Settings → Interface → uncheck "Use GPU accelerated rendering in web views".
 {
   config,
   inputs,
@@ -91,11 +92,6 @@ in {
       horizon-zero-dawn.launchOptions.wrappers = [gamemoderun] ++ gamescope;
     };
   };
-
-  # Steam + gameoverlayui are X11 apps via XWayland. Hyprland's default
-  # fractional scaling of XWayland surfaces blurs/mispositions the overlay
-  # on HiDPI. Forcing zero scaling fixes overlay rendering.
-  wayland.windowManager.hyprland.settings.xwayland.force_zero_scaling = true;
 
   # Enable multi-threaded Vulkan shader compilation for Steam
   # By default Steam uses only 1 thread, causing slow shader processing
