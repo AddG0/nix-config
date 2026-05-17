@@ -61,6 +61,7 @@
         "development/nomad.nix"
 
         # Gaming
+        "gaming"
         "gaming/minecraft"
         "gaming/heroic.nix"
         "gaming/r2modman.nix"
@@ -112,6 +113,7 @@
     # Direct capture with bitdepth 10 + HDR produces oversaturated colors
     # https://wiki.hyprland.org/Configuring/Monitors/#10-bit-support
     display = "portal";
+    matchMonitorName = "LG ULTRAGEAR";
   };
 
   #
@@ -166,6 +168,7 @@
   wayland.windowManager.hyprland.settings = {
     workspace = [
       "1, monitor:DP-3, default:true"
+      "6, monitor:DP-3, default:true"
       "2, monitor:DP-1, default:true"
       "3, monitor:DP-2, default:true"
     ];

@@ -40,17 +40,8 @@
       fi
     ''}
   '';
-
-  # Simple game wrapper - use in Steam launch options: game-wrapper %command%
-  game-wrapper = pkgs.writeShellScriptBin "game-wrapper" ''
-    exec ${pkgs.gamemode}/bin/gamemoderun "$@"
-  '';
 in {
   hardware.xone.enable = true;
-
-  environment.systemPackages = [
-    game-wrapper
-  ];
 
   programs = {
     steam = {
@@ -101,7 +92,7 @@ in {
         pkgs.proton-cachyos
       ];
     };
-    #gamescope launch args set dynamically in home/<user>/common/optional/gaming
+    # gamescope launch args set dynamically in home/<user>/common/optional/gaming
     gamescope = {
       enable = true;
       capSysNice = true;

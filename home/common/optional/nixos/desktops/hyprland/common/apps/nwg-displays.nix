@@ -24,8 +24,8 @@ lib.mkIf (hostSpec.hostType == "laptop") {
   # so Hyprland's source directive doesn't error on first boot.
   home.activation.createMonitorsConf = lib.hm.dag.entryAfter ["writeBoundary"] ''
     if [ ! -f "$HOME/.config/hypr/monitors.conf" ]; then
-      $DRY_RUN_CMD mkdir -p "$HOME/.config/hypr"
-      $DRY_RUN_CMD touch "$HOME/.config/hypr/monitors.conf"
+      run mkdir -p "$HOME/.config/hypr"
+      run touch "$HOME/.config/hypr/monitors.conf"
     fi
   '';
 
