@@ -86,6 +86,7 @@
         "nixos/desktops/hyprland"
         "nixos/desktops/hyprland/nvidia.nix"
         "nixos/desktops/hyprland/sunshine.nix"
+        "nixos/desktops/hyprland/common/software-dimming.nix"
         "nixos/services/hass-agent.nix"
         "media/vlc.nix"
 
