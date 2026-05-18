@@ -32,33 +32,28 @@
       ]
       ++ (map (f: "common/optional/${f}") [
         #################### Host-specific Optional Configs ####################
+        "nixos/services/openssh.nix" # allow remote SSH access
         "nixos/hardware/cachyos-kernel.nix" # CachyOS kernel
         "nixos/secureboot.nix"
-        "nixos/services/openssh.nix" # allow remote SSH access
+        "nixos/services/bluetooth.nix"
+
         "nixos/services/tailscale.nix" # mesh VPN for secure remote access
-        # "nixos/nvtop.nix" # GPU monitor (not available in home-manager)
-        # "nixos/audio.nix" # pipewire and cli controls - using local audio.nix instead
-        "nixos/gaming.nix" # steam, gamescope, gamemode, and related hardware
-        # "nixos/services/home-assistant"
-        "nixos/virtualisation/docker.nix" # docker
-        "nixos/libvirt.nix" # QEMU/KVM for VMs (macOS, etc)
-        "nixos/services/nginx.nix" # nginx
 
         "nixos/obs.nix" # obs
         "nixos/hardware/openrazer.nix" # openrazer
         "nixos/hardware/wooting.nix" # wooting keyboard
         "nixos/hardware/flipperzero.nix" # flipper zero udev rules + qFlipper
         "nixos/1password.nix"
-        "nixos/services/bluetooth.nix"
-        "nixos/services/ollama.nix"
         "nixos/services/clamav.nix"
         "nixos/services/earlyoom.nix"
 
-        # "nixos/remote-desktop/xrdp.nix"
         "nixos/remote-desktop/sunshine"
 
+        "nixos/services/ollama.nix"
+        "nixos/virtualisation/docker.nix" # docker
         "nixos/development/mysql.nix"
-        # "nixos/development/druid"
+
+        "nixos/gaming.nix" # steam, gamescope, gamemode, and related hardware
 
         # "nixos/plymouth.nix" # fancy boot screen
         "nixos/services/greetd.nix"
@@ -69,6 +64,10 @@
       ])
     ))
   ];
+
+  nix.git-sync = {
+    enable = true;
+  };
 
   # nix.remoteBuilder.enableClient = true;
 
@@ -98,8 +97,7 @@
 
   # Allowed for Nitrox server
   networking.firewall = {
-    allowedTCPPorts = [8811 50051];
-    allowedUDPPorts = [11000];
+    allowedTCPPorts = [8811];
   };
 
   services.obsbot-camera = {
