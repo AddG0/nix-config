@@ -64,12 +64,17 @@ in {
       };
     };
 
-    ignores = [
-      ".csvignore"
-      ".direnv"
-      ".devenv"
-      "result"
-    ];
+    ignores =
+      [
+        ".csvignore"
+        ".devenv"
+      ]
+      ++ lib.custom.gitignoreFromTemplates pkgs.github-gitignore-templates [
+        "Nix" # .direnv, result, result-*
+        "Global/macOS"
+        "Global/Linux"
+        "Global/Tags"
+      ];
   };
 
   programs.delta = {

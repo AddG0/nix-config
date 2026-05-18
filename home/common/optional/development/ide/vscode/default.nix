@@ -49,4 +49,6 @@ in
           };
       };
     };
+
+    programs.git.ignores = lib.custom.gitignoreFromTemplates pkgs.github-gitignore-templates ["Global/VisualStudioCode"];
   }

@@ -17,6 +17,7 @@ pkgs: {
   claude-hud = pkgs.callPackage ./claude-hud {};
   node-sqlite3 = pkgs.callPackage ./node-sqlite3 {};
   ollama-zsh-completion = pkgs.callPackage ./ollama-zsh-completion {};
+  github-gitignore-templates = pkgs.callPackage ./github-gitignore-templates {};
 
   # OpenTelemetry
   opentelemetry-javaagent = pkgs.callPackage ./opentelemetry-javaagent {};

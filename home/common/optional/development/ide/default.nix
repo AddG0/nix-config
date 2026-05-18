@@ -8,6 +8,7 @@
 #   https://repo1.maven.org/maven2/org/apache/pinot/pinot-jdbc-client/
 {
   pkgs,
+  lib,
   inputs,
   ...
 }: let
@@ -85,6 +86,9 @@ in {
     datagrip = mkIde datagrip bigDataPlugins;
     webstorm = mkIde webstorm [];
   };
+
+  programs.git.ignores = lib.custom.gitignoreFromTemplates pkgs.github-gitignore-templates ["Global/JetBrains"];
+
   home.packages = with pkgs; (
     if pkgs.stdenv.isLinux
     then [

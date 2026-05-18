@@ -1,4 +1,10 @@
-{pkgs, ...}: {
+{
+  pkgs,
+  lib,
+  ...
+}: {
+  programs.git.ignores = lib.custom.gitignoreFromTemplates pkgs.github-gitignore-templates ["Rust"];
+
   home.packages = with pkgs; [
     rustup # Rust toolchain installer (rustc, cargo, rustfmt, clippy)
     cargo-watch # Watch for changes and re-run cargo commands

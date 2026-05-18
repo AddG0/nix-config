@@ -22,4 +22,17 @@
     "terminal.integrated.scrollback" = 10000;
     "terminal.integrated.initialHint" = false;
   };
+  # Free Ctrl+G in the terminal so it reaches the shell (fzf-git uses it as a prefix),
+  # and expose Go to Recent Directory on Ctrl+G everywhere else.
+  keybindings = [
+    {
+      key = "ctrl+g";
+      command = "-workbench.action.terminal.goToRecentDirectory";
+    }
+    {
+      key = "ctrl+g";
+      command = "workbench.action.terminal.goToRecentDirectory";
+      when = "!terminalFocus";
+    }
+  ];
 }

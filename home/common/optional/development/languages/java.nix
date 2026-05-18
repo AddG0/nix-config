@@ -1,4 +1,8 @@
-{pkgs, ...}: {
+{
+  pkgs,
+  lib,
+  ...
+}: {
   home.packages = with pkgs; [
     jdk
     maven
@@ -10,12 +14,9 @@
     JAVA_HOME = "${pkgs.jdk}";
   };
 
-  programs.git.ignores = [
-    # Java LSP (jdtls) project files
-    ".classpath"
-    ".factorypath"
-    ".project"
-    ".settings/"
+  programs.git.ignores = lib.custom.gitignoreFromTemplates pkgs.github-gitignore-templates [
+    "Global/Eclipse"
+    "Maven"
   ];
 
   home.file.".gradle/gradle.properties".text = ''

@@ -8,7 +8,7 @@
   bucketName = "nix-cache-a530-nix-binary-cache";
   cachePublicKey = "personal-nix-cache:UjZ7D/QNTD8Rgihk5XdxHq2POpKlIZe3SPj8+qScv74=";
 
-  cacheUrl = "s3://${bucketName}?endpoint=https://storage.googleapis.com&profile=personal-nix-cache&want-mass-query=true";
+  cacheUrl = "s3://${bucketName}?endpoint=https://storage.googleapis.com&profile=personal-nix-cache&want-mass-query=true&multipart-upload=true";
 
   rootHome =
     if pkgs.stdenv.isDarwin
@@ -86,8 +86,11 @@ in {
     # via systemd LoadCredential so DynamicUser doesn't need filesystem access
     # to /run/secrets.
     workerScript = ''
+      set -euo pipefail
       export AWS_SHARED_CREDENTIALS_FILE="$CREDENTIALS_DIRECTORY/aws-credentials"
-      ${pkgs.nix}/bin/nix store sign \
+      # -r signs the full closure, not just $OUT_PATHS — otherwise nix copy
+      # uploads dependencies unsigned and substituters reject them.
+      ${pkgs.nix}/bin/nix store sign --recursive \
         --key-file "$CREDENTIALS_DIRECTORY/signing-key" $OUT_PATHS
       exec ${pkgs.nix}/bin/nix copy --to "${cacheUrl}" $OUT_PATHS
     '';

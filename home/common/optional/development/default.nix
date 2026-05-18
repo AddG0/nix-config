@@ -1,4 +1,8 @@
-{pkgs, ...}: let
+{
+  pkgs,
+  lib,
+  ...
+}: let
   # Wrap mailsy to fix KDE 6 detection bug in bundled xdg-open
   mailsy-wrapped = pkgs.symlinkJoin {
     name = "mailsy-wrapped";
@@ -34,10 +38,7 @@ in {
     github-cli # GitHub CLI.
   ];
 
-  programs.git.ignores = [
-    # Running the redis-server in a directory will make this file appear
-    "dump.rdb"
-  ];
+  programs.git.ignores = lib.custom.gitignoreFromTemplates pkgs.github-gitignore-templates ["Global/Redis"];
 
   programs.lnav = {
     enable = true;

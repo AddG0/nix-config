@@ -9,6 +9,11 @@
     "mux" = "tmuxinator";
   };
 in {
+  programs.git.ignores = [
+    ".tmuxinator.yml"
+    ".tmuxinator/"
+  ];
+
   programs.tmux = {
     enable = true;
     tmuxinator.enable = true;

@@ -39,13 +39,15 @@ in {
     inputs.ai-toolkit.homeModules.default
   ];
 
-  programs.git.ignores = [
-    ".playwright-mcp"
-    ".claude/settings.local.json"
-    ".claude/worktrees"
-    ".claude/scheduled_tasks.lock"
-    "CLAUDE.local.md"
-  ];
+  programs.git.ignores =
+    [
+      ".playwright-mcp"
+      ".claude/worktrees"
+      ".claude/scheduled_tasks.lock"
+    ]
+    # AI agent cruft — pulled from upstream because new tools land monthly.
+    # Bump the rev in pkgs/github-gitignore-templates/default.nix to refresh.
+    ++ lib.custom.gitignoreFromTemplates pkgs.github-gitignore-templates ["Global/Agents"];
 
   programs.code-assistant-profiles.targets.claude-code.enable = true;
 

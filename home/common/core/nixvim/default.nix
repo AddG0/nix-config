@@ -1,4 +1,9 @@
-{inputs, ...}: {
+{
+  inputs,
+  pkgs,
+  lib,
+  ...
+}: {
   imports = [
     inputs.nixvim.homeModules.nixvim
     ./ui.nix
@@ -13,6 +18,8 @@
     clipboard.register = "unnamedplus";
     globals.mapleader = " ";
   };
+
+  programs.git.ignores = lib.custom.gitignoreFromTemplates pkgs.github-gitignore-templates ["Global/Vim"];
 
   home.shellAliases = {
     vim = "nvim";
