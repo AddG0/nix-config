@@ -24,6 +24,16 @@ in {
 
         "GDK_BACKEND,wayland"
         "OGL_DEDICATED_HW_STATE_PER_CONTEXT,ENABLE_ROBUST"
+
+        # Stylix sets XCURSOR_* via home.sessionVariables, but UWSM finalizes
+        # those after Hyprland starts — so XWayland (spawned at compositor
+        # start) misses them and falls back to its 48px default, making the
+        # cursor look oversized in VLC, Steam, and other XWayland apps.
+        # Setting them in Hyprland's env ensures XWayland inherits them.
+        "XCURSOR_THEME,${config.stylix.cursor.name}"
+        "XCURSOR_SIZE,${toString config.stylix.cursor.size}"
+        "HYPRCURSOR_THEME,${config.stylix.cursor.name}"
+        "HYPRCURSOR_SIZE,${toString config.stylix.cursor.size}"
       ];
 
       # ========== Monitor ==========

@@ -15,10 +15,7 @@
     then frontmatter.fromFile spec.source
     else if (spec.text or null) != null
     then frontmatter.fromFile spec.text
-    else {
-      attrs = {};
-      body = "";
-    };
+    else throw "code-assistant-profiles: content spec has neither 'text' nor 'source' set; provide exactly one";
 
   normalizeContentSpec = spec: let
     parsed = parseContentSource spec;

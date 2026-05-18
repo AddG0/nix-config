@@ -13,8 +13,11 @@
 
   fromClaudeAgent = input: let
     parsed = parseClaudeFile input;
+    description =
+      parsed.attrs.description
+      or (throw "fromClaudeAgent: ${toString input} is missing required 'description' frontmatter field");
   in {
-    description = parsed.attrs.description or null;
+    inherit description;
     prompt.text = parsed.body;
     tools = normalizeStringList (parsed.attrs.tools or null);
     skills = normalizeStringList (parsed.attrs.skills or null);
@@ -36,8 +39,11 @@
     parsed = parseClaudeFile input;
     allowedTools = parsed.attrs."allowed-tools" or null;
     tools = parsed.attrs.tools or null;
+    description =
+      parsed.attrs.description
+      or (throw "fromClaudeSkillFile: ${toString input} is missing required 'description' frontmatter field");
   in {
-    description = parsed.attrs.description or null;
+    inherit description;
     argumentHint = parsed.attrs."argument-hint" or null;
     context = parsed.attrs.context or null;
     allowedTools = normalizeStringList (

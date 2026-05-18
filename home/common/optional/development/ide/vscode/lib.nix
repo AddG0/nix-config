@@ -93,6 +93,7 @@
       gitlab
       githubPr
       githubActions
+      githubCodeOwners
 
       # Languages
       nixIde

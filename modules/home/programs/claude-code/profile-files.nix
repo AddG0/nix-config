@@ -5,15 +5,8 @@
 }: let
   jsonFormat = pkgs.formats.json {};
 
-  isPathContent = content:
-    lib.isPath content
-    || lib.isDerivation content
-    || (lib.isString content
-      && (lib.hasPrefix "/" content || lib.hasPrefix "./" content)
-      && builtins.pathExists content);
-
   mkFileEntry = content:
-    if isPathContent content
+    if lib.isPath content || lib.isDerivation content
     then {source = content;}
     else {text = content;};
 
@@ -66,8 +59,6 @@
           then true
           else if lib.isPath content
           then lib.pathIsDirectory content
-          else if isPathContent content
-          then (builtins.readFileType content) == "directory"
           else false;
       in
         if isDir
@@ -95,5 +86,5 @@
     )
     finalConfig.extraFiles;
 in {
-  inherit isPathContent mkFileEntry mkProfileFiles;
+  inherit mkFileEntry mkProfileFiles;
 }

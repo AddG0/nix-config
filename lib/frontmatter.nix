@@ -2,7 +2,14 @@
   readInput = input:
     if lib.isPath input || lib.isDerivation input
     then builtins.readFile input
-    else input;
+    else if lib.isString input && lib.hasPrefix "/" input
+    then
+      if builtins.pathExists input
+      then builtins.readFile input
+      else throw "frontmatter.readInput: path does not exist: ${input}"
+    else if lib.isString input
+    then input
+    else throw "frontmatter.readInput: expected path, derivation, or string; got ${builtins.typeOf input}";
 
   takeUntil = pred: list:
     if list == []
@@ -48,6 +55,12 @@
   parseDocument = input: let
     text = readInput input;
     lines = lib.splitString "\n" text;
+    inputDesc =
+      if lib.isPath input || lib.isDerivation input
+      then " in ${toString input}"
+      else if lib.isString input && lib.hasPrefix "/" input
+      then " in ${input}"
+      else "";
   in
     if lines != [] && builtins.head lines == "---"
     then let
@@ -58,14 +71,74 @@
         frontmatter = lib.concatStringsSep "\n" split.before;
         body = lib.concatStringsSep "\n" split.after;
       }
-      else {
-        frontmatter = "";
-        body = text;
-      }
+      else throw "frontmatter.parseDocument: opened with '---' but no closing '---' fence found${inputDesc}"
     else {
       frontmatter = "";
       body = text;
     };
+
+  flushBlockScalar = state:
+    if state.blockScalar == null
+    then state
+    else let
+      bs = state.blockScalar;
+      strip = l:
+        if l == "" || bs.indent == 0
+        then l
+        else if lib.stringLength l <= bs.indent
+        then ""
+        else builtins.substring bs.indent (lib.stringLength l - bs.indent) l;
+      stripped = map strip bs.lines;
+      reversed = lib.reverseList stripped;
+      trimmedRev =
+        (lib.foldl (acc: l:
+            if acc.done || l != ""
+            then {
+              done = true;
+              out = acc.out ++ [l];
+            }
+            else acc) {
+            done = false;
+            out = [];
+          }
+          reversed).out;
+      trimmed = lib.reverseList trimmedRev;
+      joined =
+        if bs.style == "|"
+        then lib.concatStringsSep "\n" trimmed
+        else
+          (lib.foldl (acc: l:
+              if l == ""
+              then {
+                result = acc.result + "\n";
+                lastNonEmpty = false;
+              }
+              else if acc.result == ""
+              then {
+                result = l;
+                lastNonEmpty = true;
+              }
+              else if acc.lastNonEmpty
+              then {
+                result = acc.result + " " + l;
+                lastNonEmpty = true;
+              }
+              else {
+                result = acc.result + l;
+                lastNonEmpty = true;
+              })
+            {
+              result = "";
+              lastNonEmpty = false;
+            }
+            trimmed).result;
+    in
+      state
+      // {
+        attrs = state.attrs // {${bs.key} = joined;};
+        pending = null;
+        blockScalar = null;
+      };
 
   parse = text: let
     lines = lib.splitString "\n" text;
@@ -93,13 +166,49 @@
           attrs = state.attrs // {${key} = value;};
           pending = null;
         };
+      enterBlock = key: style:
+        state
+        // {
+          pending = key;
+          blockScalar = {
+            inherit key style;
+            indent = null;
+            lines = [];
+          };
+        };
       appendNested = list:
         state
         // {
           attrs = state.attrs // {${state.pending} = list;};
         };
     in
-      if content == ""
+      if state.blockScalar != null
+      then
+        if content == ""
+        then
+          state
+          // {
+            blockScalar = state.blockScalar // {lines = state.blockScalar.lines ++ [""];};
+          }
+        else if state.blockScalar.indent == null
+        then
+          state
+          // {
+            blockScalar =
+              state.blockScalar
+              // {
+                inherit indent;
+                lines = state.blockScalar.lines ++ [line];
+              };
+          }
+        else if indent < state.blockScalar.indent
+        then step (flushBlockScalar state) line
+        else
+          state
+          // {
+            blockScalar = state.blockScalar // {lines = state.blockScalar.lines ++ [line];};
+          }
+      else if content == ""
       then state
       else if indent == 0
       then
@@ -107,9 +216,14 @@
         then let
           key = builtins.elemAt keyMatch 0;
           rawValue = builtins.elemAt keyMatch 1;
+          trimmedValue = lib.strings.trim rawValue;
         in
           if rawValue == ""
           then setPending key null
+          else if trimmedValue == ">" || trimmedValue == "|"
+          then enterBlock key trimmedValue
+          else if builtins.match ''[>|][-+0-9].*'' trimmedValue != null
+          then throw "frontmatter.parse: YAML chomping/indent indicators in '${key}: ${trimmedValue}' are not supported; use plain '>' or '|', or inline the value"
           else setScalar key (stripQuotes rawValue)
         else state // {pending = null;}
       else if state.pending == null
@@ -135,12 +249,16 @@
       in
         appendNested (existingMap // {${nestedKey} = stripQuotes rawValue;})
       else state;
-  in
-    (lib.foldl step {
+
+    finalState =
+      lib.foldl step {
         attrs = {};
         pending = null;
+        blockScalar = null;
       }
-      lines).attrs;
+      lines;
+  in
+    (flushBlockScalar finalState).attrs;
 
   dropWhile = pred: list:
     if list == []

@@ -10,6 +10,7 @@
     pkgs.vscode-marketplace-release.vscjava.vscode-gradle
     pkgs.vscode-marketplace.vmware.vscode-spring-boot
     pkgs.vscode-marketplace.vscjava.vscode-spring-initializr
+    pkgs.vscode-marketplace.josevseb.google-java-format-for-vs-code
   ];
   userSettings = {
     # Use Nix-provided JDK/Maven for language servers (bundled JRE doesn't work on NixOS)
@@ -72,6 +73,14 @@
       "**/.project" = true;
       "**/.settings" = true;
       "**/.factorypath" = true;
+    };
+
+    # google-java-format as the canonical Java formatter
+    "java.format.enabled" = false;
+    "java.format.settings.google.mode" = "native-binary";
+    "java.format.settings.google.executable" = "${pkgs.google-java-format}/bin/google-java-format";
+    "[java]" = {
+      "editor.defaultFormatter" = "josevseb.google-java-format-for-vs-code";
     };
   };
 }

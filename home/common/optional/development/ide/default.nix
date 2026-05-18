@@ -36,6 +36,18 @@
     "Pythonid"
   ];
 
+  # Java LTS releases: 8, 11, 17, then every 4 versions (21, 25, 29, ...).
+  # Filter to the ones nixpkgs currently exposes and take the 3 newest, so a
+  # nixpkgs bump that adds (e.g.) jdk29 promotes it in without code changes.
+  ltsCandidates = [8 11 17] ++ map (n: 21 + 4 * n) (lib.range 0 10);
+  availableLts = builtins.filter (v: pkgs ? "jdk${toString v}") ltsCandidates;
+  latestLts = lib.lists.sublist (builtins.length availableLts - 3) 3 availableLts;
+  jdkLinks = lib.listToAttrs (map (v: {
+      name = ".jdks/openjdk-${toString v}";
+      value.source = "${pkgs."jdk${toString v}"}/lib/openjdk";
+    })
+    latestLts);
+
   mkIde = pkg: extraPlugins: {
     package = pkg;
     plugins = resolvePlugins pkg (commonPlugins ++ extraPlugins);
@@ -88,6 +100,11 @@ in {
   };
 
   programs.git.ignores = lib.custom.gitignoreFromTemplates pkgs.github-gitignore-templates ["Global/JetBrains"];
+
+  # JetBrains IDEs scan ~/.jdks/ for JDKs. Generic-Linux JDKs (e.g. Microsoft,
+  # Temurin downloads) fail with "Could not start dynamically linked executable"
+  # on NixOS, so expose nixpkgs-patched JDKs here for IntelliJ to discover.
+  home.file = lib.mkIf pkgs.stdenv.isLinux jdkLinks;
 
   home.packages = with pkgs; (
     if pkgs.stdenv.isLinux
