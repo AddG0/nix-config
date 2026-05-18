@@ -15,7 +15,7 @@
   inherit (inputs.nix-jetbrains-plugins.lib) pluginsForIde;
   resolvePlugins = ide: ids:
     builtins.attrValues (pluginsForIde pkgs ide ids);
-  commonPlugins = ["com.github.catppuccin.jetbrains" "com.intellij.mermaid" "org.mvnsearch.plugins.justPlugin" "com.intellij.plugins.vscodekeymap"];
+  commonPlugins = ["com.github.catppuccin.jetbrains" "com.intellij.mermaid" "org.mvnsearch.plugins.justPlugin" "com.intellij.plugins.vscodekeymap" "me.x150.intellij-code-screenshots"];
   bigDataPlugins = [
     "com.intellij.bigdatatools"
     "com.intellij.bigdatatools.core"
@@ -66,6 +66,19 @@
       terminal.audibleBell = false;
       extra."editor.xml".EditorSettings = ''
         <option name="IS_HORIZONTAL_SCROLLING_ENABLED" value="true" />
+      '';
+      # Easy Code Screenshots (me.x150.intellij-code-screenshots). backgroundColor
+      # is an ARGB signed-int; -15198171 is catppuccin mocha mantle (#181825).
+      extra."codeScreenshots.xml".CodeScreenshotsOptions = ''
+        <option name="scale" value="2.0" />
+        <option name="removeIndentation" value="true" />
+        <option name="innerPadding" value="24.0" />
+        <option name="outerPaddingHoriz" value="24.0" />
+        <option name="outerPaddingVert" value="24.0" />
+        <option name="windowRoundness" value="12" />
+        <option name="showWindowControls" value="true" />
+        <option name="showFileName" value="true" />
+        <option name="backgroundColor" value="-15198171" />
       '';
       ignoredFilePatterns = [
         # VCS
