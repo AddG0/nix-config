@@ -14,11 +14,6 @@
       ]
       ++ (map (f: "common/optional/${f}") [
         #################### Host-specific Optional Configs ####################
-        "browsers"
-        "ghostty"
-        "development/ide/vscode/server.nix"
-        # "nixos/desktops/plasma6"  # disabled for signage-only setup
-        "helper-scripts"
       ])
     ))
   ];

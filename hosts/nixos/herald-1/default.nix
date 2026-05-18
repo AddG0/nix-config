@@ -43,9 +43,16 @@
         "nixos/services/tailscale.nix" # mesh VPN for secure remote access
         "nixos/services/gitlab-runner.nix" # GitLab CI runner
         "nixos/plymouth.nix" # fancy boot screen
+
+        "nixos/nix-access-token.nix"
       ])
     ))
   ];
+
+  nix.git-sync = {
+    enable = true;
+    schedule = "03:00";
+  };
 
   networking = {
     networkmanager.enable = true;
