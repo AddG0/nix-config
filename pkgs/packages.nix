@@ -37,6 +37,7 @@ pkgs: {
 
   # Gaming
   proton-cachyos = pkgs.callPackage ./proton-cachyos {};
+  wlcrosshair = pkgs.callPackage ./wlcrosshair {};
 
   # KDE/KWin - modular namespace
   kwin-scripts = import ./kwin-scripts pkgs;
