@@ -111,8 +111,6 @@
     autoShowDelay = 150;
   };
 
-  # services.safeeyes.enable = true;
-
   #
   # ========== Workspaces & App Placement ==========
   #

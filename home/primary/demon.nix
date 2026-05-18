@@ -89,6 +89,7 @@
         "nixos/desktops/hyprland/common/software-dimming.nix"
         "nixos/desktops/hyprland/common/wlcrosshair.nix"
         "nixos/services/hass-agent.nix"
+        "nixos/services/safeeyes"
         "media/vlc.nix"
 
         # Remote Desktop
@@ -106,8 +107,6 @@
   ];
 
   home.file."Videos/Movies".source = config.lib.file.mkOutOfStoreSymlink "/mnt/videos";
-
-  # services.safeeyes.enable = true;
 
   services.gpu-screen-recorder = {
     enable = true;

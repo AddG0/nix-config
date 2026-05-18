@@ -14,22 +14,6 @@
   hostAll = hosts ++ hostDomains;
   hostString = lib.concatStringsSep " " hostAll;
 
-  pathtokeys = lib.custom.relativeToHosts "common/users/primary/keys";
-  sshKeys =
-    lib.lists.forEach (builtins.attrNames (builtins.readDir pathtokeys))
-    # Remove the .pub suffix
-    (key: lib.substring 0 (lib.stringLength key - lib.stringLength ".pub") key);
-  sshPublicKeyEntries = lib.attrsets.mergeAttrsList (
-    lib.lists.map
-    # list of dicts
-    (key: {".ssh/${key}.pub".source = "${pathtokeys}/${key}.pub";})
-    sshKeys
-  );
-
-  identityFiles = [
-    "id_ed25519"
-  ];
-
   # Generate SSH host entries from hostsAddr
   hostsAddrConfig =
     lib.attrsets.mapAttrs' (host: value: {
@@ -74,15 +58,9 @@ in {
       enable = true;
       enableDefaultConfig = false;
 
-      # AddKeysToAgent: automatically add keys to agent when used
-      # IdentityFile: only set on non-servers (servers use forwarded agents)
-      extraConfig =
-        ''
-          AddKeysToAgent yes
-        ''
-        + lib.optionalString (hostSpec.hostType != "server") ''
-          IdentityFile ${config.home.homeDirectory}/.ssh/id_ed25519
-        '';
+      extraConfig = ''
+        AddKeysToAgent yes
+      '';
 
       matchBlocks =
         {
@@ -97,20 +75,14 @@ in {
             };
           };
 
-          # Not all of this systems I have access to can use yubikey.
           "ssh-hosts" = lib.hm.dag.entryAfter ["*"] {
             host = "${hostString}";
             forwardAgent = true;
-            identitiesOnly = true;
-            identityFile = lib.lists.forEach identityFiles (file: "${config.home.homeDirectory}/.ssh/${file}");
           };
 
           "git" = {
             host = "gitlab.com github.com";
             user = "git";
-            # Servers use forwarded agents, so don't restrict to local identity files
-            identitiesOnly = hostSpec.hostType != "server";
-            identityFile = lib.lists.forEach identityFiles (file: "${config.home.homeDirectory}/.ssh/${file}");
           };
         }
         // hostsAddrConfig;
@@ -125,11 +97,7 @@ in {
       zstyle :omz:plugins:ssh-agent agent-forwarding yes
     '';
 
-    home.file =
-      {
-        ".ssh/config.d/.keep".text = "# Managed by Home Manager";
-        ".ssh/sockets/.keep".text = "# Managed by Home Manager";
-      }
-      // sshPublicKeyEntries;
+    # Ensures ~/.ssh/sockets/ exists before ssh tries to bind a ControlMaster socket there.
+    home.file.".ssh/sockets/.keep".text = "# Managed by Home Manager";
   };
 }

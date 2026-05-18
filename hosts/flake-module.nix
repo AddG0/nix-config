@@ -18,6 +18,7 @@ in {
   flake = {
     # NixOS configurations
     # Build with: nixos-rebuild --flake .#hostname
+    # Extend from another flake: nix-config.nixosConfigurations.<host>.extendModules { modules = [...]; }
     nixosConfigurations = let
       nixosHosts = readHosts ./nixos;
       mkNixOSConfig = host: {

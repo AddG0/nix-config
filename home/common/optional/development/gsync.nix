@@ -9,6 +9,7 @@
       echo "Git-aware rsync that:"
       echo "  - Excludes .git directories"
       echo "  - Respects .gitignore files"
+      echo "  - Respects .git/info/exclude"
       echo ""
       echo "Examples:"
       echo "  gsync ./project/ /backup/project/"
@@ -47,9 +48,14 @@
       trap "rm -f $EXCLUDE_FILE" EXIT
       ${pkgs.git}/bin/git ls-files -oi --exclude-standard --directory \
         | sed 's|/$||' > "$EXCLUDE_FILE"
+      INFO_EXCLUDE_ARGS=()
+      if [ -f "$REPO_ROOT/.git/info/exclude" ]; then
+        INFO_EXCLUDE_ARGS=(--exclude-from="$REPO_ROOT/.git/info/exclude")
+      fi
       exec ${pkgs.rsync}/bin/rsync -av \
         --exclude='.git' \
         --exclude-from="$EXCLUDE_FILE" \
+        "''${INFO_EXCLUDE_ARGS[@]}" \
         --filter=':- .gitignore' \
         "$@"
     fi

@@ -32,8 +32,8 @@
   ];
 
   hostSpec = {
-    hostName = "gce";
-    hostPlatform = "x86_64-linux";
+    hostName = lib.mkDefault "gce";
+    hostPlatform = lib.mkDefault "x86_64-linux";
     hostType = "server";
     disableSops = true;
     isMinimal = builtins.getEnv "NIXOS_MINIMAL" == "true";
@@ -44,11 +44,15 @@
   # adds an ESP at /dev/disk/by-label/ESP mounted at /boot.
   virtualisation.googleComputeImage.efi = true;
 
-  # Override to match GCE module expectation (it doesn't use mkDefault)
-  services.openssh.settings.PermitRootLogin = lib.mkForce "prohibit-password";
-
-  # Disable OS Login - use traditional SSH keys instead of GCP IAM
+  # Disable GCP OS Login (auto-provisions users + keys from IAM at SSH time) so
+  # the flake stays the sole source of users and keys.
   security.googleOsLogin.enable = lib.mkForce false;
+
+  # Uncomment to make the flake the sole source of users + SSH keys:
+  # disables the guest agent's user-from-metadata provisioning and ignores
+  # `~/.ssh/authorized_keys`. Undeclared users are wiped on next switch.
+  # users.mutableUsers = false;
+  # services.openssh.settings.AuthorizedKeysFile = lib.mkForce "/etc/ssh/authorized_keys.d/%u";
 
   networking = {
     networkmanager.enable = true;

@@ -33,6 +33,7 @@
         # "development/virtualization"
         # "development/virtualization/lens.nix"
         "development/gcloud.nix"
+        "nixos/services/safeeyes"
         "media/vlc.nix"
         # "remote-desktop/mouseshare/lan-mouse.nix"
         # "development/ai"
@@ -64,8 +65,6 @@
     };
     polarity = "dark";
   };
-
-  services.safeeyes.enable = true;
 
   #
   # ========== Host-specific Monitor Spec ==========

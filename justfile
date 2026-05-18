@@ -221,7 +221,7 @@ disko DRIVE PASSWORD:
 [doc("Sync configuration to remote host")]
 sync HOST USER=DEFAULT_USER:
   @{{ if HOST == "" { error("HOST parameter is required") } else { "" } }}
-  rsync -av --filter=':- .gitignore' --exclude='.git' -e "ssh -l {{USER}}" . {{USER}}@{{HOST}}:nix-config/
+  rsync -av --filter=':- .gitignore' --exclude-from=.git/info/exclude --exclude='.git' -e "ssh -l {{USER}}" . {{USER}}@{{HOST}}:nix-config/
 
 [group('deployment')]
 [doc("Watch filesystem and sync configuration to remote host on changes")]

@@ -96,8 +96,6 @@
     ))
   ];
 
-  # services.safeeyes.enable = true;
-
   #
   # ========== Workspaces & App Placement ==========
   #
