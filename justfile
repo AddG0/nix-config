@@ -42,6 +42,23 @@ check-trace: check-pre && pre
   nix flake check --show-trace
   cd nixos-installer && nix flake check --show trace
 
+[group('validation')]
+[doc("Hermetic eval of a host in a clean nix container (no SSH auth, no host cache) — proves the host can be built without access to private inputs")]
+check-hermetic hostname:
+  #!/usr/bin/env bash
+  set -euo pipefail
+  echo "Evaluating .#nixosConfigurations.{{hostname}} in clean nixos/nix container..."
+  echo "  (no SSH agent, no host /nix store — fetches only what eval actually forces)"
+  echo
+  docker run --rm --network=host \
+    -v "{{justfile_directory()}}:/nix-config:ro" \
+    nixos/nix:latest \
+    sh -c '
+      git config --global --add safe.directory /nix-config
+      nix --extra-experimental-features "nix-command flakes" \
+        eval /nix-config#nixosConfigurations.{{hostname}}.config.system.build.toplevel.drvPath
+    '
+
 alias r := rebuild
 
 # Add --option eval-cache false if you end up caching a failure you can't get around
