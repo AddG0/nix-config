@@ -1,5 +1,6 @@
 {
   config,
+  inputs,
   lib,
   pkgs,
   ...
@@ -68,6 +69,20 @@ in {
       description = "Automatically rollback to previous generation if rebuild fails";
     };
 
+    checkRemoteNewer = mkOption {
+      type = types.bool;
+      default = true;
+      description = ''
+        Skip the rebuild when the remote flake is not newer than the
+        currently-deployed configuration.
+
+        Compares `inputs.self.lastModified` (baked in at build time) against
+        the remote's `lastModified` from `nix flake metadata --refresh`.
+        Runs as a systemd `ExecCondition`, so the unit is marked "skipped"
+        (not failed) when no update is needed.
+      '';
+    };
+
     preRebuildHook = mkOption {
       type = types.lines;
       default = "";
@@ -128,6 +143,34 @@ in {
 
     systemd.services.nix-remote-rebuild = let
       flake = "${cfg.flakeRef}#${config.networking.hostName}";
+      check-newer-script = pkgs.writeShellApplication {
+        name = "nix-remote-rebuild-check-newer";
+        runtimeInputs = with pkgs; [nix jq coreutils];
+        text = ''
+          set -euo pipefail
+
+          ${optionalString (cfg.sshKey != null) ''
+            export GIT_SSH_COMMAND="ssh -i ${cfg.sshKey} -o StrictHostKeyChecking=accept-new"
+          ''}
+
+          ${optionalString (cfg.accessTokensFile != null) ''
+            if [ -f "${cfg.accessTokensFile}" ]; then
+              export NIX_USER_CONF_FILES="${cfg.accessTokensFile}''${NIX_USER_CONF_FILES:+:}''${NIX_USER_CONF_FILES:-}"
+            fi
+          ''}
+
+          # Baked in at build time from inputs.self.lastModified
+          current=${toString inputs.self.lastModified}
+          remote=$(nix flake metadata "${cfg.flakeRef}" --refresh --json | jq '.lastModified')
+
+          if [ "$remote" -gt "$current" ]; then
+            echo "Remote flake is newer ($remote > $current); proceeding with rebuild."
+            exit 0
+          fi
+          echo "Remote flake is not newer ($remote <= $current); skipping rebuild."
+          exit 1
+        '';
+      };
       rebuild-script = pkgs.writeShellApplication {
         name = "nix-remote-rebuild";
         runtimeInputs = with pkgs;
@@ -254,10 +297,14 @@ in {
       restartIfChanged = false;
       stopIfChanged = false;
 
-      serviceConfig = {
-        Type = "oneshot";
-        ExecStart = "${rebuild-script}/bin/nix-remote-rebuild";
-      };
+      serviceConfig =
+        {
+          Type = "oneshot";
+          ExecStart = "${rebuild-script}/bin/nix-remote-rebuild";
+        }
+        // optionalAttrs cfg.checkRemoteNewer {
+          ExecCondition = "${check-newer-script}/bin/nix-remote-rebuild-check-newer";
+        };
     };
 
     systemd.timers.nix-remote-rebuild = {
