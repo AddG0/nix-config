@@ -122,6 +122,7 @@
       logHighlighter
       caddyfile
       neo4j
+      gel
       tilt
       minecraft
 

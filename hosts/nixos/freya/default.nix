@@ -148,6 +148,8 @@
   # Battery status reporting for desktop widgets
   services.upower.enable = true;
 
+  services.libinput.mouse.accelSpeed = lib.mkForce "0.6";
+
   # More aggressive palm rejection for built-in touchpad —
   # lower values = lighter touches rejected as palms
   environment.etc."libinput/local-overrides.quirks".text = ''

@@ -15,11 +15,11 @@
         ]
       },
       "locked": {
-        "lastModified": 1778642534,
-        "narHash": "sha256-OoITkahzr+S7hJrig1inNINdlms++Thjx7yxA8mJ/kk=",
+        "lastModified": 1779231512,
+        "narHash": "sha256-QOBaBPDPP+fZD74iwbaaazL4O49IjWourFFYm3pnGzw=",
         "ref": "refs/heads/main",
-        "rev": "758046e26f6cabdaa454e50497bbff83e32b9965",
-        "revCount": 178,
+        "rev": "d7e59257331a20de303ef4881d9ca35968e3fed4",
+        "revCount": 180,
         "type": "git",
         "url": "ssh://git@github.com/addg0/ai-toolkit.git"
       },
@@ -468,16 +468,16 @@
     "dev-tooling": {
       "flake": false,
       "locked": {
-        "lastModified": 1776377048,
-        "narHash": "sha256-5sPN3FbnMPUNDHXNcPoevJjmumS1oVrkyVR0anHz7c4=",
-        "ref": "develop",
-        "rev": "8577c5875c1325df10f9bfa952a93237aa850456",
-        "revCount": 184,
+        "lastModified": 1779231353,
+        "narHash": "sha256-775kvvTLw+ZWsb5pHDR4yeT7lL+DE2wHdatpnUgknHA=",
+        "ref": "ENG26-1079",
+        "rev": "6e2da99d99970696072d20bc8bbe4533c038bed1",
+        "revCount": 248,
         "type": "git",
         "url": "ssh://git@gitlab.com/ShipperHQ/Tooling/Dev-Env/dev-tooling.git"
       },
       "original": {
-        "ref": "develop",
+        "ref": "ENG26-1079",
         "type": "git",
         "url": "ssh://git@gitlab.com/ShipperHQ/Tooling/Dev-Env/dev-tooling.git"
       }

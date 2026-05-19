@@ -20,7 +20,7 @@
     for user_runtime in /run/user/*; do
       [ -d "$user_runtime" ] || continue
       uid=$(${pkgs.coreutils}/bin/basename "$user_runtime")
-      user=$(${pkgs.glibc.bin}/bin/getent passwd "$uid" | ${pkgs.coreutils}/bin/cut -d: -f1) || continue
+      user=$(${pkgs.getent}/bin/getent passwd "$uid" | ${pkgs.coreutils}/bin/cut -d: -f1) || continue
       [ -n "$user" ] || continue
 
       XDG_RUNTIME_DIR="$user_runtime" \
