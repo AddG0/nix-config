@@ -6,6 +6,16 @@
 }: let
   cfg = config.programs.ssh;
 
+  # Public halves of the keys served by the 1Password SSH agent.
+  # Public keys aren't secret — committed under hosts/common/users/primary/keys.
+  # The agent serves the private half by matching pubkey fingerprint.
+  # Every *.pub file in that directory is auto-materialized at ~/.ssh/<name>.pub.
+  primaryKeys = lib.custom.relativeToHosts "common/users/primary/keys";
+  sshPublicKeyEntries = lib.attrsets.mapAttrs' (
+    filename: _:
+      lib.nameValuePair ".ssh/${filename}" {source = "${primaryKeys}/${filename}";}
+  ) (builtins.readDir primaryKeys);
+
   hosts = [
     "ghost"
   ];
@@ -66,7 +76,9 @@ in {
         {
           "*" = {
             controlMaster = "auto";
-            controlPath = "~/.ssh/sockets/S.%r@%h:%p";
+            # %n (alias as typed) instead of %h (resolved hostname) so two
+            # match blocks that share HostName get distinct mux sockets.
+            controlPath = "~/.ssh/sockets/S.%r@%n:%p";
             controlPersist = "10m";
             serverAliveInterval = 60;
             serverAliveCountMax = 3;
@@ -83,6 +95,8 @@ in {
           "git" = {
             host = "gitlab.com github.com";
             user = "git";
+            identityFile = "~/.ssh/primary.pub";
+            identitiesOnly = true;
           };
         }
         // hostsAddrConfig;
@@ -97,7 +111,11 @@ in {
       zstyle :omz:plugins:ssh-agent agent-forwarding yes
     '';
 
-    # Ensures ~/.ssh/sockets/ exists before ssh tries to bind a ControlMaster socket there.
-    home.file.".ssh/sockets/.keep".text = "# Managed by Home Manager";
+    home.file =
+      {
+        # Ensures ~/.ssh/sockets/ exists before ssh tries to bind a ControlMaster socket there.
+        ".ssh/sockets/.keep".text = "# Managed by Home Manager";
+      }
+      // sshPublicKeyEntries;
   };
 }

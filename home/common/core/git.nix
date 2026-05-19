@@ -6,17 +6,27 @@
 }: let
   inherit (config.hostSpec) handle;
   publicGitEmail = config.hostSpec.githubEmail;
+  personalSigningKey =
+    lib.removeSuffix "\n" (builtins.readFile
+      (lib.custom.relativeToHosts "common/users/primary/keys/primary.pub"));
+  allowedSigners = pkgs.writeText "git-allowed-signers" ''
+    ${publicGitEmail} ${personalSigningKey}
+  '';
 in {
   programs.git = {
     enable = true;
-    # package = pkgs.gitAndTools.gitFull;
     lfs.enable = true;
 
     settings = {
       user = {
         name = handle;
         email = publicGitEmail;
+        signingkey = personalSigningKey;
+        useConfigOnly = true;
       };
+
+      commit.gpgSign = true;
+      tag.gpgSign = true;
 
       log.showSignature = "true";
       trim.bases = "develop,master,main"; # for git-trim
@@ -28,12 +38,12 @@ in {
         "ssh://git@github.com" = {
           insteadOf = "https://github.com";
         };
-        "ssh://git@gitlab.com" = {
-          insteadOf = "https://gitlab.com";
-        };
       };
 
-      gpg.format = "ssh";
+      gpg = {
+        format = "ssh";
+        ssh.allowedSignersFile = toString allowedSigners;
+      };
 
       alias = {
         # common aliases

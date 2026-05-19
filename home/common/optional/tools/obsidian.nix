@@ -14,6 +14,21 @@
           theme = "obsidian";
         };
 
+        hotkeys = {
+          "editor:swap-line-up" = [
+            {
+              modifiers = ["Alt"];
+              key = "ArrowUp";
+            }
+          ];
+          "editor:swap-line-down" = [
+            {
+              modifiers = ["Alt"];
+              key = "ArrowDown";
+            }
+          ];
+        };
+
         themes = [
           pkgs.themes.catppuccin.obsidian
         ];
