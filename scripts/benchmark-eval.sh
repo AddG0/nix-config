@@ -1,4 +1,5 @@
-#!/usr/bin/env bash
+#!/usr/bin/env nix-shell
+#!nix-shell -i bash -p bc jq
 # benchmark-eval.sh - Compare evaluation performance between branches
 # Usage: ./benchmark-eval.sh <feature-branch> [base-branch] [hostname] [iterations]
 

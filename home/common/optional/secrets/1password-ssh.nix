@@ -32,15 +32,21 @@
     then "${config.home.homeDirectory}/Library/Group Containers/2BUA8C4S2C.com.1password/t/agent.sock"
     else "${config.home.homeDirectory}/.1password/agent.sock";
 in {
-  # Configure SSH to use 1Password as the SSH agent
-  # mkBefore ensures this is added before other extraConfig settings
-  programs.ssh.extraConfig = lib.mkBefore ''
-    Include ~/.ssh/1Password/config
-    IdentityAgent "${agentPath}"
-  '';
+  programs.ssh = {
+    # Include 1Password's generated per-key config.
+    includes = ["~/.ssh/1Password/config"];
 
-  # Disable the traditional SSH agent plugin
-  programs.ssh.enableTraditionalAgent = false;
+    # Only use 1Password as IdentityAgent for local sessions.
+    # When SSH'd in (SSH_TTY is set), the match is skipped so the forwarded
+    # agent via SSH_AUTH_SOCK is used instead. Recommended pattern per 1Password docs.
+    matchBlocks."1password-agent" = {
+      match = ''host * exec "test -z $SSH_TTY"'';
+      extraOptions.IdentityAgent = ''"${agentPath}"'';
+    };
+
+    # Disable the traditional SSH agent plugin
+    enableTraditionalAgent = false;
+  };
 
   # Set SSH_AUTH_SOCK to 1Password's agent socket, but only for local sessions
   # (preserve forwarded agent when SSH'd in with -A)

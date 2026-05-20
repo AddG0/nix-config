@@ -102,6 +102,10 @@
 
   boot.kernelModules = ["ntsync"]; # NT sync primitives for Wine/Proton gaming performance
 
+  # Reduce kernel's eagerness to swap. Default is 60; at 10 the kernel only
+  # swaps under genuine memory pressure rather than proactively.
+  boot.kernel.sysctl."vm.swappiness" = 10;
+
   # hardware.bluetooth.powerOnBoot = true only fires its udev rule on
   # initial controller registration at boot — after suspend/resume the
   # controller hardware comes back but stays Powered: no. Toggle it on
