@@ -64,7 +64,9 @@
       target_name="''${1:-}"
 
       for edid in /sys/class/drm/card*-*/edid; do
-        [ -s "$edid" ] || continue
+        # Sysfs reports apparent size as 0 even when the file has content,
+        # so use -f (exists) rather than -s (non-empty).
+        [ -f "$edid" ] || continue
 
         # Parse connector name from sysfs path: /sys/class/drm/card1-DP-3/edid -> DP-3
         connector="''${edid%/edid}"
