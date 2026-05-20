@@ -28,6 +28,22 @@
         "url": "ssh://git@github.com/addg0/ai-toolkit.git"
       }
     },
+    "anthropic-skills": {
+      "flake": false,
+      "locked": {
+        "lastModified": 1779199866,
+        "narHash": "sha256-GMXFJSePrpEvhzMQ82YI9Z10BDkuFK/lXUDELclvQ4c=",
+        "owner": "anthropics",
+        "repo": "skills",
+        "rev": "690f15cac7f7b4c055c5ab109c79ed9259934081",
+        "type": "github"
+      },
+      "original": {
+        "owner": "anthropics",
+        "repo": "skills",
+        "type": "github"
+      }
+    },
     "asus-numberpad-driver": {
       "inputs": {
         "nixpkgs": [
@@ -356,6 +372,102 @@
       "original": {
         "owner": "CachyOS",
         "repo": "kernel-patches",
+        "type": "github"
+      }
+    },
+    "catppuccin-obsidian": {
+      "flake": false,
+      "locked": {
+        "lastModified": 1773256238,
+        "narHash": "sha256-uB0a2nSZkHHf65xBYXyNh50vaAiqdEpKQVf3eXnCVlE=",
+        "owner": "catppuccin",
+        "repo": "obsidian",
+        "rev": "55aa9c9036a9df864593fdaedb2a227d3823fb06",
+        "type": "github"
+      },
+      "original": {
+        "owner": "catppuccin",
+        "repo": "obsidian",
+        "type": "github"
+      }
+    },
+    "caveman": {
+      "flake": false,
+      "locked": {
+        "lastModified": 1779273824,
+        "narHash": "sha256-BydREt/vai3j7kO5+e1OxsjXf6Vy+jSY1yA/yyxjHbI=",
+        "owner": "JuliusBrussee",
+        "repo": "caveman",
+        "rev": "655b7d9c5431f822264b7732e9901c5578ac84cf",
+        "type": "github"
+      },
+      "original": {
+        "owner": "JuliusBrussee",
+        "repo": "caveman",
+        "type": "github"
+      }
+    },
+    "claude-code": {
+      "flake": false,
+      "locked": {
+        "lastModified": 1779226261,
+        "narHash": "sha256-KzNWJ4Qz6kPmIB98cdRwtAiBU/oFHhn+9JATNVag44E=",
+        "owner": "anthropics",
+        "repo": "claude-code",
+        "rev": "cc898dc3692fb583f36ab327942aad20b7d3dbd0",
+        "type": "github"
+      },
+      "original": {
+        "owner": "anthropics",
+        "repo": "claude-code",
+        "type": "github"
+      }
+    },
+    "claude-code-skill-factory": {
+      "flake": false,
+      "locked": {
+        "lastModified": 1762961422,
+        "narHash": "sha256-8xNiafdgvddiIkQRaKuRo1tBpGVB8mVW0T7oX5gCdmY=",
+        "owner": "alirezarezvani",
+        "repo": "claude-code-skill-factory",
+        "rev": "ba18b31703542d9d7eda5f9ba94f0df65a59dddf",
+        "type": "github"
+      },
+      "original": {
+        "owner": "alirezarezvani",
+        "repo": "claude-code-skill-factory",
+        "type": "github"
+      }
+    },
+    "claude-code-skills-collection": {
+      "flake": false,
+      "locked": {
+        "lastModified": 1778959726,
+        "narHash": "sha256-5ubyLq/XFI98woHg7Wd2m829i7V18VdLOZQOZkKuR/g=",
+        "owner": "lyndonkl",
+        "repo": "claude",
+        "rev": "26bff1f71e7981d62f2094696807d987c2ecf3df",
+        "type": "github"
+      },
+      "original": {
+        "owner": "lyndonkl",
+        "repo": "claude",
+        "type": "github"
+      }
+    },
+    "context-engineering-kit": {
+      "flake": false,
+      "locked": {
+        "lastModified": 1776892486,
+        "narHash": "sha256-X/BKLcf+Y+arYvu6ezvGg+KbynJUm7GnBkXTRSR34VA=",
+        "owner": "NeoLabHQ",
+        "repo": "context-engineering-kit",
+        "rev": "dedca19ced62758f68a8a34cd2329ec065ecce6a",
+        "type": "github"
+      },
+      "original": {
+        "owner": "NeoLabHQ",
+        "repo": "context-engineering-kit",
         "type": "github"
       }
     },
@@ -1328,6 +1440,22 @@
       "original": {
         "owner": "cachix",
         "repo": "git-hooks.nix",
+        "type": "github"
+      }
+    },
+    "github-gitignore-templates": {
+      "flake": false,
+      "locked": {
+        "lastModified": 1779121111,
+        "narHash": "sha256-OL44y33lbfXkHlnlj1jtc/fXe/KtB87qz7QoYy1JjtA=",
+        "owner": "github",
+        "repo": "gitignore",
+        "rev": "3780fff86c705155792fb3e1787cebd6281ba8cf",
+        "type": "github"
+      },
+      "original": {
+        "owner": "github",
+        "repo": "gitignore",
         "type": "github"
       }
     },
@@ -2854,11 +2982,11 @@
         "rust-overlay": "rust-overlay_3"
       },
       "locked": {
-        "lastModified": 1778380120,
-        "narHash": "sha256-lb0rWdmW90jyIADzHJyaLjyduM2llyHM14XEVv6pmoU=",
+        "lastModified": 1779301337,
+        "narHash": "sha256-lwQElrMFsYXaYV13YkXILI3qC6iL7128bGyM84TJbPY=",
         "owner": "AddG0",
         "repo": "queued-build-hook",
-        "rev": "6d0d8c40668e1c0031bcd17e76f2e77255887ff3",
+        "rev": "72a87520550a73256087530555f92defe4d13808",
         "type": "github"
       },
       "original": {
@@ -2870,15 +2998,23 @@
     "root": {
       "inputs": {
         "ai-toolkit": "ai-toolkit",
+        "anthropic-skills": "anthropic-skills",
         "asus-numberpad-driver": "asus-numberpad-driver",
         "awsvpnclient-nix": "awsvpnclient-nix",
         "base16": "base16",
         "base16-vim": "base16-vim",
         "base16-zathura": "base16-zathura",
+        "catppuccin-obsidian": "catppuccin-obsidian",
+        "caveman": "caveman",
+        "claude-code": "claude-code",
+        "claude-code-skill-factory": "claude-code-skill-factory",
+        "claude-code-skills-collection": "claude-code-skills-collection",
+        "context-engineering-kit": "context-engineering-kit",
         "disko": "disko",
         "firefox-addons": "firefox-addons",
         "flake-parts": "flake-parts_4",
         "ghostty": "ghostty",
+        "github-gitignore-templates": "github-gitignore-templates",
         "hardware": "hardware",
         "home-manager": "home-manager_2",
         "lanzaboote": "lanzaboote",
@@ -2913,6 +3049,7 @@
         "spicetify-nix": "spicetify-nix",
         "steam-config-nix": "steam-config-nix",
         "stylix": "stylix",
+        "superpowers": "superpowers",
         "treefmt-nix": "treefmt-nix_5",
         "tt-schemes": "tt-schemes",
         "vscode-server": "vscode-server",
@@ -3116,6 +3253,22 @@
       "original": {
         "owner": "danth",
         "repo": "stylix",
+        "type": "github"
+      }
+    },
+    "superpowers": {
+      "flake": false,
+      "locked": {
+        "lastModified": 1777932301,
+        "narHash": "sha256-3E3rO6hR87JUfS3XV1Eaoz6SDWOftleWvN9UPNFEMjw=",
+        "owner": "obra",
+        "repo": "superpowers",
+        "rev": "f2cbfbefebbfef77321e4c9abc9e949826bea9d7",
+        "type": "github"
+      },
+      "original": {
+        "owner": "obra",
+        "repo": "superpowers",
         "type": "github"
       }
     },

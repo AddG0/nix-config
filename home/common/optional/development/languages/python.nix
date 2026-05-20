@@ -1,9 +1,10 @@
 {
   pkgs,
+  inputs,
   lib,
   ...
 }: {
-  programs.git.ignores = lib.custom.gitignoreFromTemplates pkgs.github-gitignore-templates ["Python"];
+  programs.git.ignores = lib.custom.gitignoreFromTemplates inputs.github-gitignore-templates ["Python"];
 
   home.packages = with pkgs; [
     python3

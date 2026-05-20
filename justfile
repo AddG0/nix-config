@@ -43,6 +43,26 @@ check-trace: check-pre && pre
   cd nixos-installer && nix flake check --show trace
 
 [group('validation')]
+[doc("Audit a host for Import From Derivation. Reports the first offender; fix it and re-run to surface the next.")]
+check-ifd hostname=`hostname`:
+  #!/usr/bin/env bash
+  set -uo pipefail
+  attr_root=$(if [ "$(uname -s)" = "Darwin" ]; then echo darwinConfigurations; else echo nixosConfigurations; fi)
+  attr=".#${attr_root}.{{hostname}}.config.system.build.toplevel.drvPath"
+  if output=$(nix eval --no-allow-import-from-derivation --impure --raw "$attr" 2>&1); then
+    echo "$(tput setaf 2)No IFD detected$(tput sgr0)"
+    exit 0
+  fi
+  echo "$(tput setaf 3)IFD detected:$(tput sgr0)"
+  offenders=$(printf '%s\n' "$output" | grep -oE "/nix/store/[^']+\.drv" | sort -u)
+  if [ -n "$offenders" ]; then
+    printf '  %s\n' "$offenders"
+  else
+    printf '%s\n' "$output" | sed 's/^/  /'
+  fi
+  exit 1
+
+[group('validation')]
 [doc("Hermetic eval of a host in a clean nix container (no SSH auth, no host cache) — proves the host can be built without access to private inputs")]
 check-hermetic hostname:
   #!/usr/bin/env bash

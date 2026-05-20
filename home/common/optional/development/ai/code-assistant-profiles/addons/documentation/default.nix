@@ -1,10 +1,11 @@
 {
   pkgs,
   lib,
+  inputs,
   ...
 }: let
-  cek = "${pkgs.context-engineering-kit}/share/claude-code";
-  skillsCollection = "${pkgs.claude-code-skills-collection}/share/claude-code/plugins/claude-code-skills-collection/skills";
+  cek = "${inputs.context-engineering-kit}";
+  skillsCollection = "${inputs.claude-code-skills-collection}/skills";
   inherit (lib.custom.ai) fromClaudeSkillDir fromClaudeSkillFile;
 in {
   programs.code-assistant-profiles.addons.documentation = {

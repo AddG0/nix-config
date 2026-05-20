@@ -1,9 +1,10 @@
 {
   pkgs,
   lib,
+  inputs,
   ...
 }: let
-  pluginDir = "${pkgs.claude-code-plugins}/share/claude-code/plugins/commit-commands/commands";
+  pluginDir = "${inputs.claude-code}/plugins/commit-commands/commands";
   inherit (lib.custom.ai) fromClaudeCommand;
 in {
   programs.code-assistant-profiles.addons.commit-commands = {

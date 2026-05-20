@@ -1,9 +1,10 @@
 {
   pkgs,
+  inputs,
   lib,
   ...
 }: {
-  programs.git.ignores = lib.custom.gitignoreFromTemplates pkgs.github-gitignore-templates ["Rust"];
+  programs.git.ignores = lib.custom.gitignoreFromTemplates inputs.github-gitignore-templates ["Rust"];
 
   home.packages = with pkgs; [
     rustup # Rust toolchain installer (rustc, cargo, rustfmt, clippy)

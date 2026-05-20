@@ -1,6 +1,7 @@
 {
   config,
   pkgs,
+  inputs,
   ...
 }: {
   programs.obsidian = {
@@ -30,7 +31,7 @@
         };
 
         themes = [
-          pkgs.themes.catppuccin.obsidian
+          inputs.catppuccin-obsidian
         ];
 
         cssSnippets = [

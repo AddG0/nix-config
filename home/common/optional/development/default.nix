@@ -1,5 +1,6 @@
 {
   pkgs,
+  inputs,
   lib,
   ...
 }: let
@@ -38,7 +39,7 @@ in {
     github-cli # GitHub CLI.
   ];
 
-  programs.git.ignores = lib.custom.gitignoreFromTemplates pkgs.github-gitignore-templates ["Global/Redis"];
+  programs.git.ignores = lib.custom.gitignoreFromTemplates inputs.github-gitignore-templates ["Global/Redis"];
 
   programs.lnav = {
     enable = true;

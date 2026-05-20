@@ -7,17 +7,9 @@ pkgs: {
   gke-gcloud-auth-plugin = pkgs.callPackage ./gke-gcloud-auth-plugin {};
   openhands = pkgs.callPackage ./openhands {};
   wifiman-desktop = pkgs.callPackage ./wifiman-desktop {};
-  superpowers-skills = pkgs.callPackage ./superpowers-skills {};
-  context-engineering-kit = pkgs.callPackage ./context-engineering-kit {};
-  claude-code-plugins = pkgs.callPackage ./claude-code-plugins {};
-  claude-code-skills-collection = pkgs.callPackage ./claude-code-skills-collection {};
-  caveman = pkgs.callPackage ./caveman {};
-  anthropic-skills = pkgs.callPackage ./anthropic-skills {};
-  claude-code-skill-factory = pkgs.callPackage ./claude-code-skill-factory {};
   claude-hud = pkgs.callPackage ./claude-hud {};
   node-sqlite3 = pkgs.callPackage ./node-sqlite3 {};
   ollama-zsh-completion = pkgs.callPackage ./ollama-zsh-completion {};
-  github-gitignore-templates = pkgs.callPackage ./github-gitignore-templates {};
 
   # OpenTelemetry
   opentelemetry-javaagent = pkgs.callPackage ./opentelemetry-javaagent {};

@@ -32,6 +32,7 @@
         inherit host;
         hostname = value.ipv4;
         port = hostSpec.networking.ports.tcp.ssh;
+        forwardAgent = true;
       };
     })
     hostSpec.networking.hostsAddr;

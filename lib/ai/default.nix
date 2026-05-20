@@ -4,6 +4,11 @@
 }: let
   inherit (frontmatter) normalizeStringList;
 
+  assertPathExists = fnName: path:
+    if builtins.pathExists path
+    then path
+    else throw "${fnName}: source path does not exist: ${toString path}";
+
   parseClaudeFile = input: let
     parsed = frontmatter.fromFile input;
   in {
@@ -11,7 +16,8 @@
     attrs = parsed.attrs or {};
   };
 
-  fromClaudeAgent = input: let
+  fromClaudeAgent = rawInput: let
+    input = assertPathExists "fromClaudeAgent" rawInput;
     parsed = parseClaudeFile input;
     description =
       parsed.attrs.description
@@ -26,7 +32,8 @@
     category = parsed.attrs.category or null;
   };
 
-  fromClaudeCommand = input: let
+  fromClaudeCommand = rawInput: let
+    input = assertPathExists "fromClaudeCommand" rawInput;
     parsed = parseClaudeFile input;
   in {
     description = parsed.attrs.description or null;
@@ -35,7 +42,8 @@
     content.text = parsed.body;
   };
 
-  fromClaudeSkillFile = input: let
+  fromClaudeSkillFile = rawInput: let
+    input = assertPathExists "fromClaudeSkillFile" rawInput;
     parsed = parseClaudeFile input;
     allowedTools = parsed.attrs."allowed-tools" or null;
     tools = parsed.attrs.tools or null;
@@ -60,8 +68,9 @@
     pkgs,
     source,
   }: let
-    skill = fromClaudeSkillFile (source + "/SKILL.md");
-    entries = builtins.readDir source;
+    source' = assertPathExists "fromClaudeSkillDir" source;
+    skill = fromClaudeSkillFile (source' + "/SKILL.md");
+    entries = builtins.readDir source';
     extraEntries = builtins.removeAttrs entries ["SKILL.md"];
     hasExtras = extraEntries != {};
     resourcesRoot =
@@ -69,7 +78,7 @@
       then
         pkgs.runCommand "claude-skill-resources" {} ''
           mkdir -p "$out"
-          cp -R "${source}/." "$out/"
+          cp -R "${source'}/." "$out/"
           rm -f "$out/SKILL.md"
         ''
       else null;

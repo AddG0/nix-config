@@ -11,9 +11,10 @@
 {
   pkgs,
   lib,
+  inputs,
   ...
 }: let
-  caveman = "${pkgs.caveman}/share/caveman/skills";
+  caveman = "${inputs.caveman}/skills";
   inherit (lib.custom.ai) fromClaudeSkillDir;
 in {
   programs.code-assistant-profiles.addons.caveman = {

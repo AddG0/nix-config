@@ -1,9 +1,10 @@
 {
   pkgs,
   lib,
+  inputs,
   ...
 }: let
-  skillsCollection = "${pkgs.claude-code-skills-collection}/share/claude-code/plugins/claude-code-skills-collection/skills";
+  skillsCollection = "${inputs.claude-code-skills-collection}/skills";
   inherit (lib.custom.ai) fromClaudeSkillDir;
 in {
   programs.code-assistant-profiles.addons.architecture = {

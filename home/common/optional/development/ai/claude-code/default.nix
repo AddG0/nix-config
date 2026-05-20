@@ -31,8 +31,8 @@
   };
 
   inherit (config.programs.claude-code-profiles) addons;
-  anthropicSkills = "${pkgs.anthropic-skills}/share/claude-code/plugins/anthropic-skills/skills";
-  skillFactory = "${pkgs.claude-code-skill-factory}/share/claude-code/plugins/claude-code-skill-factory/.claude";
+  anthropicSkills = "${inputs.anthropic-skills}/skills";
+  skillFactory = "${inputs.claude-code-skill-factory}/.claude";
 in {
   imports = lib.flatten [
     (lib.custom.scanPaths ./addons)
@@ -45,9 +45,7 @@ in {
       ".claude/worktrees"
       ".claude/scheduled_tasks.lock"
     ]
-    # AI agent cruft — pulled from upstream because new tools land monthly.
-    # Bump the rev in pkgs/github-gitignore-templates/default.nix to refresh.
-    ++ lib.custom.gitignoreFromTemplates pkgs.github-gitignore-templates ["Global/Agents"];
+    ++ lib.custom.gitignoreFromTemplates inputs.github-gitignore-templates ["Global/Agents"];
 
   programs.code-assistant-profiles.targets.claude-code.enable = true;
 
@@ -58,8 +56,14 @@ in {
     defaultProfile = "default";
 
     baseConfig = {
+      # Rewrite #!/bin/bash shebangs; NixOS doesn't ship /bin/bash.
       pluginDirs = [
-        "${pkgs.claude-code-plugins}/share/claude-code/plugins/ralph-wiggum"
+        (pkgs.runCommand "ralph-wiggum-patched" {} ''
+          cp -r ${inputs.claude-code}/plugins/ralph-wiggum $out
+          chmod -R u+w $out
+          find $out -type f \( -name '*.sh' -o -name '*-hook' \) \
+            -exec sed -i "1s|^#!/bin/bash|#!${pkgs.bash}/bin/bash|" {} \;
+        '')
       ];
 
       # Claude HUD config — "Full" preset, expanded layout

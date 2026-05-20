@@ -68,7 +68,7 @@ in {
 
       skills."frontend-design" = lib.custom.ai.fromClaudeSkillDir {
         inherit pkgs;
-        source = "${pkgs.claude-code-plugins}/share/claude-code/plugins/frontend-design/skills/frontend-design";
+        source = "${inputs.claude-code}/plugins/frontend-design/skills/frontend-design";
       };
 
       commands = {
@@ -77,7 +77,7 @@ in {
       };
 
       agents = {
-        "graphrag-specialist" = lib.custom.ai.fromClaudeAgent "${pkgs.claude-code-skills-collection}/share/claude-code/plugins/claude-code-skills-collection/agents/graphrag-specialist.md";
+        "graphrag-specialist" = lib.custom.ai.fromClaudeAgent "${inputs.claude-code-skills-collection}/agents/graphrag-specialist.md";
         "deep-research-agent".prompt.source = ./agents/deep-research.md;
       };
 

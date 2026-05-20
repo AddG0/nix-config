@@ -1,5 +1,6 @@
 {
   pkgs,
+  inputs,
   lib,
   config,
   ...
@@ -79,7 +80,7 @@ in {
         ".csvignore"
         ".devenv"
       ]
-      ++ lib.custom.gitignoreFromTemplates pkgs.github-gitignore-templates [
+      ++ lib.custom.gitignoreFromTemplates inputs.github-gitignore-templates [
         "Nix" # .direnv, result, result-*
         "Global/macOS"
         "Global/Linux"

@@ -1,9 +1,10 @@
 {
   pkgs,
+  inputs,
   lib,
   ...
 }: {
-  programs.git.ignores = lib.custom.gitignoreFromTemplates pkgs.github-gitignore-templates ["Node"];
+  programs.git.ignores = lib.custom.gitignoreFromTemplates inputs.github-gitignore-templates ["Node"];
 
   home.packages = with pkgs; [
     nodejs_24

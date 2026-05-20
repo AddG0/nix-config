@@ -16,10 +16,11 @@
         runtimeInputs = with pkgs; [iptables];
         text = builtins.readFile ./open-port.sh;
       };
-      toggle-internet = pkgs.writeShellApplication {
-        name = "toggle-internet";
-        text = builtins.readFile ./toggle-internet.sh;
-      };
+      # I don't have issues that need this anymore. Kept in case I need it again.
+      # toggle-internet = pkgs.writeShellApplication {
+      #   name = "toggle-internet";
+      #   text = builtins.readFile ./toggle-internet.sh;
+      # };
       kill-cursor-rag = pkgs.writeShellApplication {
         name = "kill-cursor-rag";
         text = builtins.readFile ./kill-cursor-rag.sh;
@@ -33,6 +34,11 @@
         name = "steam-download-wait";
         runtimeInputs = with pkgs; [coreutils gawk];
         text = builtins.readFile ./steam-download-wait.sh;
+      };
+      warm-flake-cache = pkgs.writeShellApplication {
+        name = "warm-flake-cache";
+        runtimeInputs = with pkgs; [nix-fast-build coreutils];
+        text = builtins.readFile ./warm-flake-cache.sh;
       };
     }
     // pkgs.lib.optionalAttrs pkgs.stdenv.isDarwin {

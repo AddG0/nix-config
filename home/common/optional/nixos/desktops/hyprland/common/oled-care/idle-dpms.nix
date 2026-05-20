@@ -26,6 +26,17 @@ in {
           unlock_cmd = "${pkgs.procps}/bin/pkill -USR1 hyprlock";
           before_sleep_cmd = "loginctl lock-session";
           after_sleep_cmd = "hyprctl dispatch dpms on";
+          # Hold systemd-logind's sleep inhibitor until the lock-screen client
+          # signals `hyprland-lock-notify-v1` (i.e. hyprlock's surface is
+          # actually mapped). Default mode 2 ("auto") releases the inhibitor
+          # before hyprlock finishes its dmabuf screencopy + fadeIn, the
+          # InhibitDelayMaxSec=5s ceiling fires, and the system suspends
+          # mid-render — hyprlock logs "Seems we got yeeten" on wake and the
+          # lock screen comes back garbled.
+          #   Wiki:        https://wiki.hypr.land/Hypr-Ecosystem/hypridle/
+          #   Root cause:  https://github.com/hyprwm/hypridle/issues/146
+          #   Symptom:     https://github.com/hyprwm/Hyprland/issues/5913
+          inhibit_sleep = 3;
         };
 
         listener = [

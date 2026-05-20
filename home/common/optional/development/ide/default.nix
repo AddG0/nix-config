@@ -8,16 +8,33 @@
 #   https://repo1.maven.org/maven2/org/apache/pinot/pinot-jdbc-client/
 {
   pkgs,
-  lib,
   inputs,
+  lib,
   ...
 }: let
   inherit (inputs.nix-jetbrains-plugins.lib) pluginsForIde;
   resolvePlugins = ide: ids:
     builtins.attrValues (pluginsForIde pkgs ide ids);
-  commonPlugins = ["com.github.catppuccin.jetbrains" "com.intellij.mermaid" "org.mvnsearch.plugins.justPlugin" "com.intellij.plugins.vscodekeymap" "me.x150.intellij-code-screenshots"];
+  commonPlugins = [
+    "com.github.catppuccin.jetbrains"
+    "com.intellij.mermaid"
+    "org.mvnsearch.plugins.justPlugin"
+    "com.intellij.plugins.vscodekeymap"
+    "me.x150.intellij-code-screenshots"
+    # Official Anthropic Claude Code plugin (still tagged [Beta]). Runs the
+    # Claude Code CLI inside the IDE terminal and surfaces proposed diffs
+    # in the IDE's diff viewer. Requires the `claude` CLI to be installed
+    # separately — already on PATH via the rest of this config.
+    #   https://plugins.jetbrains.com/plugin/27310-claude-code-beta-
+    "com.anthropic.code.plugin"
+  ];
+  # The aggregator meta-plugin `com.intellij.bigdatatools` is intentionally
+  # absent: it declares a hard dep on `bigdatatools.zeppelin`, and zeppelin
+  # only loads in PyCharm (see zeppelinPlugins below). Including the meta on
+  # IDEA/DataGrip would fail plugin verification with
+  # "Big Data Tools requires plugin com.intellij.bigdatatools.zeppelin to
+  # be enabled". The sub-plugins below provide the actual features.
   bigDataPlugins = [
-    "com.intellij.bigdatatools"
     "com.intellij.bigdatatools.core"
     "com.intellij.bigdatatools.binary.files"
     "intellij.bigdatatools.coreUi"
@@ -30,11 +47,14 @@
     "com.intellij.bigdatatools.rfs"
     "com.intellij.bigdatatools.spark"
   ];
-  # Zeppelin requires Python support (com.intellij.modules.python) — only works in IDEs that bundle it
-  zeppelinPlugins = [
-    "com.intellij.bigdatatools.zeppelin"
-    "Pythonid"
-  ];
+  # Zeppelin notebooks. The sub-plugin requires `intellij.python.community.
+  # execService`, a module provided only by the bundled `PythonCore` plugin
+  # (Python Community Edition). PyCharm ships PythonCore out of the box;
+  # IDEA 2026 ships no Python plugin at all, so zeppelin is PyCharm-only
+  # here. `Pythonid` is omitted on purpose — PyCharm bundles it too, and
+  # pinning it externally over the bundled copy fails with "requires
+  # com.intellij.modules.python".
+  zeppelinPlugins = ["com.intellij.bigdatatools.zeppelin"];
 
   # Java LTS releases: 8, 11, 17, then every 4 versions (21, 25, 29, ...).
   # Filter to the ones nixpkgs currently exposes and take the 3 newest, so a
@@ -106,13 +126,16 @@
   };
 in {
   programs.jetbrains.ides = with pkgs.jetbrains; {
-    idea = mkIde idea (["nix-idea" "net.ashald.envfile" "org.jetbrains.plugins.go-template"] ++ bigDataPlugins ++ zeppelinPlugins);
-    pycharm = mkIde pycharm [];
+    idea = mkIde idea (["nix-idea" "net.ashald.envfile" "org.jetbrains.plugins.go-template"] ++ bigDataPlugins);
+    # PyCharm gets the big-data stack too so Zeppelin can sit alongside its
+    # dependencies (Spark, Metastore, etc.) — without those the notebook
+    # plugin is functional but stranded.
+    pycharm = mkIde pycharm (bigDataPlugins ++ zeppelinPlugins);
     datagrip = mkIde datagrip bigDataPlugins;
     webstorm = mkIde webstorm [];
   };
 
-  programs.git.ignores = lib.custom.gitignoreFromTemplates pkgs.github-gitignore-templates ["Global/JetBrains"];
+  programs.git.ignores = lib.custom.gitignoreFromTemplates inputs.github-gitignore-templates ["Global/JetBrains"];
 
   # JetBrains IDEs scan ~/.jdks/ for JDKs. Generic-Linux JDKs (e.g. Microsoft,
   # Temurin downloads) fail with "Could not start dynamically linked executable"

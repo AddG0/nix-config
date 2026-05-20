@@ -19,7 +19,7 @@
     globals.mapleader = " ";
   };
 
-  programs.git.ignores = lib.custom.gitignoreFromTemplates pkgs.github-gitignore-templates ["Global/Vim"];
+  programs.git.ignores = lib.custom.gitignoreFromTemplates inputs.github-gitignore-templates ["Global/Vim"];
 
   home.shellAliases = {
     vim = "nvim";

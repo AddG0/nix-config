@@ -1,6 +1,7 @@
 {
   pkgs,
   lib,
+  inputs,
   ...
 }: let
   skillNames = [
@@ -19,7 +20,7 @@
     "writing-plans"
     "writing-skills"
   ];
-  skillsPath = "${pkgs.superpowers-skills}/share/claude-code/skills";
+  skillsPath = "${inputs.superpowers}/skills";
   inherit (lib.custom.ai) fromClaudeSkillDir;
 in {
   programs.code-assistant-profiles.addons.superpowers = {

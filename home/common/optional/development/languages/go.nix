@@ -1,9 +1,10 @@
 {
   pkgs,
+  inputs,
   lib,
   ...
 }: {
-  programs.git.ignores = lib.custom.gitignoreFromTemplates pkgs.github-gitignore-templates ["Go"];
+  programs.git.ignores = lib.custom.gitignoreFromTemplates inputs.github-gitignore-templates ["Go"];
 
   home.packages = with pkgs; [
     # Go language and tools

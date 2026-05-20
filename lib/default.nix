@@ -51,14 +51,14 @@ in {
     wait_for_network || exit 1
   '';
 
-  # Resolve one or more template names from a package containing gitignore
-  # templates under `share/gitignore/<name>.gitignore` into a flat list of
-  # ignore lines suitable for home-manager's `programs.git.ignores`.
-  # Usage: gitignoreFromTemplates pkgs.github-gitignore-templates ["Nix" "Global/Agents"]
-  gitignoreFromTemplates = package: names:
+  # Resolve one or more template names from a gitignore source tree (e.g. the
+  # github/gitignore repo as a flake input) into a flat list of ignore lines
+  # suitable for home-manager's `programs.git.ignores`.
+  # Usage: gitignoreFromTemplates inputs.github-gitignore-templates ["Nix" "Global/Agents"]
+  gitignoreFromTemplates = source: names:
     lib.concatMap (name:
       lib.filter (s: s != "") (lib.splitString "\n" (builtins.readFile
-          "${package}/share/gitignore/${name}.gitignore")))
+          "${source}/${name}.gitignore")))
     names;
 
   scanPaths = path:

@@ -71,11 +71,9 @@ in {
     concurrency = 1; # one nix copy at a time so xz compression doesn't peg every core
     retries = 3;
     retryIntervalSecs = 30;
-    # Yield to anything else competing for CPU/disk. Total CPU is unchanged
-    # but interactive work and builds win.
-    nice = 19;
-    cpuSchedulingPolicy = "idle";
-    ioSchedulingClass = "idle";
+    # Module defaults already yield to everything else (nice=19,
+    # cpuSchedulingPolicy=idle, ioSchedulingClass=idle, cpuWeight=10,
+    # ioWeight=10), so no overrides here.
 
     # Daemon subscribes to NetworkManager's Metered D-Bus property. Pulled
     # jobs park (queue keeps growing) until the connection is unmetered;

@@ -1,5 +1,6 @@
 {
   pkgs,
+  inputs,
   lib,
   ...
 }: {
@@ -14,7 +15,7 @@
     JAVA_HOME = "${pkgs.jdk}";
   };
 
-  programs.git.ignores = lib.custom.gitignoreFromTemplates pkgs.github-gitignore-templates [
+  programs.git.ignores = lib.custom.gitignoreFromTemplates inputs.github-gitignore-templates [
     "Global/Eclipse"
     "Maven"
   ];

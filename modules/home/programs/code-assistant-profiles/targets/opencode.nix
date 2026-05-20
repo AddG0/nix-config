@@ -61,7 +61,7 @@
       body = readContent command.content;
     };
 
-  renderSkillContent = name: skill: let
+  renderSkillText = name: skill: let
     publicName = skill.name or name;
     baseDescription = fallbackString skill.description publicName;
     whenToUse = skill.whenToUse or null;
@@ -92,7 +92,8 @@
       )
     ];
     body = lib.concatStringsSep "\n\n" (lib.filter (part: part != null && part != "") [promptBody usageSection]);
-    rendered = frontmatter.toFile {
+  in
+    frontmatter.toFile {
       attrs = {
         name = publicName;
         inherit description;
@@ -107,18 +108,19 @@
       };
       inherit body;
     };
-  in
-    if (skill.resourcesRoot or null) != null
-    then
-      toString (pkgs.runCommand "opencode-skill-${lib.strings.sanitizeDerivationName name}" {} ''
-                  mkdir -p "$out"
-                  cp -R "${skill.resourcesRoot}/." "$out/"
-                  rm -f "$out/SKILL.md"
-                  cat > "$out/SKILL.md" <<'EOF'
-        ${rendered}
-        EOF
-      '')
-    else rendered;
+
+  # Whole-dir derivation routed through home.file, not programs.opencode.skills,
+  # because HM's opencode module calls lib.pathIsDirectory on store-path strings
+  # set there → IFD on unbuilt derivations. home.file doesn't do that check.
+  mkResourcedSkillDir = name: skill:
+    pkgs.runCommand "opencode-skill-${lib.strings.sanitizeDerivationName name}" {} ''
+      mkdir -p "$out"
+      cp -R "${skill.resourcesRoot}/." "$out/"
+      rm -f "$out/SKILL.md"
+      cat > "$out/SKILL.md" <<'EOF'
+      ${renderSkillText name skill}
+      EOF
+    '';
 
   renderRule = name: rule: let
     body = readContent rule.content;
@@ -153,6 +155,8 @@
   ) (profile.lspServers or {});
 
   allSkills = profile.skills or {};
+  skillsWithResources = lib.filterAttrs (_: s: (s.resourcesRoot or null) != null) allSkills;
+  skillsTextOnly = lib.filterAttrs (_: s: (s.resourcesRoot or null) == null) allSkills;
   userInvocableSkills = lib.filterAttrs (_: skill: skill.invocation.user) allSkills;
 
   derivedSkillCommands =
@@ -186,12 +190,21 @@ in {
       enable = lib.mkDefault true;
       agents = lib.mkDefault (lib.mapAttrs renderAgent (profile.agents or {}));
       commands = lib.mkDefault (lib.mapAttrs renderCommand commands);
-      skills = lib.mkDefault (lib.mapAttrs renderSkillContent allSkills);
+      skills = lib.mkDefault (lib.mapAttrs renderSkillText skillsTextOnly);
       context = lib.mkDefault combinedRules;
       settings = {
         mcp = lib.mkDefault adaptMcp;
         lsp = lib.mkDefault adaptLsp;
       };
     };
+
+    xdg.configFile =
+      lib.mapAttrs' (
+        name: skill:
+          lib.nameValuePair "opencode/skills/${name}" {
+            source = mkResourcedSkillDir name skill;
+          }
+      )
+      skillsWithResources;
   };
 }

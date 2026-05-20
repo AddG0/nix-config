@@ -1,4 +1,8 @@
-{pkgs, ...}: {
+{
+  pkgs,
+  inputs,
+  ...
+}: {
   # macOS-leaning theme. Stylix is the top-level theming engine — all visual
   # values (colors, fonts, opacities, cursor) live here so every stylix-aware
   # app (noctalia, KDE, GTK, terminals, etc.) inherits a consistent look.
@@ -11,7 +15,7 @@
   stylix = {
     enable = true;
     image = "${pkgs.kdePackages.plasma-workspace-wallpapers}/share/wallpapers/Nexus/contents/images_dark/5120x2880.png";
-    base16Scheme = "${pkgs.base16-schemes}/share/themes/catppuccin-mocha.yaml";
+    base16Scheme = "${inputs.tt-schemes}/base16/catppuccin-mocha.yaml";
     cursor = {
       package = pkgs.bibata-cursors;
       name = "Bibata-Modern-Classic";

@@ -169,6 +169,31 @@
       inputs.nixpkgs.follows = "nixpkgs";
     };
 
+    github-gitignore-templates = {
+      url = "github:github/gitignore";
+      flake = false;
+    };
+
+    spicetify-nix = {
+      url = "github:Gerg-L/spicetify-nix";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
+
+    steam-config-nix = {
+      url = "github:different-name/steam-config-nix";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
+
+    asus-numberpad-driver = {
+      url = "github:asus-linux-drivers/asus-numberpad-driver";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
+
+    # CachyOS kernel - optimized for desktop performance
+    nix-cachyos-kernel = {
+      url = "github:xddxdd/nix-cachyos-kernel/release";
+    };
+
     #################### Desktop Environments ####################
 
     niri = {
@@ -213,24 +238,46 @@
       flake = false;
     };
 
-    spicetify-nix = {
-      url = "github:Gerg-L/spicetify-nix";
-      inputs.nixpkgs.follows = "nixpkgs";
+    catppuccin-obsidian = {
+      url = "github:catppuccin/obsidian";
+      flake = false;
     };
 
-    steam-config-nix = {
-      url = "github:different-name/steam-config-nix";
-      inputs.nixpkgs.follows = "nixpkgs";
+    #################### AI / Claude Code Sources ####################
+
+    claude-code = {
+      url = "github:anthropics/claude-code";
+      flake = false;
     };
 
-    asus-numberpad-driver = {
-      url = "github:asus-linux-drivers/asus-numberpad-driver";
-      inputs.nixpkgs.follows = "nixpkgs";
+    claude-code-skills-collection = {
+      url = "github:lyndonkl/claude";
+      flake = false;
     };
 
-    # CachyOS kernel - optimized for desktop performance
-    nix-cachyos-kernel = {
-      url = "github:xddxdd/nix-cachyos-kernel/release";
+    superpowers = {
+      url = "github:obra/superpowers";
+      flake = false;
+    };
+
+    caveman = {
+      url = "github:JuliusBrussee/caveman";
+      flake = false;
+    };
+
+    context-engineering-kit = {
+      url = "github:NeoLabHQ/context-engineering-kit";
+      flake = false;
+    };
+
+    anthropic-skills = {
+      url = "github:anthropics/skills";
+      flake = false;
+    };
+
+    claude-code-skill-factory = {
+      url = "github:alirezarezvani/claude-code-skill-factory";
+      flake = false;
     };
 
     #################### Personal Repositories ####################

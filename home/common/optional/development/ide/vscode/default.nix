@@ -9,6 +9,7 @@
 {
   lib,
   pkgs,
+  inputs,
   config,
   hostSpec,
   ...
@@ -50,5 +51,5 @@ in
       };
     };
 
-    programs.git.ignores = lib.custom.gitignoreFromTemplates pkgs.github-gitignore-templates ["Global/VisualStudioCode"];
+    programs.git.ignores = lib.custom.gitignoreFromTemplates inputs.github-gitignore-templates ["Global/VisualStudioCode"];
   }

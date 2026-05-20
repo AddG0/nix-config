@@ -7,20 +7,13 @@
       settings = {
         skin = "catppuccino-mocha";
       };
-      skins.catppuccin-mocha = let
-        skin_file = "${pkgs.themes.catppuccin.k9s}/dist/catppuccin-mocha.yaml"; # theme - catppuccin mocha
-        skin_attr = builtins.fromJSON (
-          builtins.readFile
-          # replace 'base: &base "#1e1e2e"' with 'base: &base "default"'
-          # to make fg/bg color transparent. "default" means transparent in k9s skin.
-          (pkgs.runCommand "get-skin-json" {} ''
-            cat ${skin_file} \
-              |  sed -E 's@(base: &base ).+@\1 "default"@g' \
-              | ${pkgs.yj}/bin/yj > $out
-          '')
-        );
-      in
-        skin_attr;
+      # Replace 'base: &base "#1e1e2e"' with 'base: &base "default"' to make
+      # fg/bg transparent. Result is passed as a path so HM symlinks the YAML
+      # directly — no eval-time readFile, no IFD.
+      skins.catppuccin-mocha = toString (pkgs.runCommand "catppuccin-mocha.yaml" {} ''
+        sed -E 's@(base: &base ).+@\1 "default"@g' \
+          "${pkgs.themes.catppuccin.k9s}/dist/catppuccin-mocha.yaml" > $out
+      '');
     };
   };
 }
