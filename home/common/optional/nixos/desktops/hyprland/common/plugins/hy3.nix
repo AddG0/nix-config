@@ -1,49 +1,10 @@
-{
-  pkgs,
-  config,
-  ...
-}: let
-  c = config.lib.stylix.colors;
-  sans = config.stylix.fonts.sansSerif.name;
-in {
+{pkgs, ...}: {
   wayland.windowManager.hyprland = {
     plugins = [pkgs.hyprlandPlugins.hy3];
     settings = {
       general.layout = "hy3";
 
-      plugin.hy3 = {
-        enable = true;
-        tabs = {
-          height = 28;
-          padding = 8;
-          radius = 8;
-          border_width = 2;
-          render_text = true;
-          text_center = true;
-          text_font = sans;
-          text_height = 10;
-          text_padding = 6;
-
-          "col.active" = "rgba(${c.base0D}20)";
-          "col.active.border" = "rgba(${c.base0D}88)";
-          "col.active.text" = "rgba(${c.base05}ff)";
-
-          "col.focused" = "rgba(${c.base02}80)";
-          "col.focused.border" = "rgba(${c.base03}cc)";
-          "col.focused.text" = "rgba(${c.base05}ff)";
-
-          "col.inactive" = "rgba(${c.base00}60)";
-          "col.inactive.border" = "rgba(${c.base02}88)";
-          "col.inactive.text" = "rgba(${c.base04}ff)";
-
-          "col.urgent" = "rgba(${c.base08}80)";
-          "col.urgent.border" = "rgba(${c.base08}ee)";
-          "col.urgent.text" = "rgba(${c.base05}ff)";
-
-          blur = true;
-          opacity = 0.95;
-        };
-      };
+      plugin.hy3.enable = true;
 
       # ── hy3 Binds ──
       bindn = [

@@ -1,5 +1,4 @@
 {pkgs, ...}: let
-  hyprshot = "${pkgs.hyprshot}/bin/hyprshot";
   wpctl = "${pkgs.wireplumber}/bin/wpctl";
   brightnessctl = "${pkgs.brightnessctl}/bin/brightnessctl";
   # Hyprland silently refuses fullscreen on pinned windows. This wrapper unpins
@@ -152,10 +151,9 @@ in {
       "SUPER,period,focusmonitor,r"
 
       # ── Screenshots ──
-      # PRINT               Screenshot current monitor
-      # SUPER+PRINT         Screenshot region
-      ",PRINT,exec,${hyprshot} -m output"
-      "SUPER,PRINT,exec,${hyprshot} -m region"
+      # Screenshot binds live in ./screenshots.nix, alongside a direct
+      # slurp+grim pipeline that hides the SW cursor and active border
+      # around the capture.
 
       # ── GPU Screen Recorder ──
       # SUPER+X              Save replay (last 60s)

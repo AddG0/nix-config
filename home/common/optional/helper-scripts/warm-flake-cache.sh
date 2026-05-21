@@ -133,12 +133,20 @@ for repo in "${repos[@]}"; do
 
 	start=$SECONDS
 	set +e
-	# Filter known noise; preserve nix-fast-build's exit code via PIPESTATUS.
-	nix-fast-build \
-		--flake "$repo#devShells.$SYSTEM" \
-		--skip-cached \
-		--no-link \
-		--no-nom 2>&1 |
+	# Run inside the repo dir (devenv-based flakes need PWD = repo root to
+	# resolve their .devenv state) and with --impure (devenv reads
+	# builtins.getEnv and the working directory during evaluation). Subshell
+	# keeps the outer script's PWD unchanged. Relative ".#..." flake ref
+	# because we've cd'd in. Filter known noise; preserve nix-fast-build's
+	# exit code via PIPESTATUS.
+	(
+		cd "$repo" && nix-fast-build \
+			--flake ".#devShells.$SYSTEM" \
+			--skip-cached \
+			--no-link \
+			--no-nom \
+			--impure
+	) 2>&1 |
 		grep --line-buffered -vE "$NOISE_PATTERN" |
 		sed "s/^/  /"
 	rc=${PIPESTATUS[0]}

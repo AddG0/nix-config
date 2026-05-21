@@ -150,11 +150,6 @@
       "1, monitor:DP-3, default:true"
       "2, monitor:HDMI-A-1, default:true"
     ];
-
-    # Mini keyboard has no Print Screen key — remap screenshots to Home
-    bind = [
-      "SUPER,Home,exec,${pkgs.hyprshot}/bin/hyprshot -m region"
-    ];
   };
 
   xdg.autostart = {
