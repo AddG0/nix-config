@@ -43,6 +43,21 @@
 in {
   hardware.xone.enable = true;
 
+  # Allow gamemode's privileged helpers to run without a polkit prompt.
+  #
+  # gamemode ships a polkit rule that grants members of the `gamemode` group
+  # passwordless pkexec for its helpers:
+  #   - gpuclockctl   — applies GPU clock/mem/fan offsets (gpu.* settings)
+  #   - cpugovctl     — switches the CPU governor to `performance`
+  #   - cpucorectl    — toggles SMT / per-core enable
+  #   - procsysctl    — flips kernel sysctls (e.g. split_lock_mitigate)
+  #
+  # Without group membership these all fail with `pkexec: Not authorized`
+  # and gamemode logs errors on every game launch. The user-space parts of
+  # gamemode (renice, ioprio, SCHED_ISO, screensaver inhibit) work fine
+  # without this — group membership only unlocks the root-gated helpers.
+  users.users.${config.hostSpec.username}.extraGroups = ["gamemode"];
+
   programs = {
     steam = {
       enable = true;

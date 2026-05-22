@@ -8,6 +8,8 @@
     ./plugins
     ./apps
     ./pip.nix
+    ./monitor-control.nix
+    ./autostart.nix
   ];
 
   # wayland session entry for greetd

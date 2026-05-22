@@ -24,16 +24,6 @@ in {
 
         "GDK_BACKEND,wayland"
         "OGL_DEDICATED_HW_STATE_PER_CONTEXT,ENABLE_ROBUST"
-
-        # Stylix sets XCURSOR_* via home.sessionVariables, but UWSM finalizes
-        # those after Hyprland starts — so XWayland (spawned at compositor
-        # start) misses them and falls back to its 48px default, making the
-        # cursor look oversized in VLC, Steam, and other XWayland apps.
-        # Setting them in Hyprland's env ensures XWayland inherits them.
-        "XCURSOR_THEME,${config.stylix.cursor.name}"
-        "XCURSOR_SIZE,${toString config.stylix.cursor.size}"
-        "HYPRCURSOR_THEME,${config.stylix.cursor.name}"
-        "HYPRCURSOR_SIZE,${toString config.stylix.cursor.size}"
       ];
 
       # ========== Monitor ==========
@@ -126,4 +116,24 @@ in {
       enable = false; # UWSM handles session management
     };
   };
+
+  # systemd user-manager environment for cursor.
+  #
+  # Stylix sets XCURSOR_THEME/XCURSOR_SIZE via home.sessionVariables, but
+  # that only reaches shell sessions — systemd user services (e.g.
+  # app-steam@autostart) start before UWSM finalizes those vars into the
+  # user manager, so they inherit a stripped env and apps render with the
+  # XWayland default (48px) cursor. systemd reads ~/.config/environment.d/*.conf
+  # at user-manager startup, before any user service runs, so seeding the
+  # cursor vars here is the earliest point in the boot ordering they can
+  # land. Hyprland itself is a systemd user unit under UWSM, so it picks
+  # these up too — no need to also set them in wayland.windowManager.env.
+  #
+  # HYPRCURSOR_* intentionally not set: Bibata is xcursor-only, and pointing
+  # HYPRCURSOR_THEME at a non-hyprcursor theme caused inconsistent sizing
+  # on native Wayland apps.
+  xdg.configFile."environment.d/10-cursor.conf".text = ''
+    XCURSOR_THEME=${config.stylix.cursor.name}
+    XCURSOR_SIZE=${toString config.stylix.cursor.size}
+  '';
 }

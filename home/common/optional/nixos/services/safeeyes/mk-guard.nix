@@ -72,6 +72,13 @@
           [ "''${#flags[@]}" -gt 0 ]
         }
 
+        # Bound safeeyes IPC so a dying daemon can't wedge us during session
+        # teardown. graphical-session.target stops us and safeeyes in parallel;
+        # without a timeout, --enable over D-Bus blocks indefinitely.
+        safeeyes_cmd() {
+          timeout 2 safeeyes "$@" >/dev/null 2>&1 || true
+        }
+
         mark_active() {
           # Note our condition is active. Only initiate --disable (and claim
           # collective ownership via the sentinel) if Safe Eyes is currently
@@ -79,7 +86,7 @@
           # disabled state and we leave the sentinel alone.
           touch "$my_flag"
           if ! safeeyes_disabled; then
-            safeeyes --disable >/dev/null 2>&1 || true
+            safeeyes_cmd --disable
             touch "$sentinel"
           fi
         }
@@ -94,7 +101,7 @@
           any_flag && return 0
           if [ -e "$sentinel" ]; then
             rm -f "$sentinel"
-            safeeyes --enable >/dev/null 2>&1 || true
+            safeeyes_cmd --enable
           fi
         }
 
@@ -106,7 +113,11 @@
           fi
         }
 
-        trap mark_inactive EXIT INT TERM
+        # On signal, do cleanup and exit — a bare `trap mark_inactive TERM`
+        # would run the handler and then resume the event loop, so systemd
+        # waits the full TimeoutStopSec before SIGKILL.
+        trap mark_inactive EXIT
+        trap 'exit 0' INT TERM
 
         ${conditionFn}
 

@@ -119,4 +119,4 @@ With allocations in place, you can now create and deploy game servers through th
   - Ensure that the `wings.yaml` file contains the correct `uuid`, `token_id`, and `token` values.
 - **Configuration Issues**: If Wings fails to start:
   - Validate the YAML syntax of `wings.yaml` using a linter.
-  - Check the Wings logs for detailed error messages: 
+  - Check the Wings logs for detailed error messages:

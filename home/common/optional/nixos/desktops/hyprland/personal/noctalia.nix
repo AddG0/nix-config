@@ -35,6 +35,15 @@
     export NOCTALIA_SETTINGS_FILE="$XDG_RUNTIME_DIR/noctalia/settings.json"
     exec noctalia-shell
   '';
+
+  # Idempotent wrapper for Hyprland `exec =`. Reloads re-fire this, so we skip
+  # if noctalia-shell is already running. Raw `noctalia-start` is kept for the
+  # systemd TZ-restart unit below, which intentionally relaunches noctalia.
+  noctalia-start-once = pkgs.writeShellScript "noctalia-start-once" ''
+    set -eu
+    ${pkgs.procps}/bin/pgrep -x noctalia-shell >/dev/null && exit 0
+    exec ${noctalia-start}
+  '';
 in {
   imports = [inputs.noctalia.homeModules.default];
 
@@ -95,9 +104,10 @@ in {
     };
   };
 
-  # Systemd service deprecated upstream — launch via Hyprland exec-once instead.
-  # The wrapper runs locate-city (copies settings + geo-lookup) then execs noctalia-shell.
-  wayland.windowManager.hyprland.settings.exec-once = ["${noctalia-start}"];
+  # Systemd service deprecated upstream — launch via Hyprland `exec` instead.
+  # `exec` (not `exec-once`) so reloads bring noctalia back if it died; the
+  # -once wrapper pgrep-guards so a healthy reload is a no-op.
+  wayland.windowManager.hyprland.settings.exec = ["${noctalia-start-once}"];
 
   # Restart noctalia when the system timezone changes. The system-level
   # automatic-timezoned ExecStartPost (running as root) touches

@@ -30,10 +30,10 @@
   # Stylix-driven desktop text size — same value waybar/notifications use,
   # so the hy3 tab labels match the rest of the system chrome.
   desktopFontSize = config.stylix.fonts.sizes.desktop;
-  # Single source of truth for rounded-corner radius — used by window
-  # decoration, the hy3 tab bar, and the noctalia bar frame so they can't
-  # drift apart.
-  windowRounding = 16;
+  # Rounded-corner radius — used by window decoration, hy3 tabs, and the
+  # noctalia bar frame so they can't drift apart. Also duplicated in
+  # walker.nix; keep them in sync.
+  windowRounding = 10;
   # Outer gap between windows and screen edge. Reused by the noctalia bar
   # horizontal margin so the bar and window edges align.
   edgeGap = 8;
@@ -60,10 +60,11 @@ in {
     };
 
     decoration = {
-      # macOS Tahoe (26) uses 16px on plain windows, up to ~24px on windows
-      # with toolbars. 12 was Sequoia-leaning; 16 matches the current Apple
-      # default. (Some devs push back to 10 for usability — bigger corners
-      # shrink the resize hot-zone.)
+      # 10 = tightest reasonable macOS-ish rounding. Tahoe (26) bumped the
+      # system default to 16, but 16 visually clipped corner items in the
+      # walker launcher list. 12 was the Sequoia-leaning compromise; 10
+      # goes a touch further for usability (bigger corners shrink the
+      # resize hot-zone) while still reading as Apple-ish.
       rounding = windowRounding;
       # Squircle exponent (Hyprland >=0.45). 2.0 = circular arc; 3.0 = Apple
       # superellipse — corners look slightly "fatter" near the midpoint.

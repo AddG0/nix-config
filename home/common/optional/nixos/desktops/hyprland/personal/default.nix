@@ -3,7 +3,8 @@ _: {
     ../common
     ./visuals.nix
     ./noctalia.nix
-    ./anyrun.nix
+    # ./anyrun.nix
+    ./walker.nix
     ./pip.nix
     ./hyprlock.nix
   ];

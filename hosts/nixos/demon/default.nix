@@ -43,6 +43,7 @@
         "nixos/hardware/openrazer.nix" # openrazer
         "nixos/hardware/wooting.nix" # wooting keyboard
         "nixos/hardware/flipperzero.nix" # flipper zero udev rules + qFlipper
+        "nixos/hardware/moza.nix" # MOZA R5 wheelbase (boxflat + udev)
         "nixos/1password.nix"
         "nixos/services/clamav.nix"
         "nixos/services/earlyoom.nix"

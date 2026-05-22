@@ -171,9 +171,8 @@ in {
 
   home.packages = [sunshine-disconnect];
 
-  # Safety keybind: restore physical monitors if sunshine's disconnect hook
-  # didn't fire (e.g. crashed client, killed service).
-  wayland.windowManager.hyprland.settings.bind = [
-    "SUPERSHIFT,s,exec,sunshine-disconnect"
-  ];
+  # Safety keybind for monitor recovery moved to monitor-control.nix
+  # (SUPERSHIFT+S → `monitor recover`). `sunshine-disconnect` is still
+  # called by Sunshine's own service hook on disconnect, and can be run
+  # manually from a shell when headless/noctalia cleanup is also needed.
 }

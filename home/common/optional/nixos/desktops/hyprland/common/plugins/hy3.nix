@@ -1,10 +1,25 @@
-{pkgs, ...}: {
+{pkgs, ...}: let
+  hyprctl = "${pkgs.hyprland}/bin/hyprctl";
+  inherit (pkgs.hyprlandPlugins) hy3;
+  # Idempotent loader. Used via `exec =` (not `exec-once =`) so it re-fires on
+  # `hyprctl reload` — important when Hyprland boots into recovery config and
+  # the user then reloads. On normal startup the binds parse before this fires
+  # (hy3:* dispatchers error), so after loading we trigger one reload to
+  # re-register the binds. The `plugin list` guard prevents reload looping.
+  load-hy3 = pkgs.writeShellScript "hyprland-load-hy3" ''
+    set -eu
+    if ! ${hyprctl} plugin list 2>/dev/null | grep -q '^Plugin hy3'; then
+      ${hyprctl} plugin load ${hy3}/lib/libhy3.so
+      ${hyprctl} reload
+    fi
+  '';
+in {
   wayland.windowManager.hyprland = {
-    plugins = [pkgs.hyprlandPlugins.hy3];
     settings = {
       general.layout = "hy3";
 
       plugin.hy3.enable = true;
+      exec = ["${load-hy3}"];
 
       # ── hy3 Binds ──
       bindn = [

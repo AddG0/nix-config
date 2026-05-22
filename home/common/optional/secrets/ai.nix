@@ -3,21 +3,7 @@
   inputs,
   ...
 }: {
-  imports = [
-    inputs.sops-nix.homeManagerModules.sops
-  ];
-
-  sops = {
-    defaultSopsFile = "${inputs.nix-secrets}/users/${config.hostSpec.username}/personal.yaml";
-    age = {
-      sshKeyPaths = ["${config.home.homeDirectory}/.ssh/id_ed25519"];
-      keyFile = "${config.home.homeDirectory}/.config/sops-nix/age/keys.txt";
-      generateKey = true;
-    };
-  };
-
   sops.secrets = {
-    "personal_accounts/github_personal_token" = {};
     "openai/api_key" = {
       sopsFile = "${inputs.nix-secrets}/global/api-keys/ai.yaml";
     };
