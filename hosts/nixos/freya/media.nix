@@ -24,8 +24,10 @@
       "x-systemd.automount"
       "noauto"
       "x-systemd.idle-timeout=60"
-      "x-systemd.device-timeout=5s"
-      "x-systemd.mount-timeout=5s"
+      "x-systemd.device-timeout=30s"
+      "x-systemd.mount-timeout=30s"
+      "x-systemd.after=wait-for-nas.service"
+      "x-systemd.requires=wait-for-nas.service"
       "uid=${toString config.users.users.${config.hostSpec.username}.uid}"
       "forceuid"
       "gid=${toString config.users.groups.media.gid}"
@@ -38,6 +40,33 @@
       "vers=3.1.1"
       "echo_interval=10"
     ];
+  };
+
+  # network-online.target can be reached before the wired NIC driver has bound
+  # its interface, so consumers race the mount. Poll the NAS directly to gate
+  # the mount on real reachability.
+  systemd.services.wait-for-nas = {
+    description = "Wait for NAS (10.10.15.252) to be reachable";
+    after = ["network-online.target"];
+    wants = ["network-online.target"];
+    serviceConfig = {
+      Type = "oneshot";
+      RemainAfterExit = true;
+      ExecStart = pkgs.writeShellScript "wait-for-nas" ''
+        for i in $(seq 1 60); do
+          if ${pkgs.iputils}/bin/ping -c 1 -W 1 10.10.15.252 >/dev/null 2>&1; then
+            exit 0
+          fi
+          sleep 1
+        done
+        exit 1
+      '';
+    };
+  };
+
+  systemd.services.jellyfin = {
+    after = ["wait-for-nas.service"];
+    wants = ["wait-for-nas.service"];
   };
 
   services.jellyfin = {

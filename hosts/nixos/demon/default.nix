@@ -126,6 +126,13 @@
 
   security.allow-poweroff.enable = true;
 
+  yubikey = {
+    enable = true;
+    autoScreenActivate = true;
+    autoScreenUnlock = true;
+    autoScreenLock = true;
+  };
+
   boot.kernelModules = ["ntsync"]; # NT sync primitives for Wine/Proton gaming performance
 
   boot.initrd = {

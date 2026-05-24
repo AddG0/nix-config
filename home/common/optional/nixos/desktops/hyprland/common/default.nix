@@ -4,12 +4,13 @@
     ./binds.nix
     ./screenshots.nix
     ./hyprlock.nix
+    ./hypridle.nix
     ./oled-care
     ./plugins
     ./apps
     ./pip.nix
     ./monitor-control.nix
-    ./autostart.nix
+    ./recovery.nix
   ];
 
   # wayland session entry for greetd

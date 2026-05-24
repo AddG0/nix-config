@@ -52,6 +52,8 @@
       avatar-frontiers-of-pandora = 2840770;
       escape-simulator = 1435790;
       escape-simulator-2 = 2879840;
+      forza-horizon-4 = 1293830;
+      forza-horizon-5 = 1551360;
       forza-horizon-6 = 2483190;
       tmodloader = 1281930;
       terraria = 105600;

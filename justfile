@@ -222,6 +222,11 @@ rekey:
 check-sops:
   scripts/check-sops.sh
 
+[group('validation')]
+[doc("Scan the current system for CVEs against the NVD (pass extra args like -w whitelist.toml or --json)")]
+check-cve *ARGS:
+  nix run nixpkgs#vulnix -- --system {{ARGS}}
+
 [private]
 [doc("Update personal repositories and flake inputs")]
 update-personal-repos:
@@ -460,9 +465,9 @@ restart-audio:
 restart-noctalia:
   #!/usr/bin/env bash
   set -euo pipefail
-  start=$(grep -oE '/nix/store/[^ ]*-noctalia-start' "$HOME/.config/hypr/hyprland.conf" | head -n1)
+  start=$(grep -oE '/nix/store/[^ ]*-noctalia-start-once' "$HOME/.config/hypr/hyprland.conf" | head -n1)
   if [ -z "$start" ]; then
-    echo "Could not find noctalia-start in ~/.config/hypr/hyprland.conf" >&2
+    echo "Could not find noctalia-start-once in ~/.config/hypr/hyprland.conf" >&2
     exit 1
   fi
   pkill -f '/bin/quickshell$' 2>/dev/null || true

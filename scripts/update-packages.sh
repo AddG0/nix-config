@@ -44,6 +44,40 @@ discover_packages() {
 export -f log_info log_error log_debug
 export DEBUG_MODE FLAKE_DIR LOG_DIR RED GREEN YELLOW BLUE NC
 
+# Extract a "version_before -> version_after" string for a package from its log.
+# Falls back to just the current version, or empty if neither found.
+parse_version_change() {
+	local log="$1"
+	local line
+	if line=$(grep -m1 -E '^Update [^ ]+ -> [^ ]+' "$log" 2>/dev/null); then
+		echo "$(awk '{print $2}' <<<"$line") -> $(awk '{print $4}' <<<"$line")"
+		return
+	fi
+	if line=$(grep -m1 -oE '^Not updating version, already \S+' "$log" 2>/dev/null); then
+		echo "${line#Not updating version, already }"
+		return
+	fi
+	if line=$(grep -m1 -oE 'UPDATE_NIX_OLD_VERSION=\S+' "$log" 2>/dev/null); then
+		echo "${line#UPDATE_NIX_OLD_VERSION=}"
+		return
+	fi
+}
+export -f parse_version_change
+
+# Pull a useful one-line error excerpt out of a failed package's log.
+extract_error_excerpt() {
+	local log="$1"
+	local line
+	# Prefer the first nix-style "error: ..." line.
+	if line=$(grep -m1 -E '^(error:|error \()' "$log" 2>/dev/null); then
+		echo "$line"
+		return
+	fi
+	# Otherwise the last non-empty, non-command line.
+	tac "$log" | grep -m1 -vE '^(\$|===|\s*$)' || true
+}
+export -f extract_error_excerpt
+
 update_one() {
 	local pkg_name="${1%%:*}" rest="${1#*:}"
 	local version_policy="${rest%%:*}" has_update_script="${rest#*:}"
@@ -66,14 +100,32 @@ update_one() {
 		else
 			: >"$after_file"
 		fi
+		local version_info
+		version_info=$(parse_version_change "$log_file")
 		if diff -q "$LOG_DIR/snapshots/$pkg_name.before" "$after_file" >/dev/null 2>&1; then
-			log_info "$pkg_name - already up-to-date"
+			if [[ -n $version_info ]]; then
+				log_info "$pkg_name - up-to-date ($version_info)"
+			else
+				log_info "$pkg_name - up-to-date"
+			fi
 		else
-			log_info "$pkg_name - updated"
+			if [[ $version_info == *"->"* ]]; then
+				log_info "$pkg_name - UPDATED $version_info"
+			elif [[ -n $version_info ]]; then
+				log_info "$pkg_name - UPDATED (files changed, version $version_info)"
+			else
+				log_info "$pkg_name - UPDATED (files changed)"
+			fi
 		fi
 	} || {
 		cp "$log_file" "$LOG_DIR/failed/$pkg_name.log"
-		log_error "$pkg_name - failed (see .update-logs/failed/$pkg_name.log)"
+		local err
+		err=$(extract_error_excerpt "$log_file")
+		if [[ -n $err ]]; then
+			log_error "$pkg_name - FAILED: $err"
+		else
+			log_error "$pkg_name - FAILED (see .update-logs/failed/$pkg_name.log)"
+		fi
 		return 1
 	}
 }
@@ -141,24 +193,57 @@ log_info "Updating ${#to_update[@]} packages with $JOBS parallel jobs..."
 printf '%s\n' "${to_update[@]}" | parallel --halt never --line-buffer -j "$JOBS" update_one {}
 
 # Summary
-failed_count=$(find "$LOG_DIR/failed" -name '*.log' | wc -l)
-changed_count=0
+updated_pkgs=()
+refreshed_pkgs=()
+failed_pkgs=()
 for entry in "${to_update[@]}"; do
 	pkg="${entry%%:*}"
-	[[ -f "$LOG_DIR/failed/$pkg.log" ]] && continue
+	log_file="$LOG_DIR/$pkg.log"
+	if [[ -f "$LOG_DIR/failed/$pkg.log" ]]; then
+		err=$(extract_error_excerpt "$log_file")
+		failed_pkgs+=("$pkg|${err:-unknown error}")
+		continue
+	fi
 	after_file="$LOG_DIR/snapshots/$pkg.after"
 	if [[ -f $after_file ]] && ! diff -q "$LOG_DIR/snapshots/$pkg.before" "$after_file" >/dev/null 2>&1; then
-		((changed_count++)) || true
+		ver=$(parse_version_change "$log_file")
+		if [[ $ver == *"->"* ]]; then
+			updated_pkgs+=("$pkg|$ver")
+		else
+			refreshed_pkgs+=("$pkg|${ver:-version unknown}")
+		fi
 	fi
 done
-unchanged_count=$((${#to_update[@]} - failed_count - changed_count))
-echo ""
-log_info "Results: $changed_count updated, $unchanged_count unchanged, $failed_count failed, $skipped skipped"
 
-if [ "$failed_count" -gt 0 ]; then
-	log_warning "Failed packages:"
-	for f in "$LOG_DIR/failed"/*.log; do
-		echo "  - $(basename "$f" .log)"
+updated_count=${#updated_pkgs[@]}
+refreshed_count=${#refreshed_pkgs[@]}
+failed_count=${#failed_pkgs[@]}
+unchanged_count=$((${#to_update[@]} - updated_count - refreshed_count - failed_count))
+
+echo ""
+log_info "Results: $updated_count updated, $refreshed_count refreshed, $unchanged_count unchanged, $failed_count failed, $skipped skipped"
+
+if [[ $updated_count -gt 0 ]]; then
+	echo ""
+	log_info "Updated (version bumped):"
+	for entry in "${updated_pkgs[@]}"; do
+		printf '  - %s: %s\n' "${entry%%|*}" "${entry#*|}"
 	done
-	log_info "Review: cat .update-logs/failed/<package>.log"
+fi
+
+if [[ $refreshed_count -gt 0 ]]; then
+	echo ""
+	log_info "Refreshed (files changed, no version bump):"
+	for entry in "${refreshed_pkgs[@]}"; do
+		printf '  - %s (at %s)\n' "${entry%%|*}" "${entry#*|}"
+	done
+fi
+
+if [[ $failed_count -gt 0 ]]; then
+	echo ""
+	log_warning "Failed packages:"
+	for entry in "${failed_pkgs[@]}"; do
+		printf '  - %s: %s\n' "${entry%%|*}" "${entry#*|}"
+	done
+	log_info "Full logs: .update-logs/failed/<package>.log"
 fi

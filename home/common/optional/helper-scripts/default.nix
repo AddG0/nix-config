@@ -40,6 +40,11 @@
         runtimeInputs = with pkgs; [nix-fast-build coreutils];
         text = builtins.readFile ./warm-flake-cache.sh;
       };
+      yubikey-enroll = pkgs.writeShellApplication {
+        name = "yubikey-enroll";
+        runtimeInputs = with pkgs; [pam_u2f coreutils];
+        text = builtins.readFile ./yubikey-enroll.sh;
+      };
     }
     // pkgs.lib.optionalAttrs pkgs.stdenv.isDarwin {
       kill-cursor-rag = pkgs.writeShellApplication {

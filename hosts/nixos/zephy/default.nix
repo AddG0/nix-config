@@ -96,6 +96,8 @@
   security.firewall.enable = true;
   security.allow-suspend.enable = true;
 
+  yubikey.enable = true;
+
   boot.initrd = {
     systemd.enable = true;
   };

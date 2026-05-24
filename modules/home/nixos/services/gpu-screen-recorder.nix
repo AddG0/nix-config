@@ -87,15 +87,28 @@
   };
 
   # Tells gpu-screen-recorder to flush its replay buffer to disk (SIGUSR1).
+  #
+  # Optionally sleeps for postRecordSeconds first so the saved clip includes
+  # that many seconds *after* the button press — GSR keeps filling the rolling
+  # buffer during the sleep, so by the time SIGUSR1 fires the trailing tail is
+  # already captured. Accepts an override as the first CLI arg.
   saveReplayScript = pkgs.writeShellApplication {
     name = "save-gsr-replay";
-    runtimeInputs = with pkgs; [procps];
+    runtimeInputs = with pkgs; [procps coreutils];
     text = ''
+      delay="''${1:-${toString cfg.postRecordSeconds}}"
+
+      # Sleep first, then resolve pid: GSR may exit during the wait (monitor
+      # unplug, compositor disable, etc.), so the only pid worth signaling is
+      # the one alive *after* the tail delay.
+      [ "$delay" -gt 0 ] 2>/dev/null && sleep "$delay"
+
       pid=$(pidof gpu-screen-recorder || true)
       if [ -z "$pid" ]; then
         echo "save-gsr-replay: gpu-screen-recorder is not running" >&2
         exit 1
       fi
+
       kill -SIGUSR1 "$pid"
     '';
   };
@@ -328,7 +341,7 @@
           -fm vfr \
           -k ${cfg.codec} \
           -q ${cfg.quality} \
-          -r ${toString cfg.replayDuration} \
+          -r ${toString (cfg.replayDuration + cfg.postRecordSeconds)} \
           ${lib.optionalString usePortal "-restore-portal-session yes"} \
           -o "${cfg.outputDirectory}" 2>&1; }
 
@@ -437,7 +450,26 @@ in {
     replayDuration = lib.mkOption {
       type = lib.types.int;
       default = 60;
-      description = "Replay buffer duration in seconds.";
+      description = ''
+        Seconds of pre-trigger footage in the saved clip. The actual GSR
+        rolling buffer is sized at `replayDuration + postRecordSeconds` so
+        you get the full pre-trigger window even when a tail delay is set.
+      '';
+    };
+
+    postRecordSeconds = lib.mkOption {
+      type = lib.types.int;
+      default = 0;
+      example = 10;
+      description = ''
+        Seconds of footage to capture *after* `save-gsr-replay` is invoked.
+        The module bumps the GSR rolling buffer to `replayDuration +
+        postRecordSeconds` and delays the SIGUSR1 flush by this many
+        seconds, so the saved clip is `replayDuration` pre + this many
+        post — useful for capturing the reaction to whatever prompted the
+        save. Default `0` is no tail (immediate flush). Can be overridden
+        per-invocation: `save-gsr-replay 10`.
+      '';
     };
 
     # -- Output --

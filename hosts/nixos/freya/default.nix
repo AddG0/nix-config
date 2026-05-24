@@ -90,6 +90,13 @@
 
   security.firewall.enable = true;
 
+  yubikey = {
+    enable = true;
+    autoScreenActivate = true;
+    autoScreenUnlock = true;
+    autoScreenLock = true;
+  };
+
   # Pin to cachyos LTS (currently 6.18.x) on this host. 7.0 has two open
   # upstream regressions affecting freya's hardware (Panther Lake + RTX 5090):
   #   - NVIDIA open-driver jump_label suspend hang

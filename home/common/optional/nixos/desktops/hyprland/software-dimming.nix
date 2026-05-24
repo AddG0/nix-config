@@ -43,10 +43,8 @@ in {
   # is not captured by wlr-screencopy — so screenshots aren't dimmed.
   services.hyprsunset.enable = true;
 
-  # `exec`, not `exec-once`, so gamma is re-applied on every reload — needed to
-  # recover after Hyprland boots into the recovery config. The `restore` action
-  # just re-applies the stored value, so re-running it is idempotent.
-  wayland.windowManager.hyprland.settings.exec = ["${gammaScript} restore"];
+  # Reload-recovery handled by autostart.nix's exec-once relauncher.
+  wayland.windowManager.hyprland.settings.exec-once = ["${gammaScript} restore"];
 
   wayland.windowManager.hyprland.extraConfig = ''
     unbind = ,XF86MonBrightnessUp

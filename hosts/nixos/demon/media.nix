@@ -24,8 +24,10 @@
       "x-systemd.automount"
       "noauto"
       "x-systemd.idle-timeout=60"
-      "x-systemd.device-timeout=5s"
-      "x-systemd.mount-timeout=5s"
+      "x-systemd.device-timeout=30s"
+      "x-systemd.mount-timeout=30s"
+      "x-systemd.after=wait-for-nas.service"
+      "x-systemd.requires=wait-for-nas.service"
       "uid=${toString config.users.users.${config.hostSpec.username}.uid}"
       "forceuid"
       "gid=${toString config.users.groups.media.gid}"
@@ -38,6 +40,33 @@
       "vers=3.1.1"
       "echo_interval=10"
     ];
+  };
+
+  # NetworkManager-wait-online "Finishes" before the Realtek r8169 driver has
+  # bound enp12s0, so network-online.target lies. Poll the NAS directly to
+  # gate consumers (and the mount) on real reachability.
+  systemd.services.wait-for-nas = {
+    description = "Wait for NAS (10.10.15.252) to be reachable";
+    after = ["network-online.target"];
+    wants = ["network-online.target"];
+    serviceConfig = {
+      Type = "oneshot";
+      RemainAfterExit = true;
+      ExecStart = pkgs.writeShellScript "wait-for-nas" ''
+        for i in $(seq 1 60); do
+          if ${pkgs.iputils}/bin/ping -c 1 -W 1 10.10.15.252 >/dev/null 2>&1; then
+            exit 0
+          fi
+          sleep 1
+        done
+        exit 1
+      '';
+    };
+  };
+
+  systemd.services.jellyfin = {
+    after = ["wait-for-nas.service"];
+    wants = ["wait-for-nas.service"];
   };
 
   services.jellyfin = {

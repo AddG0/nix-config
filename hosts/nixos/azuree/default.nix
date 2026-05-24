@@ -70,6 +70,8 @@
 
   security.firewall.enable = true;
 
+  yubikey.enable = true;
+
   boot.initrd = {
     systemd.enable = true;
   };

@@ -86,8 +86,9 @@
         "nixos/desktops/hyprland"
         "nixos/desktops/hyprland/nvidia.nix"
         "nixos/desktops/hyprland/sunshine.nix"
-        "nixos/desktops/hyprland/common/software-dimming.nix"
-        "nixos/desktops/hyprland/common/wlcrosshair.nix"
+        "nixos/desktops/hyprland/software-dimming.nix"
+        "nixos/desktops/hyprland/wlcrosshair.nix"
+        "nixos/services/gpu-screen-recorder.nix"
         "nixos/services/hass-agent.nix"
         "nixos/services/safeeyes"
         "media/vlc.nix"
@@ -109,10 +110,8 @@
   home.file."Videos/Movies".source = config.lib.file.mkOutOfStoreSymlink "/mnt/videos";
 
   services.gpu-screen-recorder = {
-    enable = true;
-    # Portal mode captures via xdg-desktop-portal, converting HDR to SDR
-    # Direct capture with bitdepth 10 + HDR produces oversaturated colors
-    # https://wiki.hyprland.org/Configuring/Monitors/#10-bit-support
+    # Portal mode captures via xdg-desktop-portal, converting HDR to SDR.
+    # Direct capture with bitdepth 10 + HDR produces oversaturated colors.
     display = "portal";
     matchMonitorName = "LG ULTRAGEAR";
   };

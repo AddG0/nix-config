@@ -97,6 +97,9 @@ in {
         "workspace special silent, match:class ^(AWS VPN Client)$"
         "float on, match:title ^(ProtonFixes)$"
         "workspace special silent, match:class ^(steam_app_252950)$, match:title ^$"
+        # Steam updater dialog: XWayland window comes up with an empty class
+        # and title "Steam", so the main `^([Ss]team)$` class rule misses it.
+        "workspace 6 silent, match:class ^$, match:title ^Steam$"
         "workspace special silent, match:title (Lethal Company.*\\.exe)"
         "workspace special silent, match:class ^(me\\.kavishdevar\\.librepods|librepods|applinux)$"
         "float on, match:class ^(me\\.kavishdevar\\.librepods|librepods|applinux)$"
