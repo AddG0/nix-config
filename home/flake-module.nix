@@ -2,9 +2,14 @@
 {
   self,
   inputs,
-  lib,
   ...
 }: let
+  # Use flake.lib (which carries `custom`) and layer home-manager's `hm` on
+  # top — home-manager modules expect both. Mirrors hosts/flake-module.nix.
+  lib = self.lib.extend (_self: _super: {
+    inherit (inputs.home-manager.lib) hm;
+  });
+
   # Scan home/primary/ for host .nix files (each file = one home-manager config)
   hostFiles = builtins.filter (
     name: lib.hasSuffix ".nix" name && name != "default.nix"
@@ -45,15 +50,13 @@
       name = hostName;
       value = inputs.home-manager.lib.homeManagerConfiguration {
         pkgs = inputs.nixpkgs.legacyPackages.x86_64-linux;
+        inherit lib;
         extraSpecialArgs = {
           inherit inputs self lib;
           hostSpec = mkHostSpec hostName;
           desktops = {};
         };
-        modules = [
-          {_module.args.lib = lib;}
-          ./primary/${file}
-        ];
+        modules = [./primary/${file}];
       };
     })
     hostFiles);

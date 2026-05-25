@@ -83,6 +83,8 @@ in {
             controlPersist = "10m";
             serverAliveInterval = 60;
             serverAliveCountMax = 3;
+            # Try primary first, then fall back to other agent keys.
+            identityFile = "~/.ssh/primary.pub";
             extraOptions = {
               TCPKeepAlive = "yes";
             };
