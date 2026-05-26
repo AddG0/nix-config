@@ -99,8 +99,8 @@
       sleep "$DELAY_SECONDS"
 
       ${lib.optionalString (fmtArg != "") ''
-      # Apply video format (resolution/pixelformat)
-      ${pkgs.v4l-utils}/bin/v4l2-ctl -d "$DEV" '${fmtArg}' || true
+        # Apply video format (resolution/pixelformat)
+        ${pkgs.v4l-utils}/bin/v4l2-ctl -d "$DEV" '${fmtArg}' || true
       ''}
 
       # Exponential backoff: retry at 1s, 2s, 4s, 8s, 16s intervals (~31s total window)

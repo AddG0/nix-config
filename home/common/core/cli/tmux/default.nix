@@ -14,6 +14,9 @@ in {
     ".tmuxinator/"
   ];
 
+  # Lets fzf open inside a tmux popup
+  programs.fzf.tmux.enableShellIntegration = true;
+
   programs.tmux = {
     enable = true;
     tmuxinator.enable = true;

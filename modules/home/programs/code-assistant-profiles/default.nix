@@ -1,7 +1,6 @@
 {
   config,
   lib,
-  pkgs,
   ...
 }: let
   cfg = config.programs.code-assistant-profiles;
@@ -12,7 +11,7 @@
   };
 
   optionsModule = import ./options.nix {
-    inherit lib pkgs typesModule;
+    inherit lib typesModule;
   };
 
   resolveProfileModule = import ./resolve-profile.nix {
@@ -20,7 +19,7 @@
   };
 
   validationModule = import ./validation.nix {
-    inherit cfg lib;
+    inherit lib;
   };
 in {
   imports = [

@@ -1,24 +1,29 @@
-{lib, ...}: {
+{
+  config,
+  lib,
+  ...
+}: let
+  c = config.lib.stylix.colors.withHashtag;
+in {
   # A command-line fuzzy finder
   programs.fzf = {
     enable = true;
     enableZshIntegration = true;
     enableBashIntegration = true;
-    # https://github.com/catppuccin/fzf
-    # catppuccin-mocha
+    # Colors derived from the active stylix base16 scheme so they track theme.
     colors = lib.mkDefault {
-      "bg+" = "#313244";
-      "bg" = "#1e1e2e";
-      "spinner" = "#f5e0dc";
-      "hl" = "#f38ba8";
-      "fg" = "#cdd6f4";
-      "header" = "#f38ba8";
-      "info" = "#cba6f7";
-      "pointer" = "#f5e0dc";
-      "marker" = "#f5e0dc";
-      "fg+" = "#cdd6f4";
-      "prompt" = "#cba6f7";
-      "hl+" = "#f38ba8";
+      "bg" = c.base00;
+      "bg+" = c.base01;
+      "fg" = c.base05;
+      "fg+" = c.base05;
+      "hl" = c.base08;
+      "hl+" = c.base08;
+      "header" = c.base08;
+      "info" = c.base0E;
+      "prompt" = c.base0E;
+      "pointer" = c.base06;
+      "marker" = c.base06;
+      "spinner" = c.base06;
     };
   };
 }

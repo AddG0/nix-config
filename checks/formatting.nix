@@ -13,7 +13,10 @@
         deadnix.enable = true;
         statix.enable = true;
         shellcheck.enable = true;
-        shfmt.enable = true;
+        shfmt = {
+          enable = true;
+          useEditorConfig = true;
+        };
         prettier.enable = true;
         yamlfmt.enable = true;
       };
@@ -51,6 +54,7 @@
           "*.yml"
           "scripts/*"
           "home/common/optional/gaming/minecraft/modpacks/*/overrides/**"
+          "home/common/optional/gaming/minecraft/modpacks/*/config/clientkits/**"
         ];
       };
     };

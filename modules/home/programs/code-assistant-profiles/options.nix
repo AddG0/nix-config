@@ -1,6 +1,5 @@
 {
   lib,
-  pkgs,
   typesModule,
 }: {
   options.programs.code-assistant-profiles = {

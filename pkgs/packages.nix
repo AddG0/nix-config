@@ -4,6 +4,7 @@
 pkgs: {
   # Development tools
   bootdev-cli = pkgs.callPackage ./bootdev-cli {};
+  gwq = pkgs.callPackage ./gwq {};
   gke-gcloud-auth-plugin = pkgs.callPackage ./gke-gcloud-auth-plugin {};
   openhands = pkgs.callPackage ./openhands {};
   wifiman-desktop = pkgs.callPackage ./wifiman-desktop {};

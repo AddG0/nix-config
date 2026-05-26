@@ -22,6 +22,7 @@ in {
     ./process-compose.nix
     ./gsync.nix
     ./gita.nix
+    ./polyrepo
   ];
 
   home.packages = with pkgs; [

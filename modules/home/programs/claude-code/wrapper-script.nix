@@ -6,7 +6,7 @@
   resolvedProfiles,
 }: let
   pluginDirsCase = lib.concatStringsSep "\n" (lib.mapAttrsToList (
-      name: profile: let
+      name: _profile: let
         resolved = resolvedProfiles.${name};
         dirs = resolved.pluginDirs or [];
       in

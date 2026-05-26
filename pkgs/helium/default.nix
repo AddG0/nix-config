@@ -20,14 +20,7 @@ in
     inherit pname version src;
 
     extraInstallCommands = ''
-      # Install desktop entry
       install -Dm644 ${appimageContents}/helium.desktop $out/share/applications/helium.desktop
-
-      # Update Exec path in desktop file
-      substituteInPlace $out/share/applications/helium.desktop \
-        --replace-fail 'Exec=AppRun' 'Exec=${pname}'
-
-      # Install icon (256x256)
       install -Dm644 ${appimageContents}/usr/share/icons/hicolor/256x256/apps/helium.png \
         $out/share/icons/hicolor/256x256/apps/helium.png
     '';

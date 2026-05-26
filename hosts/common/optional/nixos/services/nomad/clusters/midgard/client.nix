@@ -2,12 +2,10 @@
 # Provides: firewall, gossip encryption, ACLs, base Nomad client
 {
   config,
-  lib,
   pkgs,
   nix-secrets,
   ...
 }: let
-  inherit (config.hostSpec) username;
   inherit (config.hostSpec.networking) hostsAddr;
 in {
   # ==========================================================================

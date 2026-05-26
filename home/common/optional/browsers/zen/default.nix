@@ -173,6 +173,13 @@
           workspace = spaces."Main".id;
           container = containers."Personal".id;
         };
+        "Monarch" = {
+          id = "0b5c976f-4993-44e8-9aff-1c02991a2d41";
+          url = "https://app.monarch.com";
+          position = 11000;
+          workspace = spaces."Main".id;
+          container = containers."Personal".id;
+        };
 
         # Work workspace
         "Gmail (Work)" = {

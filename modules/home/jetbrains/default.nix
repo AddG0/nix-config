@@ -113,17 +113,6 @@
     </application>
   '';
 
-  mkKeymapXml = km: ''
-    <keymap version="1" name="${km.name}" parent="${km.parent}">
-    ${lib.concatStringsSep "\n" (lib.mapAttrsToList (id: keys:
-      if keys == []
-      then ''<action id="${id}" />''
-      else ''        <action id="${id}">
-          ${lib.concatMapStringsSep "\n" (k: ''<keyboard-shortcut first-keystroke="${k}" />'') keys}
-            </action>'')
-    km.actions)}
-    </keymap>'';
-
   mkIdeFiles = _: ide: let
     s = ide.settings;
     root = ideConfigRoot ide;

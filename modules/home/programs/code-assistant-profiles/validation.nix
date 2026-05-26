@@ -1,7 +1,4 @@
-{
-  cfg,
-  lib,
-}: let
+{lib}: let
   assertExactlyOneTextSource = label: spec: [
     {
       assertion = spec.text != null || spec.source != null;
