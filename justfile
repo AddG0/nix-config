@@ -465,9 +465,9 @@ restart-audio:
 restart-noctalia:
   #!/usr/bin/env bash
   set -euo pipefail
-  start=$(grep -oE '/nix/store/[^ ]*-noctalia-start-once' "$HOME/.config/hypr/hyprland.conf" | head -n1)
+  start=$(grep -oE '/nix/store/[^ ]*-noctalia-start' "$HOME/.config/hypr/hyprland.conf" | head -n1)
   if [ -z "$start" ]; then
-    echo "Could not find noctalia-start-once in ~/.config/hypr/hyprland.conf" >&2
+    echo "Could not find noctalia-start in ~/.config/hypr/hyprland.conf" >&2
     exit 1
   fi
   pkill -f '/bin/quickshell$' 2>/dev/null || true
@@ -532,6 +532,41 @@ k3s-status HOST USER=DEFAULT_USER:
 k3s-logs HOST USER=DEFAULT_USER:
   @{{ if HOST == "" { error("HOST parameter is required") } else { "" } }}
   just _run-on {{HOST}} {{USER}} 'sudo journalctl -u k3s -u k3s-agent -f'
+
+[group('setup')]
+[doc("Sync .git/hooks/ in existing clones to match the template dir — adds new hooks, prunes symlinks for hooks removed from the template. New clones get hooks via init.templateDir.")]
+setup-git-hooks *roots="$HOME/Projects/code $HOME/home":
+  #!/usr/bin/env bash
+  set -euo pipefail
+  template="$HOME/.config/git/template/hooks"
+  if [ ! -d "$template" ]; then
+    echo "no template dir at $template — run 'just rebuild' first" >&2
+    exit 1
+  fi
+  count=0
+  pruned=0
+  for root in {{roots}}; do
+    [ -d "$root" ] || continue
+    while IFS= read -r -d '' gitdir; do
+      for hook in "$template"/*; do
+        [ -e "$hook" ] || continue
+        ln -sf "$hook" "$gitdir/hooks/$(basename "$hook")"
+      done
+      # Drop symlinks pointing into our template dir whose target is gone.
+      while IFS= read -r -d '' link; do
+        case "$(readlink "$link")" in
+          "$template"/*)
+            if [ ! -e "$link" ]; then
+              rm "$link"
+              pruned=$((pruned + 1))
+            fi
+            ;;
+        esac
+      done < <(find "$gitdir/hooks" -maxdepth 1 -type l -print0)
+      count=$((count + 1))
+    done < <(find "$root" -type d -name .git -prune -print0)
+  done
+  echo "synced $(ls "$template" 2>/dev/null | wc -l) hook(s) across $count repo(s), pruned $pruned dead link(s)"
 
 [group('setup')]
 [doc("Configure rclone remote (interactive OAuth flow)")]

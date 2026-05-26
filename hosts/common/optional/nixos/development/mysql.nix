@@ -3,8 +3,6 @@
     enable = true;
     package = pkgs.mariadb;
 
-    ensureDatabases = ["shipperhq_dev"];
-
     ensureUsers = [
       {
         name = "root";

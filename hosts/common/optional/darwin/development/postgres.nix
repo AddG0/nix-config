@@ -124,9 +124,6 @@
 
         # Create user database
         ${pkgs.postgresql}/bin/psql -U postgres -c "CREATE DATABASE ${config.hostSpec.username} OWNER ${config.hostSpec.username};"
-
-        # Create additional databases if needed
-        ${pkgs.postgresql}/bin/psql -U postgres -c "CREATE DATABASE IF NOT EXISTS shipperhq_dev;"
       fi
     '';
     serviceConfig.RunAtLoad = true;

@@ -32,10 +32,7 @@
       ]
       ++ (map (f: "common/optional/${f}") [
         #################### Host-specific Optional Configs ####################
-        # cachyos-kernel.nix intentionally NOT imported here — freya pins its
-        # own LTS variant below to avoid 7.0-only regressions (NVIDIA jump_label,
-        # xe DPMS wake). Other hosts (zephy/mini/demon) use cachyos-bore via
-        # that shared import.
+        "nixos/hardware/cachyos-kernel.nix"
         # "nixos/secureboot.nix"
         "nixos/services/openssh.nix" # allow remote SSH access
         "nixos/services/tailscale.nix" # mesh VPN for secure remote access
@@ -93,7 +90,6 @@
   yubikey = {
     enable = true;
     autoScreenActivate = true;
-    autoScreenUnlock = true;
     autoScreenLock = true;
   };
 
@@ -105,7 +101,7 @@
   #     https://gitlab.freedesktop.org/drm/xe/kernel/-/work_items/7791
   #     https://gitlab.freedesktop.org/drm/xe/kernel/-/work_items/7764
   # Switch back to cachyos-bore (the shared default) when both are fixed.
-  boot.kernelPackages = pkgs.cachyosKernels.linuxPackages-cachyos-lts;
+  boot.kernelPackages = lib.mkForce pkgs.cachyosKernels.linuxPackages-cachyos-lts;
 
   boot.kernelModules = ["ntsync"]; # NT sync primitives for Wine/Proton gaming performance
 

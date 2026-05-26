@@ -171,16 +171,22 @@ in {
     source ${kind-stop}/share/nushell/vendor/autoload/kind-stop.nu
   '';
 
-  # Disable Kind container auto-start at boot
-  # This allows using `docker start` manually instead
+  # Disable Kind container auto-start at boot. Type=simple (not oneshot) so
+  # the slow docker call doesn't block default.target / login.
   systemd.user.services.kind-disable-autostart = {
-    Unit = {
-      Description = "Disable Kind container auto-start";
-      After = ["docker.service"];
-    };
+    Unit.Description = "Disable Kind container auto-start";
     Service = {
-      Type = "oneshot";
-      ExecStart = "${pkgs.bash}/bin/bash -c '${pkgs.docker}/bin/docker ps -a --filter label=io.x-k8s.kind.cluster --format {{.Names}} | xargs -r ${pkgs.docker}/bin/docker update --restart=no'";
+      Type = "simple";
+      ExecStart = pkgs.writeShellScript "kind-disable-autostart" ''
+        set -eu
+        names=$(${pkgs.docker}/bin/docker ps -a \
+          --filter label=io.x-k8s.kind.cluster \
+          --format '{{.Names}}')
+        if [ -n "$names" ]; then
+          printf '%s\n' "$names" | ${pkgs.findutils}/bin/xargs \
+            ${pkgs.docker}/bin/docker update --restart=no
+        fi
+      '';
     };
     Install.WantedBy = ["default.target"];
   };

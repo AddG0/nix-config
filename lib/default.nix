@@ -51,6 +51,28 @@ in {
     wait_for_network || exit 1
   '';
 
+  # The shim — not `source` — is what lands in each repo's .git/hooks/ at
+  # clone time. Editing `source` afterward updates all repos via the shim's
+  # exec indirection. Requires `init.templateDir` (set in home/common/core/git.nix).
+  mkGitTemplateHook = {
+    pkgs,
+    name,
+    source,
+  }: {
+    xdg.configFile = {
+      "git/template/hooks/${name}" = {
+        source = pkgs.writeShellScript "${name}-shim" ''
+          exec "''${XDG_CONFIG_HOME:-$HOME/.config}/git/hooks/${name}" "$@"
+        '';
+        executable = true;
+      };
+      "git/hooks/${name}" = {
+        inherit source;
+        executable = true;
+      };
+    };
+  };
+
   # Resolve one or more template names from a gitignore source tree (e.g. the
   # github/gitignore repo as a flake input) into a flat list of ignore lines
   # suitable for home-manager's `programs.git.ignores`.

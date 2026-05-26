@@ -31,13 +31,19 @@ in {
 
       log.showSignature = "true";
       trim.bases = "develop,master,main"; # for git-trim
-      init.defaultBranch = "main";
+      init = {
+        defaultBranch = "main";
+        templateDir = "${config.xdg.configHome}/git/template";
+      };
       push.autoSetupRemote = true;
       pull.rebase = "true";
 
       url = {
         "ssh://git@github.com" = {
           insteadOf = "https://github.com";
+        };
+        "ssh://git@gitlab.com" = {
+          insteadOf = "https://gitlab.com";
         };
       };
 

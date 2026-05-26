@@ -3,8 +3,6 @@
   services.mysql = {
     enable = true;
 
-    ensureDatabases = ["shipperhq_dev"];
-
     ensureUsers = [
       {
         name = "root";
