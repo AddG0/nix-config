@@ -31,15 +31,10 @@
 
     flake-parts.url = "github:hercules-ci/flake-parts";
 
-    # Option 1: Main = unstable
     nixpkgs.url = "github:NixOS/nixpkgs/nixos-unstable";
     nixpkgs-stable.url = "github:NixOS/nixpkgs/nixos-25.11";
-    nixpkgs-unstable.follows = "nixpkgs";
+    nixpkgs-unstable.url = "github:NixOS/nixpkgs/nixos-unstable";
 
-    # Option 2: Main = stable
-    # nixpkgs.url = "github:NixOS/nixpkgs/nixos-25.11";
-    # nixpkgs-stable.follows = "nixpkgs";
-    # nixpkgs-unstable.url = "github:NixOS/nixpkgs/nixos-unstable";
     nix-darwin = {
       url = "github:lnl7/nix-darwin";
       inputs.nixpkgs.follows = "nixpkgs";

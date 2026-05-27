@@ -8,7 +8,7 @@
   jsonFormat = pkgs.formats.json {};
   claudeWrapped = pkgs.symlinkJoin {
     name = "claude-code-wrapped";
-    paths = [pkgs.claude-code];
+    paths = [pkgs.unstable.claude-code];
     buildInputs = [pkgs.makeWrapper];
     postBuild = let
       telemetryEnabled = config.hostSpec.telemetry.enabled && config.hostSpec.telemetry.claude-code.enabled;
@@ -130,6 +130,9 @@ in {
           CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS = "1";
         };
         includeCoAuthoredBy = false;
+        # Auto-mode opt-in. The dialog writes this to settings.json on "Yes",
+        # but that's a read-only Nix symlink, so set it declaratively instead.
+        skipAutoPermissionPrompt = true;
         permissions = {
           allow = ["Bash(git diff:*)" "Bash(nix build:*)" "Bash(nix flake:*)" "Edit" "mcp__context7__resolve-library-id" "mcp__context7__query-docs"];
           ask = ["Bash(git push:*)" "Bash(kubectl get secret:*)"];

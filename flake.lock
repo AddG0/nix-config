@@ -2251,11 +2251,11 @@
         "pre-commit-hooks": "pre-commit-hooks_2"
       },
       "locked": {
-        "lastModified": 1779831549,
-        "narHash": "sha256-+DLZA4NaMhy9VAFTZMh24Q8087xQWj3Y3tv93K8mNAg=",
+        "lastModified": 1779900545,
+        "narHash": "sha256-CedCNmpVn9K+/m8ivL3pHY3KhS4WAtT5EYNkOUfqt7I=",
         "ref": "main",
-        "rev": "36fa0ac238d3b26de954554c541d22e5879c3e97",
-        "revCount": 295,
+        "rev": "ffb353a17c01601104bd1708689e7efebadfcfbf",
+        "revCount": 296,
         "type": "git",
         "url": "ssh://git@github.com/addg0/nix-secrets.git"
       },
@@ -2482,6 +2482,22 @@
       "original": {
         "owner": "NixOS",
         "ref": "nixos-25.11",
+        "repo": "nixpkgs",
+        "type": "github"
+      }
+    },
+    "nixpkgs-unstable": {
+      "locked": {
+        "lastModified": 1779560665,
+        "narHash": "sha256-tpyBcxPpcQb8ukyNF7DoCwfSY3VPsxHoYwj00Cayv5o=",
+        "owner": "NixOS",
+        "repo": "nixpkgs",
+        "rev": "64c08a7ca051951c8eae34e3e3cb1e202fe36786",
+        "type": "github"
+      },
+      "original": {
+        "owner": "NixOS",
+        "ref": "nixos-unstable",
         "repo": "nixpkgs",
         "type": "github"
       }
@@ -3073,9 +3089,7 @@
         "nixos-shell": "nixos-shell",
         "nixpkgs": "nixpkgs_5",
         "nixpkgs-stable": "nixpkgs-stable_2",
-        "nixpkgs-unstable": [
-          "nixpkgs"
-        ],
+        "nixpkgs-unstable": "nixpkgs-unstable",
         "nixpkgs-update": "nixpkgs-update",
         "nixvim": "nixvim",
         "nixvirt": "nixvirt",
