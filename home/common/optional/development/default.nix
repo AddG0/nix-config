@@ -23,6 +23,7 @@ in {
     ./gsync.nix
     ./gita.nix
     ./polyrepo
+    ./languages/nix
   ];
 
   home.packages = with pkgs; [

@@ -154,6 +154,19 @@ eval attr="" hostname="$(hostname)"  :
     nix eval .#nixosConfigurations.{{hostname}}.{{attr}} --json | jq; \
   fi
 
+alias cs := closure
+
+[group('development')]
+[doc("Report closure size of a flake output. Optional positional top=N adds a per-path breakdown. See scripts/closure.sh for the full usage block.")]
+[arg("impure", long, value="true")]
+[arg("json", long, value="true")]
+closure target="" top="0" impure="false" json="false":
+  @scripts/closure.sh \
+    {{ if impure == "true" { "--impure" } else { "" } }} \
+    {{ if json == "true" { "--json" } else { "" } }} \
+    --top "{{top}}" \
+    "{{target}}"
+
 alias u := update
 
 [group('dependencies')]
