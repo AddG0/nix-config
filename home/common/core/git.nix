@@ -13,6 +13,30 @@
   allowedSigners = pkgs.writeText "git-allowed-signers" ''
     ${publicGitEmail} ${personalSigningKey}
   '';
+
+  # `gtar [<file>] [<ref>]` — git archive HEAD → tar.gz.
+  # Defaults: filename = repo basename + .tar.gz, ref = HEAD.
+  # Respects .gitattributes export-ignore; only tracked files included.
+  gtar = pkgs.writeShellApplication {
+    name = "gtar";
+    runtimeInputs = with pkgs; [git coreutils];
+    text = ''
+      ref="''${2:-HEAD}"
+
+      if [[ -n "''${1:-}" ]]; then
+        out="$1"
+      else
+        # Default to the repo's top-level dir name. Falls back to cwd
+        # basename if not inside a git repo (git archive will then error
+        # with a clearer message than ours).
+        toplevel=$(git rev-parse --show-toplevel 2>/dev/null || pwd)
+        out="$(basename "$toplevel").tar.gz"
+      fi
+
+      git archive --format=tar.gz "$ref" --output "$out"
+      echo "wrote $out"
+    '';
+  };
 in {
   programs.git = {
     enable = true;
@@ -112,6 +136,8 @@ in {
   ];
 
   # Git aliases - available across all shells
+  home.packages = [gtar];
+
   home.shellAliases = {
     # Basic git shortcuts
     g = "git";
