@@ -20,7 +20,7 @@
   systemctl = "${pkgs.systemd}/bin/systemctl";
 
   # ── Action 1: restart systemd user services that died with the previous
-  # compositor (walker, hyprpaper, hypridle, app-*@autostart, etc.).
+  # compositor (walker, wpaperd, hypridle, app-*@autostart, etc.).
   # `start --no-block` is a no-op for already-active services, so this is
   # safe even if some survived.
   serviceRelaunch = pkgs.writeShellScript "hyprland-recovery-services" ''

@@ -191,7 +191,7 @@
 
   display.monitors = [
     {
-      name = "eDP-1";
+      output = "eDP-1";
       width = 2560;
       height = 1600;
       refreshRate = 240;

@@ -69,8 +69,8 @@ in {
       # Squircle exponent (Hyprland >=0.45). 2.0 = circular arc; 3.0 = Apple
       # superellipse — corners look slightly "fatter" near the midpoint.
       rounding_power = 3.0;
-      active_opacity = 1.0;
-      inactive_opacity = 0.9;
+      active_opacity = 0.9;
+      inactive_opacity = 0.8;
       fullscreen_opacity = 1.0;
 
       # Drop shadow is the single biggest macOS-feel win. Pure-vertical
@@ -207,7 +207,7 @@ in {
       # urgency hint instead. Major quality-of-life win.
       focus_on_activate = false;
       # Solid dark color behind windows. Eliminates the brief flash before
-      # hyprpaper loads the wallpaper. Tracks stylix base00 so it stays in
+      # wpaperd loads the wallpaper. Tracks stylix base00 so it stays in
       # sync with theme changes — stylix's catppuccin target also sets this
       # to rgb(base00), but home-manager flags any redefinition as a
       # conflict, so we mkForce.
@@ -347,7 +347,7 @@ in {
     bar = {
       # Floating bar — required for margin/frameRadius/outerCorners to take
       # effect. "simple" mode is edge-to-edge and ignores them.
-      marginVertical = 6;
+      marginVertical = edgeGap; # Match marginHorizontal so top spacing equals other sides.
       marginHorizontal = edgeGap; # Align bar edge with window outer gap.
       frameRadius = windowRounding; # Same source of truth as windows + tabs.
       outerCorners = true;

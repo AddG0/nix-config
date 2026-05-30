@@ -10,6 +10,8 @@
 {
   inputs,
   config,
+  pkgs,
+  lib,
   ...
 }: let
   c = config.lib.stylix.colors.withHashtag;
@@ -324,4 +326,7 @@ in {
     "ignore_alpha 0.5, match:namespace walker"
     "animation popin 88%, match:namespace walker"
   ];
+
+  # Bundled into SUPER+SHIFT+R via the reload pipeline in binds.nix.
+  wayland.windowManager.hyprland.reload.commands.elephant = "systemctl --user try-restart elephant.service";
 }

@@ -81,7 +81,6 @@
 
   networking = {
     networkmanager.enable = true;
-    enableIPv6 = false;
     interfaces.enp12s0.wakeOnLan.enable = true;
   };
 
@@ -95,11 +94,6 @@
   };
 
   security.firewall.enable = true;
-
-  # Allowed for Nitrox server
-  networking.firewall = {
-    allowedTCPPorts = [8811];
-  };
 
   services.obsbot-camera = {
     enable = true;

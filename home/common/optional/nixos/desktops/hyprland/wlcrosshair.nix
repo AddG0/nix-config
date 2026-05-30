@@ -4,16 +4,16 @@
   ...
 }: let
   # Cyan plus, no centre dot, no outline. 24x24 PNG.
-  # Arms 2 thick, 5 long, 2-pixel gap from centre on each side.
+  # Arms 2 thick, 4 long, 2-pixel gap from centre on each side.
   crosshair =
     pkgs.runCommand "crosshair.png" {
       nativeBuildInputs = [pkgs.imagemagick];
     } ''
       magick -size 24x24 xc:none -fill '#00FFFF' \
-        -draw 'rectangle 11,5  12,9'  \
-        -draw 'rectangle 11,14 12,18' \
-        -draw 'rectangle 5,11  9,12'  \
-        -draw 'rectangle 14,11 18,12' \
+        -draw 'rectangle 11,6  12,9'  \
+        -draw 'rectangle 11,14 12,17' \
+        -draw 'rectangle 6,11  9,12'  \
+        -draw 'rectangle 14,11 17,12' \
         "$out"
     '';
 

@@ -11,6 +11,7 @@
     ./pip.nix
     ./monitor-control.nix
     ./recovery.nix
+    ./wallpaper.nix
   ];
 
   # wayland session entry for greetd

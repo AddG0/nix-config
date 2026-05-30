@@ -10,7 +10,7 @@
       type = lib.types.bool;
       default = true;
       description = ''
-        Force OLED monitors' wallpaper to pure black via hyprpaper.
+        Force OLED monitors' wallpaper to pure black via wpaperd.
         Overrides stylix's image on OLED outputs only.
       '';
     };

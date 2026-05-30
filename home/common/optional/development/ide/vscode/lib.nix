@@ -112,6 +112,7 @@
       rust
       typescript
       vue
+      qml
       java
       kotlin
       dotenv

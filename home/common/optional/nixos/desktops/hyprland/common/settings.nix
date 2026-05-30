@@ -29,7 +29,7 @@ in {
       # ========== Monitor ==========
       monitor =
         (map (
-            m: "${m.name},${
+            m: "${m.output},${
               if m.enabled
               then "${toString m.width}x${toString m.height}@${toString m.refreshRate}.0,${toString m.x}x${toString m.y},${toString m.scale},transform,${toString transformToHyprland.${m.transform}},vrr,${toString vrrToHyprland.${m.vrr}}${
                 if m.bitdepth != 8

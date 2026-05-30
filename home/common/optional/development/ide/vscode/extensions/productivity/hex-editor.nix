@@ -5,5 +5,9 @@
   userSettings = {
     "hexeditor.columnWidth" = 16;
     "hexeditor.showDecodedText" = true;
+
+    "workbench.editorAssociations" = {
+      "{hexdiff}:/**/*.*" = "hexEditor.hexedit";
+    };
   };
 }

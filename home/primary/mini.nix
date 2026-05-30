@@ -163,7 +163,7 @@
 
   display.monitors = [
     {
-      name = "HDMI-A-1";
+      output = "HDMI-A-1";
       width = 3840;
       height = 2160;
       refreshRate = 60;
@@ -171,7 +171,7 @@
       y = 0;
     }
     {
-      name = "DP-3";
+      output = "DP-3";
       width = 3840;
       height = 2160;
       refreshRate = 60;

@@ -6,11 +6,23 @@
   options.display = {
     monitors = lib.mkOption {
       type = lib.types.listOf (
-        lib.types.submodule {
+        lib.types.submodule ({config, ...}: {
           options = {
-            name = lib.mkOption {
+            output = lib.mkOption {
               type = lib.types.str;
               example = "DP-1";
+              description = "Compositor output / connector identifier (e.g. DP-1, eDP-1, HDMI-A-1).";
+            };
+            name = lib.mkOption {
+              type = lib.types.str;
+              default = config.output;
+              defaultText = lib.literalExpression "config.output";
+              example = "main";
+              description = ''
+                Friendly human-readable name for this monitor. Defaults to the
+                output identifier. Used where a human-meaningful label is
+                preferable to the connector name (e.g. wpaperd folder paths).
+              '';
             };
             primary = lib.mkOption {
               type = lib.types.bool;
@@ -73,7 +85,7 @@
               default = false;
             };
           };
-        }
+        })
       );
       default = [];
     };

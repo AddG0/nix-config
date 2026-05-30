@@ -158,7 +158,7 @@ in {
         {id = "ControlCenter";}
       ];
       # Show notifications only on the primary monitor
-      notifications.monitors = map (m: m.name) (builtins.filter (m: m.primary) config.display.monitors);
+      notifications.monitors = map (m: m.output) (builtins.filter (m: m.primary) config.display.monitors);
       location.useFahrenheit = true;
       location.use12hourFormat = true;
       colorSchemes.predefinedScheme = "Catppuccin";

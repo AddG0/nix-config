@@ -14,8 +14,8 @@ in {
 
   # Each submodule gates itself on the relevant `services.oledCare.*.enable`
   # AND on the presence of OLED monitors. When no OLED monitor is declared,
-  # disable the whole feature tree to avoid configuring hypridle / hyprpaper
-  # / timers for nothing.
+  # disable the whole feature tree to avoid configuring hypridle / wpaperd
+  # overrides / timers for nothing.
   config = lib.mkIf (!hasOled) {
     services.oledCare = {
       idleDpms.enable = lib.mkDefault false;

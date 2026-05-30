@@ -192,7 +192,8 @@
 
   display.monitors = [
     {
-      name = "DP-1";
+      output = "DP-1";
+      name = "left";
       width = 3840;
       height = 2160;
       refreshRate = 144;
@@ -202,7 +203,8 @@
       hdr = true;
     }
     {
-      name = "DP-3";
+      output = "DP-3";
+      name = "main";
       width = 3840;
       height = 2160;
       refreshRate = 240;
@@ -213,7 +215,8 @@
       hdr = true;
     }
     {
-      name = "DP-2";
+      output = "DP-2";
+      name = "right";
       width = 1920;
       height = 1080;
       refreshRate = 60;

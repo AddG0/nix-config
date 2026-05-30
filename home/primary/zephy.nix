@@ -119,7 +119,7 @@
   #  ------   ------   ------
   display.monitors = [
     {
-      name = "desc:AU Optronics 0x8E9D";
+      output = "desc:AU Optronics 0x8E9D";
       width = 2560;
       height = 1600;
       refreshRate = 165;
@@ -130,7 +130,7 @@
       bitdepth = 10;
     }
     {
-      name = "desc:BOE 0x0A68";
+      output = "desc:BOE 0x0A68";
       width = 3840;
       height = 1100;
       refreshRate = 60;

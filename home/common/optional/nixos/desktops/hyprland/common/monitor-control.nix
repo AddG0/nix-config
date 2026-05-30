@@ -19,7 +19,7 @@
 
   restoreMonitors =
     lib.concatMapStringsSep "\n          "
-    (m: ''hyprctl keyword monitor ${lib.escapeShellArg "${m.name},${monitorSpec m}"}'')
+    (m: ''hyprctl keyword monitor ${lib.escapeShellArg "${m.output},${monitorSpec m}"}'')
     config.display.monitors;
 
   # Parse "1, monitor:DP-3, default:true" → { ws = "1"; mon = "DP-3"; }
@@ -52,7 +52,7 @@
 
   configuredPattern = lib.concatStringsSep "|" configuredWsIds;
 
-  primaryNames = map (m: m.name) (builtins.filter (m: m.primary) config.display.monitors);
+  primaryNames = map (m: m.output) (builtins.filter (m: m.primary) config.display.monitors);
   primaryMon =
     if primaryNames != []
     then builtins.head primaryNames

@@ -7,5 +7,6 @@ _: {
     ./walker.nix
     ./pip.nix
     ./hyprlock.nix
+    ./wallpaper-defaults.nix
   ];
 }

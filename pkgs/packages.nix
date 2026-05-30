@@ -28,6 +28,7 @@ pkgs: {
   blueprint = pkgs.callPackage ./blueprint {};
   claude-desktop = pkgs.callPackage ./claude-desktop {};
   rofi-presets = pkgs.callPackage ./rofi-presets {};
+  wallpaper-picker = pkgs.callPackage ./wallpaper-picker {};
 
   # Gaming
   proton-cachyos = pkgs.callPackage ./proton-cachyos {};

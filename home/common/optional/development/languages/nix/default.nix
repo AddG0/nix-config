@@ -4,7 +4,7 @@
   ...
 }: let
   nix-search = pkgs.writeShellApplication {
-    name = "ns";
+    name = "nix-search";
     runtimeInputs = with pkgs; [
       nix-search-tv # Required by nixpkgs.sh
       fzf # Required by nixpkgs.sh

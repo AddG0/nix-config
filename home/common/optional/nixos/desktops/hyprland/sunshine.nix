@@ -14,15 +14,15 @@
   transformToHyprland = hyprLib.transformMap;
   vrrToHyprland = hyprLib.vrrMap;
 
-  monitorNames = map (m: m.name) config.display.monitors;
-  primaryNames = map (m: m.name) (builtins.filter (m: m.primary) config.display.monitors);
+  monitorNames = map (m: m.output) config.display.monitors;
+  primaryNames = map (m: m.output) (builtins.filter (m: m.primary) config.display.monitors);
 
   disableMonitors = lib.concatMapStringsSep "\n" (name: ''
     ${hyprctl} keyword monitor "${name},disable"'')
   monitorNames;
 
   restoreMonitors = lib.concatMapStringsSep "\n" (m: ''
-    ${hyprctl} keyword monitor "${m.name},${toString m.width}x${toString m.height}@${toString m.refreshRate}.0,${toString m.x}x${toString m.y},1,transform,${toString transformToHyprland.${m.transform}},vrr,${toString vrrToHyprland.${m.vrr}}${
+    ${hyprctl} keyword monitor "${m.output},${toString m.width}x${toString m.height}@${toString m.refreshRate}.0,${toString m.x}x${toString m.y},1,transform,${toString transformToHyprland.${m.transform}},vrr,${toString vrrToHyprland.${m.vrr}}${
       if m.bitdepth != 8
       then ",bitdepth,${toString m.bitdepth}"
       else ""

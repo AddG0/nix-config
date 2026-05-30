@@ -55,5 +55,9 @@
 
     # Keep default safety rules
     "chat.tools.terminal.ignoreDefaultAutoApproveRules" = false;
+
+    "workbench.editorAssociations" = {
+      "*.copilotmd" = "vscode.markdown.preview.editor";
+    };
   };
 }

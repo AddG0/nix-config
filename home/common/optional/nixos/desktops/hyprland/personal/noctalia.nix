@@ -78,7 +78,7 @@ in {
       };
       # When on a laptop we want to show notifications on all monitors since
       # we don't know which is the primary.
-      notifications.monitors = lib.optionals (!isLaptop) (map (m: m.name) (builtins.filter (m: m.primary) config.display.monitors));
+      notifications.monitors = lib.optionals (!isLaptop) (map (m: m.output) (builtins.filter (m: m.primary) config.display.monitors));
       dock.enabled = false;
       location.useFahrenheit = true;
       location.use12hourFormat = true;

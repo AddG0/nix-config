@@ -7,36 +7,24 @@
   cfg = config.services.oledCare.wallpaperGuard;
   oledMonitors = lib.filter (m: m.oled && m.enabled) config.display.monitors;
 
-  # Smallest possible solid-black PNG. hyprpaper scales it to fill the
+  # Smallest possible solid-black PNG. wpaperd scales it to fill the
   # monitor, so 1x1 is sufficient — and pure black pixels on OLED don't
   # emit, regardless of "image" size.
   blackPng = pkgs.runCommand "oled-black.png" {nativeBuildInputs = [pkgs.imagemagick];} ''
     magick -size 1x1 xc:black "$out"
   '';
 
-  blackPath = toString blackPng;
-
-  # hyprpaper's home-manager module accepts either "monitor,path" strings
-  # or { monitor; path; } attrsets — stylix uses the attrset form, so match
-  # it. Force outPath via toString so the value type stays a plain string
-  # (raw derivations through the recursive option type can blow the stack).
-  wallpaperEntries =
-    map (m: {
-      monitor = m.name;
-      path = blackPath;
+  # wpaperd matches the most specific output key — these per-output entries
+  # win over the `any` rotation set in wallpaper.nix. No rotation here:
+  # the singleton `path = <black.png>` pins each OLED output to black.
+  oledSettings = lib.listToAttrs (map (m: {
+      name = m.output;
+      value.path = toString blackPng;
     })
-    oledMonitors;
+    oledMonitors);
 in {
   config = lib.mkIf (cfg.enable && oledMonitors != []) {
-    services.hyprpaper = {
-      enable = true;
-      # mkAfter so any wildcard rule from stylix is overridden by these
-      # monitor-specific entries (hyprpaper applies later matches last).
-      settings = {
-        preload = lib.mkAfter [blackPath];
-        wallpaper = lib.mkAfter wallpaperEntries;
-      };
-    };
+    services.wpaperd.settings = oledSettings;
 
     # Force hyprlock to draw a pure-black backdrop so the (typically 60s)
     # window between lock and DPMS-off doesn't render the stylix wallpaper

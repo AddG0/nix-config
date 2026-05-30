@@ -6,7 +6,7 @@
 }: let
   cfg = config.services.oledCare.wearTracker;
   oledMonitors = lib.filter (m: m.oled) config.display.monitors;
-  oledNames = map (m: m.name) oledMonitors;
+  oledNames = map (m: m.output) oledMonitors;
 
   pollIntervalSec = 60;
 
