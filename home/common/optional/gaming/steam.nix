@@ -1,11 +1,13 @@
 # Steam overlay missing in games: Steam → Settings → Interface → uncheck "Use GPU accelerated rendering in web views".
 {
   config,
+  osConfig ? null,
   inputs,
   pkgs,
   lib,
   ...
 }: let
+  razerEnabled = osConfig.hardware.openrazer.enable or false;
   defaultCompatTool = "GE-Proton";
   primaryMonitor = lib.findFirst (m: m.primary) null config.display.monitors;
   gamemoderun = lib.getExe' pkgs.gamemode "gamemoderun";
@@ -15,21 +17,138 @@
   #   launchOptions.wrappers = [gamemoderun] ++ gamescope;
   # Skip for: anti-cheat games (EAC), games where Steam overlay must work,
   # games run via PROTON_ENABLE_WAYLAND=1, and titles you want to tile freely.
-  gamescope = [
-    (lib.getExe pkgs.gamescope)
-    "-W"
-    (toString primaryMonitor.width)
-    "-H"
-    (toString primaryMonitor.height)
-    "-w"
-    (toString primaryMonitor.width)
-    "-h"
-    (toString primaryMonitor.height)
-    "-r"
-    (toString primaryMonitor.refreshRate)
-    "-f"
-    "--"
-  ];
+  # `env -u WAYLAND_DISPLAY` works around gamescope hanging on game exit
+  # because the host compositor's WAYLAND_DISPLAY leaks into the nested
+  # session and wineserver waits indefinitely on the outer socket.
+  # See: github.com/ValveSoftware/gamescope/issues/1396
+  # --hdr-enabled is included automatically whenever the primary monitor
+  # advertises HDR — no separate SDR/HDR wrappers needed. SDR games
+  # composite through the HDR pipeline transparently.
+  mkGamescope = {extraArgs ? []}:
+    [
+      "env"
+      "-u"
+      "WAYLAND_DISPLAY"
+      (lib.getExe pkgs.gamescope)
+      "-W"
+      (toString primaryMonitor.width)
+      "-H"
+      (toString primaryMonitor.height)
+      "-w"
+      (toString primaryMonitor.width)
+      "-h"
+      (toString primaryMonitor.height)
+      "-r"
+      (toString primaryMonitor.refreshRate)
+      "-f"
+    ]
+    ++ lib.optionals (primaryMonitor.hdr or false) ["--hdr-enabled"]
+    ++ extraArgs
+    ++ ["--"];
+
+  gamescope = mkGamescope {};
+
+  # Helper: print the D-Bus object path of the first openrazer device that
+  # supports DPI control, or exit nonzero if no such device is connected.
+  razerMousePath = pkgs.writeShellApplication {
+    name = "razer-mouse-path";
+    runtimeInputs = with pkgs; [glib gnugrep coreutils];
+    text = ''
+      serials=$(gdbus call --session --dest org.razer \
+        --object-path /org/razer \
+        --method razer.devices.getDevices 2>/dev/null) || exit 1
+      for s in $(echo "$serials" | grep -oE "'[^']+'" | tr -d "'"); do
+        if gdbus introspect --session --dest org.razer \
+            --object-path "/org/razer/device/$s" 2>/dev/null \
+            | grep -q "razer.device.dpi"; then
+          echo "/org/razer/device/$s"
+          exit 0
+        fi
+      done
+      exit 1
+    '';
+  };
+
+  # Per-game mouse DPI. Stashes the pre-game DPI on the first game of a
+  # session (subsequent games keep that original), sets the per-game value,
+  # then exec's the game. The mouse-dpi-restore service handles cleanup
+  # via GameMode's D-Bus ClientCount=0 signal.
+  # Usage: `wrappers = mouseDpi 800 ++ [gamemoderun] ++ gamescope;`
+  mouseDpi = dpi:
+    lib.optionals razerEnabled [
+      (lib.getExe (pkgs.writeShellApplication {
+        name = "mouse-dpi-${toString dpi}";
+        runtimeInputs = with pkgs; [glib coreutils razerMousePath];
+        text = ''
+          set -u
+          if mouse_path=$(razer-mouse-path); then
+            state_dir="''${XDG_STATE_HOME:-$HOME/.local/state}/gaming-mouse-dpi"
+            prev_file="$state_dir/prev"
+            mkdir -p "$state_dir"
+            if [ ! -f "$prev_file" ]; then
+              cur=$(gdbus call --session --dest org.razer \
+                --object-path "$mouse_path" \
+                --method razer.device.dpi.getDPI 2>/dev/null) || cur=""
+              # ([1800, 1800],) → "1800 1800"
+              if [[ "$cur" =~ ([0-9]+)[,\ ]+([0-9]+) ]]; then
+                echo "''${BASH_REMATCH[1]} ''${BASH_REMATCH[2]}" > "$prev_file"
+              fi
+            fi
+            gdbus call --session --dest org.razer \
+              --object-path "$mouse_path" \
+              --method razer.device.dpi.setDPI ${toString dpi} ${toString dpi} \
+              >/dev/null 2>&1 || true
+          fi
+          exec "$@"
+        '';
+      }))
+    ];
+
+  mouseDpiRestoreApp = pkgs.writeShellApplication {
+    name = "mouse-dpi-restore";
+    runtimeInputs = with pkgs; [glib coreutils razerMousePath];
+    text = ''
+      set -u
+      state_dir="''${XDG_STATE_HOME:-$HOME/.local/state}/gaming-mouse-dpi"
+      prev_file="$state_dir/prev"
+
+      restore_if_needed() {
+        [ -f "$prev_file" ] || return 0
+        local px py mouse_path
+        read -r px py < "$prev_file" || return 0
+        if mouse_path=$(razer-mouse-path); then
+          gdbus call --session --dest org.razer \
+            --object-path "$mouse_path" \
+            --method razer.device.dpi.setDPI "$px" "$py" \
+            >/dev/null 2>&1 || true
+        fi
+        rm -f "$prev_file"
+      }
+
+      no_games_running() {
+        local out
+        out=$(gdbus call --session \
+          --dest com.feralinteractive.GameMode \
+          --object-path /com/feralinteractive/GameMode \
+          --method org.freedesktop.DBus.Properties.Get \
+          com.feralinteractive.GameMode ClientCount 2>/dev/null) || return 1
+        [[ "$out" =~ \<([0-9]+)\> ]] && [ "''${BASH_REMATCH[1]}" = "0" ]
+      }
+
+      # Reconcile at start in case games already exited before service start.
+      no_games_running && restore_if_needed
+
+      while IFS= read -r line; do
+        case "$line" in
+          *PropertiesChanged*ClientCount*)
+            no_games_running && restore_if_needed
+            ;;
+        esac
+      done < <(gdbus monitor --session \
+        --dest com.feralinteractive.GameMode \
+        --object-path /com/feralinteractive/GameMode)
+    '';
+  };
 
   # name → Steam appid. Each game gets a default config of
   # `{ id; launchOptions.wrappers = [gamemoderun]; }`; per-game overrides
@@ -92,7 +211,39 @@ in {
       # (wrong resolution, multi-monitor misbehavior, alt-tab loss).
       # Gamescope forces a sane fullscreen surface and fixes it.
       horizon-zero-dawn.launchOptions.wrappers = [gamemoderun] ++ gamescope;
+
+      # Its very buggy when not in a 16:9 aspect ratio.
+      repo.launchOptions.wrappers = [gamemoderun] ++ gamescope;
+
+      # PROTON_ENABLE_HDR=1 is needed in addition to gamescope --hdr-enabled:
+      # Overwatch's Battle.net launcher tree doesn't inherit gamescope's
+      # late-set DXVK_HDR=1, so the env var must be set up front.
+      # Known issue: the in-game HDR toggle reverts when re-opening settings
+      # (DXGI re-query returns inconsistent caps). Re-enable each session.
+      overwatch = {
+        launchOptions.wrappers = [gamemoderun] ++ gamescope;
+        launchOptions.env.PROTON_ENABLE_HDR = "1";
+      };
+
+      aimlabs.launchOptions.wrappers = mouseDpi 1600 ++ [gamemoderun];
     };
+  };
+
+  systemd.user.services.mouse-dpi-restore = lib.mkIf razerEnabled {
+    Unit = {
+      Description = "Restore mouse DPI when GameMode reports no clients";
+      After = ["graphical-session.target"];
+      PartOf = ["graphical-session.target"];
+    };
+    Service = {
+      Type = "simple";
+      ExecStart = lib.getExe mouseDpiRestoreApp;
+      # Always restart — gdbus monitor exits silently when gamemoded
+      # restarts, leaving the service "active" but no longer watching.
+      Restart = "always";
+      RestartSec = 5;
+    };
+    Install.WantedBy = ["graphical-session.target"];
   };
 
   # Enable multi-threaded Vulkan shader compilation for Steam

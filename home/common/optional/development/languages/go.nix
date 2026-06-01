@@ -9,7 +9,7 @@
   home.packages = with pkgs; [
     # Go language and tools
     go
-    gopls # Go language server
+    (lib.hiPrio gopls) # Go language server; wins `modernize` conflict with gotools
     gotools # Includes goimports and other tools
     golangci-lint # Popular Go linter
     delve # Go debugger

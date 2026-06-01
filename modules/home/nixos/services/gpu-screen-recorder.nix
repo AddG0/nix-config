@@ -337,7 +337,7 @@
           -w "$DISPLAY_NAME" \
           -f ${toString cfg.fps} \
           ${audioArgs} \
-          -c mkv \
+          -c ${cfg.container} \
           -fm vfr \
           -k ${cfg.codec} \
           -q ${cfg.quality} \
@@ -444,6 +444,16 @@ in {
       description = ''
         Video codec to use. For HDR recording, use "hevc_hdr" or "av1_hdr".
         10-bit options (hevc_10bit, av1_10bit) provide better color depth without HDR metadata.
+      '';
+    };
+
+    container = lib.mkOption {
+      type = lib.types.enum ["mp4" "mkv" "flv" "webm"];
+      default = "mkv";
+      description = ''
+        Output container format. MKV is the safest default (survives crashes
+        with a still-playable file), but DaVinci Resolve refuses MKV — use
+        "mp4" if you import recordings into Resolve.
       '';
     };
 

@@ -31,8 +31,6 @@
 
         # Development
         "development"
-        "development/ide"
-        "development/ide/vscode"
         "development/ide/vscode/server.nix"
         "development/ide/jetbrains-remote.nix"
         "development/jupyter-notebook.nix"
@@ -46,8 +44,7 @@
         "development/virtualization/kubernetes"
         "development/ai/litellm-proxy.nix"
 
-        "development/languages/java.nix"
-        "development/languages/node.nix"
+        "development/languages"
         "development/grpc.nix"
         "secrets/buf.nix"
         "development/terraform.nix"

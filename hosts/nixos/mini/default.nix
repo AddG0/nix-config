@@ -11,7 +11,6 @@
   ...
 }: {
   imports = lib.flatten [
-    inputs.stylix.nixosModules.stylix
     inputs.awsvpnclient-nix.nixosModules.default
     #################### Hardware ####################
     inputs.hardware.nixosModules.common-cpu-amd
@@ -29,36 +28,10 @@
       ]
       ++ (map (f: "common/optional/${f}") [
         #################### Host-specific Optional Configs ####################
-        "nixos/hardware/cachyos-kernel.nix" # CachyOS kernel
         "nixos/services/openssh.nix" # allow remote SSH access
-        "nixos/services/tailscale.nix" # mesh VPN for secure remote access
-        "nixos/audio.nix" # pipewire and cli controls
-        "nixos/gaming.nix" # steam, gamescope, gamemode, and related hardware
-        "nixos/virtualisation/docker.nix" # docker
-
-        # "nixos/obs.nix" # obs
-        "nixos/hardware/openrazer.nix" # openrazer
-        "nixos/hardware/wooting.nix" # wooting keyboard
-        "nixos/hardware/fprintd.nix" # fingerprint reader (Realtek 2541:fa03)
-        "nixos/1password.nix"
-        "nixos/services/bluetooth.nix"
-        "nixos/services/openvpn.nix"
-        "nixos/services/gitlab-runner.nix"
-
-        "nixos/development/mysql.nix"
-        # "nixos/development/druid"
-
-        # "nixos/plymouth.nix" # fancy boot screen
-        "nixos/services/greetd.nix"
-        "nixos/desktops/hyprland"
       ])
     ))
   ];
-
-  # AWS VPN Client with SAML support
-  programs.awsvpnclient.enable = true;
-
-  programs.kdeconnect.enable = true;
 
   networking = {
     networkmanager.enable = true;
@@ -87,8 +60,6 @@
   hostSpec = {
     hostName = "mini";
     hostPlatform = "x86_64-linux";
-    telemetry.enabled = true;
-    networking.homeWifiSsids = ["Karen_5G-1"];
   };
 
   time.timeZone = "America/Chicago";

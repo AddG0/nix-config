@@ -1,6 +1,5 @@
 {
   config,
-  inputs,
   pkgs,
   lib,
   ...
@@ -33,8 +32,6 @@
 
         # Development
         "development"
-        "development/ide"
-        "development/ide/vscode"
         "development/ide/vscode/server.nix"
         "development/ide/jetbrains-remote.nix"
         "development/jupyter-notebook.nix"
@@ -42,22 +39,18 @@
         "development/ai"
         "development/postman.nix"
         "development/gcloud.nix"
-        "development/gitlab.nix"
         "development/aws.nix"
         # "development/virtualization"
         "development/virtualization/lens.nix"
         "development/virtualization/kubernetes"
         "development/ai/litellm-proxy.nix"
-
-        "development/languages/java.nix"
-        "development/languages/node.nix"
-        "development/languages/rust.nix"
+        "development/languages"
         "development/tilt.nix"
         "development/grpc.nix"
-        "secrets/buf.nix"
         "development/terraform.nix"
         "development/bootdev.nix"
         "development/nomad.nix"
+        "secrets/buf.nix"
 
         # Gaming
         "gaming"
@@ -113,6 +106,8 @@
     # Direct capture with bitdepth 10 + HDR produces oversaturated colors.
     display = "portal";
     matchMonitorName = "LG ULTRAGEAR";
+    # DaVinci Resolve doesn't accept MKV.
+    container = "mp4";
   };
 
   #

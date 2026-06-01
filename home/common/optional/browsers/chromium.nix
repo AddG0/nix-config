@@ -18,14 +18,4 @@
   };
 
   nixpkgs.config.chromium.enableWideVine = true;
-
-  home.packages = [
-    # https://www.reddit.com/r/kde/comments/1gjcfpp/window_title_bar_not_fully_maximizing_and_or/
-    # chrome://flags enable ozone platform wayland to fix window title bar glitch
-    (pkgs.google-chrome.override {
-      commandLineArgs = [
-        "--disable-gpu-compositing" # Fix white screen with camera effects in Google Meet on Wayland
-      ];
-    })
-  ];
 }

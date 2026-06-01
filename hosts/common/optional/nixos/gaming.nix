@@ -41,7 +41,7 @@
     ''}
   '';
 in {
-  # hardware.xone.enable = true;
+  hardware.xone.enable = true;
 
   # Allow gamemode's privileged helpers to run without a polkit prompt.
   #

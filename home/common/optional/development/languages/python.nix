@@ -7,7 +7,7 @@
   programs.git.ignores = lib.custom.gitignoreFromTemplates inputs.github-gitignore-templates ["Python"];
 
   home.packages = with pkgs; [
-    python3
+    (lib.lowPrio python3) # jupyter env wins python3.pc collision
     python3Packages.pip
     python3Packages.virtualenv
     poetry

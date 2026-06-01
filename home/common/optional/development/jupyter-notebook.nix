@@ -13,7 +13,7 @@
   };
 in {
   home.packages = with pkgs.stable; [
-    (python312.withPackages (ps:
+    (python313.withPackages (ps:
       with ps; [
         jupyter-core
         jupyter-events
