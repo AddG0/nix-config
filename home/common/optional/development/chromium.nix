@@ -1,4 +1,5 @@
 {pkgs, ...}: {
+  # DevTools dock cycle: Ctrl+Shift+D (right → bottom)
   # Flag references:
   #   https://wiki.archlinux.org/title/Chromium
   #   https://chromium.googlesource.com/chromium/src/+/refs/heads/main/docs/gpu/vaapi.md

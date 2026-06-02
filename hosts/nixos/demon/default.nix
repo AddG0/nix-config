@@ -55,6 +55,7 @@
         "nixos/development/mysql.nix"
 
         "nixos/gaming.nix" # steam, gamescope, gamemode, and related hardware
+        "nixos/vr.nix" # monado OpenXR runtime (Bigscreen Beyond)
 
         # "nixos/plymouth.nix" # fancy boot screen
         "nixos/services/greetd.nix"

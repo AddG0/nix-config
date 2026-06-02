@@ -227,7 +227,7 @@
 
   pickerLauncher = pkgs.writeShellApplication {
     name = "wallpaper-picker-launch";
-    runtimeInputs = [pkgs.wallpaper-picker];
+    runtimeInputs = with pkgs; [wallpaper-picker util-linux];
     text = ''
       export WP_FOLDERS=${lib.escapeShellArg (builtins.toJSON pickerFolderMap)}
       export WP_DEFAULTS=${lib.escapeShellArg (builtins.toJSON pickerDefaults)}
@@ -235,7 +235,13 @@
       export WP_BG=${lib.escapeShellArg c.base00}
       export WP_FG=${lib.escapeShellArg c.base05}
       export WP_BORDER=${lib.escapeShellArg c.base03}
-      exec wallpaper-picker "$@"
+
+      # Singleton via flock: spamming SUPER+W only ever opens one picker.
+      # -n = non-blocking; flock exits with code 1 silently if another
+      # instance is already holding the lock. The lock is released when
+      # this process (and thus the exec'd picker) exits.
+      LOCK="''${XDG_RUNTIME_DIR:-/tmp}/wallpaper-picker.lock"
+      exec flock -n "$LOCK" wallpaper-picker "$@"
     '';
   };
 in {

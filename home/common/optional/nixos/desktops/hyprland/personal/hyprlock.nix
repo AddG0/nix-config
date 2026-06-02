@@ -21,6 +21,33 @@
   ...
 }: let
   hostHasOled = lib.any (m: m.oled) config.display.monitors;
+  enabledMonitors = lib.filter (m: m.enabled) config.display.monitors;
+
+  # Default: macOS/Gnome-style blurred screenshot. Any module that needs
+  # to override a specific output's lock background writes into
+  # `programs.hyprlock.backgroundOverrides` (declared in ../common/hyprlock.nix)
+  # — that hook keeps this file agnostic about who's overriding what.
+  overrides = config.programs.hyprlock.backgroundOverrides;
+
+  defaultBg = m: {
+    monitor = m.output;
+    path = "screenshot";
+    blur_passes = 4;
+    blur_size = 8;
+    brightness = 0.6;
+    contrast = 0.85;
+    vibrancy = 0.25;
+    vibrancy_darkness = 0.0;
+  };
+
+  # Overrides REPLACE the default block (rather than merging) — leaking
+  # `path = screenshot` next to `color = ...` would either confuse
+  # hyprlock or render both. `{ monitor = ...; } //` makes sure the
+  # override doesn't need to repeat the monitor name.
+  bgForMonitor = m:
+    if overrides ? ${m.output}
+    then {monitor = m.output;} // overrides.${m.output}
+    else defaultBg m;
 in {
   programs.hyprlock.settings = {
     general = {
@@ -59,9 +86,24 @@ in {
       present_message = "Scanning…";
     };
 
-    # Note: background is intentionally NOT set here. The oled-protection
-    # module forces a solid black background on hyprlock to prevent burn-in
-    # from a static blurred screenshot lingering on the lock screen.
+    # Per-monitor backgrounds — see bgForMonitor above. mkForce overrides
+    # stylix's hyprlock target, which sets a single-attrset background.
+    # Fallback (no declared monitors) keeps the screenshot-blur behavior.
+    background = lib.mkForce (
+      if enabledMonitors == []
+      then [
+        {
+          path = "screenshot";
+          blur_passes = 4;
+          blur_size = 8;
+          brightness = 0.6;
+          contrast = 0.85;
+          vibrancy = 0.25;
+          vibrancy_darkness = 0.0;
+        }
+      ]
+      else map bgForMonitor enabledMonitors
+    );
 
     # Frosted-glass card behind the avatar / greeting / input stack — the
     # Tahoe "liquid glass" cue. Reintroduces the depth that aggressive

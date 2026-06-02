@@ -139,7 +139,14 @@ Scope {
     boundsH = b2.boundsH;
     monitors = b2.monitors;
     if (selectedOutput === "" && monitors.length > 0) {
-      selectedOutput = monitors[0].name;
+      // Default to the visually-first monitor (top row, leftmost) rather
+      // than monitors[0], which is whatever order the compositor
+      // enumerated outputs in — often the rightmost panel.
+      var ordered = monitors.slice().sort(function (a, b) {
+        if (a.y !== b.y) return a.y - b.y;
+        return a.x - b.x;
+      });
+      selectedOutput = ordered[0].name;
     }
   }
 
@@ -180,12 +187,17 @@ Scope {
 
   // Translate an absolute wallpaper path (under baseDir or rotatedCache)
   // into the corresponding thumb path, by combining the output's display
-  // folder with the wallpaper's basename. Returns "" if no current
-  // wallpaper known for that output.
+  // folder with the wallpaper's basename. wpaperd resolves symlinks
+  // before reporting, so a wallpaper picked from a wallpapers.images
+  // entry comes back as /nix/store/<hash>-<name> — strip the
+  // 32-char nix-store hash prefix so the thumb lookup hits its true
+  // filename. Returns "" if no current wallpaper known for that output.
   function currentThumb(outputName) {
     var current = root.currentWallpapers[outputName];
     if (!current) return "";
     var basename = current.substring(current.lastIndexOf("/") + 1);
+    var nixMatch = basename.match(/^[a-z0-9]{32}-(.+)$/);
+    if (nixMatch) basename = nixMatch[1];
     return root.foldersFor(outputName).display + "/" + basename;
   }
 

@@ -58,6 +58,7 @@
         "gaming/heroic.nix"
         "gaming/r2modman.nix"
         "gaming/nitrox.nix"
+        "gaming/bigscreen-beyond.nix"
 
         # Ghostty (Terminal)
         "ghostty"
@@ -125,7 +126,7 @@
   #     };
   #     "03-chat" = {
   #       name = "chat";
-  #       open-on-output = "DP-2";
+  #       open-on-output = "HDMI-A-1";
   #     };
   #   };
 
@@ -154,7 +155,7 @@
   #
   #  ------   ------
   # | DP-1 | | DP-3 | ----
-  # | ASUS | |  LG  | |DP-2|
+  # | ASUS | |  LG  | |HDMI-A-1|
   #  ------   ------  |(rot)|
   #                    ----
   display.defaultMonitor.enable = false;
@@ -164,7 +165,7 @@
       "1, monitor:DP-3, default:true"
       "6, monitor:DP-3, default:true"
       "2, monitor:DP-1, default:true"
-      "3, monitor:DP-2, default:true"
+      "3, monitor:HDMI-A-1, default:true"
     ];
     windowrule = [
       "workspace 3 silent, match:class ^(Slack)$"
@@ -210,7 +211,7 @@
       hdr = true;
     }
     {
-      output = "DP-2";
+      output = "HDMI-A-1";
       name = "right";
       width = 1920;
       height = 1080;

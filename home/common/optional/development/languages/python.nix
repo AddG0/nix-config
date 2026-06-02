@@ -4,7 +4,10 @@
   lib,
   ...
 }: {
-  programs.git.ignores = lib.custom.gitignoreFromTemplates inputs.github-gitignore-templates ["Python"];
+  programs.git.ignores =
+    lib.filter
+    (entry: !(builtins.elem entry ["lib/" "lib64/"]))
+    (lib.custom.gitignoreFromTemplates inputs.github-gitignore-templates ["Python"]);
 
   home.packages = with pkgs; [
     (lib.lowPrio python3) # jupyter env wins python3.pc collision

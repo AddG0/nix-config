@@ -26,14 +26,13 @@ in {
   config = lib.mkIf (cfg.enable && oledMonitors != []) {
     services.wpaperd.settings = oledSettings;
 
-    # Force hyprlock to draw a pure-black backdrop so the (typically 60s)
-    # window between lock and DPMS-off doesn't render the stylix wallpaper
-    # — that wallpaper would otherwise be a static OLED burn risk.
-    # mkForce overrides stylix's single-attrset definition; this is global
-    # (no per-monitor split) because home-manager's hyprlock module types
-    # `background` as a singleton attrset, not a list of monitor blocks.
-    programs.hyprlock.settings.background = lib.mkForce {
-      color = "rgb(0,0,0)";
-    };
+    # Per-output lock-background override: black for each OLED monitor.
+    # Written into hyprlock's `backgroundOverrides` hook so hyprlock can
+    # consume it without ever referencing oled-care.
+    programs.hyprlock.backgroundOverrides = lib.listToAttrs (map (m: {
+        name = m.output;
+        value = {color = "rgb(0,0,0)";};
+      })
+      oledMonitors);
   };
 }

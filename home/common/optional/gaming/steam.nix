@@ -190,6 +190,9 @@
       aimlabs = 714010;
       portal-2 = 620;
       fps-chess = 2021910;
+
+      # VR
+      bigscreen-beyond-utility = 2467050;
     };
 in {
   imports = [
@@ -226,6 +229,14 @@ in {
       };
 
       aimlabs.launchOptions.wrappers = mouseDpi 1600 ++ [gamemoderun];
+
+      # Bigscreen Beyond Utility — Windows-only app for adjusting the
+      # headset's fan, brightness, refresh rate, and LED color.
+      # Intentionally minimal: PROTON_ENABLE_HIDRAW is documented but
+      # appears to make things worse on Proton 10.x / Experimental
+      # (BeyondHID logs "parent not found" with it set). The first
+      # successful detection at 14:06 happened with no override at all.
+      # https://github.com/ValveSoftware/Proton/issues/8672
     };
   };
 
