@@ -8,12 +8,12 @@ FLAKE_ROOT=$(git rev-parse --show-toplevel)
 DEFAULT_NIX="$FLAKE_ROOT/pkgs/claude-desktop/default.nix"
 
 tag=$(curl -sfL "https://api.github.com/repos/aaddrick/claude-desktop-debian/releases/latest" |
-	jq -r '.tag_name')
+  jq -r '.tag_name')
 
 re='^v([0-9]+\.[0-9]+\.[0-9]+)\+claude([0-9]+\.[0-9]+\.[0-9]+)$'
 [[ $tag =~ $re ]] || {
-	echo "claude-desktop: failed to parse tag '$tag'" >&2
-	exit 1
+  echo "claude-desktop: failed to parse tag '$tag'" >&2
+  exit 1
 }
 new_wrapper="${BASH_REMATCH[1]}"
 new_claude="${BASH_REMATCH[2]}"
@@ -22,8 +22,8 @@ cur_claude=$(sed -nE 's/^  version = "([^"]+)";/\1/p' "$DEFAULT_NIX")
 cur_wrapper=$(sed -nE 's/^  wrapperVersion = "([^"]+)";/\1/p' "$DEFAULT_NIX")
 
 if [[ $cur_claude == "$new_claude" && $cur_wrapper == "$new_wrapper" ]]; then
-	echo "claude-desktop: already at $new_claude (wrapper $new_wrapper)"
-	exit 0
+  echo "claude-desktop: already at $new_claude (wrapper $new_wrapper)"
+  exit 0
 fi
 
 echo "claude-desktop: $cur_claude/$cur_wrapper -> $new_claude/$new_wrapper"
@@ -33,7 +33,7 @@ raw=$(nix-prefetch-url "$url" --type sha256)
 sri=$(nix hash convert --hash-algo sha256 --to sri "$raw")
 
 sed -i \
-	-e "s|^  version = \".*\";|  version = \"$new_claude\";|" \
-	-e "s|^  wrapperVersion = \".*\";|  wrapperVersion = \"$new_wrapper\";|" \
-	-e "s|hash = \"sha256-[^\"]*\";|hash = \"$sri\";|" \
-	"$DEFAULT_NIX"
+  -e "s|^  version = \".*\";|  version = \"$new_claude\";|" \
+  -e "s|^  wrapperVersion = \".*\";|  wrapperVersion = \"$new_wrapper\";|" \
+  -e "s|hash = \"sha256-[^\"]*\";|hash = \"$sri\";|" \
+  "$DEFAULT_NIX"

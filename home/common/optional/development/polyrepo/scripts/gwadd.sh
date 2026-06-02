@@ -17,24 +17,24 @@
 no_session=0
 args=()
 for arg in "$@"; do
-	case "$arg" in
-	--no-session) no_session=1 ;;
-	*) args+=("$arg") ;;
-	esac
+  case "$arg" in
+  --no-session) no_session=1 ;;
+  *) args+=("$arg") ;;
+  esac
 done
 set -- "${args[@]}"
 
 if [[ $# -eq 0 ]]; then
-	echo "usage: gwadd [--no-session] [gwq-add-flags] <branch>" >&2
-	exit 1
+  echo "usage: gwadd [--no-session] [gwq-add-flags] <branch>" >&2
+  exit 1
 fi
 
 primary=$(git worktree list --porcelain 2>/dev/null |
-	awk '/^worktree /{print $2; exit}')
+  awk '/^worktree /{print $2; exit}')
 
 if [[ -z $primary ]]; then
-	echo "gwadd: not in a git repo" >&2
-	exit 1
+  echo "gwadd: not in a git repo" >&2
+  exit 1
 fi
 
 # Last positional is the branch name; sanitize `/` to `-`.
@@ -45,7 +45,7 @@ target="${primary}--${branch//\//-}"
 gwq add "$@" "$target"
 
 if [[ $no_session -eq 0 ]]; then
-	# From inside tmux sesh switches the client; outside it attaches a new
-	# session. Session name is the dir basename (tmux-safe with `--`).
-	exec sesh connect "$target"
+  # From inside tmux sesh switches the client; outside it attaches a new
+  # session. Session name is the dir basename (tmux-safe with `--`).
+  exec sesh connect "$target"
 fi

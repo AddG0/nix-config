@@ -17,19 +17,19 @@ ns=""
 pod=""
 skip=false
 for ((i = 0; i < n - 1; i++)); do
-	if $skip; then
-		skip=false
-		continue
-	fi
-	case "${args[i]}" in
-	-n | --namespace)
-		ns="${args[i + 1]:-}"
-		skip=true
-		;;
-	-c | --container) skip=true ;;
-	-*) ;;
-	*) [[ -z $pod ]] && pod="${args[i]}" ;;
-	esac
+  if $skip; then
+    skip=false
+    continue
+  fi
+  case "${args[i]}" in
+  -n | --namespace)
+    ns="${args[i + 1]:-}"
+    skip=true
+    ;;
+  -c | --container) skip=true ;;
+  -*) ;;
+  *) [[ -z $pod ]] && pod="${args[i]}" ;;
+  esac
 done
 
 ns_arg=()
@@ -39,8 +39,8 @@ ns_arg=()
 trap 'echo :4' EXIT
 
 if [[ $cur == -* ]]; then
-	printf '%s\n' -n --namespace -c --container -h --help
-	exit 0
+  printf '%s\n' -n --namespace -c --container -h --help
+  exit 0
 fi
 
 # Flag values. Each listing uses jsonpath `range … \n` so every item ends
@@ -48,16 +48,16 @@ fi
 # onto it by the cobra completion parser.
 case "$prev" in
 -n | --namespace)
-	kubectl get ns \
-		-o jsonpath='{range .items[*]}{.metadata.name}{"\n"}{end}' 2>/dev/null
-	exit 0
-	;;
+  kubectl get ns \
+    -o jsonpath='{range .items[*]}{.metadata.name}{"\n"}{end}' 2>/dev/null
+  exit 0
+  ;;
 -c | --container)
-	[[ -n $pod ]] && kubectl "${ns_arg[@]}" get pod "$pod" \
-		-o jsonpath='{range .spec.containers[*]}{.name}{"\n"}{end}' 2>/dev/null
-	exit 0
-	;;
+  [[ -n $pod ]] && kubectl "${ns_arg[@]}" get pod "$pod" \
+    -o jsonpath='{range .spec.containers[*]}{.name}{"\n"}{end}' 2>/dev/null
+  exit 0
+  ;;
 esac
 
 kubectl "${ns_arg[@]}" get pods \
-	-o jsonpath='{range .items[*]}{.metadata.name}{"\n"}{end}' 2>/dev/null
+  -o jsonpath='{range .items[*]}{.metadata.name}{"\n"}{end}' 2>/dev/null

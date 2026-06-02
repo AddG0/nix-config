@@ -47,6 +47,7 @@
           shfmt = {
             enable = true;
             excludes = ["\\.zsh$"]; # zsh has syntax shfmt doesn't understand
+            settings.indent = 2; # match .editorconfig (treefmt's shfmt reads it; this hook doesn't)
           };
 
           end-of-file-fixer.enable = true;

@@ -13,23 +13,23 @@ SPEC_DIR="$CWD/.sdd/specs"
 
 ACTIVE=""
 for tasks_file in "$SPEC_DIR"/*/tasks.md; do
-	[ -f "$tasks_file" ] || continue
-	SPEC_NAME=$(basename "$(dirname "$tasks_file")")
-	TOTAL=$(grep -cE '^- \[.\] ### Task' "$tasks_file" 2>/dev/null || echo 0)
-	DONE=$(grep -cE '^- \[x\] ### Task' "$tasks_file" 2>/dev/null || echo 0)
-	REMAINING=$((TOTAL - DONE))
+  [ -f "$tasks_file" ] || continue
+  SPEC_NAME=$(basename "$(dirname "$tasks_file")")
+  TOTAL=$(grep -cE '^- \[.\] ### Task' "$tasks_file" 2>/dev/null || echo 0)
+  DONE=$(grep -cE '^- \[x\] ### Task' "$tasks_file" 2>/dev/null || echo 0)
+  REMAINING=$((TOTAL - DONE))
 
-	if [ "$REMAINING" -gt 0 ]; then
-		NEXT_TASK=$(grep -m1 -A5 '^- \[ \] ### Task' "$tasks_file" | head -6 || true)
-		ACTIVE="${ACTIVE}SPEC: ${SPEC_NAME} (${DONE}/${TOTAL} complete)"$'\n'
-		if [ -n "$NEXT_TASK" ]; then
-			ACTIVE="${ACTIVE}NEXT TASK: ${NEXT_TASK}"$'\n'
-		fi
-	fi
+  if [ "$REMAINING" -gt 0 ]; then
+    NEXT_TASK=$(grep -m1 -A5 '^- \[ \] ### Task' "$tasks_file" | head -6 || true)
+    ACTIVE="${ACTIVE}SPEC: ${SPEC_NAME} (${DONE}/${TOTAL} complete)"$'\n'
+    if [ -n "$NEXT_TASK" ]; then
+      ACTIVE="${ACTIVE}NEXT TASK: ${NEXT_TASK}"$'\n'
+    fi
+  fi
 done
 
 if [ -n "$ACTIVE" ]; then
-	printf "CONTEXT RESTORED AFTER COMPACTION:\n%s\n" "$ACTIVE"
-	printf "Spec files are in .sdd/specs/. Re-read them if you need full context.\n"
-	printf "Use /spec-status for current progress.\n"
+  printf "CONTEXT RESTORED AFTER COMPACTION:\n%s\n" "$ACTIVE"
+  printf "Spec files are in .sdd/specs/. Re-read them if you need full context.\n"
+  printf "Use /spec-status for current progress.\n"
 fi

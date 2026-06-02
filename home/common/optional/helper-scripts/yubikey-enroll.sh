@@ -27,65 +27,65 @@ bold "Yubikey PAM U2F enrollment for $USER@$(hostname)"
 echo
 
 if [[ -f $AUTH_FILE ]]; then
-	existing_keys=$(awk -F: '{print NF - 1}' "$AUTH_FILE" 2>/dev/null || echo 0)
-	yellow "Existing enrollment found at $AUTH_FILE ($existing_keys key(s) enrolled)"
+  existing_keys=$(awk -F: '{print NF - 1}' "$AUTH_FILE" 2>/dev/null || echo 0)
+  yellow "Existing enrollment found at $AUTH_FILE ($existing_keys key(s) enrolled)"
 fi
 
 mkdir -p "$(dirname "$AUTH_FILE")"
 
 mode="new"
 if [[ -f $AUTH_FILE ]]; then
-	echo
-	read -rp "[a]ppend a new key, [o]verwrite everything, [c]ancel? [a/o/c] " choice
-	case "${choice,,}" in
-	a) mode="append" ;;
-	o) mode="new" ;;
-	*)
-		echo "Aborted."
-		exit 0
-		;;
-	esac
+  echo
+  read -rp "[a]ppend a new key, [o]verwrite everything, [c]ancel? [a/o/c] " choice
+  case "${choice,,}" in
+  a) mode="append" ;;
+  o) mode="new" ;;
+  *)
+    echo "Aborted."
+    exit 0
+    ;;
+  esac
 fi
 
 count=0
 if [[ $mode == "append" ]]; then
-	count=$(awk -F: '{print NF - 1}' "$AUTH_FILE" 2>/dev/null || echo 0)
+  count=$(awk -F: '{print NF - 1}' "$AUTH_FILE" 2>/dev/null || echo 0)
 fi
 
 echo "Plug in a yubikey and tap when it flashes."
 read -rp "Press enter when ready..."
 
 if [[ $mode == "new" ]]; then
-	TMP="$(mktemp)"
-	trap 'rm -f "$TMP"' EXIT
-	if ! pamu2fcfg >"$TMP"; then
-		red "pamu2fcfg failed. Aborting."
-		exit 1
-	fi
-	mv "$TMP" "$AUTH_FILE"
+  TMP="$(mktemp)"
+  trap 'rm -f "$TMP"' EXIT
+  if ! pamu2fcfg >"$TMP"; then
+    red "pamu2fcfg failed. Aborting."
+    exit 1
+  fi
+  mv "$TMP" "$AUTH_FILE"
 else
-	if ! pamu2fcfg -n >>"$AUTH_FILE"; then
-		red "pamu2fcfg failed. Previously enrolled keys are still saved."
-		exit 1
-	fi
+  if ! pamu2fcfg -n >>"$AUTH_FILE"; then
+    red "pamu2fcfg failed. Previously enrolled keys are still saved."
+    exit 1
+  fi
 fi
 count=$((count + 1))
 green "✓ Key $count enrolled."
 
 while true; do
-	echo
-	read -rp "Enroll another key? [y/N] " ans
-	[[ ${ans,,} == "y" ]] || break
+  echo
+  read -rp "Enroll another key? [y/N] " ans
+  [[ ${ans,,} == "y" ]] || break
 
-	echo "Unplug current key, plug in the next one. Tap when it flashes."
-	read -rp "Press enter when ready..."
+  echo "Unplug current key, plug in the next one. Tap when it flashes."
+  read -rp "Press enter when ready..."
 
-	if ! pamu2fcfg -n >>"$AUTH_FILE"; then
-		red "pamu2fcfg failed for this key. Previously enrolled keys are still saved."
-		exit 1
-	fi
-	count=$((count + 1))
-	green "✓ Key $count enrolled."
+  if ! pamu2fcfg -n >>"$AUTH_FILE"; then
+    red "pamu2fcfg failed for this key. Previously enrolled keys are still saved."
+    exit 1
+  fi
+  count=$((count + 1))
+  green "✓ Key $count enrolled."
 done
 
 echo

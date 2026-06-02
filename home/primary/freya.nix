@@ -1,6 +1,5 @@
 {
   config,
-  inputs,
   pkgs,
   lib,
   ...
@@ -44,6 +43,7 @@
         "development/virtualization"
         "development/virtualization/lens.nix"
         "development/virtualization/kubernetes"
+        "development/virtualization/nixos-shell.nix"
         # "development/ai/litellm-proxy.nix"
 
         "development/languages"

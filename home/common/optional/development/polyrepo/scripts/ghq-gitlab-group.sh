@@ -5,7 +5,7 @@
 set -euo pipefail
 
 usage() {
-	cat <<'EOF'
+  cat <<'EOF'
 Usage: ghq-gitlab-group [-u] [-j N] [--include-archived] <group-path>
 
 Clones every project in a GitLab group (and its subgroups) via ghq.
@@ -24,7 +24,7 @@ Examples:
   ghq-gitlab-group my-org/team-tools
   ghq-gitlab-group -j 8 -u my-org
 EOF
-	exit "${1:-0}"
+  exit "${1:-0}"
 }
 
 UPDATE=""
@@ -33,33 +33,33 @@ ARCHIVED="false"
 GROUP=""
 
 while [[ $# -gt 0 ]]; do
-	case "$1" in
-	-u | --update)
-		UPDATE="-u"
-		shift
-		;;
-	-j | --parallel)
-		PARALLEL="$2"
-		shift 2
-		;;
-	--include-archived)
-		ARCHIVED="true"
-		shift
-		;;
-	-h | --help) usage 0 ;;
-	-*)
-		echo "Unknown flag: $1" >&2
-		usage 1
-		;;
-	*)
-		if [[ -n $GROUP ]]; then
-			echo "Multiple group paths given." >&2
-			usage 1
-		fi
-		GROUP="$1"
-		shift
-		;;
-	esac
+  case "$1" in
+  -u | --update)
+    UPDATE="-u"
+    shift
+    ;;
+  -j | --parallel)
+    PARALLEL="$2"
+    shift 2
+    ;;
+  --include-archived)
+    ARCHIVED="true"
+    shift
+    ;;
+  -h | --help) usage 0 ;;
+  -*)
+    echo "Unknown flag: $1" >&2
+    usage 1
+    ;;
+  *)
+    if [[ -n $GROUP ]]; then
+      echo "Multiple group paths given." >&2
+      usage 1
+    fi
+    GROUP="$1"
+    shift
+    ;;
+  esac
 done
 
 [[ -z $GROUP ]] && usage 1
@@ -72,8 +72,8 @@ GROUP="${GROUP%.git}"
 GROUP="${GROUP%/}"
 
 if ! glab auth status >/dev/null 2>&1; then
-	echo "glab is not authenticated. Run: glab auth login" >&2
-	exit 1
+  echo "glab is not authenticated. Run: glab-login" >&2
+  exit 1
 fi
 
 # GitLab REST wants the group id or URL-encoded full path.
@@ -81,12 +81,12 @@ ENC=$(jq -rn --arg s "$GROUP" '$s | @uri')
 
 echo "Listing projects in group: $GROUP"
 PROJECTS=$(glab api --paginate \
-	"groups/$ENC/projects?include_subgroups=true&per_page=100&archived=$ARCHIVED&simple=true" |
-	jq -r '.[].path_with_namespace')
+  "groups/$ENC/projects?include_subgroups=true&per_page=100&archived=$ARCHIVED&simple=true" |
+  jq -r '.[].path_with_namespace')
 
 if [[ -z $PROJECTS ]]; then
-	echo "No projects found under $GROUP." >&2
-	exit 1
+  echo "No projects found under $GROUP." >&2
+  exit 1
 fi
 
 COUNT=$(printf '%s\n' "$PROJECTS" | wc -l)
@@ -99,7 +99,7 @@ echo ""
 export UPDATE
 # shellcheck disable=SC2016
 printf '%s\n' "$PROJECTS" |
-	xargs -P "$PARALLEL" -I {} bash -c '
+  xargs -P "$PARALLEL" -I {} bash -c '
       out=$(ghq get $UPDATE "gitlab.com/$1" 2>&1) || rc=$?
       printf "%s\n" "$out"
       exit "${rc:-0}"

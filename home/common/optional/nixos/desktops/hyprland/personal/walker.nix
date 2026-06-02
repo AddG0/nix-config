@@ -10,8 +10,6 @@
 {
   inputs,
   config,
-  pkgs,
-  lib,
   ...
 }: let
   c = config.lib.stylix.colors.withHashtag;

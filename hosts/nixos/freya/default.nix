@@ -51,6 +51,8 @@
         # "nixos/services/bt-proximity.nix"
         "nixos/services/ollama.nix"
 
+        "nixos/remote-desktop/sunshine"
+
         "nixos/development/mysql.nix"
 
         "nixos/plymouth.nix" # fancy boot screen
