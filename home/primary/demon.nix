@@ -73,6 +73,7 @@
         "tools/wayscriber.nix"
         "tools/freecad.nix"
         "tools/obsidian.nix"
+        "tools/krita.nix"
 
         # NixOS Specific
         # "nixos/desktops/plasma6"
