@@ -27,6 +27,9 @@
     # separately — already on PATH via the rest of this config.
     #   https://plugins.jetbrains.com/plugin/27310-claude-code-beta-
     "com.anthropic.code.plugin"
+    # GitLab Duo — CI/CD pipeline integration plus AI code suggestions and chat.
+    #   https://plugins.jetbrains.com/plugin/22325-gitlab-duo
+    "com.gitlab.plugin"
   ];
   # The aggregator meta-plugin `com.intellij.bigdatatools` is intentionally
   # absent: it declares a hard dep on `bigdatatools.zeppelin`, and zeppelin

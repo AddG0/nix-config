@@ -46,9 +46,9 @@
         "development/virtualization/nixos-shell.nix"
         # "development/ai/litellm-proxy.nix"
 
-        "development/languages"
-        "development/tilt.nix"
-        "development/grpc.nix"
+        # "development/languages"
+        # "development/tilt.nix"
+        # "development/grpc.nix"
         "secrets/buf.nix"
         "development/terraform.nix"
         "development/bootdev.nix"
