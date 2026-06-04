@@ -184,6 +184,7 @@
       "${pkgs._1password-gui}/share/applications/1password.desktop"
       "${config.programs.spicetify.spicedSpotify}/share/applications/spotify.desktop"
       "${pkgs.steam}/share/applications/steam.desktop"
+      "${pkgs.obsidian}/share/applications/obsidian.desktop"
     ];
   };
 

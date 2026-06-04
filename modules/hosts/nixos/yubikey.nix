@@ -155,15 +155,8 @@ in {
         login.u2fAuth = true;
         sudo.u2fAuth = true;
 
-        # Disable U2F for greetd — initial graphical login is password-only.
-        # Reason: pam_gnome_keyring needs PAM_AUTHTOK (the password) to decrypt
-        # the login keyring. U2F provides no password, so a tap-only login
-        # leaves the keyring locked, breaking 1Password / NetworkManager
-        # secrets / etc. With pam_u2f removed from greetd's stack, pam_unix
-        # captures the password normally and the keyring unlocks.
-        #
-        # Sudo, hyprlock, and TTY `login` keep the default `sufficient` so
-        # tap-to-auth still works there.
+        # Tap-to-auth at tuigreet
+        # Disabled for systems that have password login since I don't want to reenter the password on the use session to unlock the keyring
         greetd.u2fAuth = lib.mkIf config.services.greetd.enable false;
 
         # Dedicated PAM service used by the autoScreenUnlock helper. Contains

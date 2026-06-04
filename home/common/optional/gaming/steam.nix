@@ -218,16 +218,6 @@ in {
       # Its very buggy when not in a 16:9 aspect ratio.
       repo.launchOptions.wrappers = [gamemoderun] ++ gamescope;
 
-      # PROTON_ENABLE_HDR=1 is needed in addition to gamescope --hdr-enabled:
-      # Overwatch's Battle.net launcher tree doesn't inherit gamescope's
-      # late-set DXVK_HDR=1, so the env var must be set up front.
-      # Known issue: the in-game HDR toggle reverts when re-opening settings
-      # (DXGI re-query returns inconsistent caps). Re-enable each session.
-      overwatch = {
-        launchOptions.wrappers = [gamemoderun] ++ gamescope;
-        launchOptions.env.PROTON_ENABLE_HDR = "1";
-      };
-
       aimlabs.launchOptions.wrappers = mouseDpi 1600 ++ [gamemoderun];
 
       # Bigscreen Beyond Utility — Windows-only app for adjusting the

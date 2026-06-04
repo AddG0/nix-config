@@ -17,12 +17,18 @@
 #   S  Show stream stats overlay
 #   Q  Quit session
 {pkgs, ...}: let
-  # Thin wrappers that exec the user's XDG config scripts.
-  # The actual scripts are managed by home-manager (desktops/hyprland/sunshine).
+  # Thin wrappers that exec the user's XDG config scripts if present.
+  # The Hyprland-specific connect/disconnect scripts live in home-manager
+  # (desktops/hyprland/sunshine) — but Sunshine should still work on hosts
+  # that don't opt into that integration, so a missing script is a no-op,
+  # not a failed do_cmd that rejects the stream.
   prep = cmd:
     pkgs.writeShellScript "sunshine-${cmd}" ''
       SCRIPT="''${XDG_CONFIG_HOME:-$HOME/.config}/sunshine/${cmd}"
-      [ -x "$SCRIPT" ] && exec "$SCRIPT"
+      if [ -x "$SCRIPT" ]; then
+        exec "$SCRIPT"
+      fi
+      exit 0
     '';
 in {
   # Streaming/pairing ports are open on LAN; the web UI (47990) is intentionally

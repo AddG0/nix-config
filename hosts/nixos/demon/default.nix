@@ -94,6 +94,10 @@
     efi.canTouchEfiVariables = true;
   };
 
+  # qemu user-mode emulation so demon can build aarch64-linux derivations
+  # (e.g. the heimdall Pi 5 SD image) without a remote builder.
+  boot.binfmt.emulatedSystems = ["aarch64-linux"];
+
   security.firewall.enable = true;
 
   services.obsbot-camera = {
@@ -127,6 +131,8 @@
     autoScreenUnlock = true;
     autoScreenLock = true;
   };
+
+  services.greetd.autoLogin.enable = true;
 
   boot.kernelModules = ["ntsync"]; # NT sync primitives for Wine/Proton gaming performance
 

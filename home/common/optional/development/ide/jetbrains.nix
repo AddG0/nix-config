@@ -27,9 +27,13 @@
     # separately — already on PATH via the rest of this config.
     #   https://plugins.jetbrains.com/plugin/27310-claude-code-beta-
     "com.anthropic.code.plugin"
-    # GitLab Duo — CI/CD pipeline integration plus AI code suggestions and chat.
-    #   https://plugins.jetbrains.com/plugin/22325-gitlab-duo
-    "com.gitlab.plugin"
+    # CI Aid for GitLab — schema-aware autocomplete, navigation, and inspections
+    # for .gitlab-ci.yml files (third-party, not affiliated with GitLab Inc).
+    #   https://plugins.jetbrains.com/plugin/25859-ci-aid-for-gitlab
+    "com.github.deeepamin.gitlabciaid"
+    # CSV Editor — syntax highlighting, table editing, and validation for CSV/TSV/PSV.
+    #   https://plugins.jetbrains.com/plugin/10037-csv-editor
+    "net.seesharpsoft.intellij.plugins.csv"
   ];
   # The aggregator meta-plugin `com.intellij.bigdatatools` is intentionally
   # absent: it declares a hard dep on `bigdatatools.zeppelin`, and zeppelin
