@@ -215,7 +215,7 @@
         };
       };
 
-      keyboardShortcutsVersion = 17;
+      keyboardShortcutsVersion = 19;
       keyboardShortcuts = [
         {
           id = "key_quitApplication";

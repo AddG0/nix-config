@@ -5,13 +5,13 @@
 }:
 stdenvNoCC.mkDerivation rec {
   pname = "sweet-aurorae";
-  version = "2.0-unstable-2026-05-06";
+  version = "6.0-unstable-2026-05-07";
 
   src = fetchFromGitHub {
     owner = "EliverLara";
     repo = "Sweet";
-    rev = "5ce81a45f0f0b63cf732317e7f91f3467ccce084"; # nova branch
-    sha256 = "sha256-IQjp6g+0ADwivZji3LmOs5GRJys+aLbEMrGSEW3devc=";
+    rev = "77a4c3c9dc285bd0efa5ebd59d3372de91c3f274"; # nova branch
+    sha256 = "sha256-zw3DeLjj7bc7t21C394ijf8qxroNkiMU+BbhDetnRKw=";
   };
 
   dontBuild = true;

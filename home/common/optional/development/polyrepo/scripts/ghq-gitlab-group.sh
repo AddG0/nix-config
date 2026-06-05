@@ -80,9 +80,19 @@ fi
 ENC=$(jq -rn --arg s "$GROUP" '$s | @uri')
 
 echo "Listing projects in group: $GROUP"
-PROJECTS=$(glab api --paginate \
-  "groups/$ENC/projects?include_subgroups=true&per_page=100&archived=$ARCHIVED&simple=true" |
-  jq -r '.[].path_with_namespace')
+
+# Run glab on its own (don't pipe straight into jq). On failure — e.g. the
+# group not existing — glab prints its own "404 Group Not Found" to stderr
+# and exits non-zero; piping into jq would instead surface a confusing
+# "Cannot index string with string" parse error. Check the exit status and
+# give a clean message instead.
+if ! PROJECTS_JSON=$(glab api --paginate \
+  "groups/$ENC/projects?include_subgroups=true&per_page=100&archived=$ARCHIVED&simple=true"); then
+  echo "Could not list group '$GROUP' — it may not exist or you may not have access to it." >&2
+  exit 1
+fi
+
+PROJECTS=$(printf '%s' "$PROJECTS_JSON" | jq -r '.[].path_with_namespace')
 
 if [[ -z $PROJECTS ]]; then
   echo "No projects found under $GROUP." >&2

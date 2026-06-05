@@ -220,6 +220,11 @@ in {
 
       aimlabs.launchOptions.wrappers = mouseDpi 1600 ++ [gamemoderun];
 
+      # Wrap in gaemscope to fix weird fullscreen behavior
+      forza-horizon-4.launchOptions.wrappers = [gamemoderun] ++ gamescope;
+      forza-horizon-5.launchOptions.wrappers = [gamemoderun] ++ gamescope;
+      forza-horizon-6.launchOptions.wrappers = [gamemoderun] ++ gamescope;
+
       # Bigscreen Beyond Utility — Windows-only app for adjusting the
       # headset's fan, brightness, refresh rate, and LED color.
       # Intentionally minimal: PROTON_ENABLE_HIDRAW is documented but

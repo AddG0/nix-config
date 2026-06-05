@@ -8,8 +8,8 @@
   steamDisplayName ? "Proton CachyOS",
 }: let
   base = "11.0";
-  release = "20260506";
-  pkgrel = "2";
+  release = "20260521";
+  pkgrel = "3";
 in
   stdenv.mkDerivation {
     pname = "proton-cachyos";
@@ -18,7 +18,7 @@ in
     src = fetchurl {
       url = "https://mirror.cachyos.org/repo/x86_64/cachyos/proton-cachyos-1:${base}.${release}-${pkgrel}-x86_64.pkg.tar.zst";
       name = "proton-cachyos-${base}.${release}-${pkgrel}.pkg.tar.zst";
-      hash = "sha256-6FB2yfBrsIpjfY+Qr0JbXHQkzMjllkCLpvrO2bg6/1A=";
+      hash = "sha256-CIpWz6br+LMF/vPnslwmfVoX4c3GQpMAGXNYwrZD3Og=";
     };
 
     nativeBuildInputs = [zstd];

@@ -16,6 +16,9 @@ stdenvNoCC.mkDerivation {
 
   src = ./.;
 
+  # Local package: src = ./. has no upstream URL for nix-update to bump.
+  passthru.nixUpdate.version = "skip";
+
   nativeBuildInputs = [makeWrapper];
   nativeCheckInputs = [nodejs];
 

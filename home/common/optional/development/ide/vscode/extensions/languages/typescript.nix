@@ -9,13 +9,13 @@
     "eslint.enable" = true;
     "eslint.validate" = ["javascript" "javascriptreact" "typescript" "typescriptreact"];
 
-    # TypeScript
-    "typescript.updateImportsOnFileMove.enabled" = "always";
-    "typescript.suggest.autoImports" = true;
-    "typescript.inlayHints.parameterNames.enabled" = "all";
-    "typescript.inlayHints.functionLikeReturnTypes.enabled" = true;
-    "typescript.npm" = "${pkgs.nodejs}/bin/npm";
-    "typescript.tsserver.nodePath" = "${pkgs.nodejs}/bin/node";
+    # TypeScript / JavaScript
+    "js/ts.updateImportsOnFileMove.enabled" = "always";
+    "js/ts.suggest.autoImports" = true;
+    "js/ts.inlayHints.parameterNames.enabled" = "all";
+    "js/ts.inlayHints.functionLikeReturnTypes.enabled" = true;
+    "js/ts.tsserver.npm.path" = "${pkgs.nodejs}/bin/npm";
+    "js/ts.tsserver.node.path" = "${pkgs.nodejs}/bin/node";
 
     # Hide Node.js build directories from explorer
     "files.exclude" = {

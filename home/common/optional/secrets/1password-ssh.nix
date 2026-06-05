@@ -39,9 +39,11 @@ in {
     # Only use 1Password as IdentityAgent for local sessions.
     # When SSH'd in (SSH_TTY is set), the match is skipped so the forwarded
     # agent via SSH_AUTH_SOCK is used instead. Recommended pattern per 1Password docs.
-    matchBlocks."1password-agent" = {
-      match = ''host * exec "test -z $SSH_TTY"'';
-      extraOptions.IdentityAgent = ''"${agentPath}"'';
+    settings."1password-agent" = {
+      # Stable attr name for ordering; the literal Match header carries the
+      # actual condition.
+      header = ''Match host * exec "test -z $SSH_TTY"'';
+      IdentityAgent = ''"${agentPath}"'';
     };
 
     # Disable the traditional SSH agent plugin

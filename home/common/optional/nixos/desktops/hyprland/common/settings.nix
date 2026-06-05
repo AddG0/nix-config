@@ -13,6 +13,11 @@ in {
   wayland.windowManager.hyprland = {
     inherit package;
     enable = true;
+    # Hyprland 0.55 added a Lua config backend, and home-manager defaults
+    # configType to "lua" for stateVersion >= 26.05 (ours is "26.05"). Our
+    # whole config — including the hy3 binds — is written in hyprlang, so
+    # pin the backend to hyprlang to keep writing hyprland.conf.
+    configType = "hyprlang";
     settings = {
       env = [
         "NIXOS_OZONE_WL,1"
@@ -51,9 +56,6 @@ in {
         gaps_in = 5;
         gaps_out = 10;
       };
-
-      # ========== Dwindle ==========
-      dwindle.pseudotile = false;
 
       # ========== Misc ==========
       misc = {

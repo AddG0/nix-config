@@ -7,7 +7,6 @@
   pkgs,
   ...
 }: let
-  hyprctl = "${pkgs.hyprland}/bin/hyprctl";
   jq = "${pkgs.jq}/bin/jq";
 
   hyprLib = import ./common/lib.nix;
@@ -18,11 +17,11 @@
   primaryNames = map (m: m.output) (builtins.filter (m: m.primary) config.display.monitors);
 
   disableMonitors = lib.concatMapStringsSep "\n" (name: ''
-    ${hyprctl} keyword monitor "${name},disable"'')
+    hyprctl keyword monitor "${name},disable"'')
   monitorNames;
 
   restoreMonitors = lib.concatMapStringsSep "\n" (m: ''
-    ${hyprctl} keyword monitor "${m.output},${toString m.width}x${toString m.height}@${toString m.refreshRate}.0,${toString m.x}x${toString m.y},1,transform,${toString transformToHyprland.${m.transform}},vrr,${toString vrrToHyprland.${m.vrr}}${
+    hyprctl keyword monitor "${m.output},${toString m.width}x${toString m.height}@${toString m.refreshRate}.0,${toString m.x}x${toString m.y},1,transform,${toString transformToHyprland.${m.transform}},vrr,${toString vrrToHyprland.${m.vrr}}${
       if m.bitdepth != 8
       then ",bitdepth,${toString m.bitdepth}"
       else ""
@@ -60,7 +59,7 @@
   configuredWsIds = map (r: r.ws) wsRules;
 
   moveConfiguredWs = lib.concatMapStringsSep "\n" (r: ''
-    ${hyprctl} dispatch moveworkspacetomonitor ${r.ws} ${r.mon}'')
+    hyprctl dispatch moveworkspacetomonitor ${r.ws} ${r.mon}'')
   wsRules;
 
   # Bash case pattern for configured workspace IDs (e.g. "1|2|3")

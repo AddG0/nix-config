@@ -13,6 +13,7 @@
       "https://nixpkgs-wayland.cachix.org"
       "https://nixpkgs-python.cachix.org"
       "https://niri.cachix.org"
+      "https://hyprland.cachix.org"
       "https://attic.xuyh0120.win/lantian"
     ];
     extra-trusted-public-keys = [
@@ -22,6 +23,7 @@
       "nixpkgs-wayland.cachix.org-1:3lwxaILxMRkVhehr5StQprHdEo4IrE8sRho9R9HOLYA="
       "nixpkgs-python.cachix.org-1:hxjI7pFxTyuTHn2NkvWCrAUcNZLNS3ZAvfYNuYifcEU="
       "niri.cachix.org-1:Wv0OmO7PsuocRKzfDoJ3mulSl7Z6oezYhGhR+3W2964="
+      "hyprland.cachix.org-1:a7pgxzMz7+chwVL3/pzj6jIBMioiJM7ypFP8PwtkuGc="
       "lantian:EeAUQ+W+6r7EtwnmYjeVwx5kOGEBpjlBfPlzGlTNvHc="
     ];
   };
@@ -110,9 +112,10 @@
     # vim4LMFQR!
     nixvim = {
       #url = "github:nix-community/nixvim/nixos-24.05";
-      #inputs.nixpkgs.follows = "nixpkgs";
       url = "github:nix-community/nixvim";
-      inputs.nixpkgs.follows = "nixpkgs";
+      # Intentionally NOT following nixpkgs: nixvim is tested against its own
+      # pinned nixpkgs revision, and overriding it causes version mismatches
+      # ("<pkg> cannot be found in pkgs"). See nixvim install docs / FAQ.
       inputs.flake-parts.follows = "flake-parts";
     };
 
@@ -190,6 +193,12 @@
     };
 
     #################### Desktop Environments ####################
+
+    # hy3 plugin. Deliberately NOT following our nixpkgs: hy3 pins the exact
+    # Hyprland commit it was built against, and we overlay pkgs.hyprland to
+    # match it (see overlays/default.nix). Keeping hy3's own hyprland/nixpkgs
+    # also lets us pull both from hyprland.cachix.org instead of compiling.
+    hy3.url = "github:outfoxxed/hy3";
 
     niri = {
       url = "github:sodiboo/niri-flake";

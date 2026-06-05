@@ -20,7 +20,6 @@
 #     from base16 (base0D/base03/base00). We want the soft-white aesthetic,
 #     not the auto-themed blue accent, so we force the override.
 {
-  pkgs,
   lib,
   config,
   ...
@@ -39,11 +38,12 @@
   edgeGap = 8;
 in {
   wayland.windowManager.hyprland.settings = {
-    # Catppuccin Mocha palette via raw hyprland.conf source. Loaded first so
-    # our explicit Nix-defined colors below (mkForce'd) override it.
-    source = [
-      "${pkgs.themes.catppuccin.hyprland}/themes/mocha.conf"
-    ];
+    # NOTE: we used to `source` catppuccin's themes/mocha.conf here, but
+    # catppuccin/hyprland migrated to Lua-only themes (no .conf ships
+    # anymore), and nothing below references its palette vars — every color
+    # is mkForce'd from stylix or a literal rgba. So the source is dropped;
+    # stylix's catppuccin hyprland target still drives the base16 colors we
+    # then override.
 
     general = {
       # 1px hairline. macOS uses ~1px; 4px competes with the drop shadow.
@@ -69,8 +69,12 @@ in {
       # Squircle exponent (Hyprland >=0.45). 2.0 = circular arc; 3.0 = Apple
       # superellipse — corners look slightly "fatter" near the midpoint.
       rounding_power = 3.0;
-      active_opacity = 0.9;
-      inactive_opacity = 0.8;
+      # Kept close to opaque — a hint of glass for depth, but the 0.9/0.8
+      # pairing read as too transparent once the full decoration block
+      # applied on the hyprlang backend. The blur below carries most of the
+      # frosted look, so the windows themselves don't need much see-through.
+      active_opacity = 0.97;
+      inactive_opacity = 0.9;
       fullscreen_opacity = 1.0;
 
       # Drop shadow is the single biggest macOS-feel win. Pure-vertical

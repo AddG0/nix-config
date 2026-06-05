@@ -28,11 +28,11 @@
   hostsAddrConfig =
     lib.attrsets.mapAttrs' (host: value: {
       name = host;
+      # Attribute name is the `Host` pattern (header defaults to "Host ${name}").
       value = lib.hm.dag.entryAfter ["ssh-hosts"] {
-        inherit host;
-        hostname = value.ipv4;
-        port = hostSpec.networking.ports.tcp.ssh;
-        forwardAgent = true;
+        HostName = value.ipv4;
+        Port = hostSpec.networking.ports.tcp.ssh;
+        ForwardAgent = true;
       };
     })
     hostSpec.networking.hostsAddr;
@@ -73,33 +73,33 @@ in {
         AddKeysToAgent yes
       '';
 
-      matchBlocks =
+      settings =
         {
           "*" = {
-            controlMaster = "auto";
+            ControlMaster = "auto";
             # %n (alias as typed) instead of %h (resolved hostname) so two
             # match blocks that share HostName get distinct mux sockets.
-            controlPath = "~/.ssh/sockets/S.%r@%n:%p";
-            controlPersist = "10m";
-            serverAliveInterval = 60;
-            serverAliveCountMax = 3;
+            ControlPath = "~/.ssh/sockets/S.%r@%n:%p";
+            ControlPersist = "10m";
+            ServerAliveInterval = 60;
+            ServerAliveCountMax = 3;
             # Try primary first, then fall back to other agent keys.
-            identityFile = "~/.ssh/primary.pub";
-            extraOptions = {
-              TCPKeepAlive = "yes";
-            };
+            IdentityFile = "~/.ssh/primary.pub";
+            TCPKeepAlive = "yes";
           };
 
+          # Stable attr name for DAG ordering; the real Host pattern is set
+          # via the explicit header.
           "ssh-hosts" = lib.hm.dag.entryAfter ["*"] {
-            host = "${hostString}";
-            forwardAgent = true;
+            header = "Host ${hostString}";
+            ForwardAgent = true;
           };
 
           "git" = {
-            host = "gitlab.com github.com";
-            user = "git";
-            identityFile = "~/.ssh/primary.pub";
-            identitiesOnly = true;
+            header = "Host gitlab.com github.com";
+            User = "git";
+            IdentityFile = "~/.ssh/primary.pub";
+            IdentitiesOnly = true;
           };
         }
         // hostsAddrConfig;
