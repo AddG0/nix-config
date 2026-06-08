@@ -29,21 +29,14 @@
 
     #################### Misc Inputs ####################
 
-    (map lib.custom.relativeToHosts (
-      [
-        #################### Required Configs ####################
-        "common/core" # required
-      ]
-      ++ (map (f: "common/optional/${f}") [
-        #################### Host-specific Optional Configs ####################
-        "nixos/services/openssh.nix" # allow remote SSH access
-        # "nixos/services/home-assistant-oci.nix"
-        # "nixos/services/nginx.nix" # nginx
-        "nixos/nix-access-token.nix"
-        "nixos/services/kubernetes/clusters/asgard.nix"
-        "nixos/services/nomad/clusters/midgard/client.nix"
-      ])
-    ))
+    (map lib.custom.relativeToHosts (map (f: "common/optional/${f}") [
+      "nixos/services/openssh.nix" # allow remote SSH access
+      # "nixos/services/home-assistant-oci.nix"
+      # "nixos/services/nginx.nix" # nginx
+      "nixos/nix-access-token.nix"
+      "nixos/services/kubernetes/clusters/asgard.nix"
+      "nixos/services/nomad/clusters/midgard/client.nix"
+    ]))
   ];
 
   nix.git-sync = {

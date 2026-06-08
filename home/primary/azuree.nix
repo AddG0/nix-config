@@ -5,40 +5,32 @@
   ...
 }: {
   imports = lib.flatten [
-    ./common/core
-
-    (map lib.custom.relativeToHome (
-      [
-        #################### Required Configs ####################
-        "common/core" # required
-      ]
-      ++ (map (f: "common/optional/${f}") [
-        # "helper-scripts"
-        # "development/jupyter-notebook.nix"
-        "browsers"
-        "development/ide"
-        # "secrets"
-        # "secrets/kubeconfig.nix"
-        "gaming/minecraft"
-        "gaming/heroic.nix"
-        "comms"
-        "ghostty"
-        "media/spicetify.nix"
-        "media/tidal.nix"
-        "media"
-        "nixos/desktops/plasma6"
-        # "remote-desktop/rustdesk.nix"
-        # "development/virtualization"
-        # "development/virtualization/lens.nix"
-        "development/gcloud.nix"
-        "nixos/services/safeeyes"
-        "media/vlc.nix"
-        # "remote-desktop/mouseshare/lan-mouse.nix"
-        # "development/ai"
-        "development/postman.nix"
-        "helper-scripts"
-      ])
-    ))
+    (map lib.custom.relativeToHome (map (f: "common/optional/${f}") [
+      # "helper-scripts"
+      # "development/jupyter-notebook.nix"
+      "browsers"
+      "development/ide"
+      # "secrets"
+      # "secrets/kubeconfig.nix"
+      "gaming/minecraft"
+      "gaming/heroic.nix"
+      "comms"
+      "ghostty"
+      "media/spicetify.nix"
+      "media/tidal.nix"
+      "media"
+      "nixos/desktops/plasma6"
+      # "remote-desktop/rustdesk.nix"
+      # "development/virtualization"
+      # "development/virtualization/lens.nix"
+      "development/gcloud.nix"
+      "nixos/services/safeeyes"
+      "media/vlc.nix"
+      # "remote-desktop/mouseshare/lan-mouse.nix"
+      # "development/ai"
+      "development/postman.nix"
+      "helper-scripts"
+    ]))
   ];
 
   home.file."Videos/Movies".source = config.lib.file.mkOutOfStoreSymlink "/mnt/videos";

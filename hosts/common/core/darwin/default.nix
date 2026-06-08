@@ -16,7 +16,7 @@ in {
       nix-homebrew = {
         enable = true;
         enableRosetta = config.hostSpec.darwin.isAarch64;
-        user = "${config.hostSpec.username}";
+        user = "${config.hostSpec.primaryUsername}";
         autoMigrate = true;
       };
     }
@@ -26,14 +26,14 @@ in {
     isDarwin = true;
     darwin = {
       isAarch64 = lib.strings.hasInfix "aarch64" config.hostSpec.hostPlatform;
-      hasPaidApps = lib.mkDefault (config.hostSpec.username == "addg");
+      hasPaidApps = lib.mkDefault (config.hostSpec.primaryUsername == "addg");
     };
   };
 
   networking.computerName = config.hostSpec.hostName;
   system.defaults.smb.NetBIOSName = config.hostSpec.hostName;
 
-  system.primaryUser = config.hostSpec.username;
+  system.primaryUser = config.hostSpec.primaryUsername;
 
   # Add nushell to available shells
   environment.shells = [pkgs.nushell];
@@ -41,11 +41,11 @@ in {
   # Activation script to change shell for existing users
   # Using dscl (consistent with nix-darwin's user module implementation)
   system.activationScripts.users.text = lib.mkAfter ''
-    echo "Setting shell to nushell for ${config.hostSpec.username}..."
-    dscl . -create /Users/${config.hostSpec.username} UserShell ${pkgs.zsh}/bin/zsh
+    echo "Setting shell to nushell for ${config.hostSpec.primaryUsername}..."
+    dscl . -create /Users/${config.hostSpec.primaryUsername} UserShell ${pkgs.zsh}/bin/zsh
   '';
 
-  users.users.${config.hostSpec.username} = {
+  users.users.${config.hostSpec.primaryUsername} = {
     description = config.hostSpec.userFullName;
     # Public Keys that can be used to login to all my PCs, Macbooks, and servers.
     #

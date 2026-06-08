@@ -16,7 +16,7 @@
   pkgs,
   ...
 }: let
-  launcher = "/home/${config.hostSpec.username}/.local/share/Steam/steamapps/common/SteamVR/bin/linux64/vrcompositor-launcher";
+  launcher = "/home/${config.hostSpec.primaryUsername}/.local/share/Steam/steamapps/common/SteamVR/bin/linux64/vrcompositor-launcher";
 in {
   services.monado = {
     enable = true;

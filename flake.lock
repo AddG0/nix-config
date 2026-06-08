@@ -17,11 +17,11 @@
         "rust-overlay": "rust-overlay_2"
       },
       "locked": {
-        "lastModified": 1780671791,
-        "narHash": "sha256-jwbWTA/JcsKdPYGTbYLSHIu3ZI0NTMfW8B3cJfY/Mvs=",
+        "lastModified": 1780935672,
+        "narHash": "sha256-TdN9Zip5+edJWvrVQb16MeXwfttBvupLlAPlm03TxgE=",
         "ref": "refs/heads/main",
-        "rev": "ee6ef43c0d0e413c6947f63b590201ca426a937e",
-        "revCount": 183,
+        "rev": "c919420f34ac13ddb3ec611990b1776862912b1c",
+        "revCount": 185,
         "type": "git",
         "url": "ssh://git@github.com/addg0/ai-toolkit.git"
       },

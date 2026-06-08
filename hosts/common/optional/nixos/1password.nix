@@ -10,7 +10,7 @@
       enable = true;
     }
     // lib.optionalAttrs pkgs.stdenv.isLinux {
-      polkitPolicyOwners = [config.hostSpec.username];
+      polkitPolicyOwners = [config.hostSpec.primaryUsername];
     };
 
   environment.etc = {

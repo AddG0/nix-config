@@ -29,7 +29,10 @@ in {
             // {
               inherit (inputs) nixvirt;
             };
-          modules = [./nixos/${host}];
+          modules = [
+            ./common/core
+            ./nixos/${host}
+          ];
         };
       };
     in
@@ -43,7 +46,10 @@ in {
         name = host;
         value = inputs.nix-darwin.lib.darwinSystem {
           specialArgs = commonSpecialArgs // {isDarwin = true;};
-          modules = [./darwin/${host}];
+          modules = [
+            ./common/core
+            ./darwin/${host}
+          ];
         };
       };
     in

@@ -11,7 +11,7 @@ in {
 
     user = mkOption {
       type = types.str;
-      default = config.hostSpec.username;
+      default = config.hostSpec.primaryUsername;
       description = "User allowed to run poweroff command";
     };
   };

@@ -4,5 +4,5 @@
     dumpcap.enable = true;
   };
 
-  users.users.${config.hostSpec.username}.extraGroups = ["wireshark"];
+  users.users.${config.hostSpec.primaryUsername}.extraGroups = ["wireshark"];
 }

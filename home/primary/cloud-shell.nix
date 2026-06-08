@@ -1,18 +1,9 @@
 # To test building: nix build .#homeConfigurations.cloud-shell.activationPackage --impure
 {lib, ...}: {
   imports = lib.flatten [
-    ./common/core
-
-    (map lib.custom.relativeToHome (
-      [
-        #################### Required Configs ####################
-        "common/core" # required
-      ]
-      ++ (map (f: "common/optional/${f}") [
-        #################### Host-specific Optional Configs ####################
-        "helper-scripts"
-      ])
-    ))
+    (map lib.custom.relativeToHome (map (f: "common/optional/${f}") [
+      "helper-scripts"
+    ]))
   ];
 
   # Override home configuration for cloud shell using environment variables

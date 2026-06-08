@@ -6,7 +6,7 @@
 }: {
   sops.secrets = {
     "nas-credentials" = {
-      sopsFile = "${nix-secrets}/users/${config.hostSpec.username}/nas-credentials.enc";
+      sopsFile = "${nix-secrets}/users/${config.hostSpec.primaryUsername}/nas-credentials.enc";
       format = "binary";
       neededForUsers = true;
     };
@@ -14,7 +14,7 @@
 
   users.groups.media.gid = 984;
 
-  users.users.${config.hostSpec.username}.extraGroups = ["media"];
+  users.users.${config.hostSpec.primaryUsername}.extraGroups = ["media"];
   users.users.jellyfin.extraGroups = ["media"];
 
   fileSystems."/mnt/videos" = {
@@ -28,7 +28,7 @@
       "x-systemd.mount-timeout=30s"
       "x-systemd.after=wait-for-nas.service"
       "x-systemd.requires=wait-for-nas.service"
-      "uid=${toString config.users.users.${config.hostSpec.username}.uid}"
+      "uid=${toString config.users.users.${config.hostSpec.primaryUsername}.uid}"
       "forceuid"
       "gid=${toString config.users.groups.media.gid}"
       "forcegid"

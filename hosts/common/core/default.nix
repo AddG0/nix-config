@@ -18,14 +18,14 @@ in {
 
     (lib.custom.scanPaths ./.)
     ./${platform}
-    ../users/primary
+    ../users
   ];
 
   #
   # ========== Core Host Specifications ==========
   #
   hostSpec = {
-    username = lib.mkDefault "addg";
+    primaryUsername = lib.mkDefault "addg";
     handle = lib.mkDefault "addg";
 
     system.stateVersion = lib.mkDefault "26.05";

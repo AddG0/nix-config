@@ -29,17 +29,10 @@
 
     #################### Misc Inputs ####################
 
-    (map lib.custom.relativeToHosts (
-      [
-        #################### Required Configs ####################
-        "common/core" # required
-      ]
-      ++ (map (f: "common/optional/${f}") [
-        #################### Host-specific Optional Configs ####################
-        "nixos/services/openssh.nix" # allow remote SSH access
-        "nixos/services/nginx.nix" # nginx
-      ])
-    ))
+    (map lib.custom.relativeToHosts (map (f: "common/optional/${f}") [
+      "nixos/services/openssh.nix" # allow remote SSH access
+      "nixos/services/nginx.nix" # nginx
+    ]))
   ];
 
   networking = {

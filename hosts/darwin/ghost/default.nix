@@ -8,51 +8,44 @@
   imports = lib.flatten [
     ./monitoring.nix
 
-    (map lib.custom.relativeToHosts (
-      [
-        #################### Required Configs ####################
-        "common/core" # required
-      ]
-      ++ (map (f: "common/optional/${f}") [
-        #################### Host-specific Optional Configs ####################
-        # "darwin/vban-walkie.nix"
-        "darwin/services/tailscale.nix" # mesh VPN for secure remote access
-        "darwin/development/mysql.nix"
-        # "darwin/development/postgres.nix"
-        # "darwin/development/redis.nix"
+    (map lib.custom.relativeToHosts (map (f: "common/optional/${f}") [
+      # "darwin/vban-walkie.nix"
+      "darwin/services/tailscale.nix" # mesh VPN for secure remote access
+      "darwin/development/mysql.nix"
+      # "darwin/development/postgres.nix"
+      # "darwin/development/redis.nix"
 
-        # "darwin/desktops/linux-esque"
+      # "darwin/desktops/linux-esque"
 
-        #################### Optional Applications ####################
-        # "darwin/applications/autodesk-fusion.nix"
-        "darwin/applications/browsers.nix"
-        # "darwin/applications/deskflow.nix"
-        "darwin/applications/docker.nix"
-        # "darwin/applications/gitkraken.nix"
-        # "darwin/applications/hovrly.nix"
-        # "darwin/applications/jprofiler.nix"
-        "darwin/applications/lens.nix"
-        # "darwin/applications/motion.nix"
-        # "darwin/applications/notchnook.nix"
-        "darwin/applications/notion-calendar.nix"
-        # "darwin/applications/obsidian.nix"
-        # "darwin/applications/ollama.nix"
-        "darwin/applications/synology.nix"
-        # "darwin/applications/tencent-lemon.nix"
-        "darwin/applications/claude.nix"
-        "darwin/applications/vpn.nix"
-        "darwin/applications/ghostty.nix"
-        "darwin/applications/bleunlock.nix"
-        # "darwin/applications/wifiman.nix"
-        "darwin/applications/1password.nix"
-        # "darwin/applications/stats.nix"
-        # "darwin/applications/chatgpt.nix"
-        "darwin/applications/kde-connect.nix"
-        "darwin/applications/moonlight.nix"
+      #################### Optional Applications ####################
+      # "darwin/applications/autodesk-fusion.nix"
+      "darwin/applications/browsers.nix"
+      # "darwin/applications/deskflow.nix"
+      "darwin/applications/docker.nix"
+      # "darwin/applications/gitkraken.nix"
+      # "darwin/applications/hovrly.nix"
+      # "darwin/applications/jprofiler.nix"
+      "darwin/applications/lens.nix"
+      # "darwin/applications/motion.nix"
+      # "darwin/applications/notchnook.nix"
+      "darwin/applications/notion-calendar.nix"
+      # "darwin/applications/obsidian.nix"
+      # "darwin/applications/ollama.nix"
+      "darwin/applications/synology.nix"
+      # "darwin/applications/tencent-lemon.nix"
+      "darwin/applications/claude.nix"
+      "darwin/applications/vpn.nix"
+      "darwin/applications/ghostty.nix"
+      "darwin/applications/bleunlock.nix"
+      # "darwin/applications/wifiman.nix"
+      "darwin/applications/1password.nix"
+      # "darwin/applications/stats.nix"
+      # "darwin/applications/chatgpt.nix"
+      "darwin/applications/kde-connect.nix"
+      "darwin/applications/moonlight.nix"
 
-        #################### Desktop ####################
-      ])
-    ))
+      #################### Desktop ####################
+    ]))
   ];
 
   nix.remoteBuilder.enableClient = true;

@@ -13,7 +13,7 @@
 
     username = lib.mkOption {
       type = lib.types.str;
-      default = config.hostSpec.username;
+      default = config.hostSpec.primaryUsername;
       description = "Username for greetd session";
     };
 

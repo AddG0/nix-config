@@ -140,8 +140,8 @@ with lib; let
 
     ${optionalString triggerUserService ''
       # Trigger user service for session-level changes
-      if systemctl --user -M ${config.hostSpec.username}@ is-active graphical-session.target >/dev/null 2>&1; then
-        systemctl --user -M ${config.hostSpec.username}@ start power-state-manager-user.service
+      if systemctl --user -M ${config.hostSpec.primaryUsername}@ is-active graphical-session.target >/dev/null 2>&1; then
+        systemctl --user -M ${config.hostSpec.primaryUsername}@ start power-state-manager-user.service
       fi
     ''}
   '';

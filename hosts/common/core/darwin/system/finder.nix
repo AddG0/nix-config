@@ -17,7 +17,7 @@
     FXPreferredViewStyle = "clmv";
 
     NewWindowTarget = "Other";
-    NewWindowTargetPath = "file:///Users/${config.hostSpec.username}/home"; # open new finder window in the current folder
+    NewWindowTargetPath = "file:///Users/${config.hostSpec.primaryUsername}/home"; # open new finder window in the current folder
 
     # Desktop specific settings
     CreateDesktop = false; # showing files on desktop

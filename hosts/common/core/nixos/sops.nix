@@ -27,7 +27,7 @@
     secrets = {
       # extract password/username to /run/secrets-for-users/ so it can be used to create the user
       "password" = {
-        sopsFile = "${inputs.nix-secrets}/users/${config.hostSpec.username}/password.yaml";
+        sopsFile = "${inputs.nix-secrets}/users/${config.hostSpec.primaryUsername}/password.yaml";
         neededForUsers = true;
       };
       # "passwords/msmtp" = {
@@ -41,8 +41,8 @@
   # FIXME(sops): We might not need this depending on how https://github.com/Mic92/sops-nix/issues/381 is fixed
   system.activationScripts.sopsSetAgeKeyOwnership = lib.mkIf (!config.hostSpec.disableSops) (let
     ageFolder = "${config.hostSpec.home}/.config/sops/age";
-    user = config.users.users.${config.hostSpec.username}.name;
-    inherit (config.users.users.${config.hostSpec.username}) group;
+    user = config.users.users.${config.hostSpec.primaryUsername}.name;
+    inherit (config.users.users.${config.hostSpec.primaryUsername}) group;
   in ''
     mkdir -p ${ageFolder} || true
     chown -R ${user}:${group} ${config.hostSpec.home}/.config

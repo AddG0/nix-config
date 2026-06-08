@@ -145,7 +145,7 @@
         };
         "GitLab Groups" = {
           id = "fd6f90e2-1f93-4c76-87f1-7c9f4de63f43";
-          url = "https://gitlab.com/${hostSpec.username}09";
+          url = "https://gitlab.com/${hostSpec.primaryUsername}09";
           position = 9000;
           workspace = spaces."Main".id;
           container = containers."Personal".id;

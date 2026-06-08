@@ -4,7 +4,6 @@ in {
   # genK3sAgentModule = import ./genK3sAgentModule.nix;
   # genK3sServerModule = import ./genK3sServerModule.nix;
 
-  genUser = import ./user/genUser.nix;
   inherit frontmatter;
   ai = import ./ai {
     inherit frontmatter lib;

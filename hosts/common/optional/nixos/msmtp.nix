@@ -1,8 +1,8 @@
 {config, ...}: {
   sops.secrets = {
     "msmtp-password" = {
-      owner = config.users.users.${config.hostSpec.username}.name;
-      inherit (config.users.users.${config.hostSpec.username}) group;
+      owner = config.users.users.${config.hostSpec.primaryUsername}.name;
+      inherit (config.users.users.${config.hostSpec.primaryUsername}) group;
     };
   };
 

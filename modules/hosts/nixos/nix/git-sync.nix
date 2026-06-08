@@ -123,7 +123,7 @@ in {
 
       notifyUser = mkOption {
         type = types.nullOr types.str;
-        default = "${config.hostSpec.username}";
+        default = "${config.hostSpec.primaryUsername}";
         description = "User to send notifications to (required if notifications.enable is true)";
       };
     };

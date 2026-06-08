@@ -56,7 +56,7 @@ in {
   # and gamemode logs errors on every game launch. The user-space parts of
   # gamemode (renice, ioprio, SCHED_ISO, screensaver inhibit) work fine
   # without this — group membership only unlocks the root-gated helpers.
-  users.users.${config.hostSpec.username}.extraGroups = ["gamemode"];
+  users.users.${config.hostSpec.primaryUsername}.extraGroups = ["gamemode"];
 
   programs = {
     steam = {

@@ -9,6 +9,6 @@
 
   hardware.openrazer = {
     enable = true;
-    users = [config.hostSpec.username];
+    users = [config.hostSpec.primaryUsername];
   };
 }

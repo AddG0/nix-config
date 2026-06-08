@@ -950,7 +950,7 @@ in {
 
       user = mkOption {
         type = types.str;
-        default = config.hostSpec.username;
+        default = config.hostSpec.primaryUsername;
         description = ''
           User account under which nginx runs.
 

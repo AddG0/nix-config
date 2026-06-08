@@ -3,7 +3,7 @@
   config,
   ...
 }: let
-  inherit (config.hostSpec) username;
+  username = config.hostSpec.primaryUsername;
   avatarsDir = lib.custom.relativeToRoot "assets/avatars";
   defaultAvatar = "${avatarsDir}/${username}.jpg";
   christmasAvatar = "${avatarsDir}/${username}-christmas.png";

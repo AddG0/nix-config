@@ -5,14 +5,14 @@
   ...
 }: {
   sops.secrets."openvpn-home-config" = {
-    sopsFile = "${inputs.nix-secrets}/users/${config.hostSpec.username}/vpn/home/home.ovpn.enc";
+    sopsFile = "${inputs.nix-secrets}/users/${config.hostSpec.primaryUsername}/vpn/home/home.ovpn.enc";
     format = "binary";
     owner = "root";
     mode = "0400";
   };
 
   sops.secrets."openvpn-home-auth" = {
-    sopsFile = "${inputs.nix-secrets}/users/${config.hostSpec.username}/vpn/home/auth.enc";
+    sopsFile = "${inputs.nix-secrets}/users/${config.hostSpec.primaryUsername}/vpn/home/auth.enc";
     format = "binary";
     owner = "root";
     mode = "0400";

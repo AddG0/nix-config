@@ -33,7 +33,7 @@
       );
       cores = 0; # Let each build use all available cores on the builder (auto-detect)
 
-      trusted-users = [config.hostSpec.username];
+      trusted-users = [config.hostSpec.primaryUsername];
 
       # Performance optimizations
       eval-cache = true; # Enable evaluation caching for faster rebuilds

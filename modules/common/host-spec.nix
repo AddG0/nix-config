@@ -9,9 +9,21 @@
     # ============================================================================
     # User Information
     # ============================================================================
-    username = lib.mkOption {
+    primaryUsername = lib.mkOption {
       type = lib.types.str;
-      description = "The username of the host";
+      description = "The primary administrative username of the host";
+    };
+
+    primaryDesktopUsername = lib.mkOption {
+      type = lib.types.str;
+      description = "The primary desktop user on the host";
+      default = config.hostSpec.primaryUsername;
+    };
+
+    users = lib.mkOption {
+      type = lib.types.listOf lib.types.str;
+      description = "All users on the host";
+      default = [config.hostSpec.primaryUsername];
     };
 
     userFullName = lib.mkOption {
@@ -52,11 +64,12 @@
       description = "The platform of the host";
     };
 
+    # FIXME: not great for multi-user systems; resolves to the primary user.
     home = lib.mkOption {
       type = lib.types.str;
       description = "The home directory of the user";
       default = let
-        user = config.hostSpec.username;
+        user = config.hostSpec.primaryUsername;
       in
         if pkgs.stdenv.isLinux
         then "/home/${user}"

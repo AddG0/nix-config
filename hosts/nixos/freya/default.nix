@@ -25,43 +25,36 @@
     # ./audio
     ./media.nix
 
-    (map lib.custom.relativeToHosts (
-      [
-        #################### Required Configs ####################
-        "common/core" # required
-      ]
-      ++ (map (f: "common/optional/${f}") [
-        #################### Host-specific Optional Configs ####################
-        "nixos/hardware/cachyos-kernel.nix"
-        # "nixos/secureboot.nix"
-        "nixos/services/openssh.nix" # allow remote SSH access
-        "nixos/services/tailscale.nix" # mesh VPN for secure remote access
-        "nixos/services/openvpn.nix"
-        "nixos/audio.nix" # pipewire and cli controls - using local audio.nix instead
-        "nixos/gaming.nix" # steam, gamescope, gamemode, and related hardware
-        "nixos/virtualisation/docker.nix" # docker
-        "nixos/services/automatic-timezoned.nix"
+    (map lib.custom.relativeToHosts (map (f: "common/optional/${f}") [
+      "nixos/hardware/cachyos-kernel.nix"
+      # "nixos/secureboot.nix"
+      "nixos/services/openssh.nix" # allow remote SSH access
+      "nixos/services/tailscale.nix" # mesh VPN for secure remote access
+      "nixos/services/openvpn.nix"
+      "nixos/audio.nix" # pipewire and cli controls - using local audio.nix instead
+      "nixos/gaming.nix" # steam, gamescope, gamemode, and related hardware
+      "nixos/virtualisation/docker.nix" # docker
+      "nixos/services/automatic-timezoned.nix"
 
-        # "nixos/obs.nix" # obs
-        "nixos/hardware/openrazer.nix" # openrazer
-        "nixos/hardware/wooting.nix" # wooting keyboard
-        "nixos/1password.nix"
-        "nixos/services/bluetooth.nix"
-        "nixos/services/airpods-autoconnect.nix"
-        # "nixos/services/bt-proximity.nix"
-        "nixos/services/ollama.nix"
+      # "nixos/obs.nix" # obs
+      "nixos/hardware/openrazer.nix" # openrazer
+      "nixos/hardware/wooting.nix" # wooting keyboard
+      "nixos/1password.nix"
+      "nixos/services/bluetooth.nix"
+      "nixos/services/airpods-autoconnect.nix"
+      # "nixos/services/bt-proximity.nix"
+      "nixos/services/ollama.nix"
 
-        "nixos/remote-desktop/sunshine"
+      "nixos/remote-desktop/sunshine"
 
-        "nixos/development/mysql.nix"
+      "nixos/development/mysql.nix"
 
-        "nixos/plymouth.nix" # fancy boot screen
-        "nixos/services/greetd.nix"
-        "nixos/desktops/hyprland"
+      "nixos/plymouth.nix" # fancy boot screen
+      "nixos/services/greetd.nix"
+      "nixos/desktops/hyprland"
 
-        "nix-cache.nix"
-      ])
-    ))
+      "nix-cache.nix"
+    ]))
   ];
 
   # AWS VPN Client with SAML support

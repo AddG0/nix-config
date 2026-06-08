@@ -36,40 +36,33 @@
 
     #################### Misc Inputs ####################
 
-    (map lib.custom.relativeToHosts (
-      [
-        #################### Required Configs ####################
-        "common/core" # required
-      ]
-      ++ (map (f: "common/optional/${f}") [
-        #################### Host-specific Optional Configs ####################
-        "nixos/hardware/cachyos-kernel.nix" # CachyOS kernel
-        "nixos/services/openssh.nix" # allow remote SSH access
-        # "nixos/nvtop.nix" # GPU monitor (not available in home-manager)
-        "nixos/audio.nix" # pipewire and cli controls
-        "nixos/gaming.nix" # steam, gamescope, gamemode, and related hardware
-        "nixos/virtualisation/docker.nix" # docker
-        # "nixos/services/home-assistant.nix"
-        # "nixos/virtualisation/docker.nix"
-        # "nixos/plymouth.nix" # fancy boot screen
-        "nixos/services/bluetooth.nix"
-        "nixos/services/bt-proximity.nix"
-        "nixos/services/automatic-timezoned.nix"
-        # "nixos/services/openvpn.nix" # home VPN
-        "nixos/1password.nix"
-        "nixos/hardware/openrazer.nix" # openrazer
-        "nixos/hardware/wooting.nix" # wooting keyboard
-        "nixos/development/mysql.nix"
+    (map lib.custom.relativeToHosts (map (f: "common/optional/${f}") [
+      "nixos/hardware/cachyos-kernel.nix" # CachyOS kernel
+      "nixos/services/openssh.nix" # allow remote SSH access
+      # "nixos/nvtop.nix" # GPU monitor (not available in home-manager)
+      "nixos/audio.nix" # pipewire and cli controls
+      "nixos/gaming.nix" # steam, gamescope, gamemode, and related hardware
+      "nixos/virtualisation/docker.nix" # docker
+      # "nixos/services/home-assistant.nix"
+      # "nixos/virtualisation/docker.nix"
+      # "nixos/plymouth.nix" # fancy boot screen
+      "nixos/services/bluetooth.nix"
+      "nixos/services/bt-proximity.nix"
+      "nixos/services/automatic-timezoned.nix"
+      # "nixos/services/openvpn.nix" # home VPN
+      "nixos/1password.nix"
+      "nixos/hardware/openrazer.nix" # openrazer
+      "nixos/hardware/wooting.nix" # wooting keyboard
+      "nixos/development/mysql.nix"
 
-        #################### Desktop ####################
-        "nixos/desktops/plasma6"
-        "nixos/services/greetd.nix"
+      #################### Desktop ####################
+      "nixos/desktops/plasma6"
+      "nixos/services/greetd.nix"
 
-        #################### Remote Desktop ####################
-        "nixos/remote-desktop/sunshine"
-        "nixos/services/tailscale.nix"
-      ])
-    ))
+      #################### Remote Desktop ####################
+      "nixos/remote-desktop/sunshine"
+      "nixos/services/tailscale.nix"
+    ]))
   ];
 
   programs.awsvpnclient.enable = true;

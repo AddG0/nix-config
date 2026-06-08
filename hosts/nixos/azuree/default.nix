@@ -32,29 +32,22 @@
 
     #################### Misc Inputs ####################
 
-    (map lib.custom.relativeToHosts (
-      [
-        #################### Required Configs ####################
-        "common/core" # required
-      ]
-      ++ (map (f: "common/optional/${f}") [
-        #################### Host-specific Optional Configs ####################
-        "nixos/services/openssh.nix" # allow remote SSH access
-        "nixos/nvtop.nix" # GPU monitor (not available in home-manager)
-        # "nixos/audio.nix" # pipewire and cli controls - using local audio.nix instead
-        "nixos/gaming.nix" # steam, gamescope, gamemode, and related hardware
-        # "nixos/services/home-assistant"
-        "nixos/virtualisation/docker.nix" # docker
-        # "nixos/plymouth.nix" # fancy boot screen
-        "nixos/services/nginx.nix" # nginx
-        "nixos/obs.nix" # obs
-        "nixos/hardware/openrazer.nix" # openrazer
-        "nixos/1password.nix"
-        #################### Desktop ####################
-        "nixos/desktops/plasma6" # window manager
-        "nixos/services/bluetooth.nix"
-      ])
-    ))
+    (map lib.custom.relativeToHosts (map (f: "common/optional/${f}") [
+      "nixos/services/openssh.nix" # allow remote SSH access
+      "nixos/nvtop.nix" # GPU monitor (not available in home-manager)
+      # "nixos/audio.nix" # pipewire and cli controls - using local audio.nix instead
+      "nixos/gaming.nix" # steam, gamescope, gamemode, and related hardware
+      # "nixos/services/home-assistant"
+      "nixos/virtualisation/docker.nix" # docker
+      # "nixos/plymouth.nix" # fancy boot screen
+      "nixos/services/nginx.nix" # nginx
+      "nixos/obs.nix" # obs
+      "nixos/hardware/openrazer.nix" # openrazer
+      "nixos/1password.nix"
+      #################### Desktop ####################
+      "nixos/desktops/plasma6" # window manager
+      "nixos/services/bluetooth.nix"
+    ]))
   ];
 
   networking = {
@@ -88,7 +81,7 @@
 
   sops.secrets = {
     "nas-credentials" = {
-      sopsFile = "${nix-secrets}/users/${config.hostSpec.username}/nas-credentials.enc";
+      sopsFile = "${nix-secrets}/users/${config.hostSpec.primaryUsername}/nas-credentials.enc";
       format = "binary";
       neededForUsers = true;
     };
@@ -103,8 +96,8 @@
       "x-systemd.idle-timeout=60"
       "x-systemd.device-timeout=5s"
       "x-systemd.mount-timeout=5s"
-      "uid=${toString config.users.users.${config.hostSpec.username}.uid}"
-      "gid=${toString config.users.users.${config.hostSpec.username}.group}"
+      "uid=${toString config.users.users.${config.hostSpec.primaryUsername}.uid}"
+      "gid=${toString config.users.users.${config.hostSpec.primaryUsername}.group}"
       "credentials=${config.sops.secrets.nas-credentials.path}"
     ];
   };

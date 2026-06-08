@@ -25,46 +25,39 @@
     ./media.nix
     ./awsvpn-home-dns-fix.nix
 
-    (map lib.custom.relativeToHosts (
-      [
-        #################### Required Configs ####################
-        "common/core" # required
-      ]
-      ++ (map (f: "common/optional/${f}") [
-        #################### Host-specific Optional Configs ####################
-        "nixos/services/openssh.nix" # allow remote SSH access
-        "nixos/hardware/cachyos-kernel.nix" # CachyOS kernel
-        "nixos/secureboot.nix"
-        "nixos/services/bluetooth.nix"
+    (map lib.custom.relativeToHosts (map (f: "common/optional/${f}") [
+      "nixos/services/openssh.nix" # allow remote SSH access
+      "nixos/hardware/cachyos-kernel.nix" # CachyOS kernel
+      "nixos/secureboot.nix"
+      "nixos/services/bluetooth.nix"
 
-        "nixos/services/tailscale.nix" # mesh VPN for secure remote access
+      "nixos/services/tailscale.nix" # mesh VPN for secure remote access
 
-        "nixos/obs.nix" # obs
-        "nixos/hardware/openrazer.nix" # openrazer
-        "nixos/hardware/wooting.nix" # wooting keyboard
-        "nixos/hardware/flipperzero.nix" # flipper zero udev rules + qFlipper
-        "nixos/hardware/moza.nix" # MOZA R5 wheelbase (boxflat + udev)
-        "nixos/1password.nix"
-        "nixos/services/clamav.nix"
-        "nixos/services/earlyoom.nix"
+      "nixos/obs.nix" # obs
+      "nixos/hardware/openrazer.nix" # openrazer
+      "nixos/hardware/wooting.nix" # wooting keyboard
+      "nixos/hardware/flipperzero.nix" # flipper zero udev rules + qFlipper
+      "nixos/hardware/moza.nix" # MOZA R5 wheelbase (boxflat + udev)
+      "nixos/1password.nix"
+      "nixos/services/clamav.nix"
+      "nixos/services/earlyoom.nix"
 
-        "nixos/remote-desktop/sunshine"
+      "nixos/remote-desktop/sunshine"
 
-        "nixos/services/ollama.nix"
-        "nixos/virtualisation/docker.nix" # docker
-        "nixos/development/mysql.nix"
+      "nixos/services/ollama.nix"
+      "nixos/virtualisation/docker.nix" # docker
+      "nixos/development/mysql.nix"
 
-        "nixos/gaming.nix" # steam, gamescope, gamemode, and related hardware
-        "nixos/vr.nix" # monado OpenXR runtime (Bigscreen Beyond)
+      "nixos/gaming.nix" # steam, gamescope, gamemode, and related hardware
+      "nixos/vr.nix" # monado OpenXR runtime (Bigscreen Beyond)
 
-        # "nixos/plymouth.nix" # fancy boot screen
-        "nixos/services/greetd.nix"
-        # "nixos/desktops/plasma6" # window manager
-        "nixos/desktops/hyprland"
+      # "nixos/plymouth.nix" # fancy boot screen
+      "nixos/services/greetd.nix"
+      # "nixos/desktops/plasma6" # window manager
+      "nixos/desktops/hyprland"
 
-        "nix-cache.nix"
-      ])
-    ))
+      "nix-cache.nix"
+    ]))
   ];
 
   nix.git-sync = {

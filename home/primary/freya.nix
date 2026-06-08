@@ -5,96 +5,89 @@
   ...
 }: {
   imports = lib.flatten [
-    ./common/core
     (map (f: ./common/optional/${f}) [
       "development/aws.nix"
       "stylix.nix"
       "work.nix"
     ])
 
-    (map lib.custom.relativeToHome (
-      [
-        #################### Required Configs ####################
-        "common/core" # required
-      ]
-      ++ (map (f: "common/optional/${f}") [
-        # Helper Scripts
-        # "helper-scripts"
-        "helper-scripts"
+    (map lib.custom.relativeToHome (map (f: "common/optional/${f}") [
+      # Helper Scripts
+      # "helper-scripts"
+      "helper-scripts"
 
-        # Browsers
-        "browsers"
+      # Browsers
+      "browsers"
 
-        # Communication
-        "comms"
-        "librepods.nix"
-        "mic-mute-sound.nix"
+      # Communication
+      "comms"
+      "librepods.nix"
+      "mic-mute-sound.nix"
 
-        # Development
-        "development"
-        # "development/ide/vscode/server.nix"
-        # "development/ide/jetbrains-remote.nix"
-        # "development/jupyter-notebook.nix"
-        # "development/virtualization/nixos-shell.nix"
-        "development/ai"
-        "development/postman.nix"
-        "development/gcloud.nix"
-        "development/aws.nix"
-        "development/virtualization"
-        "development/virtualization/lens.nix"
-        "development/virtualization/kubernetes"
-        "development/virtualization/nixos-shell.nix"
-        # "development/ai/litellm-proxy.nix"
+      # Development
+      "development"
+      # "development/ide/vscode/server.nix"
+      # "development/ide/jetbrains-remote.nix"
+      # "development/jupyter-notebook.nix"
+      # "development/virtualization/nixos-shell.nix"
+      "development/ai"
+      "development/postman.nix"
+      "development/gcloud.nix"
+      "development/aws.nix"
+      "development/virtualization"
+      "development/virtualization/lens.nix"
+      "development/virtualization/kubernetes"
+      "development/virtualization/nixos-shell.nix"
+      # "development/ai/litellm-proxy.nix"
 
-        # "development/languages"
-        # "development/tilt.nix"
-        # "development/grpc.nix"
-        "secrets/buf.nix"
-        "development/terraform.nix"
-        "development/bootdev.nix"
-        "development/nomad.nix"
+      # "development/languages"
+      # "development/tilt.nix"
+      # "development/grpc.nix"
+      "secrets/buf.nix"
+      "development/terraform.nix"
+      "development/bootdev.nix"
+      "development/nomad.nix"
 
-        # Gaming
-        "gaming/steam.nix"
-        "gaming/minecraft"
-        "gaming/heroic.nix"
-        "gaming/r2modman.nix"
-        "gaming/nitrox.nix"
+      # Gaming
+      "gaming/steam.nix"
+      "gaming/minecraft"
+      "gaming/heroic.nix"
+      "gaming/r2modman.nix"
+      "gaming/nitrox.nix"
 
-        # Ghostty (Terminal)
-        "ghostty"
+      # Ghostty (Terminal)
+      "ghostty"
 
-        # Media
-        "media"
-        "media/spicetify.nix"
-        "media/davinci-resolve.nix"
-        # "media/tidal.nix"
+      # Media
+      "media"
+      "media/spicetify.nix"
+      "media/davinci-resolve.nix"
+      # "media/tidal.nix"
 
-        # Tools
-        # "tools/gromit-mpx.nix"
-        "tools/wayscriber.nix"
-        "tools/freecad.nix"
-        "tools/obsidian.nix"
+      # Tools
+      # "tools/gromit-mpx.nix"
+      "tools/wayscriber.nix"
+      "tools/freecad.nix"
+      "tools/obsidian.nix"
 
-        # NixOS Specific
-        # "nixos/desktops/plasma6"
-        "nixos/desktops/hyprland"
-        "nixos/desktops/hyprland/software-dimming.nix"
-        "nixos/desktops/hyprland/nvidia.nix"
-        "media/vlc.nix"
+      # NixOS Specific
+      # "nixos/desktops/plasma6"
+      "nixos/desktops/hyprland"
+      "nixos/desktops/hyprland/software-dimming.nix"
+      "nixos/desktops/hyprland/nvidia.nix"
+      "media/vlc.nix"
 
-        # Remote Desktop
-        # "remote-desktop/rustdesk.nix"
-        # "remote-desktop/mouseshare/lan-mouse.nix"
+      # Remote Desktop
+      # "remote-desktop/rustdesk.nix"
+      # "remote-desktop/mouseshare/lan-mouse.nix"
 
-        # Secrets
-        "secrets"
-        "secrets/kubeconfig.nix"
-        "secrets/ai.nix"
-        "secrets/elevenlabs.nix"
-        "secrets/1password-ssh.nix"
-      ])
-    ))
+      # Secrets
+      "secrets"
+      "secrets/kubeconfig.nix"
+      "secrets/ai.nix"
+      "secrets/elevenlabs.nix"
+      "secrets/1password-ssh.nix"
+    ]))
   ];
 
   home.file."Videos/Movies".source = config.lib.file.mkOutOfStoreSymlink "/mnt/videos";

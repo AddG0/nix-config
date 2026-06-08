@@ -20,7 +20,7 @@
   # Dummy hostSpec for standalone `home-manager switch` — real values come from NixOS/Darwin host configs
   mkHostSpec = hostName: {
     inherit hostName;
-    username = "primary";
+    primaryUsername = "primary";
     handle = "primary";
     home = "/home/primary";
     isMinimal = false;
@@ -56,7 +56,10 @@
           hostSpec = mkHostSpec hostName;
           desktops = {};
         };
-        modules = [./primary/${file}];
+        modules = [
+          (lib.custom.relativeToHome "common/core")
+          ./primary/${file}
+        ];
       };
     })
     hostFiles);

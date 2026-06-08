@@ -20,8 +20,8 @@
     users = {
       primary = {
         email = config.hostSpec.email.user;
-        inherit (config.hostSpec) username;
-        firstName = config.hostSpec.username;
+        username = config.hostSpec.primaryUsername;
+        firstName = config.hostSpec.primaryUsername;
         lastName = "G";
         passwordFile = config.sops.secrets.pterodactylAdminPassword.path;
         isAdmin = true;

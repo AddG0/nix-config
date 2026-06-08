@@ -19,5 +19,5 @@
     virt-viewer
   ];
 
-  users.users.${config.hostSpec.username}.extraGroups = ["libvirtd" "kvm"];
+  users.users.${config.hostSpec.primaryUsername}.extraGroups = ["libvirtd" "kvm"];
 }

@@ -1,85 +1,77 @@
 {lib, ...}: {
   imports = lib.flatten [
-    ./common/core
     (map (f: ./common/optional/${f}) [
       "development/aws.nix"
       "stylix.nix"
       "work.nix"
     ])
 
-    (map lib.custom.relativeToHome (
-      [
-        #################### Required Configs ####################
-        "common/core" # required
-      ]
-      ++ (map (f: "common/optional/${f}") [
-        #################### Host-specific Optional Configs ####################
-        # Helper Scripts
-        # "helper-scripts"
-        "helper-scripts"
+    (map lib.custom.relativeToHome (map (f: "common/optional/${f}") [
+      # Helper Scripts
+      # "helper-scripts"
+      "helper-scripts"
 
-        # Browsers
-        "browsers"
+      # Browsers
+      "browsers"
 
-        # Communication
-        "comms"
-        "librepods.nix"
+      # Communication
+      "comms"
+      "librepods.nix"
 
-        # Development
-        "development"
-        "development/ide/vscode/server.nix"
-        "development/ide/jetbrains-remote.nix"
-        "development/jupyter-notebook.nix"
-        "development/virtualization/nixos-shell.nix"
-        "development/ai"
-        "development/postman.nix"
-        "development/gcloud.nix"
-        "development/aws.nix"
-        # "development/virtualization"
-        "development/virtualization/lens.nix"
-        "development/virtualization/kubernetes"
-        "development/ai/litellm-proxy.nix"
+      # Development
+      "development"
+      "development/ide/vscode/server.nix"
+      "development/ide/jetbrains-remote.nix"
+      "development/jupyter-notebook.nix"
+      "development/virtualization/nixos-shell.nix"
+      "development/ai"
+      "development/postman.nix"
+      "development/gcloud.nix"
+      "development/aws.nix"
+      # "development/virtualization"
+      "development/virtualization/lens.nix"
+      "development/virtualization/kubernetes"
+      "development/ai/litellm-proxy.nix"
 
-        "development/languages"
-        "development/grpc.nix"
-        "secrets/buf.nix"
-        "development/terraform.nix"
+      "development/languages"
+      "development/grpc.nix"
+      "secrets/buf.nix"
+      "development/terraform.nix"
 
-        # Gaming
-        "gaming/minecraft"
-        "gaming/heroic.nix"
-        "gaming/r2modman.nix"
+      # Gaming
+      "gaming/minecraft"
+      "gaming/heroic.nix"
+      "gaming/r2modman.nix"
 
-        # Ghostty (Terminal)
-        "ghostty"
+      # Ghostty (Terminal)
+      "ghostty"
 
-        # Media
-        "media"
-        "media/spicetify.nix"
-        # "media/tidal.nix"
+      # Media
+      "media"
+      "media/spicetify.nix"
+      # "media/tidal.nix"
 
-        # Tools
-        "tools/wayscriber.nix"
+      # Tools
+      "tools/wayscriber.nix"
 
-        # NixOS Specific
-        # "nixos/desktops/hyprland"
-        # "nixos/desktops/hyprland/nvidia.nix"
-        # "nixos/desktops/hyprland/sunshine.nix"
-        "nixos/desktops/plasma6"
-        "media/vlc.nix"
+      # NixOS Specific
+      # "nixos/desktops/hyprland"
+      # "nixos/desktops/hyprland/nvidia.nix"
+      # "nixos/desktops/hyprland/sunshine.nix"
+      "nixos/desktops/plasma6"
+      "media/vlc.nix"
 
-        # Remote Desktop
-        # "remote-desktop/rustdesk.nix"
-        # "remote-desktop/mouseshare/lan-mouse.nix"
+      # Remote Desktop
+      # "remote-desktop/rustdesk.nix"
+      # "remote-desktop/mouseshare/lan-mouse.nix"
 
-        # Secrets
-        "secrets"
-        "secrets/kubeconfig.nix"
-        "secrets/ai.nix"
-        "secrets/elevenlabs.nix"
-        "secrets/1password-ssh.nix"
-      ])
-    ))
+      # Secrets
+      "secrets"
+      "secrets/kubeconfig.nix"
+      "secrets/ai.nix"
+      "secrets/elevenlabs.nix"
+      "secrets/1password-ssh.nix"
+    ]))
   ];
 
   # Doesn't work on plasma saddly

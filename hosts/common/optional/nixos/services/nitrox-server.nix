@@ -7,6 +7,6 @@
   services.nitrox-server = {
     enable = true;
     openFirewall = true;
-    subnauticaPath = "/home/${config.hostSpec.username}/.local/share/Steam/steamapps/common/Subnautica";
+    subnauticaPath = "/home/${config.hostSpec.primaryUsername}/.local/share/Steam/steamapps/common/Subnautica";
   };
 }

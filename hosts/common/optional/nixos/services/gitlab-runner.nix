@@ -22,7 +22,7 @@
 }: {
   # TODO: Wire up sops-nix for proper secret management
   # sops.secrets."gitlab-runner-token" = {
-  #   sopsFile = "${inputs.nix-secrets}/users/${config.hostSpec.username}/gitlab/runner-token.env.enc";
+  #   sopsFile = "${inputs.nix-secrets}/users/${config.hostSpec.primaryUsername}/gitlab/runner-token.env.enc";
   #   format = "binary";
   #   owner = "gitlab-runner";
   #   mode = "0400";

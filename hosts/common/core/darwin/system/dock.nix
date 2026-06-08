@@ -28,7 +28,7 @@
       "${pkgs.slack}/Applications/Slack.app"
       "${pkgs.discord}/Applications/Discord.app"
       "${pkgs.lens}/Applications/Lens.app"
-      "/Users/${config.hostSpec.username}/Applications/Home Manager Apps/Spotify.app"
+      "/Users/${config.hostSpec.primaryUsername}/Applications/Home Manager Apps/Spotify.app"
       "${pkgs.notion-app}/Applications/Notion.app"
     ];
   };

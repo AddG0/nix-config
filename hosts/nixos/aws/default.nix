@@ -17,16 +17,9 @@
     # EC2 config from nixpkgs - provides filesystem, bootloader, and cloud services
     "${modulesPath}/virtualisation/amazon-image.nix"
 
-    (map lib.custom.relativeToHosts (
-      [
-        #################### Required Configs ####################
-        "common/core" # required
-      ]
-      ++ (map (f: "common/optional/${f}") [
-        #################### Host-specific Optional Configs ####################
-        "nixos/services/openssh.nix" # Required for AWS access
-      ])
-    ))
+    (map lib.custom.relativeToHosts (map (f: "common/optional/${f}") [
+      "nixos/services/openssh.nix" # Required for AWS access
+    ]))
   ];
 
   hostSpec = {

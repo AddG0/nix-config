@@ -34,13 +34,11 @@ rebuild-post:
 [doc("Check flake configuration with pre-validation warnings")]
 check: check-pre && pre
   nix flake check --keep-going
-  # cd nixos-installer && nix flake check --keep-going
 
 [group('validation')]
 [doc("Check flake configuration with detailed trace output")]
 check-trace: check-pre && pre
   nix flake check --show-trace
-  cd nixos-installer && nix flake check --show trace
 
 [group('validation')]
 [doc("Audit a host for Import From Derivation. Reports the first offender; fix it and re-run to surface the next.")]

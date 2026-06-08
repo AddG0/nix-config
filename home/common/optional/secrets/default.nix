@@ -9,7 +9,7 @@
   ];
 
   sops = {
-    defaultSopsFile = "${inputs.nix-secrets}/users/${config.hostSpec.username}/personal.yaml";
+    defaultSopsFile = "${inputs.nix-secrets}/users/${config.hostSpec.primaryUsername}/personal.yaml";
     age = {
       keyFile = "${config.home.homeDirectory}/.config/sops-nix/age/keys.txt";
       generateKey = true;
