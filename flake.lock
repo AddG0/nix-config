@@ -1959,11 +1959,11 @@
         ]
       },
       "locked": {
-        "lastModified": 1777672473,
-        "narHash": "sha256-kICEjc8wJy0FbpBvAPtL72q1C1PoJZiWc36dROMzkmU=",
+        "lastModified": 1780936276,
+        "narHash": "sha256-pnKqstOnupwJ+MHwuz/peBrEGsOc44slfm9fXDiR6TE=",
         "ref": "tmp",
-        "rev": "181db1abe30c8fd56563768e6c732d0a2ddb4a00",
-        "revCount": 66,
+        "rev": "7e459fd9c557727bddf86cee230dc135c816824b",
+        "revCount": 67,
         "type": "git",
         "url": "ssh://git@github.com/addg0/lumenboard-player.git"
       },

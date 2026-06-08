@@ -10,8 +10,8 @@ stdenvNoCC.mkDerivation rec {
   src = fetchFromGitHub {
     owner = "EliverLara";
     repo = "Sweet";
-    rev = "77a4c3c9dc285bd0efa5ebd59d3372de91c3f274"; # nova branch
-    sha256 = "sha256-zw3DeLjj7bc7t21C394ijf8qxroNkiMU+BbhDetnRKw=";
+    rev = "fa5229183093c078bebbc1b405d78909ffa18bb4"; # dark-plasma-6 branch
+    sha256 = "sha256-rhcSnvNbzjpZliyL3SaZjnjmLy1nMbohGcOrSZZ9B1c=";
   };
 
   dontBuild = true;
@@ -22,8 +22,8 @@ stdenvNoCC.mkDerivation rec {
 
     mkdir -p $out/share/aurorae/themes
 
-    # Copy KDE Aurorae themes from the nova branch
-    # The nova branch contains proper Aurorae SVG themes
+    # Copy KDE Aurorae themes from the dark-plasma-6 branch
+    # (master/nova dropped the kde/aurorae SVG themes)
     cp -r $src/kde/aurorae/* $out/share/aurorae/themes/
 
     runHook postInstall
