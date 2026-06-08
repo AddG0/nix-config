@@ -4,6 +4,6 @@
   ...
 }: {
   home.packages = [
-    inputs.nixos-shell.packages.${pkgs.system}.default
+    inputs.nixos-shell.packages.${pkgs.stdenv.hostPlatform.system}.default
   ];
 }

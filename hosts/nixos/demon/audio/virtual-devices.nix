@@ -121,6 +121,46 @@ in {
         ];
       };
 
+      # Music Monitor: Adjusts the music you HEAR on the Hugo TT2 (see "Mult" below)
+      # WITHOUT touching the music_input feed sent to Discord.
+      # Path: music_source → music_monitor_sink → [linear gain] → music_monitor → Hugo
+      # The builtin "linear" plugin applies new = old * Mult + Add per sample.
+      "99-music-monitor.conf" = {
+        "context.modules" = [
+          {
+            name = "libpipewire-module-filter-chain";
+            args = {
+              "node.description" = "Music Monitor";
+              "media.name" = "Music Monitor";
+              "filter.graph" = {
+                nodes = [
+                  {
+                    type = "builtin";
+                    name = "vol";
+                    label = "linear";
+                    control = {
+                      "Mult" = 1.2; # gain applied to what you hear (1.0 = unchanged)
+                      "Add" = 0.0;
+                    };
+                  }
+                ];
+              };
+              "capture.props" = {
+                "node.name" = "music_monitor_sink";
+                "media.class" = "Audio/Sink";
+                "audio.position" = ["FL" "FR"];
+                "node.passive" = true; # Don't generate silence when no music plays
+              };
+              "playback.props" = {
+                "node.name" = "music_monitor";
+                "media.class" = "Audio/Source";
+                "audio.position" = ["FL" "FR"];
+              };
+            };
+          }
+        ];
+      };
+
       # Music Input: Dedicated mic source for music audio
       # Select this as mic input in Discord for the music bot
       "99-music-input.conf" = {
@@ -207,8 +247,8 @@ in {
   #   - gate_source:capture_MONO → main_input_sink:playback_MONO
   #   - soundboard_source:capture_1 → main_input_sink:playback_MONO
   #   - soundboard_source:capture_2 → main_input_sink:playback_MONO
-  #   - music_source:capture_1/2 → music_input_sink (dedicated music mic for Discord)
-  #   - music_source:capture_1/2 → HugoTT2:playback_FL/FR (you hear music)
+  #   - music_source:capture_1/2 → music_input_sink (dedicated music mic for Discord, full volume)
+  #   - music_source:capture_1/2 → music_monitor_sink (gain) → HugoTT2:playback_FL/FR (you hear music)
   systemd.user.services.pipewire-link-main-input = {
     description = "Auto-link gate_source and soundboard to main_input";
     after = ["pipewire.service" "wireplumber.service"];
@@ -237,9 +277,11 @@ in {
         ${pkgs.pipewire}/bin/pw-link music_source:capture_1 music_input_sink:playback_1 || true
         ${pkgs.pipewire}/bin/pw-link music_source:capture_2 music_input_sink:playback_2 || true
 
-        # Music sink → HugoTT2 (you hear music)
-        ${pkgs.pipewire}/bin/pw-link music_source:capture_1 ${headsetDevice}:playback_FL || true
-        ${pkgs.pipewire}/bin/pw-link music_source:capture_2 ${headsetDevice}:playback_FR || true
+        # Music sink → Music Monitor (gain) → HugoTT2 (you hear music)
+        ${pkgs.pipewire}/bin/pw-link music_source:capture_1 music_monitor_sink:playback_FL || true
+        ${pkgs.pipewire}/bin/pw-link music_source:capture_2 music_monitor_sink:playback_FR || true
+        ${pkgs.pipewire}/bin/pw-link music_monitor:capture_FL ${headsetDevice}:playback_FL || true
+        ${pkgs.pipewire}/bin/pw-link music_monitor:capture_FR ${headsetDevice}:playback_FR || true
       '';
     };
   };

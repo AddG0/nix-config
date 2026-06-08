@@ -3,12 +3,12 @@
   pkgs,
   ...
 }: let
-  # Off-white plus, no centre dot, no outline. 24x24 PNG.
+  # Cyan plus, no centre dot, no outline. 24x24 PNG.
   # Arms 2 thick, 4 long, 2-pixel gap from centre on each side.
-  # #E0E0E0 instead of pure #FFFFFF: on the 10-bit HDR pipeline the per-
-  # channel sRGB→wide-gamut conversion of pure white at 2-pixel widths
-  # splits into visible RGB fringing (blue verticals, gray horizontals).
-  # Keeping channels below max avoids the chromatic split.
+  # #00E0E0 instead of pure #00FFFF: on the 10-bit HDR pipeline the per-
+  # channel sRGB→wide-gamut conversion of max-value channels at 2-pixel
+  # widths splits into visible RGB fringing. Keeping the lit channels below
+  # max (E0, not FF) avoids the chromatic split.
   crosshair =
     pkgs.runCommand "crosshair.png" {
       nativeBuildInputs = [pkgs.imagemagick];
@@ -16,7 +16,7 @@
       # PNG32: force RGBA + sRGB encoding. Without this, ImageMagick auto-
       # detects equal RGB channels and saves as grayscale, which Hyprland's
       # HDR pipeline appears to mis-convert into chromatically split colors.
-      magick -size 24x24 xc:none -fill '#E0E0E0' \
+      magick -size 24x24 xc:none -fill '#00E0E0' \
         -draw 'rectangle 11,6  12,9'  \
         -draw 'rectangle 11,14 12,17' \
         -draw 'rectangle 6,11  9,12'  \

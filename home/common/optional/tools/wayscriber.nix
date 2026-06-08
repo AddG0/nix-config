@@ -3,7 +3,7 @@
   pkgs,
   ...
 }: let
-  wayscriber = inputs.wayscriber.packages.${pkgs.system}.default;
+  wayscriber = inputs.wayscriber.packages.${pkgs.stdenv.hostPlatform.system}.default;
 in {
   # Native Wayland screen annotation tool (replaces gromit-mpx on Wayland)
   # Toggle with: pkill -SIGUSR1 wayscriber

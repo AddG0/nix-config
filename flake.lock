@@ -17,11 +17,11 @@
         "rust-overlay": "rust-overlay_2"
       },
       "locked": {
-        "lastModified": 1779814047,
-        "narHash": "sha256-kBm5IG+/X0r/1bSWu0GFz+w869An5PNQqeFc0RQQi84=",
+        "lastModified": 1780671791,
+        "narHash": "sha256-jwbWTA/JcsKdPYGTbYLSHIu3ZI0NTMfW8B3cJfY/Mvs=",
         "ref": "refs/heads/main",
-        "rev": "bb31b81862c037073e93d8fa3a4869b5ed1b1db4",
-        "revCount": 182,
+        "rev": "ee6ef43c0d0e413c6947f63b590201ca426a937e",
+        "revCount": 183,
         "type": "git",
         "url": "ssh://git@github.com/addg0/ai-toolkit.git"
       },
@@ -2063,11 +2063,11 @@
         ]
       },
       "locked": {
-        "lastModified": 1774821605,
-        "narHash": "sha256-4PSSjhIR1UCiCUfDwtestTOVVs7DEVJL1Ow0gQsHwW4=",
+        "lastModified": 1780672023,
+        "narHash": "sha256-PlJSMSP5cqjN4D4FVlM033Os3aFGQUYpUGVL86QO13E=",
         "ref": "refs/heads/main",
-        "rev": "6b1e9e93572b479a123fa73e84c9fe96c34a8bf4",
-        "revCount": 1,
+        "rev": "3bb0be01b44fa3fad74b8585dffeee5aa516ccb7",
+        "revCount": 4,
         "type": "git",
         "url": "ssh://git@github.com/AddG0/nitrox-nix"
       },
@@ -2952,11 +2952,11 @@
         "rust-overlay": "rust-overlay_4"
       },
       "locked": {
-        "lastModified": 1779301337,
-        "narHash": "sha256-lwQElrMFsYXaYV13YkXILI3qC6iL7128bGyM84TJbPY=",
+        "lastModified": 1780671872,
+        "narHash": "sha256-nVP6638RIJcjej3uGZoU8byG8n8Dh1q+aYLvJ+gbr5o=",
         "owner": "AddG0",
         "repo": "queued-build-hook",
-        "rev": "72a87520550a73256087530555f92defe4d13808",
+        "rev": "4b3047944404b5a8fbe77d639fd94294d4c2908a",
         "type": "github"
       },
       "original": {

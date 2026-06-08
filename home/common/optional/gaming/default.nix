@@ -1,6 +1,7 @@
 {pkgs, ...}: {
   imports = [
     ./steam.nix
+    ./sens-convert.nix
   ];
 
   home.packages = with pkgs; [

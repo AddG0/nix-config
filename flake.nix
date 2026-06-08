@@ -111,11 +111,10 @@
 
     # vim4LMFQR!
     nixvim = {
-      #url = "github:nix-community/nixvim/nixos-24.05";
       url = "github:nix-community/nixvim";
       # Intentionally NOT following nixpkgs: nixvim is tested against its own
-      # pinned nixpkgs revision, and overriding it causes version mismatches
-      # ("<pkg> cannot be found in pkgs"). See nixvim install docs / FAQ.
+      # pinned nixpkgs revision; overriding it causes "<pkg> cannot be found
+      # in pkgs". See nixvim install docs / FAQ.
       inputs.flake-parts.follows = "flake-parts";
     };
 
