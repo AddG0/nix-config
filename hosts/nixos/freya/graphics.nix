@@ -8,6 +8,10 @@
     "${inputs.hardware}/common/gpu/nvidia/blackwell"
   ];
 
+  # Early KMS for the iGPU (Panther Lake = xe) so Plymouth renders the themed
+  # splash instead of the grey fallback spinner. The panel is wired to the iGPU.
+  boot.initrd.kernelModules = ["xe"];
+
   # Enable OpenGL
   hardware.graphics = {
     enable = true;

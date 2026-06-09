@@ -92,11 +92,17 @@
 
   home.file."Videos/Movies".source = config.lib.file.mkOutOfStoreSymlink "/mnt/videos";
 
-  programs.noctalia-shell.settings.bar = {
-    displayMode = "auto_hide";
-    autoHideDelay = 500;
-    autoShowDelay = 150;
-  };
+  # The bar defaults to always-on and space-reserving, which is what we want
+  # on external (non-OLED) monitors. OLED panels override it to auto-hide,
+  # avoiding static-bar burn-in; derived from the oled flags in display.monitors.
+  programs.noctalia.settings.bar.main.monitor = builtins.listToAttrs (map (m: {
+    name = m.output;
+    value = {
+      match = m.output;
+      auto_hide = true;
+      reserve_space = false;
+    };
+  }) (builtins.filter (m: m.oled or false) config.display.monitors));
 
   #
   # ========== Workspaces & App Placement ==========
@@ -162,7 +168,7 @@
     #   M4 → kernel KEY_F14 → keysym XF86Launch5   (hwdb, was 0x700d3)
     #   M5 → kernel KEY_F15 → keysym XF86Launch6   (keyd, was Meta+Alt+K)
     bind = [
-      ", XF86Launch5, exec, ${config.programs.noctalia-shell.package}/bin/noctalia-shell ipc call powerProfile cycle"
+      ", XF86Launch5, exec, ${config.programs.noctalia.package}/bin/noctalia msg power-cycle"
       ", XF86Launch6, exec, ${pkgs.wireplumber}/bin/wpctl set-mute @DEFAULT_AUDIO_SOURCE@ toggle"
     ];
   };

@@ -9,7 +9,7 @@
   };
   mic-toggle = pkgs.writeShellScriptBin "niri-mic-toggle" ''
     MUTED=$(${pkgs.wireplumber}/bin/wpctl get-volume @DEFAULT_AUDIO_SOURCE@ | ${pkgs.gnugrep}/bin/grep -o 'MUTED' || echo "")
-    noctalia-shell ipc call volume muteInput
+    noctalia msg mic-mute
     if [ -z "$MUTED" ]; then
       ${pkgs.pipewire}/bin/pw-play --volume=0.2 ${muteSound} &
     else
@@ -22,7 +22,7 @@ in {
     "Mod+Return".action.spawn = "ghostty";
 
     # App launcher (Noctalia)
-    "Mod+D".action.spawn = ["noctalia-shell" "ipc" "call" "launcher" "toggle"];
+    "Mod+D".action.spawn = ["noctalia" "msg" "panel-toggle" "launcher"];
 
     # Close window
     "Mod+Q".action.close-window = {};
@@ -88,23 +88,23 @@ in {
     "Mod+Shift+E".action.quit = {};
 
     # Audio (via Noctalia OSD)
-    "XF86AudioRaiseVolume".action.spawn = ["noctalia-shell" "ipc" "call" "volume" "increase"];
-    "XF86AudioLowerVolume".action.spawn = ["noctalia-shell" "ipc" "call" "volume" "decrease"];
-    "XF86AudioMute".action.spawn = ["noctalia-shell" "ipc" "call" "volume" "muteOutput"];
+    "XF86AudioRaiseVolume".action.spawn = ["noctalia" "msg" "volume-up"];
+    "XF86AudioLowerVolume".action.spawn = ["noctalia" "msg" "volume-down"];
+    "XF86AudioMute".action.spawn = ["noctalia" "msg" "volume-mute"];
 
     # Mic (via Noctalia OSD)
-    "XF86AudioMicMute".action.spawn = ["noctalia-shell" "ipc" "call" "volume" "muteInput"];
+    "XF86AudioMicMute".action.spawn = ["noctalia" "msg" "mic-mute"];
 
     # Media (via Noctalia)
-    "XF86AudioPlay".action.spawn = ["noctalia-shell" "ipc" "call" "media" "playPause"];
-    "XF86AudioPause".action.spawn = ["noctalia-shell" "ipc" "call" "media" "playPause"];
-    "XF86AudioNext".action.spawn = ["noctalia-shell" "ipc" "call" "media" "next"];
-    "XF86AudioPrev".action.spawn = ["noctalia-shell" "ipc" "call" "media" "previous"];
-    "XF86AudioStop".action.spawn = ["noctalia-shell" "ipc" "call" "media" "stop"];
+    "XF86AudioPlay".action.spawn = ["noctalia" "msg" "media" "toggle"];
+    "XF86AudioPause".action.spawn = ["noctalia" "msg" "media" "toggle"];
+    "XF86AudioNext".action.spawn = ["noctalia" "msg" "media" "next"];
+    "XF86AudioPrev".action.spawn = ["noctalia" "msg" "media" "previous"];
+    "XF86AudioStop".action.spawn = ["noctalia" "msg" "media" "stop"];
 
     # Brightness (via Noctalia OSD)
-    "XF86MonBrightnessUp".action.spawn = ["noctalia-shell" "ipc" "call" "brightness" "increase"];
-    "XF86MonBrightnessDown".action.spawn = ["noctalia-shell" "ipc" "call" "brightness" "decrease"];
+    "XF86MonBrightnessUp".action.spawn = ["noctalia" "msg" "brightness-up"];
+    "XF86MonBrightnessDown".action.spawn = ["noctalia" "msg" "brightness-down"];
 
     # Mic toggle (Discord mute/unmute sounds + noctalia OSD)
     "Mod+M".action.spawn = "${mic-toggle}/bin/niri-mic-toggle";

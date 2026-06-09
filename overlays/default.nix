@@ -39,6 +39,18 @@
     if prev.stdenv.isLinux
     then {
       zen-browser = inputs.zen-browser.packages.${prev.stdenv.hostPlatform.system}.default;
+
+      # Stop noctalia auto-locking on logind's Lock signal so hyprlock is the
+      # sole locker. --replace-fail errors the build if upstream moves this.
+      noctalia = inputs.noctalia.packages.${prev.stdenv.hostPlatform.system}.default.overrideAttrs (old: {
+        postPatch =
+          (old.postPatch or "")
+          + ''
+            substituteInPlace src/app/application.cpp \
+              --replace-fail '(void)m_lockScreen.lock();' \
+                '(void)0; // nix-config: hyprlock owns session locking; noctalia logind auto-lock disabled'
+          '';
+      });
     }
     else {};
 
@@ -181,9 +193,11 @@
                   cp "${prev.vscode}/lib/vscode/resources/app/node_modules/node-pty/build/Release/pty.node" \
                     "$sdkDir/prebuilds/linux-x64/pty.node"
 
-                  # Pre-create ripgrep shim (TQn)
+                  # Pre-create ripgrep shim (TQn). VS Code 1.122 renamed the
+                  # bundled package @vscode/ripgrep -> @vscode/ripgrep-universal
+                  # and moved the binary under bin/linux-x64/.
                   mkdir -p "$sdkDir/ripgrep/bin/linux-x64"
-                  cp "${prev.vscode}/lib/vscode/resources/app/node_modules/@vscode/ripgrep/bin/rg" \
+                  cp "${prev.vscode}/lib/vscode/resources/app/node_modules/@vscode/ripgrep-universal/bin/linux-x64/rg" \
                     "$sdkDir/ripgrep/bin/linux-x64/rg"
 
                   # Write marker so ensureShims() skips at runtime

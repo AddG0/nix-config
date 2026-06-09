@@ -120,7 +120,7 @@ in {
     # ---- Startup ----
     #
     spawn-at-startup = [
-      {argv = ["noctalia-shell"];}
+      {argv = ["noctalia"];}
       {argv = ["${pkgs.swayidle}/bin/swayidle" "-w"];}
     ];
 
@@ -146,23 +146,28 @@ in {
   #
   # ========== Noctalia shell ==========
   #
-  programs.noctalia-shell = {
+  programs.noctalia = {
     enable = true;
+    package = pkgs.noctalia;
     settings = {
-      bar.position = "top";
-      bar.widgets.right = [
-        {id = "Tray";}
-        {id = "Microphone";}
-        {id = "NotificationHistory";}
-        {id = "Volume";}
-        {id = "ControlCenter";}
-      ];
-      # Show notifications only on the primary monitor
-      notifications.monitors = map (m: m.output) (builtins.filter (m: m.primary) config.display.monitors);
-      location.useFahrenheit = true;
-      location.use12hourFormat = true;
-      colorSchemes.predefinedScheme = "Catppuccin";
-      general.avatarImage = "/var/lib/AccountsService/icons/${config.home.username}";
+      # input_volume is the built-in mic volume widget instance.
+      bar.main = {
+        position = "top";
+        end = ["tray" "input_volume" "notifications" "volume" "control-center"];
+      };
+      # 12-hour clock.
+      shell = {
+        time_format = "{:%I:%M %p}";
+        avatar_path = "/var/lib/AccountsService/icons/${config.home.username}";
+      };
+      theme = {
+        source = "builtin";
+        builtin = "Catppuccin";
+      };
+      weather = {
+        enabled = true;
+        unit = "imperial"; # metric = °C, imperial = °F
+      };
     };
   };
 

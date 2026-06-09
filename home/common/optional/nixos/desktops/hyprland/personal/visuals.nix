@@ -338,37 +338,21 @@ in {
     };
   };
 
-  # Noctalia (Quickshell bar) — styling-only settings live here so all the
-  # personal-flavor visual choices are in one file. Functional config
-  # (widgets, exec-once, locate-city script, settings version, preferences
-  # like nightLight/location) stays in noctalia.nix.
-  # Noctalia styling — only the fields stylix doesn't already drive. Stylix
-  # flows colors, fonts, and opacity.{desktop,popups} into the bar/dock/OSD/
-  # notifications via its noctalia target module, so we don't set those here.
-  # What's left is shape/layout (floating bar, margins, rounding) and shadow
-  # direction.
-  programs.noctalia-shell.settings = {
-    bar = {
-      # Floating bar — required for margin/frameRadius/outerCorners to take
-      # effect. "simple" mode is edge-to-edge and ignores them.
-      marginVertical = edgeGap; # Match marginHorizontal so top spacing equals other sides.
-      marginHorizontal = edgeGap; # Align bar edge with window outer gap.
-      frameRadius = windowRounding; # Same source of truth as windows + tabs.
-      outerCorners = true;
-      showCapsule = true; # Pill-shaped widget backgrounds (Control Center vibe)
-      showOutline = false; # Shadow + transparency do the framing
-      widgetSpacing = 6;
-      contentPadding = 4;
-    };
-    general = {
-      # macOS-style drop shadow — straight down, never horizontal offset.
-      # Shorter offset than the window shadow (4 vs 8) because the bar is a
-      # thinner surface; an 8px drop would overpower the bar's own height.
-      shadowDirection = "bottom";
-      shadowOffsetX = 0;
-      shadowOffsetY = 4;
-      enableShadows = true;
-      enableBlurBehind = true; # Frosted glass behind the bar
+  # Noctalia styling — personal shape/layout only. Colors, fonts, and opacity
+  # are stylix-derived and live in ./stylix-noctalia-compat.nix.
+  programs.noctalia.settings = {
+    # macOS-style drop shadow — straight down, never horizontal offset.
+    shell.shadow.direction = "down";
+
+    bar.main = {
+      margin_ends = edgeGap; # Align bar ends with window outer gap.
+      margin_edge = edgeGap; # Match so top spacing equals the sides.
+      radius = windowRounding; # Same source of truth as windows + tabs.
+      capsule = true; # Pill-shaped widget backgrounds (Control Center vibe)
+      border_width = 0; # Shadow + transparency do the framing, not a border.
+      widget_spacing = 6;
+      padding = 4;
+      shadow = true;
     };
   };
 

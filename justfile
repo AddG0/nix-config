@@ -472,19 +472,17 @@ restart-audio:
   just restart-noctalia
 
 [group('utilities')]
-[doc("Restart Noctalia (Hyprland quickshell bar) preserving Hyprland env")]
+[doc("Restart Noctalia (Hyprland bar) preserving Hyprland env")]
 restart-noctalia:
   #!/usr/bin/env bash
   set -euo pipefail
-  start=$(grep -oE '/nix/store/[^ ]*-noctalia-start' "$HOME/.config/hypr/hyprland.conf" | head -n1)
-  if [ -z "$start" ]; then
-    echo "Could not find noctalia-start in ~/.config/hypr/hyprland.conf" >&2
-    exit 1
-  fi
-  pkill -f '/bin/quickshell$' 2>/dev/null || true
+  # Resolve the noctalia binary from the exec-once line, else fall back to PATH.
+  bin=$(grep -oE '^exec-once=/nix/store/\S+/bin/noctalia' "$HOME/.config/hypr/hyprland.conf" | head -n1 | sed 's/^exec-once=//')
+  bin="${bin:-noctalia}"
+  pkill -x noctalia 2>/dev/null || true
   sleep 1
-  hyprctl dispatch exec "$start"
-  echo "Restarted noctalia via $start"
+  hyprctl dispatch exec "$bin"
+  echo "Restarted noctalia via $bin"
 
 [group('utilities')]
 [doc("Restart Plasma shell (KDE Plasma desktop)")]
