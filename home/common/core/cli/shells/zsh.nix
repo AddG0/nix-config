@@ -23,7 +23,6 @@ in {
       theme = "agnoster";
       plugins = [
         "last-working-dir"
-        "sudo"
       ];
     };
 

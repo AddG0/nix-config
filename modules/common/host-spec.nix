@@ -224,12 +224,12 @@
         config ? "system" && config.system ? "impermanence" && config.system.impermanence.enable;
     in [
       {
-        assertion = !builtins.isNull config.hostSpec.hostPlatform;
+        assertion = !isNull config.hostSpec.hostPlatform;
         message = "hostPlatform must be set";
       }
       {
         assertion =
-          !config.hostSpec.isWork || (config.hostSpec.isWork && !builtins.isNull config.hostSpec.work);
+          !config.hostSpec.isWork || (config.hostSpec.isWork && !isNull config.hostSpec.work);
         message = "isWork is true but no work attribute set is provided";
       }
       {

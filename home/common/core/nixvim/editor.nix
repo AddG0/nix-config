@@ -61,6 +61,28 @@
         action = "<cmd>lua Snacks.terminal()<cr>";
         options.desc = "Toggle terminal";
       }
+      # Leave terminal-insert mode for normal mode (LazyVim default). Double-esc
+      # so a single <esc> still reaches the program running in the terminal.
+      {
+        mode = "t";
+        key = "<esc><esc>";
+        action = "<C-\\><C-n>";
+        options.desc = "Enter normal mode";
+      }
+      # Scratch buffers (snacks) — LazyVim defaults. Toggle a per-cwd scratch
+      # pad, or pick from previously-created ones.
+      {
+        mode = "n";
+        key = "<leader>.";
+        action.__raw = "function() Snacks.scratch() end";
+        options.desc = "Toggle scratch buffer";
+      }
+      {
+        mode = "n";
+        key = "<leader>S";
+        action.__raw = "function() Snacks.scratch.select() end";
+        options.desc = "Select scratch buffer";
+      }
       # ── snacks pickers ──
       {
         mode = "n";
@@ -182,6 +204,20 @@
         key = "<leader>xt";
         action = "<cmd>TodoTrouble<cr>";
         options.desc = "Todo (Trouble)";
+      }
+      # ── Code symbols (trouble) — the right-side outline panel of the current
+      # file's symbols (functions/classes/…), plus an LSP references/defs panel.
+      {
+        mode = "n";
+        key = "<leader>cs";
+        action = "<cmd>Trouble symbols toggle focus=false<cr>";
+        options.desc = "Symbols (Trouble)";
+      }
+      {
+        mode = "n";
+        key = "<leader>cS";
+        action = "<cmd>Trouble lsp toggle focus=false win.position=right<cr>";
+        options.desc = "LSP references/definitions/... (Trouble)";
       }
 
       # flash.nvim motions (LazyVim defaults). nixvim enables the plugin but

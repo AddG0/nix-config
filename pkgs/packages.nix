@@ -4,6 +4,7 @@
 pkgs: {
   # Development tools
   bootdev-cli = pkgs.callPackage ./bootdev-cli {};
+  kotlin-lsp = pkgs.callPackage ./kotlin-lsp {};
   gwq = pkgs.callPackage ./gwq {};
   gke-gcloud-auth-plugin = pkgs.callPackage ./gke-gcloud-auth-plugin {};
   openhands = pkgs.callPackage ./openhands {};

@@ -35,6 +35,7 @@ in {
     mailsy-wrapped # create and send emails from the terminal
     cpulimit # limit the cpu usage of a process
     caddy # A webserver with automatic HTTPS via Let's Encrypt(replacement of nginx)
+    mutagen # real-time file sync over SSH (local repo -> dev server)
   ];
 
   programs.git.ignores = lib.custom.gitignoreFromTemplates inputs.github-gitignore-templates ["Global/Redis"];

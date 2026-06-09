@@ -83,7 +83,7 @@ in {
     names;
 
   scanPaths = path:
-    builtins.map (f: (path + "/${f}")) (
+    map (f: (path + "/${f}")) (
       builtins.attrNames (
         lib.attrsets.filterAttrs (
           path: _type:
@@ -98,7 +98,7 @@ in {
     );
 
   scanPackages = path:
-    builtins.map (f: (path + "/${f}")) (
+    map (f: (path + "/${f}")) (
       builtins.attrNames (
         lib.attrsets.filterAttrs (
           path: _type: (_type == "directory" && path != "darwin" && path != "nixos") # include directories except darwin/nixos
