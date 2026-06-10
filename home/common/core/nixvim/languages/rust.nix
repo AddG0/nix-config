@@ -11,6 +11,7 @@ in {
       installRustc = true;
     };
     plugins.conform-nvim.settings.formatters_by_ft.rust = ["rustfmt"];
+    plugins.neotest.adapters.rust.enable = true; # cargo test runner (framework: ../testing.nix)
 
     # Debugging via codelldb (the DAP framework lives in ../dap.nix).
     plugins.dap = {

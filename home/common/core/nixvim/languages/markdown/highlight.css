@@ -1,0 +1,65 @@
+/* Stylix base16 theme for highlight.js code blocks in markdown-preview.nvim.
+   Canonical base16 -> highlight.js token mapping. @baseNN@ placeholders are
+   substituted with stylix colors in ./default.nix. */
+
+.hljs {
+  background: @base01@;
+  color: @base05@;
+}
+
+.hljs-comment,
+.hljs-quote {
+  color: @base03@;
+  font-style: italic;
+}
+
+.hljs-variable,
+.hljs-template-variable,
+.hljs-attribute,
+.hljs-tag,
+.hljs-regexp,
+.hljs-link,
+.hljs-name,
+.hljs-selector-id,
+.hljs-selector-class {
+  color: @base08@;
+}
+
+.hljs-number,
+.hljs-meta,
+.hljs-built_in,
+.hljs-builtin-name,
+.hljs-literal,
+.hljs-type,
+.hljs-params {
+  color: @base09@;
+}
+
+.hljs-string,
+.hljs-symbol,
+.hljs-bullet {
+  color: @base0B@;
+}
+
+.hljs-title,
+.hljs-section {
+  color: @base0A@;
+}
+
+.hljs-keyword,
+.hljs-selector-tag {
+  color: @base0E@;
+}
+
+.hljs-emphasis {
+  font-style: italic;
+}
+.hljs-strong {
+  font-weight: bold;
+}
+.hljs-addition {
+  color: @base0B@;
+}
+.hljs-deletion {
+  color: @base08@;
+}

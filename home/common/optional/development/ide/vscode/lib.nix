@@ -162,7 +162,7 @@
       # continue
 
       # Keybindings
-      # vim
+      vim
     ]
     ++ (lib.optionals pkgs.stdenv.isLinux) [
       # Productivity

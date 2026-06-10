@@ -66,6 +66,11 @@
     networkmanager.enable = true;
   };
 
+  # Wired NIC binds late, so nm-online never settles and burns its full 60s
+  # timeout, stalling network-online.target -> graphical.target before login.
+  # Nothing here needs to block boot on connectivity, so drop the gate.
+  systemd.services.NetworkManager-wait-online.enable = false;
+
   programs.captive-browser = {
     enable = true;
     interface = "wlo1";

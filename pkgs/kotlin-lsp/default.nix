@@ -36,11 +36,11 @@
 # autoPatchelfHook to fix their interpreters/rpaths.
 stdenvNoCC.mkDerivation (finalAttrs: {
   pname = "kotlin-lsp";
-  version = "262.4739.0";
+  version = "262.7569.0";
 
   src = fetchzip {
     url = "https://download-cdn.jetbrains.com/kotlin-lsp/${finalAttrs.version}/kotlin-server-${finalAttrs.version}.tar.gz";
-    hash = "sha256-I1K/ypOnAtzHJ1btYur/SYAm7FLU2QzKcMjmeFXC+2c=";
+    hash = "sha256-u2IcSjMCAukvcDEZdvfyT6hWJJ+e5O49/SAWbqlXJyo=";
   };
 
   nativeBuildInputs = [autoPatchelfHook makeWrapper];

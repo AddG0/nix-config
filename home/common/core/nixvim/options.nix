@@ -12,6 +12,11 @@
       confirm = true;
       cursorline = true;
       expandtab = true;
+      # Solid fill for diff filler/deleted lines instead of the default `-`
+      # dashes, so diffs (diffview) render clean red/green bars.
+      fillchars = {
+        diff = " ";
+      };
       formatoptions = "jcroqlnt";
       grepformat = "%f:%l:%c:%m";
       grepprg = "rg --vimgrep";

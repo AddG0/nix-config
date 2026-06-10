@@ -18,4 +18,10 @@
       ".git"
     ];
   };
+
+  # Test runner: neotest-gradle (framework: ../testing.nix). kotlin_lsp has no
+  # test-running support of its own, and its treesitter parser ("kotlin,java")
+  # covers gradle Java tests too — whereas pure Java projects run through
+  # nvim-jdtls' java-test bundle in ./java.nix, so the two don't overlap.
+  programs.nixvim.plugins.neotest.adapters.gradle.enable = true;
 }

@@ -1,4 +1,47 @@
-{config, ...}: let
+{
+  config,
+  lib,
+  pkgs,
+  ...
+}: let
+  # snacks.gitbrowse remote → web-URL patterns. Derive alias→HostName rewrites
+  # from the SSH config so gitbrowse resolves aliased remotes to real URLs, then
+  # append snacks' upstream defaults (it replaces this list wholesale and applies
+  # every entry in order). Anchoring to `@alias[:/]` avoids mangling repo paths.
+  luaEscape = builtins.replaceStrings
+    ["%" "(" ")" "." "+" "-" "*" "?" "[" "]" "^" "$"]
+    ["%%" "%(" "%)" "%." "%+" "%-" "%*" "%?" "%[" "%]" "%^" "%$"];
+  sshAliasRewrites =
+    lib.filter (p: p != null) (lib.mapAttrsToList (name: entry: let
+      data = entry.data or entry;
+      hostName = data.HostName or null;
+      header = data.header or "Host ${name}";
+      # First single, non-wildcard token after `Host ` (skips Match/`*` blocks).
+      m = builtins.match "Host ([^ ?*]+).*" header;
+      alias = if m == null then null else builtins.head m;
+    in
+      if hostName != null && alias != null && alias != hostName
+      then ["@${luaEscape alias}([:/])" "@${hostName}%1"]
+      else null)
+    (config.programs.ssh.settings or {}));
+  gitbrowseRemotePatterns =
+    sshAliasRewrites
+    ++ [
+      ["^(https?://.*)%.git$" "%1"]
+      ["^git@(.+):(.+)%.git$" "https://%1/%2"]
+      ["^git@(.+):(.+)$" "https://%1/%2"]
+      ["^git@(.+)/(.+)$" "https://%1/%2"]
+      ["^org%-%d+@(.+):(.+)%.git$" "https://%1/%2"]
+      ["^ssh://git@(.*)$" "https://%1"]
+      ["^ssh://([^:/]+)(:%d+)/(.*)$" "https://%1/%3"]
+      ["^ssh://([^/]+)/(.*)$" "https://%1/%2"]
+      ["ssh%.dev%.azure%.com/v3/(.*)/(.*)$" "dev.azure.com/%1/_git/%2"]
+      ["^https://%w*@(.*)" "https://%1"]
+      ["^git@(.*)" "https://%1"]
+      [":%d+" ""]
+      ["%.git$" ""]
+    ];
+
   # Files hidden from the explorer + pickers — mirrors what we hide in VSCode
   # (files.exclude / search.exclude): build artifacts, caches, venvs, IDE
   # metadata. Dotfiles themselves still show (hidden = true); these prune junk.
@@ -43,7 +86,19 @@ in {
   programs.nixvim.highlightOverride = {
     Comment.fg = config.lib.stylix.colors.withHashtag.base04;
     "@comment".fg = config.lib.stylix.colors.withHashtag.base04;
+    # flash.nvim (`s`): leave the match highlights at flash's defaults and only
+    # recolour the jump label (the key you press) so it's easy to spot — red
+    # badge on the base00 background.
+    FlashLabel = {
+      fg = config.lib.stylix.colors.withHashtag.base00;
+      bg = config.lib.stylix.colors.withHashtag.base08; # red
+      bold = true;
+    };
   };
+
+  # Gives Snacks.explorer a `trash` command so deleting files there is
+  # recoverable instead of a permanent `rm`.
+  programs.nixvim.extraPackages = [pkgs.trash-cli];
 
   programs.nixvim.plugins = {
     web-devicons.enable = true;
@@ -101,6 +156,10 @@ in {
           group = "search";
         }
         {
+          __unkeyed-1 = "<leader>t";
+          group = "test";
+        }
+        {
           __unkeyed-1 = "<leader>u";
           group = "ui";
         }
@@ -111,7 +170,8 @@ in {
       ];
     };
 
-    indent-blankline.enable = true;
+    # Indent guides come from snacks.indent (configured in the snacks block
+    # below) — the LazyVim default — so indent-blankline is intentionally off.
 
     # noice moves the `:` command line into a centered "command palette" popup
     # (with blink's command completion rendered inside it) and tidies messages.
@@ -140,13 +200,81 @@ in {
         notifier.enabled = true;
         dashboard = {
           enabled = true;
-          # Custom sections = the defaults minus `startup`. The startup section
-          # does `require('lazy.stats')` to show plugin/startup-time stats, but
-          # that module only exists under lazy.nvim — on nixvim it throws and
-          # aborts the whole dashboard render. Keep header + keymaps + recent
-          # files + projects instead.
+          preset = {
+            # Logo is a real nix-snowflake PNG rendered with chafa (terminal
+            # section below) — crisp on ghostty vs blocky ASCII. Keys are
+            # LazyVim-style quick actions wired to our snacks pickers / binds.
+            keys = [
+              {
+                icon = " ";
+                key = "f";
+                desc = "Find file";
+                action = ":lua Snacks.dashboard.pick('files')";
+              }
+              {
+                icon = " ";
+                key = "n";
+                desc = "New file";
+                action = ":ene | startinsert";
+              }
+              {
+                icon = " ";
+                key = "r";
+                desc = "Recent files";
+                action = ":lua Snacks.dashboard.pick('oldfiles')";
+              }
+              {
+                icon = " ";
+                key = "g";
+                desc = "Find text";
+                action = ":lua Snacks.dashboard.pick('live_grep')";
+              }
+              {
+                icon = " ";
+                key = "e";
+                desc = "Explorer";
+                action = ":lua Snacks.explorer()";
+              }
+              {
+                icon = " ";
+                key = "c";
+                desc = "nix-config";
+                action = ":lua Snacks.picker.files({ cwd = vim.fn.expand('~/nix-config') })";
+              }
+              {
+                icon = " ";
+                key = "s";
+                desc = "Restore session";
+                action = ":lua require('persistence').load()";
+              }
+              {
+                icon = " ";
+                key = "q";
+                desc = "Quit";
+                action = ":qa";
+              }
+            ];
+          };
+          # The default `startup` section needs lazy.nvim's lazy.stats (absent on
+          # nixvim → throws), so use: nix logo (chafa) + hostname + our keys +
+          # recent files + projects.
           sections = [
-            {section = "header";}
+            {
+              # chafa renders the PNG as colored half-block symbols (reliable in
+              # any terminal). The terminal section spans the full dashboard
+              # width (60), so `--align mid,mid` centers the image *inside* chafa
+              # (section align doesn't move terminal output). Keep --size's width
+              # == dashboard width (60) and tweak --size/height to resize.
+              section = "terminal";
+              cmd = "${pkgs.chafa}/bin/chafa ${pkgs.nixos-icons}/share/icons/hicolor/1024x1024/apps/nix-snowflake.png --format symbols --symbols vhalf --size 60x16 --align mid,mid; sleep 0.05";
+              height = 16;
+              padding = 1;
+            }
+            {
+              text.__raw = "vim.fn.hostname()";
+              align = "center";
+              padding = 1;
+            }
             {
               section = "keys";
               gap = 1;
@@ -162,10 +290,21 @@ in {
         quickfile.enabled = true;
         words.enabled = true;
         explorer.enabled = true;
+        # LazyVim UI polish: indent guides + animated scope highlight, smooth
+        # scrolling, and the rich status column (fold/sign/number gutter).
+        indent.enabled = true;
+        scope.enabled = true;
+        scroll.enabled = true;
+        statuscolumn.enabled = true;
+        # Derived from the SSH config (see `let` above) so host aliases stay in sync.
+        gitbrowse.remote_patterns = gitbrowseRemotePatterns;
         picker = {
           enabled = true;
           hidden = true; # show dotfiles in pickers (e.g. .gitlab-ci.yml)
           sources = {
+            # Single-child folder auto-descend lives in
+            # ./snacks-explorer-nesting.nix (delete it when snacks gains a
+            # native group_empty option).
             explorer = {
               hidden = true;
               exclude = pickerExclude;

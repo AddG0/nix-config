@@ -7,5 +7,6 @@
     lsp.servers.ruff.enable = true;
     conform-nvim.settings.formatters_by_ft.python = ["ruff_format"];
     dap-python.enable = true;
+    neotest.adapters.python.enable = true; # pytest/unittest runner (framework: ../testing.nix)
   };
 }

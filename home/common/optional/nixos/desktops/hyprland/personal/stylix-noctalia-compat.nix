@@ -72,7 +72,7 @@
       # stylix sansSerif (Inter).
       shell.font_family = config.stylix.fonts.sansSerif.name;
 
-      # stylix opacity.popups (0.85) -> frosted OSD/notifications;
+      # stylix opacity.popups (1.0) -> opaque OSD/notifications;
       # opacity.desktop (1.0) -> opaque bar.
       osd.background_opacity = config.stylix.opacity.popups;
       notification.background_opacity = config.stylix.opacity.popups;

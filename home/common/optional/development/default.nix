@@ -20,6 +20,7 @@
 in {
   imports = [
     ./ide
+    ./scripts
     ./chromium.nix
     ./process-compose.nix
     ./git.nix

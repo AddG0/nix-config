@@ -35,12 +35,12 @@
     #   https://plugins.jetbrains.com/plugin/10037-csv-editor
     "net.seesharpsoft.intellij.plugins.csv"
   ];
-  # The aggregator meta-plugin `com.intellij.bigdatatools` is intentionally
-  # absent: it declares a hard dep on `bigdatatools.zeppelin`, and zeppelin
-  # only loads in PyCharm (see zeppelinPlugins below). Including the meta on
-  # IDEA/DataGrip would fail plugin verification with
-  # "Big Data Tools requires plugin com.intellij.bigdatatools.zeppelin to
-  # be enabled". The sub-plugins below provide the actual features.
+  # Big Data Tools sub-plugins. The aggregator meta-plugin
+  # `com.intellij.bigdatatools` additionally hard-depends on `zeppelin` (which
+  # needs Python modules) and on `com.intellij.modules.ultimate`, so only IDEA
+  # Ultimate can host it — see ideaBigData below. DataGrip and the others use
+  # just these sub-plugins, which carry the features without the meta's
+  # Python/zeppelin requirement.
   bigDataPlugins = [
     "com.intellij.bigdatatools.core"
     "com.intellij.bigdatatools.binary.files"
@@ -54,14 +54,15 @@
     "com.intellij.bigdatatools.rfs"
     "com.intellij.bigdatatools.spark"
   ];
-  # Zeppelin notebooks. The sub-plugin requires `intellij.python.community.
-  # execService`, a module provided only by the bundled `PythonCore` plugin
-  # (Python Community Edition). PyCharm ships PythonCore out of the box;
-  # IDEA 2026 ships no Python plugin at all, so zeppelin is PyCharm-only
-  # here. `Pythonid` is omitted on purpose — PyCharm bundles it too, and
-  # pinning it externally over the bundled copy fails with "requires
-  # com.intellij.modules.python".
+  # Zeppelin notebooks need the Python community modules
+  # (`intellij.python.community.execService`/`venv`). PyCharm bundles them; on
+  # IDEA Ultimate they come from the external `Pythonid` plugin (see
+  # ideaBigData). DataGrip has no Python plugin, so zeppelin stays off it.
   zeppelinPlugins = ["com.intellij.bigdatatools.zeppelin"];
+
+  # IDEA Ultimate hosts the Big Data Tools meta-plugin: Pythonid supplies
+  # zeppelin's Python modules, zeppelin then satisfies the meta's hard dep.
+  ideaBigData = bigDataPlugins ++ ["Pythonid"] ++ zeppelinPlugins ++ ["com.intellij.bigdatatools"];
 
   # Java LTS releases: 8, 11, 17, then every 4 versions (21, 25, 29, ...).
   # Filter to the ones nixpkgs currently exposes and take the 3 newest, so a
@@ -133,7 +134,7 @@
   };
 in {
   programs.jetbrains.ides = with pkgs.jetbrains; {
-    idea = mkIde idea (["nix-idea" "net.ashald.envfile" "org.jetbrains.plugins.go-template"] ++ bigDataPlugins);
+    idea = mkIde idea (["nix-idea" "net.ashald.envfile" "org.jetbrains.plugins.go-template"] ++ ideaBigData);
     # PyCharm gets the big-data stack too so Zeppelin can sit alongside its
     # dependencies (Spark, Metastore, etc.) — without those the notebook
     # plugin is functional but stranded.

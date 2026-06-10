@@ -4,9 +4,6 @@
   # the remaining editor-category plugins.
   programs.nixvim = {
     plugins = {
-      # Edit directories like a buffer (complements the snacks tree).
-      oil.enable = true;
-
       flash.enable = true;
       todo-comments.enable = true;
       trouble.enable = true;
@@ -27,7 +24,28 @@
         };
       };
 
-      # mini.nvim: pairs, surround, ai (text objects). Icons come from
+      # Sticky scope (nvim-treesitter-context): pins the enclosing
+      # function/class/block at the top of the window while you scroll, so you
+      # always see what you're inside. max_lines caps how tall it can get.
+      treesitter-context = {
+        enable = true;
+        settings.max_lines = 3;
+      };
+
+      # Syntax-aware text objects: af/if (function), ac/ic (class), aa/ia
+      # (parameter), plus ]f/[f ]c/[c ]a/[a movement between them (keymaps
+      # below). The plugin refactored away from setup-configured keymaps, so we
+      # drive it through its module API; lookahead is set in extraConfigLua.
+      treesitter-textobjects.enable = true;
+
+      # Auto-close and auto-rename HTML/JSX/XML tags (treesitter-driven).
+      ts-autotag.enable = true;
+
+      # Project-wide find & replace with live preview (<leader>sr).
+      grug-far.enable = true;
+
+      # mini.nvim: pairs, surround, ai (text objects), hipatterns (inline
+      # highlight of #rrggbb colour codes as swatches). Icons come from
       # web-devicons (ui.nix).
       mini = {
         enable = true;
@@ -35,9 +53,28 @@
           pairs = {};
           surround = {};
           ai = {};
+          hipatterns = {
+            highlighters.hex_color.__raw = "require('mini.hipatterns').gen_highlighter.hex_color()";
+          };
         };
       };
+
+      # Smart increment/decrement (<C-a>/<C-x>): numbers, dates, booleans,
+      # and more, in normal + visual mode (keymaps below). Defaults cover the
+      # common augends.
+      dial.enable = true;
+
+      # Yank ring: after a paste, <C-p>/<C-n> cycle back through yank history
+      # (keymaps below). y/p/P route through yanky to feed the ring.
+      yanky.enable = true;
     };
+
+    # treesitter-textobjects refactored away from setup-based config; nixvim no
+    # longer calls its setup(), so do it here just to enable lookahead (jump
+    # forward to the next textobject when the cursor isn't inside one).
+    extraConfigLua = ''
+      require('nvim-treesitter-textobjects').setup({ select = { lookahead = true } })
+    '';
 
     keymaps = [
       {
@@ -47,12 +84,6 @@
         key = "<leader>e";
         action = "<cmd>lua Snacks.explorer()<cr>";
         options.desc = "Explorer (toggle)";
-      }
-      {
-        mode = "n";
-        key = "-";
-        action = "<cmd>Oil<cr>";
-        options.desc = "Open parent directory";
       }
       # Terminal (snacks). Same key toggles from normal and terminal mode.
       {
@@ -68,6 +99,20 @@
         key = "<esc><esc>";
         action = "<C-\\><C-n>";
         options.desc = "Enter normal mode";
+      }
+      # Add a comment on a new line below/above (LazyVim defaults; complements
+      # the builtin gc/gcc + ts-comments above).
+      {
+        mode = "n";
+        key = "gco";
+        action = "o<esc>Vcx<esc><cmd>normal gcc<cr>fxa<bs>";
+        options.desc = "Add comment below";
+      }
+      {
+        mode = "n";
+        key = "gcO";
+        action = "O<esc>Vcx<esc><cmd>normal gcc<cr>fxa<bs>";
+        options.desc = "Add comment above";
       }
       # Scratch buffers (snacks) — LazyVim defaults. Toggle a per-cwd scratch
       # pad, or pick from previously-created ones.
@@ -188,7 +233,7 @@
       }
       {
         mode = "n";
-        key = "<leader>sr";
+        key = "<leader>s\"";
         action = "<cmd>lua Snacks.picker.registers()<cr>";
         options.desc = "Registers";
       }
@@ -246,6 +291,167 @@
         key = "R";
         action.__raw = "function() require('flash').treesitter_search() end";
         options.desc = "Treesitter Search";
+      }
+
+      # ── treesitter-textobjects: select (operator + visual) ──
+      # Upgrades mini.ai's af/aa to treesitter function/class/parameter
+      # *definitions* (LazyVim behaviour); ic/ac are net-new.
+      {
+        mode = ["x" "o"];
+        key = "af";
+        action.__raw = "function() require('nvim-treesitter-textobjects.select').select_textobject('@function.outer', 'textobjects') end";
+        options.desc = "Function (outer)";
+      }
+      {
+        mode = ["x" "o"];
+        key = "if";
+        action.__raw = "function() require('nvim-treesitter-textobjects.select').select_textobject('@function.inner', 'textobjects') end";
+        options.desc = "Function (inner)";
+      }
+      {
+        mode = ["x" "o"];
+        key = "ac";
+        action.__raw = "function() require('nvim-treesitter-textobjects.select').select_textobject('@class.outer', 'textobjects') end";
+        options.desc = "Class (outer)";
+      }
+      {
+        mode = ["x" "o"];
+        key = "ic";
+        action.__raw = "function() require('nvim-treesitter-textobjects.select').select_textobject('@class.inner', 'textobjects') end";
+        options.desc = "Class (inner)";
+      }
+      {
+        mode = ["x" "o"];
+        key = "aa";
+        action.__raw = "function() require('nvim-treesitter-textobjects.select').select_textobject('@parameter.outer', 'textobjects') end";
+        options.desc = "Parameter (outer)";
+      }
+      {
+        mode = ["x" "o"];
+        key = "ia";
+        action.__raw = "function() require('nvim-treesitter-textobjects.select').select_textobject('@parameter.inner', 'textobjects') end";
+        options.desc = "Parameter (inner)";
+      }
+
+      # ── treesitter-textobjects: movement (normal + visual + operator) ──
+      {
+        mode = ["n" "x" "o"];
+        key = "]f";
+        action.__raw = "function() require('nvim-treesitter-textobjects.move').goto_next_start('@function.outer', 'textobjects') end";
+        options.desc = "Next function start";
+      }
+      {
+        mode = ["n" "x" "o"];
+        key = "[f";
+        action.__raw = "function() require('nvim-treesitter-textobjects.move').goto_previous_start('@function.outer', 'textobjects') end";
+        options.desc = "Prev function start";
+      }
+      {
+        mode = ["n" "x" "o"];
+        key = "]c";
+        action.__raw = "function() require('nvim-treesitter-textobjects.move').goto_next_start('@class.outer', 'textobjects') end";
+        options.desc = "Next class start";
+      }
+      {
+        mode = ["n" "x" "o"];
+        key = "[c";
+        action.__raw = "function() require('nvim-treesitter-textobjects.move').goto_previous_start('@class.outer', 'textobjects') end";
+        options.desc = "Prev class start";
+      }
+      {
+        mode = ["n" "x" "o"];
+        key = "]a";
+        action.__raw = "function() require('nvim-treesitter-textobjects.move').goto_next_start('@parameter.inner', 'textobjects') end";
+        options.desc = "Next parameter";
+      }
+      {
+        mode = ["n" "x" "o"];
+        key = "[a";
+        action.__raw = "function() require('nvim-treesitter-textobjects.move').goto_previous_start('@parameter.inner', 'textobjects') end";
+        options.desc = "Prev parameter";
+      }
+
+      # grug-far: project-wide search & replace (LazyVim's <leader>sr).
+      {
+        mode = "n";
+        key = "<leader>sr";
+        action.__raw = "function() require('grug-far').open() end";
+        options.desc = "Search & replace (grug-far)";
+      }
+
+      # ── dial: increment/decrement under cursor ──
+      {
+        mode = "n";
+        key = "<C-a>";
+        action.__raw = "function() require('dial.map').manipulate('increment', 'normal') end";
+        options.desc = "Increment";
+      }
+      {
+        mode = "n";
+        key = "<C-x>";
+        action.__raw = "function() require('dial.map').manipulate('decrement', 'normal') end";
+        options.desc = "Decrement";
+      }
+      {
+        mode = "x";
+        key = "<C-a>";
+        action.__raw = "function() require('dial.map').manipulate('increment', 'visual') end";
+        options.desc = "Increment";
+      }
+      {
+        mode = "x";
+        key = "<C-x>";
+        action.__raw = "function() require('dial.map').manipulate('decrement', 'visual') end";
+        options.desc = "Decrement";
+      }
+      {
+        mode = "x";
+        key = "g<C-a>";
+        action.__raw = "function() require('dial.map').manipulate('increment', 'gvisual') end";
+        options.desc = "Increment (cumulative)";
+      }
+      {
+        mode = "x";
+        key = "g<C-x>";
+        action.__raw = "function() require('dial.map').manipulate('decrement', 'gvisual') end";
+        options.desc = "Decrement (cumulative)";
+      }
+
+      # ── yanky: route yank/paste through the ring, then cycle history ──
+      {
+        mode = ["n" "x"];
+        key = "y";
+        action = "<Plug>(YankyYank)";
+        options.desc = "Yank (yanky)";
+        options.remap = true;
+      }
+      {
+        mode = ["n" "x"];
+        key = "p";
+        action = "<Plug>(YankyPutAfter)";
+        options.desc = "Put after (yanky)";
+        options.remap = true;
+      }
+      {
+        mode = ["n" "x"];
+        key = "P";
+        action = "<Plug>(YankyPutBefore)";
+        options.desc = "Put before (yanky)";
+        options.remap = true;
+      }
+      {
+        mode = "n";
+        key = "<C-p>";
+        action = "<Plug>(YankyPreviousEntry)";
+        options.desc = "Cycle to previous yank";
+        options.remap = true;
+      }
+      {
+        mode = "n";
+        key = "<C-n>";
+        action = "<Plug>(YankyNextEntry)";
+        options.desc = "Cycle to next yank";
+        options.remap = true;
       }
 
       # ── Sessions (persistence.nvim) ──

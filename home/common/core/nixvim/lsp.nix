@@ -14,11 +14,18 @@
       blink-cmp = {
         enable = true;
         settings = {
-          keymap.preset = "default";
+          # super-tab: <Tab> accepts the completion (and jumps snippets);
+          # <S-Tab> goes back. <C-n>/<C-p>/arrows still navigate the menu.
+          keymap.preset = "super-tab";
           sources.default = ["lsp" "path" "snippets" "buffer"];
           completion.documentation.auto_show = true;
         };
       };
+
+      # Community snippet library (VSCode format). blink's `snippets` source
+      # above discovers it on the runtimepath automatically; this just supplies
+      # the snippet content.
+      friendly-snippets.enable = true;
 
       # Linter framework. autoInstall adds each linter package by name (like the
       # LSP servers), so ./languages files only declare lintersByFt — no manual

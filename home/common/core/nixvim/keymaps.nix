@@ -1,6 +1,49 @@
 {
   # LazyVim-style core keymaps. Plugin-specific maps live with their plugins.
   programs.nixvim.keymaps = [
+    # ── Motion ── (LazyVim default: move by display line when no count, so
+    # j/k navigate wrapped lines naturally — handy in markdown/prose.)
+    {
+      mode = ["n" "x"];
+      key = "j";
+      action = "v:count == 0 ? 'gj' : 'j'";
+      options = {
+        desc = "Down";
+        expr = true;
+        silent = true;
+      };
+    }
+    {
+      mode = ["n" "x"];
+      key = "k";
+      action = "v:count == 0 ? 'gk' : 'k'";
+      options = {
+        desc = "Up";
+        expr = true;
+        silent = true;
+      };
+    }
+    {
+      mode = ["n" "x"];
+      key = "<Down>";
+      action = "v:count == 0 ? 'gj' : 'j'";
+      options = {
+        desc = "Down";
+        expr = true;
+        silent = true;
+      };
+    }
+    {
+      mode = ["n" "x"];
+      key = "<Up>";
+      action = "v:count == 0 ? 'gk' : 'k'";
+      options = {
+        desc = "Up";
+        expr = true;
+        silent = true;
+      };
+    }
+
     # ── Window navigation ──
     {
       mode = "n";
@@ -262,6 +305,70 @@
       action = "<C-w>c";
       options.desc = "Delete window";
     }
+    {
+      mode = "n";
+      key = "<leader>wm";
+      action.__raw = "function() Snacks.toggle.zoom():toggle() end";
+      options.desc = "Maximize window (zoom)";
+    }
+
+    # ── Tabs ──
+    {
+      mode = "n";
+      key = "<leader><tab><tab>";
+      action = "<cmd>tabnew<cr>";
+      options.desc = "New tab";
+    }
+    {
+      mode = "n";
+      key = "<leader><tab>]";
+      action = "<cmd>tabnext<cr>";
+      options.desc = "Next tab";
+    }
+    {
+      mode = "n";
+      key = "<leader><tab>[";
+      action = "<cmd>tabprevious<cr>";
+      options.desc = "Previous tab";
+    }
+    {
+      mode = "n";
+      key = "<leader><tab>d";
+      action = "<cmd>tabclose<cr>";
+      options.desc = "Close tab";
+    }
+    {
+      mode = "n";
+      key = "<leader><tab>o";
+      action = "<cmd>tabonly<cr>";
+      options.desc = "Close other tabs";
+    }
+    {
+      mode = "n";
+      key = "<leader><tab>f";
+      action = "<cmd>tabfirst<cr>";
+      options.desc = "First tab";
+    }
+    {
+      mode = "n";
+      key = "<leader><tab>l";
+      action = "<cmd>tablast<cr>";
+      options.desc = "Last tab";
+    }
+
+    # ── Buffers / misc ──
+    {
+      mode = "n";
+      key = "<leader>`";
+      action = "<cmd>e #<cr>";
+      options.desc = "Switch to other buffer";
+    }
+    {
+      mode = "n";
+      key = "<leader>K";
+      action = "<cmd>norm! K<cr>";
+      options.desc = "Keywordprg (help under cursor)";
+    }
 
     # ── UI toggles (Snacks.toggle) ──
     {
@@ -323,6 +430,24 @@
       key = "<leader>un";
       action.__raw = "function() Snacks.notifier.hide() end";
       options.desc = "Dismiss notifications";
+    }
+    {
+      mode = "n";
+      key = "<leader>uz";
+      action.__raw = "function() Snacks.toggle.zen():toggle() end";
+      options.desc = "Toggle zen mode";
+    }
+    {
+      mode = "n";
+      key = "<leader>ui";
+      action.__raw = "vim.show_pos";
+      options.desc = "Inspect position";
+    }
+    {
+      mode = "n";
+      key = "<leader>uI";
+      action.__raw = "function() vim.treesitter.inspect_tree() vim.api.nvim_input('I') end";
+      options.desc = "Inspect treesitter tree";
     }
 
     # ── Misc ──

@@ -48,13 +48,13 @@
     # Apps stay opaque (blur comes from the compositor below them). Terminal
     # gets subtle transparency. Desktop surfaces (bar/dock/panels) stay
     # opaque because noctalia uses `auto_hide` with no exclusion zone — a
-    # transparent bar over content reads as visual noise. Popups can stay
-    # transparent for frosted menus/notifications.
+    # transparent bar over content reads as visual noise. Popups are also kept
+    # opaque so notifications/OSDs read cleanly over busy content.
     opacity = {
       applications = 1.0;
       terminal = 0.95;
       desktop = 1.0;
-      popups = 0.85; # menus, OSDs, notifications
+      popups = 1.0; # menus, OSDs, notifications
     };
     polarity = "dark";
     icons = {

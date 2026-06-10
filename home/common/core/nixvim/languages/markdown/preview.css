@@ -1,0 +1,93 @@
+/* Stylix base16 theme for markdown-preview.nvim's browser preview (page chrome).
+   @baseNN@ placeholders are substituted with stylix colors in ./default.nix.
+   Code-block syntax colors live in ./highlight.css (mkdp_highlight_css).
+
+   markdown-preview loads its default github-markdown stylesheet too, and that
+   scopes every content rule under `.markdown-body`. So content rules here must
+   also be scoped under `.markdown-body` to match that specificity (ours loads
+   later, so an equal-specificity rule wins). Bare element selectors lose. */
+
+body {
+  background: @base00@;
+  color: @base05@;
+}
+
+.markdown-body {
+  background: @base00@;
+  color: @base05@;
+  font-family: sans-serif;
+  line-height: 1.6;
+}
+
+.markdown-body a {
+  color: @base0D@;
+  text-decoration: none;
+}
+.markdown-body a:hover {
+  text-decoration: underline;
+}
+
+.markdown-body h1,
+.markdown-body h2,
+.markdown-body h3,
+.markdown-body h4,
+.markdown-body h5,
+.markdown-body h6 {
+  color: @base06@;
+  font-weight: 600;
+  line-height: 1.25;
+}
+.markdown-body h1,
+.markdown-body h2 {
+  border-bottom: 1px solid @base02@;
+}
+
+.markdown-body hr {
+  background: @base03@;
+  border: 0;
+  height: 1px;
+}
+
+.markdown-body blockquote {
+  color: @base04@;
+  border-left: 0.25em solid @base03@;
+}
+
+.markdown-body code {
+  background: @base01@;
+  color: @base0A@;
+  border-radius: 4px;
+  padding: 0.2em 0.4em;
+}
+.markdown-body pre {
+  background: @base01@;
+  border-radius: 8px;
+}
+.markdown-body pre code {
+  background: none;
+  color: @base05@;
+  padding: 0;
+}
+
+.markdown-body table tr {
+  background: @base00@;
+  border-top: 1px solid @base03@;
+}
+.markdown-body table tr:nth-child(2n) {
+  background: @base01@;
+}
+.markdown-body table th,
+.markdown-body table td {
+  border: 1px solid @base03@;
+}
+.markdown-body table th {
+  background: @base01@;
+  color: @base06@;
+}
+
+.markdown-body strong {
+  color: @base07@;
+}
+.markdown-body ::selection {
+  background: @base02@;
+}

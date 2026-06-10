@@ -215,9 +215,6 @@ in {
       # Gamescope forces a sane fullscreen surface and fixes it.
       horizon-zero-dawn.launchOptions.wrappers = [gamemoderun] ++ gamescope;
 
-      # Its very buggy when not in a 16:9 aspect ratio.
-      repo.launchOptions.wrappers = [gamemoderun] ++ gamescope;
-
       aimlabs.launchOptions.wrappers = mouseDpi 1600 ++ [gamemoderun];
 
       # Wrap in gaemscope to fix weird fullscreen behavior

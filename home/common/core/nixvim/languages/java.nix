@@ -2,6 +2,10 @@
   jdtlsBin = "${pkgs.jdt-language-server}/bin/jdtls";
   javaDebug = pkgs.vscode-extensions.vscjava.vscode-java-debug;
   javaTest = pkgs.vscode-extensions.vscjava.vscode-java-test;
+  # Lombok is distributed as a prebuilt jar, so pkgs.lombok.src IS the jar.
+  # jdtls needs it as a -javaagent or it flags false errors for Lombok-generated
+  # members (@Getter/@Data/@Builder etc.).
+  lombokJar = pkgs.lombok.src;
 in {
   # Java via nvim-jdtls — the rich jdtls integration (NOT the lspconfig jdtls,
   # which is why no `lsp.servers.jdtls` exists). Feeding it the java-debug +
@@ -14,7 +18,7 @@ in {
     plugins.jdtls = {
       enable = true;
       settings = {
-        cmd = [jdtlsBin];
+        cmd = [jdtlsBin "--jvm-arg=-javaagent:${lombokJar}"];
         init_options.bundles.__raw = ''
           vim.list_extend(
             vim.fn.glob("${javaDebug}/share/vscode/extensions/vscjava.vscode-java-debug/server/com.microsoft.java.debug.plugin-*.jar", true, true),

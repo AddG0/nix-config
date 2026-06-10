@@ -5,6 +5,18 @@
   ...
 }: {
   fonts = lib.mkIf (config.hostSpec.hostType != "server") {
+    # Append the already-declared Source Han CJK families to each generic
+    # fallback chain. Without this, fontconfig ranks Fira Code ahead of any
+    # real CJK font for codepoints like U+300C (「), so a glyph missing from
+    # the requested family (e.g. Inter, used by the noctalia bar's
+    # active-window title) renders as tofu boxes — window titles such as
+    # "「schema」 — Zen Browser" lose their brackets. Pango/Cairo apps fall
+    # back through the sans-serif chain, so adding it here fixes them all.
+    fontconfig.defaultFonts = {
+      sansSerif = ["DejaVu Sans" "Source Han Sans"];
+      serif = ["DejaVu Serif" "Source Han Serif"];
+      monospace = ["DejaVu Sans Mono" "Source Han Sans HW"];
+    };
     packages = with pkgs;
       [
         # icon fonts

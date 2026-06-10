@@ -39,8 +39,30 @@
       {
         mode = "n";
         key = "<leader>gb";
-        action = "<cmd>lua Snacks.picker.git_branches()<cr>";
+        action = "<cmd>lua Snacks.picker.git_branches({ all = true })<cr>";
         options.desc = "Git branches";
+      }
+      {
+        mode = "n";
+        key = "<leader>gf";
+        action = "<cmd>lua Snacks.picker.git_log_file()<cr>";
+        options.desc = "Git current file history";
+      }
+      {
+        mode = ["n" "x"];
+        key = "<leader>gB";
+        action.__raw = "function() Snacks.gitbrowse() end";
+        options.desc = "Git browse (open)";
+      }
+      {
+        mode = ["n" "x"];
+        key = "<leader>gY";
+        action.__raw = ''
+          function()
+            Snacks.gitbrowse({ open = function(url) vim.fn.setreg("+", url) end, notify = false })
+          end
+        '';
+        options.desc = "Git browse (copy URL)";
       }
 
       # ── Hunks (gitsigns) ──
