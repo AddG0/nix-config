@@ -1,5 +1,6 @@
 /* Stylix base16 theme for markdown-preview.nvim's browser preview (page chrome).
-   @baseNN@ placeholders are substituted with stylix colors in ./default.nix.
+   @baseNN@ placeholders are substituted with stylix colors in ./default.nix,
+   and @font-sans@/@font-mono@ with stylix's configured font families.
    Code-block syntax colors live in ./highlight.css (mkdp_highlight_css).
 
    markdown-preview loads its default github-markdown stylesheet too, and that
@@ -7,24 +8,80 @@
    also be scoped under `.markdown-body` to match that specificity (ours loads
    later, so an equal-specificity rule wins). Bare element selectors lose. */
 
+:root {
+  scroll-behavior: smooth;
+}
+
+/* markdown-preview's own page.css defines its page-chrome colors as variables
+   under [data-theme="dark"] — including a near-black <main> slab (#181a1b) and
+   the top filename bar (#0d1117) that don't match our base16 surface. Re-point
+   those variables at stylix colors so the whole page (not just the content
+   column) is a uniform themed background. html[data-theme] out-specifies the
+   plugin's bare [data-theme] rule, and we load later, so this wins. */
+html[data-theme="dark"],
+[data-theme="dark"] {
+  --background-color: @base00@;
+  --secondary-background-color: @base00@;
+  --foreground-color: @base05@;
+  --border-color: @base02@;
+}
+
 body {
   background: @base00@;
   color: @base05@;
+  margin: 0;
+  padding: 2.5rem 1rem;
+}
+
+/* Theme the scrollbars to match (Chromium/WebKit). */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: @base03@ transparent;
+}
+*::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+*::-webkit-scrollbar-thumb {
+  background: @base03@;
+  border-radius: 6px;
+  border: 2px solid @base00@;
+}
+*::-webkit-scrollbar-thumb:hover {
+  background: @base04@;
 }
 
 .markdown-body {
+  /* Readability core: constrain measure (~70ch), center, breathe.
+     Long full-width lines are the #1 thing that makes prose hard to read. */
+  max-width: 46rem;
+  margin: 0 auto;
+  padding: 0 1.25rem;
+
   background: @base00@;
   color: @base05@;
-  font-family: sans-serif;
-  line-height: 1.6;
+  font-family: "@font-sans@", system-ui, -apple-system, "Segoe UI", sans-serif;
+  font-size: 17px;
+  line-height: 1.75;
+  /* Crisper glyphs on the rasterized browser surface. */
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+  word-wrap: break-word;
+}
+
+.markdown-body p {
+  margin: 0 0 1.1em;
 }
 
 .markdown-body a {
   color: @base0D@;
   text-decoration: none;
+  text-underline-offset: 0.18em;
+  transition: color 0.12s ease;
 }
 .markdown-body a:hover {
   text-decoration: underline;
+  text-decoration-thickness: 1px;
 }
 
 .markdown-body h1,
@@ -34,60 +91,239 @@ body {
 .markdown-body h5,
 .markdown-body h6 {
   color: @base06@;
-  font-weight: 600;
-  line-height: 1.25;
+  font-weight: 700;
+  line-height: 1.3;
+  margin: 1.8em 0 0.7em;
+  letter-spacing: -0.01em;
+  /* Anchor jumps land below the floating page bar instead of under it. */
+  scroll-margin-top: 1rem;
+}
+.markdown-body h1 {
+  font-size: 2em;
+}
+.markdown-body h2 {
+  font-size: 1.5em;
+}
+.markdown-body h3 {
+  font-size: 1.25em;
+}
+.markdown-body h4 {
+  font-size: 1.05em;
+  color: @base05@;
+}
+.markdown-body h5 {
+  font-size: 0.95em;
+  color: @base05@;
+}
+.markdown-body h6 {
+  /* Smallest heading: don't let it drop below body weight into fine-print
+     territory. Muted color carries the hierarchy instead of tiny size. */
+  font-size: 0.9em;
+  color: @base04@;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
 }
 .markdown-body h1,
 .markdown-body h2 {
   border-bottom: 1px solid @base02@;
+  padding-bottom: 0.3em;
+}
+/* The anchor-link glyph mkdp injects beside headings is visual noise on every
+   line — reveal it only when hovering the heading. */
+.markdown-body .anchor {
+  visibility: hidden;
+  color: @base03@;
+}
+.markdown-body h1:hover .anchor,
+.markdown-body h2:hover .anchor,
+.markdown-body h3:hover .anchor,
+.markdown-body h4:hover .anchor,
+.markdown-body h5:hover .anchor,
+.markdown-body h6:hover .anchor {
+  visibility: visible;
 }
 
 .markdown-body hr {
-  background: @base03@;
   border: 0;
   height: 1px;
+  margin: 2em 0;
+  /* Fade in/out at the ends rather than a hard rule. */
+  background: linear-gradient(
+    to right,
+    transparent,
+    @base03@ 20%,
+    @base03@ 80%,
+    transparent
+  );
 }
 
 .markdown-body blockquote {
   color: @base04@;
-  border-left: 0.25em solid @base03@;
+  border-left: 0.25em solid @base0D@;
+  background: @base01@;
+  border-radius: 0 6px 6px 0;
+  margin: 1.2em 0;
+  padding: 0.6em 1em;
+}
+.markdown-body blockquote > :last-child {
+  margin-bottom: 0;
 }
 
 .markdown-body code {
   background: @base01@;
   color: @base0A@;
+  border: 1px solid @base02@;
   border-radius: 4px;
-  padding: 0.2em 0.4em;
+  padding: 0.15em 0.4em;
+  font-family: "@font-mono@", ui-monospace, "SFMono-Regular", monospace;
+  font-size: 0.875em;
+  font-variant-ligatures: none;
 }
 .markdown-body pre {
   background: @base01@;
   border-radius: 8px;
+  padding: 1em 1.2em;
+  line-height: 1.55;
+  overflow: auto;
+  border: 1px solid @base02@;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.25);
 }
 .markdown-body pre code {
   background: none;
+  border: 0;
   color: @base05@;
   padding: 0;
+  font-size: 0.875em;
 }
 
+.markdown-body kbd {
+  background: @base02@;
+  color: @base06@;
+  border: 1px solid @base03@;
+  border-bottom-width: 2px;
+  border-radius: 5px;
+  padding: 0.1em 0.45em;
+  font-family: "@font-mono@", ui-monospace, monospace;
+  font-size: 0.8em;
+  line-height: 1;
+}
+
+.markdown-body ul,
+.markdown-body ol {
+  padding-left: 1.5em;
+  margin: 0 0 1.1em;
+}
+.markdown-body li {
+  margin: 0.3em 0;
+}
+.markdown-body li::marker {
+  color: @base0D@;
+}
+/* GitHub task-list checkboxes. */
+.markdown-body .task-list-item {
+  list-style: none;
+}
+.markdown-body .task-list-item input[type="checkbox"] {
+  width: 1.05em;
+  height: 1.05em;
+  margin: 0 0.5em 0 -1.6em;
+  vertical-align: -0.15em;
+  accent-color: @base0B@;
+}
+
+.markdown-body table {
+  /* display:block + width:max-content lets normal tables size to their content
+     while genuinely wide ones scroll horizontally instead of breaking the
+     page measure. overflow:auto also clips children to the rounded corners. */
+  display: block;
+  width: max-content;
+  max-width: 100%;
+  overflow: auto;
+  border-collapse: separate;
+  border-spacing: 0;
+  margin: 1.3em 0;
+  border: 1px solid @base03@;
+  border-radius: 8px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.25);
+}
 .markdown-body table tr {
   background: @base00@;
-  border-top: 1px solid @base03@;
 }
 .markdown-body table tr:nth-child(2n) {
   background: @base01@;
 }
 .markdown-body table th,
 .markdown-body table td {
-  border: 1px solid @base03@;
+  border: 0;
+  border-bottom: 1px solid @base02@;
+  border-right: 1px solid @base02@;
+  padding: 0.5em 0.9em;
+}
+.markdown-body table th:last-child,
+.markdown-body table td:last-child {
+  border-right: 0;
+}
+.markdown-body table tr:last-child td {
+  border-bottom: 0;
 }
 .markdown-body table th {
-  background: @base01@;
+  background: @base02@;
   color: @base06@;
+  font-weight: 700;
+}
+
+.markdown-body img {
+  max-width: 100%;
+  border-radius: 6px;
 }
 
 .markdown-body strong {
   color: @base07@;
+  font-weight: 700;
+}
+.markdown-body em {
+  color: @base05@;
+}
+.markdown-body del {
+  color: @base04@;
+}
+.markdown-body mark {
+  background: @base0A@;
+  color: @base00@;
+  border-radius: 3px;
+  padding: 0 0.2em;
 }
 .markdown-body ::selection {
   background: @base02@;
+}
+
+/* Collapsible <details> blocks. */
+.markdown-body details {
+  background: @base01@;
+  border: 1px solid @base02@;
+  border-radius: 8px;
+  padding: 0.5em 1em;
+  margin: 1.1em 0;
+}
+.markdown-body summary {
+  cursor: pointer;
+  font-weight: 600;
+  color: @base06@;
+}
+.markdown-body summary::marker {
+  color: @base0D@;
+}
+.markdown-body details[open] summary {
+  margin-bottom: 0.6em;
+  border-bottom: 1px solid @base02@;
+  padding-bottom: 0.5em;
+}
+
+/* Footnotes: smaller and muted, set apart by the gradient hr mkdp emits. */
+.markdown-body .footnotes {
+  font-size: 0.85em;
+  color: @base04@;
+}
+.markdown-body .footnotes li:target {
+  background: @base01@;
 }

@@ -9,7 +9,10 @@
 
 .hljs-comment,
 .hljs-quote {
-  color: @base03@;
+  /* base04 not base03: comments on the base01 code background need the extra
+     lift to stay legible (base03 there is ~1.9:1 contrast — effectively
+     invisible). Still muted relative to code, just readable. */
+  color: @base04@;
   font-style: italic;
 }
 
@@ -42,8 +45,25 @@
 }
 
 .hljs-title,
-.hljs-section {
+.hljs-section,
+.hljs-title.function_ {
+  color: @base0D@;
+}
+.hljs-title.class_,
+.hljs-class .hljs-title {
   color: @base0A@;
+}
+.hljs-property,
+.hljs-attr {
+  color: @base0C@;
+}
+.hljs-char.escape_,
+.hljs-subst {
+  color: @base0F@;
+}
+.hljs-operator,
+.hljs-punctuation {
+  color: @base05@;
 }
 
 .hljs-keyword,

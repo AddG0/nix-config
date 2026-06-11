@@ -4,8 +4,10 @@
   ...
 }: let
   c = config.lib.stylix.colors.withHashtag;
-  # Substitute stylix base16 colors into a sibling CSS template. The templates
-  # use @baseNN@ placeholders; this keeps them as real, editable .css files.
+  inherit (config.stylix) fonts;
+  # Substitute stylix base16 colors + font names into a sibling CSS template.
+  # The templates use @baseNN@ and @font-*@ placeholders; this keeps them as
+  # real, editable .css files.
   themeCss = name: file:
     pkgs.writeText name (
       builtins.replaceStrings
@@ -26,6 +28,8 @@
         "@base0D@"
         "@base0E@"
         "@base0F@"
+        "@font-sans@"
+        "@font-mono@"
       ]
       [
         c.base00
@@ -44,6 +48,8 @@
         c.base0D
         c.base0E
         c.base0F
+        fonts.sansSerif.name
+        fonts.monospace.name
       ]
       (builtins.readFile file)
     );

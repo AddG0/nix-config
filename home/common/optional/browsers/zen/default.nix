@@ -189,10 +189,24 @@
           workspace = spaces."Work".id;
           container = containers."Work".id;
         };
+        "JIRA Dashboard" = {
+          id = "29fd347a-68fb-4679-9162-0e6ba8c9cc42";
+          url = "https://webshopapps.atlassian.net/jira/dashboards/10340?assignee=62b03e83566f3e7b0a8df8f8";
+          position = 5000;
+          workspace = spaces."Work".id;
+          container = containers."Work".id;
+        };
+        "Confluence" = {
+          id = "fce88b21-c084-4bb0-a685-bea7ebc690d1";
+          url = "https://webshopapps.atlassian.net/wiki/spaces/ShipperHQ1/overview";
+          position = 6000;
+          workspace = spaces."Work".id;
+          container = containers."Work".id;
+        };
         "GitLab" = {
           id = "00427b2d-242d-4fa2-8b92-08f76b23bbc3";
           url = "https://gitlab.com/ShipperHQ";
-          position = 5000;
+          position = 7000;
           workspace = spaces."Work".id;
           container = containers."Work".id;
         };
