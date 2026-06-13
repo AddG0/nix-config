@@ -269,6 +269,12 @@ in {
     # dim overlay.
     windowrule = [
       "opacity 0.96 0.88 override, match:class ^(com\\.mitchellh\\.ghostty|ghostty)$"
+      # Zen and VLC stay fully opaque in every state — active, inactive, and
+      # fullscreen. `override` wins over the global active/inactive_opacity
+      # (1.0/0.9) so neither dims when unfocused. (Hover-focus = the active
+      # state, so this already covers "on hover".)
+      "opacity 1.0 override 1.0 override 1.0 override, match:class ^(zen|zen-alpha|zen-beta)$"
+      "opacity 1.0 override 1.0 override 1.0 override, match:class ^(vlc)$"
     ];
 
     # Layer rules govern blur for shell-surfaces (waybar, rofi, notifications).

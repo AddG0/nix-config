@@ -8,22 +8,25 @@
   # from the SSH config so gitbrowse resolves aliased remotes to real URLs, then
   # append snacks' upstream defaults (it replaces this list wholesale and applies
   # every entry in order). Anchoring to `@alias[:/]` avoids mangling repo paths.
-  luaEscape = builtins.replaceStrings
+  luaEscape =
+    builtins.replaceStrings
     ["%" "(" ")" "." "+" "-" "*" "?" "[" "]" "^" "$"]
     ["%%" "%(" "%)" "%." "%+" "%-" "%*" "%?" "%[" "%]" "%^" "%$"];
-  sshAliasRewrites =
-    lib.filter (p: p != null) (lib.mapAttrsToList (name: entry: let
-      data = entry.data or entry;
-      hostName = data.HostName or null;
-      header = data.header or "Host ${name}";
-      # First single, non-wildcard token after `Host ` (skips Match/`*` blocks).
-      m = builtins.match "Host ([^ ?*]+).*" header;
-      alias = if m == null then null else builtins.head m;
-    in
-      if hostName != null && alias != null && alias != hostName
-      then ["@${luaEscape alias}([:/])" "@${hostName}%1"]
-      else null)
-    (config.programs.ssh.settings or {}));
+  sshAliasRewrites = lib.filter (p: p != null) (lib.mapAttrsToList (name: entry: let
+    data = entry.data or entry;
+    hostName = data.HostName or null;
+    header = data.header or "Host ${name}";
+    # First single, non-wildcard token after `Host ` (skips Match/`*` blocks).
+    m = builtins.match "Host ([^ ?*]+).*" header;
+    alias =
+      if m == null
+      then null
+      else builtins.head m;
+  in
+    if hostName != null && alias != null && alias != hostName
+    then ["@${luaEscape alias}([:/])" "@${hostName}%1"]
+    else null)
+  (config.programs.ssh.settings or {}));
   gitbrowseRemotePatterns =
     sshAliasRewrites
     ++ [
@@ -72,6 +75,7 @@
     ".classpath"
     ".project"
     ".factorypath"
+    ".kls_database.db"
     "dump.rdb"
     ".pre-commit-config.yaml"
   ];

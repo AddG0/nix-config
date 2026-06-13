@@ -92,6 +92,10 @@ in {
         "float on, match:class ^(feh|imv|Gpicview|Gimp|nomacs)$"
         "float on, match:class ^(VirtualBox Manager|qemu|Qemu-system-x86_64)$"
         "float on, match:class ^(xfce4-appfinder)$"
+        # IntelliJ / JetBrains (splash leaks the coroutine class)
+        "float on, match:class ^(jetbrains-idea)$, match:title ^(IntelliJ IDEA User Agreement)$"
+        "float on, match:class ^(kotlinx-coroutines-scheduling-CoroutineScheduler\\$Worker)$"
+        "workspace special silent, match:title ^(Gateway to .*)$"
         "float on, match:title ^(foot-full)$"
         "move 0 0, match:title ^(foot-full)$"
         "size 100% 100%, match:title ^(foot-full)$"

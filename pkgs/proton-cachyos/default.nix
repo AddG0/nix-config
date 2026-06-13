@@ -8,8 +8,8 @@
   steamDisplayName ? "Proton CachyOS",
 }: let
   base = "11.0";
-  release = "20260521";
-  pkgrel = "3";
+  release = "20260601";
+  pkgrel = "1";
 in
   stdenv.mkDerivation {
     pname = "proton-cachyos";
@@ -18,12 +18,19 @@ in
     src = fetchurl {
       url = "https://mirror.cachyos.org/repo/x86_64/cachyos/proton-cachyos-1:${base}.${release}-${pkgrel}-x86_64.pkg.tar.zst";
       name = "proton-cachyos-${base}.${release}-${pkgrel}.pkg.tar.zst";
-      hash = "sha256-CIpWz6br+LMF/vPnslwmfVoX4c3GQpMAGXNYwrZD3Og=";
+      hash = "sha256-M3PaVYr8xo/8DllLATPCDuS/X3Wj9lWiaW4wSZfLFuw=";
     };
 
     nativeBuildInputs = [zstd];
 
     dontUnpack = true;
+
+    # Upstream protonfixes ships some gamefixes as symlinks to others (games
+    # that share a fix); a few targets aren't included in the archive, leaving
+    # harmless dangling symlinks. protonfixes falls back to defaults when a fix
+    # is absent, so opt out of nixpkgs' noBrokenSymlinks fixup check rather than
+    # failing the build.
+    dontCheckForBrokenSymlinks = true;
 
     passthru.updateScript = [./update.sh];
 

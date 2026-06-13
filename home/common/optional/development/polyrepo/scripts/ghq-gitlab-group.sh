@@ -92,7 +92,14 @@ if ! PROJECTS_JSON=$(glab api --paginate \
   exit 1
 fi
 
-PROJECTS=$(printf '%s' "$PROJECTS_JSON" | jq -r '.[].path_with_namespace')
+# Skip projects GitLab has scheduled for deletion: their path is renamed with a
+# `-deletion_scheduled-<id>` suffix during the retention window and they must
+# not be (re)cloned. marked_for_deletion_on covers it too when present.
+PROJECTS=$(printf '%s' "$PROJECTS_JSON" |
+  jq -r '.[]
+    | select((.marked_for_deletion_on // null) == null)
+    | select(.path_with_namespace | test("-deletion_scheduled-[0-9]+$") | not)
+    | .path_with_namespace')
 
 if [[ -z $PROJECTS ]]; then
   echo "No projects found under $GROUP." >&2
@@ -106,6 +113,8 @@ echo ""
 # Buffer each child's output so parallel ghq invocations don't interleave
 # their lines mid-write. $UPDATE is exported for the child shells; $1 is the
 # {} positional arg from xargs — both must NOT expand in the parent.
+# (Nested GitLab subgroup paths are preserved by the `ghq."https://gitlab.com/".vcs
+# = git` setting in ../ghq.nix, which disables ghq's path-truncating VCS probe.)
 export UPDATE
 # shellcheck disable=SC2016
 printf '%s\n' "$PROJECTS" |

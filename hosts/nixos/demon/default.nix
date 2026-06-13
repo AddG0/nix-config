@@ -24,12 +24,14 @@
     ./audio
     ./media.nix
     ./awsvpn-home-dns-fix.nix
+    ./bluetooth-mt7927.nix
 
     (map lib.custom.relativeToHosts (map (f: "common/optional/${f}") [
       "nixos/services/openssh.nix" # allow remote SSH access
       "nixos/hardware/cachyos-kernel.nix" # CachyOS kernel
       "nixos/secureboot.nix"
       "nixos/services/bluetooth.nix"
+      "nixos/audio.nix" # base pipewire + AirPods A2DP handling; ./audio layers demon-specific routing on top
 
       "nixos/services/tailscale.nix" # mesh VPN for secure remote access
 
@@ -47,6 +49,7 @@
       "nixos/services/ollama.nix"
       "nixos/virtualisation/docker.nix" # docker
       "nixos/development/mysql.nix"
+      "nixos/development/postgres.nix"
 
       "nixos/gaming.nix" # steam, gamescope, gamemode, and related hardware
       "nixos/vr.nix" # monado OpenXR runtime (Bigscreen Beyond)

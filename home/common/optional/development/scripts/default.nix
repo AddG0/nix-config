@@ -1,4 +1,11 @@
 {pkgs, ...}: let
+  # git-aware rsync: excludes .git and respects .gitignore / .git/info/exclude.
+  # Pulled out of `scripts` so ghq-sync below can take it as a runtimeInput.
+  gsync = pkgs.writeShellApplication {
+    name = "gsync";
+    runtimeInputs = with pkgs; [git rsync gnused coreutils];
+    text = builtins.readFile ./gsync.sh;
+  };
   scripts = {
     # Run a command and get a desktop notification when it finishes.
     # Linux uses notify-send (libnotify); macOS uses terminal-notifier.
@@ -21,6 +28,14 @@
       name = "gitlab-avatar";
       runtimeInputs = with pkgs; [imagemagick];
       text = builtins.readFile ./gitlab-avatar.sh;
+    };
+    inherit gsync;
+    # Push the ghq repo you're in to the same path on another computer, via
+    # gsync. Lives here (not ghq.nix) so it can depend on the gsync package.
+    ghq-sync = pkgs.writeShellApplication {
+      name = "ghq-sync";
+      runtimeInputs = [gsync pkgs.ghq pkgs.git];
+      text = builtins.readFile ./ghq-sync.sh;
     };
   };
 in {

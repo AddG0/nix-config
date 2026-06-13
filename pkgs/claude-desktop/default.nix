@@ -32,12 +32,12 @@
   libxcb,
 }: let
   pname = "claude-desktop";
-  version = "1.11187.1";
-  wrapperVersion = "2.0.18";
+  version = "1.11847.5";
+  wrapperVersion = "2.0.19";
 
   src = fetchurl {
     url = "https://github.com/aaddrick/claude-desktop-debian/releases/download/v${wrapperVersion}%2Bclaude${version}/claude-desktop_${version}-${wrapperVersion}_amd64.deb";
-    hash = "sha256-4qMsQRHBd4hghO2ar45oj9mHw+SMTXeHMRhGHaPeR14=";
+    hash = "sha256-9KhKFuzI0auKjK/wWGeCab+GscfXS+yUtF9+rzB6seU=";
   };
 
   unwrapped = stdenvNoCC.mkDerivation {

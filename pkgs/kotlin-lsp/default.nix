@@ -90,6 +90,20 @@ stdenvNoCC.mkDerivation (finalAttrs: {
     runHook postInstall
   '';
 
+  # Versions aren't discoverable from the JetBrains CDN src URL, so nix-update
+  # can't auto-bump it. Point it at the GitHub releases instead, whose tags are
+  # namespaced `kotlin-lsp/v<VERSION>` (the repo also carries unrelated
+  # `pycharm/*` tags, which the regex skips).
+  passthru.updateScript = [
+    "nix-update"
+    "--flake"
+    "kotlin-lsp"
+    "--version=stable"
+    "--url=https://github.com/Kotlin/kotlin-lsp"
+    "--version-regex"
+    "kotlin-lsp/v([\\d.]+)"
+  ];
+
   meta = {
     description = "Official JetBrains Kotlin Language Server (standalone)";
     homepage = "https://github.com/Kotlin/kotlin-lsp";

@@ -1,9 +1,12 @@
 _: {
   # ============================================================================
-  # Core Audio Configuration
+  # Core Audio Configuration (demon-specific layer)
   # ============================================================================
-  # Base PipeWire/WirePlumber setup with high-fidelity audio settings
-  # and real-time audio priority for the audio group.
+  # Base PipeWire/WirePlumber enablement, quality defaults, and the AirPods
+  # A2DP-forcing WirePlumber hook come from the shared
+  # common/optional/nixos/audio.nix (imported by this host). This file only adds
+  # demon-only tweaks: real-time priority for the @audio group and the Hugo TT2
+  # high-fidelity / suspend-resilience settings.
   # ============================================================================
 
   # Grant audio group real-time priority and unlimited memory lock for low-latency audio
@@ -34,15 +37,7 @@ _: {
     }
   ];
 
-  security.rtkit.enable = true;
-
   services.pipewire = {
-    enable = true;
-    alsa.enable = true;
-    alsa.support32Bit = true;
-    pulse.enable = true;
-    wireplumber.enable = true;
-
     extraConfig.pipewire = {
       # High-fidelity audio: Pass native sample rates to Hugo TT2
       # Let the DAC's WTA filter handle upsampling (Chord's specialty)

@@ -33,6 +33,14 @@
     isMinimal = builtins.getEnv "NIXOS_MINIMAL" == "true";
   };
 
+  # gVNIC (Google Virtual NIC) driver. C3/C3D/C4/H3 machine types REQUIRE gVNIC —
+  # without `gve` the instance boots with no network. Pair this with the GVNIC
+  # guest-OS feature when the image is registered (gcloud compute images create
+  # --guest-os-features=...,GVNIC). Harmless on virtio machines (n2/e2): with no
+  # gVNIC device present the module just stays idle.
+  boot.initrd.availableKernelModules = ["gve"];
+  boot.kernelModules = ["gve"];
+
   # Build a UEFI image so the VM can run as a Shielded VM (vTPM +
   # integrity monitoring + secure boot). Switches grub to EFI mode and
   # adds an ESP at /dev/disk/by-label/ESP mounted at /boot.

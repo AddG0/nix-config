@@ -1,4 +1,4 @@
-_: let
+{pkgs, ...}: let
   safeeyesConfig = {
     meta.config_version = "6.0.4";
 
@@ -81,6 +81,21 @@ in {
   ];
 
   services.safeeyes.enable = true;
+
+  # The trayicon plugin needs a StatusNotifierWatcher on the session bus, but
+  # the bar that provides it isn't systemd-ordered before safeeyes.service.
+  # Wait (up to 30s) for the watcher so the plugin doesn't error at login.
+  systemd.user.services.safeeyes.Service.ExecStartPre = let
+    wait = pkgs.writeShellScript "wait-for-statusnotifierwatcher" ''
+      for _ in $(seq 1 30); do
+        ${pkgs.systemd}/bin/busctl --user call \
+          org.freedesktop.DBus /org/freedesktop/DBus org.freedesktop.DBus \
+          NameHasOwner s org.kde.StatusNotifierWatcher 2>/dev/null \
+          | grep -q true && exit 0
+        sleep 1
+      done
+    '';
+  in "${wait}";
 
   xdg.configFile."safeeyes/safeeyes.json".text = builtins.toJSON safeeyesConfig;
 }

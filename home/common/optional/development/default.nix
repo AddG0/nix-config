@@ -25,7 +25,6 @@ in {
     ./process-compose.nix
     ./git.nix
     ./gitlab.nix
-    ./gsync.nix
     ./polyrepo
     ./languages/nix
   ];

@@ -27,7 +27,7 @@
       # Development
       "development"
       # "development/ide/vscode/server.nix"
-      # "development/ide/jetbrains-remote.nix"
+      "development/ide/jetbrains-remote.nix"
       # "development/jupyter-notebook.nix"
       # "development/virtualization/nixos-shell.nix"
       "development/ai"
