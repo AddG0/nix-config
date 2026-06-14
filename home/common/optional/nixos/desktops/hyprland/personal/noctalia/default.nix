@@ -79,6 +79,12 @@ in {
 
       dock.enabled = false;
 
+      # Show notifications on the primary monitor only on desktops; empty list
+      # (all monitors) on laptops.
+      notification.monitors = lib.optionals (!isLaptop) (
+        map (m: m.output) (builtins.filter (m: m.primary or false) config.display.monitors)
+      );
+
       weather = {
         enabled = true;
         unit = "imperial"; # metric = °C, imperial = °F

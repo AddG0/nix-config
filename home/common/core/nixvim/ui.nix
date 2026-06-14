@@ -1,7 +1,8 @@
 {
-  config,
+  colors,
   lib,
   pkgs,
+  sshSettings ? {},
   ...
 }: let
   # snacks.gitbrowse remote → web-URL patterns. Derive alias→HostName rewrites
@@ -26,7 +27,7 @@
     if hostName != null && alias != null && alias != hostName
     then ["@${luaEscape alias}([:/])" "@${hostName}%1"]
     else null)
-  (config.programs.ssh.settings or {}));
+  sshSettings);
   gitbrowseRemotePatterns =
     sshAliasRewrites
     ++ [
@@ -87,25 +88,34 @@ in {
   # to read on the base00 background. Bump them to base04 (surface2), the
   # lightest grey in the palette. `highlightOverride` re-applies on ColorScheme
   # so it survives stylix setting the theme.
-  programs.nixvim.highlightOverride = {
-    Comment.fg = config.lib.stylix.colors.withHashtag.base04;
-    "@comment".fg = config.lib.stylix.colors.withHashtag.base04;
+  highlightOverride = {
+    Comment.fg = colors.base04;
+    "@comment".fg = colors.base04;
     # flash.nvim (`s`): leave the match highlights at flash's defaults and only
     # recolour the jump label (the key you press) so it's easy to spot — red
     # badge on the base00 background.
     FlashLabel = {
-      fg = config.lib.stylix.colors.withHashtag.base00;
-      bg = config.lib.stylix.colors.withHashtag.base08; # red
+      fg = colors.base00;
+      bg = colors.base08; # red
       bold = true;
     };
   };
 
   # Gives Snacks.explorer a `trash` command so deleting files there is
   # recoverable instead of a permanent `rm`.
-  programs.nixvim.extraPackages = [pkgs.trash-cli];
+  extraPackages = [pkgs.trash-cli];
 
-  programs.nixvim.plugins = {
+  plugins = {
     web-devicons.enable = true;
+
+    # VSCode-style smooth caret: animates a trailing smear as the cursor jumps.
+    smear-cursor = {
+      enable = true;
+      settings = {
+        smear_between_buffers = true;
+        smear_between_neighbor_lines = true;
+      };
+    };
 
     lualine = {
       enable = true;

@@ -1,3 +1,3 @@
 {
-  programs.nixvim.plugins.lsp.servers.tailwindcss.enable = true;
+  plugins.lsp.servers.tailwindcss.enable = true;
 }

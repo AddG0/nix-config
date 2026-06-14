@@ -14,19 +14,17 @@ in {
   # nvim-jdtls starts per-buffer on the `java` filetype; jdk21 is its runtime.
   #
   # Still not covered: Spring Boot (separate language server, no nvim equiv).
-  programs.nixvim = {
-    plugins.jdtls = {
-      enable = true;
-      settings = {
-        cmd = [jdtlsBin "--jvm-arg=-javaagent:${lombokJar}"];
-        init_options.bundles.__raw = ''
-          vim.list_extend(
-            vim.fn.glob("${javaDebug}/share/vscode/extensions/vscjava.vscode-java-debug/server/com.microsoft.java.debug.plugin-*.jar", true, true),
-            vim.fn.glob("${javaTest}/share/vscode/extensions/vscjava.vscode-java-test/server/*.jar", true, true)
-          )
-        '';
-      };
+  plugins.jdtls = {
+    enable = true;
+    settings = {
+      cmd = [jdtlsBin "--jvm-arg=-javaagent:${lombokJar}"];
+      init_options.bundles.__raw = ''
+        vim.list_extend(
+          vim.fn.glob("${javaDebug}/share/vscode/extensions/vscjava.vscode-java-debug/server/com.microsoft.java.debug.plugin-*.jar", true, true),
+          vim.fn.glob("${javaTest}/share/vscode/extensions/vscjava.vscode-java-test/server/*.jar", true, true)
+        )
+      '';
     };
-    extraPackages = [pkgs.jdk21];
   };
+  extraPackages = [pkgs.jdk21];
 }

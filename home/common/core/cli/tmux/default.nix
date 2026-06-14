@@ -8,6 +8,25 @@
     "t" = "tmux";
     "mux" = "tmuxinator";
   };
+
+  # Wrap tmux so a bare `tmux` (no args, outside a session) creates/attaches a
+  # session named after the current folder. With args or inside $TMUX it
+  # forwards verbatim, so every other caller is unaffected.
+  tmuxLauncher = pkgs.writeShellScript "tmux" ''
+    if [ -n "$TMUX" ] || [ "$#" -gt 0 ]; then
+      exec ${pkgs.tmux}/bin/tmux "$@"
+    fi
+    name=$(${pkgs.coreutils}/bin/basename "$PWD" | ${pkgs.coreutils}/bin/tr '.: ' '___')
+    exec ${pkgs.tmux}/bin/tmux new-session -A -s "$name"
+  '';
+  tmuxWrapped = pkgs.symlinkJoin {
+    name = "tmux-folder-session";
+    paths = [pkgs.tmux];
+    postBuild = ''
+      rm -f "$out/bin/tmux"
+      ln -s ${tmuxLauncher} "$out/bin/tmux"
+    '';
+  };
 in {
   programs.git.ignores = [
     ".tmuxinator.yml"
@@ -19,6 +38,7 @@ in {
 
   programs.tmux = {
     enable = true;
+    package = tmuxWrapped;
     tmuxinator.enable = true;
     tmuxp.enable = false;
     mouse = true;

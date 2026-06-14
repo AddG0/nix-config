@@ -4,7 +4,7 @@
   # lspconfig `kotlin_lsp` preset; we point cmd at our packaged launcher in
   # stdio mode. Needs a Gradle/Maven project (opened from its root) to resolve
   # dependencies — it indexes on first attach.
-  programs.nixvim.plugins.lsp.servers.kotlin_lsp = {
+  plugins.lsp.servers.kotlin_lsp = {
     enable = true;
     package = pkgs.kotlin-lsp;
     cmd = ["${pkgs.kotlin-lsp}/bin/kotlin-lsp" "--stdio"];
@@ -23,5 +23,5 @@
   # test-running support of its own, and its treesitter parser ("kotlin,java")
   # covers gradle Java tests too — whereas pure Java projects run through
   # nvim-jdtls' java-test bundle in ./java.nix, so the two don't overlap.
-  programs.nixvim.plugins.neotest.adapters.gradle.enable = true;
+  plugins.neotest.adapters.gradle.enable = true;
 }

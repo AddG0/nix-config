@@ -251,24 +251,12 @@ in {
 
     # Window rules — visual treatment for specific app classes.
     #
-    # Ghostty (primary terminal) gets explicit 96/88% opacity so the desktop
-    # bleeds through enough to feel "alive". Tighter range than the typical
-    # Linux 90/80 — text readability matters more than transparency theatre.
-    # The `override` flag stops Hyprland from multiplying the rule by the
-    # global active/inactive_opacity (1.0/0.9), which would have left inactive
-    # ghostty at 0.79 — too dim to scan against other terminals.
-    #
-    # Only ghostty is styled because it's the primary terminal here; other
-    # terminals listed in `enable_swallow` fall back to the global opacity
-    # (which is intentionally less aggressive).
-    #
     # Note: Hyprland's `dim_around` effect is layer-only, not a windowrule;
     # polkit/auth prompts can't get a macOS-modal dim through windowrules.
     # The closest equivalents would be `decoration.dim_inactive = true` (dims
     # everything unfocused, globally) or a polkit theme that draws its own
     # dim overlay.
     windowrule = [
-      "opacity 0.96 0.88 override, match:class ^(com\\.mitchellh\\.ghostty|ghostty)$"
       # Zen and VLC stay fully opaque in every state — active, inactive, and
       # fullscreen. `override` wins over the global active/inactive_opacity
       # (1.0/0.9) so neither dims when unfocused. (Hover-focus = the active

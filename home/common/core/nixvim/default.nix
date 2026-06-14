@@ -1,36 +1,32 @@
 {
   inputs,
   lib,
+  config,
+  self,
+  osConfig ? null,
   ...
 }: {
-  imports =
-    [inputs.nixvim.homeModules.nixvim]
-    ++ (lib.custom.scanPaths ./.);
+  imports = [inputs.nixvim.homeModules.nixvim];
 
+  # The nvim config itself is a set of prefix-less nixvim modules (core.nix +
+  # siblings), shared verbatim with the standalone `packages.nvim` build that
+  # feeds the same modules to `evalNixvim`. Here they're imported under the
+  # `programs.nixvim` submodule; _module.args supplies the host/stylix context
+  # they need (the standalone build passes its own equivalents).
   programs.nixvim = {
     enable = true;
-    # Yank/delete/paste through the system clipboard (the `+` register) by
-    # default, so copy/paste works between nvim and other apps without `"+`.
-    clipboard.register = "unnamedplus";
-    # Over SSH (no wl-copy/xclip), nvim falls back to the OSC 52 provider. Its
-    # paste handler *reads* the terminal clipboard via an escape sequence, which
-    # makes Ghostty prompt/flash on every `+` register access. Keep OSC 52 for
-    # copy (yanks still reach the local clipboard) but serve paste from nvim's
-    # own unnamed register, so nothing ever queries the terminal.
-    extraConfigLua = ''
-      local osc52 = require("vim.ui.clipboard.osc52")
-      local function paste()
-        return vim.split(vim.fn.getreg('"'), "\n")
-      end
-      vim.g.clipboard = {
-        name = "OSC 52 (copy-only)",
-        copy = { ["+"] = osc52.copy("+"), ["*"] = osc52.copy("*") },
-        paste = { ["+"] = paste, ["*"] = paste },
-      }
-    '';
-    # Leader key = space (prefix for all `<leader>…` maps). Set here, before
-    # the keymap modules load, since mapleader is read when a mapping is defined.
-    globals.mapleader = " ";
+    imports = lib.custom.scanPaths ./.;
+    # Use the host's (overlaid, allowUnfree) pkgs instead of nixvim's own
+    # instance, so custom packages like kotlin-lsp resolve in the submodule.
+    nixpkgs.useGlobalPackages = true;
+    _module.args = {
+      # nixvim auto-provides `nixvimLib` (host lib + nixvim overlay, with our
+      # lib.custom) to submodule modules; that's what they use for lib.custom.
+      inherit self osConfig;
+      colors = config.lib.stylix.colors.withHashtag;
+      fonts = config.stylix.fonts;
+      sshSettings = config.programs.ssh.settings or {};
+    };
   };
 
   # The GitHub Global/Vim gitignore template ships an over-broad swap-file

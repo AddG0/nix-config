@@ -107,7 +107,7 @@
   # Hide mouse cursor for kiosk mode and disable screen power management
   services.xserver.displayManager.sessionCommands = ''
     # Configure dual display layout
-    ${pkgs.xorg.xrandr}/bin/xrandr --output DP-1 --auto --output HDMI-A-1 --auto --right-of DP-1
+    ${pkgs.xrandr}/bin/xrandr --output DP-1 --auto --output HDMI-A-1 --auto --right-of DP-1
     ${pkgs.xorg.xsetroot}/bin/xsetroot -cursor_name left_ptr
     ${pkgs.unclutter-xfixes}/bin/unclutter --timeout 1 --jitter 0 --ignore-scrolling --start-hidden --fork
     ${pkgs.xorg.xset}/bin/xset s off -dpms
@@ -118,7 +118,7 @@
     unclutter-xfixes
     xorg.xsetroot
     xorg.xset
-    xorg.xrandr
+    xrandr
   ];
 
   # Ensure lightdm auth file is readable by lumenboard-player user

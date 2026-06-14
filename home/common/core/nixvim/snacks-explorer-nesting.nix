@@ -13,7 +13,7 @@
 # DELETE THIS FILE (auto-imported via scanPaths) and enable the native option
 # once snacks adds single-child folder collapsing.
 _: {
-  programs.nixvim.plugins.snacks.settings.picker.sources.explorer = {
+  plugins.snacks.settings.picker.sources.explorer = {
     actions.confirm_descend.__raw = ''
       function(picker, item, action)
         if not item then return end

@@ -1,6 +1,6 @@
 {
   # LazyVim-style core keymaps. Plugin-specific maps live with their plugins.
-  programs.nixvim.keymaps = [
+  keymaps = [
     # ── Motion ── (LazyVim default: move by display line when no count, so
     # j/k navigate wrapped lines naturally — handy in markdown/prose.)
     {

@@ -1,7 +1,8 @@
 {
   pkgs,
-  osConfig,
+  lib,
   self,
+  osConfig ? null,
   ...
 }: let
   # nixd evaluates these strings itself (lazily) to learn your option set, which
@@ -14,24 +15,29 @@
   # the last rebuild, not uncommitted edits — fine for docs, and it avoids the
   # slow "dirty tree" re-copy you'd get pointing at the live working tree.
   flake = ''builtins.getFlake "${self}"'';
-  host = osConfig.networking.hostName;
 in {
-  programs.nixvim = {
-    plugins.lsp.servers.nixd = {
-      enable = true;
-      settings.nixd = {
+  plugins.lsp.servers.nixd = {
+    enable = true;
+    settings.nixd =
+      {
         # Package + lib completion/hover, from this flake's own nixpkgs input.
         nixpkgs.expr = "import (${flake}).inputs.nixpkgs { }";
         formatting.command = ["alejandra"];
-        options = {
+      }
+      # Option/HM hover resolves against a specific host; there's no host in
+      # the standalone build (packages.nvim, osConfig == null), so include it
+      # only when a host is present — everything else stays identical.
+      // lib.optionalAttrs (osConfig != null) {
+        options = let
+          host = osConfig.networking.hostName;
+        in {
           nixos.expr = "(${flake}).nixosConfigurations.${host}.options";
           # Integrated home-manager (rebuilt via nixos-rebuild) exposes its
           # options under the nixos module — pull the user submodule's set.
           "home-manager".expr = "(${flake}).nixosConfigurations.${host}.options.home-manager.users.type.getSubOptions []";
         };
       };
-    };
-    plugins.conform-nvim.settings.formatters_by_ft.nix = ["alejandra"];
-    extraPackages = [pkgs.alejandra];
   };
+  plugins.conform-nvim.settings.formatters_by_ft.nix = ["alejandra"];
+  extraPackages = [pkgs.alejandra];
 }

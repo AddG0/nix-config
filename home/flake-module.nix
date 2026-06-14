@@ -44,6 +44,64 @@
     };
   };
 
+  # Standalone, portable nvim built via nixvim's documented `evalNixvim` — the
+  # same prefix-less modules the home-manager wrapper imports, with no host /
+  # stylix / secret inputs. Self-contained (config baked in, ignores
+  # ~/.config/nvim), so `nix run github:AddG0/nix-config#nvim` works anywhere.
+  #
+  # Stylix isn't present standalone, so feed the nvim modules the `colors` arg
+  # parsed from the exact same base16 scheme the hosts theme with
+  # (inputs.tt-schemes catppuccin-mocha) — single source of truth, no hardcoded
+  # hexes, so the standalone palette can't drift from Stylix. Reading a flake
+  # input is a pure read (no IFD). Yields { base00 = "#1e1e2e"; … } with hashes.
+  catppuccinMocha = let
+    content = builtins.readFile "${inputs.tt-schemes}/base16/catppuccin-mocha.yaml";
+    toPair = line: let
+      m = builtins.match "  (base0[0-9A-Fa-f]+): \"(#[0-9a-fA-F]+)\".*" line;
+    in
+      if m == null
+      then null
+      else lib.nameValuePair (builtins.elemAt m 0) (builtins.elemAt m 1);
+  in
+    lib.listToAttrs (lib.filter (x: x != null) (map toPair (lib.splitString "\n" content)));
+  nvimFor = system:
+    (inputs.nixvim.lib.evalNixvim {
+      inherit system;
+      # `self` → nixd's nixpkgs expr; `osConfig = null` → nix.nix skips host hover.
+      extraSpecialArgs = {
+        inherit self;
+        osConfig = null;
+      };
+      modules =
+        lib.custom.scanPaths ./common/core/nixvim
+        ++ [
+          {
+            # Same overlay/config the hosts use, so custom pkgs (kotlin-lsp, …) resolve.
+            nixpkgs.overlays = [self.overlays.default];
+            nixpkgs.config.allowUnfree = true;
+          }
+          {
+            _module.args = {
+              colors = catppuccinMocha;
+              fonts = {
+                monospace.name = "JetBrainsMono Nerd Font";
+                sansSerif.name = "DejaVu Sans";
+              };
+              sshSettings = {};
+            };
+          }
+          {
+            # The actual colorscheme comes from stylix's nixvim target on the
+            # hosts (mini.base16 + the catppuccin palette). Stylix is absent
+            # standalone, so apply the identical colorscheme here.
+            plugins.mini.modules.base16.palette = catppuccinMocha;
+          }
+        ];
+    })
+    .config
+    .build
+    .package;
+
   homeConfigurations = builtins.listToAttrs (map (file: let
       hostName = mkHostName file;
     in {
@@ -66,5 +124,10 @@
 in {
   flake = {
     inherit homeConfigurations;
+  };
+
+  # `nix run .#nvim` / `nix run github:AddG0/nix-config#nvim`
+  perSystem = {system, ...}: {
+    packages.nvim = nvimFor system;
   };
 }

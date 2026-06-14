@@ -9,6 +9,7 @@
   hyprLib = import ./lib.nix;
   transformToHyprland = hyprLib.transformMap;
   vrrToHyprland = hyprLib.vrrMap;
+  primaryMonitor = lib.findFirst (m: m.primary) null config.display.monitors;
 in {
   wayland.windowManager.hyprland = {
     inherit package;
@@ -117,8 +118,11 @@ in {
       ];
 
       # ========== Exec Once ==========
-      exec-once = [
-      ];
+      # Set the X11 primary monitor so the Steam overlay picks the right
+      # output/scale.
+      exec-once =
+        lib.optional (primaryMonitor != null)
+        "${lib.getExe pkgs.xrandr} --output ${primaryMonitor.output} --primary";
     };
     plugins = [];
     systemd = {

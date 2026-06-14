@@ -7,9 +7,9 @@
   #
   # Results show inline next to each test and in the summary panel. The actual
   # test tools (pytest, cargo, gradle, …) come from each project, not from here.
-  programs.nixvim.plugins.neotest.enable = true;
+  plugins.neotest.enable = true;
 
-  programs.nixvim.keymaps = [
+  keymaps = [
     {
       mode = "n";
       key = "<leader>tt";
