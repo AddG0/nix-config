@@ -61,21 +61,25 @@
       action = "<cmd>lua Snacks.picker.lsp_definitions()<cr>";
       options.desc = "Goto definition";
     }
+    # Use Neovim 0.11's native `gr*` keys (better ecosystem support, no bare-`gr`
+    # timeoutlen delay) but route them to Snacks pickers for the nicer UI. These
+    # override the builtin grr/gri/grt; grn (rename) + gra (code action) keep
+    # their defaults (also bound to <leader>cr / <leader>ca below).
     {
       mode = "n";
-      key = "gr";
+      key = "grr";
       action = "<cmd>lua Snacks.picker.lsp_references()<cr>";
       options.desc = "References";
     }
     {
       mode = "n";
-      key = "gI";
+      key = "gri";
       action = "<cmd>lua Snacks.picker.lsp_implementations()<cr>";
       options.desc = "Goto implementation";
     }
     {
       mode = "n";
-      key = "gy";
+      key = "grt";
       action = "<cmd>lua Snacks.picker.lsp_type_definitions()<cr>";
       options.desc = "Goto type definition";
     }
@@ -96,39 +100,6 @@
       key = "K";
       action.__raw = "vim.lsp.buf.hover";
       options.desc = "Hover";
-    }
-  ];
-
-  autoCmd = [
-    # Prefer LSP folding when the server supports foldingRange; otherwise the
-    # treesitter foldexpr default (options.nix) stays. (neovim 0.11+ built-in)
-    {
-      event = ["LspAttach"];
-      callback.__raw = ''
-        function(ev)
-          local client = vim.lsp.get_client_by_id(ev.data.client_id)
-          if client and client:supports_method("textDocument/foldingRange") then
-            local win = vim.api.nvim_get_current_win()
-            vim.wo[win][0].foldexpr = "v:lua.vim.lsp.foldexpr()"
-          end
-        end
-      '';
-    }
-    # IntelliJ-style: collapse the imports block when a file opens, so the
-    # class/definitions sit at the top. Works for any LSP that reports an
-    # `imports` foldingRange kind (jdtls, gopls, pyright, tsserver, …).
-    {
-      event = ["LspNotify"];
-      callback.__raw = ''
-        function(ev)
-          if ev.data.method == "textDocument/didOpen" then
-            local win = vim.fn.bufwinid(ev.buf)
-            if win ~= -1 then
-              vim.lsp.foldclose("imports", win)
-            end
-          end
-        end
-      '';
     }
   ];
 }

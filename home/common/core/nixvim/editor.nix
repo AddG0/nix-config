@@ -45,6 +45,17 @@
     # Auto-close and auto-rename HTML/JSX/XML tags (treesitter-driven).
     ts-autotag.enable = true;
 
+    # Folding. origami is batteries-included: `enable` alone turns on LSP folds
+    # (treesitter fallback), auto-fold of imports + comments on open, fancy
+    # foldtext, search-pausing, and smart h/l/$/^ fold keymaps. foldlevel 99
+    # (options.nix) keeps everything but those folded regions open on load.
+    # Sole override: closeOnlyOnFirstColumn so h/^ fold only at column 0 (default
+    # = anywhere in the indent); set false for the snappier behaviour.
+    origami = {
+      enable = true;
+      settings.foldKeymaps.closeOnlyOnFirstColumn = true;
+    };
+
     # Project-wide find & replace with live preview (<leader>sr).
     grug-far.enable = true;
 

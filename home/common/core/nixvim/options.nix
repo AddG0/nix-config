@@ -16,16 +16,12 @@
     fillchars = {
       diff = " ";
     };
-    # LSP/treesitter folding. Base engine is treesitter; lsp.nix switches a
-    # window to LSP folding when the server supports foldingRange, and
-    # auto-collapses the `imports` block on open (IntelliJ-style — class at the
-    # top, not the import boilerplate). foldlevel 99 = everything open by
-    # default, so only the imports fold is closed.
+    # Folding is owned by nvim-origami (editor.nix): it sets foldexpr to LSP
+    # folds with a treesitter fallback and auto-collapses imports on open
+    # (IntelliJ-style — class at the top). foldlevel 99 = everything open by
+    # default, so only imports get folded.
     foldlevel = 99;
     foldlevelstart = 99;
-    foldmethod = "expr";
-    foldexpr = "v:lua.vim.treesitter.foldexpr()";
-    foldtext = "v:lua.vim.lsp.foldtext()";
     formatoptions = "jcroqlnt";
     grepformat = "%f:%l:%c:%m";
     grepprg = "rg --vimgrep";

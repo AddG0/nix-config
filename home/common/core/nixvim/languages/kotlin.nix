@@ -1,10 +1,18 @@
-{pkgs, ...}: {
+{
+  pkgs,
+  lib,
+  ...
+}: {
   # Official JetBrains Kotlin LSP (pkgs/kotlin-lsp, our custom package) instead
   # of the flaky/unmaintained fwcd kotlin-language-server. nixvim has the
   # lspconfig `kotlin_lsp` preset; we point cmd at our packaged launcher in
   # stdio mode. Needs a Gradle/Maven project (opened from its root) to resolve
   # dependencies — it indexes on first attach.
-  plugins.lsp.servers.kotlin_lsp = {
+  #
+  # Linux-only: kotlin-lsp is a prebuilt Linux archive (bundled JBR), so it's
+  # gated here — on darwin (e.g. the standalone `nix run .#nvim`) kotlin gets
+  # treesitter highlighting but no LSP.
+  plugins.lsp.servers.kotlin_lsp = lib.mkIf pkgs.stdenv.hostPlatform.isLinux {
     enable = true;
     package = pkgs.kotlin-lsp;
     cmd = ["${pkgs.kotlin-lsp}/bin/kotlin-lsp" "--stdio"];

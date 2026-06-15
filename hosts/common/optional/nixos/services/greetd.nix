@@ -16,8 +16,11 @@ in {
 
       restart = true;
       settings = {
+        # tuigreet is the fallback greeter, set at mkOptionDefault (weaker than
+        # mkDefault) so any imported greeter module (e.g. noctalia-greeter,
+        # whose command is at mkDefault) wins without touching this file.
         default_session = {
-          command = "${pkgs.tuigreet}/bin/tuigreet --asterisks --remember --time --time-format '%I:%M %p | %a • %h | %F' --cmd '${cfg.sessionCommand}'";
+          command = lib.mkOptionDefault "${pkgs.tuigreet}/bin/tuigreet --asterisks --remember --time --time-format '%I:%M %p | %a • %h | %F' --cmd '${cfg.sessionCommand}'";
           user = cfg.username;
         };
 

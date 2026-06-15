@@ -1,4 +1,4 @@
-# Wallpaper backend. Each subfolder of ~/Pictures/wallpapers/ is dedicated:
+# Wallpaper backend. Each subfolder of ~/Pictures/Wallpapers/ is dedicated:
 #   default/         → `any` (catch-all)
 #   <friendly-name>/ → that monitor's output (matches display.monitors.*.name)
 #   <output-name>/   → fallback when the output isn't declared in
@@ -11,7 +11,7 @@
 #   1. `wallpapers.images.<folder>."<filename>" = <source>` — declarative.
 #      home.file materialises the symlinks; the wpaperd/picker resolution
 #      knows about them immediately, on the same build.
-#   2. Whatever's on disk under ~/Pictures/wallpapers/. Picks up files you
+#   2. Whatever's on disk under ~/Pictures/Wallpapers/. Picks up files you
 #      drop in manually. Folder add/remove needs a rebuild (readDir at eval),
 #      file add/remove inside an already-known folder does not.
 #
@@ -24,7 +24,7 @@
   ...
 }: let
   homeDir = config.home.homeDirectory;
-  baseDir = "${homeDir}/Pictures/wallpapers";
+  baseDir = "${homeDir}/Pictures/Wallpapers";
   defaultFolderName = "default";
   defaultDir = "${baseDir}/${defaultFolderName}";
   rotatedCache = "${homeDir}/.cache/wpaperd-rotated";
@@ -272,7 +272,7 @@ in {
         Wallpapers to declaratively install. Keyed by folder name (which
         matches a monitor's friendly `name` or `default` for the catch-all).
         Each entry maps `"<filename>" = <source>` and becomes a symlink at
-        ~/Pictures/wallpapers/<folder>/<filename>.
+        ~/Pictures/Wallpapers/<folder>/<filename>.
       '';
     };
   };
@@ -317,13 +317,13 @@ in {
       };
 
     # Materialise wallpapers.images.<folder>."<filename>" into the
-    # corresponding ~/Pictures/wallpapers/<folder>/<filename> symlink.
+    # corresponding ~/Pictures/Wallpapers/<folder>/<filename> symlink.
     home.file = lib.listToAttrs (
       lib.concatLists (
         lib.mapAttrsToList (
           folder: files:
             lib.mapAttrsToList (filename: source: {
-              name = "Pictures/wallpapers/${folder}/${filename}";
+              name = "Pictures/Wallpapers/${folder}/${filename}";
               value.source = source;
             })
             files

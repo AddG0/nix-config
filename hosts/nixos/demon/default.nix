@@ -56,6 +56,7 @@
 
       # "nixos/plymouth.nix" # fancy boot screen
       "nixos/services/greetd.nix"
+      "nixos/services/noctalia-greeter.nix"
       # "nixos/desktops/plasma6" # window manager
       "nixos/desktops/hyprland"
 

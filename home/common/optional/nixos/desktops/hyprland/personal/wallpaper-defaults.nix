@@ -1,5 +1,5 @@
 # Curated wallhaven.cc wallpapers, declaratively installed into
-# ~/Pictures/wallpapers/default/ via `wallpapers.images` (declared in
+# ~/Pictures/Wallpapers/default/ via `wallpapers.images` (declared in
 # wallpaper.nix). Declaring the `default` folder auto-disables the
 # stylix-image seed — see `wallpapers.defaultSeed.enable` default.
 #
