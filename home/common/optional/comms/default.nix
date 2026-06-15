@@ -13,5 +13,7 @@ in {
   home.packages =
     if pkgs.stdenv.isLinux
     then [slackFixed pkgs.discord-legcord]
-    else [pkgs.slack pkgs.discord];
+    # On Darwin, Slack is managed via homebrew cask for stable path (avoids
+    # SMAppService re-registration popups on every nix store path change)
+    else [pkgs.discord];
 }

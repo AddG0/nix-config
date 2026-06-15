@@ -2,7 +2,11 @@
   extensions = [
     # We need to leave these on release to make sure the version is compatible with the vscode package
     pkgs.vscode-marketplace-release.github.copilot # Provides inline coding suggestions as you type.
-    pkgs.vscode-marketplace-release.github.copilot-chat # A companion extension that provides conversational AI assistance.
+    # copilot-chat 0.48.1 postInstall copies pty.node from vscode which was
+    # removed in vscode 1.123.0 — clear postInstall to skip the failing cp
+    (pkgs.vscode-marketplace-release.github.copilot-chat.overrideAttrs (_: {
+      postInstall = "";
+    }))
   ];
   userSettings = {
     # Custom instructions file locations

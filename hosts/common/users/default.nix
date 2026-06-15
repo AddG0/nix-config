@@ -50,7 +50,9 @@ in {
           openssh.authorizedKeys.keys = (genPubKeyList user) ++ superPubKeys;
         }
         // (
-          if user == hostSpec.primaryUsername && useSopsPassword
+          if isDarwin
+          then {}
+          else if user == hostSpec.primaryUsername && useSopsPassword
           then {hashedPasswordFile = config.sops.secrets."password".path;}
           else {initialPassword = "changeme";}
         )

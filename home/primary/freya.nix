@@ -32,6 +32,7 @@
       # "development/virtualization/nixos-shell.nix"
       "development/ai"
       "development/postman.nix"
+      "development/jprofiler.nix"
       "development/gcloud.nix"
       "development/aws.nix"
       "development/virtualization"

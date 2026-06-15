@@ -81,6 +81,12 @@
                 });
             };
         };
+
+      # helm 4.2.0 nixpkgs packaging bug on Darwin: preBuild patches test files
+      # (e.g. dependency_build_test.go) that were removed/renamed in helm 4.x
+      kubernetes-helm = prev.kubernetes-helm.overrideAttrs (_old: {
+        doCheck = false;
+      });
     }
     else {};
 

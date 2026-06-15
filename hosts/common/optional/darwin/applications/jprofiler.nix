@@ -1,7 +1,3 @@
 _: {
-  homebrew = {
-    casks = [
-      "jprofiler"
-    ];
-  };
+  homebrew.casks = ["jprofiler"];
 }

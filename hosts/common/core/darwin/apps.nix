@@ -65,7 +65,7 @@ in {
 
     onActivation = {
       autoUpdate = true; # Fetch the newest stable branch of Homebrew's git repo
-      upgrade = true; # Upgrade outdated casks, formulae, and App Store apps
+      upgrade = false; # Don't upgrade casks on activation — re-installs trigger macOS helper approval popups for Lens, Slack, Postman, etc.
       # 'zap': uninstalls all formulae(and related files) not listed in the generated Brewfile
       cleanup = "zap";
     };
@@ -113,8 +113,6 @@ in {
       # "bettercap"
 
       # commands like `gsed` `gtar` are required by some tools
-      "gnu-sed"
-      "gnu-tar"
 
       # misc that nix do not have cache for.
       # "git-trim"
@@ -122,9 +120,7 @@ in {
       # "terraformer"
 
       "nginx"
-      "certbot"
 
-      "helmfile"
       "ical-buddy" # calendar events for sketchybar
     ];
 
@@ -134,6 +130,11 @@ in {
         # "zen-browser"
         # "docker" # Docker Desktop needed for vscode devcontainers
         "caffeine"
+
+        # Electron apps managed via cask for stable /Applications path —
+        # avoids SMAppService re-registration popups on nix store path changes
+        "slack"
+        "postman"
 
         "aws-vpn-client"
 

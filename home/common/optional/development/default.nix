@@ -2,6 +2,7 @@
   pkgs,
   inputs,
   lib,
+  hostSpec,
   ...
 }: let
   # Wrap mailsy to fix KDE 6 detection bug in bundled xdg-open
@@ -18,10 +19,10 @@
     '';
   };
 in {
-  imports = [
+  imports = lib.flatten [
     ./ide
     ./scripts
-    ./chromium.nix
+    (lib.optional (!hostSpec.isDarwin) ./chromium.nix)
     ./process-compose.nix
     ./git.nix
     ./gitlab.nix

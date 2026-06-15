@@ -7,12 +7,15 @@
     ])
 
     (map lib.custom.relativeToHome (map (f: "common/optional/${f}") [
+      "darwin/services/colima.nix"
+
       "helper-scripts"
 
       "browsers"
 
       "development"
-      "development/ai"
+      "development/postman.nix"
+      # "development/ai"
       "development/gcloud.nix"
       "development/aws.nix"
       "development/languages"
