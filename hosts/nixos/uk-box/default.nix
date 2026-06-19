@@ -7,6 +7,7 @@
 {
   inputs,
   lib,
+  config,
   ...
 }: {
   imports = lib.flatten [
@@ -32,8 +33,12 @@
     (map lib.custom.relativeToHosts (map (f: "common/optional/${f}") [
       "nixos/services/openssh.nix" # allow remote SSH access
       "nixos/services/nginx.nix" # nginx
+      "nixos/services/home-assistant-oci.nix"
+      "nixos/nix-access-token.nix"
     ]))
   ];
+
+  services.homeAssistantOci.hostName = "home-assistant-eu.${config.hostSpec.domain}";
 
   networking = {
     networkmanager.enable = true;
@@ -55,6 +60,7 @@
   hostSpec = {
     hostName = "uk-box";
     hostPlatform = "x86_64-linux";
+    colmena.enable = true;
   };
 
   time.timeZone = "Europe/London";

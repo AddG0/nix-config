@@ -80,14 +80,19 @@ rebuild_darwin() {
   log_info "====== REBUILD ======"
   if command_exists nh && [ "${USE_NH:-true}" = "true" ]; then
     log_debug "Using nh darwin command for rebuild (host: ${HOST})"
-    nh darwin ${MODE} . --hostname "${HOST}" --show-activation-logs --impure ${TRACE_FLAG:+-- $TRACE_FLAG}
+    nh darwin ${MODE} . --hostname "${HOST}" --impure ${TRACE_FLAG:+-- $TRACE_FLAG}
   elif command_exists darwin-rebuild; then
     log_debug "Using darwin-rebuild with arguments: ${switch_args}"
     # Run darwin-rebuild with sudo as required by the new activation model
     sudo darwin-rebuild ${switch_args}
   else
     log_debug "darwin-rebuild not found; using 'nix run nix-darwin'"
-    sudo nix run nix-darwin -- switch ${switch_args}
+    # Bootstrap-only: this is the one path that runs under the fresh installer
+    # daemon (flakes off, max-jobs=1) before our nix.settings is applied.
+    # Use NIX_CONFIG (not CLI flags) so the settings propagate into the nested
+    # `nix build` that darwin-rebuild spawns for the actual system closure.
+    sudo env NIX_CONFIG="experimental-features = nix-command flakes
+max-jobs = auto" nix run nix-darwin -- ${switch_args}
   fi
 }
 
@@ -97,7 +102,7 @@ rebuild_linux() {
   log_info "====== REBUILD ======"
   if command_exists nh && [ "${USE_NH:-true}" = "true" ]; then
     log_debug "Using nh command for rebuild (host: ${HOST})"
-    nh os ${MODE} . --hostname "${HOST}" --show-activation-logs --impure ${TRACE_FLAG:+-- $TRACE_FLAG}
+    nh os ${MODE} . --hostname "${HOST}" --impure ${TRACE_FLAG:+-- $TRACE_FLAG}
   else
     log_debug "Using sudo nixos-rebuild with arguments: ${switch_args}"
     sudo nixos-rebuild ${switch_args}

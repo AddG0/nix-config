@@ -287,16 +287,38 @@
     }
 
     # ── Windows ──
+    # Terminal-aware splits: a plain split of a terminal window would show the
+    # same buffer (one pty) in both panes, so keystrokes mirror. When the
+    # current buffer is a terminal, spawn a fresh independent terminal in the
+    # new pane instead; file buffers split as normal.
     {
       mode = "n";
       key = "<leader>-";
-      action = "<C-w>s";
+      action.__raw = ''
+        function()
+          local term = vim.bo.buftype == "terminal"
+          vim.cmd("split")
+          if term then
+            vim.cmd("terminal")
+            vim.cmd("startinsert")
+          end
+        end
+      '';
       options.desc = "Split window below";
     }
     {
       mode = "n";
       key = "<leader>|";
-      action = "<C-w>v";
+      action.__raw = ''
+        function()
+          local term = vim.bo.buftype == "terminal"
+          vim.cmd("vsplit")
+          if term then
+            vim.cmd("terminal")
+            vim.cmd("startinsert")
+          end
+        end
+      '';
       options.desc = "Split window right";
     }
     {

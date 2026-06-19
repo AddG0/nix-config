@@ -29,7 +29,7 @@
       auth-user-pass ${config.sops.secrets."openvpn-home-auth".path}
       script-security 2
       up ${pkgs.writeShellScript "vpn-up" ''
-        ${pkgs.systemd}/bin/resolvectl dns tun0 192.168.1.1
+        ${pkgs.systemd}/bin/resolvectl dns tun0 10.61.1.1
         ${pkgs.systemd}/bin/resolvectl domain tun0 ~${config.hostSpec.domain}
       ''}
       down ${pkgs.writeShellScript "vpn-down" ''

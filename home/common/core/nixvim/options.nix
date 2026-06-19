@@ -60,4 +60,32 @@
     winminwidth = 5;
     wrap = false;
   };
+
+  # autoread (on by default) only reloads externally-changed files when a
+  # timestamp check runs, which Neovim doesn't do on its own. Run `:checktime`
+  # on focus/buffer-enter so files changed on disk (git checkout, formatters,
+  # another editor) reload automatically. Pairs with tmux `focus-events on`,
+  # which forwards FocusGained into nvim. (LazyVim ships the same autocmd.)
+  autoCmd = [
+    {
+      event = ["FocusGained" "BufEnter" "TermClose" "TermLeave"];
+      command = "checktime";
+    }
+    # A swap file otherwise raises the modal E325 ATTENTION prompt. When the open
+    # happens inside a snacks-picker jump (a keymap callback context) that prompt
+    # can't take input and aborts with E5108 "Keyboard interrupt". Decide it
+    # non-interactively: edit anyway (swap is advisory, nothing is clobbered until
+    # save) and notify so a live swap from another nvim instance stays visible.
+    {
+      event = ["SwapExists"];
+      callback.__raw = ''
+        function(ev)
+          vim.v.swapchoice = "e"
+          vim.schedule(function()
+            vim.notify("Swap file existed for " .. (ev.file or "?") .. " — opened anyway", vim.log.levels.WARN)
+          end)
+        end
+      '';
+    }
+  ];
 }

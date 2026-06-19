@@ -18,7 +18,7 @@
   users.users.jellyfin.extraGroups = ["media"];
 
   fileSystems."/mnt/videos" = {
-    device = "//10.10.15.252/videos";
+    device = "//10.61.60.49/videos";
     fsType = "cifs";
     options = [
       "x-systemd.automount"
@@ -46,7 +46,7 @@
   # bound enp12s0, so network-online.target lies. Poll the NAS directly to
   # gate consumers (and the mount) on real reachability.
   systemd.services.wait-for-nas = {
-    description = "Wait for NAS (10.10.15.252) to be reachable";
+    description = "Wait for NAS (10.61.60.49) to be reachable";
     after = ["network-online.target"];
     wants = ["network-online.target"];
     serviceConfig = {
@@ -54,7 +54,7 @@
       RemainAfterExit = true;
       ExecStart = pkgs.writeShellScript "wait-for-nas" ''
         for i in $(seq 1 60); do
-          if ${pkgs.iputils}/bin/ping -c 1 -W 1 10.10.15.252 >/dev/null 2>&1; then
+          if ${pkgs.iputils}/bin/ping -c 1 -W 1 10.61.60.49 >/dev/null 2>&1; then
             exit 0
           fi
           sleep 1

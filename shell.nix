@@ -25,6 +25,7 @@
         home-manager
         git
         just
+        tmux
         age
         ssh-to-age
         colmena

@@ -1,4 +1,8 @@
-{pkgs, ...}: let
+{
+  pkgs,
+  lib,
+  ...
+}: let
   # terramate ships no completion script and is a `complete -C` self-completer
   # (kong/kongplete); package a zsh shim onto fpath instead of editing ~/.zshrc.
   terramate-completions = pkgs.runCommand "terramate-completions" {} ''
@@ -11,7 +15,8 @@ in {
     terraform
     opentofu
     terragrunt
-    terramate
+    # yields bin/helper to jprofiler
+    (lib.lowPrio terramate)
     terramate-completions
   ];
 

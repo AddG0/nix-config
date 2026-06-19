@@ -51,19 +51,12 @@ _: {
       };
     };
 
-    wireplumber.extraConfig."99-hugoTT2-usb-resilience" = {
-      "monitor.alsa.rules" = [
-        {
-          # Keep the device open once initialized to avoid suspend/resume
-          # race conditions on boot
-          matches = [
-            {"node.name" = "~alsa_output.usb-Chord_Electronics_Ltd_HugoTT2*";}
-          ];
-          actions.update-props = {
-            "session.suspend-timeout-seconds" = 0;
-          };
-        }
-      ];
-    };
+    # NOTE: Do NOT pin this DAC open with `session.suspend-timeout-seconds = 0`.
+    # Doing so makes WirePlumber eagerly open the device the instant its node
+    # appears, which races the pipewire-link-main-input service's pw-link to
+    # HugoTT2:playback (virtual-devices.nix). The link forces the node RUNNING
+    # mid set_hw_params → EBADFD, and a pinned device can never reopen, so audio
+    # dies until `systemctl --user restart wireplumber`. Letting it suspend
+    # normally keeps the link service the sole opener and restores self-recovery.
   };
 }

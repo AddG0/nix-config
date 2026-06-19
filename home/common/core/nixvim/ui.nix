@@ -84,13 +84,15 @@ in {
   # LazyVim-style UI layer. No colorscheme — stylix's nixvim target themes
   # everything from the catppuccin-mocha base16 palette automatically.
 
-  # stylix maps comments to base03 (catppuccin "surface1"), which is too dim
-  # to read on the base00 background. Bump them to base04 (surface2), the
-  # lightest grey in the palette. `highlightOverride` re-applies on ColorScheme
-  # so it survives stylix setting the theme.
+  # stylix maps comments to base03 (surface1), and even base04 (surface2,
+  # #585b70) is too dim to read on the base00 background — the base16 palette has
+  # no lighter grey (base05 is the full text colour, which would make comments
+  # indistinguishable from code). So use catppuccin's "overlay2" (#9399b2) — the
+  # readable comment tone catppuccin's own themes use, not in the 16-colour set.
+  # highlightOverride re-applies on ColorScheme so it survives stylix's theme.
   highlightOverride = {
-    Comment.fg = colors.base04;
-    "@comment".fg = colors.base04;
+    Comment.fg = "#9399b2";
+    "@comment".fg = "#9399b2";
     # flash.nvim (`s`): leave the match highlights at flash's defaults and only
     # recolour the jump label (the key you press) so it's easy to spot — red
     # badge on the base00 background.
@@ -315,12 +317,17 @@ in {
         picker = {
           enabled = true;
           hidden = true; # show dotfiles in pickers (e.g. .gitlab-ci.yml)
+          # Don't let .gitignore drive visibility — gitignored paths (.sdd,
+          # build output, etc.) should show too. The explicit `exclude` list
+          # below is the only thing that hides files.
+          ignored = true;
           sources = {
             # Single-child folder auto-descend lives in
             # ./snacks-explorer-nesting.nix (delete it when snacks gains a
             # native group_empty option).
             explorer = {
               hidden = true;
+              ignored = true;
               exclude = pickerExclude;
             };
             files.exclude = pickerExclude;

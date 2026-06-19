@@ -86,7 +86,13 @@ alias r := rebuild
 [arg("test", long, value="test")]
 [arg("show-trace", long, value="true")]
 [arg("use-nh", long="no-nh", value="false")]
-rebuild hostname="" boot="switch" test="false" show-trace="false" use-nh=USE_NH_DEFAULT: rebuild-pre
+[arg("no-pre", long="no-pre", value="true")]
+rebuild hostname="" boot="switch" test="false" show-trace="false" use-nh=USE_NH_DEFAULT no-pre="false":
+  #!/usr/bin/env bash
+  set -euo pipefail
+  if [ "{{no-pre}}" != "true" ]; then
+    just rebuild-pre
+  fi
   USE_NH={{use-nh}} scripts/rebuild.sh {{ if show-trace == "true" { "-t" } else { "" } }} -m {{ if test == "test" { "test" } else { boot } }} {{hostname}}
 
 [group('system')]

@@ -57,6 +57,7 @@ in {
   plugins.lsp.servers.marksman.enable = true;
 
   # In-buffer prettifying of headings/tables/code — terminal-native, always on.
+  # This (plus snacks.image for diagrams) is the live, as-you-type view.
   plugins.render-markdown.enable = true;
 
   # Inline diagram/image/math rendering via snacks' image module (the
@@ -67,15 +68,17 @@ in {
   # mermaid path.
   plugins.snacks.settings.image.enabled = true;
 
-  # Full-page browser preview (<leader>cp). markdown-preview reliably opens the
-  # browser; its bundled mermaid is older, but live mermaid is the inline
-  # Snacks.image path above, so this is mainly for reading whole documents.
+  # Full-page browser preview (<leader>cp → :MarkdownPreview, open-only not
+  # toggle). It's a one-shot snapshot: this old plugin's live websocket refresh
+  # is broken on nvim 0.12. The maintained alternative (peek.nvim) is unusable
+  # via nixpkgs — its Deno client bundle isn't built in the package — so we keep
+  # this for whole-document reading and rely on render-markdown for the live view.
   plugins.markdown-preview = {
     enable = true;
     settings = {
       # Default auto_close=1 closes the preview the instant focus leaves the
       # markdown buffer (e.g. when the browser opens) — kills it almost
-      # immediately. 0 keeps it open until toggled off.
+      # immediately. 0 keeps it open until :MarkdownPreviewStop.
       auto_close = 0;
       # Theme the browser preview from stylix (page chrome + code highlighting).
       markdown_css = "${themeCss "markdown-preview.css" ./preview.css}";
@@ -98,8 +101,8 @@ in {
     {
       mode = "n";
       key = "<leader>cp";
-      action = "<cmd>MarkdownPreviewToggle<cr>";
-      options.desc = "Markdown preview (browser)";
+      action = "<cmd>MarkdownPreview<cr>";
+      options.desc = "Markdown preview (browser, open)";
     }
   ];
 }

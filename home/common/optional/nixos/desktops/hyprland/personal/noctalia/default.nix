@@ -8,16 +8,9 @@
   isLaptop = config.hostSpec.hostType == "laptop";
 
   noctaliaPkg = pkgs.noctalia;
-
-  # Luau source for the `calendar` scripted bar widget, with the jq and noctalia
-  # binaries baked in as absolute store paths (the shell noctalia.runAsync spawns
-  # does not inherit a useful PATH).
-  nextEventScript = pkgs.replaceVars ./next-event.lua {
-    jq = lib.getExe pkgs.jq;
-    noctalia = lib.getExe noctaliaPkg;
-  };
 in {
-  imports = [inputs.noctalia.homeModules.default];
+  # ./next-event installs the calendar bar-widget plugin; it's enabled + placed below.
+  imports = [inputs.noctalia.homeModules.default ./next-event];
 
   programs.noctalia = {
     enable = true;
@@ -41,7 +34,7 @@ in {
         start = ["search" "clock" "cpu" "ram" "active_window" "media"];
         center = ["workspaces"];
         end =
-          ["tray" "bluetooth" "input_volume" "notifications" "volume" "calendar"]
+          ["tray" "calendar" "bluetooth" "input_volume" "notifications" "volume"]
           ++ lib.optionals isLaptop ["power_profile" "battery"]
           ++ ["control-center"];
       };
@@ -54,21 +47,9 @@ in {
         command = lib.getExe pkgs.walker;
       };
 
-      # Noctalia 5 has no calendar bar widget, so this is a `scripted` (Luau)
-      # widget that reads Noctalia's own event cache and shows the next upcoming
-      # event ("Standup · 25m"), Notion-style. Clicking it opens the Control
-      # Center calendar panel — the same one the `clock` widget toggles. Script
-      # + jq filter live in ./next-event.lua.
-      widget.calendar = {
-        type = "scripted";
-        script = "${nextEventScript}";
-        max_chars = 22;
-        refresh_seconds = 30;
-        # Notion-style: only show an event once it's within this many minutes
-        # (ongoing events always show; 0 = no limit).
-        lookahead_minutes = 30;
-        hide_when_empty = false;
-      };
+      # The calendar widget (installed via ./next-event).
+      plugins.enabled = ["addg/next-event"];
+      widget.calendar.type = "addg/next-event:agenda";
 
       # strftime clock formats.
       widget.clock = {

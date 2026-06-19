@@ -17,7 +17,19 @@ in {
   plugins.jdtls = {
     enable = true;
     settings = {
-      cmd = [jdtlsBin "--jvm-arg=-javaagent:${lombokJar}"];
+      # jdtls reprocesses on every change before it can answer position queries
+      # (gd/grr/gri), which is why nav lags ~a second right after editing. It's a
+      # heavy server; the Eclipse-recommended JVM tuning (bigger heap + parallel
+      # GC) cuts that reindex time — reduces the lag, doesn't eliminate it.
+      cmd = [
+        jdtlsBin
+        "--jvm-arg=-javaagent:${lombokJar}"
+        "--jvm-arg=-Xmx2g"
+        "--jvm-arg=-XX:+UseParallelGC"
+        "--jvm-arg=-XX:GCTimeRatio=4"
+        "--jvm-arg=-XX:AdaptiveSizePolicyWeight=90"
+        "--jvm-arg=-Dsun.zip.disableMemoryMapping=true"
+      ];
       init_options.bundles.__raw = ''
         vim.list_extend(
           vim.fn.glob("${javaDebug}/share/vscode/extensions/vscjava.vscode-java-debug/server/com.microsoft.java.debug.plugin-*.jar", true, true),

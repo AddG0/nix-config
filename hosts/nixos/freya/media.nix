@@ -18,7 +18,7 @@
   users.users.jellyfin.extraGroups = ["media"];
 
   fileSystems."/mnt/videos" = {
-    device = "//10.10.15.252/videos";
+    device = "//10.61.60.49/videos";
     fsType = "cifs";
     options = [
       "x-systemd.automount"

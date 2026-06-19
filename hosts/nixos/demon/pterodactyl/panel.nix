@@ -64,12 +64,14 @@ in {
 
   sops.secrets = {
     pterodactylAdminPassword = {
-      sopsFile = "${nix-secrets}/secrets/pterodactyl/secrets.yaml";
+      sopsFile = "${nix-secrets}/services/pterodactyl/uk-box.yaml";
+      key = "users/admin/password";
       mode = "0400";
       owner = "root";
     };
     judePassword = {
-      sopsFile = "${nix-secrets}/secrets/pterodactyl/users.yaml";
+      sopsFile = "${nix-secrets}/services/pterodactyl/uk-box.yaml";
+      key = "users/jude/password";
       mode = "0400";
       owner = "root";
     };

@@ -49,6 +49,10 @@
             substituteInPlace src/app/application.cpp \
               --replace-fail '(void)m_lockScreen.lock();' \
                 '(void)0; // nix-config: hyprlock owns session locking; noctalia logind auto-lock disabled'
+
+            # Calendar tab hardcodes 24h event times (ignores shell.time_format); force 12h.
+            substituteInPlace src/shell/control_center/calendar_tab.cpp \
+              --replace-fail 'formatStrftime("%H:%M", tm)' 'formatStrftime("%I:%M %p", tm)'
           '';
       });
     }
@@ -468,29 +472,11 @@
     };
   };
 
-  nur = final: _prev: let
-    importedNur = import inputs.nur {
+  nur = final: _prev: {
+    nur = import inputs.nur {
       pkgs = final;
       nurpkgs = final;
     };
-  in {
-    nur =
-      importedNur
-      // {
-        repos =
-          importedNur.repos
-          // {
-            xddxdd =
-              importedNur.repos.xddxdd
-              // {
-                pterodactyl-wings = importedNur.repos.xddxdd.pterodactyl-wings.overrideAttrs (_old: {
-                  doCheck = false;
-                  # Fix hash mismatch for go modules
-                  vendorHash = "sha256-tfv3jUoIQxFVshooe1f9K2v6vxXx8C02QdP/dcwz8vE=";
-                });
-              };
-          };
-      };
   };
 
   # Pin Hyprland and hy3 in lockstep from the hy3 flake. nixpkgs ships

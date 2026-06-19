@@ -52,10 +52,10 @@ body {
 }
 
 .markdown-body {
-  /* Readability core: constrain measure (~70ch), center, breathe.
-     Long full-width lines are the #1 thing that makes prose hard to read. */
-  max-width: 46rem;
-  margin: 0 auto;
+  /* Full-bleed, left-aligned: use the whole window width starting from the
+     left edge (the body padding above supplies the breathing room). */
+  max-width: none;
+  margin: 0;
   padding: 0 1.25rem;
 
   background: @base00@;

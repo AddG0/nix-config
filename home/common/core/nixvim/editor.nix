@@ -46,14 +46,23 @@
     ts-autotag.enable = true;
 
     # Folding. origami is batteries-included: `enable` alone turns on LSP folds
-    # (treesitter fallback), auto-fold of imports + comments on open, fancy
-    # foldtext, search-pausing, and smart h/l/$/^ fold keymaps. foldlevel 99
-    # (options.nix) keeps everything but those folded regions open on load.
-    # Sole override: closeOnlyOnFirstColumn so h/^ fold only at column 0 (default
-    # = anywhere in the indent); set false for the snappier behaviour.
+    # (treesitter fallback), auto-fold on open, fancy foldtext, search-pausing,
+    # and smart h/l/$/^ fold keymaps. foldlevel 99 (options.nix) keeps everything
+    # else open. Overrides:
+    #   - autoFold.kinds: imports only (default also folds every comment block —
+    #     too aggressive; IntelliJ doesn't collapse doc/inline comments either).
+    #   - closeOnlyOnFirstColumn: h/^ fold only at column 0 (default = anywhere in
+    #     the indent); set false for the snappier behaviour.
+    #   - foldtext disabled: origami always shows the fold's *first* line, which
+    #     for an annotated Java method is the `@Override` line, not the signature.
+    #     We supply our own annotation-skipping foldtext in extraConfigLua below.
     origami = {
       enable = true;
-      settings.foldKeymaps.closeOnlyOnFirstColumn = true;
+      settings = {
+        autoFold.kinds = ["imports"];
+        foldKeymaps.closeOnlyOnFirstColumn = true;
+        foldtext.enabled = false;
+      };
     };
 
     # Project-wide find & replace with live preview (<leader>sr).
@@ -89,6 +98,64 @@
   # forward to the next textobject when the cursor isn't inside one).
   extraConfigLua = ''
     require('nvim-treesitter-textobjects').setup({ select = { lookahead = true } })
+
+    -- Fold header: mirrors vim.treesitter.foldtext() (treesitter-highlighted
+    -- chunks) but renders the first *meaningful* line of the fold instead of
+    -- the literal first line. An annotated declaration's fold range starts at
+    -- the annotation (Java @Override, Python/TS decorators) or a leading
+    -- comment, so we skip those to land on the actual signature. Native
+    -- foldtext has no such skip; no maintained plugin does both, hence this.
+    function _G.SmartFoldtext()
+      local bufnr = vim.api.nvim_get_current_buf()
+      local fs, fe = vim.v.foldstart, vim.v.foldend
+
+      -- Advance to the first line that isn't an annotation/attribute/comment.
+      local lnum = fs
+      while lnum < fe do
+        local s = (vim.api.nvim_buf_get_lines(bufnr, lnum - 1, lnum, false)[1] or ""):gsub("^%s+", "")
+        if s ~= ""
+          and not s:match("^@")      -- annotations / decorators
+          and not s:match("^%[")     -- C#-style attributes
+          and not s:match("^//")     -- line comments
+          and not s:match("^/%*")    -- block comment open
+          and not s:match("^%*")     -- block comment continuation
+        then
+          break
+        end
+        lnum = lnum + 1
+      end
+
+      local line = vim.api.nvim_buf_get_lines(bufnr, lnum - 1, lnum, false)[1] or ""
+      local count = ("  … %d lines"):format(fe - fs + 1)
+
+      -- Build treesitter-highlighted chunks for `line`. Fall back to a flat
+      -- Folded colour if no parser/highlights query is available.
+      local ok, parser = pcall(vim.treesitter.get_parser, bufnr)
+      local query = ok and parser and vim.treesitter.query.get(parser:lang(), "highlights")
+      if not query then
+        return {{line, "Folded"}, {count, "Comment"}}
+      end
+
+      local row = lnum - 1
+      local tree = parser:parse({row, row + 1})[1]
+      local chunks, pos = {}, 0
+      for id, node in query:iter_captures(tree:root(), bufnr, row, row + 1) do
+        local sr, sc, er, ec = node:range()
+        if sr == row and er == row and sc >= pos then
+          if sc > pos then
+            chunks[#chunks + 1] = {line:sub(pos + 1, sc), "Folded"}
+          end
+          chunks[#chunks + 1] = {line:sub(sc + 1, ec), "@" .. query.captures[id]}
+          pos = ec
+        end
+      end
+      if pos < #line then
+        chunks[#chunks + 1] = {line:sub(pos + 1), "Folded"}
+      end
+      chunks[#chunks + 1] = {count, "Comment"}
+      return chunks
+    end
+    vim.o.foldtext = "v:lua.SmartFoldtext()"
   '';
 
   keymaps = [
@@ -252,6 +319,18 @@
       action = "<cmd>lua Snacks.picker.registers()<cr>";
       options.desc = "Registers";
     }
+    {
+      mode = "n";
+      key = "<leader>st";
+      action = "<cmd>lua Snacks.picker.todo_comments()<cr>";
+      options.desc = "Todo";
+    }
+    {
+      mode = "n";
+      key = "<leader>sT";
+      action = ''<cmd>lua Snacks.picker.todo_comments({ keywords = { "TODO", "FIX", "FIXME" } })<cr>'';
+      options.desc = "Todo/Fix/Fixme";
+    }
     # ── Diagnostics/quickfix (trouble) ──
     {
       mode = "n";
@@ -264,6 +343,25 @@
       key = "<leader>xt";
       action = "<cmd>TodoTrouble<cr>";
       options.desc = "Todo (Trouble)";
+    }
+    {
+      mode = "n";
+      key = "<leader>xT";
+      action = "<cmd>TodoTrouble keywords=TODO,FIX,FIXME<cr>";
+      options.desc = "Todo/Fix/Fixme (Trouble)";
+    }
+    # Jump between TODO comments (LazyVim ]t / [t).
+    {
+      mode = "n";
+      key = "]t";
+      action.__raw = ''function() require("todo-comments").jump_next() end'';
+      options.desc = "Next Todo Comment";
+    }
+    {
+      mode = "n";
+      key = "[t";
+      action.__raw = ''function() require("todo-comments").jump_prev() end'';
+      options.desc = "Previous Todo Comment";
     }
     # ── Code symbols (trouble) — the right-side outline panel of the current
     # file's symbols (functions/classes/…), plus an LSP references/defs panel.

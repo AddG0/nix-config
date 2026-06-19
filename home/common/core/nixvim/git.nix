@@ -3,7 +3,21 @@
   opts.diffopt = "internal,filler,closeoff,context:99999";
 
   plugins = {
-    gitsigns.enable = true;
+    gitsigns = {
+      enable = true;
+      settings = {
+        # Color the line number by git status, not just the thin gutter bar —
+        # makes changed lines obvious at a glance.
+        numhl = true;
+        # GitLens-style inline blame (author · time · summary) at end of the
+        # current line, after a short pause.
+        current_line_blame = true;
+        current_line_blame_opts = {
+          virt_text_pos = "eol";
+          delay = 300;
+        };
+      };
+    };
     diffview.enable = true;
     neogit.enable = true;
   };
