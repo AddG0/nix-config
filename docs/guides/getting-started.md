@@ -40,3 +40,6 @@ just rekey       # Update encryption keys
 just check-trace     # Detailed error output
 just clean && rebuild # Clean rebuild
 ```
+
+### macOS gotchas
+- The "sh can run in the background" notification on rebuilds is suppressed automatically (`home/common/core/darwin/disable-btm-notifications.nix` clears the Background Task Management agent's notification flag, since macOS exposes no GUI/MDM-free toggle for it).

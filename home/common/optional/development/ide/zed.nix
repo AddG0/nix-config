@@ -11,7 +11,6 @@
 # deep-merged over Zed's live file on every activation, so they're enforced while
 # Zed can still persist transient UI state.
 {
-  config,
   pkgs,
   self,
   osConfig,

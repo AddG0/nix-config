@@ -101,6 +101,9 @@ in {
       bg = colors.base08; # red
       bold = true;
     };
+    # Visible current line; also marks the open file in the explorer (follow_file
+    # parks the unfocused selection there, rendered with CursorLine).
+    CursorLine.bg = colors.base02;
   };
 
   # Gives Snacks.explorer a `trash` command so deleting files there is

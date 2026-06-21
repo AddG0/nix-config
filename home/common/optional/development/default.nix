@@ -26,6 +26,7 @@ in {
     ./process-compose.nix
     ./git.nix
     ./gitlab.nix
+    ./lnav
     ./polyrepo
     ./languages/nix
   ];
@@ -40,19 +41,4 @@ in {
   ];
 
   programs.git.ignores = lib.custom.gitignoreFromTemplates inputs.github-gitignore-templates ["Global/Redis"];
-
-  programs.lnav = {
-    enable = true;
-    settings = {
-      ui = {
-        theme = "dracula"; # Available themes: default, dracula, eldar, grayscale, monocai, night-owl, solarized-dark, solarized-light
-      };
-      tuning = {
-        "archive-manager" = {
-          "min-free-space" = 104857600; # 100MB
-          "cache-ttl" = "3d";
-        };
-      };
-    };
-  };
 }

@@ -14,11 +14,18 @@
       keyFile = "${config.home.homeDirectory}/.config/sops-nix/age/keys.txt";
       generateKey = true;
     };
+
+    secrets."personal_accounts/github_personal_token" = {};
+
+    templates."nix-access-tokens.conf".content = ''
+      access-tokens = github.com=${config.sops.placeholder."personal_accounts/github_personal_token"}
+    '';
   };
 
-  sops.secrets = {
-    "personal_accounts/github_personal_token" = {};
-  };
+  # interactive `nix` runs as this user; pull the token in via the sops-rendered fragment
+  nix.extraOptions = ''
+    !include ${config.sops.templates."nix-access-tokens.conf".path}
+  '';
 
   home.packages = with pkgs; [
     sops

@@ -24,7 +24,6 @@
     ./audio
     ./media.nix
     ./awsvpn-home-dns-fix.nix
-    ./bluetooth-mt7927.nix
 
     (map lib.custom.relativeToHosts (map (f: "common/optional/${f}") [
       "nixos/services/openssh.nix" # allow remote SSH access

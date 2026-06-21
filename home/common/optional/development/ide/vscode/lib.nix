@@ -158,7 +158,7 @@
       # AI
       claudeCode
       supermaven
-      copilot
+      # copilot
       # continue
 
       # Keybindings

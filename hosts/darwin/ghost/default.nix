@@ -17,7 +17,6 @@
 
       #################### Optional Applications ####################
       # "darwin/applications/autodesk-fusion.nix"
-      "darwin/applications/browsers.nix"
       # "darwin/applications/deskflow.nix"
       # "darwin/applications/gitkraken.nix"
       # "darwin/applications/hovrly.nix"

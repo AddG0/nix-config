@@ -1,0 +1,324 @@
+{
+  "styles": {
+    "identifier": {
+      "color": "semantic()"
+    },
+    "text": {
+      "color": "$foreground",
+      "background-color": "$background"
+    },
+    "selected-text": {
+      "background-color": "$selection"
+    },
+    "fuzzy-match": {
+      "color": "$orange",
+      "underline": true,
+      "bold": true
+    },
+    "alt-text": {
+      "background-color": "$bgdarker"
+    },
+    "ok": {
+      "color": "$green",
+      "bold": true
+    },
+    "info": {
+      "color": "$magenta",
+      "bold": true
+    },
+    "error": {
+      "color": "$red",
+      "bold": true
+    },
+    "warning": {
+      "color": "$yellow",
+      "bold": true
+    },
+    "hidden": {
+      "color": "$yellow",
+      "bold": true
+    },
+    "cursor-line": {
+      "color": "$cyan",
+      "background-color": "$selection",
+      "bold": true
+    },
+    "time-column": {
+      "background-color": "$bglight"
+    },
+    "disabled-cursor-line": {
+      "color": "$cyan",
+      "background-color": "$bglight"
+    },
+    "adjusted-time": {
+      "color": "$magenta"
+    },
+    "skewed-time": {
+      "color": "$yellow"
+    },
+    "offset-time": {
+      "color": "$cyan"
+    },
+    "file-offset": {
+      "color": "$comment"
+    },
+    "invalid-msg": {
+      "color": "$yellow"
+    },
+    "focused": {
+      "color": "$black",
+      "background-color": "$white"
+    },
+    "disabled-focused": {
+      "color": "$white",
+      "background-color": "$bglight"
+    },
+    "popup": {
+      "color": "$foreground",
+      "background-color": "$bgdarker"
+    },
+    "popup-border": {
+      "color": "$foreground",
+      "background-color": "$bgdarker"
+    },
+    "scrollbar": {
+      "color": "$background",
+      "background-color": "$foreground"
+    },
+    "timeline-bar": {
+      "background-color": "$purple"
+    },
+    "h1": {
+      "color": "$purple",
+      "bold": true
+    },
+    "h2": {
+      "color": "$purple",
+      "underline": true
+    },
+    "h3": {
+      "color": "$purple"
+    },
+    "h4": {
+      "underline": true
+    },
+    "h5": {
+      "italic": true
+    },
+    "h6": {
+      "italic": true
+    },
+    "hr": {
+      "color": "$comment"
+    },
+    "hyperlink": {
+      "underline": true
+    },
+    "list-glyph": {
+      "color": "$cyan"
+    },
+    "breadcrumb": {
+      "color": "$comment",
+      "bold": true
+    },
+    "table-border": {
+      "color": "$selection"
+    },
+    "table-header": {
+      "bold": true
+    },
+    "quote-border": {
+      "color": "$selection",
+      "background-color": "$bgdarker"
+    },
+    "quoted-text": {
+      "color": "$yellow",
+      "background-color": "$bgdarker"
+    },
+    "footnote-border": {
+      "color": "$blue",
+      "background-color": "$bgdarker"
+    },
+    "footnote-text": {
+      "color": "$cyan",
+      "background-color": "$bgdarker"
+    },
+    "snippet-border": {
+      "color": "$cyan"
+    },
+    "indent-guide": {
+      "color": "$bglighter"
+    }
+  },
+  "syntax-styles": {
+    "inline-code": {
+      "color": "$green",
+      "background-color": "$bgdark"
+    },
+    "quoted-code": {
+      "color": "$orange",
+      "background-color": "$bgdark"
+    },
+    "code-border": {
+      "color": "$selection",
+      "background-color": "$bgdark"
+    },
+    "object-key": {
+      "color": "semantic()"
+    },
+    "keyword": {
+      "color": "$pink",
+      "bold": true
+    },
+    "string": {
+      "color": "$yellow",
+      "bold": true
+    },
+    "comment": {
+      "color": "$comment"
+    },
+    "doc-directive": {
+      "color": "$pink"
+    },
+    "variable": {
+      "color": "$orange"
+    },
+    "symbol": {
+      "color": "$cyan"
+    },
+    "re-special": {
+      "color": "$cyan"
+    },
+    "re-repeat": {
+      "color": "$yellow"
+    },
+    "diff-delete": {
+      "color": "$red"
+    },
+    "diff-add": {
+      "color": "$green"
+    },
+    "diff-section": {
+      "color": "$comment"
+    },
+    "spectrogram-low": {
+      "color": "$black",
+      "background-color": "$green",
+      "bold": true
+    },
+    "spectrogram-medium": {
+      "color": "$black",
+      "background-color": "$yellow",
+      "bold": true
+    },
+    "spectrogram-high": {
+      "color": "$black",
+      "background-color": "$red",
+      "bold": true
+    },
+    "file": {
+      "color": "$blue"
+    },
+    "null": {
+      "color": "$comment"
+    },
+    "ascii-control": {
+      "color": "$green"
+    },
+    "non-ascii": {
+      "color": "$yellow"
+    },
+    "number": {
+      "bold": true
+    },
+    "function": {
+      "color": "$green"
+    },
+    "separators-references-accessors": {
+      "color": "$pink"
+    },
+    "type": {
+      "color": "$cyan"
+    }
+  },
+  "status-styles": {
+    "disabled-title": {
+      "color": "$blue",
+      "background-color": "$bglight",
+      "bold": true
+    },
+    "title": {
+      "color": "$foreground",
+      "background-color": "$blue",
+      "bold": true
+    },
+    "alert-title": {
+      "color": "$red",
+      "background-color": "$blue",
+      "bold": true
+    },
+    "subtitle": {
+      "color": "$comment",
+      "background-color": "$cyan",
+      "bold": true
+    },
+    "info": {
+      "color": "$comment",
+      "background-color": "$bgdark"
+    },
+    "title-hotkey": {
+      "color": "$black",
+      "background-color": "$blue",
+      "underline": true
+    },
+    "hotkey": {
+      "color": "$white",
+      "underline": true
+    },
+    "text": {
+      "color": "$foreground",
+      "background-color": "$bglight"
+    },
+    "warn": {
+      "color": "$orange",
+      "background-color": "$bglight"
+    },
+    "alert": {
+      "color": "$red",
+      "background-color": "$bglight"
+    },
+    "active": {
+      "color": "$green",
+      "background-color": "$bglight"
+    },
+    "inactive": {
+      "color": "$comment",
+      "background-color": "$bgdark"
+    },
+    "inactive-warn": {
+      "color": "$orange",
+      "background-color": "$bgdark"
+    },
+    "inactive-alert": {
+      "color": "$red",
+      "background-color": "$bgdark"
+    },
+    "suggestion": {
+      "color": "$comment"
+    }
+  },
+  "log-level-styles": {
+    "warning": {
+      "color": "$orange"
+    },
+    "error": {
+      "color": "$red"
+    },
+    "critical": {
+      "color": "$red"
+    },
+    "fatal": {
+      "color": "$red"
+    }
+  }
+}

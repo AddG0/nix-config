@@ -145,6 +145,8 @@ in {
     # minikube # local kubernetes
     kind
 
+    stern # multi-pod log tailing
+
     # Custom scripts
     kubectl-cloud-shell
     kind-start

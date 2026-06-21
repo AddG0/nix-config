@@ -1,3 +1,4 @@
+#!/usr/bin/env bash
 # notify — run a command and send a desktop notification when it finishes.
 # Cross-platform: Linux uses notify-send (libnotify), macOS uses
 # terminal-notifier (with an osascript fallback).
@@ -30,34 +31,34 @@ fmt_duration() {
 send() {
   local title="$1" body="$2" status="$3"
   case "$(uname -s)" in
-    Darwin)
-      if command -v terminal-notifier >/dev/null 2>&1; then
-        local args=(-title "$title" -message "$body")
-        [ "$status" = "error" ] && args+=(-sound Basso)
-        terminal-notifier "${args[@]}"
-      else
-        # Escape double quotes for AppleScript string literals.
-        osascript -e "display notification \"${body//\"/\\\"}\" with title \"${title//\"/\\\"}\""
-      fi
+  Darwin)
+    if command -v terminal-notifier >/dev/null 2>&1; then
+      local args=(-title "$title" -message "$body")
+      [ "$status" = "error" ] && args+=(-sound Basso)
+      terminal-notifier "${args[@]}"
+    else
+      # Escape double quotes for AppleScript string literals.
+      osascript -e "display notification \"${body//\"/\\\"}\" with title \"${title//\"/\\\"}\""
+    fi
+    ;;
+  *)
+    local icon urgency
+    case "$status" in
+    ok)
+      icon="emblem-ok"
+      urgency="normal"
+      ;;
+    error)
+      icon="dialog-error"
+      urgency="critical"
       ;;
     *)
-      local icon urgency
-      case "$status" in
-        ok)
-          icon="emblem-ok"
-          urgency="normal"
-          ;;
-        error)
-          icon="dialog-error"
-          urgency="critical"
-          ;;
-        *)
-          icon="dialog-information"
-          urgency="normal"
-          ;;
-      esac
-      notify-send --app-name=notify --icon="$icon" --urgency="$urgency" "$title" "$body"
+      icon="dialog-information"
+      urgency="normal"
       ;;
+    esac
+    notify-send --app-name=notify --icon="$icon" --urgency="$urgency" "$title" "$body"
+    ;;
   esac
 }
 

@@ -87,6 +87,13 @@ rebuild_darwin() {
     sudo darwin-rebuild ${switch_args}
   else
     log_debug "darwin-rebuild not found; using 'nix run nix-darwin'"
+    # Back up stock macOS shell files so first activation won't refuse to clobber them.
+    for f in /etc/bashrc /etc/zshrc /etc/zprofile /etc/zshenv /etc/bash.bashrc; do
+      if [ -e "$f" ] && [ ! -e "$f.before-nix-darwin" ]; then
+        log_debug "Backing up $f -> $f.before-nix-darwin"
+        sudo mv "$f" "$f.before-nix-darwin"
+      fi
+    done
     # Bootstrap-only: this is the one path that runs under the fresh installer
     # daemon (flakes off, max-jobs=1) before our nix.settings is applied.
     # Use NIX_CONFIG (not CLI flags) so the settings propagate into the nested

@@ -38,5 +38,33 @@ in {
       '';
     };
   };
+  # jdtls-only maps, buffer-local on jdtls buffers — so <leader>co overrides the
+  # generic one in ../lsp.nix without a global collision.
+  autoGroups.jdtls-keymaps.clear = true;
+  autoCmd = [
+    {
+      event = "LspAttach";
+      group = "jdtls-keymaps";
+      desc = "jdtls buffer-local keymaps";
+      callback.__raw = ''
+        function(args)
+          local client = vim.lsp.get_client_by_id(args.data.client_id)
+          if not client or client.name ~= "jdtls" then return end
+          local jdtls = require("jdtls")
+          local function map(mode, lhs, rhs, desc)
+            vim.keymap.set(mode, lhs, rhs, { buffer = args.buf, desc = desc })
+          end
+          map("n", "<leader>co", jdtls.organize_imports, "Organize Imports")
+          map("n", "<leader>cxv", jdtls.extract_variable_all, "Extract Variable")
+          map("n", "<leader>cxc", jdtls.extract_constant, "Extract Constant")
+          map("n", "<leader>cgs", jdtls.super_implementation, "Goto Super")
+          map("x", "<leader>cxm", function() jdtls.extract_method(true) end, "Extract Method")
+          map("x", "<leader>cxv", function() jdtls.extract_variable_all(true) end, "Extract Variable")
+          map("x", "<leader>cxc", function() jdtls.extract_constant(true) end, "Extract Constant")
+        end
+      '';
+    }
+  ];
+
   extraPackages = [pkgs.jdk21];
 }

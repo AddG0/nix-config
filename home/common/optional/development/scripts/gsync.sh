@@ -1,3 +1,4 @@
+#!/usr/bin/env bash
 # gsync - git-aware rsync that respects .gitignore and excludes .git
 # Usage: gsync [rsync-options] source/ destination/
 

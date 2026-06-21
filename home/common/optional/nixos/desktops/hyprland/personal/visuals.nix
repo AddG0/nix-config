@@ -74,7 +74,7 @@ in {
       # applied on the hyprlang backend. The blur below carries most of the
       # frosted look, so the windows themselves don't need much see-through.
       active_opacity = 0.97;
-      inactive_opacity = 0.9;
+      inactive_opacity = 0.90;
       fullscreen_opacity = 1.0;
 
       # Drop shadow is the single biggest macOS-feel win. Pure-vertical
@@ -263,6 +263,7 @@ in {
       # state, so this already covers "on hover".)
       "opacity 1.0 override 1.0 override 1.0 override, match:class ^(zen|zen-alpha|zen-beta)$"
       "opacity 1.0 override 1.0 override 1.0 override, match:class ^(vlc)$"
+      "opacity 0.97 override 0.95 override, match:class ^(com.mitchellh.ghostty)$"
     ];
 
     # Layer rules govern blur for shell-surfaces (waybar, rofi, notifications).

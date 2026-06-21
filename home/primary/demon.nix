@@ -163,7 +163,7 @@
       "3, monitor:HDMI-A-1, default:true"
     ];
     windowrule = [
-      "workspace 3 silent, match:class ^(Slack)$"
+      "workspace 3 silent, match:class ^(slack)$"
       "workspace 3 silent, match:title .*([Dd]iscord|[Ll]egcord).*"
       "workspace 2 silent, match:class ^(zen(-beta)?)$"
       "workspace 6 silent, match:class ^([Ss]team)$"

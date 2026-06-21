@@ -23,7 +23,7 @@ check-pre:
 
 [private]
 [doc("Update personal repositories and dependencies")]
-rebuild-pre: pre && update-personal-repos
+rebuild-pre: update-personal-repos
 
 [private]
 [doc("Validate SOPS configuration after rebuild")]
@@ -87,7 +87,7 @@ alias r := rebuild
 [arg("show-trace", long, value="true")]
 [arg("use-nh", long="no-nh", value="false")]
 [arg("no-pre", long="no-pre", value="true")]
-rebuild hostname="" boot="switch" test="false" show-trace="false" use-nh=USE_NH_DEFAULT no-pre="false":
+rebuild hostname="" boot="switch" test="false" show-trace="false" use-nh=USE_NH_DEFAULT no-pre="false": pre
   #!/usr/bin/env bash
   set -euo pipefail
   if [ "{{no-pre}}" != "true" ]; then

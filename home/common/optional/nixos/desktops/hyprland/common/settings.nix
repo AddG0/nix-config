@@ -86,36 +86,43 @@ in {
       "$browser" = "firefox";
 
       # ========== Window Rules ==========
-      windowrule = [
-        "float on, match:class ^(foot-float)$"
-        "float on, match:class ^(yad|nm-connection-editor|pavucontrol)$"
-        "float on, match:class ^(xfce-polkit|kvantummanager|qt5ct)$"
-        "float on, match:class ^(feh|imv|Gpicview|Gimp|nomacs)$"
-        "float on, match:class ^(VirtualBox Manager|qemu|Qemu-system-x86_64)$"
-        "float on, match:class ^(xfce4-appfinder)$"
-        # IntelliJ / JetBrains (splash leaks the coroutine class)
-        "float on, match:class ^(jetbrains-idea)$, match:title ^(IntelliJ IDEA User Agreement)$"
-        "float on, match:class ^(kotlinx-coroutines-scheduling-CoroutineScheduler\\$Worker)$"
-        "workspace special silent, match:title ^(Gateway to .*)$"
-        "float on, match:title ^(foot-full)$"
-        "move 0 0, match:title ^(foot-full)$"
-        "size 100% 100%, match:title ^(foot-full)$"
-        "float on, match:title ^(Select what to share)$"
-        "workspace special silent, match:class ^(AWS VPN Client)$"
-        "float on, match:title ^(ProtonFixes)$"
-        "workspace special silent, match:class ^(steam_app_252950)$, match:title ^$"
-        # Steam updater dialog: XWayland window comes up with an empty class
-        # and title "Steam", so the main `^([Ss]team)$` class rule misses it.
-        "workspace 6 silent, match:class ^$, match:title ^Steam$"
-        "workspace special silent, match:title (Lethal Company.*\\.exe)"
-        "workspace special silent, match:class ^(me\\.kavishdevar\\.librepods|librepods|applinux)$"
-        "float on, match:class ^(me\\.kavishdevar\\.librepods|librepods|applinux)$"
-        # Spotify — float on special workspace, centered at a comfortable size
-        "workspace special silent, match:class ^(Spotify|spotify)$"
-        "float on, match:class ^(Spotify|spotify)$"
-        "size 60% 44%, match:class ^(Spotify|spotify)$"
-        "center 1, match:class ^(Spotify|spotify)$"
-      ];
+      windowrule =
+        [
+          "float on, match:class ^(foot-float)$"
+          "float on, match:class ^(yad|nm-connection-editor|pavucontrol)$"
+          "float on, match:class ^(xfce-polkit|kvantummanager|qt5ct)$"
+          "float on, match:class ^(feh|imv|Gpicview|Gimp|nomacs)$"
+          "float on, match:class ^(VirtualBox Manager|qemu|Qemu-system-x86_64)$"
+          "float on, match:class ^(xfce4-appfinder)$"
+          # IntelliJ / JetBrains (splash leaks the coroutine class)
+          "float on, match:class ^(jetbrains-idea)$, match:title ^(IntelliJ IDEA User Agreement)$"
+          "float on, match:class ^(kotlinx-coroutines-scheduling-CoroutineScheduler\\$Worker)$"
+          "workspace special silent, match:title ^(Gateway to .*)$"
+          "float on, match:title ^(foot-full)$"
+          "move 0 0, match:title ^(foot-full)$"
+          "size 100% 100%, match:title ^(foot-full)$"
+          "float on, match:title ^(Select what to share)$"
+          "workspace special silent, match:class ^(AWS VPN Client)$"
+          "float on, match:title ^(ProtonFixes)$"
+          "workspace special silent, match:class ^(steam_app_252950)$, match:title ^$"
+          # Steam updater dialog: XWayland window comes up with an empty class
+          # and title "Steam", so the main `^([Ss]team)$` class rule misses it.
+          "workspace 6 silent, match:class ^$, match:title ^Steam$"
+          "workspace special silent, match:title (Lethal Company.*\\.exe)"
+          "workspace special silent, match:class ^(me\\.kavishdevar\\.librepods|librepods|applinux)$"
+          "float on, match:class ^(me\\.kavishdevar\\.librepods|librepods|applinux)$"
+          # Spotify — float on special workspace, centered at a comfortable size
+          "workspace special silent, match:class ^(Spotify|spotify)$"
+          "float on, match:class ^(Spotify|spotify)$"
+          "size 60% 44%, match:class ^(Spotify|spotify)$"
+          "center 1, match:class ^(Spotify|spotify)$"
+        ]
+        # Steam toasts ignore the X11 primary; pin them to the primary's corner.
+        ++ lib.optionals (primaryMonitor != null) [
+          "float on, match:title ^(notificationtoasts.*)$"
+          "monitor ${primaryMonitor.output}, match:title ^(notificationtoasts.*)$"
+          "move 100%-w-20 100%-h-20, match:title ^(notificationtoasts.*)$"
+        ];
 
       # ========== Exec Once ==========
       # Set the X11 primary monitor so the Steam overlay picks the right

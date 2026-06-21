@@ -21,6 +21,12 @@ Complete setup guide for new users including:
 - Common troubleshooting
 - Next steps and workflows
 
+### 🔍 [lnav](guides/lnav.md)
+Log viewer keybind reference and SQL/filter cheatsheet:
+- Movement, jumping, and time navigation
+- Search, filter, and SQL query keys
+- Pairing with `stern` for Kubernetes logs
+
 ### 🤖 [Automation](automation/justfile.md)
 Comprehensive guide to project automation with detailed recipe documentation:
 - **🔍 Validation** - Configuration checking and validation

@@ -20,15 +20,15 @@
     wvous-br-corner = 13; # bottom-right - Lock Screen
 
     persistent-apps = [
-      "/Applications/Arc.app"
+      "${config.hostSpec.home}/Applications/Home Manager Apps/Zen Browser (Beta).app"
       "${pkgs.jetbrains.idea}/Applications/IntelliJ IDEA.app"
       "${pkgs.vscode}/Applications/Visual Studio Code.app"
       "${pkgs.postman}/Applications/Postman.app"
-      "/Applications/Ghostty.app"
+      "${pkgs.ghostty-bin}/Applications/Ghostty.app"
       "${pkgs.slack}/Applications/Slack.app"
       "${pkgs.discord}/Applications/Discord.app"
       "${pkgs.lens}/Applications/Lens.app"
-      "/Users/${config.hostSpec.primaryUsername}/Applications/Home Manager Apps/Spotify.app"
+      "${config.hostSpec.home}/Applications/Home Manager Apps/Spotify.app"
       "${pkgs.notion-app}/Applications/Notion.app"
     ];
   };

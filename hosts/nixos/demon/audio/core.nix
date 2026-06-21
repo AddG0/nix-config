@@ -58,5 +58,30 @@ _: {
     # mid set_hw_params → EBADFD, and a pinned device can never reopen, so audio
     # dies until `systemctl --user restart wireplumber`. Letting it suspend
     # normally keeps the link service the sole opener and restores self-recovery.
+
+    wireplumber.extraConfig."51-demon-audio-driver-priority" = {
+      "monitor.alsa.rules" = [
+        {
+          matches = [
+            {
+              "node.name" = "alsa_output.usb-Chord_Electronics_Ltd_HugoTT2_413-001-01.analog-stereo";
+            }
+          ];
+          actions.update-props = {
+            "priority.driver" = 3000;
+          };
+        }
+        {
+          matches = [
+            {
+              "node.name" = "alsa_input.hw_Gen_0";
+            }
+          ];
+          actions.update-props = {
+            "priority.driver" = 100;
+          };
+        }
+      ];
+    };
   };
 }

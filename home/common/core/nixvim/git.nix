@@ -1,7 +1,4 @@
 {
-  # Show full file in diffs instead of just changed hunks.
-  opts.diffopt = "internal,filler,closeoff,context:99999";
-
   plugins = {
     gitsigns = {
       enable = true;
@@ -18,7 +15,12 @@
         };
       };
     };
-    diffview.enable = true;
+    diffview = {
+      enable = true;
+      # De-emphasize unchanged parts of changed lines and brighten the actual
+      # changed text, so MR/diff hunks read clearly (the diffview README look).
+      settings.enhanced_diff_hl = true;
+    };
     neogit.enable = true;
   };
 

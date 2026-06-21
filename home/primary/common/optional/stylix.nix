@@ -52,7 +52,7 @@
     # opaque so notifications/OSDs read cleanly over busy content.
     opacity = {
       applications = 1.0;
-      terminal = 0.95;
+      terminal = 0.99;
       desktop = 1.0;
       popups = 1.0; # menus, OSDs, notifications
     };

@@ -11,11 +11,6 @@
     confirm = true;
     cursorline = true;
     expandtab = true;
-    # Solid fill for diff filler/deleted lines instead of the default `-`
-    # dashes, so diffs (diffview) render clean red/green bars.
-    fillchars = {
-      diff = " ";
-    };
     # Folding is owned by nvim-origami (editor.nix): it sets foldexpr to LSP
     # folds with a treesitter fallback and auto-collapses imports on open
     # (IntelliJ-style — class at the top). foldlevel 99 = everything open by

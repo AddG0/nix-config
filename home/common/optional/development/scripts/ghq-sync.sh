@@ -1,3 +1,4 @@
+#!/usr/bin/env bash
 # ghq-sync - push the ghq repo you're currently in to another computer.
 # Git-aware via gsync: excludes .git and respects .gitignore. The other machine
 # is assumed to share this nix-config's ghq layout, so the repo lands at the

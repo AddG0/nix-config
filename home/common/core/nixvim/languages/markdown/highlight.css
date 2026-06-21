@@ -3,8 +3,8 @@
    substituted with stylix colors in ./default.nix. */
 
 .hljs {
-  background: @base01@;
-  color: @base05@;
+  background: @base01 @;
+  color: @base05 @;
 }
 
 .hljs-comment,
@@ -12,7 +12,7 @@
   /* base04 not base03: comments on the base01 code background need the extra
      lift to stay legible (base03 there is ~1.9:1 contrast — effectively
      invisible). Still muted relative to code, just readable. */
-  color: @base04@;
+  color: @base04 @;
   font-style: italic;
 }
 
@@ -25,7 +25,7 @@
 .hljs-name,
 .hljs-selector-id,
 .hljs-selector-class {
-  color: @base08@;
+  color: @base08 @;
 }
 
 .hljs-number,
@@ -35,40 +35,40 @@
 .hljs-literal,
 .hljs-type,
 .hljs-params {
-  color: @base09@;
+  color: @base09 @;
 }
 
 .hljs-string,
 .hljs-symbol,
 .hljs-bullet {
-  color: @base0B@;
+  color: @base0B @;
 }
 
 .hljs-title,
 .hljs-section,
 .hljs-title.function_ {
-  color: @base0D@;
+  color: @base0D @;
 }
 .hljs-title.class_,
 .hljs-class .hljs-title {
-  color: @base0A@;
+  color: @base0A @;
 }
 .hljs-property,
 .hljs-attr {
-  color: @base0C@;
+  color: @base0C @;
 }
 .hljs-char.escape_,
 .hljs-subst {
-  color: @base0F@;
+  color: @base0F @;
 }
 .hljs-operator,
 .hljs-punctuation {
-  color: @base05@;
+  color: @base05 @;
 }
 
 .hljs-keyword,
 .hljs-selector-tag {
-  color: @base0E@;
+  color: @base0E @;
 }
 
 .hljs-emphasis {
@@ -78,8 +78,8 @@
   font-weight: bold;
 }
 .hljs-addition {
-  color: @base0B@;
+  color: @base0B @;
 }
 .hljs-deletion {
-  color: @base08@;
+  color: @base08 @;
 }

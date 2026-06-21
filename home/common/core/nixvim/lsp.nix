@@ -95,6 +95,19 @@
       action.__raw = "vim.lsp.buf.rename";
       options.desc = "Rename";
     }
+    # Generic organize-imports via the standard LSP code action. Works for any
+    # server that implements it (gopls, ruff, ts_ls). On Java buffers the
+    # buffer-local nvim-jdtls map (languages/java.nix) overrides this.
+    {
+      mode = "n";
+      key = "<leader>co";
+      action.__raw = ''
+        function()
+          vim.lsp.buf.code_action({ context = { only = { "source.organizeImports" } }, apply = true })
+        end
+      '';
+      options.desc = "Organize Imports";
+    }
     {
       mode = "n";
       key = "K";
