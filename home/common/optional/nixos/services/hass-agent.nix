@@ -8,7 +8,7 @@
 #      Long-Lived Access Tokens → Create Token. Copy it immediately.
 #
 #   2. Register this device
-#        go-hass-agent-amd64 register
+#        go-hass-agent register
 #      It will ask for the same HA URL and the token from step 1.
 #
 #   3. Start it
@@ -18,7 +18,7 @@
 #        sudo loginctl enable-linger $USER
 #
 #   5. (Optional) Enable MQTT controls — volume, suspend, lock, custom buttons
-#        go-hass-agent-amd64 config --mqtt-server=tcp://broker:1883
+#        go-hass-agent config --mqtt-server=tcp://broker:1883
 #
 _: {
   services.hassAgent.enable = true;
