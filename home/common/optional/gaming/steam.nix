@@ -222,6 +222,8 @@ in {
       forza-horizon-5.launchOptions.wrappers = [gamemoderun] ++ gamescope;
       forza-horizon-6.launchOptions.wrappers = [gamemoderun] ++ gamescope;
 
+      overwatch.launchOptions.wrappers = mouseDpi 1800 ++ [gamemoderun];
+
       # Bigscreen Beyond Utility — Windows-only app for adjusting the
       # headset's fan, brightness, refresh rate, and LED color.
       # Intentionally minimal: PROTON_ENABLE_HIDRAW is documented but

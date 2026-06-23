@@ -5,54 +5,34 @@
   ...
 }: let
   c = colors;
-  # Substitute stylix base16 colors + font names into a sibling CSS template.
-  # The templates use @baseNN@ and @font-*@ placeholders; this keeps them as
-  # real, editable .css files.
+  # Prepend a :root block defining stylix colors + fonts as CSS variables, which
+  # the sibling .css templates reference via var(--baseNN)/var(--font-*). Using
+  # real CSS vars (rather than @placeholder@ substitution) keeps the templates
+  # valid CSS that prettier can format without mangling.
   themeCss = name: file:
-    pkgs.writeText name (
-      builtins.replaceStrings
-      [
-        "@base00@"
-        "@base01@"
-        "@base02@"
-        "@base03@"
-        "@base04@"
-        "@base05@"
-        "@base06@"
-        "@base07@"
-        "@base08@"
-        "@base09@"
-        "@base0A@"
-        "@base0B@"
-        "@base0C@"
-        "@base0D@"
-        "@base0E@"
-        "@base0F@"
-        "@font-sans@"
-        "@font-mono@"
-      ]
-      [
-        c.base00
-        c.base01
-        c.base02
-        c.base03
-        c.base04
-        c.base05
-        c.base06
-        c.base07
-        c.base08
-        c.base09
-        c.base0A
-        c.base0B
-        c.base0C
-        c.base0D
-        c.base0E
-        c.base0F
-        fonts.sansSerif.name
-        fonts.monospace.name
-      ]
-      (builtins.readFile file)
-    );
+    pkgs.writeText name ''
+      :root {
+        --base00: ${c.base00};
+        --base01: ${c.base01};
+        --base02: ${c.base02};
+        --base03: ${c.base03};
+        --base04: ${c.base04};
+        --base05: ${c.base05};
+        --base06: ${c.base06};
+        --base07: ${c.base07};
+        --base08: ${c.base08};
+        --base09: ${c.base09};
+        --base0A: ${c.base0A};
+        --base0B: ${c.base0B};
+        --base0C: ${c.base0C};
+        --base0D: ${c.base0D};
+        --base0E: ${c.base0E};
+        --base0F: ${c.base0F};
+        --font-sans: "${fonts.sansSerif.name}";
+        --font-mono: "${fonts.monospace.name}";
+      }
+      ${builtins.readFile file}
+    '';
 in {
   plugins.lsp.servers.marksman.enable = true;
 

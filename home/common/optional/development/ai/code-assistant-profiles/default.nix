@@ -57,6 +57,7 @@ in {
         nix
         context7
         code-review
+        code-comments
         commit-commands
         documentation
         architecture

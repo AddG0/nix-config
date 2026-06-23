@@ -320,16 +320,16 @@ in {
         picker = {
           enabled = true;
           hidden = true; # show dotfiles in pickers (e.g. .gitlab-ci.yml)
-          # Don't let .gitignore drive visibility — gitignored paths (.sdd,
-          # build output, etc.) should show too. The explicit `exclude` list
-          # below is the only thing that hides files.
-          ignored = true;
           sources = {
             # Single-child folder auto-descend lives in
             # ./snacks-explorer-nesting.nix (delete it when snacks gains a
             # native group_empty option).
             explorer = {
               hidden = true;
+              # Show gitignored paths (.sdd, build output) in the tree; the
+              # `exclude` list is the only thing that hides files here. Scoped to
+              # the explorer so grep/files keep respecting .gitignore (no
+              # node_modules flood).
               ignored = true;
               exclude = pickerExclude;
             };

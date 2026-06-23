@@ -1,6 +1,8 @@
 /* Stylix base16 theme for markdown-preview.nvim's browser preview (page chrome).
-   @baseNN@ placeholders are substituted with stylix colors in ./default.nix,
-   and @font-sans@/@font-mono@ with stylix's configured font families.
+   Colors/fonts are CSS variables (var(--baseNN), var(--font-sans/mono)) defined
+   in a :root block that ./default.nix prepends from stylix. Themed rules are
+   scoped under [data-theme="dark"], so light mode falls back to the plugin's
+   built-in light theme.
    Code-block syntax colors live in ./highlight.css (mkdp_highlight_css).
 
    markdown-preview loads its default github-markdown stylesheet too, and that
@@ -16,52 +18,54 @@
    under [data-theme="dark"] — including a near-black <main> slab (#181a1b) and
    the top filename bar (#0d1117) that don't match our base16 surface. Re-point
    those variables at stylix colors so the whole page (not just the content
-   column) is a uniform themed background. html[data-theme] out-specifies the
-   plugin's bare [data-theme] rule, and we load later, so this wins. */
-html[data-theme="dark"],
+   column) is a uniform themed background. data-theme lives on <main>, so this
+   bare [data-theme] selector matches it (and its descendants); we load after
+   the plugin's own rule so our equal-specificity overrides win. */
 [data-theme="dark"] {
-  --background-color: @base00 @;
-  --secondary-background-color: @base00 @;
-  --foreground-color: @base05 @;
-  --border-color: @base02 @;
+  --background-color: var(--base00);
+  --secondary-background-color: var(--base00);
+  --foreground-color: var(--base05);
+  --border-color: var(--base02);
 }
 
-body {
-  background: @base00 @;
-  color: @base05 @;
+/* The plugin centers content in #page-ctn (max-width: 900px; margin: 0 auto) —
+   that's what kept it in the middle. Use the full page, with edge padding for
+   breathing room (<main> already supplies the base00 background). */
+[data-theme="dark"] #page-ctn {
+  max-width: none;
   margin: 0;
   padding: 2.5rem 1rem;
 }
 
 /* Theme the scrollbars to match (Chromium/WebKit). */
-* {
+[data-theme="dark"] * {
   scrollbar-width: thin;
-  scrollbar-color: @base03 @transparent;
+  scrollbar-color: var(--base03) transparent;
 }
-*::-webkit-scrollbar {
+[data-theme="dark"] *::-webkit-scrollbar {
   width: 10px;
   height: 10px;
 }
-*::-webkit-scrollbar-thumb {
-  background: @base03 @;
+[data-theme="dark"] *::-webkit-scrollbar-thumb {
+  background: var(--base03);
   border-radius: 6px;
-  border: 2px solid @base00 @;
+  border: 2px solid var(--base00);
 }
-*::-webkit-scrollbar-thumb:hover {
-  background: @base04 @;
+[data-theme="dark"] *::-webkit-scrollbar-thumb:hover {
+  background: var(--base04);
 }
 
-.markdown-body {
+[data-theme="dark"] .markdown-body {
   /* Full-bleed, left-aligned: use the whole window width starting from the
-     left edge (the body padding above supplies the breathing room). */
+     left edge (#page-ctn padding above supplies the breathing room). */
   max-width: none;
   margin: 0;
   padding: 0 1.25rem;
 
-  background: @base00 @;
-  color: @base05 @;
+  background: var(--base00);
+  color: var(--base05);
   font-family:
-    "@font-sans@",
+    var(--font-sans),
     system-ui,
     -apple-system,
     "Segoe UI",
@@ -74,28 +78,28 @@ body {
   word-wrap: break-word;
 }
 
-.markdown-body p {
+[data-theme="dark"] .markdown-body p {
   margin: 0 0 1.1em;
 }
 
-.markdown-body a {
-  color: @base0D @;
+[data-theme="dark"] .markdown-body a {
+  color: var(--base0D);
   text-decoration: none;
   text-underline-offset: 0.18em;
   transition: color 0.12s ease;
 }
-.markdown-body a:hover {
+[data-theme="dark"] .markdown-body a:hover {
   text-decoration: underline;
   text-decoration-thickness: 1px;
 }
 
-.markdown-body h1,
-.markdown-body h2,
-.markdown-body h3,
-.markdown-body h4,
-.markdown-body h5,
-.markdown-body h6 {
-  color: @base06 @;
+[data-theme="dark"] .markdown-body h1,
+[data-theme="dark"] .markdown-body h2,
+[data-theme="dark"] .markdown-body h3,
+[data-theme="dark"] .markdown-body h4,
+[data-theme="dark"] .markdown-body h5,
+[data-theme="dark"] .markdown-body h6 {
+  color: var(--base06);
   font-weight: 700;
   line-height: 1.3;
   margin: 1.8em 0 0.7em;
@@ -103,52 +107,52 @@ body {
   /* Anchor jumps land below the floating page bar instead of under it. */
   scroll-margin-top: 1rem;
 }
-.markdown-body h1 {
+[data-theme="dark"] .markdown-body h1 {
   font-size: 2em;
 }
-.markdown-body h2 {
+[data-theme="dark"] .markdown-body h2 {
   font-size: 1.5em;
 }
-.markdown-body h3 {
+[data-theme="dark"] .markdown-body h3 {
   font-size: 1.25em;
 }
-.markdown-body h4 {
+[data-theme="dark"] .markdown-body h4 {
   font-size: 1.05em;
-  color: @base05 @;
+  color: var(--base05);
 }
-.markdown-body h5 {
+[data-theme="dark"] .markdown-body h5 {
   font-size: 0.95em;
-  color: @base05 @;
+  color: var(--base05);
 }
-.markdown-body h6 {
+[data-theme="dark"] .markdown-body h6 {
   /* Smallest heading: don't let it drop below body weight into fine-print
      territory. Muted color carries the hierarchy instead of tiny size. */
   font-size: 0.9em;
-  color: @base04 @;
+  color: var(--base04);
   text-transform: uppercase;
   letter-spacing: 0.04em;
 }
-.markdown-body h1,
-.markdown-body h2 {
-  border-bottom: 1px solid @base02 @;
+[data-theme="dark"] .markdown-body h1,
+[data-theme="dark"] .markdown-body h2 {
+  border-bottom: 1px solid var(--base02);
   padding-bottom: 0.3em;
 }
 /* The anchor-link glyph mkdp injects beside headings is visual noise on every
    line — reveal it only when hovering the heading. */
-.markdown-body .anchor {
+[data-theme="dark"] .markdown-body .anchor {
   visibility: hidden;
-  color: @base03 @;
+  color: var(--base03);
 }
-.markdown-body h1:hover .anchor,
-.markdown-body h2:hover .anchor,
-.markdown-body h3:hover .anchor,
-.markdown-body h4:hover .anchor,
-.markdown-body h5:hover .anchor,
-.markdown-body h6:hover .anchor {
+[data-theme="dark"] .markdown-body h1:hover .anchor,
+[data-theme="dark"] .markdown-body h2:hover .anchor,
+[data-theme="dark"] .markdown-body h3:hover .anchor,
+[data-theme="dark"] .markdown-body h4:hover .anchor,
+[data-theme="dark"] .markdown-body h5:hover .anchor,
+[data-theme="dark"] .markdown-body h6:hover .anchor {
   visibility: visible;
 }
 
-.markdown-body hr {
+[data-theme="dark"] .markdown-body hr {
   border: 0;
   height: 1px;
   margin: 2em 0;
@@ -156,87 +160,87 @@ body {
   background: linear-gradient(
     to right,
     transparent,
-    @base03 @20%,
-    @base03 @80%,
+    var(--base03) 20%,
+    var(--base03) 80%,
     transparent
   );
 }
 
-.markdown-body blockquote {
-  color: @base04 @;
-  border-left: 0.25em solid @base0D @;
-  background: @base01 @;
+[data-theme="dark"] .markdown-body blockquote {
+  color: var(--base04);
+  border-left: 0.25em solid var(--base0D);
+  background: var(--base01);
   border-radius: 0 6px 6px 0;
   margin: 1.2em 0;
   padding: 0.6em 1em;
 }
-.markdown-body blockquote > :last-child {
+[data-theme="dark"] .markdown-body blockquote > :last-child {
   margin-bottom: 0;
 }
 
-.markdown-body code {
-  background: @base01 @;
-  color: @base0A @;
-  border: 1px solid @base02 @;
+[data-theme="dark"] .markdown-body code {
+  background: var(--base01);
+  color: var(--base0A);
+  border: 1px solid var(--base02);
   border-radius: 4px;
   padding: 0.15em 0.4em;
-  font-family: "@font-mono@", ui-monospace, "SFMono-Regular", monospace;
+  font-family: var(--font-mono), ui-monospace, "SFMono-Regular", monospace;
   font-size: 0.875em;
   font-variant-ligatures: none;
 }
-.markdown-body pre {
-  background: @base01 @;
+[data-theme="dark"] .markdown-body pre {
+  background: var(--base01);
   border-radius: 8px;
   padding: 1em 1.2em;
   line-height: 1.55;
   overflow: auto;
-  border: 1px solid @base02 @;
+  border: 1px solid var(--base02);
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.25);
 }
-.markdown-body pre code {
+[data-theme="dark"] .markdown-body pre code {
   background: none;
   border: 0;
-  color: @base05 @;
+  color: var(--base05);
   padding: 0;
   font-size: 0.875em;
 }
 
-.markdown-body kbd {
-  background: @base02 @;
-  color: @base06 @;
-  border: 1px solid @base03 @;
+[data-theme="dark"] .markdown-body kbd {
+  background: var(--base02);
+  color: var(--base06);
+  border: 1px solid var(--base03);
   border-bottom-width: 2px;
   border-radius: 5px;
   padding: 0.1em 0.45em;
-  font-family: "@font-mono@", ui-monospace, monospace;
+  font-family: var(--font-mono), ui-monospace, monospace;
   font-size: 0.8em;
   line-height: 1;
 }
 
-.markdown-body ul,
-.markdown-body ol {
+[data-theme="dark"] .markdown-body ul,
+[data-theme="dark"] .markdown-body ol {
   padding-left: 1.5em;
   margin: 0 0 1.1em;
 }
-.markdown-body li {
+[data-theme="dark"] .markdown-body li {
   margin: 0.3em 0;
 }
-.markdown-body li::marker {
-  color: @base0D @;
+[data-theme="dark"] .markdown-body li::marker {
+  color: var(--base0D);
 }
 /* GitHub task-list checkboxes. */
-.markdown-body .task-list-item {
+[data-theme="dark"] .markdown-body .task-list-item {
   list-style: none;
 }
-.markdown-body .task-list-item input[type="checkbox"] {
+[data-theme="dark"] .markdown-body .task-list-item input[type="checkbox"] {
   width: 1.05em;
   height: 1.05em;
   margin: 0 0.5em 0 -1.6em;
   vertical-align: -0.15em;
-  accent-color: @base0B @;
+  accent-color: var(--base0B);
 }
 
-.markdown-body table {
+[data-theme="dark"] .markdown-body table {
   /* display:block + width:max-content lets normal tables size to their content
      while genuinely wide ones scroll horizontally instead of breaking the
      page measure. overflow:auto also clips children to the rounded corners. */
@@ -247,88 +251,88 @@ body {
   border-collapse: separate;
   border-spacing: 0;
   margin: 1.3em 0;
-  border: 1px solid @base03 @;
+  border: 1px solid var(--base03);
   border-radius: 8px;
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.25);
 }
-.markdown-body table tr {
-  background: @base00 @;
+[data-theme="dark"] .markdown-body table tr {
+  background: var(--base00);
 }
-.markdown-body table tr:nth-child(2n) {
-  background: @base01 @;
+[data-theme="dark"] .markdown-body table tr:nth-child(2n) {
+  background: var(--base01);
 }
-.markdown-body table th,
-.markdown-body table td {
+[data-theme="dark"] .markdown-body table th,
+[data-theme="dark"] .markdown-body table td {
   border: 0;
-  border-bottom: 1px solid @base02 @;
-  border-right: 1px solid @base02 @;
+  border-bottom: 1px solid var(--base02);
+  border-right: 1px solid var(--base02);
   padding: 0.5em 0.9em;
 }
-.markdown-body table th:last-child,
-.markdown-body table td:last-child {
+[data-theme="dark"] .markdown-body table th:last-child,
+[data-theme="dark"] .markdown-body table td:last-child {
   border-right: 0;
 }
-.markdown-body table tr:last-child td {
+[data-theme="dark"] .markdown-body table tr:last-child td {
   border-bottom: 0;
 }
-.markdown-body table th {
-  background: @base02 @;
-  color: @base06 @;
+[data-theme="dark"] .markdown-body table th {
+  background: var(--base02);
+  color: var(--base06);
   font-weight: 700;
 }
 
-.markdown-body img {
+[data-theme="dark"] .markdown-body img {
   max-width: 100%;
   border-radius: 6px;
 }
 
-.markdown-body strong {
-  color: @base07 @;
+[data-theme="dark"] .markdown-body strong {
+  color: var(--base07);
   font-weight: 700;
 }
-.markdown-body em {
-  color: @base05 @;
+[data-theme="dark"] .markdown-body em {
+  color: var(--base05);
 }
-.markdown-body del {
-  color: @base04 @;
+[data-theme="dark"] .markdown-body del {
+  color: var(--base04);
 }
-.markdown-body mark {
-  background: @base0A @;
-  color: @base00 @;
+[data-theme="dark"] .markdown-body mark {
+  background: var(--base0A);
+  color: var(--base00);
   border-radius: 3px;
   padding: 0 0.2em;
 }
-.markdown-body ::selection {
-  background: @base02 @;
+[data-theme="dark"] .markdown-body ::selection {
+  background: var(--base02);
 }
 
 /* Collapsible <details> blocks. */
-.markdown-body details {
-  background: @base01 @;
-  border: 1px solid @base02 @;
+[data-theme="dark"] .markdown-body details {
+  background: var(--base01);
+  border: 1px solid var(--base02);
   border-radius: 8px;
   padding: 0.5em 1em;
   margin: 1.1em 0;
 }
-.markdown-body summary {
+[data-theme="dark"] .markdown-body summary {
   cursor: pointer;
   font-weight: 600;
-  color: @base06 @;
+  color: var(--base06);
 }
-.markdown-body summary::marker {
-  color: @base0D @;
+[data-theme="dark"] .markdown-body summary::marker {
+  color: var(--base0D);
 }
-.markdown-body details[open] summary {
+[data-theme="dark"] .markdown-body details[open] summary {
   margin-bottom: 0.6em;
-  border-bottom: 1px solid @base02 @;
+  border-bottom: 1px solid var(--base02);
   padding-bottom: 0.5em;
 }
 
 /* Footnotes: smaller and muted, set apart by the gradient hr mkdp emits. */
-.markdown-body .footnotes {
+[data-theme="dark"] .markdown-body .footnotes {
   font-size: 0.85em;
-  color: @base04 @;
+  color: var(--base04);
 }
-.markdown-body .footnotes li:target {
-  background: @base01 @;
+[data-theme="dark"] .markdown-body .footnotes li:target {
+  background: var(--base01);
 }

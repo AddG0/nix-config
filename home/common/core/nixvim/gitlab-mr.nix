@@ -30,6 +30,12 @@
   in [
     {
       mode = "n";
+      key = "<leader>gmC";
+      action = gl "create_mr()";
+      options.desc = "GitLab: create MR for current branch";
+    }
+    {
+      mode = "n";
       key = "<leader>gmo";
       action = gl "choose_merge_request()";
       options.desc = "GitLab: choose MR";

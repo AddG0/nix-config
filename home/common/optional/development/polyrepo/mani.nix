@@ -7,26 +7,28 @@
   c = config.lib.stylix.colors.withHashtag;
   yaml = pkgs.formats.yaml {};
 
-  # Minimal bash shell for `mani exec` / `mani run` that pre-loads only the
-  # home-manager shell aliases — no plugins, prompt, or completions. About
-  # 10x faster than `zsh -ic` (~20ms vs ~210ms per invocation, which matters
-  # when fanning out across hundreds of projects).
+  # mani (0.32.1) only reads `shell` from a project mani.yaml, not this user
+  # config, so commands run under the default `bash -c` without our aliases.
+  # Inject them via BASH_ENV on a wrapped mani binary — bash sources it for
+  # every non-interactive shell, covering both `mani run` and `mani exec`.
   aliasLines = lib.concatStringsSep "\n" (
     lib.mapAttrsToList (n: v: "alias ${n}=${lib.escapeShellArg v}") config.home.shellAliases
   );
-  mani-shell = pkgs.writeShellScriptBin "mani-shell" ''
+  mani-aliases = pkgs.writeText "mani-aliases.bash" ''
     shopt -s expand_aliases
     ${aliasLines}
-    eval "''${2:-}"
   '';
+  mani = pkgs.symlinkJoin {
+    name = "mani-aliased";
+    paths = [pkgs.mani];
+    nativeBuildInputs = [pkgs.makeWrapper];
+    postBuild = "wrapProgram $out/bin/mani --set BASH_ENV ${mani-aliases}";
+  };
 in {
-  home.packages = [pkgs.mani];
+  home.packages = [mani];
 
   xdg.configFile."mani/config.yaml".source = yaml.generate "mani-config.yaml" {
-    # mani invokes `<shell> -c "<cmd>"`. Wrapper sources aliases and evals
-    # the command so `gst`/`gl`/etc. resolve.
-    shell = "${mani-shell}/bin/mani-shell";
-
+    # `shell` omitted — mani ignores it in the user config (see note above).
     themes = {
       shq = {
         stream = {

@@ -2,84 +2,84 @@
    Canonical base16 -> highlight.js token mapping. @baseNN@ placeholders are
    substituted with stylix colors in ./default.nix. */
 
-.hljs {
-  background: @base01 @;
-  color: @base05 @;
+[data-theme="dark"] .hljs {
+  background: var(--base01);
+  color: var(--base05);
 }
 
-.hljs-comment,
-.hljs-quote {
+[data-theme="dark"] .hljs-comment,
+[data-theme="dark"] .hljs-quote {
   /* base04 not base03: comments on the base01 code background need the extra
      lift to stay legible (base03 there is ~1.9:1 contrast — effectively
      invisible). Still muted relative to code, just readable. */
-  color: @base04 @;
+  color: var(--base04);
   font-style: italic;
 }
 
-.hljs-variable,
-.hljs-template-variable,
-.hljs-attribute,
-.hljs-tag,
-.hljs-regexp,
-.hljs-link,
-.hljs-name,
-.hljs-selector-id,
-.hljs-selector-class {
-  color: @base08 @;
+[data-theme="dark"] .hljs-variable,
+[data-theme="dark"] .hljs-template-variable,
+[data-theme="dark"] .hljs-attribute,
+[data-theme="dark"] .hljs-tag,
+[data-theme="dark"] .hljs-regexp,
+[data-theme="dark"] .hljs-link,
+[data-theme="dark"] .hljs-name,
+[data-theme="dark"] .hljs-selector-id,
+[data-theme="dark"] .hljs-selector-class {
+  color: var(--base08);
 }
 
-.hljs-number,
-.hljs-meta,
-.hljs-built_in,
-.hljs-builtin-name,
-.hljs-literal,
-.hljs-type,
-.hljs-params {
-  color: @base09 @;
+[data-theme="dark"] .hljs-number,
+[data-theme="dark"] .hljs-meta,
+[data-theme="dark"] .hljs-built_in,
+[data-theme="dark"] .hljs-builtin-name,
+[data-theme="dark"] .hljs-literal,
+[data-theme="dark"] .hljs-type,
+[data-theme="dark"] .hljs-params {
+  color: var(--base09);
 }
 
-.hljs-string,
-.hljs-symbol,
-.hljs-bullet {
-  color: @base0B @;
+[data-theme="dark"] .hljs-string,
+[data-theme="dark"] .hljs-symbol,
+[data-theme="dark"] .hljs-bullet {
+  color: var(--base0B);
 }
 
-.hljs-title,
-.hljs-section,
-.hljs-title.function_ {
-  color: @base0D @;
+[data-theme="dark"] .hljs-title,
+[data-theme="dark"] .hljs-section,
+[data-theme="dark"] .hljs-title.function_ {
+  color: var(--base0D);
 }
-.hljs-title.class_,
-.hljs-class .hljs-title {
-  color: @base0A @;
+[data-theme="dark"] .hljs-title.class_,
+[data-theme="dark"] .hljs-class .hljs-title {
+  color: var(--base0A);
 }
-.hljs-property,
-.hljs-attr {
-  color: @base0C @;
+[data-theme="dark"] .hljs-property,
+[data-theme="dark"] .hljs-attr {
+  color: var(--base0C);
 }
-.hljs-char.escape_,
-.hljs-subst {
-  color: @base0F @;
+[data-theme="dark"] .hljs-char.escape_,
+[data-theme="dark"] .hljs-subst {
+  color: var(--base0F);
 }
-.hljs-operator,
-.hljs-punctuation {
-  color: @base05 @;
-}
-
-.hljs-keyword,
-.hljs-selector-tag {
-  color: @base0E @;
+[data-theme="dark"] .hljs-operator,
+[data-theme="dark"] .hljs-punctuation {
+  color: var(--base05);
 }
 
-.hljs-emphasis {
+[data-theme="dark"] .hljs-keyword,
+[data-theme="dark"] .hljs-selector-tag {
+  color: var(--base0E);
+}
+
+[data-theme="dark"] .hljs-emphasis {
   font-style: italic;
 }
-.hljs-strong {
+[data-theme="dark"] .hljs-strong {
   font-weight: bold;
 }
-.hljs-addition {
-  color: @base0B @;
+[data-theme="dark"] .hljs-addition {
+  color: var(--base0B);
 }
-.hljs-deletion {
-  color: @base08 @;
+[data-theme="dark"] .hljs-deletion {
+  color: var(--base08);
 }
