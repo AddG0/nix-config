@@ -17,7 +17,9 @@
 
       # VaapiVideoDecodeLinuxGL: VA-API hardware video decode on Linux/Ozone.
       # WebRTCPipeWireCapturer: screen sharing via xdg-desktop-portal/PipeWire.
-      "--enable-features=VaapiVideoDecodeLinuxGL,WebRTCPipeWireCapturer"
+      # MiddleClickAutoscroll: Windows-style middle-click drag-to-scroll;
+      # disabled by default on Linux release builds, this opts in.
+      "--enable-features=VaapiVideoDecodeLinuxGL,WebRTCPipeWireCapturer,MiddleClickAutoscroll"
 
       # The chrome://flags toggle is broken (crbug 41198007); the CLI flag
       # is the working path to override conservative GPU blocklisting.
