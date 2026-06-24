@@ -32,14 +32,30 @@ export OTEL_METRICS_EXPORTER="${OTEL_METRICS_EXPORTER:-otlp}"
 export OTEL_LOGS_EXPORTER="${OTEL_LOGS_EXPORTER:-otlp}"
 
 # Node: require the Nix-provided auto-instrumentation bundle. NODE_PATH lets the
-# bare specifier resolve without the repo depending on it; require-in-the-middle
-# then patches the app's own modules (http, pg, ...) process-wide.
+# bundle's deps resolve without the repo depending on them; require-in-the-middle
+# then patches the app's own modules (http, pg, ...) process-wide. The register.js
+# entrypoint also adds http2 client tracing (ConnectRPC/gRPC transport), which the
+# stock auto-instrumentations don't cover. A single --require (not two) because
+# next/turbopack re-parses NODE_OPTIONS and mangles multiple --require flags.
 export NODE_PATH="${OTEL_NODE_BUNDLE}${NODE_PATH:+:$NODE_PATH}"
-export NODE_OPTIONS="--require @opentelemetry/auto-instrumentations-node/register${NODE_OPTIONS:+ $NODE_OPTIONS}"
+export NODE_OPTIONS="--require ${OTEL_NODE_REGISTER}${NODE_OPTIONS:+ $NODE_OPTIONS}"
 
 # JVM: the agent is loaded by the forked app JVM (and the Gradle daemon — run
-# with --no-daemon if that noise is unwanted).
-export JAVA_TOOL_OPTIONS="-javaagent:${OTEL_JAVAAGENT_JAR}${JAVA_TOOL_OPTIONS:+ $JAVA_TOOL_OPTIONS}"
+# with --no-daemon if that noise is unwanted). The method-args extension adds a span
+# per business method carrying its argument values (vs the stock methods.include,
+# which has no way to capture args).
+export JAVA_TOOL_OPTIONS="-javaagent:${OTEL_JAVAAGENT_JAR} -Dotel.javaagent.extensions=${OTEL_METHOD_ARGS_JAR}${JAVA_TOOL_OPTIONS:+ $JAVA_TOOL_OPTIONS}"
+
+# Scope those per-method spans to the app's own business classes (Spring stereotypes,
+# gRPC impls), derived from compiled classes — the agent only spans library
+# boundaries otherwise. Respects a manual override; the generator no-ops for
+# non-JVM/unbuilt projects, and its errors never abort the launch.
+if [ -z "${OTEL_DEV_METHOD_ARGS_INCLUDE:-}" ]; then
+  if _otel_methods="$("${OTEL_JAVA_METHODS_GEN}" "$PWD")"; then
+    [ -n "$_otel_methods" ] && export OTEL_DEV_METHOD_ARGS_INCLUDE="$_otel_methods"
+  fi
+  unset _otel_methods
+fi
 
 # Python: replicate `opentelemetry-instrument` without the command wrapper. The
 # auto_instrumentation dir holds a sitecustomize.py that boots the SDK on any

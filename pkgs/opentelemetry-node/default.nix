@@ -20,6 +20,10 @@ buildNpmPackage {
     runHook preInstall
     mkdir -p $out/lib
     cp -r node_modules $out/lib/node_modules
+    # register.js (the --require entrypoint) + the http2 instrumentation it pulls
+    # in. Placed beside node_modules so their @opentelemetry/* requires resolve.
+    cp ${./register.js} $out/lib/register.js
+    cp ${./http2-register.js} $out/lib/http2-register.js
     runHook postInstall
   '';
 

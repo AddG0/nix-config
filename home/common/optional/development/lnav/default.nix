@@ -1,5 +1,8 @@
 {...}: {
-  imports = [./styling.nix];
+  imports = [
+    ./styling.nix
+    ./tmux.nix
+  ];
 
   programs.lnav = {
     enable = true;

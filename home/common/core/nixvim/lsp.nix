@@ -114,5 +114,32 @@
       action.__raw = "vim.lsp.buf.hover";
       options.desc = "Hover";
     }
+    # `:LspRestart` misses jdtls (nvim-jdtls bypasses lspconfig) — and jdtls is
+    # the one that wedges. Re-fire FileType to re-attach without a buffer reload,
+    # so unsaved edits survive.
+    {
+      mode = "n";
+      key = "<leader>cR";
+      action.__raw = ''
+        function()
+          local bufnr = vim.api.nvim_get_current_buf()
+          local ft = vim.bo[bufnr].filetype
+          local clients = vim.lsp.get_clients({ bufnr = bufnr })
+          if vim.tbl_isempty(clients) then
+            vim.notify("No LSP client to restart", vim.log.levels.WARN)
+            return
+          end
+          local names = table.concat(
+            vim.tbl_map(function(c) return c.name end, clients), ", "
+          )
+          vim.lsp.stop_client(clients, true)
+          vim.defer_fn(function()
+            vim.api.nvim_exec_autocmds("FileType", { pattern = ft })
+          end, 500)
+          vim.notify("Restarting LSP: " .. names, vim.log.levels.INFO)
+        end
+      '';
+      options.desc = "Restart LSP";
+    }
   ];
 }

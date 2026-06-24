@@ -5,7 +5,22 @@
   plugins = {
     flash.enable = true;
     todo-comments.enable = true;
-    trouble.enable = true;
+    trouble = {
+      enable = true;
+      # Auto-open the symbols outline (VSCode-style) when the buffer has LSP
+      # symbols; keep focus in the file. Wider split so long names aren't cut off.
+      settings.modes.symbols = {
+        auto_open = true;
+        focus = false;
+        win = {
+          position = "right";
+          size = 50;
+        };
+        # Default appends {text} (the trimmed source line) after the name, which
+        # reads as the signature shown twice. Just icon + name + position.
+        format = "{kind_icon} {symbol.name} {pos}";
+      };
+    };
 
     # Subtly highlight other usages of the symbol under the cursor (VSCode
     # "occurrence highlight"). LSP-aware: uses the language server's

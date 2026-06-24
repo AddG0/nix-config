@@ -1,7 +1,7 @@
 # Shared package definitions - used by both overlay and flake-module
 # This keeps packages lazy - they're only evaluated when accessed
 # Namespaces with multiple packages have their own default.nix for modularity
-pkgs: {
+pkgs: rec {
   # Development tools
   bootdev-cli = pkgs.callPackage ./bootdev-cli {};
   kotlin-lsp = pkgs.callPackage ./kotlin-lsp {};
@@ -16,6 +16,7 @@ pkgs: {
 
   # OpenTelemetry
   opentelemetry-javaagent = pkgs.callPackage ./opentelemetry-javaagent {};
+  opentelemetry-method-args = pkgs.callPackage ./opentelemetry-method-args {inherit opentelemetry-javaagent;};
   opentelemetry-node = pkgs.callPackage ./opentelemetry-node {};
 
   # gRPC tools
