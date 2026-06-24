@@ -1,4 +1,8 @@
-{pkgs, ...}: let
+{
+  config,
+  pkgs,
+  ...
+}: let
   ghq-gitlab-group = pkgs.writeShellApplication {
     name = "ghq-gitlab-group";
     runtimeInputs = with pkgs; [glab ghq jq git];
@@ -8,10 +12,7 @@ in {
   home.packages = [pkgs.ghq ghq-gitlab-group];
 
   programs.git.settings.ghq = {
-    # ~/Projects matches xdg-user-dirs 0.20 (April 2026) XDG_PROJECTS_DIR.
-    # The code/ subdir keeps ghq's host-namespaced layout separate from
-    # non-code projects (3d-printing, etc).
-    root = "~/Projects/code";
+    root = config.polyrepo.ghqRoot;
     # ghq auto-detects the VCS for non-github.com hosts via a go-import HTTP
     # probe that truncates GitLab *nested* subgroup paths to owner/repo (broke
     # in ghq PR #378 / v1.6.0). Pin gitlab.com to plain git so `ghq get`

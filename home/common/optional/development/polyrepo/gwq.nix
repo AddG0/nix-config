@@ -1,4 +1,8 @@
-{pkgs, ...}: let
+{
+  config,
+  pkgs,
+  ...
+}: let
   gwadd = pkgs.writeShellApplication {
     name = "gwadd";
     runtimeInputs = with pkgs; [git gwq gawk sesh];
@@ -20,7 +24,7 @@ in {
   # passes an explicit path so neither comes into play.
   xdg.configFile."gwq/config.toml".text = ''
     [worktree]
-    basedir = "~/Projects/code"
+    basedir = "${config.polyrepo.ghqRoot}"
 
     [naming]
     template = "{{.Host}}/{{.Owner}}/{{.Repository}}--{{.Branch}}"
