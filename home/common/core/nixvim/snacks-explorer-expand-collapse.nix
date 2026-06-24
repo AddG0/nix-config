@@ -1,13 +1,6 @@
-# Recursively expand / collapse the folder subtree under the cursor in the
-# snacks explorer.
-#
-# snacks ships `Z` (explorer_close_all), but that resets the *whole* tree and
-# there's no built-in scoped variant. These two custom actions walk the
-# directory under the cursor (or the focused file's parent):
-#   E - open it and every descendant folder (respects the explorer exclude
-#       list, so node_modules/.git stay collapsed)
-#   W - close every descendant folder, keeping the cursor folder itself open
-# Mirrors nvim-tree's E (expand all) / W (collapse all).
+# E / W recursively expand / collapse the folder subtree under the cursor.
+# snacks only ships `Z` (reset the whole tree), so these add the scoped variant
+# (mirrors nvim-tree's E/W). Expansion respects the explorer exclude list.
 _: {
   plugins.snacks.settings.picker.sources.explorer = {
     actions = {

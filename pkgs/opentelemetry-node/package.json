@@ -1,0 +1,10 @@
+{
+  "name": "otel-node-bundle",
+  "version": "1.0.0",
+  "description": "Nix-provided OpenTelemetry auto-instrumentation bundle for zero-touch Node tracing",
+  "private": true,
+  "dependencies": {
+    "@opentelemetry/api": "^1.9.0",
+    "@opentelemetry/auto-instrumentations-node": "^0.62.0"
+  }
+}

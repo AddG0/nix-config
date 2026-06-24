@@ -48,6 +48,7 @@
       "nixos/remote-desktop/sunshine"
 
       "nixos/development/mysql.nix"
+      "nixos/development/postgres.nix"
 
       "nixos/plymouth.nix" # fancy boot screen
       "nixos/services/greetd.nix"

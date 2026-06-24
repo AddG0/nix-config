@@ -66,11 +66,8 @@
       event = ["FocusGained" "BufEnter" "TermClose" "TermLeave"];
       command = "checktime";
     }
-    # A swap file otherwise raises the modal E325 ATTENTION prompt. When the open
-    # happens inside a snacks-picker jump (a keymap callback context) that prompt
-    # can't take input and aborts with E5108 "Keyboard interrupt". Decide it
-    # non-interactively: edit anyway (swap is advisory, nothing is clobbered until
-    # save) and notify so a live swap from another nvim instance stays visible.
+    # In a picker jump the modal swap prompt can't take input and aborts (E5108);
+    # resolve it non-interactively — open anyway, notify in case it's live elsewhere.
     {
       event = ["SwapExists"];
       callback.__raw = ''

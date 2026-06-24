@@ -3,14 +3,14 @@
   config,
   ...
 }: let
-  # Create local database(s) owned by `devuser`, so Flyway/JDBC can create
+  # Create local database(s) owned by `postgres`, so Flyway/JDBC can create
   # objects in the public schema (PG15+ revokes CREATE from PUBLIC; ownership
   # is what grants it). Connects via peer auth as the invoking superuser.
   pg-createdb = pkgs.writeShellApplication {
     name = "pg-createdb";
     runtimeInputs = with pkgs; [postgresql gnugrep];
     text = ''
-      OWNER="devuser"
+      OWNER="postgres"
 
       if [ $# -eq 0 ]; then
         echo "Usage: pg-createdb <dbname> [dbname...]"
@@ -38,14 +38,7 @@ in {
         name = "${config.hostSpec.primaryUsername}";
         ensureClauses.superuser = true;
       }
-      {
-        name = "devuser";
-        ensureDBOwnership = false;
-      }
     ];
-    initialScript = pkgs.writeText "backend-initScript" ''
-      ALTER USER devuser PASSWORD 'devpass';
-    '';
     authentication = pkgs.lib.mkOverride 10 ''
       # TYPE  DATABASE        USER            ADDRESS                 METHOD
       local   all             postgres                                peer

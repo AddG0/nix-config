@@ -46,6 +46,8 @@
     schedule = "03:00";
   };
 
+  services.homeAssistantOci.autoUpdate.enable = true;
+
   networking = {
     networkmanager.enable = true;
     enableIPv6 = false;

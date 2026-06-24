@@ -16,6 +16,7 @@ pkgs: {
 
   # OpenTelemetry
   opentelemetry-javaagent = pkgs.callPackage ./opentelemetry-javaagent {};
+  opentelemetry-node = pkgs.callPackage ./opentelemetry-node {};
 
   # gRPC tools
   protoc-gen-grpc-kotlin = pkgs.callPackage ./protoc-gen-grpc-kotlin {};

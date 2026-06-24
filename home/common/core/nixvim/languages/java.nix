@@ -6,6 +6,8 @@
   # jdtls needs it as a -javaagent or it flags false errors for Lombok-generated
   # members (@Getter/@Data/@Builder etc.).
   lombokJar = pkgs.lombok.src;
+  # Real GRADLE_HOME inside the nixpkgs gradle wrapper (bin/, lib/, gradle.properties).
+  gradleHome = "${pkgs.gradle}/libexec/gradle";
 in {
   # Java via nvim-jdtls — the rich jdtls integration (NOT the lspconfig jdtls,
   # which is why no `lsp.servers.jdtls` exists). Feeding it the java-debug +
@@ -36,6 +38,14 @@ in {
           vim.fn.glob("${javaTest}/share/vscode/extensions/vscjava.vscode-java-test/server/*.jar", true, true)
         )
       '';
+      # No checked-in wrapper → Buildship falls back to its bundled Gradle 8.9, too
+      # old for our Spring Boot 4 services (need ≥8.14); the import then fails and
+      # jdtls gets no classpath. Pin to the nixpkgs Gradle. A project wrapper, if
+      # added later, still wins (wrapper.enabled defaults true).
+      settings.java.import.gradle = {
+        home = gradleHome;
+        java.home = "${pkgs.jdk21.home}";
+      };
     };
   };
   # jdtls-only maps, buffer-local on jdtls buffers — so <leader>co overrides the

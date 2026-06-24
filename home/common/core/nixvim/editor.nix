@@ -66,7 +66,11 @@
     };
 
     # Project-wide find & replace with live preview (<leader>sr).
-    grug-far.enable = true;
+    # --hidden searches dotfiles; .gitignore still respected, .git excluded.
+    grug-far = {
+      enable = true;
+      settings.engines.ripgrep.extraArgs = "--hidden --glob=!.git";
+    };
 
     # mini.nvim: pairs, surround, ai (text objects), hipatterns (inline
     # highlight of #rrggbb colour codes as swatches). Icons come from
@@ -99,12 +103,9 @@
   extraConfigLua = ''
     require('nvim-treesitter-textobjects').setup({ select = { lookahead = true } })
 
-    -- Fold header: mirrors vim.treesitter.foldtext() (treesitter-highlighted
-    -- chunks) but renders the first *meaningful* line of the fold instead of
-    -- the literal first line. An annotated declaration's fold range starts at
-    -- the annotation (Java @Override, Python/TS decorators) or a leading
-    -- comment, so we skip those to land on the actual signature. Native
-    -- foldtext has no such skip; no maintained plugin does both, hence this.
+    -- Treesitter-highlighted fold header, but rendered from the first
+    -- non-annotation/non-comment line so an annotated fold shows the signature,
+    -- not @Override.
     function _G.SmartFoldtext()
       local bufnr = vim.api.nvim_get_current_buf()
       local fs, fe = vim.v.foldstart, vim.v.foldend

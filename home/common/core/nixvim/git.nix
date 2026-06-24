@@ -3,11 +3,7 @@
     gitsigns = {
       enable = true;
       settings = {
-        # Color the line number by git status, not just the thin gutter bar —
-        # makes changed lines obvious at a glance.
-        numhl = true;
-        # GitLens-style inline blame (author · time · summary) at end of the
-        # current line, after a short pause.
+        numhl = true; # tint the line number by git status, not just the gutter bar
         current_line_blame = true;
         current_line_blame_opts = {
           virt_text_pos = "eol";
@@ -17,8 +13,7 @@
     };
     diffview = {
       enable = true;
-      # De-emphasize unchanged parts of changed lines and brighten the actual
-      # changed text, so MR/diff hunks read clearly (the diffview README look).
+      # brighten the changed text within a line, not the whole line
       settings.enhanced_diff_hl = true;
     };
     neogit.enable = true;
