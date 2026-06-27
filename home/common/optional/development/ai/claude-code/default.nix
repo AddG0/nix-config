@@ -148,6 +148,10 @@ in {
         voiceEnabled = true;
         # This is largly hidden and I want to see what its doing
         showThinkingSummaries = true;
+
+        # Use the pane bell because Claude Code can ring the tty directly; hooks cannot.
+        # This only fires on idle/permission prompts, about 60s after a turn ends.
+        preferredNotifChannel = "terminal_bell";
       };
     };
 

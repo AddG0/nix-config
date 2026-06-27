@@ -7,17 +7,17 @@
     todo-comments.enable = true;
     trouble = {
       enable = true;
-      # Auto-open the symbols outline (VSCode-style) when the buffer has LSP
-      # symbols; keep focus in the file. Wider split so long names aren't cut off.
+      # VSCode-style symbols outline: auto-open on buffers with LSP symbols,
+      # auto-close so it doesn't linger as the last window after :q.
       settings.modes.symbols = {
         auto_open = true;
+        auto_close = true;
         focus = false;
         win = {
           position = "right";
-          size = 50;
+          size = 50; # wider so long symbol names aren't truncated
         };
-        # Default appends {text} (the trimmed source line) after the name, which
-        # reads as the signature shown twice. Just icon + name + position.
+        # drop the default trailing {text} (source line) — it duplicates the signature
         format = "{kind_icon} {symbol.name} {pos}";
       };
     };
@@ -87,13 +87,18 @@
       settings.engines.ripgrep.extraArgs = "--hidden --glob=!.git";
     };
 
-    # mini.nvim: pairs, surround, ai (text objects), hipatterns (inline
-    # highlight of #rrggbb colour codes as swatches). Icons come from
-    # web-devicons (ui.nix).
+    # Autopairs. nvim-autopairs over mini.pairs for treesitter-aware quote
+    # handling — it won't pair a quote that would close an already-open string.
+    nvim-autopairs = {
+      enable = true;
+      settings.check_ts = true;
+    };
+
+    # mini.nvim: surround, ai (text objects), hipatterns (inline highlight of
+    # #rrggbb colour codes as swatches). Icons come from web-devicons (ui.nix).
     mini = {
       enable = true;
       modules = {
-        pairs = {};
         surround = {};
         ai = {};
         hipatterns = {
@@ -174,6 +179,27 @@
     vim.o.foldtext = "v:lua.SmartFoldtext()"
   '';
 
+  # Quitting the last code window should close the auto-opened symbols outline
+  # too, so :q/:wq exits instead of leaving the Trouble window holding nvim open.
+  autoCmd = [
+    {
+      event = "QuitPre";
+      callback.__raw = ''
+        function()
+          local nonfloat = vim.tbl_filter(function(w)
+            return vim.api.nvim_win_get_config(w).relative == ""
+          end, vim.api.nvim_tabpage_list_wins(0))
+          local nontrouble = vim.tbl_filter(function(w)
+            return vim.bo[vim.api.nvim_win_get_buf(w)].filetype ~= "trouble"
+          end, nonfloat)
+          if #nontrouble <= 1 then
+            require("trouble").close()
+          end
+        end
+      '';
+    }
+  ];
+
   keymaps = [
     {
       # LazyVim-faithful: toggle the explorer. To focus an already-open tree,
@@ -250,6 +276,30 @@
       key = "<leader>fb";
       action = "<cmd>lua Snacks.picker.buffers()<cr>";
       options.desc = "Buffers";
+    }
+    {
+      mode = "n";
+      key = "<leader>fp";
+      action.__raw = ''
+        function()
+          local p = vim.fn.expand("%:p")
+          vim.fn.setreg("+", p)
+          vim.notify("Copied: " .. p)
+        end
+      '';
+      options.desc = "Copy absolute path";
+    }
+    {
+      mode = "n";
+      key = "<leader>fP";
+      action.__raw = ''
+        function()
+          local p = vim.fn.expand("%:.")
+          vim.fn.setreg("+", p)
+          vim.notify("Copied: " .. p)
+        end
+      '';
+      options.desc = "Copy relative path";
     }
     {
       mode = "n";

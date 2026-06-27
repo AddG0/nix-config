@@ -59,6 +59,9 @@ in
       runHook postInstall
     '';
 
+    # src is a local path with no upstream version — skip bulk updates.
+    passthru.nixUpdate.version = "skip";
+
     meta = with lib; {
       description = "OpenTelemetry Java agent extension: per-method spans with argument values";
       license = licenses.asl20;

@@ -1,3 +1,9 @@
 theme = Catppuccin Mocha
 window-padding-color = background
 font-family = MesloLGS NF
+
+# Free ctrl+shift+arrow for tmux
+keybind = ctrl+shift+arrow_left=unbind
+keybind = ctrl+shift+arrow_right=unbind
+keybind = ctrl+shift+arrow_up=unbind
+keybind = ctrl+shift+arrow_down=unbind

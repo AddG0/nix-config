@@ -15,10 +15,15 @@
 
 # Split out our own --no-session flag; everything else passes through to gwq.
 no_session=0
+has_branch_flag=0
 args=()
 for arg in "$@"; do
   case "$arg" in
   --no-session) no_session=1 ;;
+  -b | --branch)
+    has_branch_flag=1
+    args+=("$arg")
+    ;;
   *) args+=("$arg") ;;
   esac
 done
@@ -40,6 +45,20 @@ fi
 # Last positional is the branch name; sanitize `/` to `-`.
 branch=${*: -1}
 target="${primary}--${branch//\//-}"
+
+# rev-parse only sees already-fetched refs, so an unfetched remote branch reads
+# as missing here — fetch first if you meant to track the remote.
+if [[ $has_branch_flag -eq 0 ]] && ! git rev-parse --verify --quiet "$branch" >/dev/null; then
+  printf "gwadd: branch '%s' doesn't exist. Create it? [y/N] " "$branch" >&2
+  read -r reply
+  case "$reply" in
+  [Yy]*) set -- -b "$@" ;;
+  *)
+    echo "gwadd: aborted" >&2
+    exit 1
+    ;;
+  esac
+fi
 
 # set -e aborts here if gwq add fails, so we never connect to a half-made tree.
 gwq add "$@" "$target"

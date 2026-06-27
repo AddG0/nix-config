@@ -104,6 +104,8 @@
     text = builtins.readFile ./scripts/kubectl_complete-btop.sh;
   };
 
+  klnav = pkgs.callPackage ./klnav {};
+
   kubectl-wrapped = pkgs.symlinkJoin {
     name = "kubectl-wrapped";
     paths = [pkgs.kubectl];
@@ -151,6 +153,7 @@ in {
     kubectl-cloud-shell
     kind-start
     kind-stop
+    klnav
   ];
 
   programs.zsh.oh-my-zsh.plugins = [

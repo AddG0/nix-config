@@ -15,7 +15,7 @@
 }:
 stdenv.mkDerivation rec {
   pname = "blueprint";
-  version = "beta-2026-05";
+  version = "beta-2026-06";
 
   src = fetchFromGitHub {
     owner = "BlueprintFramework";

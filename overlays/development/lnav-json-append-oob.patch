@@ -1,0 +1,22 @@
+--- a/src/log_format.cc	2026-06-25 19:58:43.888660920 -0500
++++ b/src/log_format.cc	2026-06-25 19:58:43.896858409 -0500
+@@ -5512,6 +5512,9 @@
+         if (sf_width < jfe.jfe_min_width) {
+             this->json_append_to_cache(jfe.jfe_min_width - sf_width);
+         } else if (jfe.jfe_auto_width && vd != nullptr
++                   && vd->vd_meta.lvm_values_index.has_value()
++                   && vd->vd_meta.lvm_values_index.value()
++                       < lffs.lffs_value_stats.size()
+                    && sf_width
+                        < lffs.lffs_value_stats[vd->vd_meta.lvm_values_index
+                                                    .value()]
+@@ -5532,6 +5535,9 @@
+         if (sf_width < jfe.jfe_min_width) {
+             this->json_append_to_cache(jfe.jfe_min_width - sf_width);
+         } else if (jfe.jfe_auto_width && vd != nullptr
++                   && vd->vd_meta.lvm_values_index.has_value()
++                   && vd->vd_meta.lvm_values_index.value()
++                       < lffs.lffs_value_stats.size()
+                    && sf_width
+                        < lffs.lffs_value_stats[vd->vd_meta.lvm_values_index
+                                                    .value()]

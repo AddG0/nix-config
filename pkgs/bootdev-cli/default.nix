@@ -32,9 +32,9 @@ buildGoModule rec {
 
   postInstall = lib.optionalString (stdenv.buildPlatform.canExecute stdenv.hostPlatform) ''
     installShellCompletion --cmd bootdev \
-      --bash <($out/bin/bootdev completion bash) \
-      --zsh <($out/bin/bootdev completion zsh) \
-      --fish <($out/bin/bootdev completion fish)
+      --bash <(HOME=$(mktemp -d) $out/bin/bootdev completion bash) \
+      --zsh <(HOME=$(mktemp -d) $out/bin/bootdev completion zsh) \
+      --fish <(HOME=$(mktemp -d) $out/bin/bootdev completion fish)
   '';
 
   nativeInstallCheckInputs = [versionCheckHook];

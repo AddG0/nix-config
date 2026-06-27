@@ -2,10 +2,23 @@
   inputs,
   lib,
   config,
+  pkgs,
   self,
   osConfig ? null,
   ...
-}: {
+}: let
+  textEditorDesktop = "nvim-ghostty.desktop";
+  textTypes = [
+    "text/plain"
+    "text/markdown"
+    "application/json"
+    "application/yaml"
+    "application/toml"
+    "application/xml"
+    "text/xml"
+    "text/x-shellscript"
+  ];
+in {
   imports = [inputs.nixvim.homeModules.nixvim];
 
   # The nvim config itself is a set of prefix-less nixvim modules (core.nix +
@@ -46,4 +59,23 @@
     v = "nvim";
     vi = "nvim";
   };
+
+  xdg.desktopEntries.nvim-ghostty = lib.mkIf (pkgs.stdenv.isLinux && config.hostSpec.hostType != "server") {
+    name = "Neovim in Ghostty";
+    genericName = "Text Editor";
+    comment = "Edit text and config files in Neovim";
+    exec = "${pkgs.ghostty}/bin/ghostty -e ${config.programs.nixvim.build.package}/bin/nvim %F";
+    terminal = false;
+    noDisplay = true;
+    icon = "nvim";
+    categories = [
+      "Utility"
+      "TextEditor"
+    ];
+    mimeType = textTypes;
+  };
+
+  xdg.mimeApps.defaultApplications =
+    lib.mkIf (pkgs.stdenv.isLinux && config.hostSpec.hostType != "server")
+    (lib.genAttrs textTypes (_: [textEditorDesktop]));
 }

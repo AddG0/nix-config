@@ -474,6 +474,10 @@ restart-audio:
   echo "Restarting audio stack..."
   systemctl --user restart wireplumber.service pipewire-pulse.service pipewire.service
   sleep 1
+  if systemctl --user list-unit-files pipewire-link-main-input.service &>/dev/null; then
+    echo "Restarting pipewire-link-main-input..."
+    systemctl --user restart pipewire-link-main-input.service
+  fi
   echo "Restarting Noctalia..."
   just restart-noctalia
 

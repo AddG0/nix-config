@@ -332,7 +332,7 @@
 
     # AWS VPN Client
     awsvpnclient-nix = {
-      url = "github:AddG0/awsvpnclient-nix";
+      url = "github:AddG0/awsvpnclient-nix?ref=v5.4.0";
       # url = "path:/home/addg/home/code/github/awsvpnclient-nix";
       inputs.nixpkgs.follows = "nixpkgs";
       inputs.flake-parts.follows = "flake-parts";

@@ -38,6 +38,7 @@ in {
     cpulimit # limit the cpu usage of a process
     caddy # A webserver with automatic HTTPS via Let's Encrypt(replacement of nginx)
     mutagen # real-time file sync over SSH (local repo -> dev server)
+    temporal-cli
   ];
 
   programs.git.ignores = lib.custom.gitignoreFromTemplates inputs.github-gitignore-templates ["Global/Redis"];

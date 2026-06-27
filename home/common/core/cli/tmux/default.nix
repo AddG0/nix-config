@@ -74,9 +74,10 @@ in {
             set -g @catppuccin_flavour 'mocha'
             set -g @catppuccin_window_status_style "rounded"
 
-            # Fix to show the window name by default
-            set -g @catppuccin_window_default_text "#W"
-            set -g @catppuccin_window_text "#W"
+            # Fix to show the window name by default; ring a bell glyph while a
+            # background window has a pending bell (cleared on focus by tmux).
+            set -g @catppuccin_window_default_text "#W#{?window_bell_flag, #[fg=#{@thm_red}]#[fg=#{@thm_text}],}"
+            set -g @catppuccin_window_text "#W#{?window_bell_flag, #[fg=#{@thm_red}]#[fg=#{@thm_text}],}"
             # This will show a magnifying glass icon when the window is zoomed
             set -g @catppuccin_window_current_text "#W#{?window_zoomed_flag,(),}"
 
@@ -141,6 +142,9 @@ in {
       set -g detach-on-destroy off     # don't exit from tmux when closing a session
       set -g escape-time 0             # zero-out escape time delay
       set -g focus-events on           # forward terminal focus events to programs (e.g. Claude Code, nvim autoread)
+      set -g monitor-bell on           # flag a window in the status bar when a background pane rings (e.g. Claude finished)
+      set -g bell-action any           # honor bells from any window, not just the active one
+      set -g allow-passthrough on      # let programs emit escape sequences through tmux
       set -g history-limit 1000000     # increase history size (from 2,000)
       set -g renumber-windows on       # renumber all windows when any window is closed
       set -g set-clipboard on          # use system clipboard

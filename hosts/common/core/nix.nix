@@ -41,6 +41,9 @@
       experimental-features = [
         "nix-command"
         "flakes"
+        # Lets trusted users pass a token (via impure-env, declared in a FOD's
+        # impureEnvVars) into fixed-output builds to fetch private git npm deps.
+        "configurable-impure-env"
       ];
       extra-nix-path = "nixpkgs=flake:nixpkgs";
       substituters = [

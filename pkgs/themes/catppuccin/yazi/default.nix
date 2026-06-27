@@ -5,13 +5,13 @@
 }:
 stdenvNoCC.mkDerivation {
   pname = "catppuccin-yazi";
-  version = "0-unstable-2026-05-14";
+  version = "0-unstable-2026-06-13";
 
   src = fetchFromGitHub {
     owner = "catppuccin";
     repo = "yazi";
-    rev = "41f24ed142e34109a9a65a5dfe58c1b4eb6d2fd9";
-    hash = "sha256-Og33IGS9pTim6LEH33CO102wpGnPomiperFbqfgrJjw=";
+    rev = "baaf5d1c9427b836fbefd126aa855f9eab7a9d0d";
+    hash = "sha256-L6SApM07CSQk0znEsFP8WaxW+ZHcindXo612r1XcwIg=";
   };
 
   dontBuild = true;

@@ -132,7 +132,9 @@
           local names = table.concat(
             vim.tbl_map(function(c) return c.name end, clients), ", "
           )
-          vim.lsp.stop_client(clients, true)
+          for _, client in ipairs(clients) do
+            client:stop(true)
+          end
           vim.defer_fn(function()
             vim.api.nvim_exec_autocmds("FileType", { pattern = ft })
           end, 500)

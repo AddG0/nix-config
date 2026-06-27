@@ -11,7 +11,7 @@
   fetchFromGitHub,
 }: let
   pname = "gitlab-nvim";
-  version = "0-unstable-2026-06-19";
+  version = "4.1.1";
   rev = "2295d1e85c5e4d79c49cadda36b9848a3ffed4e2";
 
   src = fetchFromGitHub {
