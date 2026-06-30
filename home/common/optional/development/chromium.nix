@@ -40,6 +40,7 @@
       {id = "cdockenadnadldjbbgcallicgledbeoc";} # VisBug (click-to-edit page editor)
       {id = "jabopobgcpjmedljpbcaablpmlmfcogm";} # WhatFont
       {id = "bhlhnicpbhignbdhedgjhgdocnmhomnp";} # ColorZilla (eyedropper + gradient gen)
+      {id = "dhdgffkkebhmkfjojejmpbldmpobfkfo";} # Tampermonkey (userscript manager)
     ];
   };
 }

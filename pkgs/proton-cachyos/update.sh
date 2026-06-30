@@ -10,7 +10,7 @@ MIRROR="https://mirror.cachyos.org/repo/x86_64/cachyos"
 
 latest=$(
   curl -sfL "$MIRROR/" |
-    grep -oE 'proton-cachyos-1:[0-9]+\.[0-9]+\.[0-9]+-[0-9]+-x86_64\.pkg\.tar\.zst' |
+    grep -oE 'proton-cachyos-native-1:[0-9]+\.[0-9]+\.[0-9]+-[0-9]+-x86_64\.pkg\.tar\.zst' |
     sort -uV |
     tail -1
 )
@@ -20,7 +20,7 @@ if [[ -z $latest ]]; then
   exit 1
 fi
 
-re='proton-cachyos-1:([0-9]+\.[0-9]+)\.([0-9]+)-([0-9]+)-x86_64\.pkg\.tar\.zst'
+re='proton-cachyos-native-1:([0-9]+\.[0-9]+)\.([0-9]+)-([0-9]+)-x86_64\.pkg\.tar\.zst'
 [[ $latest =~ $re ]] || {
   echo "proton-cachyos: failed to parse '$latest'" >&2
   exit 1
@@ -41,7 +41,7 @@ fi
 echo "proton-cachyos: $cur_base.$cur_release-$cur_pkgrel -> $new_base.$new_release-$new_pkgrel"
 
 raw=$(nix-prefetch-url \
-  --name "proton-cachyos-${new_base}.${new_release}-${new_pkgrel}.pkg.tar.zst" \
+  --name "proton-cachyos-native-${new_base}.${new_release}-${new_pkgrel}.pkg.tar.zst" \
   --type sha256 \
   "$MIRROR/$latest")
 sri=$(nix hash convert --hash-algo sha256 --to sri "$raw")

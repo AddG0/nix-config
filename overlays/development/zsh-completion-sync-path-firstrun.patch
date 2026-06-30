@@ -1,0 +1,11 @@
+--- a/zsh-completion-sync.plugin.zsh
++++ b/zsh-completion-sync.plugin.zsh
+@@ -334,7 +334,7 @@
+
+         _completion_sync:debug_log ':completion-sync:path:init:diff' "from path: $elem"
+
+-        _completion_sync:fpath_add_entry $p_path
++        _completion_sync:fpath_add_entry $elem
+         completion_sync_fpath_changed_during_init=true
+       fi
+     done

@@ -79,5 +79,11 @@
         end
       '';
     }
+    # Soft-wrap prose at word boundaries (code stays nowrap via the global opt).
+    {
+      event = ["FileType"];
+      pattern = ["markdown" "text" "gitcommit"];
+      command = "setlocal wrap linebreak";
+    }
   ];
 }

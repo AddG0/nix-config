@@ -77,15 +77,27 @@
       state_dir="''${XDG_STATE_HOME:-$HOME/.local/state}/hypr-monitor-control"
       mkdir -p "$state_dir"
 
+      if [[ -t 1 ]] && [[ -z "''${NO_COLOR:-}" ]]; then
+        c_ok=$'\033[32m'; c_err=$'\033[31m'
+        c_dim=$'\033[2m'; c_reset=$'\033[0m'
+      else
+        c_ok=""; c_err=""; c_dim=""; c_reset=""
+      fi
+
+      ok()   { printf '%s✓%s %s\n' "$c_ok" "$c_reset" "$*"; }
+      skip() { printf '%s•%s %s\n' "$c_dim" "$c_reset" "$*" >&2; }
+      err()  { printf '%s✗%s %s\n' "$c_err" "$c_reset" "$*" >&2; }
+
       usage() {
         cat <<'EOF'
-      Usage: monitor <subcommand> [name]
+      Usage: monitor <subcommand> [name...]
 
       Subcommands:
         list                List monitors known to Hyprland and their state.
-        disable <name>      Save current spec then disable the monitor.
-        enable <name>       Re-enable using saved spec, else preferred,auto.
-        toggle <name>       Disable if active, enable if disabled.
+        disable <name...>   Save current spec then disable the monitor(s).
+                            Refuses the last active monitor; -f to force.
+        enable <name...>    Re-enable using saved spec, else preferred,auto.
+        toggle <name...>    Disable if active, enable if disabled.
         recover             Re-apply declared layout and reflow workspaces.
                             Use when runtime state is wedged (hot-plug
                             glitch, crashed sunshine session, etc).
@@ -104,6 +116,22 @@
         hyprctl monitors -j | jq -e --arg n "$1" 'map(select(.name == $n)) | length > 0' >/dev/null
       }
 
+      active_count() {
+        hyprctl monitors -j | jq 'length'
+      }
+
+      # Known to Hyprland at all (active or configured-disabled).
+      is_known() {
+        hyprctl monitors all -j | jq -e --arg n "$1" 'any(.[]; .name == $n)' >/dev/null
+      }
+
+      # Hint listing every name Hyprland currently reports, for typos.
+      known_hint() {
+        local names
+        names=$(all_names | tr '\n' ' ')
+        [[ -n "$names" ]] && echo "  known monitors: $names" >&2 || true
+      }
+
       save_spec() {
         local name="$1"
         local spec
@@ -115,22 +143,44 @@
         fi
       }
 
+      # Apply a monitor keyword spec, swallowing hyprctl's raw "ok" and
+      # surfacing any error under our own formatting. $1 = monitor name
+      # (for messages), $2 = full keyword spec.
+      apply_spec() {
+        local out
+        out=$(hyprctl keyword monitor "$2" 2>&1)
+        if [[ "$out" == "ok" ]]; then
+          return 0
+        fi
+        err "$1: ''${out:-hyprctl failed}"
+        return 1
+      }
+
       do_disable() {
+        # Refuse to black out the last display unless forced — recovering
+        # from zero active monitors means blind keybinds or a TTY.
+        if [[ "''${force:-0}" != 1 ]] && (( $(active_count) <= 1 )); then
+          err "$1 is the last active monitor; refusing (use 'disable -f' to force)"
+          return 1
+        fi
         save_spec "$1"
-        hyprctl keyword monitor "$1,disable"
+        apply_spec "$1" "$1,disable" || return 1
+        ok "$1 disabled"
       }
 
       do_enable() {
         local name="$1"
         local spec_file="$state_dir/$name.spec"
         if [[ -s "$spec_file" ]]; then
-          hyprctl keyword monitor "$(cat "$spec_file")"
+          apply_spec "$name" "$(cat "$spec_file")" || return 1
+          ok "$name enabled (restored saved layout)"
         else
           # No saved state — fall back to Hyprland's preferred mode and
           # let auto-positioning pick a column to the right of existing
           # outputs. Works for fresh hot-plug; user can `monitor recover`
           # afterwards to re-establish the declared layout.
-          hyprctl keyword monitor "$name,preferred,auto,1"
+          apply_spec "$name" "$name,preferred,auto,1" || return 1
+          ok "$name enabled (preferred mode, auto-positioned)"
         fi
       }
 
@@ -159,48 +209,82 @@
                                 hyprctl dispatch moveworkspacetomonitor "$ws" "${primaryMon}"
                               done''
           }
-                  echo "Monitors restored"''
-        else ''          echo "monitor: no monitors declared in config; recover is a no-op" >&2
-                  echo "Use 'monitor enable <name>' for ad-hoc restore." >&2
+                  ok "monitors restored"''
+        else ''          err "no monitors declared in config; recover is a no-op"
+                  echo "  use 'monitor enable <name>' for ad-hoc restore." >&2
                   exit 1''
       }
       }
 
       cmd="''${1:-}"
-      name="''${2:-}"
 
       case "$cmd" in
         list)
           # `monitors all` includes monitors currently configured as
           # disabled; the active set is `monitors`. Diff to label state.
           active=$(active_names | tr '\n' '|')
-          while IFS= read -r m; do
-            if [[ "|$active" == *"|$m|"* ]]; then
-              printf '%-12s active\n' "$m"
+          while IFS=$'\t' read -r m model res; do
+            if [[ "|$active|" == *"|$m|"* ]]; then
+              state="active"; col="$c_ok"
             else
-              printf '%-12s disabled\n' "$m"
+              state="disabled"; col="$c_dim"
             fi
-          done < <(all_names)
+            # Pad before coloring so escape codes don't break alignment.
+            printf -v statecol '%-8s' "$state"
+            printf '%-12s %s%s%s  %s%s  %s\n' \
+              "$m" "$col" "$statecol" "$c_reset" "$c_dim" "$model" "$res$c_reset"
+          done < <(hyprctl monitors all -j | jq -r '
+            .[] | "\(.name)\t\(.model // .description // "?")\t\(.width)x\(.height)@\(.refreshRate | floor)Hz"
+          ')
           ;;
         disable)
-          [[ -z "$name" ]] && { usage; exit 1; }
-          if ! is_active "$name"; then
-            echo "monitor: '$name' is already disabled" >&2
-            exit 1
-          fi
-          do_disable "$name"
+          shift
+          force=0
+          names=()
+          for a in "$@"; do
+            case "$a" in
+              -f | --force) force=1 ;;
+              *) names+=("$a") ;;
+            esac
+          done
+          [[ ''${#names[@]} -eq 0 ]] && { usage; exit 1; }
+          rc=0
+          for name in "''${names[@]}"; do
+            if is_active "$name"; then
+              do_disable "$name" || rc=1
+            elif is_known "$name"; then
+              skip "$name already disabled"
+            else
+              err "unknown monitor '$name'"
+              known_hint
+              rc=1
+            fi
+          done
+          exit "$rc"
           ;;
         enable)
-          [[ -z "$name" ]] && { usage; exit 1; }
-          do_enable "$name"
+          [[ $# -lt 2 ]] && { usage; exit 1; }
+          rc=0
+          for name in "''${@:2}"; do
+            if is_active "$name"; then
+              skip "$name already enabled"
+            else
+              do_enable "$name" || rc=1
+            fi
+          done
+          exit "$rc"
           ;;
         toggle)
-          [[ -z "$name" ]] && { usage; exit 1; }
-          if is_active "$name"; then
-            do_disable "$name"
-          else
-            do_enable "$name"
-          fi
+          [[ $# -lt 2 ]] && { usage; exit 1; }
+          rc=0
+          for name in "''${@:2}"; do
+            if is_active "$name"; then
+              do_disable "$name" || rc=1
+            else
+              do_enable "$name" || rc=1
+            fi
+          done
+          exit "$rc"
           ;;
         recover)
           do_recover
@@ -250,7 +334,7 @@
           return
         fi
 
-        if (( CURRENT == 3 )); then
+        if (( CURRENT >= 3 )); then
           case "$words[2]" in
             disable|toggle)
               # `monitors` (active set) — fine for disable/toggle.
@@ -296,7 +380,7 @@
     text = ''
       _monitor_complete() {
         local cur="''${COMP_WORDS[COMP_CWORD]}"
-        local prev="''${COMP_WORDS[COMP_CWORD-1]}"
+        local subcmd="''${COMP_WORDS[1]}"
         local subcmds="list disable enable toggle recover"
 
         if [ "$COMP_CWORD" -eq 1 ]; then
@@ -304,7 +388,7 @@
           return 0
         fi
 
-        case "$prev" in
+        case "$subcmd" in
           disable|toggle)
             local mons
             mons=$(hyprctl monitors -j 2>/dev/null | jq -r '.[].name')

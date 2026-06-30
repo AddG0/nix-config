@@ -75,6 +75,7 @@ in {
   extraPackages = with pkgs; [
     mermaid-cli # mmdc — Snacks.image's mermaid converter (pulls headless chromium)
     imagemagick # Snacks.image processing / rasterization
+    ghostscript # gs — imagemagick's PDF rasterizer (Snacks.image PDF preview)
   ];
 
   keymaps = [

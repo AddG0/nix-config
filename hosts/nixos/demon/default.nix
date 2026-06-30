@@ -49,6 +49,7 @@
       "nixos/virtualisation/docker.nix" # docker
       "nixos/development/mysql.nix"
       "nixos/development/postgres.nix"
+      "nixos/development/redis.nix"
 
       "nixos/gaming.nix" # steam, gamescope, gamemode, and related hardware
       "nixos/vr.nix" # monado OpenXR runtime (Bigscreen Beyond)
@@ -75,6 +76,8 @@
   programs.gpu-screen-recorder.enable = true;
 
   programs.kdeconnect.enable = true;
+
+  services.lact.enable = true;
 
   networking = {
     networkmanager.enable = true;

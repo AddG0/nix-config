@@ -26,6 +26,7 @@ in {
     ./process-compose.nix
     ./git.nix
     ./gitlab.nix
+    ./herdr.nix
     ./lnav
     ./polyrepo
     ./languages/nix

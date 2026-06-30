@@ -1,16 +1,25 @@
-{
+_: {
   # Navigation + editing plugins. The picker + file explorer come from snacks
   # (configured in ./ui.nix); this module holds the find/explore keymaps and
   # the remaining editor-category plugins.
+
   plugins = {
     flash.enable = true;
+
+    # Keybinds in keymaps.nix, tmux half in cli/tmux. no_mappings drops the
+    # plugin's defaults, incl. <C-\> which would clobber the snacks terminal toggle.
+    tmux-navigator = {
+      enable = true;
+      settings.no_mappings = 1;
+    };
+
     todo-comments.enable = true;
     trouble = {
       enable = true;
-      # VSCode-style symbols outline: auto-open on buffers with LSP symbols,
-      # auto-close so it doesn't linger as the last window after :q.
+      # VSCode-style symbols outline. auto_open is off — opened/closed by the
+      # autocmd below instead (see there); auto_close stays for :q.
       settings.modes.symbols = {
-        auto_open = true;
+        auto_open = false;
         auto_close = true;
         focus = false;
         win = {
@@ -107,6 +116,16 @@
       };
     };
 
+    # Sublime-style multi-cursors. Relocate "find under" off <C-n> (yanky owns
+    # it, below) to <M-n>; everything else keeps VM defaults (\\ leader, n/N).
+    visual-multi = {
+      enable = true;
+      settings.maps = {
+        "Find Under" = "<M-n>";
+        "Find Subword Under" = "<M-n>";
+      };
+    };
+
     # Smart increment/decrement (<C-a>/<C-x>): numbers, dates, booleans,
     # and more, in normal + visual mode (keymaps below). Defaults cover the
     # common augends.
@@ -179,9 +198,25 @@
     vim.o.foldtext = "v:lua.SmartFoldtext()"
   '';
 
-  # Quitting the last code window should close the auto-opened symbols outline
-  # too, so :q/:wq exits instead of leaving the Trouble window holding nvim open.
+  # Drive the symbols outline ourselves: open on real file buffers, close inside
+  # diffview tabs. A globally-listening outline (builtin auto_open) refreshes
+  # against diffview's wiped diff buffers and errors — uri.lua "Invalid buffer id".
   autoCmd = [
+    {
+      event = ["BufWinEnter" "TabEnter"];
+      callback.__raw = ''
+        function()
+          local ok, lib = pcall(require, "diffview.lib")
+          if ok and lib.get_current_view() then
+            require("trouble").close({ mode = "symbols" })
+          elseif vim.bo.buftype == "" and vim.bo.buflisted then
+            require("trouble").open({ mode = "symbols", focus = false })
+          end
+        end
+      '';
+    }
+    # Quitting the last code window should close the symbols outline too, so
+    # :q/:wq exits instead of leaving the Trouble window holding nvim open.
     {
       event = "QuitPre";
       callback.__raw = ''
@@ -305,7 +340,7 @@
       mode = "n";
       key = "<leader>/";
       action = "<cmd>lua Snacks.picker.grep()<cr>";
-      options.desc = "Grep (root)";
+      options.desc = "Grep";
     }
     {
       mode = "n";

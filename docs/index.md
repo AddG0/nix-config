@@ -27,6 +27,12 @@ Log viewer keybind reference and SQL/filter cheatsheet:
 - Search, filter, and SQL query keys
 - Pairing with `stern` for Kubernetes logs
 
+### ⌨️ [tridactyl](guides/tridactyl.md)
+Vim-style keyboard control for Zen:
+- Scroll, link hints, tab, and navigation keys
+- Modes and escaping (ignore mode for web apps)
+- Dead zones where extensions can't run
+
 ### 🤖 [Automation](automation/justfile.md)
 Comprehensive guide to project automation with detailed recipe documentation:
 - **🔍 Validation** - Configuration checking and validation

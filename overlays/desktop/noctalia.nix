@@ -6,7 +6,7 @@ prev.lib.optionalAttrs prev.stdenv.isLinux {
     postPatch =
       (old.postPatch or "")
       + ''
-        substituteInPlace src/app/application.cpp \
+        substituteInPlace src/app/application_ui.cpp \
           --replace-fail '(void)m_lockScreen.lock();' \
             '(void)0; // nix-config: hyprlock owns session locking; noctalia logind auto-lock disabled'
 

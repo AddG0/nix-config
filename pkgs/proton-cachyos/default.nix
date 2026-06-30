@@ -8,17 +8,18 @@
   steamDisplayName ? "Proton CachyOS",
 }: let
   base = "11.0";
-  release = "20260601";
-  pkgrel = "1";
+  release = "20260602";
+  pkgrel = "3";
 in
   stdenv.mkDerivation {
     pname = "proton-cachyos";
     version = "${base}.${release}-${pkgrel}";
 
+    # Upstream split into -native/-slr variants; -native is the build we use.
     src = fetchurl {
-      url = "https://mirror.cachyos.org/repo/x86_64/cachyos/proton-cachyos-1:${base}.${release}-${pkgrel}-x86_64.pkg.tar.zst";
-      name = "proton-cachyos-${base}.${release}-${pkgrel}.pkg.tar.zst";
-      hash = "sha256-M3PaVYr8xo/8DllLATPCDuS/X3Wj9lWiaW4wSZfLFuw=";
+      url = "https://mirror.cachyos.org/repo/x86_64/cachyos/proton-cachyos-native-1:${base}.${release}-${pkgrel}-x86_64.pkg.tar.zst";
+      name = "proton-cachyos-native-${base}.${release}-${pkgrel}.pkg.tar.zst";
+      hash = "sha256-qUE+hoGiyhLLRuXUVPBClXWzgM2QHw/qlqbQa5Csl+8=";
     };
 
     nativeBuildInputs = [zstd];
@@ -39,9 +40,9 @@ in
 
       tar -I zstd -xf $src
       mkdir -p $out/share/steam/compatibilitytools.d
-      mv usr/share/steam/compatibilitytools.d/proton-cachyos $out/share/steam/compatibilitytools.d/
+      mv usr/share/steam/compatibilitytools.d/proton-cachyos-native $out/share/steam/compatibilitytools.d/
 
-      substituteInPlace $out/share/steam/compatibilitytools.d/proton-cachyos/compatibilitytool.vdf \
+      substituteInPlace $out/share/steam/compatibilitytools.d/proton-cachyos-native/compatibilitytool.vdf \
         --replace-fail '"display_name" "proton-cachyos-${base}-${release} (native)"' '"display_name" "${steamDisplayName}"'
 
       runHook postInstall

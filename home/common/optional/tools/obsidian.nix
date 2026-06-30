@@ -10,6 +10,10 @@
       target = "home/notes";
 
       settings = {
+        app = {
+          vimMode = true;
+        };
+
         appearance = {
           theme = "obsidian";
         };

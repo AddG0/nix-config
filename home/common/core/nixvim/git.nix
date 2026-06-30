@@ -29,8 +29,18 @@
     {
       mode = "n";
       key = "<leader>gd";
-      action = "<cmd>DiffviewOpen<cr>";
-      options.desc = "Diffview";
+      # DiffviewOpen has no toggle; close it when a diffview tab is already up.
+      action.__raw = ''
+        function()
+          local lib = require("diffview.lib")
+          if lib.get_current_view() then
+            vim.cmd("DiffviewClose")
+          else
+            vim.cmd("DiffviewOpen")
+          end
+        end
+      '';
+      options.desc = "Diffview (toggle)";
     }
 
     # ── Git pickers (snacks) ──

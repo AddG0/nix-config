@@ -11,6 +11,14 @@ in {
     };
 
     plugins = [
+      # Loads completions from nix shell / nix develop / direnv packages, via
+      # the PATH-scan enabled below. Patched in overlays/development — 0.4.0's
+      # PATH-scan is broken on a shell's first run.
+      {
+        name = "zsh-completion-sync";
+        src = pkgs.zsh-completion-sync;
+        file = "share/zsh-completion-sync/zsh-completion-sync.plugin.zsh";
+      }
       # {
       #   name = "vi-mode";
       #   src = pkgs.zsh-vi-mode;
@@ -42,6 +50,11 @@ in {
     };
 
     initContent = ''
+      # nix shell exposes a package on PATH but not XDG_DATA_DIRS; have
+      # zsh-completion-sync derive completion dirs from PATH (the patched
+      # overlay fixes its broken first-run scan).
+      zstyle ':completion-sync:path' enabled true
+
       _fzf_comprun() {
           local command=$1
           shift

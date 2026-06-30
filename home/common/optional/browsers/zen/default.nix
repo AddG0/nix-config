@@ -10,6 +10,7 @@
 }: {
   imports = [
     inputs.zen-browser.homeModules.beta
+    ./tridactyl.nix
   ];
 
   stylix.targets.zen-browser.profileNames = ["default"];
@@ -262,6 +263,29 @@
           id = "zen-workspace-forward";
           key = ".";
           modifiers.alt = true;
+        }
+        # Prefer Tridactyl's vim binds over Zen's: free Ctrl+D/U (half page)
+        # and Ctrl+F/B (full page) for scrolling. Native find moves to
+        # Ctrl+Shift+F; view-source and bookmarks-sidebar shortcuts dropped.
+        {
+          id = "addBookmarkAsKb";
+          disabled = true;
+        }
+        {
+          id = "key_viewSource";
+          disabled = true;
+        }
+        {
+          id = "key_find";
+          key = "f";
+          modifiers = {
+            accel = true;
+            shift = true;
+          };
+        }
+        {
+          id = "viewBookmarksSidebarKb";
+          disabled = true;
         }
       ];
     };

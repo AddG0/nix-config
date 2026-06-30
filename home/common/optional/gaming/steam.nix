@@ -69,10 +69,9 @@
     '';
   };
 
-  # Per-game mouse DPI. Stashes the pre-game DPI on the first game of a
-  # session (subsequent games keep that original), sets the per-game value,
-  # then exec's the game. The mouse-dpi-restore service handles cleanup
-  # via GameMode's D-Bus ClientCount=0 signal.
+  # Per-game mouse DPI. Runs the game as a child (NOT exec) and restores the
+  # baseline DPI when that child exits or the wrapper is signalled — the game
+  # process exiting is the exact "game stopped" signal.
   # Usage: `wrappers = mouseDpi 800 ++ [gamemoderun] ++ gamescope;`
   mouseDpi = dpi:
     lib.optionals razerEnabled [
@@ -81,74 +80,49 @@
         runtimeInputs = with pkgs; [glib coreutils razerMousePath];
         text = ''
           set -u
-          if mouse_path=$(razer-mouse-path); then
-            state_dir="''${XDG_STATE_HOME:-$HOME/.local/state}/gaming-mouse-dpi"
-            prev_file="$state_dir/prev"
-            mkdir -p "$state_dir"
-            if [ ! -f "$prev_file" ]; then
-              cur=$(gdbus call --session --dest org.razer \
-                --object-path "$mouse_path" \
-                --method razer.device.dpi.getDPI 2>/dev/null) || cur=""
-              # ([1800, 1800],) → "1800 1800"
-              if [[ "$cur" =~ ([0-9]+)[,\ ]+([0-9]+) ]]; then
-                echo "''${BASH_REMATCH[1]} ''${BASH_REMATCH[2]}" > "$prev_file"
-              fi
-            fi
+
+          # No DPI-capable Razer mouse → just run the game untouched.
+          if ! mouse_path=$(razer-mouse-path); then
+            exec "$@"
+          fi
+
+          state_dir="''${XDG_STATE_HOME:-$HOME/.local/state}/gaming-mouse-dpi"
+          prev_file="$state_dir/prev"
+          mkdir -p "$state_dir"
+
+          set_dpi() {
             gdbus call --session --dest org.razer \
               --object-path "$mouse_path" \
-              --method razer.device.dpi.setDPI ${toString dpi} ${toString dpi} \
+              --method razer.device.dpi.setDPI "$1" "$2" \
               >/dev/null 2>&1 || true
+          }
+
+          restore() {
+            [ -f "$prev_file" ] || return 0
+            local px py
+            read -r px py < "$prev_file" && set_dpi "$px" "$py"
+            rm -f "$prev_file"
+          }
+
+          # Self-heal a leftover prev_file from a prior wrapper SIGKILLed
+          # before its trap ran, so we never capture a game value as baseline.
+          restore
+
+          # ([1800, 1800],) → "1800 1800"
+          cur=$(gdbus call --session --dest org.razer \
+            --object-path "$mouse_path" \
+            --method razer.device.dpi.getDPI 2>/dev/null) || cur=""
+          if [[ "$cur" =~ ([0-9]+)[,\ ]+([0-9]+) ]]; then
+            echo "''${BASH_REMATCH[1]} ''${BASH_REMATCH[2]}" > "$prev_file"
           fi
-          exec "$@"
+
+          trap restore EXIT INT TERM HUP
+
+          set_dpi ${toString dpi} ${toString dpi}
+          "$@"
         '';
       }))
     ];
-
-  mouseDpiRestoreApp = pkgs.writeShellApplication {
-    name = "mouse-dpi-restore";
-    runtimeInputs = with pkgs; [glib coreutils razerMousePath];
-    text = ''
-      set -u
-      state_dir="''${XDG_STATE_HOME:-$HOME/.local/state}/gaming-mouse-dpi"
-      prev_file="$state_dir/prev"
-
-      restore_if_needed() {
-        [ -f "$prev_file" ] || return 0
-        local px py mouse_path
-        read -r px py < "$prev_file" || return 0
-        if mouse_path=$(razer-mouse-path); then
-          gdbus call --session --dest org.razer \
-            --object-path "$mouse_path" \
-            --method razer.device.dpi.setDPI "$px" "$py" \
-            >/dev/null 2>&1 || true
-        fi
-        rm -f "$prev_file"
-      }
-
-      no_games_running() {
-        local out
-        out=$(gdbus call --session \
-          --dest com.feralinteractive.GameMode \
-          --object-path /com/feralinteractive/GameMode \
-          --method org.freedesktop.DBus.Properties.Get \
-          com.feralinteractive.GameMode ClientCount 2>/dev/null) || return 1
-        [[ "$out" =~ \<([0-9]+)\> ]] && [ "''${BASH_REMATCH[1]}" = "0" ]
-      }
-
-      # Reconcile at start in case games already exited before service start.
-      no_games_running && restore_if_needed
-
-      while IFS= read -r line; do
-        case "$line" in
-          *PropertiesChanged*ClientCount*)
-            no_games_running && restore_if_needed
-            ;;
-        esac
-      done < <(gdbus monitor --session \
-        --dest com.feralinteractive.GameMode \
-        --object-path /com/feralinteractive/GameMode)
-    '';
-  };
 
   # name → Steam appid. Each game gets a default config of
   # `{ id; launchOptions.wrappers = [gamemoderun]; }`; per-game overrides
@@ -232,23 +206,6 @@ in {
       # successful detection at 14:06 happened with no override at all.
       # https://github.com/ValveSoftware/Proton/issues/8672
     };
-  };
-
-  systemd.user.services.mouse-dpi-restore = lib.mkIf razerEnabled {
-    Unit = {
-      Description = "Restore mouse DPI when GameMode reports no clients";
-      After = ["graphical-session.target"];
-      PartOf = ["graphical-session.target"];
-    };
-    Service = {
-      Type = "simple";
-      ExecStart = lib.getExe mouseDpiRestoreApp;
-      # Always restart — gdbus monitor exits silently when gamemoded
-      # restarts, leaving the service "active" but no longer watching.
-      Restart = "always";
-      RestartSec = 5;
-    };
-    Install.WantedBy = ["graphical-session.target"];
   };
 
   # Enable multi-threaded Vulkan shader compilation for Steam

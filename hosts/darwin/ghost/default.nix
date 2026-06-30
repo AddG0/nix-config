@@ -7,35 +7,8 @@
 {lib, ...}: {
   imports = lib.flatten [
     (map lib.custom.relativeToHosts (map (f: "common/optional/${f}") [
-      # "darwin/vban-walkie.nix"
       "darwin/services/tailscale.nix" # mesh VPN for secure remote access
-      "darwin/development/mysql.nix"
-      # "darwin/development/postgres.nix"
-      # "darwin/development/redis.nix"
-
-      # "darwin/desktops/linux-esque"
-
-      #################### Optional Applications ####################
-      # "darwin/applications/autodesk-fusion.nix"
-      # "darwin/applications/deskflow.nix"
-      # "darwin/applications/gitkraken.nix"
-      # "darwin/applications/hovrly.nix"
-      # "darwin/applications/motion.nix"
-      # "darwin/applications/notchnook.nix"
-      "darwin/applications/notion-calendar.nix"
-      "darwin/applications/synology.nix"
-      # "darwin/applications/tencent-lemon.nix"
-      "darwin/applications/claude.nix"
-      "darwin/applications/vpn.nix"
-      "darwin/applications/bleunlock.nix"
-      # "darwin/applications/wifiman.nix"
-      "darwin/applications/1password.nix"
-      # "darwin/applications/chatgpt.nix"
-      # "darwin/applications/kde-connect.nix"
-
-      "darwin/applications/jprofiler.nix"
-
-      #################### Desktop ####################
+      "darwin/services/server-mode.nix" # headless: no sleep, SSH, auto-restart
     ]))
   ];
 
