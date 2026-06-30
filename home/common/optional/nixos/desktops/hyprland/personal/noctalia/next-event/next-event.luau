@@ -1,6 +1,14 @@
 -- Bar widget: next upcoming event ("Standup · 25m"), or the bare calendar icon
 -- when nothing is close. Reads Noctalia's own event cache (the in-app accounts
--- write it). @noctalia@ is the absolute binary path, substituted at build time.
+-- write it). @noctalia@ / @jq@ are absolute binary paths substituted at build
+-- time (runAsync inherits no PATH).
+--
+-- The cache holds every resolved instance (~2k events, hundreds of KB). Decoding
+-- that whole blob inside a script callback blows Noctalia's fixed execution
+-- budget ("update timed out" → the widget gets disabled), so jq does the heavy
+-- filtering in a separate process and we only decode the handful it returns.
+
+local JQ = "@jq@"
 
 local function getInt(key, fallback)
   local v = barWidget.getConfig(key)
@@ -17,6 +25,20 @@ local function cachePath()
   end
   return (noctalia.getenv("HOME") or "") .. "/.cache/noctalia/calendar/events.json"
 end
+
+-- POSIX-safe single-quote shell escaping: a'b -> 'a'\''b'.
+local function shellQuote(value)
+  return "'" .. tostring(value):gsub("'", "'\\''") .. "'"
+end
+
+-- Sliced small so what we decode stays tiny no matter how big the cache grows.
+local FILTER = [==[
+{ events: [ .events[]
+    | select((.all_day // false) | not)
+    | select(.end > $now)
+    | {start, end, title, location} ]
+  | sort_by(.start) | .[0:12] }
+]==]
 
 -- Relative time until an event, mirroring the old jq formatter.
 local function relTime(d)
@@ -38,30 +60,17 @@ local function applyEmpty()
   barWidget.setVisible(true)
 end
 
-local function refresh()
-  local now = os.time()
-  local content = noctalia.readFile(cachePath())
-  if not content or content == "" then
-    return applyEmpty()
-  end
-
-  local data = noctalia.json.decode(content)
-  if type(data) ~= "table" or type(data.events) ~= "table" then
-    return applyEmpty()
-  end
-
+local function render(events, now)
   local lookahead = getInt("lookahead_minutes", 30) * 60
   local maxChars = getInt("max_chars", 22)
 
-  -- Split unfinished timed events into the one we're in and the soonest upcoming.
+  -- jq guarantees these are unfinished timed events, so no guards needed here.
   local ongoing, upcoming = nil, nil
-  for _, e in ipairs(data.events) do
-    if not e.all_day and type(e.start) == "number" and type(e["end"]) == "number" and e["end"] > now then
-      if e.start <= now then
-        if ongoing == nil or e.start < ongoing.start then ongoing = e end
-      elseif upcoming == nil or e.start < upcoming.start then
-        upcoming = e
-      end
+  for _, e in ipairs(events) do
+    if e.start <= now then
+      if ongoing == nil or e.start < ongoing.start then ongoing = e end
+    elseif upcoming == nil or e.start < upcoming.start then
+      upcoming = e
     end
   end
 
@@ -104,6 +113,28 @@ local function refresh()
   barWidget.setGlyph("calendar-month")
   barWidget.setText(text)
   barWidget.setTooltip(tip)
+end
+
+local function refresh()
+  local now = os.time()
+  local cmd = string.format(
+    "%s -c --argjson now %d %s %s",
+    JQ, now, shellQuote(FILTER), shellQuote(cachePath())
+  )
+  noctalia.runAsync(cmd, function(result)
+    if not result or result.exitCode ~= 0 then
+      return applyEmpty()
+    end
+    local out = (result.stdout or ""):gsub("%s+$", "")
+    if out == "" then
+      return applyEmpty()
+    end
+    local data = noctalia.json.decode(out)
+    if type(data) ~= "table" or type(data.events) ~= "table" then
+      return applyEmpty()
+    end
+    render(data.events, now)
+  end)
 end
 
 -- Immediate icon before the first interval tick.

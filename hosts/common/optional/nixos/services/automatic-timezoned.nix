@@ -10,8 +10,13 @@
     [ -L /etc/localtime ] || exit 0
     TZ=$(${pkgs.coreutils}/bin/readlink -f /etc/localtime | ${pkgs.gnugrep}/bin/grep -oP '(?<=zoneinfo/).*' || echo "UTC")
 
+    # nix sets TZDIR for login shells + the user manager, but not for the runtime
+    # TZ pushes below; with a bare TZ and no TZDIR, glibc parses "America/Chicago"
+    # as a POSIX spec and falls back to UTC. Co-push it so it travels with TZ.
+    TZDIR=/etc/zoneinfo
+
     # System-wide env for future system services
-    ${pkgs.systemd}/bin/systemctl set-environment TZ="$TZ"
+    ${pkgs.systemd}/bin/systemctl set-environment TZ="$TZ" TZDIR="$TZDIR"
 
     # Per active user session: push TZ into the dbus activation env + user
     # systemd manager (affects newly-spawned user services/apps), then drop
@@ -26,7 +31,7 @@
       XDG_RUNTIME_DIR="$user_runtime" \
       DBUS_SESSION_BUS_ADDRESS="unix:path=$user_runtime/bus" \
         ${pkgs.util-linux}/bin/runuser -u "$user" -- \
-        ${pkgs.dbus}/bin/dbus-update-activation-environment --systemd TZ="$TZ" 2>/dev/null || true
+        ${pkgs.dbus}/bin/dbus-update-activation-environment --systemd TZ="$TZ" TZDIR="$TZDIR" 2>/dev/null || true
 
       ${pkgs.coreutils}/bin/install -o "$uid" -g "$uid" -m 644 /dev/null "$user_runtime/tz-changed" || true
     done
@@ -51,6 +56,7 @@
   environment.loginShellInit = ''
     if [ -L /etc/localtime ]; then
       export TZ=$(readlink -f /etc/localtime | grep -oP '(?<=zoneinfo/).*' || echo "UTC")
+      export TZDIR=/etc/zoneinfo
     fi
   '';
 }

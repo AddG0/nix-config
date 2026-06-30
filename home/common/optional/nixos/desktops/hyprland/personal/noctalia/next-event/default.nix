@@ -3,8 +3,12 @@
   lib,
   ...
 }: let
-  # noctalia path baked in for the onClick shell-out (runAsync inherits no PATH).
-  entry = pkgs.replaceVars ./next-event.luau {noctalia = lib.getExe pkgs.noctalia;};
+  # Binary paths baked in for the runAsync shell-outs (runAsync inherits no PATH):
+  # noctalia for the onClick panel toggle, jq for filtering the event cache.
+  entry = pkgs.replaceVars ./next-event.luau {
+    noctalia = lib.getExe pkgs.noctalia;
+    jq = lib.getExe pkgs.jq;
+  };
 in {
   # Install where Noctalia auto-discovers it as a read-only local source. Enabling
   # it and placing it on the bar are view decisions, made in ../default.nix.
