@@ -26,7 +26,7 @@
 
   image = "${crosshair}";
 
-  # SUPER+C: show the crosshair on the monitor of the active workspace.
+  # SUPER+SHIFT+C: show the crosshair on the monitor of the active workspace.
   # - No config change → toggle visibility.
   # - Config change (monitor / image path / size) → rewrite config, reload
   #   (rebinds the layer surface and reloads image), force visible.
@@ -91,7 +91,7 @@
 in {
   wayland.windowManager.hyprland.settings = {
     bind = [
-      "SUPER,c,exec,${toggle}/bin/wlcrosshair-toggle-here"
+      "SUPERSHIFT,c,exec,${toggle}/bin/wlcrosshair-toggle-here"
     ];
     # - blur off: avoid Hyprland blurring the layer (see-through smear).
     # - animation none: each reload destroys/recreates the surface; without

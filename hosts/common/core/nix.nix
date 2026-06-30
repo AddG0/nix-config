@@ -72,6 +72,12 @@
     # Allow unfree packages
     config = {
       allowUnfree = true;
+      permittedInsecurePackages = [
+        # FLAKE-UPDATE: drop once legcord bumps off this pnpm. legcord 1.2.4
+        # pins pnpm-10.29.2 (build-only, not in runtime closure) which carries
+        # CVE-2026-48995 + 6 others. Re-check after `nix flake update`.
+        "pnpm-10.29.2"
+      ];
     };
   };
 }

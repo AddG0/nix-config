@@ -22,7 +22,8 @@ Indicator sits bottom-right.
 |-----|--------|
 | `j` / `k` | line down / up |
 | `h` / `l` | left / right |
-| `Ctrl+D` / `Ctrl+U` | half page down / up |
+| `d` / `u` | half page down / up |
+| `Ctrl+D` / `Ctrl+U` | half page down / up (same) |
 | `Ctrl+F` / `Ctrl+B` | full page down / up |
 | `gg` / `G` | top / bottom |
 
@@ -52,8 +53,8 @@ In hint mode: `Tab`/arrows move focus, `Enter` selects, `Backspace` undoes a let
 | `b` / `B` | switch tab by title (window / all windows) |
 | `t` / `o` | open URL in new / current tab |
 | `T` / `O` | same, prefilled with current URL |
-| `d` | close tab |
-| `u` / `U` | reopen closed tab / window |
+| `x` | close tab |
+| `X` / `U` | reopen closed tab / window |
 
 ## Navigate & search
 

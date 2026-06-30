@@ -48,6 +48,23 @@
     };
   };
 
+  # Turn on inlay hints for every server that emits them (nixd package
+  # versions, gopls types, etc.)
+  autoCmd = [
+    {
+      event = "LspAttach";
+      desc = "Enable inlay hints when an LSP client supports them";
+      callback.__raw = ''
+        function(args)
+          local client = vim.lsp.get_client_by_id(args.data.client_id)
+          if client and client:supports_method("textDocument/inlayHint") then
+            vim.lsp.inlay_hint.enable(true, { bufnr = args.buf })
+          end
+        end
+      '';
+    }
+  ];
+
   keymaps = [
     {
       mode = "n";

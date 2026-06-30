@@ -34,19 +34,25 @@
       };
     };
 
-    # Mirror tmux muscle memory where herdr's binding model allows. tmux's
-    # `|` split and `$` rename can't be mirrored (herdr rejects those keys),
-    # and prefix+h/j/k/l is resize in tmux but focus here — tmux resizes via a
-    # repeat table herdr has no equivalent for, so focus stays on those keys.
+    # Mirror tmux muscle memory where herdr's binding model allows.
+    # Some punctuation has herdr token names (minus/comma/ampersand); the rest
+    # uses the literal char (| / $). tmux's resize-on-prefix+hjkl has no
+    # herdr equivalent.
     keys = {
       detach = "prefix+d"; # tmux-standard detach (herdr default: prefix+q)
       rename_tab = "prefix+comma"; # tmux `bind ,`
+      close_tab = "prefix+ampersand"; # tmux `bind &` kill-window
 
       reload_config = "prefix+r"; # tmux `bind r`; frees default off prefix+shift+r
       resize_mode = "prefix+shift+r"; # moved aside so prefix+r is reload
 
       workspace_picker = "prefix+s"; # tmux `bind s` choose-tree
-      settings = "prefix+shift+s"; # moved aside so prefix+s is the picker
+      new_workspace = "prefix+shift+s"; # tmux `bind S` new-session; completes the s/S picker pair
+      rename_workspace = "prefix+$"; # tmux `bind $` rename-session
+      settings = "prefix+shift+t"; # no tmux analog; free slot, no collision
+
+      split_vertical = "prefix+|"; # tmux `bind | split-window -h` (left/right)
+      split_horizontal = "prefix+minus"; # tmux `bind - split-window -v` (top/bottom); also herdr's default
 
       # tmux navigates panes with un-prefixed Alt+arrows (M-Left/Right/Up/Down).
       focus_pane_left = "alt+left";

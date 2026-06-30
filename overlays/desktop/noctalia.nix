@@ -11,7 +11,7 @@ prev.lib.optionalAttrs prev.stdenv.isLinux {
             '(void)0; // nix-config: hyprlock owns session locking; noctalia logind auto-lock disabled'
 
         # Calendar tab hardcodes 24h event times (ignores shell.time_format); force 12h.
-        substituteInPlace src/shell/control_center/calendar_tab.cpp \
+        substituteInPlace src/shell/control_center/tabs/calendar_tab.cpp \
           --replace-fail 'formatStrftime("%H:%M", tm)' 'formatStrftime("%I:%M %p", tm)'
       '';
   });

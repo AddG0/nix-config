@@ -33,6 +33,12 @@ Vim-style keyboard control for Zen:
 - Modes and escaping (ignore mode for web apps)
 - Dead zones where extensions can't run
 
+### 🖥️ [herdr](guides/herdr.md)
+Agent-aware terminal multiplexer (tmux-like):
+- Workspace/tab/pane keybinds, mirroring the tmux setup
+- CLI socket helpers for scripting and agents
+- Update behavior on Nix and tmux divergences
+
 ### 🤖 [Automation](automation/justfile.md)
 Comprehensive guide to project automation with detailed recipe documentation:
 - **🔍 Validation** - Configuration checking and validation
@@ -72,6 +78,11 @@ Deep dive into Just command runner capabilities:
 - Platform-specific recipes
 - Error handling and debugging
 - Best practices
+
+### 📐 [Conventions](conventions.md)
+Repository conventions and code markers:
+- `FLAKE-UPDATE:` markers for input-pinned workarounds
+- What to re-check after `nix flake update`
 
 ## 🛠️ Tools and Technologies
 

@@ -102,6 +102,12 @@ in {
   # Launch via Hyprland exec-once rather than the systemd user service.
   wayland.windowManager.hyprland.settings.exec-once = ["${lib.getExe noctaliaPkg}"];
 
+  # SUPER+C / SUPER+N open the calendar and notifications control-center tabs.
+  wayland.windowManager.hyprland.settings.bind = [
+    "SUPER,c,exec,${lib.getExe noctaliaPkg} msg panel-toggle control-center calendar"
+    "SUPER,n,exec,${lib.getExe noctaliaPkg} msg panel-toggle control-center notifications"
+  ];
+
   # Restart noctalia when the system timezone changes. The system-level
   # automatic-timezoned ExecStartPost (running as root) touches
   # $XDG_RUNTIME_DIR/tz-changed after updating env; this path unit reacts and
