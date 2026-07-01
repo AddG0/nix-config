@@ -14,7 +14,7 @@
     enable = true;
     entries = [
       "${pkgs.spotify}/share/applications/spotify.desktop"
-      "${pkgs.discord-legcord}/share/applications/legcord.desktop"
+      "${pkgs.discord}/share/applications/discord.desktop"
       "${pkgs._1password-gui}/share/applications/1password.desktop"
     ];
   };
@@ -137,7 +137,7 @@
                 "applications:com.mitchellh.ghostty.desktop"
                 "applications:org.kde.dolphin.desktop"
                 "applications:zen-beta.desktop"
-                "applications:legcord.desktop"
+                "applications:discord.desktop"
                 "applications:spotify.desktop"
                 "applications:steam.desktop"
                 "applications:code.desktop"

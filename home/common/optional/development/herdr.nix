@@ -10,6 +10,8 @@
   tomlFormat = pkgs.formats.toml {};
 
   settings = {
+    onboarding = false;
+
     theme = {
       name = "catppuccin"; # matches the catppuccin-mocha stylix scheme + tmux
       custom = {

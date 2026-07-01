@@ -139,7 +139,7 @@
   #       open-on-workspace = "chat";
   #     }
   #     {
-  #       matches = [{app-id = "^(discord|legcord)$";}];
+  #       matches = [{app-id = "^discord$";}];
   #       open-on-workspace = "chat";
   #     }
   #   ];
@@ -173,7 +173,7 @@
   xdg.autostart = {
     enable = true;
     entries = [
-      "${pkgs.discord-legcord}/share/applications/legcord.desktop"
+      "${pkgs.discord}/share/applications/discord.desktop"
       "${config.programs.zen-browser.package}/share/applications/zen-beta.desktop"
       "${pkgs._1password-gui}/share/applications/1password.desktop"
       "${config.programs.spicetify.spicedSpotify}/share/applications/spotify.desktop"
