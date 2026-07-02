@@ -382,6 +382,18 @@
       action = "<cmd>tablast<cr>";
       options.desc = "Last tab";
     }
+    {
+      mode = "n";
+      key = "<leader><tab>r";
+      action.__raw = ''
+        function()
+          vim.ui.input({ prompt = "Tab name: " }, function(name)
+            if name and name ~= "" then vim.cmd("BufferLineTabRename " .. name) end
+          end)
+        end
+      '';
+      options.desc = "Rename tab";
+    }
 
     # ── Buffers / misc ──
     {
@@ -451,6 +463,20 @@
       key = "<leader>ug";
       action.__raw = "function() Snacks.toggle.indent():toggle() end";
       options.desc = "Toggle indent guides";
+    }
+    {
+      mode = "n";
+      key = "<leader>uS";
+      action.__raw = ''
+        function()
+          Snacks.toggle.new({
+            name = "Smear Cursor",
+            get = function() return require("smear_cursor").enabled end,
+            set = function(state) require("smear_cursor").enabled = state end,
+          }):toggle()
+        end
+      '';
+      options.desc = "Toggle smear cursor";
     }
     {
       mode = "n";

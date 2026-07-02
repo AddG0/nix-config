@@ -132,11 +132,17 @@ in {
       settings.options = {
         diagnostics = "nvim_lsp";
         always_show_bufferline = false;
+        # bufferline's toggle counts only buffers — it hides the bar (and tab
+        # indicators) at 1 buffer even with many tabs. Off => the autoCmd drives it.
+        auto_toggle_bufferline = false;
       };
     };
 
     which-key = {
       enable = true;
+      # diffview tags its ~18 z-fold passthrough maps with desc="diffview_ignore"
+      # to hide them from its own help; which-key shows the sentinel verbatim.
+      settings.filter.__raw = ''function(mapping) return mapping.desc ~= "diffview_ignore" end'';
       settings.spec = [
         {
           __unkeyed-1 = "<leader>b";
@@ -339,4 +345,23 @@ in {
       };
     };
   };
+
+  autoCmd = [
+    {
+      # Show the tabline on >1 listed buffer OR >1 tab. Deferred so BufDelete's
+      # count settles before we read it.
+      event = ["BufAdd" "BufDelete" "TabNew" "TabClosed" "TabEnter" "BufEnter" "VimEnter"];
+      callback.__raw = ''
+        function()
+          vim.schedule(function()
+            local bufs = 0
+            for _, b in ipairs(vim.api.nvim_list_bufs()) do
+              if vim.bo[b].buflisted then bufs = bufs + 1 end
+            end
+            vim.o.showtabline = (bufs > 1 or #vim.api.nvim_list_tabpages() > 1) and 2 or 0
+          end)
+        end
+      '';
+    }
+  ];
 }

@@ -13,8 +13,34 @@
     };
     diffview = {
       enable = true;
-      # brighten the changed text within a line, not the whole line
-      settings.enhanced_diff_hl = true;
+      settings = {
+        # brighten the changed text within a line, not the whole line
+        enhanced_diff_hl = true;
+        hooks = {
+          # Diff windows start with numbers off; restore our hybrid number column.
+          diff_buf_win_enter.__raw = ''
+            function()
+              vim.opt_local.number = true
+              vim.opt_local.relativenumber = true
+            end
+          '';
+          # gitlab.nvim reviews render through diffview; name that tab from the MR.
+          # is_open/tabid are set only after DiffviewOpen returns, so defer the check.
+          view_opened.__raw = ''
+            function(view)
+              vim.schedule(function()
+                local ok, reviewer = pcall(require, "gitlab.reviewer")
+                if not (ok and reviewer.is_open and reviewer.tabid == view.tabpage) then
+                  return
+                end
+                local st = require("gitlab.state")
+                local name = (st.INFO and st.INFO.source_branch) or "MR Review"
+                pcall(vim.cmd, "BufferLineTabRename " .. name)
+              end)
+            end
+          '';
+        };
+      };
     };
     neogit.enable = true;
   };
@@ -29,18 +55,8 @@
     {
       mode = "n";
       key = "<leader>gd";
-      # DiffviewOpen has no toggle; close it when a diffview tab is already up.
-      action.__raw = ''
-        function()
-          local lib = require("diffview.lib")
-          if lib.get_current_view() then
-            vim.cmd("DiffviewClose")
-          else
-            vim.cmd("DiffviewOpen")
-          end
-        end
-      '';
-      options.desc = "Diffview (toggle)";
+      action = "<cmd>DiffviewOpen<cr>";
+      options.desc = "Diffview";
     }
 
     # ── Git pickers (snacks) ──

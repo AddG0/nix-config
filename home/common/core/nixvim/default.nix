@@ -66,9 +66,13 @@ in {
   xdg.configFile."configstore/cspell.json".text = builtins.toJSON {
     version = "0.2";
     words = [
+      "direnv"
+      "envrc"
       "getenv"
       "healthcheck"
       "herdr"
+      "HUBSPOT"
+      "justfile"
       "keybind"
       "keybinds"
       "worktree"

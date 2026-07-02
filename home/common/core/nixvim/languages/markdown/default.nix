@@ -33,6 +33,11 @@
       }
       ${builtins.readFile file}
     '';
+
+  markdownlintConfig = pkgs.writeText "markdownlint.json" (builtins.toJSON {
+    default = true;
+    MD013 = false; # line length: noise for prose, we don't hard-wrap markdown
+  });
 in {
   plugins.lsp.servers.marksman.enable = true;
 
@@ -70,6 +75,8 @@ in {
     lintersByFt.markdown = ["markdownlint"];
     # The linter is named `markdownlint`, its package is markdownlint-cli.
     autoInstall.overrides.markdownlint = pkgs.markdownlint-cli;
+    # Overriding args drops nvim-lint's default, so keep --stdin.
+    linters.markdownlint.args = ["--config" "${markdownlintConfig}" "--stdin"];
   };
 
   extraPackages = with pkgs; [
