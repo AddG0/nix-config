@@ -30,6 +30,11 @@ in {
 
         "GDK_BACKEND,wayland"
         "OGL_DEDICATED_HW_STATE_PER_CONTEXT,ENABLE_ROBUST"
+
+        # Hyprland's setcap (cap_sys_nice) wrapper makes glibc strip TZDIR
+        # (unsecvars.h), so children can't resolve a bare TZ name and fall to
+        # UTC. See nixpkgs#526193.
+        "TZDIR,/etc/zoneinfo"
       ];
 
       # ========== Monitor ==========
