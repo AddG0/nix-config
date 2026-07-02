@@ -1,5 +1,4 @@
 {
-  pkgs,
   lib,
   self,
   osConfig ? null,
@@ -38,6 +37,6 @@ in {
         };
       };
   };
+  # conform autoInstall puts alejandra on nvim's PATH, so nixd's formatting.command above finds it too.
   plugins.conform-nvim.settings.formatters_by_ft.nix = ["alejandra"];
-  extraPackages = [pkgs.alejandra];
 }

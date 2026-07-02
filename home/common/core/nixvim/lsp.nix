@@ -38,10 +38,12 @@
       autoInstall.enable = true;
     };
 
-    # Formatter framework. ./languages files add their formatters_by_ft entry;
-    # this sets the always-on fallback + format-on-save behaviour.
+    # Formatter framework. autoInstall adds each formatter package by name (like
+    # lint above), so ./languages files only declare formatters_by_ft — no manual
+    # extraPackages. This sets the always-on fallback + format-on-save behaviour.
     conform-nvim = {
       enable = true;
+      autoInstall.enable = true;
       settings = {
         formatters_by_ft."_" = ["trim_whitespace"];
         format_on_save = {

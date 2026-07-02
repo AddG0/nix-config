@@ -3,6 +3,13 @@
   plugins = {
     lsp.servers.ts_ls.enable = true;
     neotest.adapters.jest.enable = true; # jest test runner (framework: ../testing.nix)
+
+    conform-nvim.settings.formatters_by_ft = {
+      typescript = ["prettierd"];
+      javascript = ["prettierd"];
+      typescriptreact = ["prettierd"];
+      javascriptreact = ["prettierd"];
+    };
   };
 
   # ts_ls races documentHighlight before its didOpen ("document should be opened

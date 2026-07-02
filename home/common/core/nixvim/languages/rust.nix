@@ -36,6 +36,4 @@ in {
       }
     ];
   };
-
-  extraPackages = [pkgs.rustfmt]; # ≠ rust-analyzer
 }
