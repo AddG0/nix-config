@@ -42,6 +42,13 @@ herdr status                # client + server status
 | `prefix Shift+R` | resize mode |
 | `prefix e` | edit scrollback |
 
+## Agents
+
+| Key | Action |
+|-----|--------|
+| `prefix Shift+J` / `prefix Shift+K` | next / previous agent |
+| `prefix Alt+1`–`9` | focus agent N |
+
 ## Session & misc
 
 | Key | Action |
@@ -65,7 +72,9 @@ herdr tab ... | herdr agent list | herdr server reload-config | herdr server sto
 
 - **Updates**: self-update is disabled on Nix; herdr only notifies. Update via
   `just rebuild` then `herdr server stop` (relaunch runs the new binary).
-- **No keybind** (use CLI): resize-by-key, reorder tabs, swap panes, copy-mode,
-  floating panes (herdr panes are tiled).
+- **No keybind, but CLI exists**: resize-by-key (`herdr pane resize`), swap panes
+  (`herdr pane swap`).
+- **Not available at all** (no keybind or CLI in 0.7.1): reorder tabs (tmux
+  `C-S-arrows`), copy-mode/vi-yank, floating panes (herdr panes are tiled).
 - **Key syntax**: some punctuation is named (`minus`, `comma`, `ampersand`); the
   rest is literal (`|`, `$`). `pipe`/`bar`/`dollar` are rejected.

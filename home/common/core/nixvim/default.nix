@@ -60,6 +60,21 @@ in {
     vi = "nvim";
   };
 
+  # Personal cspell words shared across every repo — cspell auto-loads this
+  # global config from the configstore path. Repo-specific words still go in a
+  # cspell.json at that repo's root.
+  xdg.configFile."configstore/cspell.json".text = builtins.toJSON {
+    version = "0.2";
+    words = [
+      "getenv"
+      "healthcheck"
+      "herdr"
+      "keybind"
+      "keybinds"
+      "worktree"
+    ];
+  };
+
   xdg.desktopEntries.nvim-ghostty = lib.mkIf (pkgs.stdenv.isLinux && config.hostSpec.hostType != "server") {
     name = "Neovim in Ghostty";
     genericName = "Text Editor";

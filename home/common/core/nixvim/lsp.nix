@@ -3,6 +3,10 @@
   # servers, formatters, and linters live in ./languages/<lang>.nix — each file
   # owns its full stack so a language is added/removed in one place. This module
   # holds only the cross-cutting setup and the language-agnostic keymaps.
+
+  # Inline diagnostics — Neovim shows only signs + underline by default.
+  diagnostic.settings.virtual_text = true;
+
   plugins = {
     # Crowd-sourced JSON/YAML schema catalog. jsonls/yamlls (in ./languages)
     # auto-wire their `schemas` to it when it's present.

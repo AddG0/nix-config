@@ -30,10 +30,7 @@
 
       toast.delivery = "herdr"; # in-app toasts for background agent state
 
-      sound = {
-        enabled = true;
-        agents.claude = "on";
-      };
+      sound.enabled = false;
     };
 
     # Mirror tmux muscle memory where herdr's binding model allows.
@@ -51,7 +48,7 @@
       workspace_picker = "prefix+s"; # tmux `bind s` choose-tree
       new_workspace = "prefix+shift+s"; # tmux `bind S` new-session; completes the s/S picker pair
       rename_workspace = "prefix+$"; # tmux `bind $` rename-session
-      settings = "prefix+shift+t"; # no tmux analog; free slot, no collision
+      settings = "prefix+shift+t"; # no tmux analog
 
       split_vertical = "prefix+|"; # tmux `bind | split-window -h` (left/right)
       split_horizontal = "prefix+minus"; # tmux `bind - split-window -v` (top/bottom); also herdr's default
@@ -61,6 +58,11 @@
       focus_pane_down = "alt+down";
       focus_pane_up = "alt+up";
       focus_pane_right = "alt+right";
+
+      # Agent nav; herdr leaves these unbound by default.
+      next_agent = "prefix+shift+j";
+      previous_agent = "prefix+shift+k";
+      focus_agent = "prefix+alt+1..9"; # jump to agent N
 
       # Floating-pane workflow parallel to the tmux floax bind.
       command = [

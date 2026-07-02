@@ -1,4 +1,8 @@
-{pkgs, ...}: {
+{
+  pkgs,
+  config,
+  ...
+}: {
   services.mysql = {
     enable = true;
     package = pkgs.mariadb;
@@ -6,6 +10,13 @@
     ensureUsers = [
       {
         name = "root";
+        ensurePermissions = {
+          "*.*" = "ALL PRIVILEGES";
+        };
+      }
+      {
+        # unix_socket auth: `mycli` as this user logs in with no password
+        name = config.hostSpec.primaryUsername;
         ensurePermissions = {
           "*.*" = "ALL PRIVILEGES";
         };
