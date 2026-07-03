@@ -76,5 +76,7 @@ in {
     }
   ];
 
-  extraPackages = [pkgs.jdk21];
+  # jdk21 = jdtls runtime. python3: nvim-jdtls' wipe_data_and_restart hashes the
+  # workspace name by shelling to `python`, which is otherwise absent on nvim's PATH.
+  extraPackages = [pkgs.jdk21 pkgs.python3Minimal];
 }

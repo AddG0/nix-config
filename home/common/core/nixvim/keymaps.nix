@@ -516,5 +516,24 @@
       action = "<cmd>enew<cr>";
       options.desc = "New file";
     }
+
+    # marks.nvim-style delete verb: dm<space> clears the buffer's marks,
+    # dm{a-z} deletes one. dm reads the next key rather than binding dma..dmz.
+    {
+      mode = "n";
+      key = "dm";
+      action.__raw = ''
+        function()
+          local ok, ch = pcall(vim.fn.getcharstr)
+          if not ok or ch == "" or ch == "\27" then return end
+          if ch == " " then
+            vim.cmd("delmarks!")
+          elseif ch:match("^%a$") then
+            vim.cmd("delmarks " .. ch)
+          end
+        end
+      '';
+      options.desc = "Delete mark (dm<space>=all, dm{a-z}=one)";
+    }
   ];
 }

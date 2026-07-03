@@ -20,6 +20,13 @@
       server = {
         binary = "${lib.getExe pkgs.gitlab-nvim.server}",
       },
+      -- Anchor comment/edit/reply popups to the bottom so the diff line being
+      -- commented on stays visible above them (default 50% covers it).
+      popup = {
+        comment = { position = { row = "95%", col = "50%" }, height = "30%" },
+        edit = { position = { row = "95%", col = "50%" }, height = "30%" },
+        reply = { position = { row = "95%", col = "50%" }, height = "30%" },
+      },
     })
   '';
 

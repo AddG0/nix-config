@@ -14,6 +14,7 @@ _: {
     ./rust.nix
     ./shell.nix
     ./tailwind.nix
+    ./tiltfile.nix
     ./web.nix
     ./yaml.nix
   ];

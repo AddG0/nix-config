@@ -33,8 +33,10 @@
                 if not (ok and reviewer.is_open and reviewer.tabid == view.tabpage) then
                   return
                 end
-                local st = require("gitlab.state")
-                local name = (st.INFO and st.INFO.source_branch) or "MR Review"
+                local info = require("gitlab.state").INFO or {}
+                local name = info.source_branch and ("MR " .. info.source_branch)
+                  or info.iid and ("MR !" .. info.iid)
+                  or "MR Review"
                 pcall(vim.cmd, "BufferLineTabRename " .. name)
               end)
             end
