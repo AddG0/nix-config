@@ -145,6 +145,7 @@ in {
           type = "command";
         };
         theme = "dark";
+        tui = "fullscreen";
         voiceEnabled = true;
         # This is largly hidden and I want to see what its doing
         showThinkingSummaries = true;

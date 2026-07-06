@@ -55,9 +55,9 @@
           continue
         fi
 
-        while IFS= read -r _; do
-          reconcile
-        done < <(inotifywait -q -m -e open -e close "''${existing[@]}" 2>/dev/null || true)
+        # Rapid open→close probes (permission/preview checks) would fire a
+        # fuser + safeeyes reconcile each; coalesce them into one.
+        coalesce_reconcile 1 5 < <(inotifywait -q -m -e open -e close "''${existing[@]}" 2>/dev/null || true)
 
         # inotifywait exited (typically a watched path was removed). Re-check
         # before looping so safeeyes state is correct during the gap.

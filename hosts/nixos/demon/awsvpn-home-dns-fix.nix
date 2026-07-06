@@ -4,7 +4,7 @@
   # all queries (including local domains) to go through the VPN DNS.
   # This dispatcher script disables default-route on tun0 whenever it
   # comes up, so non-VPN queries fall through to the local DNS server.
-  networking.nameservers = ["192.168.1.1"];
+  networking.nameservers = ["10.61.20.1"];
 
   networking.networkmanager.dispatcherScripts = [
     {

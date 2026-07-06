@@ -45,19 +45,14 @@
 
   # Two D-Bus match rules, both narrow enough that we only wake on relevant
   # events: PlaybackStatus property changes on MPRIS Player, and player bus
-  # names appearing/disappearing on the MPRIS namespace.
+  # names appearing/disappearing on the MPRIS namespace. Coalesce so the steady
+  # trickle of PropertiesChanged during playback doesn't reconcile per signal.
   eventLoop = ''
     reconcile
 
-    while IFS= read -r line; do
-      case "$line" in
-        *PropertiesChanged*|*NameOwnerChanged*)
-          reconcile
-          ;;
-      esac
-    done < <(dbus-monitor --session \
+    coalesce_reconcile 1 5 < <(dbus-monitor --session \
       "type='signal',interface='org.freedesktop.DBus.Properties',member='PropertiesChanged',arg0='org.mpris.MediaPlayer2.Player'" \
       "type='signal',interface='org.freedesktop.DBus',member='NameOwnerChanged',arg0namespace='org.mpris.MediaPlayer2'" \
-      2>/dev/null || true)
+      2>/dev/null | grep --line-buffered -E 'PropertiesChanged|NameOwnerChanged' || true)
   '';
 }

@@ -31,23 +31,13 @@
   '';
 
   # pw-mon is chatty (per-frame parameter updates push thousands of lines/sec
-  # during active shares), so we filter at C speed via grep for the only
-  # lines that matter — object add/remove markers — before reaching bash.
-  # Then debounce with bash's built-in $EPOCHREALTIME (no subshell) so a
-  # burst of add events at share-start only costs one reconcile.
+  # during active shares), so we filter at C speed via grep for the only lines
+  # that matter — object add/remove markers — before reaching bash, then
+  # coalesce so a burst of add/remove events at share start/stop only costs one
+  # reconcile.
   eventLoop = ''
     reconcile
 
-    last_reconcile=0
-    debounce_us=3000000  # 3s, expressed in microseconds
-
-    while IFS= read -r _; do
-      # $EPOCHREALTIME is "seconds.microseconds"; strip the dot for integer math.
-      now=''${EPOCHREALTIME/./}
-      if [ "$((now - last_reconcile))" -ge "$debounce_us" ]; then
-        reconcile
-        last_reconcile="$now"
-      fi
-    done < <(pw-mon 2>/dev/null | grep --line-buffered -E '^(added|removed):' || true)
+    coalesce_reconcile 3 9 < <(pw-mon 2>/dev/null | grep --line-buffered -E '^(added|removed):' || true)
   '';
 }

@@ -8,6 +8,7 @@
     ./claude-code
     ./codex.nix
     ./opencode.nix
+    ./t3code.nix
   ];
 
   programs.zsh.shellAliases = {

@@ -69,15 +69,22 @@
     '';
   };
 
-  # Per-game mouse DPI. Runs the game as a child (NOT exec) and restores the
-  # baseline DPI when that child exits or the wrapper is signalled — the game
-  # process exiting is the exact "game stopped" signal.
+  # Per-game mouse DPI. Captures the baseline, sets the per-game value, runs
+  # the game, and restores the baseline when the game exits.
+  #
+  # Restore can't simply wait on the wrapped process: Proton games sit behind
+  # a launcher/anti-cheat (Overwatch's BattlEye belauncher, Battle.net, the EA
+  # app) that stays alive after the game window closes, so the wrapped process
+  # only returns much later. Steam points STEAM_COMPAT_INSTALL_PATH at the
+  # game's own files while the launcher lives in the wine prefix — so we watch
+  # the executables shipped with the game and restore when the last one exits.
+  # Native games have no such indirection, so we just wait on the process.
   # Usage: `wrappers = mouseDpi 800 ++ [gamemoderun] ++ gamescope;`
   mouseDpi = dpi:
     lib.optionals razerEnabled [
       (lib.getExe (pkgs.writeShellApplication {
         name = "mouse-dpi-${toString dpi}";
-        runtimeInputs = with pkgs; [glib coreutils razerMousePath];
+        runtimeInputs = with pkgs; [glib coreutils findutils procps razerMousePath];
         text = ''
           set -u
 
@@ -86,15 +93,21 @@
             exec "$@"
           fi
 
-          state_dir="''${XDG_STATE_HOME:-$HOME/.local/state}/gaming-mouse-dpi"
-          prev_file="$state_dir/prev"
-          mkdir -p "$state_dir"
+          prev_file="''${XDG_STATE_HOME:-$HOME/.local/state}/gaming-mouse-dpi/prev"
+          mkdir -p "$(dirname "$prev_file")"
 
-          set_dpi() {
+          dpi_call() {
+            local method=$1
+            shift
             gdbus call --session --dest org.razer \
-              --object-path "$mouse_path" \
-              --method razer.device.dpi.setDPI "$1" "$2" \
-              >/dev/null 2>&1 || true
+              --object-path "$mouse_path" --method "razer.device.dpi.$method" "$@" 2>/dev/null
+          }
+          set_dpi() { dpi_call setDPI "$1" "$2" >/dev/null || true; }
+          get_dpi() {
+            # ([1800, 1800],) → "1800 1800"
+            local out
+            out=$(dpi_call getDPI) && [[ "$out" =~ ([0-9]+)[,\ ]+([0-9]+) ]] || return 1
+            echo "''${BASH_REMATCH[1]} ''${BASH_REMATCH[2]}"
           }
 
           restore() {
@@ -107,18 +120,32 @@
           # Self-heal a leftover prev_file from a prior wrapper SIGKILLed
           # before its trap ran, so we never capture a game value as baseline.
           restore
+          get_dpi > "$prev_file" || rm -f "$prev_file"
+          set_dpi ${toString dpi} ${toString dpi}
 
-          # ([1800, 1800],) → "1800 1800"
-          cur=$(gdbus call --session --dest org.razer \
-            --object-path "$mouse_path" \
-            --method razer.device.dpi.getDPI 2>/dev/null) || cur=""
-          if [[ "$cur" =~ ([0-9]+)[,\ ]+([0-9]+) ]]; then
-            echo "''${BASH_REMATCH[1]} ''${BASH_REMATCH[2]}" > "$prev_file"
+          if [ -z "''${STEAM_COMPAT_INSTALL_PATH:-}" ]; then
+            # Native game: the wrapped process is the game itself.
+            trap restore EXIT INT TERM HUP
+          else
+            # Proton game: a launcher/anti-cheat outlives the game, so restore
+            # once the game's own executables are all gone.
+            mapfile -t exes < <(find "$STEAM_COMPAT_INSTALL_PATH" \
+              -maxdepth 4 -iname '*.exe' -printf '%.15f\n' 2>/dev/null)
+            game_running() {
+              # comm is truncated to 15 chars; exe names were too (-printf %.15f).
+              local e
+              for e in "''${exes[@]}"; do pgrep -x "$e" >/dev/null 2>&1 && return 0; done
+              return 1
+            }
+            (
+              until game_running; do sleep 2; done
+              while game_running; do sleep 2; done
+              restore
+            ) &
+            watcher=$!
+            trap 'kill "$watcher" 2>/dev/null || true; restore' EXIT INT TERM HUP
           fi
 
-          trap restore EXIT INT TERM HUP
-
-          set_dpi ${toString dpi} ${toString dpi}
           "$@"
         '';
       }))

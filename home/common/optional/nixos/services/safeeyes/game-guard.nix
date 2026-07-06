@@ -26,20 +26,15 @@
     }
   '';
 
-  # Block on D-Bus property changes. PropertiesChanged on ClientCount triggers
-  # a re-check; otherwise the process is idle (no polling, no wakeups).
+  # Wake only on ClientCount PropertiesChanged (filtered at C speed), coalesced;
+  # otherwise idle — no polling.
   eventLoop = ''
     # Handle a game that's already running at service start.
     reconcile
 
-    while IFS= read -r line; do
-      case "$line" in
-        *PropertiesChanged*ClientCount*)
-          reconcile
-          ;;
-      esac
-    done < <(gdbus monitor --session \
+    coalesce_reconcile 1 5 < <(gdbus monitor --session \
       --dest com.feralinteractive.GameMode \
-      --object-path /com/feralinteractive/GameMode)
+      --object-path /com/feralinteractive/GameMode \
+      | grep --line-buffered -E 'PropertiesChanged.*ClientCount' || true)
   '';
 }

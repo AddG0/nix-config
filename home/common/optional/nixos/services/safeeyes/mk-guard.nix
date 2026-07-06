@@ -113,6 +113,35 @@
           fi
         }
 
+        # Reconcile once per burst, not once per raw event: an event source can
+        # flood us (a camera probed open→closed, a pipewire share's per-object
+        # churn) and reconciling per event means a fuser + safeeyes fork-storm.
+        # Trailing-edge — after `debounce`s of quiet we reconcile the *settled*
+        # state, so a flurry reflects the final condition, not a mid-burst one.
+        coalesce_reconcile() {
+          local debounce="''${1:-1}" maxwait="''${2:-5}"
+          local pending=0 start=0
+          while true; do
+            if [ "$pending" -eq 0 ]; then
+              IFS= read -r _ || break
+              pending=1
+              start=$SECONDS
+            elif IFS= read -r -t "$debounce" _; then
+              # A nonstop stream never goes quiet; settle anyway past maxwait.
+              if [ "$((SECONDS - start))" -ge "$maxwait" ]; then
+                reconcile
+                pending=0
+              fi
+            else
+              reconcile
+              pending=0
+            fi
+          done
+          # Source closed mid-burst — reconcile the final state before returning.
+          if [ "$pending" -eq 1 ]; then reconcile; fi
+          return 0
+        }
+
         # On signal, do cleanup and exit — a bare `trap mark_inactive TERM`
         # would run the handler and then resume the event loop, so systemd
         # waits the full TimeoutStopSec before SIGKILL.

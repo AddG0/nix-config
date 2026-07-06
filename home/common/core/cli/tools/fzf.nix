@@ -10,6 +10,8 @@ in {
     enable = true;
     enableZshIntegration = true;
     enableBashIntegration = true;
+    # Let Atuin own Ctrl-R in zsh; fzf keeps its other widgets.
+    historyWidget.zsh.command = "";
     # Colors derived from the active stylix base16 scheme so they track theme.
     colors = lib.mkDefault {
       "bg" = c.base00;

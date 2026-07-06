@@ -65,6 +65,7 @@
         tampermonkey
         stylus # Catppuccin: userstyles.catppuccin.com/getting-started/usage → download import.json → Stylus Settings → Backup → Import
         darkreader
+        pay-by-privacy # Privacy.com virtual cards
         leechblock-ng # Block time-wasting sites (youtube, reddit, etc) with time limits
         (buildFirefoxXpiAddon {
           pname = "jetbrains-toolbox";

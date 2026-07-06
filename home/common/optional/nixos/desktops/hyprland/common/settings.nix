@@ -84,6 +84,8 @@ in {
         };
         force_no_accel = false;
         numlock_by_default = true;
+        # "current" binds the pad to the focused monitor; empty spans (and distorts) across all.
+        tablet.output = "current";
       };
 
       # ========== Variables ==========

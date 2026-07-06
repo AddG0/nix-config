@@ -25,6 +25,9 @@
     bind d scrollpage 0.5
     bind u scrollpage -0.5
 
+    " The mode indicator (bottom-right pill) overlays fullscreen video; drop it.
+    set modeindicator false
+
     command clipnvim exclaim_quiet f=$(${pkgs.coreutils}/bin/mktemp --suffix=.json); ${pkgs.wl-clipboard}/bin/wl-paste > "$f"; ${pkgs.ghostty}/bin/ghostty --gtk-single-instance=false -e ${config.programs.nixvim.build.package}/bin/nvim "$f"
     bind ;e composite hint -p ; clipnvim
   '';
