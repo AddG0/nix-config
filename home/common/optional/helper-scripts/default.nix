@@ -37,6 +37,11 @@
         runtimeInputs = with pkgs; [iptables];
         text = builtins.readFile ./open-port.sh;
       };
+      netbond = pkgs.writeShellApplication {
+        name = "netbond";
+        runtimeInputs = with pkgs; [iproute2 jq gawk curl coreutils iw networkmanager procps xdg-utils findutils];
+        text = builtins.readFile ./netbond.sh;
+      };
     };
 in {
   home.packages = builtins.attrValues scripts;

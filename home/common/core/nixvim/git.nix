@@ -87,6 +87,13 @@
       options.desc = "Git current file history";
     }
     {
+      # --follow traces the file through renames so history survives a move.
+      mode = "n";
+      key = "<leader>gF";
+      action = "<cmd>DiffviewFileHistory --follow %<cr>";
+      options.desc = "File history (follow renames)";
+    }
+    {
       mode = ["n" "x"];
       key = "<leader>gB";
       action.__raw = "function() Snacks.gitbrowse() end";

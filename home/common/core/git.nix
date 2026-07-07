@@ -62,6 +62,14 @@ in {
       push.autoSetupRemote = true;
       pull.rebase = "true";
 
+      # Show moved files as renames/copies instead of delete + unrelated add.
+      diff = {
+        renames = "copies";
+        renameLimit = 3000; # raised so big restructures don't exceed the detection cap
+        colorMoved = "default";
+        algorithm = "histogram";
+      };
+
       url = {
         "ssh://git@github.com" = {
           insteadOf = "https://github.com";

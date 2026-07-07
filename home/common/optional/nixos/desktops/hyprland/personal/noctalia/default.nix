@@ -16,6 +16,10 @@ in {
     enable = true;
     package = noctaliaPkg;
 
+    # Run as a supervised systemd user service so noctalia auto-recovers when it
+    # dies instead of staying down until relaunched by hand.
+    systemd.enable = true;
+
     # Functional/structural settings. Pure visual choices (bar
     # rounding/margins/opacity, shadow direction, color scheme) live in
     # ./visuals.nix to keep all personal-flavor theming centralized.
@@ -99,20 +103,30 @@ in {
     };
   };
 
-  # Launch via Hyprland exec-once rather than the systemd user service.
-  wayland.windowManager.hyprland.settings.exec-once = ["${lib.getExe noctaliaPkg}"];
-
   # SUPER+C / SUPER+N open the calendar and notifications control-center tabs.
   wayland.windowManager.hyprland.settings.bind = [
     "SUPER,c,exec,${lib.getExe noctaliaPkg} msg panel-toggle control-center calendar"
     "SUPER,n,exec,${lib.getExe noctaliaPkg} msg panel-toggle control-center notifications"
   ];
 
-  # Restart noctalia when the system timezone changes. The system-level
-  # automatic-timezoned ExecStartPost (running as root) touches
-  # $XDG_RUNTIME_DIR/tz-changed after updating env; this path unit reacts and
-  # respawns noctalia so its clock picks up the new zone (running processes
-  # don't see TZ env-var changes).
+  # Override the module's Restart=on-failure: always also recovers from a clean
+  # exit, e.g. a session-teardown that drops only noctalia.
+  systemd.user.services.noctalia.Service = {
+    Restart = lib.mkForce "always";
+    RestartSec = 1;
+    # Bust the resolved-location cache before launch so weather + night light
+    # re-geolocate. As ExecStartPre it runs only after systemd has fully stopped
+    # the old instance, so the exiting process can't rewrite what we just cleared.
+    ExecStartPre = pkgs.writeShellScript "noctalia-bust-location" ''
+      ${pkgs.coreutils}/bin/rm -f "''${XDG_CACHE_HOME:-$HOME/.cache}/noctalia/location.json"
+      ${pkgs.coreutils}/bin/rm -rf /tmp/noctalia-location
+    '';
+  };
+
+  # Restart noctalia when the timezone changes so its clock/weather/night-light
+  # follow the new zone (a running process doesn't see TZ env-var changes).
+  # automatic-timezoned (root) touches $XDG_RUNTIME_DIR/tz-changed on change;
+  # this path unit reacts.
   systemd.user.paths.noctalia-tz-watch = {
     Unit.Description = "Watch TZ-change marker to restart noctalia";
     Path = {
@@ -131,27 +145,16 @@ in {
     Service = {
       Type = "oneshot";
       ExecStart = pkgs.writeShellScript "noctalia-tz-restart" ''
-        # Act as a *restart* only. At boot, automatic-timezoned touches the
-        # tz-changed marker very early (before Hyprland is ready), firing this
-        # unit. If we launched noctalia here we'd win the single-instance lock
-        # and Hyprland's exec-once would bail with "already running" — leaving
-        # no usable bar. So bail unless noctalia is already up; exec-once owns
-        # the initial launch.
-        if ! ${pkgs.procps}/bin/pgrep -x noctalia >/dev/null; then
-          exit 0
-        fi
-        TZ=$(${pkgs.coreutils}/bin/readlink -f /etc/localtime | ${pkgs.gnugrep}/bin/grep -oP '(?<=zoneinfo/).*' || echo "UTC")
-        export TZ
-        ${pkgs.procps}/bin/pkill -x noctalia || true
-        ${pkgs.coreutils}/bin/sleep 0.5
-        # Spawn noctalia in an auto-named transient user service so it outlives
-        # this oneshot (--scope would block until noctalia exits, leaving the
-        # restart unit stuck in "activating" and preventing re-triggers). No
-        # fixed --unit name to avoid name collisions across rapid re-triggers.
-        ${pkgs.systemd}/bin/systemd-run --user --collect \
-          --description="Noctalia shell (respawned)" \
-          --setenv=TZ="$TZ" \
-          ${lib.getExe noctaliaPkg}
+        # Publish the new zone to the user manager so the next start inherits it
+        # (the unit's Environment= is empty; services inherit the manager env).
+        TZ=$(${pkgs.coreutils}/bin/readlink -f /etc/localtime \
+          | ${pkgs.gnugrep}/bin/grep -oP '(?<=zoneinfo/).*' || echo "UTC")
+        ${pkgs.systemd}/bin/systemctl --user set-environment TZ="$TZ"
+
+        # try-restart only restarts if already running; the initial launch is
+        # owned by graphical-session.target, and at boot this marker often fires
+        # before the session is up, so try-restart no-ops instead of racing it.
+        ${pkgs.systemd}/bin/systemctl --user try-restart noctalia.service || true
       '';
     };
   };

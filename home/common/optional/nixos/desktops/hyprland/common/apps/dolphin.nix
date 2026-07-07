@@ -1,8 +1,122 @@
 {
   pkgs,
   config,
+  lib,
   ...
 }: let
+  home = config.home.homeDirectory;
+
+  # Re-asserted on every rebuild, so Dolphin can't persist GUI reordering of the
+  # Places sidebar. No plasma-manager option for it yet
+  # (nix-community/plasma-manager#330), hence the hand-built XBEL.
+  places = [
+    {
+      title = "Home";
+      href = "file://${home}";
+      icon = "user-home";
+      system = true;
+    }
+    {
+      title = "Desktop";
+      href = "file://${home}/Desktop";
+      icon = "user-desktop";
+    }
+    {
+      title = "Documents";
+      href = "file://${home}/Documents";
+      icon = "folder-documents";
+    }
+    {
+      title = "Downloads";
+      href = "file://${home}/Downloads";
+      icon = "folder-download";
+    }
+    {
+      title = "Music";
+      href = "file://${home}/Music";
+      icon = "folder-music";
+    }
+    {
+      title = "Pictures";
+      href = "file://${home}/Pictures";
+      icon = "folder-pictures";
+    }
+    {
+      title = "Videos";
+      href = "file://${home}/Videos";
+      icon = "folder-videos";
+    }
+    {
+      title = "Templates";
+      href = "file://${home}/Templates";
+      icon = "folder-templates";
+    }
+    {
+      title = "Public";
+      href = "file://${home}/Public";
+      icon = "folder-public";
+    }
+    {
+      title = "Projects";
+      href = "file://${home}/Projects";
+      icon = "folder-development";
+    }
+    {
+      title = "Network";
+      href = "remote:/";
+      icon = "folder-network";
+      system = true;
+    }
+    {
+      title = "Trash";
+      href = "trash:/";
+      icon = "user-trash";
+      system = true;
+    }
+    {
+      title = "Recent Files";
+      href = "recentlyused:/files";
+      icon = "document-open-recent";
+      system = true;
+    }
+    {
+      title = "Recent Locations";
+      href = "recentlyused:/locations";
+      icon = "folder-open-recent";
+      system = true;
+    }
+  ];
+
+  mkBookmark = i: p: ''
+    <bookmark href="${p.href}">
+     <title>${p.title}</title>
+     <info>
+      <metadata owner="http://freedesktop.org">
+       <bookmark:icon name="${p.icon}"/>
+      </metadata>
+      <metadata owner="http://www.kde.org">
+       <ID>0/${toString i}</ID>${lib.optionalString (p.system or false) ''
+
+      <isSystemItem>true</isSystemItem>''}
+      </metadata>
+     </info>
+    </bookmark>'';
+
+  userPlacesXbel = ''
+    <?xml version="1.0" encoding="UTF-8"?>
+    <!DOCTYPE xbel>
+    <xbel xmlns:bookmark="http://www.freedesktop.org/standards/desktop-bookmarks" xmlns:kdepriv="http://www.kde.org/kdepriv" xmlns:mime="http://www.freedesktop.org/standards/shared-mime-info">
+     <info>
+      <metadata owner="http://www.kde.org">
+       <kde_places_version>4</kde_places_version>
+       <withRecentlyUsed>true</withRecentlyUsed>
+       <withBaloo>true</withBaloo>
+      </metadata>
+     </info>
+    ${lib.concatStringsSep "\n" (lib.imap0 mkBookmark places)}
+    </xbel>
+  '';
+
   extractHereDesktop = ''
     [Desktop Entry]
     Type=Service
@@ -86,6 +200,8 @@ in {
     MaximumSize=21474836480
     MaximumRemoteSize=21474836480
   '';
+
+  xdg.dataFile."user-places.xbel".text = userPlacesXbel;
 
   home.packages = [wrappedDolphin];
 }

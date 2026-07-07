@@ -27,7 +27,7 @@ in {
       "$HOME/scripts/talon_scripts"
     ];
     sessionVariables = {
-      FLAKE = "$HOME/nix-config";
+      NH_FLAKE = "$HOME/nix-config";
       SHELL = "${pkgs.zsh}/bin/zsh";
       TERM = "xterm-256color";
       TERMINAL = "xterm-256color";

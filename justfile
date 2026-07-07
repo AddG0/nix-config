@@ -1,5 +1,3 @@
-NIX_SECRETS_DIR := "../nix-secrets"
-SOPS_FILE := "{{NIX_SECRETS_DIR}}/secrets.yaml"
 IS_DARWIN := if os() == "macos" { "true" } else { "false" }
 USE_NH_DEFAULT := if os() == "linux" { "true" } else { "false" }
 DEFAULT_USER := "addg"
@@ -24,11 +22,6 @@ check-pre:
 [private]
 [doc("Update personal repositories and dependencies")]
 rebuild-pre: update-personal-repos
-
-[private]
-[doc("Validate SOPS configuration after rebuild")]
-rebuild-post:
-  just check-sops
 
 [group('validation')]
 [doc("Check flake configuration with pre-validation warnings")]
@@ -79,21 +72,23 @@ check-hermetic hostname:
 
 alias r := rebuild
 
-# Add --option eval-cache false if you end up caching a failure you can't get around
+# Pass extra nix flags after `--`, e.g. `just rebuild -- --option substitute false`
+# (give a hostname, or "" for the current host, before the `--`). Add
+# --option eval-cache false if you end up caching a failure you can't get around.
 [group('system')]
-[doc("Rebuild system configuration (--boot to only set next boot, --test for temporary, --show-trace for debug)")]
+[doc("Rebuild system configuration (--boot to only set next boot, --test for temporary, --show-trace for debug; extra nix flags after `--`)")]
 [arg("boot", long, value="boot")]
 [arg("test", long, value="test")]
 [arg("show-trace", long, value="true")]
 [arg("use-nh", long="no-nh", value="false")]
 [arg("no-pre", long="no-pre", value="true")]
-rebuild hostname="" boot="switch" test="false" show-trace="false" use-nh=USE_NH_DEFAULT no-pre="false": pre
+rebuild hostname="" boot="switch" test="false" show-trace="false" use-nh=USE_NH_DEFAULT no-pre="false" *nix_args="": pre
   #!/usr/bin/env bash
   set -euo pipefail
   if [ "{{no-pre}}" != "true" ]; then
     just rebuild-pre
   fi
-  USE_NH={{use-nh}} scripts/rebuild.sh {{ if show-trace == "true" { "-t" } else { "" } }} -m {{ if test == "test" { "test" } else { boot } }} {{hostname}}
+  USE_NH={{use-nh}} scripts/rebuild.sh {{ if show-trace == "true" { "-t" } else { "" } }} -m {{ if test == "test" { "test" } else { boot } }} "{{hostname}}" {{nix_args}}
 
 [group('system')]
 [doc("Rollback to previous generation or specific generation number")]
@@ -107,10 +102,9 @@ list-generations:
 
 alias rf := rebuild-full
 
-# Requires sops to be running and you must have reboot after initial rebuild
 [group('system')]
-[doc("Full system rebuild with validation - requires SOPS and reboot after initial rebuild")]
-rebuild-full hostname="": rebuild-pre && rebuild-post
+[doc("Full system rebuild with validation")]
+rebuild-full hostname="": rebuild-pre
   scripts/rebuild.sh {{hostname}}
   just check
 
@@ -214,30 +208,9 @@ benchmark feature-branch base-branch="main" hostname="" iterations="3":
   scripts/benchmark-eval.sh {{feature-branch}} {{base-branch}} {{ if hostname != "" { hostname } else { "$(hostname)" } }} {{iterations}}
 
 [group('secrets')]
-[doc("Edit encrypted secrets file using SOPS")]
-sops:
-  @echo "Editing {{SOPS_FILE}}"
-  nix-shell -p sops --run "SOPS_AGE_KEY_FILE=~/.config/sops/age/keys.txt sops {{SOPS_FILE}}"
-
-[group('secrets')]
 [doc("Generate new age encryption key")]
 age-key:
   nix-shell -p age --run "age-keygen"
-
-[group('secrets')]
-[confirm("This will update all encryption keys. Continue?")]
-[doc("Update all SOPS encryption keys")]
-rekey:
-  cd {{NIX_SECRETS_DIR}} && (\
-    sops updatekeys -y secrets.yaml && \
-    (pre-commit run --all-files || true) && \
-    git add -u && (git commit -m "chore: rekey" || true) && git push \
-  )
-
-[group('validation')]
-[doc("Validate SOPS configuration")]
-check-sops:
-  scripts/check-sops.sh
 
 [group('validation')]
 [doc("Scan the current system for CVEs against the NVD (pass extra args like -w whitelist.toml or --json)")]
@@ -247,7 +220,6 @@ check-cve *ARGS:
 [private]
 [doc("Update personal repositories and flake inputs")]
 update-personal-repos:
-  (cd {{NIX_SECRETS_DIR}} && git fetch && git rebase) || true
   nix flake update nix-secrets pterodactyl-addons lumenboard-player ai-toolkit awsvpnclient-nix nitrox-nix queued-build-hook || true
 
 [group('installation')]
@@ -297,12 +269,6 @@ sync-watch HOST USER=DEFAULT_USER:
       rsync -av --filter=':- .gitignore' --exclude='.git' -e "ssh -l {{USER}}" . {{USER}}@{{HOST}}:nix-config/; \
     done; \
   fi
-
-[group('deployment')]
-[doc("Sync secrets to remote host")]
-sync-secrets HOST USER=DEFAULT_USER:
-  @{{ if HOST == "" { error("HOST parameter is required") } else { "" } }}
-  rsync -av --filter=':- .gitignore' -e "ssh -l {{USER}}" . {{USER}}@{{HOST}}:nix-secrets/
 
 [group('deployment')]
 [doc("Sync SSH keys to remote host")]

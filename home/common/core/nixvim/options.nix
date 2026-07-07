@@ -10,6 +10,8 @@
     conceallevel = 2;
     confirm = true;
     cursorline = true;
+    # 0.12 defaults + histogram (beats myers on moved blocks); linematch 40→60 for larger restructures.
+    diffopt = "internal,filler,closeoff,indent-heuristic,inline:char,linematch:60,algorithm:histogram";
     expandtab = true;
     # Folding is owned by nvim-origami (editor.nix): it sets foldexpr to LSP
     # folds with a treesitter fallback and auto-collapses imports on open

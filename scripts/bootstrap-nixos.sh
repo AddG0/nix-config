@@ -16,7 +16,7 @@ luks_passphrase="passphrase"
 luks_secondary_drive_labels=""
 nix_src_path="src/nix/" # path relative to /home/${target_user} where nix-config and nix-secrets are written in the users home
 git_root=$(git rev-parse --show-toplevel)
-nix_secrets_dir=${NIX_SECRETS_DIR:-"${git_root}"/../nix-secrets}
+# nix_secrets_dir and HAS_NIX_SECRETS are resolved by helpers.sh (sourced above).
 
 # Create a temp directory for generated host keys
 temp=$(mktemp -d)
@@ -249,38 +249,40 @@ if yes_or_no "Run nixos-anywhere installation?"; then
 fi
 
 updated_age_keys=0
-if yes_or_no "Generate host (ssh-based) age key?"; then
-  sops_generate_host_age_key
-  updated_age_keys=1
+if [[ $HAS_NIX_SECRETS == 1 ]]; then
+  if yes_or_no "Generate host (ssh-based) age key?"; then
+    sops_generate_host_age_key
+    updated_age_keys=1
+  fi
+
+  if yes_or_no "Generate user age key?"; then
+    # This may end up creating the host.yaml file, so add creation rules in advance
+    sops_setup_user_age_key "$target_user" "$target_hostname"
+    # We need to add the new file before we rekey later
+    cd "$nix_secrets_dir"
+    git add sops/"${target_hostname}".yaml
+    cd - >/dev/null
+    updated_age_keys=1
+  fi
+
+  if [[ $updated_age_keys == 1 ]]; then
+    # If the age generation commands added previously unseen keys (and associated anchors) we want to add those
+    # to some creation rules, namely <host>.yaml and shared.yaml
+    sops_add_creation_rules "${target_user}" "${target_hostname}"
+    # Since we may update the sops.yaml file twice above, only rekey once at the end
+    just rekey
+    green "Updating flake input to pick up new .sops.yaml"
+    nix flake update nix-secrets
+  fi
+else
+  yellow "nix-secrets not found${nix_secrets_dir:+ at $nix_secrets_dir} — skipping age key / SOPS setup"
 fi
 
-if yes_or_no "Generate user age key?"; then
-  # This may end up creating the host.yaml file, so add creation rules in advance
-  sops_setup_user_age_key "$target_user" "$target_hostname"
-  # We need to add the new file before we rekey later
-  cd "$nix_secrets_dir"
-  git add sops/"${target_hostname}".yaml
-  cd - >/dev/null
-  updated_age_keys=1
-fi
-
-if [[ $updated_age_keys == 1 ]]; then
-  # If the age generation commands added previously unseen keys (and associated anchors) we want to add those
-  # to some creation rules, namely <host>.yaml and shared.yaml
-  sops_add_creation_rules "${target_user}" "${target_hostname}"
-  # Since we may update the sops.yaml file twice above, only rekey once at the end
-  just rekey
-  green "Updating flake input to pick up new .sops.yaml"
-  nix flake update nix-secrets
-fi
-
-if yes_or_no "Do you want to copy your full nix-config and nix-secrets to $target_hostname?"; then
+if yes_or_no "Do you want to copy your full nix-config to $target_hostname?"; then
   green "Adding ssh host fingerprint at $target_destination to ~/.ssh/known_hosts"
   ssh-keyscan -p "$ssh_port" "$target_destination" 2>/dev/null | grep -v '^#' >>~/.ssh/known_hosts || true
   green "Copying full nix-config to $target_hostname"
   sync "$target_user" "${git_root}"/../nix-config
-  green "Copying full nix-secrets to $target_hostname"
-  sync "$target_user" "${nix_secrets_dir}"
 
   # FIXME(bootstrap): Add some sort of key access from the target to download the config (if it's a cloud system)
   if yes_or_no "Do you want to rebuild immediately?"; then

@@ -5,15 +5,17 @@ set -eou pipefail
 # Source helpers
 source "$(dirname "${BASH_SOURCE[0]}")/helpers.sh"
 
-# Usage: $0 [-h] [-t] [-v] [-m mode] [host]
+# Usage: $0 [-h] [-t] [-v] [-m mode] [host] [-- nix args...]
 #  -h             Display this help message.
 #  -t             Enable trace mode (adds --show-trace flag).
 #  -v             Enable verbose/debug output.
 #  -m mode        Rebuild mode: switch (default), boot, or test.
 #  host           Host name; if not provided, defaults to the output of hostname.
+#  nix args...    Any positional args after the host are forwarded verbatim to
+#                 nixos-rebuild/nh (e.g. --option substitute false, --fast).
 
 usage() {
-  echo "Usage: $0 [-h] [-t] [-v] [-m mode] [host]"
+  echo "Usage: $0 [-h] [-t] [-v] [-m mode] [host] [-- nix args...]"
   exit 1
 }
 
@@ -44,8 +46,10 @@ if [[ $MODE != "switch" && $MODE != "boot" && $MODE != "test" ]]; then
   exit 1
 fi
 
-# Set host (defaults to the output of hostname)
+# Args after the host forward verbatim to the underlying nix command.
 HOST="${1:-$(hostname)}"
+shift || true
+EXTRA_NIX_ARGS=("$@")
 
 # Build switch arguments for nix commands
 # --fallback so a flaky binary cache doesn't kill the rebuild
@@ -80,11 +84,11 @@ rebuild_darwin() {
   log_info "====== REBUILD ======"
   if command_exists nh && [ "${USE_NH:-true}" = "true" ]; then
     log_debug "Using nh darwin command for rebuild (host: ${HOST})"
-    nh darwin ${MODE} . --hostname "${HOST}" --impure ${TRACE_FLAG:+-- $TRACE_FLAG}
+    nh darwin ${MODE} . --hostname "${HOST}" --impure -- $TRACE_FLAG ${EXTRA_NIX_ARGS[@]+"${EXTRA_NIX_ARGS[@]}"}
   elif command_exists darwin-rebuild; then
     log_debug "Using darwin-rebuild with arguments: ${switch_args}"
     # Run darwin-rebuild with sudo as required by the new activation model
-    sudo darwin-rebuild ${switch_args}
+    sudo darwin-rebuild ${switch_args} ${EXTRA_NIX_ARGS[@]+"${EXTRA_NIX_ARGS[@]}"}
   else
     log_debug "darwin-rebuild not found; using 'nix run nix-darwin'"
     # Back up stock macOS shell files so first activation won't refuse to clobber them.
@@ -99,7 +103,7 @@ rebuild_darwin() {
     # Use NIX_CONFIG (not CLI flags) so the settings propagate into the nested
     # `nix build` that darwin-rebuild spawns for the actual system closure.
     sudo env NIX_CONFIG="experimental-features = nix-command flakes
-max-jobs = auto" nix run nix-darwin -- ${switch_args}
+max-jobs = auto" nix run nix-darwin -- ${switch_args} ${EXTRA_NIX_ARGS[@]+"${EXTRA_NIX_ARGS[@]}"}
   fi
 }
 
@@ -109,10 +113,10 @@ rebuild_linux() {
   log_info "====== REBUILD ======"
   if command_exists nh && [ "${USE_NH:-true}" = "true" ]; then
     log_debug "Using nh command for rebuild (host: ${HOST})"
-    nh os ${MODE} . --hostname "${HOST}" --impure ${TRACE_FLAG:+-- $TRACE_FLAG}
+    nh os ${MODE} . --hostname "${HOST}" --impure -- $TRACE_FLAG ${EXTRA_NIX_ARGS[@]+"${EXTRA_NIX_ARGS[@]}"}
   else
     log_debug "Using sudo nixos-rebuild with arguments: ${switch_args}"
-    sudo nixos-rebuild ${switch_args}
+    sudo nixos-rebuild ${switch_args} ${EXTRA_NIX_ARGS[@]+"${EXTRA_NIX_ARGS[@]}"}
   fi
 }
 

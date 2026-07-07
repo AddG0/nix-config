@@ -111,7 +111,17 @@ function no_or_yes() {
 }
 
 ### SOPS helpers
-nix_secrets_dir=${NIX_SECRETS_DIR:-"$(dirname "${BASH_SOURCE[0]}")/../../nix-secrets"}
+# nix-secrets lives at its ghq-standard checkout, not beside nix-config. No ghq = machine not
+# set up for secrets, so leave it unset; callers gate on HAS_NIX_SECRETS to skip secrets actions.
+if [[ -z ${NIX_SECRETS_DIR:-} ]] && command -v ghq >/dev/null 2>&1; then
+  NIX_SECRETS_DIR="$(ghq root)/github.com/addg0/nix-secrets"
+fi
+nix_secrets_dir=${NIX_SECRETS_DIR:-}
+if [[ -n $nix_secrets_dir && -d $nix_secrets_dir ]]; then
+  HAS_NIX_SECRETS=1
+else
+  HAS_NIX_SECRETS=0
+fi
 SOPS_FILE="${nix_secrets_dir}/.sops.yaml"
 
 # Updates the .sops.yaml file with a new host or user age key.
