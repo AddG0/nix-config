@@ -19,6 +19,7 @@
       experimental-features = [
         "nix-command"
         "flakes"
+        "configurable-impure-env"
       ];
       warn-dirty = false;
     };
