@@ -5,6 +5,7 @@ _: {
     ./helm.nix
     ./java.nix
     ./json.nix
+    ./kcl.nix
     ./kotlin.nix
     ./lua.nix
     ./markdown

@@ -76,19 +76,21 @@ alias r := rebuild
 # (give a hostname, or "" for the current host, before the `--`). Add
 # --option eval-cache false if you end up caching a failure you can't get around.
 [group('system')]
-[doc("Rebuild system configuration (--boot to only set next boot, --test for temporary, --show-trace for debug; extra nix flags after `--`)")]
+[doc("Rebuild system configuration (--boot to only set next boot, --test for temporary, --show-trace for debug, --fast to skip rebuilding nixos-rebuild, --verbose for debug output; extra nix flags after `--`)")]
 [arg("boot", long, value="boot")]
 [arg("test", long, value="test")]
 [arg("show-trace", long, value="true")]
+[arg("fast", long, value="true")]
+[arg("verbose", long, value="true")]
 [arg("use-nh", long="no-nh", value="false")]
 [arg("no-pre", long="no-pre", value="true")]
-rebuild hostname="" boot="switch" test="false" show-trace="false" use-nh=USE_NH_DEFAULT no-pre="false" *nix_args="": pre
+rebuild hostname="" boot="switch" test="false" show-trace="false" fast="false" verbose="false" use-nh=USE_NH_DEFAULT no-pre="false" *nix_args="": pre
   #!/usr/bin/env bash
   set -euo pipefail
   if [ "{{no-pre}}" != "true" ]; then
     just rebuild-pre
   fi
-  USE_NH={{use-nh}} scripts/rebuild.sh {{ if show-trace == "true" { "-t" } else { "" } }} -m {{ if test == "test" { "test" } else { boot } }} "{{hostname}}" {{nix_args}}
+  USE_NH={{use-nh}} scripts/rebuild.sh {{ if show-trace == "true" { "-t" } else { "" } }} {{ if verbose == "true" { "-v" } else { "" } }} -m {{ if test == "test" { "test" } else { boot } }} "{{hostname}}" {{ if fast == "true" { "--fast" } else { "" } }} {{nix_args}}
 
 [group('system')]
 [doc("Rollback to previous generation or specific generation number")]

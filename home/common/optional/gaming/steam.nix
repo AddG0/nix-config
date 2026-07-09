@@ -202,7 +202,7 @@ in {
 
   programs.steam.config = {
     enable = true;
-    closeSteam = true;
+    onSteamRunning = "close";
     inherit defaultCompatTool;
     apps = lib.recursiveUpdate defaults {
       # Rocket League has a linux build, but it's not maintained so we need to use the windows version

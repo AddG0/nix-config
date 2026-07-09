@@ -107,11 +107,6 @@
 
   boot.kernelModules = ["ntsync"]; # NT sync primitives for Wine/Proton gaming performance
 
-  # Partial mitigation for the xe eDP suspend-wake hang (work items 7791/7764
-  # above): disabling PSR demotes the silent PHY-A lockup to a slow recovery.
-  # Remove when the upstream regression is fixed and we're back on -bore.
-  boot.kernelParams = ["xe.enable_psr=0"];
-
   # Reduce kernel's eagerness to swap. Default is 60; at 10 the kernel only
   # swaps under genuine memory pressure rather than proactively.
   boot.kernel.sysctl."vm.swappiness" = 10;

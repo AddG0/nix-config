@@ -1,6 +1,7 @@
 {
   config,
   inputs,
+  lib,
   pkgs,
   ...
 }: {
@@ -21,6 +22,22 @@
       access-tokens = github.com=${config.sops.placeholder."personal_accounts/github_personal_token"}
     '';
   };
+
+  # Default gui/$UID launchd domain needs a graphical login, so activation over
+  # SSH on headless darwin (ghost) fails with "Bootstrap failed: 125"; user/$UID
+  # works without a GUI session. Inert on Linux (systemd path, no launchd).
+  launchd.agents.sops-nix.domain = "user";
+
+  # sops-nix's own darwin activation (upstream modules/home-manager/sops.nix)
+  # hardcodes the gui/$UID domain when reloading the agent, so it hits the same
+  # 125 regardless of the option above. Retarget the reload to user/$UID.
+  home.activation.sops-nix = lib.mkIf pkgs.stdenv.isDarwin (lib.mkForce (
+    lib.hm.dag.entryAfter ["writeBoundary"] ''
+      domain="user/$(id -u)"
+      run /bin/launchctl bootout "$domain/org.nix-community.home.sops-nix" 2>/dev/null || true
+      run /bin/launchctl bootstrap "$domain" "${config.home.homeDirectory}/Library/LaunchAgents/org.nix-community.home.sops-nix.plist"
+    ''
+  ));
 
   # interactive `nix` runs as this user; pull the token in via the sops-rendered fragment
   nix.extraOptions = ''

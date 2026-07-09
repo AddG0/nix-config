@@ -28,6 +28,15 @@ _: {
         "default.clock.max-quantum" = 2048;
       };
     };
+
+    ## Per-stream resamplers read resample.quality from stream.properties, not the
+    ## context.properties above; without these, playback resamples at the default 4.
+    extraConfig.client."99-quality-settings" = {
+      "stream.properties" = {"resample.quality" = 14;};
+    };
+    extraConfig.pipewire-pulse."99-quality-settings" = {
+      "stream.properties" = {"resample.quality" = 14;};
+    };
   };
 
   # Per-device HFP block for AirPods. WP's bluez5.roles and the global

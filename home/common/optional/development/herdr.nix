@@ -78,7 +78,7 @@
     session.resume_agents_on_restore = true;
   };
 in {
-  home.packages = [pkgs.herdr]; # tmux-like, agent-aware terminal multiplexer
+  home.packages = [pkgs.unstable.herdr]; # tmux-like, agent-aware terminal multiplexer
 
   xdg.configFile."herdr/config.toml".source =
     tomlFormat.generate "herdr-config.toml" settings;

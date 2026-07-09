@@ -12,8 +12,6 @@
     ]))
   ];
 
-  nix.remoteBuilder.enableClient = true;
-
   time.timeZone = "America/Chicago";
 
   hostSpec = {

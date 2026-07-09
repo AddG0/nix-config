@@ -317,7 +317,7 @@
 
     ai-toolkit = {
       url = "git+ssh://git@github.com/addg0/ai-toolkit.git";
-      # url = "path:/home/addg/home/code/github/ai-toolkit";
+      # url = "path:/home/addg/Projects/code/github.com/AddG0/ai-toolkit";
       inputs.nixpkgs.follows = "nixpkgs";
       inputs.flake-parts.follows = "flake-parts";
     };
@@ -325,7 +325,7 @@
     # Nitrox - Subnautica multiplayer
     nitrox-nix = {
       url = "git+ssh://git@github.com/AddG0/nitrox-nix";
-      # url = "path:/home/addg/home/code/github/nitrox-nix";
+      # url = "path:/home/addg/Projects/code/github.com/AddG0/nitrox-nix";
       inputs.nixpkgs.follows = "nixpkgs";
       inputs.flake-parts.follows = "flake-parts";
     };
@@ -333,14 +333,14 @@
     # AWS VPN Client
     awsvpnclient-nix = {
       url = "github:AddG0/awsvpnclient-nix?ref=v5.4.0";
-      # url = "path:/home/addg/home/code/github/awsvpnclient-nix";
+      # url = "path:/home/addg/Projects/code/github.com/AddG0/awsvpnclient-nix";
       inputs.nixpkgs.follows = "nixpkgs";
       inputs.flake-parts.follows = "flake-parts";
     };
 
     queued-build-hook = {
       url = "github:AddG0/queued-build-hook";
-      # url = "git+file:///home/addg/home/code/github/queued-build-hook";
+      # url = "path:/home/addg/Projects/code/github.com/AddG0/queued-build-hook";
       inputs.nixpkgs.follows = "nixpkgs";
       inputs.flake-parts.follows = "flake-parts";
     };

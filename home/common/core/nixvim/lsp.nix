@@ -54,16 +54,22 @@
     };
   };
 
-  # Turn on inlay hints for every server that emits them (nixd package
-  # versions, gopls types, etc.)
   autoCmd = [
     {
       event = "LspAttach";
-      desc = "Enable inlay hints when an LSP client supports them";
+      desc = "Keep LSP off non-file buffers; enable inlay hints on real files";
       callback.__raw = ''
         function(args)
           local client = vim.lsp.get_client_by_id(args.data.client_id)
-          if client and client:supports_method("textDocument/inlayHint") then
+          if not client then return end
+          -- clangd-derived servers (nixd) reject non-file:// URIs with -32602 — e.g.
+          -- diffview/gitsigns/neogit/picker previews and `nofile` scratch buffers.
+          if vim.bo[args.buf].buftype ~= ""
+            or not vim.startswith(vim.uri_from_bufnr(args.buf), "file://") then
+            vim.lsp.buf_detach_client(args.buf, client.id)
+            return
+          end
+          if client:supports_method("textDocument/inlayHint") then
             vim.lsp.inlay_hint.enable(true, { bufnr = args.buf })
           end
         end

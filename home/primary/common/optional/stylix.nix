@@ -3,6 +3,11 @@
   inputs,
   ...
 }: {
+  # FLAKE-UPDATE: drop once stylix sets home.pointerCursor.enable itself.
+  # stylix sets home.pointerCursor.* from stylix.cursor but not `enable`, which
+  # home-manager now requires; Linux-only to match stylix's own cursor guard.
+  home.pointerCursor.enable = pkgs.stdenv.hostPlatform.isLinux;
+
   # macOS-leaning theme. Stylix is the top-level theming engine — all visual
   # values (colors, fonts, opacities, cursor) live here so every stylix-aware
   # app (noctalia, KDE, GTK, terminals, etc.) inherits a consistent look.

@@ -1,4 +1,8 @@
-{pkgs, ...}: let
+{
+  pkgs,
+  lib,
+  ...
+}: let
   jdtlsBin = "${pkgs.jdt-language-server}/bin/jdtls";
   javaDebug = pkgs.vscode-extensions.vscjava.vscode-java-debug;
   javaTest = pkgs.vscode-extensions.vscjava.vscode-java-test;
@@ -18,6 +22,18 @@ in {
   # Still not covered: Spring Boot (separate language server, no nvim equiv).
   plugins.jdtls = {
     enable = true;
+    # nvim-jdtls' sha1() (used by wipe_data_and_restart) shells out to bare
+    # `python3`, which forced a python onto nvim's PATH where it shadowed
+    # basedpyright's project interpreter. Absolutize it so none is needed on PATH.
+    package = pkgs.vimPlugins.nvim-jdtls.overrideAttrs (old: {
+      postPatch =
+        (old.postPatch or "")
+        + ''
+          substituteInPlace lua/jdtls/setup.lua \
+            --replace-fail 'vim.fn.executable("python3") == 1 and "python3" or "python"' \
+              '"${lib.getExe' pkgs.python3Minimal "python3"}"'
+        '';
+    });
     settings = {
       # jdtls reprocesses on every change before it can answer position queries
       # (gd/grr/gri), which is why nav lags ~a second right after editing. It's a
@@ -76,7 +92,6 @@ in {
     }
   ];
 
-  # jdk21 = jdtls runtime. python3: nvim-jdtls' wipe_data_and_restart hashes the
-  # workspace name by shelling to `python`, which is otherwise absent on nvim's PATH.
-  extraPackages = [pkgs.jdk21 pkgs.python3Minimal];
+  # jdtls JVM runtime.
+  extraPackages = [pkgs.jdk21];
 }
