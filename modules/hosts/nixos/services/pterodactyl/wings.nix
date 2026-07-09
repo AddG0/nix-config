@@ -32,6 +32,17 @@ in {
         default = false;
         type = lib.types.bool;
       };
+      hostName = lib.mkOption {
+        default = null;
+        type = lib.types.nullOr lib.types.str;
+        example = "wings.example.com";
+        description = "FQDN for the Wings nginx reverse-proxy vhost. Null → no vhost.";
+      };
+      acmeHost = lib.mkOption {
+        default = null;
+        type = lib.types.nullOr lib.types.str;
+        description = "ACME certificate host for the Wings vhost.";
+      };
       allocatedTCPPorts = lib.mkOption {
         default = [];
         type = lib.types.listOf lib.types.port;
@@ -183,6 +194,27 @@ in {
           SuccessExitStatus = "0 1 2";
         };
       };
+    };
+
+    # Reverse-proxy vhost lives in the module so hosts only set hostName/acmeHost.
+    services.nginx.virtualHosts = lib.optionalAttrs (cfg.hostName != null) {
+      ${cfg.hostName} = {
+        forceSSL = true;
+        useACMEHost = cfg.acmeHost;
+        locations."/" = {
+          proxyPass = "http://127.0.0.1:${toString cfg.settings.api.port}";
+          proxyWebsockets = true;
+          extraConfig = ''
+            proxy_set_header X-Real-IP $remote_addr;
+            proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+            proxy_set_header X-Forwarded-Proto https;
+          '';
+        };
+      };
+    };
+
+    networking.hosts = lib.optionalAttrs (cfg.hostName != null) {
+      "127.0.0.1" = [cfg.hostName];
     };
   };
 }

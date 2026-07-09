@@ -13,6 +13,7 @@ pkgs: rec {
   gitlab-nvim = pkgs.callPackage ./gitlab-nvim {};
   node-sqlite3 = pkgs.callPackage ./node-sqlite3 {};
   ollama-zsh-completion = pkgs.callPackage ./ollama-zsh-completion {};
+  pterodactyl-panel = pkgs.callPackage ./pterodactyl-panel {};
 
   # OpenTelemetry
   opentelemetry-javaagent = pkgs.callPackage ./opentelemetry-javaagent {};

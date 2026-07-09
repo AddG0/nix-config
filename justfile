@@ -450,17 +450,12 @@ restart-audio:
   just restart-noctalia
 
 [group('utilities')]
-[doc("Restart Noctalia (Hyprland bar) preserving Hyprland env")]
+[doc("Restart Noctalia (Hyprland bar)")]
 restart-noctalia:
   #!/usr/bin/env bash
   set -euo pipefail
-  # Resolve the noctalia binary from the exec-once line, else fall back to PATH.
-  bin=$(grep -oE '^exec-once=/nix/store/\S+/bin/noctalia' "$HOME/.config/hypr/hyprland.conf" | head -n1 | sed 's/^exec-once=//')
-  bin="${bin:-noctalia}"
-  pkill -x noctalia 2>/dev/null || true
-  sleep 1
-  hyprctl dispatch exec "$bin"
-  echo "Restarted noctalia via $bin"
+  systemctl --user restart noctalia.service
+  echo "Restarted noctalia.service"
 
 [group('utilities')]
 [doc("Restart Plasma shell (KDE Plasma desktop)")]

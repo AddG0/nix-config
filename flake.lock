@@ -2441,11 +2441,11 @@
         "pre-commit-hooks": "pre-commit-hooks_3"
       },
       "locked": {
-        "lastModified": 1783544528,
-        "narHash": "sha256-FlUEqOh6VJCZ0yCv8n+Ln0+aw54n+ZuhXjxWfb2/uYk=",
+        "lastModified": 1783598825,
+        "narHash": "sha256-l8qmkmiDRGPFYidgzRG3tI8ERcvxLPYieIWF7dL7Ykc=",
         "ref": "main",
-        "rev": "13627f5e068c2f54c778b0523cb3e614cbc1d272",
-        "revCount": 329,
+        "rev": "b06fc025bcb2c1ff535e3ec21411b47003d56104",
+        "revCount": 331,
         "type": "git",
         "url": "ssh://git@github.com/addg0/nix-secrets.git"
       },
@@ -3248,11 +3248,11 @@
     "pterodactyl-addons": {
       "flake": false,
       "locked": {
-        "lastModified": 1750179860,
-        "narHash": "sha256-n/b0v9ejPkfwfodWxuBLX+FYB2zxxqED8FACSj5GsHw=",
+        "lastModified": 1783603448,
+        "narHash": "sha256-ExEMzSv3vaYtyoL1/11rLgO2G//V2M++pNpT4M6z9oc=",
         "ref": "main",
-        "rev": "10ff1871be7640ec91a48dfbe66dd72f14c85e66",
-        "revCount": 8,
+        "rev": "a42b5ecd9a47450f9e7fd1aafe72b773e062e8ce",
+        "revCount": 9,
         "type": "git",
         "url": "ssh://git@github.com/addg0/pterodactyl-addons.git"
       },

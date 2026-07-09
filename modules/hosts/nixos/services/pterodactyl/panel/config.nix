@@ -6,8 +6,18 @@
 }: let
   cfg = config.services.pterodactyl.panel;
 
+  # Panel code is served read-only straight from the Nix store.
+  appRoot = "${cfg.package}/share/php/pterodactyl-panel";
+
+  # variables_order=EGPCS so $_ENV (read by bootstrap/app.php) is populated.
+  artisan = "${php}/bin/php -d variables_order=EGPCS ${appRoot}/artisan";
+  panelEnv = [
+    "APP_ENV_PATH=${cfg.stateDir}"
+    "APP_STORAGE_PATH=${cfg.stateDir}/storage"
+  ];
+
   # Move reusable derivations into their own bindings
-  php = pkgs.php.withExtensions ({
+  php = cfg.phpPackage.withExtensions ({
     enabled,
     all,
   }:
@@ -33,10 +43,8 @@
       filter
     ]));
 
-  composer = pkgs.php.packages.composer.override {inherit php;};
-
   userCreationScript = import ./user-setup.nix {inherit lib pkgs php cfg;};
-  panelSetupScript = import ./panel-setup.nix {inherit pkgs php composer cfg;};
+  panelSetupScript = import ./panel-setup.nix {inherit pkgs php cfg;};
   locationSetupScript = import ./location-setup.nix {inherit pkgs lib cfg;};
 in
   lib.mkIf cfg.enable {
@@ -67,6 +75,16 @@ in
       inherit (cfg) user;
       inherit (cfg) group;
       phpPackage = php;
+      # Load .env + storage from writable state, not the read-only store.
+      # variables_order must include E so $_ENV (read by bootstrap/app.php) is
+      # populated from these under FPM (CLI already defaults to it).
+      phpEnv = {
+        APP_ENV_PATH = "${cfg.stateDir}";
+        APP_STORAGE_PATH = "${cfg.stateDir}/storage";
+      };
+      phpOptions = ''
+        variables_order = "EGPCS"
+      '';
       settings = {
         listen = "/run/phpfpm/pterodactyl.sock";
         "listen.owner" = cfg.user;
@@ -79,10 +97,6 @@ in
         "pm.max_spare_servers" = 10;
       };
     };
-
-    systemd.tmpfiles.rules = [
-      "d ${cfg.dataDir} 0755 ${cfg.user} ${cfg.group} -"
-    ];
 
     systemd.services.setup-pterodactyl-db = {
       description = "Setup Pterodactyl MySQL Database and User";
@@ -105,9 +119,11 @@ in
       wantedBy = ["multi-user.target"];
       serviceConfig = {
         Type = "oneshot";
+        RemainAfterExit = true;
         User = cfg.user;
         Group = cfg.group;
-        WorkingDirectory = cfg.dataDir;
+        StateDirectory = "pterodactyl-panel";
+        WorkingDirectory = appRoot;
         ExecStart = panelSetupScript;
       };
     };
@@ -119,7 +135,7 @@ in
       serviceConfig = {
         Type = "oneshot";
         User = "root";
-        WorkingDirectory = cfg.dataDir;
+        WorkingDirectory = appRoot;
         ExecStart = userCreationScript;
       };
     };
@@ -132,21 +148,69 @@ in
         Type = "oneshot";
         User = cfg.user;
         Group = cfg.group;
-        WorkingDirectory = cfg.dataDir;
+        WorkingDirectory = appRoot;
         ExecStart = locationSetupScript;
       };
     };
 
-    # systemd.services.pterodactyl-panel-node-setup = {
-    #   description = "Setup Pterodactyl Nodes and Allocations";
-    #   wantedBy = ["multi-user.target"];
-    #   after = ["pterodactyl-panel-location-setup.service"];
-    #   serviceConfig = {
-    #     Type = "oneshot";
-    #     User = cfg.user;
-    #     Group = cfg.group;
-    #     WorkingDirectory = cfg.dataDir;
-    #     ExecStart = nodeSetupScript;
-    #   };
-    # };
+    # Queue worker — Pterodactyl relies on it for emails, schedules, etc.
+    systemd.services.pteroq = {
+      description = "Pterodactyl Queue Worker";
+      after = ["redis.service" "mysql.service" "pterodactyl-panel-setup.service"];
+      requires = ["pterodactyl-panel-setup.service"];
+      wantedBy = ["multi-user.target"];
+      serviceConfig = {
+        User = cfg.user;
+        Group = cfg.group;
+        WorkingDirectory = appRoot;
+        Environment = panelEnv;
+        ExecStart = "${artisan} queue:work --queue=high,standard,low --sleep=3 --tries=3";
+        Restart = "always";
+        RestartSec = "5s";
+      };
+    };
+
+    # Scheduler — the panel's cron entrypoint; must fire every minute.
+    systemd.timers.pterodactyl-schedule = {
+      wantedBy = ["timers.target"];
+      timerConfig = {
+        OnCalendar = "minutely";
+        Unit = "pterodactyl-schedule.service";
+      };
+    };
+    systemd.services.pterodactyl-schedule = {
+      description = "Pterodactyl Scheduler";
+      after = ["pterodactyl-panel-setup.service"];
+      serviceConfig = {
+        Type = "oneshot";
+        User = cfg.user;
+        Group = cfg.group;
+        WorkingDirectory = appRoot;
+        Environment = panelEnv;
+        ExecStart = "${artisan} schedule:run";
+      };
+    };
+
+    # nginx vhost lives here (not per-host) so every host serves the store
+    # package consistently; hosts only set hostName/acmeHost.
+    services.nginx.virtualHosts = lib.optionalAttrs (cfg.hostName != null) {
+      ${cfg.hostName} = {
+        useACMEHost = cfg.acmeHost;
+        forceSSL = cfg.ssl;
+        root = "${appRoot}/public";
+        locations."/" = {
+          index = "index.php";
+          tryFiles = "$uri $uri/ /index.php?$query_string";
+        };
+        locations."~ \\.php$".extraConfig = ''
+          include ${pkgs.nginx}/conf/fastcgi_params;
+          fastcgi_pass unix:/run/phpfpm/pterodactyl.sock;
+          fastcgi_param SCRIPT_FILENAME $document_root$fastcgi_script_name;
+        '';
+      };
+    };
+
+    networking.hosts = lib.optionalAttrs (cfg.hostName != null) {
+      "127.0.0.1" = [cfg.hostName];
+    };
   }

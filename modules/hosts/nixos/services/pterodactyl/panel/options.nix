@@ -1,7 +1,82 @@
-{lib, ...}:
-with lib; {
+{
+  lib,
+  pkgs,
+  config,
+  ...
+}:
+with lib; let
+  cfg = config.services.pterodactyl.panel;
+in {
   options.services.pterodactyl.panel = {
     enable = mkEnableOption "Enable Pterodactyl Panel";
+
+    package = mkOption {
+      type = types.package;
+      default = let
+        bpExtensions = lib.optionals cfg.blueprint.enable (lib.attrValues cfg.blueprint.extensions);
+        withBlueprint =
+          if bpExtensions == []
+          then pkgs.pterodactyl-panel
+          else
+            import ./bake-blueprint.nix {inherit pkgs lib;} {
+              panel = pkgs.pterodactyl-panel;
+              inherit (pkgs) blueprint;
+              extensions = bpExtensions;
+            };
+      in
+        if cfg.addons == []
+        then withBlueprint
+        else
+          import ./bake-addons.nix {inherit pkgs lib;} {
+            panel = withBlueprint;
+            inherit (cfg) addons;
+          };
+      defaultText = literalExpression "pkgs.pterodactyl-panel (with Blueprint extensions + addons baked in)";
+      description = "The built Pterodactyl panel package served read-only from the store.";
+    };
+
+    addons = mkOption {
+      default = [];
+      description = ''
+        Non-Blueprint addons (themes, etc.) baked into the panel package at
+        build time. Each supplies its own build-time `install` snippet, since
+        addons ship their own install procedures.
+      '';
+      type = types.listOf (types.submodule {
+        options = {
+          name = mkOption {
+            type = types.str;
+            description = "Identifier for logging.";
+          };
+          source = mkOption {
+            type = types.either types.str types.path;
+            description = "The addon archive/file (build input).";
+          };
+          install = mkOption {
+            type = types.lines;
+            description = ''
+              Bash run at build time with the panel tree as CWD and the source
+              at $src (addons ship their own install procedures).
+            '';
+          };
+          needsAssetBuild = mkOption {
+            type = types.bool;
+            default = false;
+            description = "Run a webpack rebuild after this addon (front-end source changes).";
+          };
+        };
+      });
+    };
+
+    phpPackage = mkOption {
+      type = types.package;
+      default = pkgs.php83;
+      defaultText = literalExpression "pkgs.php83";
+      description = ''
+        Base PHP package used for php-fpm and artisan. Matches the PHP the
+        panel package's composer deps were resolved against.
+      '';
+    };
 
     user = mkOption {
       type = types.str;
@@ -15,16 +90,52 @@ with lib; {
       description = "Group under which the panel will run.";
     };
 
-    dataDir = mkOption {
+    hostName = mkOption {
+      type = types.nullOr types.str;
+      default = null;
+      example = "panel.example.com";
+      description = "FQDN for the panel's nginx vhost. Null → no vhost is defined.";
+    };
+
+    acmeHost = mkOption {
+      type = types.nullOr types.str;
+      default = null;
+      description = "ACME certificate host for the vhost (nginx useACMEHost).";
+    };
+
+    stateDir = mkOption {
       type = types.path;
-      default = "/var/www/pterodactyl";
-      description = "Directory where the panel files are stored.";
+      # NB: not /var/lib/pterodactyl — that is Wings' root_directory (game-server
+      # volumes). The panel keeps its state separate.
+      default = "/var/lib/pterodactyl-panel";
+      description = ''
+        Writable state directory: holds the generated .env, storage/, and the
+        compiled-cache dir. The panel code itself is served read-only from the
+        Nix store, never from here.
+      '';
+    };
+
+    appKeyFile = mkOption {
+      type = types.nullOr types.path;
+      default = null;
+      description = ''
+        Path to a file containing the Laravel APP_KEY (e.g. a sops secret).
+        If null, one is generated and persisted in stateDir on first run.
+        Changing/losing it invalidates all encrypted values (node daemon tokens).
+      '';
     };
 
     ssl = mkOption {
       type = types.bool;
       default = true;
       description = "Whether to enable SSL/ACME.";
+    };
+
+    url = mkOption {
+      type = types.str;
+      default = "http://localhost";
+      example = "https://panel.example.com";
+      description = "Public base URL of the panel (APP_URL).";
     };
 
     database = {

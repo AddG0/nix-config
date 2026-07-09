@@ -59,6 +59,7 @@
 
   hostSpec = {
     hostName = "uk-box";
+    hostType = "server";
     hostPlatform = "x86_64-linux";
     colmena.enable = true;
   };

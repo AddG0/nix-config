@@ -1,0 +1,21 @@
+diff --git a/drivers/gpu/drm/i915/display/intel_cx0_phy.c b/drivers/gpu/drm/i915/display/intel_cx0_phy.c
+index 7e59409..46578b7 100644
+--- a/drivers/gpu/drm/i915/display/intel_cx0_phy.c
++++ b/drivers/gpu/drm/i915/display/intel_cx0_phy.c
+@@ -3705,6 +3705,16 @@ void intel_cx0_pll_power_save_wa(struct intel_display *display)
+ 	if (DISPLAY_VER(display) != 30)
+ 		return;
+
++	/*
++	 * freya downstream fix (drm/xe #7791): this WA parks "unused" PTL port-A
++	 * PHYs at low power, but has no active-display check. On resume it runs
++	 * before the modeset restore, when the live eDP PLL momentarily reads
++	 * disabled, so it reprograms port A to 1.62GHz then disables it -> the
++	 * restore then fails ("Failed to bring PHY A to idle", port_clock
++	 * readback 61440 vs 540000). Neuter it; costs only unused-PHY idle power.
++	 */
++	return;
++
+ 	for_each_intel_encoder(display->drm, encoder) {
+ 		struct intel_cx0pll_state pll_state = {};
+ 		int port_clock = 162000;

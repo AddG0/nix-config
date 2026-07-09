@@ -54,6 +54,28 @@
     };
   };
 
+  # FLAKE-UPDATE: drop once our pinned Neovim fixes the changetracking nil-deref
+  # (neovim/neovim#37814, #28987 — open as of 0.12.3). When a client stays attached
+  # to a buffer whose changetracking state was already torn down (detaching clients
+  # from diffview:// blob buffers in the LspAttach autocmd below is one trigger),
+  # `send_changes` dereferences a nil `buf_state` and crashes diffview's render.
+  # The guard skips only that nil case and re-raises everything else.
+  extraConfigLua = ''
+    do
+      local ct = require("vim.lsp._changetracking")
+      if not ct.__buf_state_guard then
+        ct.__buf_state_guard = true
+        local orig = ct.send_changes
+        ct.send_changes = function(...)
+          local ok, err = pcall(orig, ...)
+          if not ok and not tostring(err):find("buf_state", 1, true) then
+            error(err)
+          end
+        end
+      end
+    end
+  '';
+
   autoCmd = [
     {
       event = "LspAttach";

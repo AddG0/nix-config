@@ -21,6 +21,7 @@
     ./graphics.nix
     ./hardware-configuration.nix
     ./razer-blade-keyboard.nix
+    ./audio.nix # RT1320 laptop speaker amp workaround (no kernel machine driver)
     # ./ai.nix
     # ./audio
     ./media.nix
@@ -106,6 +107,16 @@
   # boot.kernelPackages = lib.mkForce pkgs.cachyosKernels.linuxPackages-cachyos-lts;
 
   boot.kernelModules = ["ntsync"]; # NT sync primitives for Wine/Proton gaming performance
+
+  # FLAKE-UPDATE: drop once the cachyos kernel carries an upstream fix for the
+  # eDP port-A resume hang (drm/xe #7791); re-check after `nix flake update`.
+  # Neuters intel_cx0_pll_power_save_wa() — full rationale in the patch header.
+  boot.kernelPatches = [
+    {
+      name = "xe-ptl-phya-resume-fix";
+      patch = ./patches/0001-neuter-cx0-pll-power-save-wa.patch;
+    }
+  ];
 
   # Reduce kernel's eagerness to swap. Default is 60; at 10 the kernel only
   # swaps under genuine memory pressure rather than proactively.
