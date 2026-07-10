@@ -35,6 +35,8 @@
 
     MAIL_MAILER=log
 
+    HASHIDS_LENGTH=8
+
     APP_CONFIG_CACHE=${cfg.stateDir}/cache/config.php
     APP_ROUTES_CACHE=${cfg.stateDir}/cache/routes.php
     APP_EVENTS_CACHE=${cfg.stateDir}/cache/events.php
@@ -74,10 +76,18 @@ in
       ''
     }
 
+    # HASHIDS_SALT obfuscates IDs in the client UI; panel 1.14 requires a
+    # non-null string (a null salt is a TypeError). Persist so it stays stable.
+    if [ ! -f "$STATE/.hashids_salt" ]; then
+      ( umask 077; head -c 32 /dev/urandom | base64 | tr -d '/+=' > "$STATE/.hashids_salt" )
+    fi
+    HASHIDS_SALT="$(cat "$STATE/.hashids_salt")"
+
     echo "[+] Rendering $STATE/.env..."
     ( umask 077
       cat ${envTemplate} > "$STATE/.env.tmp"
       echo "APP_KEY=$APP_KEY" >> "$STATE/.env.tmp"
+      echo "HASHIDS_SALT=$HASHIDS_SALT" >> "$STATE/.env.tmp"
       mv "$STATE/.env.tmp" "$STATE/.env"
     )
 
@@ -86,11 +96,14 @@ in
     STORE_MARKER="$STATE/.deployed-store-path"
     if [ "$(cat "$STORE_MARKER" 2>/dev/null || true)" != "${cfg.package}" ]; then
       if ${pkgs.mariadb}/bin/mysql -N -e "SELECT 1 FROM information_schema.tables WHERE table_schema='${cfg.database.name}' AND table_name='migrations' LIMIT 1;" 2>/dev/null | grep -q 1; then
-        mkdir -p "$STATE/backups"
-        echo "[+] Backing up database before migrate..."
-        ${pkgs.mariadb}/bin/mysqldump ${cfg.database.name} > "$STATE/backups/panel-$(date +%Y%m%d-%H%M%S).sql" \
-          || echo "[!] database backup failed (continuing)"
-        ls -1t "$STATE"/backups/panel-*.sql 2>/dev/null | tail -n +11 | xargs -r rm -f
+        # Dumps hold password hashes + encrypted tokens — keep them 0600/0700.
+        ( umask 077
+          mkdir -p "$STATE/backups"
+          echo "[+] Backing up database before migrate..."
+          ${pkgs.mariadb}/bin/mysqldump ${cfg.database.name} > "$STATE/backups/panel-$(date +%Y%m%d-%H%M%S).sql" \
+            || echo "[!] database backup failed (continuing)"
+          ls -1t "$STATE"/backups/panel-*.sql 2>/dev/null | tail -n +11 | xargs -r rm -f
+        )
       fi
       echo "[+] Running migrations..."
       ${artisan} migrate --seed --force

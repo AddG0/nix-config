@@ -67,7 +67,9 @@ in {
                 options = {
                   host = lib.mkOption {
                     type = lib.types.str;
-                    default = "0.0.0.0";
+                    # Localhost: the API is reached only via the local nginx
+                    # reverse proxy, never directly from the network.
+                    default = "127.0.0.1";
                   };
                   port = lib.mkOption {
                     type = lib.types.port;
@@ -178,6 +180,7 @@ in {
           ''
             if [ -f "${cfg.settings.system.root_directory}/wings.yaml" ]; then
               echo "Ensuring Wings config is reset to port ${toString cfg.settings.api.port}"
+              ${pkgs.yq-go}/bin/yq -i '.api.host = "${cfg.settings.api.host}"' "${cfg.settings.system.root_directory}/wings.yaml"
               ${pkgs.yq-go}/bin/yq -i '.api.port = ${toString cfg.settings.api.port}' "${cfg.settings.system.root_directory}/wings.yaml"
               ${pkgs.yq-go}/bin/yq -i '.api.ssl.enabled = false' "${cfg.settings.system.root_directory}/wings.yaml"
             fi

@@ -203,9 +203,12 @@ in
           tryFiles = "$uri $uri/ /index.php?$query_string";
         };
         locations."~ \\.php$".extraConfig = ''
+          try_files $uri =404;
           include ${pkgs.nginx}/conf/fastcgi_params;
           fastcgi_pass unix:/run/phpfpm/pterodactyl.sock;
           fastcgi_param SCRIPT_FILENAME $document_root$fastcgi_script_name;
+          # httpoxy mitigation (CVE-2016-5385): the panel makes outbound HTTP calls.
+          fastcgi_param HTTP_PROXY "";
         '';
       };
     };
