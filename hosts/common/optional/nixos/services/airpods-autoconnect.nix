@@ -3,22 +3,29 @@
   # and only freya currently has paired AirPods.
   airpodsMac = "98:1C:A2:DF:A1:A2";
 
-  # Backoff intervals between Connect() attempts (seconds). First attempt is
-  # delayed by 2s so we don't fight a same-moment spontaneous reconnect.
+  # Backoff between reconnect attempts (seconds). Bounded: after the last one we
+  # go idle and wait for the next disconnect edge — we never busy-loop.
   backoffs = "2 4 8 16 32 64";
+
+  # Wait this long for BlueZ to actually finish a Connect() before treating the
+  # attempt as done. Must exceed BlueZ's internal page timeout: a premature
+  # D-Bus reply timeout returns while BlueZ is still connecting underneath, so
+  # the next attempt collides with it as br-connection-busy (the old storm).
+  connectTimeout = "45";
 
   airpods-autoconnect = pkgs.writeShellApplication {
     name = "airpods-autoconnect";
-    # busctl ships with systemd; dbus-monitor with pkgs.dbus.
-    # We talk to BlueZ directly over D-Bus — bluetoothctl is unreliable
-    # without a TTY (registers as a client and exits before issuing Connect).
-    runtimeInputs = with pkgs; [dbus systemd coreutils gnugrep];
+    # busctl ships with systemd; dbus-monitor with pkgs.dbus; gawk parses the
+    # multi-line signal. We talk to BlueZ directly over D-Bus — bluetoothctl is
+    # unreliable without a TTY (exits before issuing Connect).
+    runtimeInputs = with pkgs; [dbus systemd coreutils gnugrep gawk];
     text = ''
       set -uo pipefail
 
       MAC="${airpodsMac}"
       DEV_PATH="/org/bluez/hci0/dev_$(echo "$MAC" | tr ':' '_')"
       BACKOFFS=(${backoffs})
+      CONNECT_TIMEOUT=${connectTimeout}
 
       log() { echo "[airpods-autoconnect] $*"; }
 
@@ -29,41 +36,57 @@
           | grep -qx "b true"
       }
 
-      attempt_reconnect() {
+      # One reconnect sequence. Single-flight by construction: the edge loop runs
+      # this inline, so a new sequence can't begin until it returns, and only a
+      # genuine Connected->false edge starts one.
+      reconnect() {
+        local delay err
         for delay in "''${BACKOFFS[@]}"; do
-          if is_connected; then
-            log "already connected, stopping retry loop"
-            return 0
-          fi
-          log "waiting ''${delay}s before next reconnect attempt"
+          is_connected && { log "connected; done"; return 0; }
+          log "waiting ''${delay}s"
           sleep "$delay"
-          log "calling org.bluez.Device1.Connect()"
-          if err=$(busctl --system call org.bluez "$DEV_PATH" \
-                    org.bluez.Device1 Connect 2>&1); then
+          is_connected && { log "connected during backoff; done"; return 0; }
+
+          # --timeout makes busctl wait for BlueZ's real result instead of
+          # returning early and orphaning an in-flight attempt. We never fire a
+          # second Connect() until this one returns, so we can't race ourselves.
+          log "Connect() (up to ''${CONNECT_TIMEOUT}s)"
+          if err=$(busctl --system --timeout="$CONNECT_TIMEOUT" call org.bluez \
+                    "$DEV_PATH" org.bluez.Device1 Connect 2>&1); then
             log "reconnected"
             return 0
-          else
-            log "Connect() failed: $err"
           fi
+          case "$err" in
+            *br-connection-busy*|*"in progress"*)
+              log "attempt already in progress (likely BlueZ policy); backing off" ;;
+            *) log "Connect() failed: $err" ;;
+          esac
         done
-        log "giving up after all backoff attempts"
+        log "giving up; idle until next disconnect"
         return 1
       }
 
-      log "watching $DEV_PATH for disconnects"
+      log "watching $DEV_PATH for Connected edges"
 
-      # Filter dbus-monitor to PropertiesChanged on the AirPods device path only.
-      # The bus is idle while connected and idle while disconnected — we wake
-      # only when this specific device's properties actually change. We don't
-      # parse the structured signal output; any wake-up just triggers a state
-      # check via busctl get-property, which is simpler and harder to get wrong.
+      # dbus-monitor emits multi-line PropertiesChanged signals; gawk collapses
+      # each to a single token only when the Connected property actually flips.
+      # Edge-triggered on purpose: our own Connect() traffic and RSSI churn no
+      # longer re-trigger us (the level-triggered original re-fired off its own
+      # signals, stacking overlapping reconnect loops).
       dbus-monitor --system \
         "type='signal',interface='org.freedesktop.DBus.Properties',member='PropertiesChanged',path='$DEV_PATH'" \
-        | while IFS= read -r _line; do
-            if ! is_connected; then
-              log "AirPods disconnected, starting reconnect loop"
-              attempt_reconnect || true
-            fi
+        | gawk '
+            /string "Connected"/           { seen = 1; next }
+            seen && /boolean (true|false)/ {
+              print (/true/ ? "CONNECTED" : "DISCONNECTED"); fflush(); seen = 0; next
+            }
+            { seen = 0 }
+          ' \
+        | while IFS= read -r edge; do
+            case "$edge" in
+              CONNECTED)    log "AirPods connected" ;;
+              DISCONNECTED) log "AirPods disconnected"; reconnect || true ;;
+            esac
           done
     '';
   };

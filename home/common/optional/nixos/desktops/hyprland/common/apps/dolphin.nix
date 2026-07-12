@@ -133,18 +133,19 @@
 
   dolphinDeps = with pkgs.kdePackages; [
     kio
-    kdf
-    kio-fuse
-    kio-extras
-    kio-admin
-    qtwayland
-    plasma-integration
+    kdf # free-space bar / disk usage in the status area
+    kio-fuse # mounts remote KIO locations as FUSE so non-KIO apps can open them
+    kio-extras # extra protocol workers, incl. sftp:// / smb:// / mtp://
+    kio-admin # admin:// protocol to edit files as root
+    qtwayland # Qt Wayland platform plugin, required under Hyprland
+    plasma-integration # native KDE file dialogs + platform theme
+    plasma-desktop # provides knetattach ("Add Network Folder" wizard)
     kdegraphics-thumbnailers
-    qtsvg
-    kservice
+    qtsvg # SVG rendering for icons and thumbnails
+    kservice # .desktop/mimetype lookup for "Open With" + service menus
     ffmpegthumbs
-    qtmultimedia
-    ark
+    qtmultimedia # backend for audio/video previews
+    ark # archiver behind the "Extract Here" service menu
   ];
 
   wrappedDolphin = pkgs.symlinkJoin {

@@ -1,0 +1,24 @@
+# Custom Crosshair Mod v1.6.4-fabric
+# Made by Sparkless101
+# ------------------------------------
+# This config file contains the properties of the crosshair and mod properties. Feel free to edit them.
+# Format: alias:value  |  colours are red/green/blue/alpha (0-255)  |  crosshair_style ordinal: 0=vanilla 1=cross 2=circle 3=square 4=triangle 5=arrow 7=drawn
+# Seeded declaratively from nix-config; CCM rewrites this file in-place on launch.
+# Design: small cyan dot only (arms zeroed), thin black outline for contrast. Precision-first.
+mod_enabled:true
+crosshair_style:1
+crosshair_width:0
+crosshair_height:0
+crosshair_gap:0
+crosshair_thickness:2
+crosshair_rotation:0
+crosshair_scale:100
+crosshair_colour:0/255/255/255
+crosshair_adaptive_colour_enabled:false
+dot_enabled:true
+dot_colour:0/255/255/255
+outline_enabled:true
+outline_colour:0/0/0/255
+dynamic_attackindicator_enabled:false
+dynamic_bow_enabled:false
+rainbow_enabled:false

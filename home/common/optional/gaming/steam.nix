@@ -12,39 +12,59 @@
   primaryMonitor = lib.findFirst (m: m.primary) null config.display.monitors;
   gamemoderun = lib.getExe' pkgs.gamemode "gamemoderun";
 
-  # Gamescope preconfigured for the primary monitor's native resolution.
-  # Opt in per-game by spreading into wrappers:
-  #   launchOptions.wrappers = [gamemoderun] ++ gamescope;
-  # Skip for: anti-cheat games (EAC), games where Steam overlay must work,
-  # games run via PROTON_ENABLE_WAYLAND=1, and titles you want to tile freely.
-  # `env -u WAYLAND_DISPLAY` works around gamescope hanging on game exit
-  # because the host compositor's WAYLAND_DISPLAY leaks into the nested
-  # session and wineserver waits indefinitely on the outer socket.
-  # See: github.com/ValveSoftware/gamescope/issues/1396
-  # --hdr-enabled is included automatically whenever the primary monitor
-  # advertises HDR — no separate SDR/HDR wrappers needed. SDR games
-  # composite through the HDR pipeline transparently.
+  # hyprctl of the running compositor — reused from its closure, no second copy.
+  hyprctl = lib.getExe' config.wayland.windowManager.hyprland.package "hyprctl";
+  isLaptop = config.hostSpec.hostType == "laptop";
+  hdrArgs = lib.optionals (primaryMonitor.hdr or false) ["--hdr-enabled"];
+
+  # Laptops resolve the native mode at launch via hyprctl (follows the active
+  # display); desktops bake the declared primary at build. Neither re-checks
+  # mid-game. Opt in per-game: launchOptions.wrappers = [gamemoderun] ++ gamescope;
+  # Skip for: anti-cheat (EAC), games needing the Steam overlay,
+  # PROTON_ENABLE_WAYLAND=1 titles, and games you want to tile freely.
+  # env -u WAYLAND_DISPLAY: else the leaked outer socket makes wineserver hang
+  # on exit — see github.com/ValveSoftware/gamescope/issues/1396
   mkGamescope = {extraArgs ? []}:
-    [
-      "env"
-      "-u"
-      "WAYLAND_DISPLAY"
-      (lib.getExe pkgs.gamescope)
-      "-W"
-      (toString primaryMonitor.width)
-      "-H"
-      (toString primaryMonitor.height)
-      "-w"
-      (toString primaryMonitor.width)
-      "-h"
-      (toString primaryMonitor.height)
-      "-r"
-      (toString primaryMonitor.refreshRate)
-      "-f"
-    ]
-    ++ lib.optionals (primaryMonitor.hdr or false) ["--hdr-enabled"]
-    ++ extraArgs
-    ++ ["--"];
+    if isLaptop
+    then let
+      launcher = pkgs.writeShellApplication {
+        name = "gamescope-focused-monitor";
+        runtimeInputs = [pkgs.gamescope pkgs.jq];
+        text = ''
+          W=${toString primaryMonitor.width}
+          H=${toString primaryMonitor.height}
+          R=${toString primaryMonitor.refreshRate}
+          res=$("${hyprctl}" monitors -j 2>/dev/null \
+            | jq -r '(map(select(.focused))[0] // .[0]) | "\(.width) \(.height) \(.refreshRate | round)"' 2>/dev/null) || res=""
+          if [ -n "$res" ]; then
+            read -r W H R <<<"$res"
+          fi
+          exec gamescope -W "$W" -H "$H" -w "$W" -h "$H" -r "$R" -f \
+            ${lib.escapeShellArgs (hdrArgs ++ extraArgs)} -- "$@"
+        '';
+      };
+    in ["env" "-u" "WAYLAND_DISPLAY" (lib.getExe launcher)]
+    else
+      [
+        "env"
+        "-u"
+        "WAYLAND_DISPLAY"
+        (lib.getExe pkgs.gamescope)
+        "-W"
+        (toString primaryMonitor.width)
+        "-H"
+        (toString primaryMonitor.height)
+        "-w"
+        (toString primaryMonitor.width)
+        "-h"
+        (toString primaryMonitor.height)
+        "-r"
+        (toString primaryMonitor.refreshRate)
+        "-f"
+      ]
+      ++ hdrArgs
+      ++ extraArgs
+      ++ ["--"];
 
   gamescope = mkGamescope {};
 
@@ -206,7 +226,10 @@ in {
     inherit defaultCompatTool;
     apps = lib.recursiveUpdate defaults {
       # Rocket League has a linux build, but it's not maintained so we need to use the windows version
-      rocket-league.compatTool = defaultCompatTool;
+      rocket-league = {
+        compatTool = defaultCompatTool;
+        launchOptions.wrappers = [gamemoderun] ++ gamescope;
+      };
 
       # I had multiplayer issues with the linux version. So I'm using the windows version.
       portal-2.compatTool = defaultCompatTool;

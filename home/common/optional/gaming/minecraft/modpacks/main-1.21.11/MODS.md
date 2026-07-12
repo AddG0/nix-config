@@ -133,6 +133,7 @@
 | [**Custom Tooltips**](https://modrinth.com/mod/custom-tooltips) | Tooltip customization |
 | [**ClearDespawn Reworked**](https://modrinth.com/mod/clear-despawn-reworked) | Makes items blink when they are about to despawn |
 | [**Map In Slot**](https://modrinth.com/mod/map-in-slot) | Makes maps render in inventory/hotbar slots |
+| [**Custom Crosshair Mod**](https://modrinth.com/mod/custom-crosshair-mod) | Fully customizable crosshair (shape, color, outline, dot) with in-game editor |
 | [**Crosshair Addons Public**](https://modrinth.com/mod/crosshair-addons-public) | Crosshair indicators |
 | [**Crosshair Indicator**](https://modrinth.com/mod/crosshair-indicator) | Hit indicator on crosshair |
 | [**Reach Display (maintained)**](https://modrinth.com/mod/reach-display-(maintained)) | Shows target distance and hit reach on the HUD |

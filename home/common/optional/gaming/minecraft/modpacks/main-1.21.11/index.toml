@@ -6,7 +6,7 @@ hash = "75fe68aebbc3e9dd74c811824938368b332c1819bd26a1e486e2d40f59688c7c"
 
 [[files]]
 file = "MODS.md"
-hash = "c9d95508e5c631a919cae0402173c0299e0725a95c22f25639943686a4cf5929"
+hash = "054ca2e57d1f3311d99d54eb5bc7470d9454d3cdde2c97f7a235b28cf579fc17"
 
 [[files]]
 file = "USEFUL_KEYS.md"
@@ -22,51 +22,51 @@ hash = "cb25e8f62efce7f0f79b1ba56b6ffc7588abfd9787c62b6687e0baaca7c4bc10"
 
 [[files]]
 file = "config/clientkits/kits/bedpvp-kit.json"
-hash = "6d8bdf2bcd33cabfd29fe652ecdd0c05e3219a78edf7b606466b36c9529819f9"
+hash = "fac3a51b96f95a66f98d1e318dd45ed24ba017d959f1486ce13cc48578cbaf36"
 
 [[files]]
 file = "config/clientkits/kits/cpvp-bpboots-kit.json"
-hash = "a5ae23acc8c082126a9dde9e7ec46e6ff908de91ec33934400d775f6d4c2bd5c"
+hash = "93fb80340a00f35f9d991db099c7af8c2ee870daff44a82dc721aabe5898482a"
 
 [[files]]
 file = "config/clientkits/kits/cpvp-kit.json"
-hash = "8d9a2bc989bd524b0cdf138391383b3e8aa4f06fe12c02a3a857697aed3bcf0f"
+hash = "92e725705c6d818a2725ade924bff864897e4eab244b5e294f0c22663345273a"
 
 [[files]]
 file = "config/clientkits/kits/creeper-pvp-kit.json"
-hash = "d38d6dc34fe42da97149705027493a167307cb45d062c38f9bf0ae7cb7f67627"
+hash = "be2fb010eadb80b5ab88021796199f299513f6982b9fb1faa5a3407985fa089e"
 
 [[files]]
 file = "config/clientkits/kits/diamond-smp-kit.json"
-hash = "b7178459c6d2ba1ebf08bc1b4d4ba05f15e68f9c05d6ed27bd784ae02be995e2"
+hash = "e69a49b9bca3b3d2088cdf2384f20520b1f47d4ac35b986a62a354851fe67da2"
 
 [[files]]
 file = "config/clientkits/kits/kits-no-trim.json"
-hash = "e40cc9c29b9a39fb503d7f54099e01999fe09d5f3335856cb178db006a388769"
+hash = "d05a647c94d24991807ac60594d97afa81fc6c59d93ed6fa0e1cf3c2d01a5247"
 
 [[files]]
 file = "config/clientkits/kits/loka-pot-kit.json"
-hash = "9758f86ca14ce88785935c73f88a526cadf3a3ee643b9655bf35f0392404f868"
+hash = "d93523afdebe8bb75cc78028a00e12a041ae8eeb5512b83a8be25d506b19dfb7"
 
 [[files]]
 file = "config/clientkits/kits/mace-kit.json"
-hash = "5258b9a842a61efc7eb595465f31fd3a3901d9309d5bcbba7c58e0ce9babfb33"
+hash = "573deeddf2b99eec11f3c1faab0c157374eb63cbd5facd0362b320262987fe66"
 
 [[files]]
 file = "config/clientkits/kits/neth-pot-kit.json"
-hash = "7d2b9298c03395d2e6c9e711ddc7d2a68db5c5f9a9a01ff7094992b0be8c323e"
+hash = "042e3cf4e42a4d53752b7752f3974c7f3a67501c802297ae09d1ee232c007f62"
 
 [[files]]
 file = "config/clientkits/kits/smp-kit.json"
-hash = "288b6fdd37a39022b079a851a0ccfbe414853796cb88cdecaeff967d38d6877e"
+hash = "efb9f5cc3d85e65e3fe2a9cc63569bfaa736ba8c0c5e4118bf027cdd4ac5f0f3"
 
 [[files]]
 file = "config/clientkits/kits/tnt-cart-kit.json"
-hash = "7ec9657cda81896de2c045c59b50c50a4ce9bee5e8ad79118564700b5537e8b2"
+hash = "dc17a7e66dbf5d492e9d81508cb4561b4dbe159cd8940648707216be5b88da3b"
 
 [[files]]
 file = "config/clientkits/kits/uhc-kit.json"
-hash = "6bd528ccd13238c4ae6896b89f7d3c977c85366073bb66fd13d3d4d6ef9de43e"
+hash = "3ff39cfd22f78023342e5b0d6c5ffdc942008d28b6c5d2a9ddd9c009308668f3"
 
 [[files]]
 file = "config/inventoryhud.json"
@@ -83,6 +83,10 @@ hash = "bfb937838b250fb0ca4d05e9fe47c974398af14cd520c34696434a11f0247580"
 [[files]]
 file = "config/xaero/minimap/profiles/default.cfg"
 hash = "6c99e9d39b436fb0b9c9724b0b39bb7d9c2030b50a1bc54a3667cfee36e64ce1"
+
+[[files]]
+file = "crosshair_config.ccmcfg"
+hash = "4082208791c6b7c475523e73e8baf3b097ce29b3f1b94930680bd33e788691d6"
 
 [[files]]
 file = "g4mespeed/cache/hotkeys.cfg"
@@ -221,6 +225,11 @@ metafile = true
 [[files]]
 file = "mods/cubes-without-borders.pw.toml"
 hash = "982801b4473e11e6f8c5899f18a260515239dfce397c650c6920fc6ae03f6abb"
+metafile = true
+
+[[files]]
+file = "mods/custom-crosshair-mod.pw.toml"
+hash = "770773f8e4ec987ead5d99e0a01cd2fb4dc221006fc54aa74004b29fa4240460"
 metafile = true
 
 [[files]]
@@ -565,7 +574,7 @@ metafile = true
 
 [[files]]
 file = "options.txt"
-hash = "ebb85b8b3c767b7615845e841f12aeca3e85e64509bd2e3127f72a9bfdb39784"
+hash = "16c1f3748fbd298692285e4547d313590c7337fc5e2fdb860f4d18205a3887ca"
 
 [[files]]
 file = "resourcepacks/better-low-shield.pw.toml"
