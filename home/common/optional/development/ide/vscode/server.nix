@@ -5,11 +5,10 @@
   lib,
   pkgs,
   config,
-  hostSpec,
   ...
 }: let
   # Import shared extension library
-  vscodeLib = import ./lib.nix {inherit lib pkgs config hostSpec;};
+  vscodeLib = import ./lib.nix {inherit lib pkgs config;};
 
   inherit (vscodeLib.defaultProfile) extensions;
 

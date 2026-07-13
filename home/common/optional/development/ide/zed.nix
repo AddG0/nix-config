@@ -12,14 +12,14 @@
 # Zed can still persist transient UI state.
 {
   pkgs,
+  lib,
   self,
-  osConfig,
+  osConfig ? null,
   ...
 }: let
   # nixd evaluates these lazily to learn the option set, giving option/package
   # hover docs in every nix repo. Mirrors nixvim/languages/nix.nix exactly.
   flake = ''builtins.getFlake "${self}"'';
-  host = osConfig.networking.hostName;
 in {
   programs.zed-editor = {
     enable = true;
@@ -148,14 +148,20 @@ in {
       # --- Language servers ---
       lsp = {
         # nixd option/package hover, resolved against this flake (see nix.nix).
-        nixd.settings.nixd = {
-          nixpkgs.expr = "import (${flake}).inputs.nixpkgs { }";
-          formatting.command = ["alejandra"];
-          options = {
-            nixos.expr = "(${flake}).nixosConfigurations.${host}.options";
-            "home-manager".expr = "(${flake}).nixosConfigurations.${host}.options.home-manager.users.type.getSubOptions []";
+        nixd.settings.nixd =
+          {
+            nixpkgs.expr = "import (${flake}).inputs.nixpkgs { }";
+            formatting.command = ["alejandra"];
+          }
+          # Host-specific option hover; skipped on standalone builds (osConfig == null).
+          // lib.optionalAttrs (osConfig != null) {
+            options = let
+              host = osConfig.networking.hostName;
+            in {
+              nixos.expr = "(${flake}).nixosConfigurations.${host}.options";
+              "home-manager".expr = "(${flake}).nixosConfigurations.${host}.options.home-manager.users.type.getSubOptions []";
+            };
           };
-        };
       };
 
       languages = {

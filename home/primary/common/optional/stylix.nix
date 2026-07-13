@@ -1,6 +1,7 @@
 {
   pkgs,
   inputs,
+  lib,
   ...
 }: {
   # FLAKE-UPDATE: drop once stylix sets home.pointerCursor.enable itself.
@@ -62,7 +63,8 @@
       popups = 1.0; # menus, OSDs, notifications
     };
     polarity = "dark";
-    icons = {
+    # papirus-icon-theme is Linux-only; skip icon theming on Darwin.
+    icons = lib.mkIf pkgs.stdenv.hostPlatform.isLinux {
       enable = true;
       package = pkgs.papirus-icon-theme;
       dark = "Papirus-Dark";

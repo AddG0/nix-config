@@ -1,6 +1,5 @@
 {
   config,
-  hostSpec,
   lib,
   ...
 }: let
@@ -31,11 +30,11 @@
       # Attribute name is the `Host` pattern (header defaults to "Host ${name}").
       value = lib.hm.dag.entryAfter ["ssh-hosts"] {
         HostName = value.ipv4;
-        Port = hostSpec.networking.ports.tcp.ssh;
+        Port = config.hostSpec.networking.ports.tcp.ssh;
         ForwardAgent = true;
       };
     })
-    hostSpec.networking.hostsAddr;
+    config.hostSpec.networking.hostsAddr;
   # VS Code Remote SSH workaround for hosts using nushell as login shell.
   # Generates <host>-vscode aliases for all hosts in hostsAddr.
   # Use these aliases in VS Code with remote.SSH.enableRemoteCommand setting.

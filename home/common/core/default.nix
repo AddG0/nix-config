@@ -1,4 +1,5 @@
 {
+  config,
   lib,
   pkgs,
   self,
@@ -16,12 +17,14 @@ in {
     ./${platform}
   ];
 
-  inherit hostSpec;
+  # Seed config.hostSpec from the injected spec at mkDefault priority so a host
+  # file can override individual fields via `hostSpec.<field> = ...;`.
+  hostSpec = lib.mkDefault hostSpec;
 
   home = {
-    username = lib.mkDefault hostSpec.primaryUsername;
-    homeDirectory = lib.mkDefault hostSpec.home;
-    stateVersion = lib.mkDefault hostSpec.system.stateVersion;
+    username = lib.mkDefault config.hostSpec.primaryUsername;
+    homeDirectory = lib.mkDefault config.hostSpec.home;
+    stateVersion = lib.mkDefault config.hostSpec.system.stateVersion;
     sessionPath = [
       "$HOME/.local/bin"
       "$HOME/scripts/talon_scripts"

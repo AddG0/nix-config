@@ -4,7 +4,6 @@
   lib,
   pkgs,
   config,
-  hostSpec,
 }: let
   extensionsDir = ./extensions;
 
@@ -38,7 +37,7 @@
   # All extensions merged into one attribute set
   ext = builtins.listToAttrs (map (f: {
     inherit (f) name;
-    value = import f.path {inherit pkgs config lib hostSpec;};
+    value = import f.path {inherit pkgs config lib;};
   }) (findNixFiles extensionsDir));
 
   # Known VS Code profile attributes with special merge logic

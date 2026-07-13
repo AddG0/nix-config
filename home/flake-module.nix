@@ -1,4 +1,4 @@
-# home/flake-module.nix - Home-manager configuration discovery and exports
+# Home-manager configuration discovery and exports
 {
   self,
   inputs,
@@ -17,17 +17,28 @@
 
   mkHostName = file: lib.removeSuffix ".nix" file;
 
-  # Dummy hostSpec for standalone `home-manager switch` — real values come from NixOS/Darwin host configs
-  mkHostSpec = hostName: {
+  # pkgs must be chosen before a host's module evaluates, so we read
+  # hostSpec.hostPlatform as plain data first: call the module with dummy args
+  # (null per its signature, real `lib` since hostSpec literals may reference
+  # it). config/pkgs are never forced because the read is lazy.
+  systemFor = file: let
+    f = import ./primary/${file};
+    dummyArgs = builtins.mapAttrs (_: _: null) (builtins.functionArgs f) // {inherit lib;};
+  in
+    ((f dummyArgs).hostSpec or {}).hostPlatform or "x86_64-linux";
+
+  # Placeholder hostSpec for standalone `home-manager switch`. common/core seeds
+  # config.hostSpec from this at mkDefault priority, so a host file can override
+  # any field. Integrated hosts get real values from their NixOS/Darwin config.
+  mkHostSpec = hostName: system: {
     inherit hostName;
     primaryUsername = "primary";
     handle = "primary";
-    home = "/home/primary";
     isMinimal = false;
     hostType = "desktop";
-    isDarwin = false;
+    isDarwin = lib.hasSuffix "darwin" system;
     disableSops = true;
-    hostPlatform = "x86_64-linux";
+    hostPlatform = system;
     system.stateVersion = "24.05";
     domain = "example.com";
     email = {
@@ -51,9 +62,8 @@
   #
   # Stylix isn't present standalone, so feed the nvim modules the `colors` arg
   # parsed from the exact same base16 scheme the hosts theme with
-  # (inputs.tt-schemes catppuccin-mocha) — single source of truth, no hardcoded
-  # hexes, so the standalone palette can't drift from Stylix. Reading a flake
-  # input is a pure read (no IFD). Yields { base00 = "#1e1e2e"; … } with hashes.
+  # (inputs.tt-schemes catppuccin-mocha), so the standalone palette can't drift
+  # from Stylix. Reading a flake input is a pure read (no IFD).
   catppuccinMocha = let
     content = builtins.readFile "${inputs.tt-schemes}/base16/catppuccin-mocha.yaml";
     toPair = line: let
@@ -104,14 +114,15 @@
 
   homeConfigurations = builtins.listToAttrs (map (file: let
       hostName = mkHostName file;
+      system = systemFor file;
     in {
       name = hostName;
       value = inputs.home-manager.lib.homeManagerConfiguration {
-        pkgs = inputs.nixpkgs.legacyPackages.x86_64-linux;
+        pkgs = inputs.nixpkgs.legacyPackages.${system};
         inherit lib;
         extraSpecialArgs = {
           inherit inputs self lib;
-          hostSpec = mkHostSpec hostName;
+          hostSpec = mkHostSpec hostName system;
           desktops = {};
         };
         modules = [

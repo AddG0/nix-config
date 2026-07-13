@@ -92,6 +92,13 @@ rebuild hostname="" boot="switch" test="false" show-trace="false" fast="false" v
   fi
   USE_NH={{use-nh}} scripts/rebuild.sh {{ if show-trace == "true" { "-t" } else { "" } }} {{ if verbose == "true" { "-v" } else { "" } }} -m {{ if test == "test" { "test" } else { boot } }} "{{hostname}}" {{ if fast == "true" { "--fast" } else { "" } }} {{nix_args}}
 
+alias hm := home
+
+[group('system')]
+[doc("Switch the standalone home-manager config for a home/primary host (defaults to the current host)")]
+home hostname="$(hostname)" *nix_args="": pre
+  nix run nixpkgs#nh -- home switch . -c {{hostname}} -- --accept-flake-config {{nix_args}}
+
 [group('system')]
 [doc("Rollback to previous generation or specific generation number")]
 rollback generation="":

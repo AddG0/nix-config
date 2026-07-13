@@ -1,10 +1,10 @@
 {
-  hostSpec,
+  config,
   lib,
   pkgs,
   ...
 }:
-lib.mkIf (hostSpec.hostType == "laptop") {
+lib.mkIf (config.hostSpec.hostType == "laptop") {
   home.packages = let
     nwgDisplaysGuarded = pkgs.writeShellScriptBin "nwg-displays" ''
       exec ${pkgs.systemd}/bin/systemd-run \

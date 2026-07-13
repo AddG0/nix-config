@@ -11,11 +11,10 @@
   pkgs,
   inputs,
   config,
-  hostSpec,
   ...
 }: let
   # Import shared extension library
-  vscodeLib = import ./lib.nix {inherit lib pkgs config hostSpec;};
+  vscodeLib = import ./lib.nix {inherit lib pkgs config;};
 
   # Wrap VS Code with env vars
   hasKubeconfig = config.home.sessionVariables ? KUBECONFIG;

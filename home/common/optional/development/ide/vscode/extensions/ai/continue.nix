@@ -1,6 +1,6 @@
 {
   pkgs,
-  hostSpec,
+  config,
   ...
 }: {
   extensions = [
@@ -9,7 +9,7 @@
   userSettings = {
     "continue.enableTabAutocomplete" = true;
     "yaml.schemas" = {
-      "file:///${hostSpec.homedir}.vscode/extensions/continue.continue/config-yaml-schema.json" = [
+      "file:///${config.hostSpec.home}.vscode/extensions/continue.continue/config-yaml-schema.json" = [
         ".continue/**/*.yaml"
       ];
     };

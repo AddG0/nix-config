@@ -1,10 +1,10 @@
 {
   pkgs,
   lib,
-  hostSpec,
+  config,
   ...
 }: {
-  config = lib.mkIf (hostSpec.hostType != "server") {
+  config = lib.mkIf (config.hostSpec.hostType != "server") {
     fonts.fontconfig.enable = true;
     home.packages = with pkgs; [
       noto-fonts
