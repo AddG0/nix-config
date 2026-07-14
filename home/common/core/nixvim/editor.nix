@@ -13,11 +13,20 @@ _: {
       settings.no_mappings = 1;
     };
 
-    todo-comments.enable = true;
+    todo-comments = {
+      enable = true;
+      # Highlight our FLAKE-UPDATE workaround markers (docs/conventions.md) in
+      # the Todo pickers/Trouble. Key must be underscored — todo-comments builds
+      # hl-group names from it and hyphens are invalid there; alt is the real form.
+      settings.keywords.FLAKE_UPDATE = {
+        icon = "";
+        color = "warning";
+        alt = ["FLAKE-UPDATE"];
+      };
+    };
     trouble = {
       enable = true;
-      # VSCode-style symbols outline. auto_open is off — opened/closed by the
-      # autocmd below instead (see there); auto_close stays for :q.
+      # VSCode-style symbols outline.
       settings.modes.symbols = {
         auto_open = false;
         auto_close = true;
@@ -197,55 +206,6 @@ _: {
     end
     vim.o.foldtext = "v:lua.SmartFoldtext()"
   '';
-
-  # Drive the symbols outline ourselves: open on real file buffers, close inside
-  # diffview tabs. A globally-listening outline (builtin auto_open) refreshes
-  # against diffview's wiped diff buffers and errors — uri.lua "Invalid buffer id".
-  # LspAttach is in the trigger set because servers (e.g. marksman) attach a few
-  # seconds after BufWinEnter — opening before then shows Trouble's empty "No
-  # results for symbols" state. Gating on documentSymbolProvider also keeps the
-  # panel closed for buffers no symbol-providing server ever attaches to.
-  autoCmd = [
-    {
-      event = ["BufWinEnter" "TabEnter" "LspAttach"];
-      callback.__raw = ''
-        function()
-          local ok, lib = pcall(require, "diffview.lib")
-          local function has_symbols()
-            for _, c in ipairs(vim.lsp.get_clients({ bufnr = 0 })) do
-              if c.server_capabilities.documentSymbolProvider then return true end
-            end
-            return false
-          end
-          if ok and lib.get_current_view() then
-            require("trouble").close({ mode = "symbols" })
-          elseif vim.bo.buftype == "" and vim.bo.buflisted and has_symbols() then
-            require("trouble").open({ mode = "symbols", focus = false })
-          else
-            require("trouble").close({ mode = "symbols" })
-          end
-        end
-      '';
-    }
-    # Quitting the last code window should close the symbols outline too, so
-    # :q/:wq exits instead of leaving the Trouble window holding nvim open.
-    {
-      event = "QuitPre";
-      callback.__raw = ''
-        function()
-          local nonfloat = vim.tbl_filter(function(w)
-            return vim.api.nvim_win_get_config(w).relative == ""
-          end, vim.api.nvim_tabpage_list_wins(0))
-          local nontrouble = vim.tbl_filter(function(w)
-            return vim.bo[vim.api.nvim_win_get_buf(w)].filetype ~= "trouble"
-          end, nonfloat)
-          if #nontrouble <= 1 then
-            require("trouble").close()
-          end
-        end
-      '';
-    }
-  ];
 
   keymaps = [
     {

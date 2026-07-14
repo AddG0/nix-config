@@ -1,0 +1,27 @@
+--- a/src/shell/notification/notification_toast.cpp
++++ b/src/shell/notification/notification_toast.cpp
+@@ -2189,8 +2189,22 @@
+                             && entry.actions[0] == "default"](const InputArea::PointerData& data) {
+     if (data.button == BTN_RIGHT) {
+       requestClose(id, CloseReason::Dismissed);
+-    } else if (data.button == BTN_LEFT && hasDefaultAction) {
+-      if (m_notifications != nullptr) {
++    } else if (data.button == BTN_LEFT) {
++      // nix-config: focus the originating app via the wlr foreign-toplevel
++      // protocol (same path as the dock), so the click jumps to the app
++      // regardless of xdg-activation / Hyprland focus_on_activate.
++      if (m_notifications != nullptr && m_wayland != nullptr) {
++        for (const auto& n : m_notifications->all()) {
++          if (n.id == id) {
++            const std::string appId = n.desktopEntry.value_or(n.appName);
++            if (!appId.empty()) {
++              m_wayland->activateToplevelForAppId(appId);
++            }
++            break;
++          }
++        }
++      }
++      if (hasDefaultAction && m_notifications != nullptr) {
+         if (!m_notifications->invokeAction(id, "default", true)) {
+           kLog.warn("notification toast: failed to invoke default action for #{}", id);
+         }

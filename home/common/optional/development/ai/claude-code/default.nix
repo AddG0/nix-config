@@ -137,7 +137,11 @@ in {
           allow = ["Bash(git diff:*)" "Bash(nix build:*)" "Bash(nix flake:*)" "Edit" "mcp__context7__resolve-library-id" "mcp__context7__query-docs"];
           ask = ["Bash(git push:*)" "Bash(kubectl get secret:*)"];
           defaultMode = "auto";
-          deny = ["Read(./.env)" "Read(**/terraform.tfvars)"];
+          deny = [
+            "Read(./.env)"
+            "Read(./.env.development.local)"
+            "Read(**/terraform.tfvars)"
+          ];
         };
         statusLine = {
           command = "${pkgs.nodejs}/bin/node ${pkgs.claude-hud}/share/claude-code/plugins/claude-hud/dist/index.js";

@@ -39,7 +39,7 @@
       "development/virtualization/lens.nix"
       "development/virtualization/kubernetes"
       "development/ai/litellm-proxy.nix"
-      "development/languages"
+
       "development/tilt.nix"
       "development/grpc.nix"
       "development/terraform.nix"

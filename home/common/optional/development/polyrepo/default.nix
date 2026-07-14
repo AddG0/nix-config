@@ -9,6 +9,7 @@
   #   mani     manifest + tag-based bulk git ops
   #   sesh     tmux session picker over multiple sources (Prefix+T)
   #   scratch  throwaway git-init'd projects under ghq's tree (Alt-G picks)
+  #   glmr     glmr:// URI handler → open a GitLab MR for review in nvim
   imports = [
     ./ghq.nix
     ./gwq.nix
@@ -16,6 +17,7 @@
     ./scratch.nix
     ./sesh.nix
     ./dev-stacks.nix
+    ./glmr.nix
   ];
 
   options.polyrepo.ghqRoot = lib.mkOption {

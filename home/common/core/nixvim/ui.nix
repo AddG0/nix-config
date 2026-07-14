@@ -54,6 +54,7 @@
     ".git"
     "dist"
     "build"
+    "bin"
     "result"
     ".next"
     ".nuxt"
@@ -144,6 +145,10 @@ in {
       # to hide them from its own help; which-key shows the sentinel verbatim.
       settings.filter.__raw = ''function(mapping) return mapping.desc ~= "diffview_ignore" end'';
       settings.spec = [
+        {
+          __unkeyed-1 = "<leader>a";
+          group = "ai";
+        }
         {
           __unkeyed-1 = "<leader>b";
           group = "buffer";
@@ -328,7 +333,7 @@ in {
           hidden = true; # show dotfiles in pickers (e.g. .gitlab-ci.yml)
           sources = {
             # Single-child folder auto-descend lives in
-            # ./snacks-explorer-nesting.nix (delete it when snacks gains a
+            # ./snacks/explorer-nesting.nix (delete it when snacks gains a
             # native group_empty option).
             explorer = {
               hidden = true;

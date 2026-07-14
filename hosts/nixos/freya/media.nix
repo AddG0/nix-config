@@ -23,7 +23,7 @@
     options = [
       "x-systemd.automount"
       "noauto"
-      "x-systemd.idle-timeout=60"
+      # No idle-timeout: keep the share mounted so playback never pays a WAN re-handshake.
       "x-systemd.device-timeout=30s"
       "x-systemd.mount-timeout=30s"
       "uid=${toString config.users.users.${config.hostSpec.primaryUsername}.uid}"
@@ -36,7 +36,11 @@
       "_netdev"
       "soft"
       "vers=3.1.1"
-      "echo_interval=10"
+      "cache=loose" # bypasses the cache=strict __readahead_batch kernel regression that stalls streaming/seeks.
+      "actimeo=120"
+      "nobrl" # skip byte-range locks players probe for -- avoids pointless WAN round-trips.
+      "rsize=1048576" # 1 MiB, not the 4 MiB max: bigger requests stall longer on a lossy WAN.
+      "wsize=1048576"
     ];
   };
 

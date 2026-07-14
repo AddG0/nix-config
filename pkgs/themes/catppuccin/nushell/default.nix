@@ -25,7 +25,7 @@ stdenv.mkDerivation {
     description = "Soothing pastel theme for Nushell";
     homepage = "https://github.com/catppuccin/nushell";
     license = licenses.mit;
-    platforms = ["x86_64-linux" "aarch64-linux" "x86_64-darwin" "aarch64-darwin"];
+    platforms = ["x86_64-linux" "aarch64-linux" "aarch64-darwin"];
     maintainers = [];
   };
 }

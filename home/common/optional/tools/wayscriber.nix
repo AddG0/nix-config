@@ -1,10 +1,4 @@
-{
-  inputs,
-  pkgs,
-  ...
-}: let
-  wayscriber = inputs.wayscriber.packages.${pkgs.stdenv.hostPlatform.system}.default;
-in {
+{pkgs, ...}: {
   # Native Wayland screen annotation tool (replaces gromit-mpx on Wayland)
   # Toggle with: pkill -SIGUSR1 wayscriber
   # F1 = help | Escape = exit overlay | Ctrl+Z = undo | Ctrl+Y = redo
@@ -17,7 +11,7 @@ in {
       PartOf = ["graphical-session.target"];
     };
     Service = {
-      ExecStart = "${wayscriber}/bin/wayscriber --daemon";
+      ExecStart = "${pkgs.wayscriber}/bin/wayscriber --daemon";
       Restart = "on-failure";
     };
     Install.WantedBy = ["graphical-session.target"];

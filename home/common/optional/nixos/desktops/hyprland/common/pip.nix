@@ -88,6 +88,50 @@
       hyprctl --batch "$b"
     fi
   '';
+
+  # Temporarily hide every PiP overlay; a second press restores them. "PiP" =
+  # any pinned floating window plus title-matched browser PiP. Each is stashed
+  # on a hidden special workspace, unpinned first since pinned windows can't
+  # change workspace — so the stash set is tracked by workspace, not by pin.
+  pip-hide = pkgs.writeShellScriptBin "hypr-pip-hide" ''
+    set -eu
+    PATH="${pkgs.hyprland}/bin:${pkgs.jq}/bin:$PATH"
+
+    hidden="special:pip-hidden"
+
+    mapfile -t rows < <(
+      hyprctl clients -j \
+        | jq -r --arg re ${lib.escapeShellArg cfg.titleRegex} --arg hidden "$hidden" \
+            '.[]
+             | select((.workspace.name == $hidden)
+                      or (.floating and (.pinned or (.title | test($re)))))
+             | [.address, .workspace.name, .pinned] | @tsv'
+    )
+    [ "''${#rows[@]}" -eq 0 ] && exit 0
+
+    # Hide unless every PiP is already hidden (then restore).
+    mode=show
+    for r in "''${rows[@]}"; do
+      [ "$(printf '%s' "$r" | cut -f2)" != "$hidden" ] && mode=hide
+    done
+
+    cur=$(hyprctl activeworkspace -j | jq -r '.id')
+    b=""
+    for r in "''${rows[@]}"; do
+      IFS=$'\t' read -r addr ws pin <<<"$r"
+      if [ "$mode" = hide ]; then
+        [ "$ws" = "$hidden" ] && continue
+        [ "$pin" = true ] && b+="dispatch pin address:$addr ; "
+        b+="dispatch movetoworkspacesilent $hidden,address:$addr ; "
+      else
+        [ "$ws" != "$hidden" ] && continue
+        b+="dispatch movetoworkspacesilent $cur,address:$addr ; "
+        ${lib.optionalString cfg.pinned ''[ "$pin" != true ] && b+="dispatch pin address:$addr ; "''}
+      fi
+    done
+    b="''${b% ; }"
+    [ -n "$b" ] && hyprctl --batch "$b"
+  '';
 in {
   options.modules.hyprland.pip = {
     size = {
@@ -208,6 +252,18 @@ in {
         window is currently active). Format: "MODS,KEY".
       '';
     };
+
+    hideKey = lib.mkOption {
+      type = lib.types.str;
+      default = "SUPER ALT,p";
+      example = "SUPER,backslash";
+      description = ''
+        Hyprland bind prefix for temporarily hiding the browser PiP window.
+        Press once to stash it out of sight, again to bring it back. Applies
+        to windows matching `titleRegex`, not the active window. Format:
+        "MODS,KEY".
+      '';
+    };
   };
 
   # Picture-in-Picture: float, optionally pin across workspaces, park in the
@@ -244,6 +300,7 @@ in {
 
     bind = [
       "${cfg.toggleKey},exec,${pip-toggle}/bin/hypr-pip-toggle"
+      "${cfg.hideKey},exec,${pip-hide}/bin/hypr-pip-hide"
     ];
   };
 }

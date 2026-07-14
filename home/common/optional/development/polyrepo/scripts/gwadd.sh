@@ -46,24 +46,38 @@ fi
 branch=${*: -1}
 target="${primary}--${branch//\//-}"
 
-# rev-parse only sees already-fetched refs, so an unfetched remote branch reads
-# as missing here — fetch first if you meant to track the remote.
+# rev-parse only sees already-fetched refs, so a remote-only branch reads as
+# missing here — fetch it before falling back to the create prompt.
 if [[ $has_branch_flag -eq 0 ]] && ! git rev-parse --verify --quiet "$branch" >/dev/null; then
-  printf "gwadd: branch '%s' doesn't exist. Create it? [y/N] " "$branch" >&2
-  read -r reply
-  case "$reply" in
-  [Yy]*) set -- -b "$@" ;;
-  *)
-    echo "gwadd: aborted" >&2
-    exit 1
-    ;;
-  esac
+  remote=$(git remote | head -n1)
+  if [[ -n $remote ]] && git fetch --quiet "$remote" "$branch" 2>/dev/null; then
+    # Fetch updates refs/remotes/<remote>/<branch>, so gwq/git-worktree DWIMs a
+    # local tracking branch off it below — no -b needed.
+    :
+  else
+    printf "gwadd: branch '%s' doesn't exist locally or on remote. Create it? [y/N] " "$branch" >&2
+    read -r reply
+    case "$reply" in
+    [Yy]*) set -- -b "$@" ;;
+    *)
+      echo "gwadd: aborted" >&2
+      exit 1
+      ;;
+    esac
+  fi
 fi
 
 # set -e aborts here if gwq add fails, so we never connect to a half-made tree.
 gwq add "$@" "$target"
 
 if [[ $no_session -eq 0 ]]; then
+  # The new session inherits the tmux server's global env; a stale DIRENV_DIFF
+  # there makes direnv wipe the directory-scoped GITLAB_TOKEN. Drop it.
+  if tmux list-sessions >/dev/null 2>&1; then
+    for var in DIRENV_DIFF DIRENV_DIR DIRENV_FILE DIRENV_WATCHES; do
+      tmux setenv -gu "$var"
+    done
+  fi
   # From inside tmux sesh switches the client; outside it attaches a new
   # session. Session name is the dir basename (tmux-safe with `--`).
   exec sesh connect "$target"

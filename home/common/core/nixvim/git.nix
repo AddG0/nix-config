@@ -1,4 +1,7 @@
-{
+{pkgs, ...}: {
+  # Flog isn't a nixvim module, so add the plugin directly.
+  extraPlugins = [pkgs.vimPlugins.vim-flog];
+
   plugins = {
     gitsigns = {
       enable = true;
@@ -44,7 +47,12 @@
         };
       };
     };
-    neogit.enable = true;
+    neogit = {
+      enable = true;
+      # ghostty speaks the kitty graphics protocol, so draw real graph lines.
+      settings.graph_style = "kitty";
+    };
+    fugitive.enable = true; # Flog's git backend
   };
 
   keymaps = [
@@ -59,6 +67,14 @@
       key = "<leader>gd";
       action = "<cmd>DiffviewOpen<cr>";
       options.desc = "Diffview";
+    }
+
+    {
+      # -all: the whole graph, not just the current branch
+      mode = ["n" "x"];
+      key = "<leader>gt";
+      action = "<cmd>Flog -all<cr>";
+      options.desc = "Git tree (Flog)";
     }
 
     # ── Git pickers (snacks) ──

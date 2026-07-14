@@ -33,7 +33,6 @@
       "development/virtualization/kubernetes"
       "development/ai/litellm-proxy.nix"
 
-      "development/languages"
       "development/grpc.nix"
       "secrets/buf.nix"
       "development/terraform.nix"

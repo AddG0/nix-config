@@ -39,15 +39,15 @@
       "development/virtualization/lens.nix"
       "development/virtualization/kubernetes"
       "development/virtualization/nixos-shell.nix"
-      # "development/ai/litellm-proxy.nix"
-
-      # "development/languages"
-      # "development/tilt.nix"
-      # "development/grpc.nix"
-      "secrets/buf.nix"
       "development/terraform.nix"
       "development/bootdev.nix"
       "development/nomad.nix"
+
+      # "development/tilt.nix"
+      # "development/grpc.nix"
+      # "development/ai/litellm-proxy.nix"
+
+      "secrets/buf.nix"
 
       # Gaming
       "gaming/steam.nix"
@@ -68,7 +68,7 @@
       # Tools
       # "tools/gromit-mpx.nix"
       "tools/wayscriber.nix"
-      "tools/freecad.nix"
+      # "tools/freecad.nix"
       "tools/obsidian.nix"
       "tools/krita.nix"
 

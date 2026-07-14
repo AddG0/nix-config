@@ -25,6 +25,6 @@ stdenv.mkDerivation rec {
     description = "Soothing pastel theme for Ghostty";
     homepage = "https://github.com/catppuccin/ghostty";
     license = licenses.mit;
-    platforms = ["x86_64-linux" "aarch64-linux" "x86_64-darwin" "aarch64-darwin"];
+    platforms = ["x86_64-linux" "aarch64-linux" "aarch64-darwin"];
   };
 }

@@ -188,7 +188,12 @@ rebuild-update: update && rebuild
 [group('dependencies')]
 [doc("Update specific packages using custom script")]
 update-packages *ARGS:
-  scripts/update-packages.sh {{ARGS}}
+  @scripts/update-packages.sh {{ARGS}}
+
+[group('dependencies')]
+[doc("Check whether the flake-update workarounds still apply. Optional args filter by name, e.g. `just check-workarounds gdal`")]
+check-workarounds *ARGS:
+  @scripts/check-flake-workarounds.sh {{ARGS}}
 
 [group('development')]
 [doc("Show git diff excluding flake.lock")]

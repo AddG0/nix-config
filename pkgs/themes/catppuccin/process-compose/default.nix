@@ -25,6 +25,6 @@ stdenv.mkDerivation {
     description = "Soothing pastel theme for process-compose";
     homepage = "https://github.com/catppuccin/process-compose";
     license = licenses.mit;
-    platforms = ["x86_64-linux" "aarch64-linux" "x86_64-darwin" "aarch64-darwin"];
+    platforms = ["x86_64-linux" "aarch64-linux" "aarch64-darwin"];
   };
 }

@@ -8,8 +8,12 @@
 #   netbond down            tear down, restore a normal single default
 #   netbond status          show the current bond
 #   netbond test            parallel downloads, report bytes carried per uplink
-#   netbond wifi-add [SSID]  add a 2nd+ Wi-Fi station (fresh MAC) on this radio,
-#                            connect, walk through its captive portal, rebond
+#   netbond wifi-add [SSID] [PASS]
+#                            add a 2nd+ Wi-Fi station (fresh MAC) on this radio,
+#                            connect, walk through its captive portal, rebond.
+#                            PASS is the WPA/WPA2/WPA3 passphrase; omit it for an
+#                            open network, or to reuse a passphrase already saved
+#                            for this SSID (or be prompted for it).
 #   netbond wifi-del <if>    remove a station added by wifi-add (or: all)
 #   netbond portal <if>      (re)run the captive-portal login for an interface
 #
@@ -211,8 +215,27 @@ portal() {
   return 1
 }
 
+# Echo "PSK<TAB>KEYMGMT" from the first saved NM profile matching this SSID, so
+# joining a network you already have credentials for needs no re-typing. Skips
+# our own netbond-* profiles (they may be passwordless). Reading the secret
+# needs privilege, hence run_priv.
+saved_wifi_secret() {
+  local ssid=$1 c cssid psk keymgmt
+  while IFS= read -r c; do
+    [ -n "$c" ] || continue
+    cssid=$(nmcli -g 802-11-wireless.ssid connection show "$c" 2>/dev/null || true)
+    [ "$cssid" = "$ssid" ] || continue
+    psk=$(run_priv nmcli -s -g 802-11-wireless-security.psk connection show "$c" 2>/dev/null || true)
+    keymgmt=$(nmcli -g 802-11-wireless-security.key-mgmt connection show "$c" 2>/dev/null || true)
+    [ -n "$psk" ] || continue
+    printf '%s\t%s\n' "$psk" "$keymgmt"
+    return 0
+  done < <(nmcli -t -f NAME,TYPE connection show 2>/dev/null |
+    awk -F: '$2=="802-11-wireless" && $1 !~ /^netbond-/{print $1}')
+}
+
 wifi_add() {
-  local ssid=$1 phy vif mac ip n
+  local ssid=$1 pass=${2-} phy vif mac ip n keymgmt secret
   phy=$(find /sys/class/ieee80211 -maxdepth 1 -mindepth 1 -printf '%f\n' 2>/dev/null | head -1)
   [ -n "$phy" ] || {
     echo "netbond: no Wi-Fi radio found" >&2
@@ -226,6 +249,22 @@ wifi_add() {
     echo "netbond: no SSID given and none active; pass one: netbond wifi-add <SSID>" >&2
     exit 1
   }
+
+  # Resolve a passphrase: explicit arg > saved NM profile for this SSID > prompt.
+  # An empty passphrase means an open network (key-mgmt stays unset).
+  keymgmt=""
+  if [ -n "$pass" ]; then
+    keymgmt=wpa-psk
+  elif secret=$(saved_wifi_secret "$ssid") && [ -n "$secret" ]; then
+    pass=${secret%%$'\t'*}
+    keymgmt=${secret#*$'\t'}
+    [ -n "$keymgmt" ] || keymgmt=wpa-psk
+    echo "netbond: reusing saved passphrase for \"$ssid\""
+  else
+    read -rsp "  passphrase for \"$ssid\" (blank = open network): " pass </dev/tty || true
+    echo
+    [ -z "$pass" ] || keymgmt=wpa-psk
+  fi
 
   n=0
   while ip link show "${VIF_PREFIX}${n}" >/dev/null 2>&1; do n=$((n + 1)); done
@@ -253,9 +292,19 @@ wifi_add() {
   run_priv ip link set "$vif" up             # bring up so NM/wpa_supplicant registers it
   sleep 2                                    # let NM move it from 'unavailable' to available
   run_priv nmcli device set "$vif" managed yes 2>/dev/null || true
+
+  local -a secargs=()
+  [ -n "$keymgmt" ] && secargs=(wifi-sec.key-mgmt "$keymgmt" wifi-sec.psk "$pass")
   run_priv nmcli connection add type wifi ifname "$vif" \
-    con-name "netbond-$vif" ssid "$ssid" >/dev/null
-  run_priv nmcli connection up "netbond-$vif" >/dev/null || true
+    con-name "netbond-$vif" ssid "$ssid" "${secargs[@]}" >/dev/null
+
+  # The fresh VIF hasn't scanned yet, so the first activation often fails with
+  # "network could not be found". Rescan and retry a few times.
+  for _ in 1 2 3; do
+    run_priv nmcli connection up "netbond-$vif" >/dev/null 2>&1 && break
+    run_priv nmcli device wifi rescan ifname "$vif" >/dev/null 2>&1 || true
+    sleep 3
+  done
 
   echo -n "  waiting for DHCP lease"
   for _ in $(seq 1 20); do
@@ -266,7 +315,7 @@ wifi_add() {
   done
   echo
   [ -n "$ip" ] || {
-    echo "netbond: $vif got no lease — the radio may not hold a 2nd station here" >&2
+    echo "netbond: $vif got no lease — wrong passphrase, SSID out of range, or the radio can't hold a 2nd station here" >&2
     exit 1
   }
   echo "  $vif up with $ip"

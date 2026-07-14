@@ -29,7 +29,7 @@ in {
     ./herdr.nix
     ./lnav
     ./polyrepo
-    ./languages/nix
+    ./languages
   ];
 
   home.packages = with pkgs; [

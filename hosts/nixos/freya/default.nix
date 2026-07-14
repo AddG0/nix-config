@@ -21,9 +21,8 @@
     ./graphics.nix
     ./hardware-configuration.nix
     ./razer-blade-keyboard.nix
-    ./audio.nix # RT1320 laptop speaker amp workaround (no kernel machine driver)
+    ./audio.nix # friendly labels for the native UCM audio nodes
     # ./ai.nix
-    # ./audio
     ./media.nix
 
     (map lib.custom.relativeToHosts (map (f: "common/optional/${f}") [
@@ -32,7 +31,7 @@
       "nixos/services/openssh.nix" # allow remote SSH access
       "nixos/services/tailscale.nix" # mesh VPN for secure remote access
       "nixos/services/openvpn.nix"
-      "nixos/audio.nix" # pipewire and cli controls - using local audio.nix instead
+      "nixos/audio.nix" # pipewire and cli controls
       "nixos/gaming.nix" # steam, gamescope, gamemode, and related hardware
       "nixos/virtualisation/docker.nix" # docker
       "nixos/services/automatic-timezoned.nix"
@@ -45,8 +44,6 @@
       "nixos/services/airpods-autoconnect.nix"
       # "nixos/services/bt-proximity.nix"
       "nixos/services/ollama.nix"
-
-      "nixos/remote-desktop/sunshine"
 
       "nixos/development/mysql.nix"
       "nixos/development/postgres.nix"
@@ -107,6 +104,20 @@
   # boot.kernelPackages = lib.mkForce pkgs.cachyosKernels.linuxPackages-cachyos-lts;
 
   boot.kernelModules = ["ntsync"]; # NT sync primitives for Wine/Proton gaming performance
+
+  # Panther Lake hybrid cores: stock EEVDF strands latency-critical game threads
+  # on the slow E-cores; scx_lavd is P/E-aware and keeps them on the P-cores.
+  services.scx = {
+    enable = true;
+    scheduler = "scx_lavd";
+  };
+
+  # Auto-renice launched games above background tasks; pairs with scx (scx picks
+  # the core, ananicy sets priority/ioclass).
+  services.ananicy = {
+    enable = true;
+    package = pkgs.ananicy-cpp;
+  };
 
   # FLAKE-UPDATE: drop once the cachyos kernel carries an upstream fix for the
   # eDP port-A resume hang (drm/xe #7791); re-check after `nix flake update`.
