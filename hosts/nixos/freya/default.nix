@@ -93,16 +93,6 @@
     autoScreenLock = true;
   };
 
-  # Pin to cachyos LTS (currently 6.18.x) on this host. 7.0 has two open
-  # upstream regressions affecting freya's hardware (Panther Lake + RTX 5090):
-  #   - NVIDIA open-driver jump_label suspend hang
-  #     https://github.com/NVIDIA/open-gpu-kernel-modules/issues/1117
-  #   - xe DPMS / suspend wake failure on PTL/LNL/BMG
-  #     https://gitlab.freedesktop.org/drm/xe/kernel/-/work_items/7791
-  #     https://gitlab.freedesktop.org/drm/xe/kernel/-/work_items/7764
-  # Switch back to cachyos-bore (the shared default) when both are fixed.
-  # boot.kernelPackages = lib.mkForce pkgs.cachyosKernels.linuxPackages-cachyos-lts;
-
   boot.kernelModules = ["ntsync"]; # NT sync primitives for Wine/Proton gaming performance
 
   # Panther Lake hybrid cores: stock EEVDF strands latency-critical game threads

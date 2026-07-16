@@ -54,14 +54,35 @@ in {
           vim.fn.glob("${javaTest}/share/vscode/extensions/vscjava.vscode-java-test/server/*.jar", true, true)
         )
       '';
-      # No checked-in wrapper → Buildship falls back to its bundled Gradle 8.9, too
-      # old for our Spring Boot 4 services (need ≥8.14); the import then fails and
-      # jdtls gets no classpath. Pin to the nixpkgs Gradle. A project wrapper, if
-      # added later, still wins (wrapper.enabled defaults true).
+      # Without a checked-in wrapper Buildship falls back to its bundled Gradle 8.9,
+      # too old for our Spring Boot 4 services (need ≥8.14) → import fails, no
+      # classpath. Pin the nixpkgs Gradle (9.5.1) as the floor; a project wrapper
+      # still wins (wrapper.enabled defaults true). Register both JDKs as toolchain
+      # candidates so a project pinning either a Java 21 or 25 toolchain resolves
+      # without foojay auto-download (blocked in the nix sandbox).
       settings.java.import.gradle = {
         home = gradleHome;
         java.home = "${pkgs.jdk21.home}";
+        jvmArguments = "-Dorg.gradle.java.installations.paths=${pkgs.jdk21.home},${pkgs.jdk25.home}";
       };
+      # jdtls' "interactive" default wants to prompt before re-importing on a
+      # build-file change, but nvim-jdtls surfaces no prompt UI — so it silently
+      # never syncs, and a dependency added after the first import (e.g. gitlab4j)
+      # stays off the classpath until the workspace is wiped by hand.
+      settings.java.configuration.updateBuildConfiguration = "automatic";
+      # Default JavaSE-25 (current work targets it); JavaSE-21 kept for older
+      # projects. Independent of the jdtls server JVM, which stays jdk21.
+      settings.java.configuration.runtimes = [
+        {
+          name = "JavaSE-25";
+          path = "${pkgs.jdk25.home}";
+          default = true;
+        }
+        {
+          name = "JavaSE-21";
+          path = "${pkgs.jdk21.home}";
+        }
+      ];
     };
   };
   # jdtls-only maps, buffer-local on jdtls buffers — so <leader>co overrides the

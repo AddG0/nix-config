@@ -3,11 +3,11 @@ filename = "Low Fire.zip"
 side = "client"
 
 [download]
-url = "https://cdn.modrinth.com/data/1jZGHJ05/versions/3k0zcJ1l/Low%20Fire.zip"
+url = "https://cdn.modrinth.com/data/1jZGHJ05/versions/RP4ozzMC/Low%20Fire.zip"
 hash-format = "sha512"
-hash = "786d587ce0c878b5018e12bfc6b82e30f774b232001f8900619a4dd5279eb87f99472e58f98857d5f22e559a42f2087b7ec0e46e6a8263044eaa996ff9295bdd"
+hash = "acd2d2123023178340fcf97f3f2621570207da178ddf21f54a3be89e97c365941bdacbc8af8d95a6df730c4c0b8f51cc5bd752aeffe8dd4e56d49b436e22b4b7"
 
 [update]
 [update.modrinth]
 mod-id = "1jZGHJ05"
-version = "3k0zcJ1l"
+version = "RP4ozzMC"

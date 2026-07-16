@@ -2,8 +2,6 @@
 
 ## Aesthetics
 
-<!-- TODO: add back when updated for 1.21.11: highlight, nuit, nuit-interop, cloud_tweaks -->
-
 | Mod | Purpose |
 |-----|---------|
 | [**Iris Shaders**](https://modrinth.com/mod/iris) | The best shaders mod |
@@ -12,6 +10,9 @@
 | [**Continuity**](https://modrinth.com/mod/continuity) | Connected textures and emissive textures |
 | [**LambDynamicLights**](https://modrinth.com/mod/lambdynamiclights) | Dynamic lights |
 | [**Dark Loading Screen**](https://modrinth.com/mod/dark-loading-screen) | Makes the loading screen darker |
+| [**Nuit**](https://modrinth.com/mod/nuit) | Custom UI/theming framework |
+| [**Nuit Interop**](https://modrinth.com/mod/nuit-interop) | Interop layer for Nuit |
+| [**Cloud Tweaks**](https://modrinth.com/mod/cloud_tweaks) | Improved cloud rendering |
 
 ###  Shader Packs
 
@@ -155,10 +156,9 @@
 
 ## PvP & Combat
 
-<!-- TODO: add back when updated for 1.21.11: enhanced-attack-indicator (https://modrinth.com/mod/enhanced-attack-indicator) -->
-
 | Mod | Purpose |
 |-----|---------|
+| [**Enhanced Attack Indicator**](https://modrinth.com/mod/enhanced-attack-indicator) | Improved attack/cooldown indicator (1.21.10 build) |
 | **Low Fire** | Lowers fire overlay on screen |
 | [**uku's Armor HUD**](https://modrinth.com/mod/ukus-armor-hud) | Armor durability HUD |
 | [**TotemCounter**](https://modrinth.com/mod/totemcounter) | Shows totem count |

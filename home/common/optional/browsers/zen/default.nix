@@ -212,6 +212,13 @@
           workspace = spaces."Work".id;
           container = containers."Work".id;
         };
+        "Google Drive" = {
+          id = "e24b14d3-5057-46ee-954e-0a515c0286ea";
+          url = "https://drive.google.com/drive/u/0/folders/1MUa6UZl7c-x0fRSpXJi_oQnJjvIZSNEm";
+          position = 8000;
+          workspace = spaces."Work".id;
+          container = containers."Work".id;
+        };
       };
 
       # Icons: chrome://browser/skin/zen-icons/selectable/{name}.svg

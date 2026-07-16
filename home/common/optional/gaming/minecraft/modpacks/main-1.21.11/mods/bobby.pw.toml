@@ -1,13 +1,13 @@
 name = "Bobby"
-filename = "bobby-5.2.11+mc1.21.11.jar"
+filename = "bobby-5.2.11.1+mc1.21.11.jar"
 side = "client"
 
 [download]
-url = "https://cdn.modrinth.com/data/M08ruV16/versions/y6wx9vV9/bobby-5.2.11%2Bmc1.21.11.jar"
+url = "https://cdn.modrinth.com/data/M08ruV16/versions/ZwOXWoVI/bobby-5.2.11.1%2Bmc1.21.11.jar"
 hash-format = "sha512"
-hash = "14f8c34851023a7c4ac0d40f2a843abfaa7fa6e05bf7505ba2c251a3b3d58184d41184ce1a21020cba38d9fa0af13214e98ad3d8e43dbe7fb1790d4a32f23f24"
+hash = "4a691e6601936baf0e1e6fdc7b041caba315e66c75b08424c500a1903cb225d822a633ac565337f2f14bccfee851eb0c5ad672a2277c205ea00ca187ae762835"
 
 [update]
 [update.modrinth]
 mod-id = "M08ruV16"
-version = "y6wx9vV9"
+version = "ZwOXWoVI"

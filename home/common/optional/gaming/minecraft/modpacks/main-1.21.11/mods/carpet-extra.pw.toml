@@ -1,13 +1,13 @@
 name = "Carpet Extra"
-filename = "carpet-extra-1.21.4-1.4.161.jar"
+filename = "carpet-extra-1.21.9-1.4.185.jar"
 side = "server"
 
 [download]
-url = "https://cdn.modrinth.com/data/VX3TgwQh/versions/jLwlJK0f/carpet-extra-1.21.4-1.4.161.jar"
+url = "https://cdn.modrinth.com/data/VX3TgwQh/versions/aQr1yD5l/carpet-extra-1.21.9-1.4.185.jar"
 hash-format = "sha512"
-hash = "8afefbc2827151209141b3cbb7d7f3b3ed84befe497446ba384dc0d5cd4e63149aac91c10eb3f6bcc1e942b94df504703fd5cba7814419ead3d0154b229d3203"
+hash = "12b221e42bddeff937fb3573c56f10df6e6188d221485751090ecc53b93f9c224d7ad32ed984cd9d6d23e2946171888f2bf5dbc1387d5129094e316cd0d5d026"
 
 [update]
 [update.modrinth]
 mod-id = "VX3TgwQh"
-version = "jLwlJK0f"
+version = "aQr1yD5l"

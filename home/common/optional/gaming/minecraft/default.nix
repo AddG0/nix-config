@@ -19,6 +19,12 @@ in {
         javaPackage = pkgs.jdk25;
         enableGameMode = true;
         group = "SMP";
+        servers = [
+          {
+            name = "mcpvp.club";
+            address = "mcpvp.club";
+          }
+        ];
       };
       # World save: https://shelledturtle.gumroad.com/l/TheosPVPPractice
       "main-1.21.11-pvp-practice" = {

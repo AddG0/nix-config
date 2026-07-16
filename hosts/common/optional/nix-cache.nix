@@ -64,6 +64,8 @@ in {
   nix.settings = {
     substituters = [cacheUrl];
     trusted-public-keys = [cachePublicKey];
+    # A stalled cache fetch shouldn't wedge a rebuild for the 300s default.
+    stalled-download-timeout = 20;
   };
 
   services.queued-build-hook = {

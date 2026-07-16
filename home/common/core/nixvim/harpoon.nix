@@ -2,6 +2,10 @@
   plugins.harpoon = {
     enable = true;
     enableTelescope = false;
+    settings = {
+      settings.save_on_toggle = true; # persist the list on menu toggle
+      menu.width.__raw = "vim.api.nvim_win_get_width(0) - 4";
+    };
   };
 
   # LazyVim harpoon2 keybinds: <leader>H add, <leader>h menu, <leader>1-5 jump.

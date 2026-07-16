@@ -63,6 +63,7 @@
     mmcPackJson,
     instanceCfg,
     worldSetupScript ? "",
+    serversSetupScript ? "",
   }: ''
     # Instance: ${name}
     run mkdir -p "${prismDir}/instances/${name}/.minecraft"
@@ -78,5 +79,24 @@
     INSTCFG
 
     ${worldSetupScript}
+    ${serversSetupScript}
+  '';
+
+  # Sync declared servers into an instance's servers.dat. servers.dat is writable
+  # game state (Minecraft rewrites it), so it's created here rather than symlinked.
+  # The state file tracks module-managed addresses; guard on it so an emptied list
+  # still runs once to clean up, but untouched instances are skipped.
+  mkServersSetupScript = {
+    prismDir,
+    instanceName,
+    serversJsonFile,
+  }: let
+    minecraftDir = "${prismDir}/instances/${instanceName}/.minecraft";
+    stateFile = "${prismDir}/instances/${instanceName}/.nix-managed-servers.json";
+  in ''
+    if [ "$(cat ${serversJsonFile})" != "[]" ] || [ -e "${stateFile}" ]; then
+      run mkdir -p ${minecraftDir}
+      run ${pkgs.python3}/bin/python3 ${./servers-merge.py} ${serversJsonFile} "${minecraftDir}/servers.dat" "${stateFile}"
+    fi
   '';
 }

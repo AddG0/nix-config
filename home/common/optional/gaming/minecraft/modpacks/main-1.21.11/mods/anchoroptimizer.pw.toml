@@ -1,13 +1,13 @@
 name = "Anchor Optimizer"
-filename = "AnchorOptimizer-1.21.11.jar"
+filename = "AnchorOptimizer-1.21.x.jar"
 side = "client"
 
 [download]
-url = "https://cdn.modrinth.com/data/Lpf6Rujk/versions/qEBCa7cX/AnchorOptimizer-1.21.11.jar"
+url = "https://cdn.modrinth.com/data/Lpf6Rujk/versions/5pMUKtUk/AnchorOptimizer-1.21.x.jar"
 hash-format = "sha512"
-hash = "fdfbc9e4f60bbb598c6dd30df7dcc6aba30d8c4c010efc843f8f2b2278292aab9cfe5b172880d1eaa3d2d7aeca8c14f52ca953d2a18157bbee3e06955b27cc27"
+hash = "af70df7d24ef9abdac91640a4b6afb7a0bf2d466f896c994bcc0513e7754352292a18f50e3604af2dec31b3d0274b3ce8f0f5cdb7fc913e14c6e3f662f4b7984"
 
 [update]
 [update.modrinth]
 mod-id = "Lpf6Rujk"
-version = "qEBCa7cX"
+version = "5pMUKtUk"

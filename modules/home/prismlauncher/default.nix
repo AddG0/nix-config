@@ -64,6 +64,15 @@
       ${concatStringsSep "\n" worldScripts}
     '';
 
+  # Generate shell script to sync declared servers into an instance's servers.dat.
+  # Emitted even for an empty list so removing the last server still cleans up;
+  # the script's own guard skips instances that never used the feature.
+  mkServersSetupScript = instanceName: servers:
+    scripts.mkServersSetupScript {
+      inherit prismDir instanceName;
+      serversJsonFile = pkgs.writeText "prism-servers-${instanceName}.json" (builtins.toJSON servers);
+    };
+
   # Build a filtered modpack source when excludeMods is set
   filterModpackSource = source: excludeMods:
     if excludeMods == []
@@ -104,7 +113,7 @@
   in {
     name = validName;
     source = filteredSource;
-    inherit (modpack) group javaArgs javaPackage excludeMods enableGameMode enableMangoHud;
+    inherit (modpack) group javaArgs javaPackage excludeMods enableGameMode enableMangoHud servers;
     worlds = lib.mapAttrs resolveWorld modpack.worlds;
     icon = iconResolved.key;
     iconPath = iconResolved.path;
@@ -262,6 +271,50 @@
           }
         '';
       };
+
+      servers = mkOption {
+        type = types.listOf (types.submodule serverOpts);
+        default = [];
+        description = ''
+          Multiplayer servers to ensure are present in this instance's server
+          list. The module manages only the servers it adds: a declared server is
+          created (or, if its address matches an existing entry, has its name
+          synced and is promoted to a pinned entry), and removing one from config
+          removes it from Minecraft on the next switch. Servers added in-game are
+          left untouched. List order sets display order.
+        '';
+        example = literalExpression ''
+          [
+            {
+              name = "Bow SMP";
+              address = "play.bowchickawowwow.co.uk:25565";
+            }
+          ]
+        '';
+      };
+    };
+  };
+
+  # Multiplayer server submodule options
+  serverOpts = {
+    options = {
+      name = mkOption {
+        type = types.str;
+        example = "Bow SMP";
+        description = "Display name in the multiplayer server list (supports § color codes)";
+      };
+
+      address = mkOption {
+        type = types.str;
+        example = "play.example.com:25565";
+        description = "Server address (host, or host:port); matched verbatim against existing entries";
+      };
+
+      acceptTextures = mkOption {
+        type = types.nullOr types.bool;
+        default = null;
+        description = "Server resource packs: true = auto-accept, false = decline, null = prompt (Minecraft default)";
+      };
     };
   };
 
@@ -342,6 +395,7 @@
       mmcPackJson = mkMmcPackJson resolved;
       instanceCfg = mkInstanceCfg name resolved;
       worldSetupScript = mkWorldSetupScript name resolved.worlds;
+      serversSetupScript = mkServersSetupScript name resolved.servers;
     })
   resolvedModpacks;
 

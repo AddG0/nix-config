@@ -1,0 +1,17 @@
+# packwiz records a sha256 of each file's exact bytes in index.toml. Git
+# line-ending conversion (notably core.autocrlf on Windows) rewrites LF->CRLF
+# on checkout, changing those bytes so packwiz-installer rejects the file as
+# "hash invalid". Force LF for every text file on all platforms; never let git
+# touch binaries (Litematica schematics etc.), which it would corrupt.
+* text=auto eol=lf
+
+# Binary assets packwiz hashes verbatim.
+*.litematic binary
+*.nbt        binary
+*.schem      binary
+*.schematic  binary
+*.dat        binary
+*.png        binary
+*.jar        binary
+*.zip        binary
+*.ogg        binary

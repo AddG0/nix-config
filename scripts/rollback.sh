@@ -60,10 +60,13 @@ rollback_linux() {
       log_error "Generation ${GENERATION} does not exist"
       exit 1
     fi
-    sudo /nix/var/nix/profiles/system-${GENERATION}-link/bin/switch-to-configuration switch
+    sudo nix-env -p /nix/var/nix/profiles/system --switch-generation "${GENERATION}"
+    sudo /nix/var/nix/profiles/system/bin/switch-to-configuration switch
   else
     log_info "Rolling back to previous generation"
-    sudo nixos-rebuild switch --rollback
+    # not `nixos-rebuild --rollback`: it re-evals <nixpkgs/nixos>, absent on flake systems
+    sudo nix-env --rollback -p /nix/var/nix/profiles/system
+    sudo /nix/var/nix/profiles/system/bin/switch-to-configuration switch
   fi
 }
 
