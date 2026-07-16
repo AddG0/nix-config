@@ -38,6 +38,9 @@
     };
   };
 
+  # Offload-mode host: apps default to the iGPU, so let GPU-heavy apps opt into the dGPU.
+  hostSpec.gpu.offload = "nvidia";
+
   # Specialisation: iGPU-only battery saver mode.
   # Completely removes the NVIDIA dGPU at boot — no modules loaded,
   # PCI device removed via udev, Hyprland uses Intel xe only.

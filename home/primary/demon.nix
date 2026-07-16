@@ -69,6 +69,7 @@
       "tools/freecad.nix"
       "tools/obsidian.nix"
       "tools/krita.nix"
+      "tools/stylus-notes.nix"
 
       # NixOS Specific
       # "nixos/desktops/plasma6"

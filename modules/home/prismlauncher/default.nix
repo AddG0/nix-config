@@ -113,7 +113,7 @@
   in {
     name = validName;
     source = filteredSource;
-    inherit (modpack) group javaArgs javaPackage excludeMods enableGameMode enableMangoHud servers;
+    inherit (modpack) group javaArgs javaPackage excludeMods enableGameMode enableMangoHud useDiscreteGpu servers;
     worlds = lib.mapAttrs resolveWorld modpack.worlds;
     icon = iconResolved.key;
     iconPath = iconResolved.path;
@@ -148,7 +148,11 @@
     };
 
   # Generate instance.cfg content
-  mkInstanceCfg = name: modpack: ''
+  mkInstanceCfg = name: modpack: let
+    # A single OverridePerformance gate unlocks all three performance keys.
+    needsPerformanceOverride =
+      modpack.enableGameMode || modpack.enableMangoHud || modpack.useDiscreteGpu;
+  in ''
     [General]
     ConfigVersion=1.2
     InstanceType=OneSix
@@ -166,14 +170,10 @@
       OverrideJavaLocation=true
       JavaPath=${modpack.javaPackage}/bin/java
     ''}
-    ${optionalString modpack.enableGameMode ''
-      OverridePerformance=true
-      EnableFeralGameMode=true
-    ''}
-    ${optionalString modpack.enableMangoHud ''
-      ${optionalString (!modpack.enableGameMode) "OverridePerformance=true"}
-      EnableMangoHud=true
-    ''}
+    ${optionalString needsPerformanceOverride "OverridePerformance=true"}
+    ${optionalString modpack.enableGameMode "EnableFeralGamemode=true"}
+    ${optionalString modpack.enableMangoHud "EnableMangoHud=true"}
+    ${optionalString modpack.useDiscreteGpu "UseDiscreteGpu=true"}
   '';
 
   # Modpack submodule options
@@ -255,6 +255,15 @@
         type = types.bool;
         default = false;
         description = "Enable MangoHud FPS/GPU/CPU overlay";
+      };
+
+      useDiscreteGpu = mkOption {
+        type = types.bool;
+        default = false;
+        description = ''
+          Render on the discrete GPU (Prism's "Use discrete GPU"). Only for
+          hybrid offload hosts; drive from config.hostSpec.gpu.offload.
+        '';
       };
 
       worlds = mkOption {

@@ -111,6 +111,22 @@
     };
 
     # ============================================================================
+    # Graphics
+    # ============================================================================
+    gpu = {
+      offload = lib.mkOption {
+        type = lib.types.nullOr (lib.types.enum ["nvidia" "amd"]);
+        default = null;
+        description = ''
+          Offload GPU-heavy apps to the discrete GPU on a hybrid host, and
+          which driver it is (picks the mechanism: nvidia = PRIME render-offload
+          env vars; amd = DRI_PRIME). null on single-GPU / dGPU-primary hosts —
+          forcing it there can drop apps to software rendering (llvmpipe).
+        '';
+      };
+    };
+
+    # ============================================================================
     # Work Configuration
     # ============================================================================
     # FIXME: Set an assert to make sure this is set if isWork is true

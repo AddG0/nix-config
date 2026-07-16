@@ -1,6 +1,12 @@
-{pkgs, ...}: let
+{
+  config,
+  pkgs,
+  ...
+}: let
   mainSource = ./modpacks/main-1.21.11;
   mainIcon = ../../../../../assets/avatars/addg-halloween.png;
+  # Offload to the dGPU only on hybrid hosts
+  useDiscreteGpu = config.hostSpec.gpu.offload != null;
 in {
   programs.prismlauncher = {
     enable = true;
@@ -11,6 +17,7 @@ in {
         icon = mainIcon;
         javaPackage = pkgs.jdk25;
         enableGameMode = true;
+        inherit useDiscreteGpu;
       };
       "main-1.21.11-smp" = {
         source = mainSource;
@@ -18,6 +25,7 @@ in {
         icon = mainIcon;
         javaPackage = pkgs.jdk25;
         enableGameMode = true;
+        inherit useDiscreteGpu;
         group = "SMP";
         servers = [
           {
@@ -33,6 +41,7 @@ in {
         icon = mainIcon;
         javaPackage = pkgs.jdk25;
         enableGameMode = true;
+        inherit useDiscreteGpu;
       };
     };
   };

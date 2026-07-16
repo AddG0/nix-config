@@ -12,7 +12,7 @@
 
 set -euo pipefail
 
-if [[ -z "${1:-}" ]]; then
+if [[ -z ${1:-} ]]; then
   echo "Usage: $(basename "$0") <host> [target-platform]"
   echo "  host:            NixOS configuration name (required)"
   echo "  target-platform: platform to check against (default: aarch64-linux)"
@@ -36,21 +36,21 @@ echo "  [1/3] Evaluating system.build.toplevel..."
 TOPLEVEL=$(nix eval "${FLAKE_DIR}#nixosConfigurations.${HOST}.config.system.build.toplevel" --raw 2>/dev/null)
 
 echo "  [2/3] Querying full closure..."
-nix path-info -r "$TOPLEVEL" 2>/dev/null \
-  | sed 's|/nix/store/[a-z0-9]*-||' \
-  | sort -u \
-  | grep -E '^[a-zA-Z].*-[0-9]+' \
-  | grep -v '\.patch$\|\.conf$\|\.sh$\|\.lua\|\.service\|\.mount\|\.socket\|\.timer\|\.target\|\.path$' \
-  | grep -v -- '-doc$\|-man$\|-dev$\|-bin$\|-lib$\|-info$' \
-  > "$TMPDIR/packages.txt"
+nix path-info -r "$TOPLEVEL" 2>/dev/null |
+  sed 's|/nix/store/[a-z0-9]*-||' |
+  sort -u |
+  grep -E '^[a-zA-Z].*-[0-9]+' |
+  grep -v '\.patch$\|\.conf$\|\.sh$\|\.lua\|\.service\|\.mount\|\.socket\|\.timer\|\.target\|\.path$' |
+  grep -v -- '-doc$\|-man$\|-dev$\|-bin$\|-lib$\|-info$' \
+    >"$TMPDIR/packages.txt"
 
-PKG_COUNT=$(wc -l < "$TMPDIR/packages.txt")
+PKG_COUNT=$(wc -l <"$TMPDIR/packages.txt")
 echo "         $PKG_COUNT package paths found"
 
 # Phase 2
 echo "  [3/3] Checking meta.platforms for each package..."
 
-cat > "$TMPDIR/check.nix" << NIXEOF
+cat >"$TMPDIR/check.nix" <<NIXEOF
 let
   rawNames = builtins.filter (n: n != "" && builtins.isString n)
     (builtins.split "\n" (builtins.readFile ./packages.txt));
@@ -160,7 +160,7 @@ echo "$RESULT" | jq -r '
 
 # Incompatible packages
 INCOMPAT_COUNT=$(echo "$RESULT" | jq '.incompatibleGrouped | length')
-if [[ "$INCOMPAT_COUNT" -gt 0 ]]; then
+if [[ $INCOMPAT_COUNT -gt 0 ]]; then
   echo "  Incompatible Packages"
   echo "  ─────────────────────────────────────"
   echo "$RESULT" | jq -r '
@@ -179,14 +179,14 @@ fi
 
 # Unresolved packages
 UNRESOLVED_COUNT=$(echo "$RESULT" | jq '.summary.unresolved')
-if [[ "$UNRESOLVED_COUNT" -gt 0 ]]; then
+if [[ $UNRESOLVED_COUNT -gt 0 ]]; then
   echo "  Unresolved ($UNRESOLVED_COUNT paths not in top-level nixpkgs)"
   echo "  ─────────────────────────────────────"
   SHOWN=30
   echo "$RESULT" | jq -r --argjson shown "$SHOWN" '
     .unresolvedNames[:$shown][] | "  ? \(.)"
   '
-  if [[ "$UNRESOLVED_COUNT" -gt "$SHOWN" ]]; then
+  if [[ $UNRESOLVED_COUNT -gt $SHOWN ]]; then
     REMAINING=$((UNRESOLVED_COUNT - SHOWN))
     echo "  ... and $REMAINING more"
   fi

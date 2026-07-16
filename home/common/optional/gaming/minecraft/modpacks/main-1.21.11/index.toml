@@ -168,6 +168,11 @@ hash = "7dd4ecef868f9656f395dd4c502495f240d47560542b997b2284e68b7f1740b1"
 metafile = true
 
 [[files]]
+file = "mods/chunky.pw.toml"
+hash = "eaa52d6ff1bcb539956d50626085d9185eca346fabcf6b3c176c53192b9958ec"
+metafile = true
+
+[[files]]
 file = "mods/clean-view-particles.pw.toml"
 hash = "d516b666feea9852441fcfcc2af93aca5fc4045fb00389e6685ff02091c2c7d5"
 metafile = true

@@ -50,7 +50,7 @@
       "secrets/buf.nix"
 
       # Gaming
-      "gaming/steam.nix"
+      "gaming/steam"
       "gaming/minecraft"
       "gaming/heroic.nix"
       "gaming/r2modman.nix"
@@ -71,6 +71,7 @@
       # "tools/freecad.nix"
       "tools/obsidian.nix"
       "tools/krita.nix"
+      "tools/stylus-notes.nix"
 
       # NixOS Specific
       # "nixos/desktops/plasma6"
