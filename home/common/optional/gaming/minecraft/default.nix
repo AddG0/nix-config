@@ -32,6 +32,10 @@ in {
             name = "mcpvp.club";
             address = "mcpvp.club";
           }
+          {
+            name = "Hypixel";
+            address = "mc.hypixel.net";
+          }
         ];
       };
       # World save: https://shelledturtle.gumroad.com/l/TheosPVPPractice

@@ -94,7 +94,6 @@
     # Rocket League has a linux build, but it's not maintained so we need to use the windows version
     rocket-league = {
       compatTool = defaultCompatTool;
-      launchOptions.wrappers = [gamemoderun] ++ gamescope;
     };
 
     # I had multiplayer issues with the linux version. So I'm using the windows version.
