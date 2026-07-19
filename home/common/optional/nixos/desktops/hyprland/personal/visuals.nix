@@ -263,6 +263,8 @@ in {
       # state, so this already covers "on hover".)
       "opacity 1.0 override 1.0 override 1.0 override, match:class ^(zen|zen-alpha|zen-beta)$"
       "opacity 1.0 override 1.0 override 1.0 override, match:class ^(vlc)$"
+      # gamescope games run windowed-borderless, so they'd otherwise catch the active/inactive dimming.
+      "opacity 1.0 override 1.0 override 1.0 override, match:class ^(\\.gamescope-wrapped)$"
       "opacity 0.97 override 0.95 override, match:class ^(com.mitchellh.ghostty)$"
     ];
 

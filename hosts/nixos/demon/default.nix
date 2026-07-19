@@ -51,7 +51,7 @@
       "nixos/development/postgres.nix"
       "nixos/development/redis.nix"
 
-      "nixos/gaming.nix" # steam, gamescope, gamemode, and related hardware
+      "nixos/gaming" # steam, gamescope, gamemode, and related hardware
       "nixos/vr.nix" # monado OpenXR runtime (Bigscreen Beyond)
 
       # "nixos/plymouth.nix" # fancy boot screen
@@ -96,6 +96,10 @@
   # qemu user-mode emulation so demon can build aarch64-linux derivations
   # (e.g. the heimdall Pi 5 SD image) without a remote builder.
   boot.binfmt.emulatedSystems = ["aarch64-linux"];
+
+  boot.tmp.useTmpfs = true;
+  # builds to disk-backed /var/tmp so a large one can't exhaust RAM (no swap here)
+  systemd.services.nix-daemon.environment.TMPDIR = "/var/tmp";
 
   security.firewall.enable = true;
 

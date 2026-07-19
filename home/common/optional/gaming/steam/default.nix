@@ -109,7 +109,10 @@
     # Wrap in gaemscope to fix weird fullscreen behavior
     forza-horizon-4.launchOptions.wrappers = [gamemoderun] ++ gamescope;
     forza-horizon-5.launchOptions.wrappers = [gamemoderun] ++ gamescope;
-    forza-horizon-6.launchOptions.wrappers = [gamemoderun] ++ gamescope;
+    forza-horizon-6 = {
+      launchOptions.wrappers = [gamemoderun] ++ gamescope;
+      compatTool = "proton_experimental";
+    };
 
     overwatch.launchOptions.wrappers = mouseDpi 1800 ++ [gamemoderun];
 
@@ -146,4 +149,8 @@ in {
   home.file.".steam/steam/steam_dev.cfg".text = ''
     unShaderBackgroundProcessingThreads 1
   '';
+
+  # Decky Loader injects its UI via Steam's CEF debugger (port 8080); this
+  # marker enables it. Requires a full Steam restart after first creation.
+  home.file.".steam/steam/.cef-enable-remote-debugging".text = "";
 }

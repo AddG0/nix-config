@@ -15,10 +15,10 @@
 
   airpods-autoconnect = pkgs.writeShellApplication {
     name = "airpods-autoconnect";
-    # busctl ships with systemd; dbus-monitor with pkgs.dbus; gawk parses the
-    # multi-line signal. We talk to BlueZ directly over D-Bus — bluetoothctl is
-    # unreliable without a TTY (exits before issuing Connect).
-    runtimeInputs = with pkgs; [dbus systemd coreutils gnugrep gawk];
+    # btmon (pkgs.bluez) supplies the disconnect reason; busctl (systemd) does
+    # the Connect()/state checks. Not bluetoothctl — unreliable without a TTY
+    # (exits before issuing Connect).
+    runtimeInputs = with pkgs; [bluez systemd coreutils gnugrep gawk];
     text = ''
       set -uo pipefail
 
@@ -36,11 +36,14 @@
           | grep -qx "b true"
       }
 
-      # One reconnect sequence. Single-flight by construction: the edge loop runs
-      # this inline, so a new sequence can't begin until it returns, and only a
-      # genuine Connected->false edge starts one.
+      # One reconnect sequence. Single-flight by construction: the reason loop
+      # runs this inline, so a new sequence can't begin until it returns, and
+      # only a 0x14 low-resources event starts one.
       reconnect() {
         local delay err
+        # btmon sees the disconnect before bluetoothd flips Device1.Connected;
+        # settle so the first is_connected() doesn't read a stale "true".
+        sleep 1
         for delay in "''${BACKOFFS[@]}"; do
           is_connected && { log "connected; done"; return 0; }
           log "waiting ''${delay}s"
@@ -62,41 +65,55 @@
             *) log "Connect() failed: $err" ;;
           esac
         done
-        log "giving up; idle until next disconnect"
+        log "giving up; idle until next low-resources drop"
         return 1
       }
 
-      log "watching $DEV_PATH for Connected edges"
+      log "watching HCI for AirPods ($MAC) low-resources disconnects"
 
-      # dbus-monitor emits multi-line PropertiesChanged signals; gawk collapses
-      # each to a single token only when the Connected property actually flips.
-      # Edge-triggered on purpose: our own Connect() traffic and RSSI churn no
-      # longer re-trigger us (the level-triggered original re-fired off its own
-      # signals, stacking overlapping reconnect loops).
-      dbus-monitor --system \
-        "type='signal',interface='org.freedesktop.DBus.Properties',member='PropertiesChanged',path='$DEV_PATH'" \
-        | gawk '
-            /string "Connected"/           { seen = 1; next }
-            seen && /boolean (true|false)/ {
-              print (/true/ ? "CONNECTED" : "DISCONNECTED"); fflush(); seen = 0; next
+      # Reconnect ONLY on HCI reason 0x14 (Remote Device Terminated due to Low
+      # Resources) — the spurious drop. Every other reason is intentional and
+      # must NOT be fought, or we steal the AirPods from wherever they went:
+      #   0x13 / 0x16 — handoff to phone or another host
+      #   0x15        — powered off / back in the case
+      #
+      # Disconnect Complete carries only a connection handle, not an address, so
+      # we tag the AirPods' handle from whichever connection event carries their
+      # address (BR/EDR "Address:" or LE "Peer address:") and match the
+      # disconnect on it. Caveat: if this service (re)starts while they're
+      # already connected we miss that event and can miss the next drop until
+      # they reconnect once — a safe failure (we under-reconnect, never steal).
+      stdbuf -oL btmon 2>/dev/null \
+        | gawk -v mac="$MAC" '
+            # New packet resets the block handle; flag Disconnect Complete blocks.
+            /^[<>=@]/ { in_disc = ($0 ~ /Disconnect Complete/); h = ""; next }
+
+            $1 == "Handle:"                  { h = $2; next }
+            /[Aa]ddress:/ && index($0, mac)  { airpods[h] = 1; next }
+            in_disc && $1 == "Reason:" && (h in airpods) {
+              code = $0; sub(/.*\(/, "", code); sub(/\).*/, "", code)
+              print code; fflush()
+              delete airpods[h]
+              next
             }
-            { seen = 0 }
           ' \
-        | while IFS= read -r edge; do
-            case "$edge" in
-              CONNECTED)    log "AirPods connected" ;;
-              DISCONNECTED) log "AirPods disconnected"; reconnect || true ;;
-            esac
+        | while IFS= read -r reason; do
+            if [ "$reason" = "0x14" ]; then
+              log "AirPods low-resources drop ($reason); reconnecting"
+              reconnect || true
+            else
+              log "AirPods disconnect reason $reason; leaving them (handoff/idle/case)"
+            fi
           done
     '';
   };
 in {
-  # Works around BlueZ ignoring AirPods' graceful disconnect (HCI Reason 0x14).
-  # The Policy.ReconnectAttempts in services/bluetooth.nix only fires on link
-  # loss (supervision timeout) — not on remote-initiated disconnects, which is
-  # what AirPods send when handing off to another device or going idle.
+  # BlueZ's Policy.ReconnectAttempts (services/bluetooth.nix) only fires on link
+  # loss (supervision timeout), never on remote-initiated disconnects — so the
+  # AirPods' spurious 0x14 low-resources drop is never auto-recovered. This
+  # service fills that gap; see the script for why only 0x14 and not every drop.
   systemd.services.airpods-autoconnect = {
-    description = "Reconnect AirPods after graceful disconnects BlueZ ignores";
+    description = "Reconnect AirPods after low-resources drops BlueZ ignores";
     after = ["bluetooth.target"];
     wants = ["bluetooth.target"];
     wantedBy = ["multi-user.target"];

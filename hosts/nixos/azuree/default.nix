@@ -36,7 +36,7 @@
       "nixos/services/openssh.nix" # allow remote SSH access
       "nixos/nvtop.nix" # GPU monitor (not available in home-manager)
       # "nixos/audio.nix" # pipewire and cli controls - using local audio.nix instead
-      "nixos/gaming.nix" # steam, gamescope, gamemode, and related hardware
+      "nixos/gaming" # steam, gamescope, gamemode, and related hardware
       # "nixos/services/home-assistant"
       "nixos/virtualisation/docker.nix" # docker
       # "nixos/plymouth.nix" # fancy boot screen

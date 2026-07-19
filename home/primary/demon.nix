@@ -66,7 +66,7 @@
 
       # Tools
       "tools/wayscriber.nix"
-      "tools/freecad.nix"
+      # "tools/freecad.nix"
       "tools/obsidian.nix"
       "tools/krita.nix"
       "tools/stylus-notes.nix"

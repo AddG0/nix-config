@@ -40,6 +40,9 @@ pkgs: rec {
   proton-cachyos = pkgs.callPackage ./proton-cachyos {};
   wlcrosshair = pkgs.callPackage ./wlcrosshair {};
 
+  # Decky Loader plugins - modular namespace
+  decky = import ./decky pkgs;
+
   # KDE/KWin - modular namespace
   kwin-scripts = import ./kwin-scripts pkgs;
 

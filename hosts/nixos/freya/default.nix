@@ -32,7 +32,7 @@
       "nixos/services/tailscale.nix" # mesh VPN for secure remote access
       "nixos/services/openvpn.nix"
       "nixos/audio.nix" # pipewire and cli controls
-      "nixos/gaming.nix" # steam, gamescope, gamemode, and related hardware
+      "nixos/gaming" # steam, gamescope, gamemode, and related hardware
       "nixos/virtualisation/docker.nix" # docker
       "nixos/services/automatic-timezoned.nix"
 

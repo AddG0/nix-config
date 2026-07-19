@@ -77,7 +77,7 @@
 
     vscode-server = {
       url = "github:nix-community/nixos-vscode-server";
-      inputs.nixpkgs.follows = "nixpkgs";
+      inputs.flake-parts.follows = "flake-parts";
     };
 
     nix-vscode-extensions = {
@@ -180,6 +180,12 @@
 
     steam-config-nix = {
       url = "github:different-name/steam-config-nix";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
+
+    # Jovian-NixOS — we only use its decky-loader module.
+    jovian = {
+      url = "github:Jovian-Experiments/Jovian-NixOS";
       inputs.nixpkgs.follows = "nixpkgs";
     };
 
