@@ -28,7 +28,7 @@ fi
 
 echo "claude-desktop: $cur_claude/$cur_wrapper -> $new_claude/$new_wrapper"
 
-url="https://github.com/aaddrick/claude-desktop-debian/releases/download/v${new_wrapper}%2Bclaude${new_claude}/claude-desktop_${new_claude}-${new_wrapper}_amd64.deb"
+url="https://github.com/aaddrick/claude-desktop-debian/releases/download/v${new_wrapper}%2Bclaude${new_claude}/claude-desktop-unofficial_${new_claude}-${new_wrapper}_amd64.deb"
 raw=$(nix-prefetch-url "$url" --type sha256)
 sri=$(nix hash convert --hash-algo sha256 --to sri "$raw")
 

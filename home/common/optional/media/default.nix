@@ -3,7 +3,7 @@
     inherit
       (pkgs)
       ffmpeg
-      losslesscut
+      losslesscut-bin
       ;
   };
 }

@@ -9,7 +9,7 @@
 }:
 stdenvNoCC.mkDerivation {
   pname = "yarn-berry-completions";
-  version = "0-unstable-2026-03-10";
+  version = "1.0.7-unstable-2026-03-10";
 
   src = fetchFromGitHub {
     owner = "ursine-code";

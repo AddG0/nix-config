@@ -1,5 +1,6 @@
 {
   inputs,
+  config,
   pkgs,
   ...
 }: {
@@ -7,6 +8,9 @@
 
   jovian.decky-loader = {
     enable = true;
+    # Run as the logged-in user so plugins reach their session — Deckcord's voice
+    # backend hardcodes /run/user/1000 (dbus/pipewire). Plugins run as you.
+    user = config.hostSpec.primaryUsername;
     extraPackages = [pkgs.systemd]; # decky shells out to `systemctl`
     extraPythonPackages = ps: [ps.aiohttp-cors]; # Deckcord backend imports it
     # Keys are the store's own folder names, so a UI install wouldn't duplicate.

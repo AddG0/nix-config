@@ -1,16 +1,10 @@
-# Native Linux VR via Monado for the Bigscreen Beyond on NVIDIA.
+# VR for the Bigscreen Beyond on NVIDIA — SteamVR only.
 #
-# Per real user reports (r/BigscreenBeyond), SteamVR-for-Linux stutters
-# badly on NVIDIA and has trouble routing the Beyond's display. Monado
-# uses a different pipeline (DRM lease on the Beyond's DP output for
-# rendering, SteamVR's lighthouse driver borrowed for tracking the
-# Beyond's internal Tundra-Labs sensor) and is the recommended NVIDIA
-# path.
+# Monado (commented below) is disabled: the Beyond 2's panel won't scan out on
+# NVIDIA in any runtime yet — an unresolved driver DSC gap, not fixable here.
+# The hidraw rules and setcap below still serve SteamVR.
 #
-# Refs:
-#   - https://www.reddit.com/r/BigscreenBeyond/comments/1qalysc/another_linux_thread/
-#   - https://wiki.vronlinux.org/docs/hardware/bigscreen-beyond/
-#   - https://wiki.nixos.org/wiki/VR
+# Ref: https://wiki.vronlinux.org/docs/hardware/bigscreen-beyond/
 {
   config,
   pkgs,
@@ -18,6 +12,9 @@
 }: let
   launcher = "/home/${config.hostSpec.primaryUsername}/.local/share/Steam/steamapps/common/SteamVR/bin/linux64/vrcompositor-launcher";
 in {
+  # Disabled (see header). To re-enable: uncomment and re-pin a monado newer
+  # than 25.1.0 — stock crashes in steamvr_lh (vtable skew vs current SteamVR).
+  /*
   services.monado = {
     enable = true;
     defaultRuntime = true; # writes /etc/xdg/openxr/1/active_runtime.json
@@ -25,24 +22,18 @@ in {
   };
 
   systemd.user.services.monado.environment = {
-    # Use SteamVR's lighthouse driver. The Beyond's internal tracking is
-    # a Tundra Labs lighthouse-2 module; SteamVR's driver knows how to
-    # talk to it. libsurvive (Monado's built-in fallback) does not.
+    # SteamVR's lighthouse driver tracks the Beyond's internal Tundra-Labs
+    # module; libsurvive (Monado's built-in fallback) does not.
     STEAMVR_LH_ENABLE = "1";
-
-    # Compute-pipeline compositor — better on NVIDIA than the default
-    # rasterization pipeline.
-    XRT_COMPOSITOR_COMPUTE = "1";
-
-    # Fixes Monado stuttering on NVIDIA per r/BigscreenBeyond community.
+    XRT_COMPOSITOR_COMPUTE = "1"; # compute pipeline — better on NVIDIA
+    # framepacing tweaks per r/BigscreenBeyond
     XRT_COMPOSITOR_USE_PRESENT_WAIT = "1";
     U_PACING_COMP_TIME_FRACTION_PERCENT = "90";
   };
 
-  # Pressure-vessel (Steam's bubblewrap sandbox) hides host OpenXR
-  # runtime registration by default. Without this, VR/XR games inside
-  # Steam can't find Monado.
+  # Pressure-vessel hides the host OpenXR runtime from Steam-sandboxed games.
   environment.sessionVariables.PRESSURE_VESSEL_IMPORT_OPENXR_1_RUNTIMES = "1";
+  */
 
   # Bigscreen Beyond / Beyond 2 hidraw access. hardware.steam-hardware
   # (enabled transitively by programs.steam) only covers Valve/HTC PIDs,
@@ -80,7 +71,12 @@ in {
     serviceConfig = {
       Type = "oneshot";
       RemainAfterExit = true;
-      ExecStart = "${pkgs.libcap}/bin/setcap cap_sys_nice+ep ${launcher}";
+      # +eip, not +ep: the launcher raises CAP_SYS_NICE into its ambient
+      # set to pass it to the vrcompositor child. Ambient raise needs the
+      # cap inheritable, so the file cap must include 'i' — without it the
+      # launcher logs "Failed to raise ambient cap", vrcompositor can't get
+      # RT priority, and its render thread dies on a WaitForPresent watchdog.
+      ExecStart = "${pkgs.libcap}/bin/setcap cap_sys_nice+eip ${launcher}";
     };
   };
 }

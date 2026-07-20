@@ -1,0 +1,20 @@
+Retry the initial tab creation instead of dying once. Decky loads Deckcord
+before Steam's CEF debugger is stable; the unpatched _main awaits initialize()
+with no retry, so a transient "closing transport" kills the backend for good
+(the watchdog retry only arms after the first tab exists). Loop like watchdog.
+--- a/main.py
++++ b/main.py
+@@ -90,7 +90,12 @@
+     @classmethod
+     async def _main(cls):
+         logger.info("Starting Deckcord backend")
+-        await initialize()
++        while True:
++            try:
++                await initialize()
++                break
++            except Exception:
++                await sleep(2)
+         logger.info("Discord initialized")
+
+         cls.server.add_routes(

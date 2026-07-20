@@ -6,16 +6,29 @@ _: _final: prev: {
 
     dontUnpack = true;
 
-    nativeBuildInputs = [];
+    nativeBuildInputs = [prev.copyDesktopItems];
+
+    # Named legcord to match the Icon=legcord icons copied below.
+    desktopItems = [
+      (prev.makeDesktopItem {
+        name = "legcord";
+        desktopName = "Discord";
+        comment = "All-in-one voice and text chat for gamers";
+        exec = "legcord";
+        icon = "legcord";
+        categories = ["Network" "InstantMessaging"];
+        startupWMClass = "legcord";
+      })
+    ];
 
     installPhase = ''
-      mkdir -p $out/bin $out/share/applications $out/share/icons/hicolor
+      runHook preInstall
+      mkdir -p $out/bin $out/share/icons/hicolor
 
-      # Link legcord binary and create discord alias
       ln -s "${prev.legcord}/bin/legcord" "$out/bin/legcord"
       ln -s "$out/bin/legcord" "$out/bin/discord"
 
-      # Copy Discord icons as legcord.png (to match Icon=legcord)
+      # Discord icons as legcord.png so Icon=legcord resolves.
       for size in 16 32 48 64 128 256 512 1024; do
         src_icon="${prev.discord}/share/icons/hicolor/''${size}x''${size}/apps/discord.png"
         if [ -f "$src_icon" ]; then
@@ -23,18 +36,7 @@ _: _final: prev: {
           cp "$src_icon" "$out/share/icons/hicolor/''${size}x''${size}/apps/legcord.png"
         fi
       done
-
-      # Create desktop file named legcord.desktop (matches desktopFile: legcord)
-      cat > "$out/share/applications/legcord.desktop" << EOF
-      [Desktop Entry]
-      Name=Discord
-      Comment=All-in-one voice and text chat for gamers
-      Exec=legcord
-      Icon=legcord
-      Type=Application
-      Categories=Network;InstantMessaging;
-      StartupWMClass=legcord
-      EOF
+      runHook postInstall
     '';
   };
 }

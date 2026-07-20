@@ -11,7 +11,7 @@
 local JQ = "@jq@"
 
 local function getInt(key, fallback)
-  local v = barWidget.getConfig(key)
+  local v = noctalia.getConfig(key)
   if type(v) == "number" then
     return v
   end

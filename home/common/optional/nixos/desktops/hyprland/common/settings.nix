@@ -138,7 +138,6 @@ in {
         lib.optional (primaryMonitor != null)
         "${lib.getExe pkgs.xrandr} --output ${primaryMonitor.output} --primary";
     };
-    plugins = [];
     systemd = {
       enable = false; # UWSM handles session management
     };

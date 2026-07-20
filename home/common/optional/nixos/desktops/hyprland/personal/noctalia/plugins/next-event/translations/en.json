@@ -1,0 +1,5 @@
+{
+  "settings.max_chars.label": "Max title length",
+  "settings.lookahead_minutes.label": "Show within (minutes, 0 = no limit)",
+  "settings.refresh_seconds.label": "Refresh interval (seconds)"
+}

@@ -32,12 +32,14 @@
   libxcb,
 }: let
   pname = "claude-desktop";
-  version = "1.15962.1";
-  wrapperVersion = "2.0.22";
+  version = "1.22209.0";
+  wrapperVersion = "3.2.1";
+  # Upstream rebranded the packaged binary/dirs/desktop to this in wrapper 3.x.
+  debName = "claude-desktop-unofficial";
 
   src = fetchurl {
-    url = "https://github.com/aaddrick/claude-desktop-debian/releases/download/v${wrapperVersion}%2Bclaude${version}/claude-desktop_${version}-${wrapperVersion}_amd64.deb";
-    hash = "sha256-f34tq1bbNF6e2aptdcUzqHaKppd5IHPvLWtwyhQhdz0=";
+    url = "https://github.com/aaddrick/claude-desktop-debian/releases/download/v${wrapperVersion}%2Bclaude${version}/claude-desktop-unofficial_${version}-${wrapperVersion}_amd64.deb";
+    hash = "sha256-hda8auj0Dg/sIEJDnOvCFn2E0Ah/I4bAFQouxSJpzJo=";
   };
 
   unwrapped = stdenvNoCC.mkDerivation {
@@ -58,16 +60,16 @@
       # across upstream versions (e.g. launcher-common.sh dropped its reference
       # in 2.0.10).
       for f in \
-        "$out/bin/claude-desktop" \
-        "$out/lib/claude-desktop/launcher-common.sh" \
-        "$out/lib/claude-desktop/doctor.sh"; do
+        "$out/bin/${debName}" \
+        "$out/lib/${debName}/launcher-common.sh" \
+        "$out/lib/${debName}/doctor.sh"; do
         [ -f "$f" ] && substituteInPlace "$f" \
-          --replace-quiet '/usr/lib/claude-desktop' "$out/lib/claude-desktop"
+          --replace-quiet '/usr/lib/${debName}' "$out/lib/${debName}"
       done
 
       # Fix desktop file
-      substituteInPlace $out/share/applications/claude-desktop.desktop \
-        --replace-fail '/usr/bin/claude-desktop' "claude-desktop"
+      substituteInPlace $out/share/applications/${debName}.desktop \
+        --replace-fail '/usr/bin/${debName}' "claude-desktop"
     '';
   };
 in
@@ -108,7 +110,7 @@ in
       # Use native Wayland backend — fixes overlay popup rendering on Hyprland
       export CLAUDE_USE_WAYLAND=1
     '';
-    runScript = "${unwrapped}/bin/claude-desktop";
+    runScript = "${unwrapped}/bin/${debName}";
     extraInstallCommands = ''
       mkdir -p $out/share
       cp -r ${unwrapped}/share/applications $out/share/

@@ -9,8 +9,8 @@
 
   noctaliaPkg = pkgs.noctalia;
 in {
-  # ./next-event installs the calendar bar-widget plugin; it's enabled + placed below.
-  imports = [inputs.noctalia.homeModules.default ./next-event];
+  # ./plugins installs the bar-widget plugins (mkPlugin per dir); they're enabled + placed below.
+  imports = [inputs.noctalia.homeModules.default ./plugins];
 
   programs.noctalia = {
     enable = true;
@@ -38,7 +38,7 @@ in {
         start = ["search" "clock" "cpu" "ram" "active_window" "media"];
         center = ["workspaces"];
         end =
-          ["tray" "calendar" "bluetooth" "input_volume" "notifications" "volume"]
+          ["tray" "calendar" "bluetooth" "otd_mode" "input_volume" "notifications" "volume"]
           ++ lib.optionals isLaptop ["power_profile" "battery"]
           ++ ["control-center"];
       };
@@ -51,9 +51,10 @@ in {
         command = lib.getExe pkgs.walker;
       };
 
-      # The calendar widget (installed via ./next-event).
-      plugins.enabled = ["addg/next-event"];
+      # Bar-widget plugins (installed via ./plugins/*).
+      plugins.enabled = ["addg/next-event" "addg/otd-mode"];
       widget.calendar.type = "addg/next-event:agenda";
+      widget.otd_mode.type = "addg/otd-mode:switcher";
 
       # strftime clock formats.
       widget.clock = {

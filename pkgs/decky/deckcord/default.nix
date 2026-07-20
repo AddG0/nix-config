@@ -3,6 +3,7 @@
   stdenvNoCC,
   fetchzip,
   buildFHSEnv,
+  cacert,
   python3,
   glib,
   gobject-introspection,
@@ -73,6 +74,9 @@ in
       cp -r ./. "$out/"
       substituteInPlace "$out/main.py" \
         --replace-fail '"/usr/bin/python"' '"${webrtcPython}/bin/deckcord-python"'
+      # Upstream hardcodes the macOS/BSD CA path; NixOS has none there.
+      substituteInPlace "$out/tab_utils/tab.py" \
+        --replace-fail '"/etc/ssl/cert.pem"' '"${cacert}/etc/ssl/certs/ca-bundle.crt"'
       runHook postInstall
     '';
 

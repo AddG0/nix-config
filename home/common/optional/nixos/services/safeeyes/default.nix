@@ -1,4 +1,8 @@
-{pkgs, ...}: let
+{
+  pkgs,
+  lib,
+  ...
+}: let
   safeeyesConfig = {
     meta.config_version = "6.0.4";
 
@@ -82,9 +86,16 @@ in {
 
   services.safeeyes.enable = true;
 
-  # The trayicon plugin needs a StatusNotifierWatcher on the session bus, but
-  # the bar that provides it isn't systemd-ordered before safeeyes.service.
-  # Wait (up to 30s) for the watcher so the plugin doesn't error at login.
+  # HM orders safeeyes Before=graphical-session.target, which deadlocks against
+  # the tray-watcher wait below (the bar provides the watcher but starts after
+  # the session) — a 30s startup stall. Run it after the session instead.
+  systemd.user.services.safeeyes.Unit = {
+    Before = lib.mkForce [];
+    After = ["graphical-session.target"];
+  };
+
+  # Wait (up to 30s) for the tray watcher so the trayicon plugin doesn't error
+  # if the bar hasn't registered it yet.
   systemd.user.services.safeeyes.Service.ExecStartPre = let
     wait = pkgs.writeShellScript "wait-for-statusnotifierwatcher" ''
       for _ in $(seq 1 30); do
