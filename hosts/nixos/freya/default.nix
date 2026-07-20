@@ -39,7 +39,7 @@
       # "nixos/obs.nix" # obs
       "nixos/hardware/openrazer.nix" # openrazer
       "nixos/hardware/wooting.nix" # wooting keyboard
-      "nixos/hardware/opentabletdriver.nix"
+      "nixos/hardware/wacom-dial-scroll.nix"
       "nixos/1password.nix"
       "nixos/services/bluetooth.nix"
       "nixos/services/airpods-autoconnect.nix"

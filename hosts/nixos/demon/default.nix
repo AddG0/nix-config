@@ -40,7 +40,7 @@
         "nixos/hardware/wooting.nix" # wooting keyboard
         "nixos/hardware/flipperzero.nix" # flipper zero udev rules + qFlipper
         "nixos/hardware/moza.nix" # MOZA R5 wheelbase (boxflat + udev)
-        "nixos/hardware/opentabletdriver.nix"
+        "nixos/hardware/wacom-dial-scroll.nix"
         "nixos/1password.nix"
         "nixos/services/clamav.nix"
         "nixos/services/earlyoom.nix"

@@ -23,9 +23,7 @@
 in {
   programs.claude-code-profiles.addons.spec-driven-dev = {
     settings.permissions.allow = [
-      "Write(.sdd/specs/**)"
       "Edit(.sdd/specs/**)"
-      "Write(.sdd/steering/**)"
       "Edit(.sdd/steering/**)"
       "Bash(git checkout:*)"
       "Bash(git merge:*)"

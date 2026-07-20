@@ -7,9 +7,19 @@
   package,
   player,
   pcfg,
+  debug ? false,
 }: let
   pc = "playerctl --player=${player}";
   isMute = pcfg.action == "mute";
+
+  # A stderr line (visible in the service journal), compiled out unless debug.
+  dbg = msg: lib.optionalString debug ''echo "playerctl-rule-dbg[$PLAYER]: ${msg}" >&2'';
+
+  # Append the trackid to the watched format: playerctl --follow suppresses
+  # repeats of identical output, so two back-to-back tracks with the same
+  # artist/title (e.g. Spotify's "DJ X - Up next" segments) would collapse into
+  # one event. The trackid keeps them distinct; it is stripped before matching.
+  followFmt = "${pcfg.format}\t{{mpris:trackid}}";
 
   # One-shot: command override, else the action name as a playerctl verb.
   onMatch =
@@ -43,21 +53,19 @@
     trap cleanup EXIT INT TERM
   '';
 
-  # Skip actions re-query the live title and repeat until it stops matching:
-  # DJ-style intros (e.g. Spotify's "DJ X") come back-to-back, so a single
-  # `next` lands on the next intro. Re-reading the real state (not the stale
-  # follow line) also prevents over-skipping on events from our own skips.
+  # Retry the skip: Spotify drops a `next` issued the instant a DJ segment starts
+  # (exactly when --follow wakes us), so a single skip often no-ops.
   isSkip = pcfg.command == null && lib.elem pcfg.action ["next" "previous"];
 
   react =
     if isMute
     then ''
       if [ "$want" = true ] && [ "$muted" = false ]; then
-        echo "playerctl-rule[$PLAYER]: muting on \"$line\""
+        log "muting on \"$line\""
         do_mute
         muted=true
       elif [ "$want" = false ] && [ "$muted" = true ]; then
-        echo "playerctl-rule[$PLAYER]: unmuting"
+        log "unmuting"
         do_unmute
         muted=false
       fi
@@ -65,27 +73,27 @@
     else if isSkip
     then ''
       if [ "$want" = true ]; then
-        attempts=0
-        while [ "$attempts" -lt 12 ]; do
-          cur=$(${pc} metadata --format ${lib.escapeShellArg pcfg.format} 2>/dev/null || true)
-          hit=false
-          for p in "''${patterns[@]}"; do
-            if [[ -n "$cur" && "$cur" == *"$p"* ]]; then
-              hit=true
-              break
-            fi
-          done
-          [ "$hit" = true ] || break
-          echo "playerctl-rule[$PLAYER]: skipping \"$cur\""
-          ${pc} ${pcfg.action} || true
-          attempts=$((attempts + 1))
-          sleep 0.4
+        log "skipping \"$line\""
+        ${pc} ${pcfg.action} || true
+        # A dropped next never fires, so breaking on the first change lands on the
+        # announced song and can't stack skips onto later tracks.
+        for ((i = 1; i <= 40; i++)); do
+          sleep 0.1
+          now=$(${pc} metadata --format ${lib.escapeShellArg followFmt} 2>/dev/null || true)
+          if [ -n "$now" ] && [ "$now" != "$raw" ]; then
+            ${dbg "skip took after $((i * 100))ms: now=[$now]"}
+            break
+          fi
+          if ((i % 3 == 0)); then
+            ${dbg "skip not taken after $((i * 100))ms; retrying"}
+            ${pc} ${pcfg.action} || true
+          fi
         done
       fi
     ''
     else ''
       if [ "$want" = true ]; then
-        echo "playerctl-rule[$PLAYER]: acting on \"$line\""
+        log "acting on \"$line\""
         { ${onMatch}; } || true
       fi
     '';
@@ -93,16 +101,14 @@ in
   writeShellApplication {
     name = "playerctl-rule-${player}";
     runtimeInputs = [package];
-    # $line holds the player's metadata on each change, $want whether it matches.
-    # trackid is appended to the followed format so back-to-back tracks with
-    # identical artist/title (e.g. two "DJ X - Up next" segments) still emit an
-    # event — playerctl --follow suppresses repeats of identical output — then
-    # stripped before matching so patterns and logs only see the metadata.
     text = ''
       shopt -s nocasematch
       patterns=(${lib.concatMapStringsSep " " lib.escapeShellArg pcfg.patterns})
       export PLAYER=${player}
+      log() { echo "playerctl-rule[$PLAYER]: $*"; }
       ${prelude}
+      ${dbg "started; patterns=[\${patterns[*]}] action=${pcfg.action} format=[${followFmt}]"}
+      # $line = the matched metadata (trackid stripped); $want = whether it matches.
       while IFS= read -r raw; do
         line=''${raw%%$'\t'*}
         want=false
@@ -112,7 +118,8 @@ in
             break
           fi
         done
+        ${dbg "event: raw=[$raw] line=[$line] want=$want"}
         ${react}
-      done < <(${pc} --follow --format ${lib.escapeShellArg "${pcfg.format}\t{{mpris:trackid}}"} metadata)
+      done < <(${pc} --follow --format ${lib.escapeShellArg followFmt} metadata)
     '';
   }

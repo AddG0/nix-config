@@ -72,7 +72,6 @@
       "tools/obsidian.nix"
       "tools/krita.nix"
       "tools/stylus-notes.nix"
-      "tools/wacom.nix"
 
       # NixOS Specific
       # "nixos/desktops/plasma6"

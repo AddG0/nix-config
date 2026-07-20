@@ -15,11 +15,13 @@
     import ./mk-script.nix {
       inherit lib player pcfg;
       inherit (pkgs) writeShellApplication;
-      inherit (cfg) package;
+      inherit (cfg) package debug;
     };
 in {
   options.services.playerctlRules = {
     enable = lib.mkEnableOption "run an action on MPRIS tracks whose metadata matches a pattern (case-insensitive)";
+
+    debug = lib.mkEnableOption "verbose logging of every follow event, match decision, and skip poll to the service journal";
 
     package = lib.mkPackageOption pkgs "playerctl" {};
 

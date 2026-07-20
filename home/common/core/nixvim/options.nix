@@ -48,6 +48,9 @@
     sessionoptions = "buffers,curdir,tabpages,winsize,help,globals,skiprtp,folds";
     tabstop = 2;
     termguicolors = true;
+    # window title: "<folder> – <file>", folder alone on no-name buffers
+    title = true;
+    titlestring = "%{fnamemodify(getcwd(), ':t')}%{expand('%:t') != '' ? ' – ' . expand('%:t') : ''}";
     timeoutlen = 300;
     undofile = true;
     undolevels = 10000;

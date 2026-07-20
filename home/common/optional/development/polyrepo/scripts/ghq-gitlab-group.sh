@@ -6,9 +6,13 @@ set -euo pipefail
 
 usage() {
   cat <<'EOF'
-Usage: ghq-gitlab-group [-u] [-j N] [--include-archived] <group-path>
+Usage: ghq-gitlab-group [-u] [-j N] [--include-archived] [--no-prune] [-n] <group-path>
 
 Clones every project in a GitLab group (and its subgroups) via ghq.
+
+Before cloning it reconciles local clones with GitLab: projects that were
+renamed or transferred are moved on disk (no re-clone), and clones whose
+project is gone (deleted / scheduled for deletion) are removed.
 
 Arguments:
   <group-path>    Full GitLab group path, e.g. my-org/some-subgroup
@@ -18,11 +22,14 @@ Options:
   -u, --update            Pass -u to ghq get (fetch updates for existing clones)
   -j, --parallel N        Clone up to N repos in parallel (default: 4)
       --include-archived  Include archived projects (default: skip them)
+      --no-prune          Relocate moved clones but never delete anything
+  -n, --dry-run           Show the reconcile plan and exit; change nothing
   -h, --help              Show this help
 
 Examples:
   ghq-gitlab-group my-org/team-tools
   ghq-gitlab-group -j 8 -u my-org
+  ghq-gitlab-group -n my-org         # preview moves/deletes only
 EOF
   exit "${1:-0}"
 }
@@ -30,6 +37,8 @@ EOF
 UPDATE=""
 PARALLEL=4
 ARCHIVED="false"
+PRUNE="true"
+DRY_RUN="false"
 GROUP=""
 
 while [[ $# -gt 0 ]]; do
@@ -44,6 +53,14 @@ while [[ $# -gt 0 ]]; do
     ;;
   --include-archived)
     ARCHIVED="true"
+    shift
+    ;;
+  --no-prune)
+    PRUNE="false"
+    shift
+    ;;
+  -n | --dry-run)
+    DRY_RUN="true"
     shift
     ;;
   -h | --help) usage 0 ;;
@@ -76,8 +93,12 @@ if ! glab auth status >/dev/null 2>&1; then
   exit 1
 fi
 
-# GitLab REST wants the group id or URL-encoded full path.
-ENC=$(jq -rn --arg s "$GROUP" '$s | @uri')
+# GitLab REST wants group/project ids URL-encoded.
+enc() { jq -rn --arg s "$1" '$s | @uri'; }
+
+ROOT="$(ghq root)"
+GITLAB_DIR="$ROOT/gitlab.com"
+ENC=$(enc "$GROUP")
 
 echo "Listing projects in group: $GROUP"
 
@@ -106,8 +127,120 @@ if [[ -z $PROJECTS ]]; then
   exit 1
 fi
 
+GROUP_DIR="$GITLAB_DIR/$GROUP"
+
+# Would removing this clone lose local-only work (uncommitted, untracked, or
+# stashed)? Such clones are kept for manual review rather than deleted.
+has_local_work() {
+  [[ -n "$(git -C "$1" status --porcelain 2>/dev/null)" ]] && return 0
+  [[ -n "$(git -C "$1" stash list 2>/dev/null)" ]] && return 0
+  return 1
+}
+
+# Move a clone to its new path and repoint origin (no re-clone).
+relocate_clone() {
+  local from="$GITLAB_DIR/$1" to="$GITLAB_DIR/$2" url
+  mkdir -p "$(dirname "$to")"
+  mv "$from" "$to"
+  # The old path segment appears verbatim in the remote URL; swap it in place.
+  url=$(git -C "$to" remote get-url origin 2>/dev/null || true)
+  [[ -n $url && $url == *"$1"* ]] && git -C "$to" remote set-url origin "${url/$1/$2}"
+  rmdir -p --ignore-fail-on-non-empty "$(dirname "$from")" 2>/dev/null || true
+}
+
+remove_clone() {
+  rm -rf "${GITLAB_DIR:?}/$1"
+  rmdir -p --ignore-fail-on-non-empty "$(dirname "$GITLAB_DIR/$1")" 2>/dev/null || true
+}
+
+# Reconcile local clones with GitLab before cloning: relocate clones whose
+# project was renamed/transferred (GitLab redirects the old path to the current
+# one, so we can move instead of re-cloning) and remove clones whose project is
+# gone. Runs first so the clone loop below sees repos already at their new home.
+reconcile() {
+  [[ -d $GROUP_DIR ]] || return 0
+
+  local -A current=() moves=()
+  local deletes=() kept=() unknown=()
+  local p dir rel out cur id
+
+  # Authoritative current paths (unfiltered — a clone matching any live path,
+  # even archived or deletion-scheduled, is left for the per-folder check).
+  while IFS= read -r p; do current["$p"]=1; done < <(
+    printf '%s' "$PROJECTS_JSON" | jq -r '.[].path_with_namespace'
+  )
+
+  # Outermost clones only: prune descent once a .git is found so nested repos
+  # (terraform module caches, meta-repo sub-clones) are never touched.
+  while IFS= read -r dir; do
+    rel="${dir#"$GITLAB_DIR"/}"
+    [[ -n ${current["$rel"]:-} ]] && continue
+
+    out=$(glab api "projects/$(enc "$rel")" 2>&1) || true
+    id=$(printf '%s' "$out" | jq -r '.id // empty' 2>/dev/null || true)
+    cur=$(printf '%s' "$out" | jq -r '.path_with_namespace // empty' 2>/dev/null || true)
+
+    if [[ -n $id && -n $cur ]]; then
+      if [[ $cur =~ -deletion_scheduled-[0-9]+$ ]]; then
+        if has_local_work "$dir"; then
+          kept+=("$rel (deletion-scheduled, has local work)")
+        else deletes+=("$rel"); fi
+      elif [[ $cur == "$rel" ]]; then
+        : # archived / unchanged
+      elif [[ -e "$GITLAB_DIR/$cur" ]]; then
+        kept+=("$rel -> $cur (destination already exists)")
+      else
+        moves["$rel"]="$cur"
+      fi
+    elif printf '%s' "$out" | grep -q '(HTTP 404)'; then
+      if has_local_work "$dir"; then
+        kept+=("$rel (gone, has local work)")
+      else deletes+=("$rel"); fi
+    else
+      # Network / 5xx / auth / rate-limit — never destructive on uncertainty.
+      unknown+=("$rel")
+    fi
+  done < <(find "$GROUP_DIR" -type d -exec test -e '{}/.git' ';' -print -prune 2>/dev/null)
+
+  [[ $PRUNE == true ]] || deletes=()
+
+  if ((${#moves[@]})); then
+    echo "Moved on GitLab — relocating clone (no re-clone):"
+    for rel in "${!moves[@]}"; do
+      echo "  $rel -> ${moves[$rel]}"
+      [[ $DRY_RUN == true ]] || relocate_clone "$rel" "${moves[$rel]}"
+    done
+  fi
+
+  if ((${#deletes[@]})); then
+    echo "Gone from GitLab — removing clone:"
+    for rel in "${deletes[@]}"; do
+      echo "  $rel"
+      [[ $DRY_RUN == true ]] || remove_clone "$rel"
+    done
+  fi
+
+  ((${#kept[@]})) && {
+    echo "Skipped (needs manual review):"
+    printf '  %s\n' "${kept[@]}"
+  }
+  ((${#unknown[@]})) && {
+    echo "Skipped (GitLab lookup inconclusive — left untouched):"
+    printf '  %s\n' "${unknown[@]}"
+  }
+  ((${#moves[@]} + ${#deletes[@]} + ${#kept[@]} + ${#unknown[@]})) && echo ""
+  return 0
+}
+
+reconcile
+
+if [[ $DRY_RUN == true ]]; then
+  echo "Dry run — no changes made. Re-run without -n to apply."
+  exit 0
+fi
+
 COUNT=$(printf '%s\n' "$PROJECTS" | wc -l)
-echo "Found $COUNT project(s). Cloning into $(ghq root) with -j$PARALLEL..."
+echo "Found $COUNT project(s). Cloning into $ROOT with -j$PARALLEL..."
 echo ""
 
 # Buffer each child's output so parallel ghq invocations don't interleave
@@ -123,8 +256,6 @@ printf '%s\n' "$PROJECTS" |
       printf "%s\n" "$out"
       exit "${rc:-0}"
     ' _ {}
-
-GROUP_DIR="$(ghq root)/gitlab.com/$GROUP"
 
 echo ""
 echo "Done."

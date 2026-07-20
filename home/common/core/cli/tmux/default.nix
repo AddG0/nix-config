@@ -150,6 +150,9 @@ in {
       set -g set-clipboard on          # use system clipboard
       set -g status-position top       # macOS / darwin style
 
+      set -g set-titles on             # forward the title to the terminal (default off = swallowed)
+      set -g set-titles-string "#S – #W"
+
       set -g status-bg default
       set -g status-style bg=default
 

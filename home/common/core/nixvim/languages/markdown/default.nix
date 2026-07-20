@@ -41,6 +41,20 @@
 in {
   plugins.lsp.servers.marksman.enable = true;
 
+  # marksman exits 143 (SIGTERM) on teardown; nvim misreports it as a crash.
+  extraConfigLua = ''
+    vim.schedule(function() -- defer so we wrap snacks.notifier's vim.notify
+      local notify = vim.notify
+      vim.notify = function(msg, level, opts)
+        if type(msg) == "string"
+          and msg:match("^Client marksman quit with exit code 143 and signal 0") then
+          return
+        end
+        return notify(msg, level, opts)
+      end
+    end)
+  '';
+
   # In-buffer prettifying of headings/tables/code — terminal-native, always on.
   # This (plus snacks.image for diagrams) is the live, as-you-type view.
   plugins.render-markdown.enable = true;

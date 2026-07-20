@@ -38,7 +38,7 @@ in {
         start = ["search" "clock" "cpu" "ram" "active_window" "media"];
         center = ["workspaces"];
         end =
-          ["tray" "calendar" "bluetooth" "otd_mode" "input_volume" "notifications" "volume"]
+          ["tray" "calendar" "bluetooth" "input_volume" "notifications" "volume"]
           ++ lib.optionals isLaptop ["power_profile" "battery"]
           ++ ["control-center"];
       };
@@ -52,9 +52,8 @@ in {
       };
 
       # Bar-widget plugins (installed via ./plugins/*).
-      plugins.enabled = ["addg/next-event" "addg/otd-mode"];
+      plugins.enabled = ["addg/next-event"];
       widget.calendar.type = "addg/next-event:agenda";
-      widget.otd_mode.type = "addg/otd-mode:switcher";
 
       # strftime clock formats.
       widget.clock = {

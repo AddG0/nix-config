@@ -76,6 +76,9 @@ in {
       "keybind"
       "keybinds"
       "worktree"
+      "gruf"
+      "Tiltfile"
+      "Liquibase"
     ];
   };
 

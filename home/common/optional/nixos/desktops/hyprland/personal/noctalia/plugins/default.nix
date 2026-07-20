@@ -27,19 +27,11 @@
       "${base}/translations/en.json".source = translations;
     };
 in {
-  xdg.dataFile =
-    mkPlugin {
-      name = "next-event";
-      substitutions = {
-        noctalia = lib.getExe pkgs.noctalia;
-        jq = lib.getExe pkgs.jq;
-      };
-    }
-    // mkPlugin {
-      name = "otd-mode";
-      substitutions = {
-        otd = "${pkgs.opentabletdriver}/bin/otd";
-        journalctl = "${pkgs.systemd}/bin/journalctl";
-      };
+  xdg.dataFile = mkPlugin {
+    name = "next-event";
+    substitutions = {
+      noctalia = lib.getExe pkgs.noctalia;
+      jq = lib.getExe pkgs.jq;
     };
+  };
 }
