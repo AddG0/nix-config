@@ -65,7 +65,7 @@
     ".direnv"
     ".devenv"
     ".venv"
-    "venv"
+    "**/venv"
     "__pycache__"
     ".mypy_cache"
     ".pytest_cache"

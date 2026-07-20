@@ -28,6 +28,8 @@
     '';
   };
 in {
+  imports = [./agent-sidebar.nix];
+
   programs.git.ignores = [
     ".tmuxinator.yml"
     ".tmuxinator/"
@@ -119,13 +121,13 @@ in {
         else []
       )
       ++ [
-        # {
-        #   plugin = resurrect;
-        #   extraConfig = ''
-        #     set -g @resurrect-strategy-nvim 'session'
-        #     set -g @resurrect-capture-pane-contents 'on'
-        #   '';
-        # }
+        {
+          plugin = resurrect;
+          extraConfig = ''
+            set -g @resurrect-strategy-nvim 'session'
+            set -g @resurrect-capture-pane-contents 'on'
+          '';
+        }
         {
           plugin = continuum;
           extraConfig = ''

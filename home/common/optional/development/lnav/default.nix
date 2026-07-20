@@ -11,6 +11,7 @@
 
   programs.lnav = {
     enable = true;
+    settings.ui.mouse.mode = "enabled";
     settings.tuning = {
       "archive-manager" = {
         "min-free-space" = 104857600; # 100MB

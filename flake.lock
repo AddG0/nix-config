@@ -4042,11 +4042,11 @@
         ]
       },
       "locked": {
-        "lastModified": 1784392341,
-        "narHash": "sha256-RB2SOHY+PZg8YWWn5Jnmj1cFEuOl2WAhKuwrCoLUkT8=",
+        "lastModified": 1784451923,
+        "narHash": "sha256-zD95ivUdgp53XU2u+/B8l3fc+7mrLRSbXhy5hdIpoqU=",
         "owner": "devmobasa",
         "repo": "wayscriber",
-        "rev": "1b2d2044fa8968b96f77afd4e2662ba63352a785",
+        "rev": "2c9d23f4d60a6e412df961e5bc55a081bab1d132",
         "type": "github"
       },
       "original": {

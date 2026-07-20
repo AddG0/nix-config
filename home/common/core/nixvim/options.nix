@@ -50,7 +50,7 @@
     termguicolors = true;
     # window title: "<folder> – <file>", folder alone on no-name buffers
     title = true;
-    titlestring = "%{fnamemodify(getcwd(), ':t')}%{expand('%:t') != '' ? ' – ' . expand('%:t') : ''}";
+    titlestring = "%{fnamemodify(getcwd(), ':t') . (expand('%:t') != '' ? ' – ' . expand('%:t') : '')}";
     timeoutlen = 300;
     undofile = true;
     undolevels = 10000;

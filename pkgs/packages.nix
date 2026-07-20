@@ -40,6 +40,9 @@ pkgs: rec {
   proton-cachyos = pkgs.callPackage ./proton-cachyos {};
   wlcrosshair = pkgs.callPackage ./wlcrosshair {};
 
+  # tmux plugins - modular namespace, merged into pkgs.tmuxPlugins by the overlay
+  tmuxPlugins = import ./tmux-plugins pkgs;
+
   # Decky Loader plugins - modular namespace
   decky = import ./decky pkgs;
 
