@@ -32,7 +32,7 @@
 
     # Gradle Daemon Settings
     org.gradle.jvmargs=-Xmx4g -XX:MaxMetaspaceSize=768m -XX:+HeapDumpOnOutOfMemoryError -Dfile.encoding=UTF-8
-    org.gradle.workers.max=4
+    org.gradle.workers.max=2
     org.gradle.daemon.idletimeout=1800000
   '';
 }

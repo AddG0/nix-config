@@ -57,18 +57,29 @@ in {
     pkgs,
     name,
     source,
-  }: {
-    xdg.configFile = {
-      "git/template/hooks/${name}" = {
-        source = pkgs.writeShellScript "${name}-shim" ''
-          exec "''${XDG_CONFIG_HOME:-$HOME/.config}/git/hooks/${name}" "$@"
-        '';
-        executable = true;
-      };
-      "git/hooks/${name}" = {
-        inherit source;
-        executable = true;
-      };
+  }: let
+    # git's templateDir copy preserves symlinks, so a symlinked shim would
+    # capture a per-generation store path that dangles after nix GC. A real
+    # file with a stable ~/.config exec target survives.
+    shim = pkgs.writeText "${name}-shim" ''
+      #!/bin/sh
+      exec "''${XDG_CONFIG_HOME:-$HOME/.config}/git/hooks/${name}" "$@"
+    '';
+  in {
+    xdg.configFile."git/hooks/${name}" = {
+      inherit source;
+      executable = true;
+    };
+
+    # Written via activation, not xdg.configFile, which would symlink it.
+    home.activation."gitTemplateHook-${name}" = {
+      after = ["writeBoundary"];
+      before = [];
+      data = ''
+        run mkdir -p "''${XDG_CONFIG_HOME:-$HOME/.config}/git/template/hooks"
+        run ${pkgs.coreutils}/bin/install -m755 ${shim} \
+          "''${XDG_CONFIG_HOME:-$HOME/.config}/git/template/hooks/${name}"
+      '';
     };
   };
 

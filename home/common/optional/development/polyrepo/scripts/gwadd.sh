@@ -70,6 +70,21 @@ fi
 # set -e aborts here if gwq add fails, so we never connect to a half-made tree.
 gwq add "$@" "$target"
 
+# Gitignored local files don't exist in a fresh worktree; carry them over.
+for f in .env .env.development.local; do
+  if [[ -f "$primary/$f" && ! -e "$target/$f" ]]; then
+    cp "$primary/$f" "$target/$f"
+  fi
+done
+
+# direnv keys its allow by the .envrc's absolute path, so the new worktree path
+# is untrusted even with an identical .envrc — re-allow it, but only if the
+# primary was already allowed (`Found RC allowed 0`).
+if command -v direnv >/dev/null && [[ -f "$target/.envrc" ]] &&
+  (cd "$primary" && direnv status 2>/dev/null | grep -q '^Found RC allowed 0'); then
+  direnv allow "$target"
+fi
+
 if [[ $no_session -eq 0 ]]; then
   # The new session inherits the tmux server's global env; a stale DIRENV_DIFF
   # there makes direnv wipe the directory-scoped GITLAB_TOKEN. Drop it.

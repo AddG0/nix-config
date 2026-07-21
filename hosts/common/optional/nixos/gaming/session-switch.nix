@@ -74,9 +74,11 @@ in
     environment.systemPackages = [enterGamingApp];
 
     # Autologin via the dispatcher too. Override the command, not sessionCommand,
-    # or desktopCmd's read of it cycles.
-    services.greetd.settings.initial_session.command =
-      lib.mkIf config.services.greetd.autoLogin.enable (lib.mkForce "${dispatcher} desktop");
+    # or desktopCmd's read of it cycles. mkIf must guard the whole table — a
+    # leaf-only mkIf leaves an empty [initial_session] that greetd rejects.
+    services.greetd.settings.initial_session = lib.mkIf config.services.greetd.autoLogin.enable {
+      command = lib.mkForce "${dispatcher} desktop";
+    };
 
     systemd.tmpfiles.rules = [
       "L+ /usr/bin/steamos-session-select - - - - ${lib.getExe sessionSelect}"

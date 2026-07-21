@@ -27,6 +27,17 @@
       ln -s ${tmuxLauncher} "$out/bin/tmux"
     '';
   };
+
+  # On the last session, wipe the continuum/resurrect snapshot so a deliberate
+  # exit starts fresh; a reboot with sessions still alive keeps it and restores.
+  tmuxQuit = pkgs.writeShellScript "tmux-quit-session" ''
+    tmux=${pkgs.tmux}/bin/tmux
+    if [ "$("$tmux" list-sessions | ${pkgs.coreutils}/bin/wc -l)" -le 1 ]; then
+      dir="''${XDG_DATA_HOME:-$HOME/.local/share}/tmux/resurrect"
+      ${pkgs.coreutils}/bin/rm -f "$dir/last" "$dir/pane_contents.tar.gz"
+    fi
+    exec "$tmux" kill-session -t "$1"
+  '';
 in {
   imports = [./agent-sidebar.nix];
 
@@ -166,6 +177,9 @@ in {
       set -g @catppuccin_session_color "#{?client_prefix,#{@thm_red},#{@thm_green}}"
 
       ${builtins.readFile ./binds.conf}
+
+      # Quit current session; forget the continuum snapshot if it was the last one
+      bind-key Q run-shell "${tmuxQuit} #{session_name}"
 
       # Vi copy mode with system clipboard support
       bind-key -T copy-mode-vi 'v' send -X begin-selection

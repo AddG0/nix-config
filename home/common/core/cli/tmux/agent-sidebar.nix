@@ -54,9 +54,9 @@ in {
       plugin = pkgs.tmuxPlugins.tmux-agent-sidebar;
       extraConfig = ''
         ${colorCfg}
-        # Defer auto-create so tmuxinator's split-window/select-layout finishes
-        # before the sidebar pane is injected, else it scrambles the layout.
-        set -g @sidebar_auto_create_delay '0.5'
+        # Manual-only: never inject the sidebar automatically; open it with
+        # prefix e (this window) / prefix E (all windows).
+        set -g @sidebar_auto_create 'off'
       '';
     }
   ];

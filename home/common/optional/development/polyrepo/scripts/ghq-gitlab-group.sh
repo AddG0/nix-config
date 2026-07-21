@@ -137,6 +137,17 @@ has_local_work() {
   return 1
 }
 
+# Linked worktrees store their admin data under the primary clone's
+# `.git/worktrees/`; moving or deleting that primary would orphan them.
+has_linked_worktrees() {
+  local entry
+  [[ -d "$1/.git/worktrees" ]] || return 1
+  while IFS= read -r entry; do
+    [[ -n $entry ]] && return 0
+  done < <(find "$1/.git/worktrees" -mindepth 1 -maxdepth 1 -type d 2>/dev/null)
+  return 1
+}
+
 # Move a clone to its new path and repoint origin (no re-clone).
 relocate_clone() {
   local from="$GITLAB_DIR/$1" to="$GITLAB_DIR/$2" url
@@ -170,9 +181,12 @@ reconcile() {
     printf '%s' "$PROJECTS_JSON" | jq -r '.[].path_with_namespace'
   )
 
-  # Outermost clones only: prune descent once a .git is found so nested repos
-  # (terraform module caches, meta-repo sub-clones) are never touched.
+  # Stop at any repo/worktree root so nested repos (terraform module caches,
+  # meta-repo sub-clones) are never touched. Linked worktrees have a `.git`
+  # file pointing back into the primary repo's `.git/worktrees/...`, so skip
+  # reconciling those and only act on primary clones whose `.git` is a dir.
   while IFS= read -r dir; do
+    [[ -d "$dir/.git" ]] || continue
     rel="${dir#"$GITLAB_DIR"/}"
     [[ -n ${current["$rel"]:-} ]] && continue
 
@@ -182,18 +196,24 @@ reconcile() {
 
     if [[ -n $id && -n $cur ]]; then
       if [[ $cur =~ -deletion_scheduled-[0-9]+$ ]]; then
-        if has_local_work "$dir"; then
+        if has_linked_worktrees "$dir"; then
+          kept+=("$rel (deletion-scheduled, has linked worktrees)")
+        elif has_local_work "$dir"; then
           kept+=("$rel (deletion-scheduled, has local work)")
         else deletes+=("$rel"); fi
       elif [[ $cur == "$rel" ]]; then
         : # archived / unchanged
+      elif has_linked_worktrees "$dir"; then
+        kept+=("$rel -> $cur (has linked worktrees)")
       elif [[ -e "$GITLAB_DIR/$cur" ]]; then
         kept+=("$rel -> $cur (destination already exists)")
       else
         moves["$rel"]="$cur"
       fi
     elif printf '%s' "$out" | grep -q '(HTTP 404)'; then
-      if has_local_work "$dir"; then
+      if has_linked_worktrees "$dir"; then
+        kept+=("$rel (gone, has linked worktrees)")
+      elif has_local_work "$dir"; then
         kept+=("$rel (gone, has local work)")
       else deletes+=("$rel"); fi
     else
