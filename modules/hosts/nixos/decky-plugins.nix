@@ -55,7 +55,8 @@ in {
     '';
   };
 
-  config = lib.mkIf (cfg.enable && cfg.plugins != {}) {
+  # `enable` is undefined on hosts without the jovian module; this file is auto-imported everywhere.
+  config = lib.mkIf ((cfg.enable or false) && cfg.plugins != {}) {
     systemd.services = {
       decky-plugin-sync = {
         description = "Provision declarative Decky Loader plugins";
