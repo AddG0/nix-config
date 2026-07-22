@@ -1,7 +1,21 @@
 {
   # TypeScript / JavaScript.
   plugins = {
-    lsp.servers.ts_ls.enable = true;
+    lsp.servers.ts_ls = {
+      enable = true;
+      # vim.lsp.inlay_hint.enable only renders hints; ts_ls sends none until these
+      # preferences are set (all default off). Mirror both language keys.
+      settings = let
+        inlayHints = {
+          includeInlayParameterNameHints = "all";
+          includeInlayParameterNameHintsWhenArgumentMatchesName = false;
+          includeInlayFunctionLikeReturnTypeHints = true;
+        };
+      in {
+        typescript = {inherit inlayHints;};
+        javascript = {inherit inlayHints;};
+      };
+    };
     neotest.adapters.jest.enable = true; # jest test runner (framework: ../testing.nix)
 
     conform-nvim.settings.formatters_by_ft = {

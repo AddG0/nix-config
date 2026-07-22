@@ -5,13 +5,13 @@
 }:
 stdenvNoCC.mkDerivation rec {
   pname = "sweet-aurorae";
-  version = "6.0-unstable-2026-05-07";
+  version = "6.0-unstable-2024-03-27";
 
   src = fetchFromGitHub {
     owner = "EliverLara";
     repo = "Sweet";
-    rev = "77a4c3c9dc285bd0efa5ebd59d3372de91c3f274"; # dark-plasma-6 branch
-    sha256 = "sha256-zw3DeLjj7bc7t21C394ijf8qxroNkiMU+BbhDetnRKw=";
+    rev = "fa5229183093c078bebbc1b405d78909ffa18bb4"; # dark-plasma-6 branch
+    sha256 = "sha256-rhcSnvNbzjpZliyL3SaZjnjmLy1nMbohGcOrSZZ9B1c=";
   };
 
   dontBuild = true;
@@ -29,7 +29,9 @@ stdenvNoCC.mkDerivation rec {
     runHook postInstall
   '';
 
-  passthru.nixUpdate.version = "branch";
+  # skip: aurorae themes live only on the frozen dark-plasma-6 branch. "branch"
+  # follows the default branch (master), which dropped them and breaks the build.
+  passthru.nixUpdate.version = "skip";
 
   meta = with lib; {
     description = "Sweet window decoration theme for KDE/Aurorae";

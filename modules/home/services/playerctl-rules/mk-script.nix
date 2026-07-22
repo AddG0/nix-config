@@ -53,8 +53,10 @@
     trap cleanup EXIT INT TERM
   '';
 
-  # Retry the skip: Spotify drops a `next` issued the instant a DJ segment starts
-  # (exactly when --follow wakes us), so a single skip often no-ops.
+  # Skips re-read metadata after each `next`: a DJ X moment is often two segments
+  # (recap, then up-next) with identical metadata, so the react block keeps
+  # skipping while the settled track still matches and stops on the first real
+  # song — one skip alone would leave the second segment playing.
   isSkip = pcfg.command == null && lib.elem pcfg.action ["next" "previous"];
 
   react =
@@ -72,22 +74,40 @@
     ''
     else if isSkip
     then ''
+      # $tid keys the segment; --follow replays the transitions we skip through
+      # below as fresh events, so ignore any we have already acted on.
       if [ "$want" = true ]; then
+        tid=''${raw#*$'\t'}
+        if [ -n "''${skipped[$tid]:-}" ]; then
+          ${dbg "already skipped [$tid]; ignoring buffered event"}
+          continue
+        fi
+        skipped[$tid]=1
         log "skipping \"$line\""
         ${pc} ${pcfg.action} || true
-        # A dropped next never fires, so breaking on the first change lands on the
-        # announced song and can't stack skips onto later tracks.
-        for ((i = 1; i <= 40; i++)); do
-          sleep 0.1
-          now=$(${pc} metadata --format ${lib.escapeShellArg followFmt} 2>/dev/null || true)
-          if [ -n "$now" ] && [ "$now" != "$raw" ]; then
-            ${dbg "skip took after $((i * 100))ms: now=[$now]"}
+        # A DJ X moment is often two segments (recap, then up-next) that carry
+        # IDENTICAL metadata, so "did the track change" can't catch the hop from
+        # one to the next. Instead keep skipping while the settled track still
+        # matches, stopping on the first non-matching (real) song. Each settle
+        # polls ~0.4s so the read reflects the skip (metadata updates within
+        # ~200ms except right after Spotify launches); the segment count is
+        # bounded so a cold-start lag can't run away skipping real songs.
+        for ((n = 1; n <= 3; n++)); do
+          now=""
+          for ((i = 1; i <= 4; i++)); do
+            sleep 0.1
+            r=$(${pc} metadata --format ${lib.escapeShellArg followFmt} 2>/dev/null || true)
+            if [ -n "$r" ]; then now=$r; fi
+          done
+          if [ -z "$now" ]; then break; fi
+          if ! matches "''${now%%$'\t'*}"; then
+            ${dbg "landed on real audio after $n poll(s): now=[$now]"}
             break
           fi
-          if ((i % 3 == 0)); then
-            ${dbg "skip not taken after $((i * 100))ms; retrying"}
-            ${pc} ${pcfg.action} || true
-          fi
+          ${dbg "still on a DJ segment [$now]; skipping again"}
+          skipped[''${now#*$'\t'}]=1
+          log "skipping \"''${now%%$'\t'*}\""
+          ${pc} ${pcfg.action} || true
         done
       fi
     ''
@@ -106,18 +126,20 @@ in
       patterns=(${lib.concatMapStringsSep " " lib.escapeShellArg pcfg.patterns})
       export PLAYER=${player}
       log() { echo "playerctl-rule[$PLAYER]: $*"; }
-      ${prelude}
+      matches() {
+        local s=$1 pat
+        for pat in "''${patterns[@]}"; do
+          [[ -n "$s" && "$s" == *"$pat"* ]] && return 0
+        done
+        return 1
+      }
+      ${prelude}${lib.optionalString isSkip "declare -A skipped=()"}
       ${dbg "started; patterns=[\${patterns[*]}] action=${pcfg.action} format=[${followFmt}]"}
       # $line = the matched metadata (trackid stripped); $want = whether it matches.
       while IFS= read -r raw; do
         line=''${raw%%$'\t'*}
         want=false
-        for pat in "''${patterns[@]}"; do
-          if [[ -n "$line" && "$line" == *"$pat"* ]]; then
-            want=true
-            break
-          fi
-        done
+        if matches "$line"; then want=true; fi
         ${dbg "event: raw=[$raw] line=[$line] want=$want"}
         ${react}
       done < <(${pc} --follow --format ${lib.escapeShellArg followFmt} metadata)

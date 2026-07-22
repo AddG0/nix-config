@@ -30,7 +30,9 @@
 
   # Stand-in for playerctl:
   #   --follow      -> replay $FOLLOW_FIXTURE (the trigger stream), then exit
-  #   metadata      -> print the current line of $STATES (advances with each skip)
+  #   metadata      -> print the current line of $STATES. Models Spotify's MPRIS
+  #                    lag: after a skip, $LAGSTEPS metadata reads keep returning
+  #                    the pre-skip row ($SPOS) before catching up to $POS.
   #   next/previous -> record the verb and advance the $POS cursor into $STATES,
   #                    unless $DROP > 0 (record but ignore, simulating Spotify
   #                    dropping a skip at a segment boundary), decrementing $DROP
@@ -41,8 +43,14 @@
       exit 0
     fi
     if [[ "$*" == *metadata* ]]; then
-      pos=$(cat "$POS" 2>/dev/null || echo 0)
-      sed -n "$((pos + 1))p" "$STATES"
+      lag=$(cat "$LAG" 2>/dev/null || echo 0)
+      if [ "$lag" -gt 0 ]; then
+        echo "$((lag - 1))" >"$LAG"
+        p=$(cat "$SPOS" 2>/dev/null || echo 0)
+      else
+        p=$(cat "$POS" 2>/dev/null || echo 0)
+      fi
+      sed -n "$((p + 1))p" "$STATES"
       exit 0
     fi
     all="$*"
@@ -56,7 +64,9 @@
           echo "$((drops - 1))" >"$DROP"
         else
           pos=$(cat "$POS" 2>/dev/null || echo 0)
+          echo "$pos" >"$SPOS"
           echo "$((pos + 1))" >"$POS"
+          if [ "''${LAGSTEPS:-0}" -gt 0 ]; then echo "$LAGSTEPS" >"$LAG"; fi
         fi
         ;;
       *) if [[ "$last" =~ ^[0-9.]+$ ]]; then echo "VOLUME=$last" >>"$ACTIONS"; fi ;;
@@ -64,10 +74,11 @@
     exit 0
   '';
 
-  # Skip trigger: two back-to-back DJ X intros then a real song, each its own
-  # --follow event (distinct trackid) as real playerctl emits them; each DJ X
-  # event must skip once, the real song not at all. STATES is the live metadata
-  # the post-skip wait poll reads, advancing one row per skip.
+  # Skip trigger: two back-to-back DJ X segments then a real song, each its own
+  # --follow event (distinct trackid) as real playerctl emits them. The first
+  # event must skip THROUGH both segments to the song in one reaction (the poll
+  # reads the second DJ segment from STATES and re-skips it); the replayed djx2
+  # event must then be ignored, and the real song never skipped.
   skipFollow = pkgs.writeText "skip-follow" ''
     DJ X - Up next	/id/djx1
     DJ X - Up next	/id/djx2
@@ -90,6 +101,20 @@
     Real Artist - Real Song	/id/song1
   '';
 
+  # Over-skip regression: a single DJ X event with a transient metadata lag
+  # (3 stale reads) after the skip, as right after Spotify launches. The settle
+  # poll must drain the stale reads and see the real song, so exactly one `next`
+  # fires — it must not skip again on a stale DJ read and blow past the song.
+  lagFollow = pkgs.writeText "lag-follow" ''
+    DJ X - Welcome	/id/djx1
+  '';
+  lagStates = pkgs.writeText "lag-states" ''
+    DJ X - Welcome	/id/djx1
+    Real One - A	/id/s1
+    Real Two - B	/id/s2
+    Real Three - C	/id/s3
+  '';
+
   # Mute trigger: the held-mute path reconciles directly off the follow stream
   # (trackid appended so the two DJ X rows are distinct events).
   muteFollow = pkgs.writeText "mute-follow" ''
@@ -100,23 +125,26 @@
   '';
 in
   pkgs.runCommand "playerctl-rules-test" {} ''
+    # Mutable stub state, shared by every case; each test resets what it needs.
+    export POS="$PWD/pos" SPOS="$PWD/spos" LAG="$PWD/lag" DROP="$PWD/drop"
+    export ACTIONS="$PWD/actions" LAGSTEPS=0
+    reset() { : >"$ACTIONS"; echo 0 >"$POS"; echo 0 >"$SPOS"; echo 0 >"$LAG"; echo 0 >"$DROP"; }
+
     # --- skip: must skip THROUGH both back-to-back DJ X intros to the song ---
     export FOLLOW_FIXTURE=${skipFollow} STATES=${skipStates}
-    export ACTIONS="$PWD/skip.log" POS="$PWD/skip.pos"
-    : >"$ACTIONS"
-    echo 0 >"$POS"
+    reset
     ${lib.getExe skipScript}
     skips=$(grep -cx next "$ACTIONS" || true)
-    if [ "$skips" != 2 ]; then
-      echo "FAIL skip: expected 2 'next' (skip through 2 DJ X), got $skips" >&2
+    pos=$(cat "$POS")
+    if [ "$skips" != 2 ] || [ "$pos" != 2 ]; then
+      echo "FAIL skip: expected 2 'next' landing on the song (pos 2), got $skips skips / pos $pos" >&2
       cat "$ACTIONS" >&2
       exit 1
     fi
 
     # --- mute: mute once on entry, restore once on exit, no re-mute on djx2 ---
     export FOLLOW_FIXTURE=${muteFollow}
-    export ACTIONS="$PWD/mute.log"
-    : >"$ACTIONS"
+    reset
     ${lib.getExe muteScript}
     mutes=$(grep -cx 'VOLUME=0' "$ACTIONS" || true)
     unmutes=$(grep -cx 'VOLUME=0.7' "$ACTIONS" || true)
@@ -128,9 +156,7 @@ in
 
     # --- retry: first skip is dropped; retry must land on the song, not past it ---
     export FOLLOW_FIXTURE=${retryFollow} STATES=${retryStates}
-    export ACTIONS="$PWD/retry.log" POS="$PWD/retry.pos" DROP="$PWD/retry.drop"
-    : >"$ACTIONS"
-    echo 0 >"$POS"
+    reset
     echo 1 >"$DROP"
     ${lib.getExe skipScript}
     skips=$(grep -cx next "$ACTIONS" || true)
@@ -141,6 +167,19 @@ in
       exit 1
     fi
 
-    echo "playerctl-rules: skip + retry + mute behaviour OK"
+    # --- lag: metadata trails playback after the skip; must NOT over-skip ---
+    export FOLLOW_FIXTURE=${lagFollow} STATES=${lagStates} LAGSTEPS=3
+    reset
+    ${lib.getExe skipScript}
+    skips=$(grep -cx next "$ACTIONS" || true)
+    pos=$(cat "$POS")
+    if [ "$skips" != 1 ] || [ "$pos" != 1 ]; then
+      echo "FAIL lag: expected 1 'next' landing on pos 1 (no over-skip), got $skips skips / pos $pos" >&2
+      cat "$ACTIONS" >&2
+      exit 1
+    fi
+    export LAGSTEPS=0
+
+    echo "playerctl-rules: skip + retry + mute + lag behaviour OK"
     touch "$out"
   ''

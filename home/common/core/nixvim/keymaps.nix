@@ -454,6 +454,23 @@
     }
     {
       mode = "n";
+      key = "<leader>uL";
+      action.__raw = ''
+        function()
+          local on = vim.g.codelens_enabled ~= false
+          vim.g.codelens_enabled = not on
+          if on then
+            vim.lsp.codelens.clear()
+          else
+            vim.lsp.codelens.refresh({ bufnr = 0 })
+          end
+          vim.notify("CodeLens " .. (on and "disabled" or "enabled"))
+        end
+      '';
+      options.desc = "Toggle CodeLens";
+    }
+    {
+      mode = "n";
       key = "<leader>uT";
       action.__raw = "function() Snacks.toggle.treesitter():toggle() end";
       options.desc = "Toggle treesitter";

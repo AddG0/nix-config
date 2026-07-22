@@ -47,11 +47,11 @@
         "shq-env": "shq-env"
       },
       "locked": {
-        "lastModified": 1783508653,
-        "narHash": "sha256-weehrnMiJkp7PI7fb191oD2L+2I+YC7Iwz/tiESu9qk=",
+        "lastModified": 1784757560,
+        "narHash": "sha256-5oO9ty5SR9I4DAzSAP1AYAGA/E6NXeQkEGIzfndjcmY=",
         "ref": "refs/heads/main",
-        "rev": "62d0332783ad96a0ffc378844e4b5180de2a2c98",
-        "revCount": 187,
+        "rev": "30ceceb675ff14e9c3ea3367b4ffd691b7ee1996",
+        "revCount": 189,
         "type": "git",
         "url": "ssh://git@github.com/addg0/ai-toolkit.git"
       },
@@ -2119,11 +2119,11 @@
         ]
       },
       "locked": {
-        "lastModified": 1782097376,
-        "narHash": "sha256-74JW2E9tH+xwHxvu915zCcoS2juQq6CGu98H2epXvoY=",
+        "lastModified": 1784738986,
+        "narHash": "sha256-bd6YCGR6nFjeaOj9hbpu/fm4KaKooK64PvtCKNBt8oM=",
         "ref": "tmp",
-        "rev": "f786ec5896f46ed3aaa4109c8e808ebddc250357",
-        "revCount": 69,
+        "rev": "38645956d3989fb8c84ecbb8881a9a630fd3fcf7",
+        "revCount": 70,
         "type": "git",
         "url": "ssh://git@github.com/addg0/lumenboard-player.git"
       },
@@ -4042,11 +4042,11 @@
         ]
       },
       "locked": {
-        "lastModified": 1784451923,
-        "narHash": "sha256-zD95ivUdgp53XU2u+/B8l3fc+7mrLRSbXhy5hdIpoqU=",
+        "lastModified": 1784713196,
+        "narHash": "sha256-5Q9FppCz6Au5d5Dh8JPRBD+sSMdPQxVKb0A06uT2yqE=",
         "owner": "devmobasa",
         "repo": "wayscriber",
-        "rev": "2c9d23f4d60a6e412df961e5bc55a081bab1d132",
+        "rev": "1dd64a404fcfc0b662f6eacf52a9861b5c7e4027",
         "type": "github"
       },
       "original": {

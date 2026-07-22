@@ -5,9 +5,6 @@
 # nix-update refresh both the src hash and the composer vendorHash.
 set -euo pipefail
 
-FLAKE_ROOT=$(git rev-parse --show-toplevel)
-DEFAULT_NIX="$FLAKE_ROOT/pkgs/pterodactyl-panel/default.nix"
-
 latest=$(
   curl -sfL "https://api.github.com/repos/pterodactyl/panel/releases/latest" |
     grep -oE '"tag_name": *"v[0-9]+\.[0-9]+\.[0-9]+"' |

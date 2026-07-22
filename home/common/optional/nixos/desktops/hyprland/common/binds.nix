@@ -177,8 +177,9 @@ in {
       "SUPERSHIFT,e,exit,"
       "SUPERSHIFT,r,exec,${lib.getExe reloadScript}"
 
-      # Screen annotation (wayscriber)
-      "SUPER,a,exec,${pkgs.procps}/bin/pkill -SIGUSR1 wayscriber"
+      # Screen annotation. NOT `pkill -SIGUSR1 wayscriber` — that also kills the
+      # process-broker child (same proc name, no SIGUSR1 handler), breaking toggles.
+      "SUPER,a,exec,${pkgs.wayscriber}/bin/wayscriber --daemon-toggle"
 
       # ── Monitor Focus ──
       # SUPER+,/.            Focus monitor left/right

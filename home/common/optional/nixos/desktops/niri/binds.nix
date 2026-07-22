@@ -118,7 +118,8 @@ in {
     "Mod+T".action.consume-or-expel-window-left = {};
     "Mod+Shift+T".action.consume-or-expel-window-right = {};
 
-    # Screen annotation (wayscriber)
-    "Mod+A".action.spawn = ["${pkgs.procps}/bin/pkill" "-SIGUSR1" "wayscriber"];
+    # Screen annotation. NOT `pkill -SIGUSR1 wayscriber` — that also kills the
+    # process-broker child (same proc name, no SIGUSR1 handler), breaking toggles.
+    "Mod+A".action.spawn = ["${pkgs.wayscriber}/bin/wayscriber" "--daemon-toggle"];
   };
 }

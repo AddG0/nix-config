@@ -77,7 +77,8 @@ function patchSessionRequest(session) {
 
     stream.once("response", (resp) => {
       const status = resp[":status"];
-      if (status != null) span.setAttribute("http.response.status_code", status);
+      if (status != null)
+        span.setAttribute("http.response.status_code", status);
       recordGrpcStatus(resp); // unary gRPC errors can arrive as header trailers
     });
     stream.once("trailers", recordGrpcStatus);

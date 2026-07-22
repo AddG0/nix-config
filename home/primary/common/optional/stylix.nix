@@ -2,12 +2,17 @@
   pkgs,
   inputs,
   lib,
+  config,
   ...
 }: {
   # FLAKE-UPDATE: drop once stylix sets home.pointerCursor.enable itself.
-  # stylix sets home.pointerCursor.* from stylix.cursor but not `enable`, which
-  # home-manager now requires; Linux-only to match stylix's own cursor guard.
-  home.pointerCursor.enable = pkgs.stdenv.hostPlatform.isLinux;
+  # stylix supplies pointerCursor.{name,package,size} but not `enable` (now
+  # required by home-manager). Gate on stylix.enable too, or hosts that disable
+  # stylix (e.g. plasma) enable a nameless cursor and eval fails.
+  home.pointerCursor.enable =
+    config.stylix.enable
+    && config.stylix.cursor != null
+    && pkgs.stdenv.hostPlatform.isLinux;
 
   # macOS-leaning theme. Stylix is the top-level theming engine — all visual
   # values (colors, fonts, opacities, cursor) live here so every stylix-aware

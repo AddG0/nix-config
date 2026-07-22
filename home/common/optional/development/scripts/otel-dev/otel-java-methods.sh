@@ -1,3 +1,4 @@
+#!/usr/bin/env bash
 # Generate OTEL_INSTRUMENTATION_METHODS_INCLUDE for a JVM project so the OpenTelemetry
 # Java agent adds method-level spans on the app's OWN business classes — without
 # touching app code. Reads compiled classes (exact method names), prints the include

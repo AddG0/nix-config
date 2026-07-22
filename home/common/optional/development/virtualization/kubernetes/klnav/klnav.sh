@@ -1,3 +1,4 @@
+#!/usr/bin/env bash
 # klnav [stern-flags] QUERY — tail matching pods into lnav, one file per
 # namespace/pod/container so each is a separately toggleable source (TAB → Files
 # panel → click the diamond, or :hide-file / :show-file). All args forward to

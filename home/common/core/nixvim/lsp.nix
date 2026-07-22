@@ -94,6 +94,26 @@
           if client:supports_method("textDocument/inlayHint") then
             vim.lsp.inlay_hint.enable(true, { bufnr = args.buf })
           end
+          -- CodeLens: server-driven virtual text above symbols (reference/impl
+          -- counts, run/debug lenses). Refreshed here + on the events below.
+          if client:supports_method("textDocument/codeLens")
+            and vim.g.codelens_enabled ~= false then
+            vim.lsp.codelens.refresh({ bufnr = args.buf })
+          end
+        end
+      '';
+    }
+    {
+      event = ["BufEnter" "CursorHold" "InsertLeave"];
+      desc = "Refresh CodeLens on real file buffers";
+      callback.__raw = ''
+        function(args)
+          if vim.g.codelens_enabled == false then return end
+          if vim.bo[args.buf].buftype ~= ""
+            or not vim.startswith(vim.uri_from_bufnr(args.buf), "file://") then
+            return
+          end
+          vim.lsp.codelens.refresh({ bufnr = args.buf })
         end
       '';
     }
@@ -105,6 +125,12 @@
       key = "<leader>cf";
       action.__raw = "function() require('conform').format({ async = true, lsp_format = 'fallback' }) end";
       options.desc = "Format buffer";
+    }
+    {
+      mode = "n";
+      key = "<leader>cc";
+      action.__raw = "function() vim.lsp.codelens.run() end";
+      options.desc = "Run CodeLens";
     }
     {
       mode = "n";
