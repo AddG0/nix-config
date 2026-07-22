@@ -36,6 +36,7 @@
       "nixos/nix-access-token.nix"
       "nixos/services/kubernetes/clusters/asgard.nix"
       "nixos/services/nomad/clusters/midgard/server.nix"
+      "nixos/services/gitlab-runner.nix"
     ]))
   ];
 
