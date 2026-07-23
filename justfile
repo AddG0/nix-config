@@ -306,9 +306,10 @@ nixos-anywhere HOSTNAME IP USER="root" SSH_OPTS="": rebuild-pre
 alias d := deploy
 
 [group('deployment')]
-[doc("Deploy using colmena (specify hostnames or deploys to all, use --dry for dry-run)")]
-deploy *hostnames: rebuild-pre
-  colmena apply --impure {{ if hostnames != "" { "--on " + replace(hostnames, " ", ",") } else { "" } }}
+[doc("Deploy using colmena (specify hostnames or deploys to all, use --boot to activate on next boot)")]
+[arg("boot", long, value="boot")]
+deploy boot="switch" *hostnames: rebuild-pre
+  colmena apply --impure {{ if hostnames != "" { "--on " + replace(hostnames, " ", ",") } else { "" } }} {{boot}}
 
 [group('deployment')]
 [doc("Build configuration without deploying (specify hostnames or builds all)")]
