@@ -158,7 +158,7 @@
       mode = ["n" "x"];
       key = "<leader>gB";
       action.__raw = "function() Snacks.gitbrowse() end";
-      options.desc = "Git Browse (open)";
+      options.desc = "Open on remote (browser)";
     }
     {
       mode = ["n" "x"];
@@ -168,7 +168,7 @@
           Snacks.gitbrowse({ open = function(url) vim.fn.setreg("+", url) end, notify = false })
         end
       '';
-      options.desc = "Git Browse (copy)";
+      options.desc = "Copy remote URL";
     }
 
     # ── Hunks (gitsigns — LazyVim <leader>gh group) ──

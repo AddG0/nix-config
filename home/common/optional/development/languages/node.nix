@@ -18,6 +18,10 @@
   # Node 17+ verbatim DNS binds dev servers ::1-only here; Firefox/Zen can't reach those.
   home.sessionVariables.NODE_OPTIONS = "--dns-result-order=ipv4first";
 
+  home.file.".npmrc".text = ''
+    update-notifier=false
+  '';
+
   # Berry-mode yarn aliases (mirrors oh-my-zsh's yarn plugin, berry=yes). The omz
   # yarn plugin is intentionally omitted: its bundled `_yarn` is yarn-v1-shaped
   # and would collide on fpath with the Berry-accurate `_yarn` from the

@@ -94,8 +94,6 @@
           if client:supports_method("textDocument/inlayHint") then
             vim.lsp.inlay_hint.enable(true, { bufnr = args.buf })
           end
-          -- CodeLens: server-driven virtual text above symbols (reference/impl
-          -- counts, run/debug lenses). Refreshed here + on the events below.
           if client:supports_method("textDocument/codeLens")
             and vim.g.codelens_enabled ~= false then
             vim.lsp.codelens.refresh({ bufnr = args.buf })
@@ -104,7 +102,8 @@
       '';
     }
     {
-      event = ["BufEnter" "CursorHold" "InsertLeave"];
+      # BufWritePost not CursorHold: counts change only on edits, avoiding CursorHold lens flicker.
+      event = ["BufEnter" "BufWritePost" "InsertLeave"];
       desc = "Refresh CodeLens on real file buffers";
       callback.__raw = ''
         function(args)

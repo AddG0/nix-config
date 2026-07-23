@@ -57,6 +57,10 @@ in {
         # Manual-only: never inject the sidebar automatically; open it with
         # prefix e (this window) / prefix E (all windows).
         set -g @sidebar_auto_create 'off'
+
+        # Focusing the sidebar pane would rename the window to its binary; keep
+        # its current name instead, else tmux's stock default.
+        set -g automatic-rename-format '#{?#{==:#{@pane_role},sidebar},#{window_name},#{?pane_in_mode,[tmux],#{pane_current_command}}#{?pane_dead,[dead],}}'
       '';
     }
   ];
