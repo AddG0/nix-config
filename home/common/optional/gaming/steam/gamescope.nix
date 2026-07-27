@@ -4,6 +4,13 @@
 # mid-game. Opt in per-game: launchOptions.wrappers = [gamemoderun] ++ gamescope;
 # Skip for: anti-cheat (EAC), games needing the Steam overlay,
 # PROTON_ENABLE_WAYLAND=1 titles, and games you want to tile freely.
+#
+# `env -u WAYLAND_DISPLAY` was previously prepended to each wrapper list: it hid
+# the Wayland socket so gamescope used the SDL/Xwayland backend instead of its
+# nested Wayland backend, dodging a wineserver hang on exit (leaked outer
+# socket, gamescope#1396). Removed — the Wayland backend renders correctly,
+# while SDL freezes-until-resize on Hyprland+NVIDIA. To restore, prepend to each
+# branch's list below:  "env" "-u" "WAYLAND_DISPLAY"
 {
   lib,
   pkgs,
@@ -12,8 +19,6 @@
   primaryMonitor,
   hdrArgs,
 }: {extraArgs ? []}:
-# env -u WAYLAND_DISPLAY: else the leaked outer socket makes wineserver hang
-# on exit — see github.com/ValveSoftware/gamescope/issues/1396
 if isLaptop
 then let
   launcher = pkgs.writeShellApplication {
@@ -32,12 +37,9 @@ then let
         ${lib.escapeShellArgs (hdrArgs ++ extraArgs)} -- "$@"
     '';
   };
-in ["env" "-u" "WAYLAND_DISPLAY" (lib.getExe launcher)]
+in [(lib.getExe launcher)]
 else
   [
-    "env"
-    "-u"
-    "WAYLAND_DISPLAY"
     (lib.getExe pkgs.gamescope)
     "-W"
     (toString primaryMonitor.width)

@@ -72,7 +72,5 @@
         proxyWebsockets = true;
       };
     };
-
-    security.firewall.allowedTCPPorts = [8123];
   };
 }

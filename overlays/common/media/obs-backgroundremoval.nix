@@ -27,9 +27,17 @@ in {
         buildInputs =
           (map
             (dep:
-              if dep.pname or "" == "onnxruntime"
-              then prev.onnxruntime.override {cudaSupport = true;}
-              else dep)
+              # ncclSupport off: single-GPU inference never needs NCCL collective
+              # ops, and onnxruntime 1.27.1's NCCL-gated sharded_moe.cc references
+              # a removed header (contrib_ops/cuda/moe/ft_moe/moe_kernel.h), so an
+              # NCCL build fails to compile.
+                if dep.pname or "" == "onnxruntime"
+                then
+                  prev.onnxruntime.override {
+                    cudaSupport = true;
+                    ncclSupport = false;
+                  }
+                else dep)
             old.buildInputs)
           ++ [prev.curl];
         cmakeFlags =

@@ -13,6 +13,8 @@
     user = config.hostSpec.primaryUsername;
     extraPackages = [pkgs.systemd]; # decky shells out to `systemctl`
     extraPythonPackages = ps: [ps.aiohttp-cors]; # Deckcord backend imports it
+    # Silence the "plugin update available" notification (loader.json).
+    settings.notificationSettings.pluginUpdates = false;
     # Keys are the store's own folder names, so a UI install wouldn't duplicate.
     plugins = {
       Deckcord = pkgs.decky.deckcord;

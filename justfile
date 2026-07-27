@@ -311,6 +311,18 @@ alias d := deploy
 deploy boot="switch" *hostnames: rebuild-pre
   colmena apply --impure {{ if hostnames != "" { "--on " + replace(hostnames, " ", ",") } else { "" } }} {{boot}}
 
+# First push fails until the host trusts USER; bootstrap once on the box (via `ssh -A`):
+#   sudo env SSH_AUTH_SOCK="$SSH_AUTH_SOCK" nixos-rebuild switch --flake .#HOST
+[group('deployment')]
+[doc("Build locally and push to a remote host with nixos-rebuild, no colmena (IP defaults to HOST, --boot to activate on next boot)")]
+[arg("boot", long, value="boot")]
+deploy-remote HOST IP="" USER=DEFAULT_USER boot="switch": rebuild-pre
+  @{{ if HOST == "" { error("HOST parameter is required") } else { "" } }}
+  nixos-rebuild {{boot}} --flake .#{{HOST}} \
+    --build-host localhost \
+    --target-host {{USER}}@{{ if IP != "" { IP } else { HOST } }} \
+    --elevate sudo
+
 [group('deployment')]
 [doc("Build configuration without deploying (specify hostnames or builds all)")]
 deploy-build *hostnames:

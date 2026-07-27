@@ -84,6 +84,7 @@
       aimlabs = 714010;
       portal-2 = 620;
       fps-chess = 2021910;
+      cyberpunk-2077 = 1091500;
 
       # VR
       bigscreen-beyond-utility = 2467050;
@@ -92,12 +93,13 @@
   # Per-game overrides merged over defaults.
   overrides = {
     # Rocket League has a linux build, but it's not maintained so we need to use the windows version
-    rocket-league = {
-      compatTool = defaultCompatTool;
-    };
+    rocket-league.compatTool = defaultCompatTool;
 
     # I had multiplayer issues with the linux version. So I'm using the windows version.
     portal-2.compatTool = defaultCompatTool;
+
+    # Wouldn't let me install if this wasn't set
+    conan-exiles.compatTool = defaultCompatTool;
 
     # Gamescope wrap: HZD's native fullscreen on Linux/Proton is broken
     # (wrong resolution, multi-monitor misbehavior, alt-tab loss).
@@ -115,6 +117,9 @@
     };
 
     overwatch.launchOptions.wrappers = mouseDpi 1800 ++ [gamemoderun];
+
+    # 2000 DPI + in-game sens 2 reproduces the Aim Lab cm/360 (0.52% off).
+    cyberpunk-2077.launchOptions.wrappers = mouseDpi 2000 ++ [gamemoderun];
 
     # Bigscreen Beyond Utility — Windows-only app for adjusting the
     # headset's fan, brightness, refresh rate, and LED color.

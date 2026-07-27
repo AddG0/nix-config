@@ -54,6 +54,7 @@
       "gaming/r2modman.nix"
       "gaming/nitrox.nix"
       "gaming/bigscreen-beyond.nix"
+      "gaming/queued-build-cache-pause.nix"
 
       # Ghostty (Terminal)
       "ghostty"
@@ -75,7 +76,7 @@
       # "nixos/desktops/plasma6"
       "nixos/desktops/hyprland"
       "nixos/desktops/hyprland/nvidia.nix"
-      "nixos/desktops/hyprland/sunshine.nix"
+      # "nixos/desktops/hyprland/sunshine.nix"
       "nixos/desktops/hyprland/software-dimming.nix"
       "nixos/desktops/hyprland/wlcrosshair.nix"
       "nixos/services/gpu-screen-recorder.nix"

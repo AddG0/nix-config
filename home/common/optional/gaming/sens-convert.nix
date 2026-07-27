@@ -32,6 +32,9 @@
         "overwatch": {"yaw": 0.0066, "step": 0.01, "min": 1.0, "max": 100.0},
         "valorant": {"yaw": 0.07, "step": 0.001, "min": 0.001, "max": 10.0},
         "source": {"yaw": 0.022, "step": 0.01, "min": 0.01, "max": 30.0},
+        # yaw derived from Valorant 1.0 -> 6.9960 (mouse-sensitivity.com);
+        # in-game slider is whole numbers 1-30.
+        "cyberpunk": {"yaw": 0.010006, "step": 1.0, "min": 1.0, "max": 30.0},
     }
     # Source-engine family (and friends) share the 0.022 yaw constant.
     ALIASES = {
@@ -39,6 +42,7 @@
         "val": "valorant",
         "cs": "source", "cs2": "source", "csgo": "source",
         "apex": "source", "tf2": "source", "quake": "source",
+        "cp2077": "cyberpunk", "cp77": "cyberpunk",
     }
 
     SEP = ", "
@@ -224,7 +228,7 @@
       #compdef sens-convert
 
       local -a games
-      games=(overwatch valorant source ow ow2 val cs cs2 csgo apex tf2 quake)
+      games=(overwatch valorant source cyberpunk ow ow2 val cs cs2 csgo apex tf2 quake cp2077 cp77)
 
       _arguments -s \
         '(-h --help)'{-h,--help}'[show this help]' \

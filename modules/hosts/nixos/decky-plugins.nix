@@ -1,8 +1,10 @@
-# Declarative Decky Loader plugins. Jovian has no such option — plugins are
-# normally installed imperatively via the Steam UI. The plugins dir is made
-# authoritative: declared plugins are synced in and any other folder (e.g. a
-# hand-installed plugin, or one dropped from this set) is pruned, so every host
-# matches the config exactly. The loader's settings dir is never touched.
+# Declarative Decky Loader plugins and loader settings. Jovian has no such
+# options — both are normally set imperatively via the Steam UI. The plugins
+# dir is made authoritative: declared plugins are synced in and any other folder
+# (e.g. a hand-installed plugin, or one dropped from this set) is pruned, so
+# every host matches the config exactly. `settings` is deep-merged into
+# loader.json each boot, so declared keys win over in-app changes while any
+# undeclared keys Decky writes are preserved.
 {
   config,
   lib,
@@ -10,6 +12,25 @@
   ...
 }: let
   cfg = config.jovian.decky-loader;
+
+  overrides = (pkgs.formats.json {}).generate "decky-loader-overrides.json" cfg.settings;
+
+  # Ordered before decky-loader so the seeded keys are present before the loader
+  # reads them. jq `*` merges, so keys Decky owns (store-url, pluginOrder, …) survive.
+  syncSettings = pkgs.writeShellApplication {
+    name = "decky-settings-sync";
+    runtimeInputs = [pkgs.coreutils pkgs.jq];
+    text = ''
+      settings_dir="${cfg.stateDir}/settings"
+      loader="$settings_dir/loader.json"
+      mkdir -p "$settings_dir"
+      [ -f "$loader" ] || echo '{}' > "$loader"
+      tmp="$(mktemp "$settings_dir/.loader.json.XXXXXX")"
+      jq -s '.[0] * .[1]' "$loader" ${overrides} > "$tmp"
+      mv "$tmp" "$loader"
+      chown ${cfg.user}: "$loader"
+    '';
+  };
 
   # Ordered before decky-loader but NOT required by it, so a provisioning
   # failure leaves the last good copy on disk and the loader still starts.
@@ -55,23 +76,52 @@ in {
     '';
   };
 
-  # `enable` is undefined on hosts without the jovian module; this file is auto-imported everywhere.
-  config = lib.mkIf ((cfg.enable or false) && cfg.plugins != {}) {
-    systemd.services = {
-      decky-plugin-sync = {
-        description = "Provision declarative Decky Loader plugins";
-        wantedBy = ["multi-user.target"];
-        before = ["decky-loader.service"];
-        serviceConfig = {
-          Type = "oneshot";
-          RemainAfterExit = true;
-          ExecStart = lib.getExe syncPlugins;
-        };
-      };
-
-      # Reload plugin backends when the pinned set changes; otherwise a rebuild
-      # syncs new files but decky-loader keeps running the old ones.
-      decky-loader.restartTriggers = builtins.attrValues cfg.plugins;
-    };
+  options.jovian.decky-loader.settings = lib.mkOption {
+    inherit ((pkgs.formats.json {})) type;
+    default = {};
+    example = lib.literalExpression "{ notificationSettings.pluginUpdates = false; }";
+    description = ''
+      Keys to deep-merge into the loader's `settings/loader.json` on each start.
+      Declared keys override Decky's in-app values; undeclared keys are kept.
+    '';
   };
+
+  # `enable` is undefined on hosts without the jovian module; this file is auto-imported everywhere.
+  config = lib.mkIf (cfg.enable or false) (lib.mkMerge [
+    (lib.mkIf (cfg.plugins != {}) {
+      systemd.services = {
+        decky-plugin-sync = {
+          description = "Provision declarative Decky Loader plugins";
+          wantedBy = ["multi-user.target"];
+          before = ["decky-loader.service"];
+          serviceConfig = {
+            Type = "oneshot";
+            RemainAfterExit = true;
+            ExecStart = lib.getExe syncPlugins;
+          };
+        };
+
+        # Reload plugin backends when the pinned set changes; otherwise a rebuild
+        # syncs new files but decky-loader keeps running the old ones.
+        decky-loader.restartTriggers = builtins.attrValues cfg.plugins;
+      };
+    })
+    (lib.mkIf (cfg.settings != {}) {
+      systemd.services = {
+        decky-settings-sync = {
+          description = "Provision declarative Decky Loader settings";
+          wantedBy = ["multi-user.target"];
+          before = ["decky-loader.service"];
+          serviceConfig = {
+            Type = "oneshot";
+            RemainAfterExit = true;
+            ExecStart = lib.getExe syncSettings;
+          };
+        };
+
+        # Re-apply settings (and restart the loader) when the overrides change.
+        decky-loader.restartTriggers = [overrides];
+      };
+    })
+  ]);
 }

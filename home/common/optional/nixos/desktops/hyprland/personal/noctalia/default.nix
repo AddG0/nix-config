@@ -52,7 +52,7 @@ in {
       };
 
       # Bar-widget plugins (installed via ./plugins/*).
-      plugins.enabled = ["addg/next-event"];
+      # plugins.enabled = ["addg/next-event"];
       widget.calendar.type = "addg/next-event:agenda";
 
       # strftime clock formats.
@@ -98,6 +98,10 @@ in {
         enabled = true;
         refresh_minutes = 15;
       };
+
+      # Control Center calendar tab lists event times in 12h (upstream default
+      # is 24h %H:%M); matches the 12h clock/time formats above.
+      control_center.calendar.event_time_format = "%I:%M %p";
 
       wallpaper.enabled = false;
     };

@@ -1,7 +1,7 @@
 #############################################################
 #
 #  demon - Main Desktop
-#  NixOS running on Ryzen 9 9900X3D, GTX 5090, 128GB RAM
+#  NixOS running on Ryzen 9 9950X3D, RTX 5090, 128GB RAM
 #
 ###############################################################
 {
@@ -20,6 +20,8 @@
     #################### Misc Inputs ####################
     ./graphics.nix
     ./hardware-configuration.nix
+    ./performance.nix
+    ./sensors.nix
     # ./ai.nix
     ./audio
     ./media.nix
@@ -40,14 +42,16 @@
         "nixos/hardware/wooting.nix" # wooting keyboard
         "nixos/hardware/flipperzero.nix" # flipper zero udev rules + qFlipper
         "nixos/hardware/moza.nix" # MOZA R5 wheelbase (boxflat + udev)
+        "nixos/hardware/openrgb.nix" # OpenRGB (motherboard SMBus set below)
         "nixos/hardware/wacom-dial-scroll.nix"
         "nixos/1password.nix"
         "nixos/services/clamav.nix"
         "nixos/services/earlyoom.nix"
 
-        "nixos/remote-desktop/sunshine"
+        # "nixos/remote-desktop/sunshine"
 
         "nixos/services/ollama.nix"
+        "nixos/services/lact.nix" # GPU overclocking/monitoring
         "nixos/virtualisation/docker.nix" # docker
         "nixos/development/mysql.nix"
         "nixos/development/postgres.nix"
@@ -78,9 +82,10 @@
 
   programs.gpu-screen-recorder.enable = true;
 
-  programs.kdeconnect.enable = true;
+  # AMD FCH SMBus (i2c-piix4) is where the ASUS Aura controller lives.
+  services.hardware.openrgb.motherboard = "amd";
 
-  services.lact.enable = true;
+  programs.kdeconnect.enable = true;
 
   networking = {
     networkmanager.enable = true;

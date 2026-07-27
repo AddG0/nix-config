@@ -82,6 +82,15 @@ in {
     # nothing dropped. No busctl polling, no dispatcher script.
     pauseOnMetered = config.networking.networkmanager.enable;
 
+    # Control-only socket (pause/resume/status, never enqueue) driven by the
+    # per-user queued-build-cache-game-pause service to stop hogging bandwidth
+    # while a game runs. Path must match that service
+    # (home/common/optional/gaming/queued-build-cache-pause.nix). Group-owned by
+    # `gamemode` — the set of users allowed to game — so any gamer's session can
+    # pause; `others` get nothing (0660) and the daemon refuses Enqueue here.
+    controlSocketPath = lib.mkIf config.programs.gamemode.enable "/var/lib/nix/queued-build-hook-control.sock";
+    controlSocketGroup = lib.mkIf config.programs.gamemode.enable "gamemode";
+
     # Runs in the queue daemon (DynamicUser). Sign + upload — both keys arrive
     # via systemd LoadCredential so DynamicUser doesn't need filesystem access
     # to /run/secrets.

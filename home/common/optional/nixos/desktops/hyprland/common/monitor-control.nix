@@ -319,6 +319,21 @@
           + "  \(.width)x\(.height)@\(.refreshRate | floor)Hz"
       '
 
+      # Drop "name:label" candidates whose name was already given as an
+      # earlier positional arg, so completing several monitors at once
+      # doesn't re-offer names already on the line. Filters the array
+      # named by $1 in place.
+      _monitor_prune() {
+        local -a present=(''${words[3,CURRENT-1]})
+        (( ''${#present} )) || return
+        local var=$1 w
+        local -a kept
+        for w in "''${(@P)var}"; do
+          (( ''${present[(I)''${w%%:*}]} )) || kept+=("$w")
+        done
+        set -A "$var" "''${kept[@]}"
+      }
+
       _monitor() {
         local -a subcmds
         subcmds=(
@@ -340,6 +355,7 @@
               # `monitors` (active set) — fine for disable/toggle.
               local -a active
               active=(''${(f)"$(hyprctl monitors -j 2>/dev/null | jq -r "$_monitor_describe_filter")"})
+              _monitor_prune active
               _describe -V 'active monitor' active
               ;;
             enable)
@@ -360,6 +376,7 @@
                   disabled+=("''${n}:(saved spec)")
                 done
               fi
+              _monitor_prune disabled
               if (( ''${#disabled[@]} == 0 )); then
                 _message 'no disabled monitors'
               else
@@ -378,6 +395,17 @@
     name = "monitor-bash-completion";
     destination = "/share/bash-completion/completions/monitor";
     text = ''
+      # Echo stdin lines, dropping any monitor name in $1 (space-separated
+      # names already on the command line).
+      _monitor_prune() {
+        local present=" $1 " n
+        while IFS= read -r n; do
+          [ -n "$n" ] || continue
+          case "$present" in *" $n "*) continue ;; esac
+          printf '%s\n' "$n"
+        done
+      }
+
       _monitor_complete() {
         local cur="''${COMP_WORDS[COMP_CWORD]}"
         local subcmd="''${COMP_WORDS[1]}"
@@ -388,10 +416,18 @@
           return 0
         fi
 
+        # Names already given as earlier positional args, to prune from
+        # candidates so completing several monitors doesn't re-offer them.
+        local i already=""
+        for ((i = 2; i < COMP_CWORD; i++)); do
+          already+=" ''${COMP_WORDS[i]}"
+        done
+
         case "$subcmd" in
           disable|toggle)
             local mons
             mons=$(hyprctl monitors -j 2>/dev/null | jq -r '.[].name')
+            mons=$(printf '%s\n' "$mons" | _monitor_prune "$already")
             mapfile -t COMPREPLY < <(compgen -W "$mons" -- "$cur")
             ;;
           enable)
@@ -410,6 +446,7 @@
               done
             fi
             mons=$(printf '%s\n' "$mons" | awk 'NF && !seen[$0]++')
+            mons=$(printf '%s\n' "$mons" | _monitor_prune "$already")
             mapfile -t COMPREPLY < <(compgen -W "$mons" -- "$cur")
             ;;
         esac

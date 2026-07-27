@@ -17,6 +17,12 @@
 # - x86-64-v3: For Haswell+ (AVX2) - most modern CPUs
 # - x86-64-v4: For Skylake-X+ (AVX-512)
 # - zen4: For AMD Zen4/Zen5 CPUs (Ryzen 7000/9000 series)
-{pkgs, ...}: {
-  boot.kernelPackages = pkgs.cachyosKernels.linuxPackages-cachyos-bore;
+# Generic BORE build by default; hosts may override with a march/LTO variant
+# (e.g. demon pins -lto-zen4). Don't force a march here — freya is Intel.
+{
+  pkgs,
+  lib,
+  ...
+}: {
+  boot.kernelPackages = lib.mkDefault pkgs.cachyosKernels.linuxPackages-cachyos-bore;
 }
