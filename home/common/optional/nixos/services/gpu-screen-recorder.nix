@@ -12,5 +12,7 @@ _: {
   services.gpu-screen-recorder = {
     enable = true;
     postRecordSeconds = 10;
+    # Everything but spotify
+    audioDevices = ["app-inverse:spotify|default_input"];
   };
 }

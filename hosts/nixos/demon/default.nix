@@ -26,6 +26,7 @@
     ./audio
     ./media.nix
     ./awsvpn-home-dns-fix.nix
+    ./openrgb-schedule.nix
 
     (map lib.custom.relativeToHosts (
       map (f: "common/optional/${f}") [
@@ -82,8 +83,15 @@
 
   programs.gpu-screen-recorder.enable = true;
 
-  # AMD FCH SMBus (i2c-piix4) is where the ASUS Aura controller lives.
-  services.hardware.openrgb.motherboard = "amd";
+  services.hardware.openrgb = {
+    # AMD FCH SMBus (i2c-piix4) is where the ASUS Aura controller lives.
+    motherboard = "amd";
+    # Bundles OpenRGBEffectsPlugin: software rainbow/spectrum over Direct mode,
+    # since ASUS Aura addressable hardware effects don't work in OpenRGB.
+    package = pkgs.openrgb-with-all-plugins;
+  };
+
+  programs.coolercontrol.enable = true;
 
   programs.kdeconnect.enable = true;
 

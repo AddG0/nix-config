@@ -97,6 +97,10 @@
     ]))
   ];
 
+  # Record from the never-muted direct_input node (demon audio/virtual-devices.nix),
+  # so Claude Code keeps hearing me when I hit mic-mute.
+  programs.claude-code-profiles.captureNode = "direct_input";
+
   home.file."Videos/Movies".source = config.lib.file.mkOutOfStoreSymlink "/mnt/videos";
 
   services.gpu-screen-recorder = {
@@ -151,7 +155,7 @@
   # ========== Host-specific Monitor Spec ==========
   #
   #  ------   ------
-  # | DP-1 | | DP-3 | ----
+  # | DP-2 | | DP-3 | ----
   # | ASUS | |  LG  | |HDMI-A-1|
   #  ------   ------  |(rot)|
   #                    ----
@@ -161,7 +165,7 @@
     workspace = [
       "1, monitor:DP-3, default:true"
       "6, monitor:DP-3, default:true"
-      "2, monitor:DP-1, default:true"
+      "2, monitor:DP-2, default:true"
       "3, monitor:HDMI-A-1, default:true"
     ];
     windowrule = [
@@ -186,7 +190,7 @@
 
   display.monitors = [
     {
-      output = "DP-1";
+      output = "DP-2";
       name = "left";
       width = 3840;
       height = 2160;

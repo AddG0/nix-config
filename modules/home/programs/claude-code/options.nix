@@ -147,6 +147,17 @@ in {
 
     package = lib.mkPackageOption pkgs "claude-code" {nullable = true;};
 
+    captureNode = lib.mkOption {
+      type = lib.types.nullOr lib.types.str;
+      default = null;
+      example = "direct_input";
+      description = ''
+        PipeWire node the wrapped `claude` binds its audio capture to, via the
+        PIPEWIRE_NODE environment variable. null leaves capture on the default
+        source.
+      '';
+    };
+
     defaultProfile = lib.mkOption {
       type = lib.types.str;
       default = "default";

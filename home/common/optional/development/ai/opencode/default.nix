@@ -18,6 +18,9 @@
 in {
   stylix.targets.opencode.enable = lib.mkDefault false;
 
+  # Auto-populate the Ollama model picker from the live `ollama list`.
+  xdg.configFile."opencode/plugin/ollama-autodiscover.js".source = ./plugins/ollama-autodiscover.js;
+
   programs.code-assistant-profiles.targets.opencode.enable = true;
 
   programs.opencode = {
@@ -27,12 +30,10 @@ in {
     settings.autoupdate = false;
     settings.experimental.openTelemetry = telemetryEnabled;
     settings.provider.ollama = {
+      # Models are discovered at runtime by the ollama-autodiscover plugin.
       npm = "@ai-sdk/openai-compatible";
       name = "Ollama (local)";
       options.baseURL = "http://localhost:11434/v1";
-      models."gemma4".name = "Gemma 4 31B";
-      models."qwen3.5:27b".name = "Qwen 3.5 27B";
-      models."qwen3.5:35b".name = "Qwen 3.5 35B-A3B";
     };
   };
 }

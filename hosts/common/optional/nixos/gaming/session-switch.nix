@@ -14,10 +14,20 @@
   steamBin = "${config.programs.steam.package}/bin/steam";
   desktopCmd = config.services.greetd.sessionCommand;
 
-  # Gamepad UI, but NOT full Deck mode: SteamDeck=1/-steamdeck make Steam route
-  # "Switch to Desktop" through steamos-manager (needs jovian.steam) and hang,
-  # rather than exec'ing /usr/bin/steamos-session-select. pkgs.gamescope is uncapped.
-  gamescopeCmd = "${lib.getExe pkgs.gamescope} --steam --rt --expose-wayland --force-grab-cursor -- ${steamBin} -gamepadui -pipewire-dmabuf";
+  # gamescope spawns `mangoapp` (the --mangoapp QAM perf overlay) from PATH;
+  # wrap it so mangohud is found without leaking it into the global env or
+  # trusting the session's PATH. pkgs.gamescope is uncapped (no cap_sys_nice).
+  gamescopeWithMango = pkgs.symlinkJoin {
+    name = "gamescope-mangoapp";
+    paths = [pkgs.gamescope];
+    nativeBuildInputs = [pkgs.makeWrapper];
+    postBuild = "wrapProgram $out/bin/gamescope --prefix PATH : ${pkgs.mangohud}/bin";
+  };
+
+  # NOT full Deck mode: SteamDeck=1/-steamdeck route "Switch to Desktop" through
+  # steamos-manager (needs jovian.steam) and hang, instead of exec'ing
+  # /usr/bin/steamos-session-select.
+  gamescopeCmd = "${gamescopeWithMango}/bin/gamescope --steam --rt --expose-wayland --force-grab-cursor --mangoapp -- ${steamBin} -gamepadui -pipewire-dmabuf";
 
   marker = ''"''${XDG_RUNTIME_DIR:-/run/user/$(id -u)}/gaming-session-next"'';
 

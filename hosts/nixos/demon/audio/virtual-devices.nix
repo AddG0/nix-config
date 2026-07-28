@@ -2,6 +2,32 @@
   # Device identifiers - update these if your hardware changes
   micDevice = "alsa_input.usb-Focusrite_Scarlett_Solo_4th_Gen_S1YE3VE3790E29-00.HiFi__Mic2__source";
   headsetDevice = "alsa_output.usb-Chord_Electronics_Ltd_HugoTT2_413-001-01.analog-stereo";
+
+  # Passive MONO loopback exposing `${name}_sink` (Sink) and `${name}` (Source);
+  # its sources are wired in by the pw-link service below, not here.
+  mkMixerInput = name: description: {
+    "context.modules" = [
+      {
+        name = "libpipewire-module-loopback";
+        args = {
+          "node.description" = description;
+          "audio.position" = ["MONO"];
+          "capture.props" = {
+            "media.class" = "Audio/Sink";
+            "node.name" = "${name}_sink";
+            "stream.dont-remix" = true;
+            "node.passive" = true; # Don't generate silence when nothing connected
+          };
+          "playback.props" = {
+            "media.class" = "Audio/Source";
+            "node.name" = name;
+            "stream.dont-remix" = true;
+            "node.passive" = true;
+          };
+        };
+      }
+    ];
+  };
 in {
   # ============================================================================
   # Virtual Audio Devices
@@ -184,32 +210,12 @@ in {
         ];
       };
 
-      # Main Input: Combines gate_source + soundboard_source into one input
-      # This is what you select as your microphone in Discord/voice apps
-      # node.passive prevents static when nothing is connected
-      "99-main-input.conf" = {
-        "context.modules" = [
-          {
-            name = "libpipewire-module-loopback";
-            args = {
-              "node.description" = "Main Input";
-              "audio.position" = ["MONO"];
-              "capture.props" = {
-                "media.class" = "Audio/Sink";
-                "node.name" = "main_input_sink";
-                "stream.dont-remix" = true;
-                "node.passive" = true; # Don't generate silence when nothing connected
-              };
-              "playback.props" = {
-                "media.class" = "Audio/Source";
-                "node.name" = "main_input";
-                "stream.dont-remix" = true;
-                "node.passive" = true; # Don't generate silence when nothing connected
-              };
-            };
-          }
-        ];
-      };
+      # Combines gate_source + soundboard_source into the mic you pick in Discord.
+      "99-main-input.conf" = mkMixerInput "main_input" "Main Input";
+
+      # The mic feed on a node that mic-mute doesn't touch (it mutes main_input),
+      # for apps that should keep capturing while the mic is muted for everyone else.
+      "99-direct-input.conf" = mkMixerInput "direct_input" "Direct Input";
     };
 
     wireplumber = {
@@ -268,6 +274,9 @@ in {
         ${pkgs.pipewire}/bin/pw-link gate_source:capture_MONO main_input_sink:playback_MONO || true
         ${pkgs.pipewire}/bin/pw-link soundboard_source:capture_1 main_input_sink:playback_MONO || true
         ${pkgs.pipewire}/bin/pw-link soundboard_source:capture_2 main_input_sink:playback_MONO || true
+
+        # Gated mic into direct_input, which mic-mute never touches
+        ${pkgs.pipewire}/bin/pw-link gate_source:capture_MONO direct_input_sink:playback_MONO || true
 
         # Also link soundboard to default speakers (HugoTT2) so I can hear it
         ${pkgs.pipewire}/bin/pw-link soundboard_source:capture_1 ${headsetDevice}:playback_FL || true

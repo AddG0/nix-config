@@ -1,7 +1,11 @@
 #
 # FIXME check for dependency somehow? Requires the msmtp.nix option for email notifications
 #
-{pkgs, ...}: let
+{
+  pkgs,
+  lib,
+  ...
+}: let
   # FIXME
   # isEnabled = name: predicate: {
   # assertion = predicate;
@@ -132,4 +136,22 @@ in {
       };
     };
   };
+
+  # freshclam is pulled in at boot by clamd, but network-online.target is
+  # satisfied before the resolver answers, so the first run exits 11 on a DNS
+  # failure. Let systemd retry rather than fail the unit: Type=exec so Restart
+  # applies (oneshot forbids it), bounded so a genuinely-offline boot gives up
+  # and leaves the refresh to the timer.
+  systemd.services.clamav-freshclam = {
+    startLimitIntervalSec = 300;
+    startLimitBurst = 10;
+    serviceConfig = {
+      Type = lib.mkForce "exec";
+      Restart = "on-failure";
+      RestartSec = 15;
+    };
+  };
+
+  # Catch up a missed update if the box was asleep/off at the scheduled time.
+  systemd.timers.clamav-freshclam.timerConfig.Persistent = true;
 }

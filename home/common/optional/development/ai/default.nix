@@ -7,7 +7,7 @@
     ./code-assistant-profiles
     ./claude-code
     ./codex.nix
-    ./opencode.nix
+    ./opencode
     ./t3code.nix
   ];
 
