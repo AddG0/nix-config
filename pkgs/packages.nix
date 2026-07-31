@@ -36,6 +36,9 @@ pkgs: rec {
   rofi-presets = pkgs.callPackage ./rofi-presets {};
   wallpaper-picker = pkgs.callPackage ./wallpaper-picker {};
 
+  # CAD
+  fusion360 = pkgs.callPackage ./fusion360 {};
+
   # Gaming
   proton-cachyos = pkgs.callPackage ./proton-cachyos {};
   wlcrosshair = pkgs.callPackage ./wlcrosshair {};

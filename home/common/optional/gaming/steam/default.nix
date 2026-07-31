@@ -94,12 +94,12 @@
   overrides = {
     # Rocket League has a linux build, but it's not maintained so we need to use the windows version
     rocket-league.compatTool = defaultCompatTool;
-
     # I had multiplayer issues with the linux version. So I'm using the windows version.
     portal-2.compatTool = defaultCompatTool;
-
     # Wouldn't let me install if this wasn't set
     conan-exiles.compatTool = defaultCompatTool;
+    # Was not opening with linux version
+    aimlabs.compatTool = defaultCompatTool;
 
     # Gamescope wrap: HZD's native fullscreen on Linux/Proton is broken
     # (wrong resolution, multi-monitor misbehavior, alt-tab loss).
@@ -111,10 +111,7 @@
     # Wrap in gaemscope to fix weird fullscreen behavior
     forza-horizon-4.launchOptions.wrappers = [gamemoderun] ++ gamescope;
     forza-horizon-5.launchOptions.wrappers = [gamemoderun] ++ gamescope;
-    forza-horizon-6 = {
-      launchOptions.wrappers = [gamemoderun] ++ gamescope;
-      compatTool = "proton_experimental";
-    };
+    # forza-horizon-6.launchOptions.wrappers = [gamemoderun] ++ gamescope;
 
     overwatch.launchOptions.wrappers = mouseDpi 1800 ++ [gamemoderun];
 

@@ -71,6 +71,8 @@
       "tools/obsidian.nix"
       "tools/krita.nix"
       "tools/stylus-notes.nix"
+      "tools/bottles.nix"
+      "tools/fusion360.nix"
 
       # NixOS Specific
       # "nixos/desktops/plasma6"

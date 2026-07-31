@@ -24,6 +24,10 @@
           gperftools
           ;
       });
+
+      # Move Steam's CEF debugger off 8080 (commonly used; leave it free);
+      # decky-loader is patched to match in gaming/decky.nix.
+      extraArgs = "-devtools-port 21379";
     };
 
     extraCompatPackages = [

@@ -26,6 +26,7 @@
     ./audio
     ./media.nix
     ./awsvpn-home-dns-fix.nix
+    ./mt7927.nix
     ./openrgb-schedule.nix
 
     (map lib.custom.relativeToHosts (

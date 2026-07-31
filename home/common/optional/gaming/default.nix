@@ -1,4 +1,8 @@
-{pkgs, ...}: let
+{
+  pkgs,
+  lib,
+  ...
+}: let
   # Our Steam Protons (GE-Proton, proton-cachyos) live in the Nix store, and a
   # prefix symlinks its core files into that store path. On a proton update the
   # old path orphans and min-free GC reaps it → the prefix's symlinks dangle.
@@ -51,13 +55,17 @@ in {
   # inside CCompositor::setWindowFullscreenInternal (null deref on the
   # surface-recycling that happens during X11 Activate). Suppress the
   # fullscreen request — the game still renders fine windowed-borderless.
-  wayland.windowManager.hyprland.settings.windowrule = [
+  # mkBefore so `tag +game` sorts ahead of the tag:game consumers in other
+  # modules (e.g. the opacity rule in visuals) — Hyprland applies rules in order.
+  wayland.windowManager.hyprland.settings.windowrule = lib.mkBefore [
     "suppress_event fullscreen, match:title ^(Forza Horizon \\d+)$"
     "suppress_event fullscreen, match:class ^(steam_app_2483190)$"
     # gamescope's render loop runs off Wayland frame callbacks, which Hyprland
     # stops sending to windows on an inactive workspace — so the game freezes on
     # return until a resize kicks it.
     "render_unfocused on, match:class ^(\\.gamescope-wrapped)$"
+    # Every Steam game (Proton or native) maps as XWayland class steam_app_<id>.
+    "tag +game, match:class ^(steam_app_\\d+)$"
   ];
 
   # Disable the desktop entry for Protontricks since steam gives me that option anyway

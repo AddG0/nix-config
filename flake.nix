@@ -194,6 +194,13 @@
       inputs.nixpkgs.follows = "nixpkgs";
     };
 
+    # MT7927 (Filogic 380) Wi-Fi 7 driver patches + firmware, for demon's X870E
+    # Hero; consumed by hosts/nixos/demon/mt7927.nix.
+    mt7927-driver = {
+      url = "github:jetm/mediatek-mt7927-dkms/ad1f3e4d19fe540aaa1f449ddba86c65db9bfc82";
+      flake = false;
+    };
+
     # CachyOS kernel - optimized for desktop performance
     nix-cachyos-kernel = {
       url = "github:xddxdd/nix-cachyos-kernel/release";
