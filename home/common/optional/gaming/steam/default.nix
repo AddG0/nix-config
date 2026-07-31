@@ -111,7 +111,7 @@
     # Wrap in gaemscope to fix weird fullscreen behavior
     forza-horizon-4.launchOptions.wrappers = [gamemoderun] ++ gamescope;
     forza-horizon-5.launchOptions.wrappers = [gamemoderun] ++ gamescope;
-    # forza-horizon-6.launchOptions.wrappers = [gamemoderun] ++ gamescope;
+    forza-horizon-6.launchOptions.wrappers = [gamemoderun] ++ gamescope;
 
     overwatch.launchOptions.wrappers = mouseDpi 1800 ++ [gamemoderun];
 
