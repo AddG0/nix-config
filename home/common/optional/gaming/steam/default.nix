@@ -39,7 +39,10 @@
   isLaptop = config.hostSpec.hostType == "laptop";
   hdrArgs = lib.optionals (primaryMonitor.hdr or false) ["--hdr-enabled"];
 
-  mkGamescope = import ./gamescope.nix {inherit lib pkgs hyprctl isLaptop primaryMonitor hdrArgs;};
+  mkGamescope = import ./gamescope.nix {
+    inherit lib pkgs hyprctl isLaptop primaryMonitor hdrArgs;
+    monitors = config.display.monitors;
+  };
   gamescope = mkGamescope {};
 
   mouseDpi = import ./mouse-dpi.nix {inherit lib pkgs razerEnabled;};

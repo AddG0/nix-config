@@ -264,8 +264,6 @@ in {
       "opacity 1.0 override 1.0 override 1.0 override, match:class ^(zen|zen-alpha|zen-beta)$"
       "opacity 1.0 override 1.0 override 1.0 override, match:class ^(vlc)$"
       "opacity 1.0 override 1.0 override 1.0 override, match:class ^(eog|org.gnome.eog)$"
-      # gamescope games run windowed-borderless, so they'd otherwise catch the active/inactive dimming.
-      "opacity 1.0 override 1.0 override 1.0 override, match:class ^(\\.gamescope-wrapped)$"
       # Games (tagged in the gaming module) stay fully opaque, not dimmed when unfocused.
       "opacity 1.0 override 1.0 override 1.0 override, match:tag game"
       "opacity 0.97 override 0.95 override, match:class ^(com.mitchellh.ghostty)$"

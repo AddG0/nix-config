@@ -32,29 +32,30 @@
       "nixos/services/tailscale.nix" # mesh VPN for secure remote access
       "nixos/services/openvpn.nix"
       "nixos/audio.nix" # pipewire and cli controls
-      "nixos/gaming" # steam, gamescope, gamemode, and related hardware
-      "nixos/virtualisation/docker.nix" # docker
+      "nixos/services/bluetooth.nix"
+      "nixos/services/airpods-autoconnect.nix"
       "nixos/services/automatic-timezoned.nix"
+      "nixos/plymouth.nix" # fancy boot screen
+      "nixos/services/greetd.nix"
+      "nixos/desktops/hyprland"
+      "nix-cache.nix"
+
+      "nixos/gaming" # steam, gamescope, gamemode, and related hardware
+      "nixos/hardware/moza.nix" # MOZA R5 wheelbase (boxflat + udev)
 
       # "nixos/obs.nix" # obs
       "nixos/hardware/openrazer.nix" # openrazer
       "nixos/hardware/wooting.nix" # wooting keyboard
       "nixos/hardware/wacom-dial-scroll.nix"
+
       "nixos/1password.nix"
-      "nixos/services/bluetooth.nix"
-      "nixos/services/airpods-autoconnect.nix"
       # "nixos/services/bt-proximity.nix"
       "nixos/services/ollama.nix"
 
+      "nixos/virtualisation/docker.nix" # docker
       "nixos/development/mysql.nix"
       "nixos/development/postgres.nix"
       "nixos/development/redis.nix"
-
-      "nixos/plymouth.nix" # fancy boot screen
-      "nixos/services/greetd.nix"
-      "nixos/desktops/hyprland"
-
-      "nix-cache.nix"
     ]))
   ];
 

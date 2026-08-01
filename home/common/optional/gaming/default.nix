@@ -63,9 +63,11 @@ in {
     # gamescope's render loop runs off Wayland frame callbacks, which Hyprland
     # stops sending to windows on an inactive workspace — so the game freezes on
     # return until a resize kicks it.
-    "render_unfocused on, match:class ^(\\.gamescope-wrapped)$"
-    # Every Steam game (Proton or native) maps as XWayland class steam_app_<id>.
+    "render_unfocused on, match:class ^(gamescope)$"
+    # Steam games (Proton or native) map as XWayland class steam_app_<id>.
     "tag +game, match:class ^(steam_app_\\d+)$"
+    # Gamescoped ones don't: they map on gamescope's Xwayland, not Hyprland's.
+    "tag +game, match:class ^(gamescope)$"
   ];
 
   # Disable the desktop entry for Protontricks since steam gives me that option anyway
