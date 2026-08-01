@@ -1,6 +1,7 @@
 {
   inputs,
   config,
+  lib,
   pkgs,
   ...
 }: {
@@ -11,7 +12,10 @@
     # Run as the logged-in user so plugins reach their session — Deckcord's voice
     # backend hardcodes /run/user/1000 (dbus/pipewire). Plugins run as you.
     user = config.hostSpec.primaryUsername;
-    extraPackages = [pkgs.systemd]; # decky shells out to `systemctl`
+    extraPackages = [
+      pkgs.systemd # decky shells out to `systemctl`
+      config.gaming.gamescopeSession.outputTool
+    ];
     extraPythonPackages = ps: [ps.aiohttp-cors]; # Deckcord backend imports it
     # Silence the "plugin update available" notification (loader.json).
     settings.notificationSettings.pluginUpdates = false;
@@ -24,8 +28,15 @@
       TabMaster = pkgs.decky.tabmaster;
       hltb-for-deck = pkgs.decky.hltb;
       SDH-CssLoader = pkgs.decky.css-loader;
+      GamescopeOutput = pkgs.decky.gamescope-output;
     };
   };
+
+  # Doubles up on extraPackages above: a plugin subprocess may get a narrower
+  # environment than the loader's PATH.
+  systemd.services.decky-loader.environment.GAMESCOPE_SET_OUTPUT =
+    lib.getExe config.gaming.gamescopeSession.outputTool;
+
   # Deckify's Spotify OAuth page, so its login QR code reaches a phone.
   networking.firewall.allowedTCPPorts = [39281];
 

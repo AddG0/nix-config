@@ -5,6 +5,7 @@ _: {
     ./gamemode.nix
     ./gamescope.nix
     ./gamescope-session.nix
+    ./kernel.nix
     ./steam.nix
   ];
 }

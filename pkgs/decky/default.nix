@@ -4,6 +4,7 @@ pkgs: let
 in {
   deckcord = pkgs.callPackage ./deckcord {};
   deckify = pkgs.callPackage ./deckify {};
+  gamescope-output = pkgs.callPackage ./gamescope-output {};
 
   steamgriddb = mkStorePlugin {
     pname = "decky-steamgriddb";

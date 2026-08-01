@@ -49,19 +49,34 @@
   );
   # Through systemd-cat, or gamescope's log lands on the session's VT where only
   # root can read it back — `journalctl -t gamescope` instead.
-  gamescopeCmd = "${pkgs.systemd}/bin/systemd-cat -t gamescope ${envPrefix}${gamescopeWithMango}/bin/gamescope ${gamescopeFlags} -- ${steamBin} -gamepadui -pipewire-dmabuf";
+  gamescopeCmd = "${pkgs.systemd}/bin/systemd-cat -t gamescope ${envPrefix}${gamescopeWithMango}/bin/gamescope $gs_output ${gamescopeFlags} -- ${steamBin} -gamepadui -pipewire-dmabuf";
 
   marker = ''"''${XDG_RUNTIME_DIR:-/run/user/$(id -u)}/gaming-session-next"'';
 
+  # Not in XDG_RUNTIME_DIR: the pick has to outlive a reboot.
+  outputState = ''"$HOME/.local/state/gamescope-output"'';
+
+  # -O is start-only, so a switch means a restart — hence the read per loop.
+  # Unquoted above: an empty value must vanish, and connector names have no spaces.
+  readOutput = ''gs_output=""; [ -s ${outputState} ] && gs_output="-O $(cat ${outputState})" || true'';
+
+  # Marks the session's gamescope so gamescope-set-output can tell it from a
+  # per-game nested one on the desktop.
+  sessionFlag = ''"''${XDG_RUNTIME_DIR:-/run/user/$(id -u)}/gamescope-session-active"'';
+  runGamescope = "touch ${sessionFlag}; ${gamescopeCmd} || true; rm -f ${sessionFlag}";
+
   # Nothing to fall back to, so quitting Steam relaunches. The backoff keeps a
   # Steam that dies at startup from spinning; Ctrl+Alt+F2 still reaches a TTY.
-  # A marker means "Switch to Desktop" was pressed: end the session for the
-  # greeter instead, the only way off this host's gamescope short of a TTY.
+  # A `desktop` marker means "Switch to Desktop" was pressed: end the session for
+  # the greeter instead, the only way off this host's gamescope short of a TTY.
+  # A `gamescope` marker is an output switch — round again, skipping the backoff.
   standaloneSession = pkgs.writeShellScript "gamescope-session" ''
     while :; do
       rm -f ${marker}
+      ${readOutput}
       start=$SECONDS
-      ${gamescopeCmd} || true
+      ${runGamescope}
+      [ "$(cat ${marker} 2>/dev/null || true)" = gamescope ] && continue
       [ -e ${marker} ] && break
       ((SECONDS - start < 5)) && sleep 5
     done
@@ -74,8 +89,9 @@
     current="''${1:-desktop}"
     while :; do
       rm -f ${marker}
+      ${readOutput}
       case "$current" in
-        gamescope) ${gamescopeCmd} || true ;;
+        gamescope) ${runGamescope} ;;
         *) ${desktopCmd} || true ;;
       esac
       case "$(cat ${marker} 2>/dev/null || true)" in
@@ -91,6 +107,52 @@
     echo desktop > ${marker}
     exec ${steamBin} -shutdown
   '';
+
+  # Takes a priority list, not one name: a pick that is unplugged later falls
+  # through to the next instead of leaving gamescope with no output at all.
+  setOutput = pkgs.writeShellApplication {
+    name = "gamescope-set-output";
+    runtimeInputs = [pkgs.coreutils];
+    text = ''
+      state=${outputState}
+
+      case "''${1:-}" in
+        --get)
+          cat "$state" 2>/dev/null || true
+          exit 0
+          ;;
+        --list)
+          for c in /sys/class/drm/card*-*; do
+            [ "$(cat "$c/status" 2>/dev/null)" = connected ] || continue
+            n=''${c##*/}
+            printf '%s\n' "''${n#*-}"
+          done
+          exit 0
+          ;;
+        --clear)
+          rm -f "$state"
+          ;;
+        "" | -*)
+          echo "usage: gamescope-set-output <connector[,fallback...]> | --get | --list | --clear" >&2
+          exit 2
+          ;;
+        *)
+          mkdir -p "$(dirname "$state")"
+          printf '%s\n' "$1" >"$state"
+          ;;
+      esac
+
+      # Off the session, ending Steam would leave a marker that sends the next
+      # desktop exit into Gaming Mode.
+      if [ ! -e ${sessionFlag} ]; then
+        echo "recorded; Gaming Mode is not running, so nothing to restart" >&2
+        exit 0
+      fi
+
+      echo gamescope > ${marker}
+      exec ${steamBin} -shutdown
+    '';
+  };
 
   # App-launcher counterpart to Steam's "Switch to Desktop": `uwsm stop` ends the
   # desktop (paired with the `uwsm start` in sessionCommand) so the dispatcher
@@ -133,12 +195,21 @@ in {
       example = ["--disable-layers"];
       description = "Extra gamescope flags for this host.";
     };
+
+    # Read-only so the Decky plugin can reach it without duplicating steamBin.
+    outputTool = lib.mkOption {
+      type = lib.types.package;
+      readOnly = true;
+      default = setOutput;
+      description = "Helper that records which connector gamescope should start on, then restarts the session on it.";
+    };
   };
 
   # Both shapes go through mkIf, never a bare `if` on cfg.standalone — reading
   # config to pick the shape of config is infinite recursion.
   config = lib.mkIf config.services.greetd.enable (lib.mkMerge [
     {
+      environment.systemPackages = [setOutput];
       systemd.tmpfiles.rules = [
         "L+ /usr/bin/steamos-session-select - - - - ${lib.getExe sessionSelect}"
       ];

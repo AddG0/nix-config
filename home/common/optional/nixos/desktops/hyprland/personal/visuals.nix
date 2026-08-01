@@ -257,13 +257,12 @@ in {
     # everything unfocused, globally) or a polkit theme that draws its own
     # dim overlay.
     windowrule = [
-      # Zen, VLC, and Eye of GNOME stay fully opaque in every state — active, inactive, and
-      # fullscreen. `override` wins over the global active/inactive_opacity
-      # (1.0/0.9) so neither dims when unfocused. (Hover-focus = the active
-      # state, so this already covers "on hover".)
+      # `override` beats the global active/inactive_opacity, so these never dim.
       "opacity 1.0 override 1.0 override 1.0 override, match:class ^(zen|zen-alpha|zen-beta)$"
       "opacity 1.0 override 1.0 override 1.0 override, match:class ^(vlc)$"
       "opacity 1.0 override 1.0 override 1.0 override, match:class ^(eog|org.gnome.eog)$"
+      # Color grading needs true pixel values, not wallpaper-blended ones.
+      "opacity 1.0 override 1.0 override 1.0 override, match:class ^(resolve)$"
       # Games (tagged in the gaming module) stay fully opaque, not dimmed when unfocused.
       "opacity 1.0 override 1.0 override 1.0 override, match:tag game"
       "opacity 0.97 override 0.95 override, match:class ^(com.mitchellh.ghostty)$"

@@ -1,0 +1,8 @@
+{
+    "name": "gamescope-output",
+    "version": "1.0.0",
+    "description": "Choose which monitor Gaming Mode runs on.",
+    "type": "module",
+    "private": true,
+    "license": "MIT"
+}

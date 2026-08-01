@@ -35,6 +35,7 @@
       "nixos/services/bluetooth.nix"
       "nixos/services/airpods-autoconnect.nix"
       "nixos/services/automatic-timezoned.nix"
+      "nixos/services/earlyoom.nix"
       "nixos/plymouth.nix" # fancy boot screen
       "nixos/services/greetd.nix"
       "nixos/desktops/hyprland"
@@ -93,26 +94,6 @@
     enable = true;
     autoScreenActivate = true;
     autoScreenLock = true;
-  };
-
-  boot.kernelModules = ["ntsync"]; # NT sync primitives for Wine/Proton gaming performance
-
-  # Panther Lake hybrid cores: stock EEVDF strands latency-critical game threads
-  # on the slow E-cores; scx_lavd is P/E-aware and keeps them on the P-cores.
-  services.scx = {
-    enable = true;
-    scheduler = "scx_lavd";
-  };
-
-  # Auto-renice launched games above background tasks; pairs with scx (scx picks
-  # the core, ananicy sets priority/ioclass).
-  services.ananicy = {
-    enable = true;
-    package = pkgs.ananicy-cpp;
-    # FLAKE-UPDATE: drop once the nixos module's rulesProvider default stops
-    # pointing at the removed pkgs.ananicy (nixpkgs#541881 dropped the package
-    # but not the module defaults). Re-check after `nix flake update`.
-    rulesProvider = pkgs.ananicy-rules-cachyos;
   };
 
   # FLAKE-UPDATE: drop once the cachyos kernel carries an upstream fix for the

@@ -27,6 +27,7 @@
 #
 # SAVING REPLAYS:
 #   Run `save-gsr-replay` or bind it to a hotkey to save the replay buffer.
+#   `postSaveScript` hooks an executable to run on each saved file.
 #
 # AFTER REBUILDS:
 #   xdph reads `~/.config/hypr/xdph.conf` only at startup. Since the smart
@@ -343,6 +344,7 @@
           -q ${cfg.quality} \
           -r ${toString (cfg.replayDuration + cfg.postRecordSeconds)} \
           ${lib.optionalString usePortal "-restore-portal-session yes"} \
+          ${lib.optionalString (cfg.postSaveScript != null) "-sc ${lib.getExe cfg.postSaveScript}"} \
           -o "${cfg.outputDirectory}" 2>&1; }
 
         # Watchdog: kill GSR if the monitor leaves the compositor's output
@@ -488,6 +490,17 @@ in {
       type = lib.types.str;
       default = "$HOME/Videos/Clips";
       description = "Directory where saved replay clips are stored.";
+    };
+
+    postSaveScript = lib.mkOption {
+      type = lib.types.nullOr lib.types.package;
+      default = null;
+      example = lib.literalExpression ''pkgs.writeShellApplication { name = "my-hook"; text = "..."; }'';
+      description = ''
+        Executable run after every save, wired to gpu-screen-recorder's `-sc`
+        hook. GSR invokes it asynchronously with two arguments: the saved
+        filepath and the save type (`regular`, `replay`, or `screenshot`).
+      '';
     };
 
     audioDevices = lib.mkOption {

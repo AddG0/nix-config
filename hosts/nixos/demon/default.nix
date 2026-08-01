@@ -154,8 +154,6 @@
 
   services.greetd.autoLogin.enable = true;
 
-  boot.kernelModules = ["ntsync"]; # NT sync primitives for Wine/Proton gaming performance
-
   boot.initrd = {
     systemd.enable = true;
   };

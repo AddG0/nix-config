@@ -49,6 +49,7 @@
       "nixos/services/bluetooth.nix"
       "nixos/services/bt-proximity.nix"
       "nixos/services/automatic-timezoned.nix"
+      "nixos/services/earlyoom.nix"
       # "nixos/services/openvpn.nix" # home VPN
       "nixos/1password.nix"
       "nixos/hardware/openrazer.nix" # openrazer

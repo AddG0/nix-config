@@ -52,7 +52,7 @@ in {
       };
 
       # Bar-widget plugins (installed via ./plugins/*).
-      # plugins.enabled = ["addg/next-event"];
+      plugins.enabled = ["addg/next-event"];
       widget.calendar.type = "addg/next-event:agenda";
 
       # strftime clock formats.
