@@ -305,11 +305,17 @@ nixos-anywhere HOSTNAME IP USER="root" SSH_OPTS="": rebuild-pre
 # Colmena deployment commands
 alias d := deploy
 
+# Leading space is load-bearing: only an IP that follows a host counts as an override.
+IPV4_SUFFIX := ' [0-9]+(\.[0-9]+){3}$'
+
 [group('deployment')]
-[doc("Deploy using colmena (specify hostnames or deploys to all, use --boot to activate on next boot)")]
+[doc("Deploy using colmena (specify hostnames or deploys to all, use --boot to activate on next boot). Follow a host with an IP to override its target address, e.g. `just deploy kvasir 10.61.30.143`; use --ip for a DNS name.")]
 [arg("boot", long, value="boot")]
-deploy boot="switch" *hostnames: rebuild-pre
-  colmena apply --impure {{ if hostnames != "" { "--on " + replace(hostnames, " ", ",") } else { "" } }} {{boot}}
+[arg("ip", long)]
+deploy boot="switch" ip="" *hostnames: rebuild-pre
+  DEPLOY_TARGET_NODE="{{ replace_regex(replace_regex(hostnames, IPV4_SUFFIX, ''), '^.* ', '') }}" \
+  DEPLOY_TARGET_HOST="{{ if ip != '' { ip } else if hostnames =~ IPV4_SUFFIX { replace_regex(hostnames, '^.* ', '') } else { '' } }}" \
+    colmena apply --impure {{ if hostnames != '' { '--on ' + replace(replace_regex(hostnames, IPV4_SUFFIX, ''), ' ', ',') } else { '' } }} {{boot}}
 
 # First push fails until the host trusts USER; bootstrap once on the box (via `ssh -A`):
 #   sudo env SSH_AUTH_SOCK="$SSH_AUTH_SOCK" nixos-rebuild switch --flake .#HOST

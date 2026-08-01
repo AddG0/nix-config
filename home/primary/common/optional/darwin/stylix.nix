@@ -1,8 +1,12 @@
-{pkgs, ...}: {
+{
+  inputs,
+  pkgs,
+  ...
+}: {
   stylix = {
     enable = true;
     image = "${pkgs.kdePackages.plasma-workspace-wallpapers}/share/wallpapers/Nexus/contents/images_dark/5120x2880.png";
-    base16Scheme = "${pkgs.base16-schemes}/share/themes/catppuccin-mocha.yaml";
+    base16Scheme = "${inputs.tt-schemes}/base16/catppuccin-mocha.yaml";
     fonts = {
       sansSerif = {
         package = pkgs.inter;

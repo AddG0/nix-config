@@ -3,6 +3,7 @@
   pkgs,
 }: let
   inherit (lib.custom) frontmatter;
+  skillResources = import ../skill-resources.nix {inherit lib;};
   readContent = spec:
     if spec.text != null
     then spec.text
@@ -87,7 +88,7 @@
       pkgs.runCommand "claude-skill-${lib.strings.sanitizeDerivationName name}" {} ''
                   mkdir -p "$out"
                   cp -R "${skill.resourcesRoot}/." "$out/"
-                  rm -f "$out/SKILL.md" "$out/prompt.md"
+                  ${skillResources.rejectReserved "claude-code" name}
                   cat > "$out/SKILL.md" <<'EOF'
         ${renderedSkill}
         EOF

@@ -105,9 +105,8 @@
   resolveModpack = name: modpack: let
     validName = validateInstanceName name;
     filteredSource = filterModpackSource modpack.source modpack.excludeMods;
-    # Parse the original source (eval-time path) — excludeMods only strips
-    # files under mods/, pack.toml is identical, and reading from the filtered
-    # runCommand output would IFD.
+    # Parse the original source: excludeMods only strips files under mods/, so
+    # pack.toml is identical and stays readable as an eval-time path.
     parsed = parsePackToml modpack.source;
     iconResolved = resolveIcon modpack.icon;
   in {

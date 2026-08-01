@@ -4,7 +4,7 @@ _: {
     ./decky.nix
     ./gamemode.nix
     ./gamescope.nix
-    ./session-switch.nix
+    ./gamescope-session.nix
     ./steam.nix
   ];
 }

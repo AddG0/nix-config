@@ -163,6 +163,8 @@
       "workspace 3 silent, match:title .*([Dd]iscord|[Ll]egcord).*"
       "workspace 2 silent, match:class ^(zen(-beta)?)$"
       "workspace 6 silent, match:class ^([Ss]team)$"
+      # Updater dialog maps with an empty class, so the rule above misses it.
+      "workspace 6 silent, match:class ^$, match:title ^Steam$"
     ];
     # Razer Blade 16 macro keys (remapped in hosts/nixos/freya). xkb's us
     # layout does not produce the F13/F14/F15 keysyms for those kernel

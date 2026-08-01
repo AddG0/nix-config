@@ -1,8 +1,8 @@
 #############################################################
 #
 #  kvasir - AI / Inference / GPU Server
-#  NixOS running on Intel CPU with NVIDIA + AMD GPUs
-#  TODO: Update hardware specs once installed
+#  NixOS running on i5-9600K, RTX 2080 Ti + 2x RX 580, 16GB RAM
+#  Every GPU is on a x1 slot; the 2080 Ti trains at Gen2, so ~400MB/s to it.
 #
 ###############################################################
 {
@@ -33,7 +33,7 @@
   networking = {
     networkmanager.enable = true;
     enableIPv6 = false;
-    interfaces.en01.wakeOnLan.enable = true;
+    interfaces.eno1.wakeOnLan.enable = true;
   };
 
   boot.loader = {

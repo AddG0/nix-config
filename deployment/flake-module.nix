@@ -3,7 +3,11 @@
   inputs,
   lib,
   ...
-}: {
+}: let
+  # Set by `just deploy --ip`; silently inert under pure eval (getEnv returns "").
+  overrideNode = builtins.getEnv "DEPLOY_TARGET_NODE";
+  overrideHost = builtins.getEnv "DEPLOY_TARGET_HOST";
+in {
   flake = {
     # Colmena - remote deployment via SSH
     colmena =
@@ -23,10 +27,12 @@
           };
         };
       }
-      // builtins.mapAttrs (_name: config: {
+      // builtins.mapAttrs (name: config: {
         deployment = {
           targetHost =
-            if config.config.hostSpec.colmena.targetHost != ""
+            if overrideHost != "" && overrideNode == name
+            then overrideHost
+            else if config.config.hostSpec.colmena.targetHost != ""
             then config.config.hostSpec.colmena.targetHost
             else config.config.hostSpec.hostName;
           targetUser = "root";

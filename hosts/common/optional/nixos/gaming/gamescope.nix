@@ -1,5 +1,5 @@
 _: {
-  # gamescope session lives in session-switch.nix, not programs.steam.gamescopeSession.
+  # gamescope session lives in gamescope-session.nix, not programs.steam.gamescopeSession.
   programs.gamescope = {
     enable = true;
     # Kept uncapped as the default; the session/per-game gamescope both use the

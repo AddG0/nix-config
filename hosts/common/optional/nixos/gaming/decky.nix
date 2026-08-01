@@ -18,6 +18,7 @@
     # Keys are the store's own folder names, so a UI install wouldn't duplicate.
     plugins = {
       Deckcord = pkgs.decky.deckcord;
+      Deckify = pkgs.decky.deckify;
       decky-steamgriddb = pkgs.decky.steamgriddb;
       protondb-decky = pkgs.decky.protondb-badges;
       TabMaster = pkgs.decky.tabmaster;
@@ -25,6 +26,9 @@
       SDH-CssLoader = pkgs.decky.css-loader;
     };
   };
+  # Deckify's Spotify OAuth page, so its login QR code reaches a phone.
+  networking.firewall.allowedTCPPorts = [39281];
+
   # decky-loader's frontend builds with pnpm (build-time only, not runtime).
   nixpkgs.config.permittedInsecurePackages = ["pnpm-9.15.9"];
 

@@ -1,4 +1,6 @@
 {lib}: let
+  skillResources = import ./skill-resources.nix {inherit lib;};
+
   assertExactlyOneTextSource = label: spec: [
     {
       assertion = spec.text != null || spec.source != null;
@@ -31,15 +33,13 @@
           referencesSkillDir = lib.hasInfix "\${SKILL_DIR}" promptText;
         in
           assertExactlyOneTextSource "${scope} skill '${name}' prompt" skill.prompt
+          ++ lib.optionals (skill.resourcesRoot != null && skillResources.inspectableAtEval skill.resourcesRoot)
+          (map (file: {
+              assertion = !(builtins.pathExists (skill.resourcesRoot + "/${file}"));
+              message = skillResources.message scope name file;
+            })
+            skillResources.names)
           ++ [
-            {
-              assertion = skill.resourcesRoot == null || !(builtins.pathExists (skill.resourcesRoot + "/SKILL.md"));
-              message = "${scope} skill '${name}' resourcesRoot must not contain SKILL.md; SKILL.md is generated from skill metadata and prompt";
-            }
-            {
-              assertion = skill.resourcesRoot == null || !(builtins.pathExists (skill.resourcesRoot + "/prompt.md"));
-              message = "${scope} skill '${name}' resourcesRoot must not contain prompt.md; prompt must be provided via skill.prompt";
-            }
             {
               assertion = !referencesSkillDir || skill.resourcesRoot != null;
               message = "${scope} skill '${name}' prompt references \${SKILL_DIR} but no resourcesRoot is set; either point resourcesRoot at a directory containing the referenced files, or remove the \${SKILL_DIR} references";

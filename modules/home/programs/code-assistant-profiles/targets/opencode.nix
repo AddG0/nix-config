@@ -6,6 +6,7 @@
 }: let
   codingCfg = config.programs.code-assistant-profiles;
   inherit (lib.custom) frontmatter;
+  skillResources = import ../skill-resources.nix {inherit lib;};
   profileName = codingCfg.defaultProfile;
   hasProfile = codingCfg.enable && builtins.hasAttr profileName codingCfg.resolved;
   profile =
@@ -109,14 +110,12 @@
       inherit body;
     };
 
-  # Whole-dir derivation routed through home.file, not programs.opencode.skills,
-  # because HM's opencode module calls lib.pathIsDirectory on store-path strings
-  # set there → IFD on unbuilt derivations. home.file doesn't do that check.
+  # programs.opencode.skills can't take a whole-dir derivation; use home.file.
   mkResourcedSkillDir = name: skill:
     pkgs.runCommand "opencode-skill-${lib.strings.sanitizeDerivationName name}" {} ''
       mkdir -p "$out"
       cp -R "${skill.resourcesRoot}/." "$out/"
-      rm -f "$out/SKILL.md"
+      ${skillResources.rejectReserved "opencode" name}
       cat > "$out/SKILL.md" <<'EOF'
       ${renderSkillText name skill}
       EOF

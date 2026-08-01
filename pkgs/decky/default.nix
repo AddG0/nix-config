@@ -3,6 +3,7 @@ pkgs: let
   mkStorePlugin = pkgs.callPackage ./store-plugin.nix {};
 in {
   deckcord = pkgs.callPackage ./deckcord {};
+  deckify = pkgs.callPackage ./deckify {};
 
   steamgriddb = mkStorePlugin {
     pname = "decky-steamgriddb";

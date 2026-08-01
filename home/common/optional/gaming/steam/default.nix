@@ -155,4 +155,21 @@ in {
   # Decky Loader injects its UI via Steam's CEF debugger (port 8080); this
   # marker enables it. Requires a full Steam restart after first creation.
   home.file.".steam/steam/.cef-enable-remote-debugging".text = "";
+
+  wayland.windowManager.hyprland.settings.windowrule =
+    [
+      # Steam maps this dialog as a normal window, so it tiles full-height.
+      "float on, match:class ^([Ss]team)$, match:title ^(Authorize Device)$"
+      "center 1, match:class ^([Ss]team)$, match:title ^(Authorize Device)$"
+      "float on, match:title ^(ProtonFixes)$"
+      # Terraria's blank launcher helper.
+      "workspace special silent, match:class ^(steam_app_252950)$, match:title ^$"
+      "workspace special silent, match:title (Lethal Company.*\\.exe)"
+    ]
+    # Steam toasts ignore the X11 primary; pin them to the primary's corner.
+    ++ lib.optionals (primaryMonitor != null) [
+      "float on, match:title ^(notificationtoasts.*)$"
+      "monitor ${primaryMonitor.output}, match:title ^(notificationtoasts.*)$"
+      "move 100%-w-20 100%-h-20, match:title ^(notificationtoasts.*)$"
+    ];
 }

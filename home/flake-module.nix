@@ -63,7 +63,7 @@
   # Stylix isn't present standalone, so feed the nvim modules the `colors` arg
   # parsed from the exact same base16 scheme the hosts theme with
   # (inputs.tt-schemes catppuccin-mocha), so the standalone palette can't drift
-  # from Stylix. Reading a flake input is a pure read (no IFD).
+  # from Stylix.
   catppuccinMocha = let
     content = builtins.readFile "${inputs.tt-schemes}/base16/catppuccin-mocha.yaml";
     toPair = line: let

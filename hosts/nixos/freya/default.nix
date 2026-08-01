@@ -108,6 +108,10 @@
   services.ananicy = {
     enable = true;
     package = pkgs.ananicy-cpp;
+    # FLAKE-UPDATE: drop once the nixos module's rulesProvider default stops
+    # pointing at the removed pkgs.ananicy (nixpkgs#541881 dropped the package
+    # but not the module defaults). Re-check after `nix flake update`.
+    rulesProvider = pkgs.ananicy-rules-cachyos;
   };
 
   # FLAKE-UPDATE: drop once the cachyos kernel carries an upstream fix for the

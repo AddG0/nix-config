@@ -6,6 +6,7 @@
 }: let
   codingCfg = config.programs.code-assistant-profiles;
   inherit (lib.custom) frontmatter;
+  skillResources = import ../skill-resources.nix {inherit lib;};
   profileName = codingCfg.defaultProfile;
   hasProfile = codingCfg.enable && builtins.hasAttr profileName codingCfg.resolved;
   profile =
@@ -84,7 +85,7 @@
     pkgs.runCommand "codex-skill-${lib.strings.sanitizeDerivationName name}" {} ''
       mkdir -p "$out"
       cp -R "${skill.resourcesRoot}/." "$out/"
-      rm -f "$out/SKILL.md"
+      ${skillResources.rejectReserved "codex" name}
       cat > "$out/SKILL.md" <<'EOF'
       ${rendered}
       EOF

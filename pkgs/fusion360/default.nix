@@ -26,8 +26,15 @@
   coreutils,
   findutils,
 }: let
-  # WARNING: this WoW64 build segfaulted on Fusion's first-run installers, so a
-  # fresh --reinstall may fail; launching an already-deployed prefix is fine.
+  # Wine 11.x is required on very new GPUs (RTX 5090): Fusion's Chromium UI client can't
+  # init its GPU command buffer under Wine 10.x and exits.
+  # X11 driver: normal look, and the 3D viewport runs on the GPU via DXVK/Vulkan. The
+  # embedded Chromium panels would black out (their gl backend asks Mesa for a GL context
+  # on the NVIDIA GPU and fails - the "dri2 screen" error), so launch forces GL to
+  # llvmpipe software (LIBGL_ALWAYS_SOFTWARE). That only touches OpenGL, not Vulkan, so
+  # the viewport stays GPU-accelerated while the panels render in software.
+  # WARNING: this WoW64 build segfaulted on Fusion's first-run installers, so a fresh
+  # --reinstall may fail; launching an already-deployed prefix is fine.
   wine = wineWow64Packages.stable;
 
   runtimeDeps = [
@@ -73,8 +80,8 @@ in
       install -Dm644 ${./autodesk_fusion.svg} \
         $out/share/icons/hicolor/scalable/apps/fusion360.svg
 
-      # Fusion graphics config that forces the DirectX (DXVK) renderer - the
-      # default OpenGL path crashes under Wine on NVIDIA.
+      # Fusion graphics config: DirectX (DXVK) renderer for the 3D viewport and the
+      # gl backend for the embedded Chromium panels - see configure_graphics.
       install -Dm644 ${./NMachineSpecificOptions.xml} \
         $out/share/fusion360/NMachineSpecificOptions.xml
 

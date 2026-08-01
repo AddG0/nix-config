@@ -47,8 +47,10 @@ reg() { WINEPREFIX="$WINEPREFIX" wine reg add "$1" /v "$2" /t REG_SZ /d "$3" /f 
 
 find_newest() { find "$WINEPREFIX" -name "$1" -printf '%T@ %p\n' 2>/dev/null | sort -rn | head -n1 | cut -d' ' -f2-; }
 
-# Force Fusion onto the DirectX 11 (DXVK -> Vulkan) renderer; auto-detect picks
-# OpenGL, which page-faults under Wine on NVIDIA.
+# NMachineSpecificOptions.xml pins the renderers Wine needs: DX11 (DXVK->Vulkan) for
+# the 3D viewport - auto-detect picks OpenGL, which page-faults on NVIDIA under Wine -
+# and gl for the embedded Chromium, whose default present path renders black (Wine
+# has no DirectComposition).
 configure_graphics() {
   local u="$WINEPREFIX/drive_c/users/$USER"
 
@@ -132,14 +134,23 @@ launch_fusion() {
   fi
   configure_graphics
 
-  # Fusion's embedded Qt WebEngine panels stay black under Wine: Chromium presents
-  # via DirectComposition, which stock Wine lacks (E_NOTIMPL) - so sign-in uses the
-  # external browser + adskidmgr:// handler. Sandbox/GPU off since neither works.
-  local chromium_flags="--no-sandbox --disable-gpu"
+  # --no-sandbox because Wine has none. Don't add --disable-gpu: it kills the gl backend
+  # (configure_graphics) that keeps the panels off the black DirectComposition path.
+  local chromium_flags="--no-sandbox"
+
+  # Make the embedded Chromium render in software so it stops painting black: its gl
+  # backend otherwise grabs NVIDIA's EGL, which can't draw under XWayland. Pin EGL to
+  # Mesa AND force llvmpipe - LIBGL_ALWAYS_SOFTWARE alone is ignored once NVIDIA's EGL is
+  # picked. Vulkan/DXVK is untouched, so the 3D viewport stays GPU-accelerated.
+  local egl_env=()
+  local mesa_egl=/run/opengl-driver/share/glvnd/egl_vendor.d/50_mesa.json
+  [[ -f $mesa_egl ]] && egl_env=(__EGL_VENDOR_LIBRARY_FILENAMES="$mesa_egl")
 
   # Run Wine as a child (not exec) so Ctrl+C / window-close can drive stop_wine
   # instead of the shell waiting on Wine's own slow shutdown.
   env \
+    "${egl_env[@]}" \
+    LIBGL_ALWAYS_SOFTWARE=1 \
     DXVK_LOG_LEVEL=none WINEDEBUG=-all,+err \
     QTWEBENGINE_DISABLE_SANDBOX=1 \
     QTWEBENGINE_CHROMIUM_FLAGS="$chromium_flags" \

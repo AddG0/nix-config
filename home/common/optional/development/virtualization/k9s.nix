@@ -8,8 +8,7 @@
         skin = "catppuccino-mocha";
       };
       # Replace 'base: &base "#1e1e2e"' with 'base: &base "default"' to make
-      # fg/bg transparent. Result is passed as a path so HM symlinks the YAML
-      # directly — no eval-time readFile, no IFD.
+      # fg/bg transparent. Passed as a path so HM symlinks the YAML directly.
       skins.catppuccin-mocha = toString (pkgs.runCommand "catppuccin-mocha.yaml" {} ''
         sed -E 's@(base: &base ).+@\1 "default"@g' \
           "${pkgs.themes.catppuccin.k9s}/dist/catppuccin-mocha.yaml" > $out
