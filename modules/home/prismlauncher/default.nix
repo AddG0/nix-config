@@ -442,11 +442,12 @@ in {
       # Packwiz bootstrap jar
       {"${packwizDir}/packwiz-installer-bootstrap.jar".source = packwizBootstrap;}
 
-      # Packwiz modpack files (uses filtered source when excludeMods is set)
+      # Packwiz modpack files (uses filtered source when excludeMods is set).
+      # Pack dirs are read-only: `packwiz refresh`/`add` can't write here.
+      # Edit the pack source and rebuild instead.
       (mkMerge (mapAttrsToList (name: resolved: {
           "${packwizDir}/${name}" = {
             inherit (resolved) source;
-            recursive = true;
           };
         })
         resolvedModpacks))

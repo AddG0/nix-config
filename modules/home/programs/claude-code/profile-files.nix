@@ -63,9 +63,9 @@
       in
         if isDir
         then
+          # Skills are read-only, so one link per skill beats one per file.
           lib.nameValuePair "${profileDir}/skills/${skillName}" {
             source = content;
-            recursive = true;
           }
         else lib.nameValuePair "${profileDir}/skills/${skillName}/SKILL.md" (mkFileEntry content)
     )
