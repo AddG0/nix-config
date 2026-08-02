@@ -126,9 +126,10 @@
   resourceSkillFiles =
     lib.mapAttrs' (
       name: skill:
+      # Skills are read-only, so one link per skill beats one per file.
+      # Don't collapse skills/ itself — Codex writes into skills/.system/.
         lib.nameValuePair "${codexHomeRelative}/skills/${name}" {
           source = renderSkillDirectory name skill;
-          recursive = true;
         }
     )
     skillsWithResources;
