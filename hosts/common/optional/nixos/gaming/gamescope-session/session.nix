@@ -9,12 +9,22 @@
   marker,
   sessionFlag,
   displayFlagsCommand,
+  watchDisplayCommand,
   desktopCmd,
 }: let
   # mangoapp is an X11 client on gamescope's Xwayland, but gamescope exports
   # WAYLAND_DISPLAY to children — GLFW then inits Wayland and segfaults in
   # XInternAtom, and the reaper respawns it forever. GAMESCOPE_WAYLAND_DISPLAY stays.
   mangoappX11 = pkgs.writeShellScriptBin "mangoapp" ''
+    # FLAKE-UPDATE: drop once gamescope's fwrite uses strlen, not sizeof — the NUL
+    # terminator lands in the config and mangohud rejects the key, so the overlay
+    # never starts hidden for Steam to switch on. Re-check after `nix flake update`:
+    # https://github.com/ValveSoftware/gamescope/blob/3.16.24/src/main.cpp#L671-L672
+    if [ -s "''${MANGOHUD_CONFIGFILE:-}" ]; then
+      ${pkgs.coreutils}/bin/tr -d '\0' <"$MANGOHUD_CONFIGFILE" \
+        >"$MANGOHUD_CONFIGFILE.clean" &&
+        ${pkgs.coreutils}/bin/mv "$MANGOHUD_CONFIGFILE.clean" "$MANGOHUD_CONFIGFILE"
+    fi
     exec ${pkgs.coreutils}/bin/env -u WAYLAND_DISPLAY ${pkgs.mangohud}/bin/mangoapp "$@"
   '';
 
@@ -33,24 +43,34 @@
   # dispatcher's desktop half never inherits it.
   envPrefix = lib.optionalString (cfg.extraEnv != {}) "${pkgs.coreutils}/bin/env ${lib.escapeShellArgs (lib.mapAttrsToList (n: v: "${n}=${v}") cfg.extraEnv)} ";
 
-  # NOT full Deck mode: SteamDeck=1/-steamdeck route "Switch to Desktop" through
-  # steamos-manager (needs jovian.steam) and hang, instead of running
-  # steamos-session-select.
   gamescopeFlags = lib.concatStringsSep " " (
     ["--steam" "--rt" "--expose-wayland" "--force-grab-cursor" "--mangoapp"]
     ++ map lib.escapeShellArg cfg.extraArgs
   );
   # Pins the journal tag, which journald would otherwise derive from comm
   # (.gamescope-wrapped) — `journalctl -t gamescope`.
-  gamescopeCmd = "${pkgs.systemd}/bin/systemd-cat -t gamescope ${envPrefix}${gamescopeWrapped}/bin/gamescope $gs_output ${gamescopeFlags} -- ${steamBin} -gamepadui -pipewire-dmabuf";
+  # Deck mode registers SteamClient.System.Perf, which gates the Quick Access
+  # Menu's Performance Overlay toggle; -steamos3 is paired per ChimeraOS, unverified.
+  gamescopeCmd = "${pkgs.systemd}/bin/systemd-cat -t gamescope ${envPrefix}${gamescopeWrapped}/bin/gamescope $gs_output ${gamescopeFlags} -- ${steamBin} -gamepadui -steamdeck -steamos3 -pipewire-dmabuf";
 
   # -O is start-only, so a switch means a restart — hence the read per loop.
   # Unquoted above: an empty value must vanish, and no flag here has spaces.
   readDisplay = ''gs_output="$(${displayFlagsCommand})"'';
 
   # The flag tells gamescope-set-display this is the session's gamescope, not a
-  # per-game nested one on the desktop.
-  runGamescope = "touch ${sessionFlag}; ${gamescopeCmd} || true; rm -f ${sessionFlag}";
+  # per-game nested one on the desktop. Held as a lock, not just created: the
+  # kernel drops it however this dies, so a SIGKILL cannot leave the tool
+  # believing a session it can restart is still up.
+  runGamescope = ''
+    exec 9>${sessionFlag}
+    ${pkgs.util-linux}/bin/flock -n 9 || true
+    ${watchDisplayCommand} &
+    watcher=$!
+    ${gamescopeCmd} || true
+    kill "$watcher" 2>/dev/null || true
+    exec 9>&-
+    rm -f ${sessionFlag}
+  '';
 
   # Session stdout already reaches the journal on greetd's stream; this only
   # collects it under one tag: `journalctl -t gaming-session`.

@@ -21,7 +21,7 @@
     ./graphics.nix
     ./hardware-configuration.nix
     ./razer-blade-keyboard.nix
-    ./audio.nix # friendly labels for the native UCM audio nodes
+    ./audio.nix
     # ./ai.nix
     ./media.nix
 

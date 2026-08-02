@@ -10,6 +10,7 @@
 
   # Early KMS for the iGPU (Panther Lake = xe) so Plymouth renders the themed
   # splash instead of the grey fallback spinner. The panel is wired to the iGPU.
+  # simpledrm comes up first but doesn't satisfy the theme; costs ~1.4s initrd.
   boot.initrd.kernelModules = ["xe"];
 
   # Enable OpenGL

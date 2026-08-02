@@ -37,6 +37,11 @@ in
         --replace-fail 'return f"{socket.gethostname()}.local"' 'return _advertised_host()' \
         --replace-fail '"-subj", f"/CN={mdns_host}",' '"-subj", f"/CN={mdns_host}", "-addext", _san_arg(mdns_host),'
       cat ${./advertised-host.py} >>"$out/main.py"
+
+      # A modal closes with B. The browser-opening APIs — OpenInSystemBrowser,
+      # NavigateToExternalWeb — leave nothing dismissable over a running game.
+      substituteInPlace "$out/dist/index.js" \
+        --replace-fail 'window.SteamClient?.System?.OpenInSystemBrowser?.(res.url);' 'DFL.showModal(window.SP_REACT.createElement(DFL.ModalRoot, null, window.SP_REACT.createElement("iframe", { src: res.url, style: { width: "100%", height: "70vh", border: "none" } })));'
       ${lib.optionalString (advertisedHost != null) ''
         substituteInPlace "$out/main.py" \
           --replace-fail '_ADVERTISED_HOST = ""' '_ADVERTISED_HOST = "${advertisedHost}"'

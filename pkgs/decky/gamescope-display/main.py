@@ -16,10 +16,6 @@ SET_DISPLAY = os.environ.get("GAMESCOPE_SET_DISPLAY") or shutil.which(
     "gamescope-set-display"
 )
 
-# What gamescope itself counts as internal; only used to label the panel.
-INTERNAL_PREFIXES = ("eDP", "LVDS", "DSI")
-
-
 class ToolError(Exception):
     """gamescope-set-display could not be run, or exited non-zero."""
 
@@ -56,40 +52,53 @@ class Plugin:
         pass
 
     async def load_displays(self) -> dict:
-        """Connected connectors in DRM order, and which one is stored.
+        """Connected displays in DRM order, and which one is stored.
 
-        `preferred` is the head of the stored priority list, or "" when unset.
+        `id` identifies the panel by EDID and is what everything else here takes;
+        `name` is only for showing. `preferred` is the head of the stored
+        priority list, `active` what gamescope actually started on — they differ
+        whenever the stored pick was unplugged. Both "" when unset.
         """
         try:
-            names = (await _run("--list")).split()
+            listing = await _run("--list")
             stored = (await _run("--get")).strip()
+            active = (await _run("--active")).strip()
         except (ToolError, OSError) as err:
             decky.logger.exception("listing displays failed")
             return {"ok": False, "error": str(err)}
 
+        displays = []
+        for line in listing.splitlines():
+            fields = line.split("\t")
+            if len(fields) != 3:
+                continue
+            ident, label, internal = fields
+            displays.append(
+                {"id": ident, "name": label, "internal": internal == "1"}
+            )
+
         return {
             "ok": True,
-            "displays": [
-                {"name": n, "internal": n.startswith(INTERNAL_PREFIXES)} for n in names
-            ],
+            "displays": displays,
             "preferred": stored.split(",")[0] if stored else "",
+            "active": active,
         }
 
-    async def load_modes(self, name: str) -> dict:
-        """What `name` can do, and what is stored against it.
+    async def load_modes(self, display: str) -> dict:
+        """What display `display` can do, and what is stored against it.
 
         Grouped for the two-dropdown picker: `resolutions` keeps DRM order and
         `refresh` maps each to its rates. `mode` is "" when the screen's own
         default is in use. `canVrr`/`canHdr` say whether the panel should offer
-        those toggles at all — VRR especially is per-connector. All empty when
-        the connector is gone.
+        those toggles at all — VRR especially is per-panel. All empty when the
+        display is unplugged.
         """
         try:
-            specs = (await _run("--modes", name)).split()
-            stored = (await _run("--get-mode", name)).rstrip("\n")
-            caps = (await _run("--caps", name)).split()
+            specs = (await _run("--modes", display)).split()
+            stored = (await _run("--get-mode", display)).rstrip("\n")
+            caps = (await _run("--caps", display)).split()
         except (ToolError, OSError) as err:
-            decky.logger.exception("reading modes for %s failed", name)
+            decky.logger.exception("reading modes for %s failed", display)
             return {"ok": False, "error": str(err)}
 
         mode, _, flag_csv = stored.partition("\t")
@@ -117,9 +126,9 @@ class Plugin:
         }
 
     async def set_display(
-        self, name: str, fallbacks: list[str], mode: str, flags: list[str]
+        self, display: str, fallbacks: list[str], mode: str, flags: list[str]
     ) -> dict:
-        """Record `name` (with the other connected displays behind it) and restart.
+        """Record `display` (with the other connected ones behind it) and restart.
 
         `mode` is `WxH@Hz`, or "" to follow the display's own default, and
         `flags` holds "vrr"/"hdr". Both are written first because setting the
@@ -129,15 +138,15 @@ class Plugin:
         replies while the session is still on its way down — ok here means the
         switch was accepted, not that it finished.
         """
-        if not name:
-            return {"ok": False, "error": "no connector given"}
+        if not display:
+            return {"ok": False, "error": "no display given"}
 
-        order = ",".join([name] + [f for f in fallbacks if f != name])
+        order = ",".join([display] + [f for f in fallbacks if f != display])
         try:
-            await _run("--mode", name, mode or "-", ",".join(flags) or "-")
+            await _run("--mode", display, mode or "-", ",".join(flags) or "-")
             await _run(order)
         except (ToolError, OSError) as err:
-            decky.logger.exception("switching to %s failed", name)
+            decky.logger.exception("switching to %s failed", display)
             return {"ok": False, "error": str(err)}
 
         return {"ok": True}

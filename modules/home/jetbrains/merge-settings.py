@@ -1,3 +1,4 @@
+import functools
 import json
 import os
 import sys
@@ -59,11 +60,15 @@ def write_text_file(path, content):
         f.write(content)
 
 
-def iter_plugin_archives(package_dir):
-    for dirpath, _, filenames in os.walk(package_dir, followlinks=True):
-        for filename in filenames:
-            if filename.endswith(".jar"):
-                yield os.path.join(dirpath, filename)
+# Walking the package tree is expensive; every caller only reads the result.
+@functools.cache
+def plugin_archives(package_dir):
+    return tuple(
+        os.path.join(dirpath, filename)
+        for dirpath, _, filenames in os.walk(package_dir, followlinks=True)
+        for filename in filenames
+        if filename.endswith(".jar")
+    )
 
 
 def normalize_resource_path(path):
@@ -80,7 +85,7 @@ def resource_stem(path):
 
 
 def find_theme_preferences(package_dir, theme_id):
-    for archive_path in iter_plugin_archives(package_dir):
+    for archive_path in plugin_archives(package_dir):
         with zipfile.ZipFile(archive_path) as archive:
             if "META-INF/plugin.xml" not in archive.namelist():
                 continue
@@ -130,7 +135,7 @@ def find_theme_preferences(package_dir, theme_id):
 
 
 def find_bundled_color_scheme_id(package_dir, scheme_name):
-    for archive_path in iter_plugin_archives(package_dir):
+    for archive_path in plugin_archives(package_dir):
         with zipfile.ZipFile(archive_path) as archive:
             if "META-INF/plugin.xml" not in archive.namelist():
                 continue
@@ -168,7 +173,7 @@ def find_bundled_color_scheme_id(package_dir, scheme_name):
 
 
 def find_bundled_color_scheme_xml(package_dir, scheme_name):
-    for archive_path in iter_plugin_archives(package_dir):
+    for archive_path in plugin_archives(package_dir):
         with zipfile.ZipFile(archive_path) as archive:
             for name in archive.namelist():
                 if not name.startswith("themes/") or not name.endswith(".xml"):
@@ -196,7 +201,7 @@ def write_materialized_color_scheme(ide_dir, package_dir, scheme_name):
 
 
 def find_bundled_keymap(package_dir, keymap_name):
-    for archive_path in iter_plugin_archives(package_dir):
+    for archive_path in plugin_archives(package_dir):
         with zipfile.ZipFile(archive_path) as archive:
             for name in archive.namelist():
                 if not name.startswith("keymaps/") or not name.endswith(".xml"):

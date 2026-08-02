@@ -157,22 +157,21 @@
 
   configJson = builtins.toJSON {ides = ideMergeConfigs;};
 
-  mergeScript =
-    pkgs.writeShellScript "jetbrains-settings-merge"
-    ''${pkgs.python3}/bin/python3 ${./merge-settings.py} '${configJson}' '';
+  configHash = builtins.hashString "sha256" configJson;
 
-  settingsHash = builtins.hashString "sha256" (builtins.toJSON (lib.mapAttrsToList (_: ide: {
-      inherit (ide.settings) ignoredFilePatterns;
-      inherit (ide.settings) theme;
-      inherit (ide.settings) colorScheme;
-      keymap =
-        if ide.settings.keymap == null
-        then null
-        else ide.settings.keymap.name;
-      name = configDirName ide.package;
-      inherit (ide.package) version;
-    })
-    cfg.ides));
+  # Type=oneshot + RemainAfterExit only dedupes within a session, so without the
+  # stamp every fresh login re-runs a ~15s merge that reads thousands of jars.
+  mergeScript = pkgs.writeShellScript "jetbrains-settings-merge" ''
+    set -eu
+    statedir="''${XDG_STATE_HOME:-$HOME/.local/state}"
+    stamp="$statedir/jetbrains-settings-merge.stamp"
+    if [ "$(cat "$stamp" 2>/dev/null)" = "${configHash}" ]; then
+      exit 0
+    fi
+    ${pkgs.python3}/bin/python3 ${./merge-settings.py} '${configJson}'
+    mkdir -p "$statedir"
+    printf '%s' "${configHash}" > "$stamp"
+  '';
 
   hasMergeWork = lib.any (ide:
     ide.settings.ignoredFilePatterns
@@ -200,7 +199,7 @@ in {
     (lib.mkIf hasMergeWork {
       systemd.user.startServices = "sd-switch";
       systemd.user.services.jetbrains-settings-sync = {
-        Unit.Description = "JetBrains settings merge [${settingsHash}]";
+        Unit.Description = "JetBrains settings merge [${configHash}]";
         Service = {
           Type = "oneshot";
           RemainAfterExit = true;

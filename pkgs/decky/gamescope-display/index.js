@@ -31,12 +31,9 @@ const call = api.call;
 // Empty means "let the screen decide", which is also what the backend stores.
 const AUTO = "";
 
+// d.name is the panel's product name from its EDID, not a connector.
 const screenName = (d) =>
-  !d
-    ? "Automatic"
-    : d.internal
-      ? "Built-in screen"
-      : `External display (${d.name})`;
+  !d ? "Automatic" : d.internal ? "Built-in screen" : d.name;
 
 const resLabel = (res) => res.replace("x", " × ");
 
@@ -72,6 +69,7 @@ const modeSummary = (spec) => {
 function Panel() {
   const [displays, setDisplays] = useState([]);
   const [preferred, setPreferred] = useState("");
+  const [active, setActive] = useState("");
   const [selected, setSelected] = useState("");
 
   const [resolutions, setResolutions] = useState([]);
@@ -99,9 +97,10 @@ function Panel() {
 
       setDisplays(res.displays);
       setPreferred(res.preferred);
+      setActive(res.active);
       // Start on whatever is stored, so nothing counts as changed until you
       // change it. A pick naming an unplugged screen falls back to Automatic.
-      const known = res.displays.some((d) => d.name === res.preferred);
+      const known = res.displays.some((d) => d.id === res.preferred);
       setSelected(known ? res.preferred : AUTO);
       setReloads((n) => n + 1);
       setError(null);
@@ -222,9 +221,12 @@ function Panel() {
       h(
         Field,
         { label: "Now playing on", focusable: true },
-        preferred
-          ? `${screenName(displays.find((d) => d.name === preferred))}, ${modeSummary(storedMode)}`
-          : "Whichever screen Gaming Mode picks",
+        // The saved mode is only in use when the session followed the pick.
+        !active
+          ? "Whichever screen Gaming Mode picks"
+          : active === preferred
+            ? `${screenName(displays.find((d) => d.id === active))}, ${modeSummary(storedMode)}`
+            : screenName(displays.find((d) => d.id === active)),
       ),
     ),
   );
@@ -237,7 +239,7 @@ function Panel() {
         menuLabel: "Play on which screen?",
         rgOptions: [
           { data: AUTO, label: "Automatic" },
-          ...displays.map((d) => ({ data: d.name, label: screenName(d) })),
+          ...displays.map((d) => ({ data: d.id, label: screenName(d) })),
         ],
         selectedOption: selected,
         onChange: (opt) => setSelected(opt.data),
@@ -339,7 +341,7 @@ function Panel() {
                   ? call(
                       "set_display",
                       selected,
-                      displays.map((d) => d.name),
+                      displays.map((d) => d.id),
                       pendingMode,
                       pendingFlags ? pendingFlags.split(",") : [],
                     )

@@ -1,5 +1,6 @@
 {
   config,
+  lib,
   nix-secrets,
   pkgs,
   ...
@@ -26,6 +27,8 @@
       # No idle-timeout: keep the share mounted so playback never pays a WAN re-handshake.
       "x-systemd.device-timeout=30s"
       "x-systemd.mount-timeout=30s"
+      "x-systemd.after=wait-for-nas.service"
+      "x-systemd.requires=wait-for-nas.service"
       "uid=${toString config.users.users.${config.hostSpec.primaryUsername}.uid}"
       "forceuid"
       "gid=${toString config.users.groups.media.gid}"
@@ -44,12 +47,28 @@
     ];
   };
 
-  # /mnt/videos is a lazy automount (x-systemd.automount + noauto): triggered on
-  # first access and resilient via cifs "soft" plus device-/mount-timeout=30s.
-  # No reachability gate is used -- a previous wait-for-nas.service, coupled to
-  # jellyfin (Before=multi-user.target), dragged the NAS check onto the
-  # boot-critical path and stalled graphical.target for ~3min when the NAS was
-  # down. Jellyfin reaches the share on demand through the automount instead.
+  # network-online.target lies here: NetworkManager-wait-online is masked, so
+  # jellyfin scans the share before wifi associates.
+  # Pull this in from the mount only -- via jellyfin it inherits an implicit
+  # Before=multi-user.target and lands on the boot path.
+  systemd.services.wait-for-nas = {
+    description = "Wait for NAS (10.61.60.49) to be reachable";
+    after = ["network-online.target"];
+    wants = ["network-online.target"];
+    serviceConfig = {
+      Type = "oneshot";
+      RemainAfterExit = true;
+      ExecStart = pkgs.writeShellScript "wait-for-nas" ''
+        log() { echo "$@"; }
+        ${lib.custom.mkNetworkWaitScript {
+          inherit pkgs;
+          host = "10.61.60.49";
+          maxAttempts = 20;
+          waitSeconds = 1;
+        }}
+      '';
+    };
+  };
 
   services.jellyfin = {
     enable = true;

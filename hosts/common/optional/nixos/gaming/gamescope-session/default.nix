@@ -36,6 +36,7 @@
   session = import ./session.nix {
     inherit lib pkgs cfg steamBin marker sessionFlag;
     displayFlagsCommand = lib.getExe display.displayFlags;
+    watchDisplayCommand = lib.getExe display.watchDisplay;
     # Not a hardcoded compositor: whatever the host set as its desktop.
     desktopCmd = config.services.greetd.desktopCommand;
   };
