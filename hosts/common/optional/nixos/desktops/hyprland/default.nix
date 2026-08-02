@@ -10,7 +10,7 @@
     withUWSM = true;
   };
 
-  services.greetd.sessionCommand = "uwsm start hyprland-uwsm.desktop";
+  services.greetd.desktops.hyprland = "uwsm start hyprland-uwsm.desktop";
 
   services.dbus.enable = true;
 

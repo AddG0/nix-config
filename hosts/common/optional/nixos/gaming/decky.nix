@@ -14,7 +14,7 @@
     user = config.hostSpec.primaryUsername;
     extraPackages = [
       pkgs.systemd # decky shells out to `systemctl`
-      config.gaming.gamescopeSession.outputTool
+      config.gaming.gamescopeSession.displayTool
     ];
     extraPythonPackages = ps: [ps.aiohttp-cors]; # Deckcord backend imports it
     # Silence the "plugin update available" notification (loader.json).
@@ -22,20 +22,22 @@
     # Keys are the store's own folder names, so a UI install wouldn't duplicate.
     plugins = {
       Deckcord = pkgs.decky.deckcord;
-      Deckify = pkgs.decky.deckify;
+      # Bare hostname the LAN's DNS already answers for; set networking.domain
+      # to advertise an FQDN instead.
+      Deckify = pkgs.decky.deckify.override {advertisedHost = config.networking.fqdnOrHostName;};
       decky-steamgriddb = pkgs.decky.steamgriddb;
       protondb-decky = pkgs.decky.protondb-badges;
       TabMaster = pkgs.decky.tabmaster;
       hltb-for-deck = pkgs.decky.hltb;
       SDH-CssLoader = pkgs.decky.css-loader;
-      GamescopeOutput = pkgs.decky.gamescope-output;
+      DisplaySettings = pkgs.decky.gamescope-display;
     };
   };
 
   # Doubles up on extraPackages above: a plugin subprocess may get a narrower
   # environment than the loader's PATH.
-  systemd.services.decky-loader.environment.GAMESCOPE_SET_OUTPUT =
-    lib.getExe config.gaming.gamescopeSession.outputTool;
+  systemd.services.decky-loader.environment.GAMESCOPE_SET_DISPLAY =
+    lib.getExe config.gaming.gamescopeSession.displayTool;
 
   # Deckify's Spotify OAuth page, so its login QR code reaches a phone.
   networking.firewall.allowedTCPPorts = [39281];

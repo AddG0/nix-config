@@ -1,11 +1,11 @@
 # Unlike the rest of pkgs/decky this is source in-tree, not a store artifact:
-# it drives gamescope-set-output, which only exists in this config.
+# it drives gamescope-set-display, which only exists in this config.
 {
   lib,
   stdenvNoCC,
 }:
 stdenvNoCC.mkDerivation {
-  pname = "gamescope-output";
+  pname = "gamescope-display";
   version = "1.0.0";
 
   src = ./.;

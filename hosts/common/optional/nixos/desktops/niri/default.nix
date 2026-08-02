@@ -4,4 +4,6 @@
   ];
 
   programs.niri.enable = true;
+
+  services.greetd.desktops.niri = "niri-session";
 }

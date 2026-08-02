@@ -1,0 +1,11 @@
+{
+  "name": "Display Settings",
+  "author": "addg",
+  "flags": [],
+  "api_version": 1,
+  "publish": {
+    "tags": ["display", "utility"],
+    "description": "Choose which monitor Gaming Mode runs on, and at what resolution and refresh rate.",
+    "image": ""
+  }
+}

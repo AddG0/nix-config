@@ -24,6 +24,9 @@ Flake apps and utilities for development workflows.
 
 ## Available Modules
 
+### [Deckify](deckify.md)
+Spotify app registration, the one manual step in the Gaming Mode setup.
+
 ### [Pterodactyl](PTERODACTYl.md)
 Game server management panel with Docker support.
 

@@ -1,0 +1,8 @@
+{
+  "name": "gamescope-display",
+  "version": "1.0.0",
+  "description": "Choose which monitor Gaming Mode runs on, and at what resolution and refresh rate.",
+  "type": "module",
+  "private": true,
+  "license": "MIT"
+}
