@@ -4,14 +4,12 @@
   osConfig,
   ...
 }: let
-  # Derive watched device paths from the host's services.obsbot-camera config
-  # (single source of truth). If no Obsbot cameras are configured on this host,
-  # the guard becomes a no-op — no systemd unit, no shell app in the closure.
   cameras = osConfig.services.obsbot-camera.cameras or {};
-  obsbotDevices = lib.unique (lib.concatLists (lib.mapAttrsToList (_: c: c.triggerPaths) cameras));
-  hasObsbot = obsbotDevices != [];
+  # No cameras on this host → no systemd unit and no shell app in the closure.
+  hasObsbot = (osConfig.services.obsbot-camera.enable or false) && cameras != {};
 
-  obsbotDeviceLines = lib.concatMapStringsSep "\n      " lib.escapeShellArg obsbotDevices;
+  # Share the host module's discovery so both watch the same nodes.
+  listNodes = osConfig.services.obsbot-camera.listNodesScript;
 
   guard = (import ./mk-guard.nix {inherit lib pkgs;}).mkGuard {
     name = "obsbot";
@@ -19,33 +17,30 @@
     runtimeInputs = with pkgs; [inotify-tools psmisc];
 
     conditionFn = ''
-      obsbot_devices=(
-        ${obsbotDeviceLines}
-      )
+      # Re-read each time rather than snapshotting, so replug is picked up.
+      obsbot_nodes() {
+        ${listNodes} | cut -d' ' -f2
+      }
 
       condition_active() {
         local device
-        for device in "''${obsbot_devices[@]}"; do
-          if [ -e "$device" ] && fuser "$device" >/dev/null 2>&1; then
+        while read -r device; do
+          if fuser "$device" >/dev/null 2>&1; then
             return 0
           fi
-        done
+        done < <(obsbot_nodes)
         return 1
       }
     '';
 
-    # Block on inotify open/close events for the watched device nodes. The
-    # outer loop handles unplug/replug — if all paths disappear, sleep briefly
-    # and retry once they come back.
+    # The outer loop handles unplug/replug — if all nodes disappear, poll until
+    # they come back.
     eventLoop = ''
       # Handle a device that's already in use at service start.
       reconcile
 
       while true; do
-        existing=()
-        for device in "''${obsbot_devices[@]}"; do
-          [ -e "$device" ] && existing+=("$device")
-        done
+        mapfile -t existing < <(obsbot_nodes)
 
         if [ "''${#existing[@]}" -eq 0 ]; then
           # Configured Obsbot devices aren't present (unplugged). Drop any

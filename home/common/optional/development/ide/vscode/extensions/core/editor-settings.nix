@@ -89,7 +89,7 @@
 
     # Updates (managed by Nix)
     "update.mode" = "none";
-    "extensions.autoUpdate" = false;
+    "extensions.autoUpdate" = "off";
     "extensions.autoCheckUpdates" = false;
     "extensions.ignoreRecommendations" = true;
 

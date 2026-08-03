@@ -123,13 +123,8 @@
   services.obsbot-camera = {
     enable = true;
     cameras.obsbot-tiny-2 = {
-      # Watch both devices - apps may open either
-      triggerPaths = [
-        "/dev/v4l/by-id/usb-Remo_Tech_Co.__Ltd._OBSBOT_Tiny_2-video-index0"
-        "/dev/v4l/by-id/usb-Remo_Tech_Co.__Ltd._OBSBOT_Tiny_2-video-index1"
-      ];
-      # PTZ controls are only on index0
-      controlPath = "/dev/v4l/by-id/usb-Remo_Tech_Co.__Ltd._OBSBOT_Tiny_2-video-index0";
+      vendorId = "3564";
+      productId = "fef8";
       format = {
         width = 3840;
         height = 2160;
