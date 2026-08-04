@@ -27,19 +27,25 @@
               vim.opt_local.relativenumber = true
             end
           '';
-          # gitlab.nvim reviews render through diffview; name that tab from the MR.
-          # is_open/tabid are set only after DiffviewOpen returns, so defer the check.
+          # Without a name, bufferline labels the tab from the diffview panel's buffer path.
+          # gitlab.nvim reviews render through diffview too, but its is_open/tabid are set
+          # only after DiffviewOpen returns, hence the defer.
           view_opened.__raw = ''
             function(view)
               vim.schedule(function()
+                local name
                 local ok, reviewer = pcall(require, "gitlab.reviewer")
-                if not (ok and reviewer.is_open and reviewer.tabid == view.tabpage) then
-                  return
+                if ok and reviewer.is_open and reviewer.tabid == view.tabpage then
+                  local info = require("gitlab.state").INFO or {}
+                  name = info.source_branch and ("MR " .. info.source_branch)
+                    or info.iid and ("MR !" .. info.iid)
+                    or "MR Review"
+                elseif view.class:name() == "FileHistoryView" then
+                  name = "File History"
+                else
+                  -- rev_arg is nil for a plain working-tree diff
+                  name = view.rev_arg and ("Git Diff " .. view.rev_arg) or "Git Diff"
                 end
-                local info = require("gitlab.state").INFO or {}
-                local name = info.source_branch and ("MR " .. info.source_branch)
-                  or info.iid and ("MR !" .. info.iid)
-                  or "MR Review"
                 pcall(vim.cmd, "BufferLineTabRename " .. name)
               end)
             end
