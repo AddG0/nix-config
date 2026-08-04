@@ -3,8 +3,9 @@
   pkgs,
   ...
 }: let
-  # Cyan plus, no centre dot, no outline. 24x24 PNG.
-  # Arms 2 thick, 4 long, 2-pixel gap from centre on each side.
+  # Cyan plus, no centre dot, no outline. 32x32 PNG.
+  # Arms 2 thick, 5 long, 3-pixel gap from centre on each side.
+  # Nearest-neighbour blit: draw at the on-screen `size` or arms come out uneven.
   # #00E0E0 instead of pure #00FFFF: on the 10-bit HDR pipeline the per-
   # channel sRGB→wide-gamut conversion of max-value channels at 2-pixel
   # widths splits into visible RGB fringing. Keeping the lit channels below
@@ -16,11 +17,11 @@
       # PNG32: force RGBA + sRGB encoding. Without this, ImageMagick auto-
       # detects equal RGB channels and saves as grayscale, which Hyprland's
       # HDR pipeline appears to mis-convert into chromatically split colors.
-      magick -size 24x24 xc:none -fill '#00E0E0' \
-        -draw 'rectangle 11,6  12,9'  \
-        -draw 'rectangle 11,14 12,17' \
-        -draw 'rectangle 6,11  9,12'  \
-        -draw 'rectangle 14,11 17,12' \
+      magick -size 32x32 xc:none -fill '#00E0E0' \
+        -draw 'rectangle 15,8  16,12' \
+        -draw 'rectangle 15,19 16,23' \
+        -draw 'rectangle 8,15  12,16' \
+        -draw 'rectangle 19,15 23,16' \
         -define png:color-type=6 PNG32:"$out"
     '';
 
@@ -38,7 +39,7 @@
       config="$config_dir/config.toml"
       socket="/tmp/crosshair.sock"
       image=${lib.escapeShellArg image}
-      size="''${WLCROSSHAIR_SIZE:-24}"
+      size="''${WLCROSSHAIR_SIZE:-32}"
 
       mkdir -p "$config_dir"
 
