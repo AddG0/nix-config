@@ -34,16 +34,10 @@
     name = "DRV_WiFi_MTK_MT7925_MT7927_TP_W11_64_V5603998_20250709R.zip";
     sha256 = "sha256-s3f/+iggi7FnGg6yGchMYvukzW+SFht05LCQlHYwfMg=";
     message = ''
-      MT7927 firmware ZIP not in the store. Fetch it once (expiring ASUS URL):
+      MT7927 firmware ZIP not in the store. Fetch and add it once (expiring
+      ASUS URL), then put the printed hash in the `sha256` above:
 
-        curl -fsSL https://raw.githubusercontent.com/jetm/mediatek-mt7927-dkms/master/download-driver.sh | bash
-
-      then add it and record its hash:
-
-        nix store add-file DRV_WiFi_MTK_MT7925_MT7927_TP_W11_64_V5603998_20250709R.zip
-        nix hash file DRV_WiFi_MTK_MT7925_MT7927_TP_W11_64_V5603998_20250709R.zip
-
-      Put that hash in the `sha256` above.
+        d=$(mktemp -d) && curl -fsSL https://raw.githubusercontent.com/jetm/mediatek-mt7927-dkms/master/download-driver.sh | bash -s "$d" && nix store add-file "$d"/DRV_*.zip && nix hash file "$d"/DRV_*.zip
     '';
   };
 
