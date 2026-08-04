@@ -23,6 +23,7 @@ in {
     ./ide
     ./scripts
     (lib.optional (!hostSpec.isDarwin) ./chromium.nix)
+    ./nvim-uri-handler
     ./process-compose.nix
     ./git.nix
     ./gitlab.nix

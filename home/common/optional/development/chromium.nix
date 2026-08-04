@@ -1,4 +1,8 @@
-{pkgs, ...}: {
+{
+  pkgs,
+  lib,
+  ...
+}: {
   # DevTools dock cycle: Ctrl+Shift+D (right → bottom)
   # Flag references:
   #   https://wiki.archlinux.org/title/Chromium
@@ -34,7 +38,7 @@
       {id = "nhdogjmejiglipccpnnnanhbledajbpd";} # Vue.js devtools
       {id = "lmhkpmbekcpmknklioeibfkpmmfibljd";} # Redux DevTools
       {id = "bcjindcccaagfpapjjmafapmmgkkhgoa";} # JSON Formatter
-      {id = "gppongmhjkpfnbhagpmjfkannrkvzykc";} # Wappalyzer
+      {id = "gppongmhjkpfnbhagpmjfkannfbllamg";} # Wappalyzer
       {id = "lhdoppojpmngadmnindnejefpokejbdd";} # axe DevTools
       {id = "pgamkpjkbfldnmemhcbekimfdnjcgkco";} # Tailwind CSS DevTools
       {id = "cdockenadnadldjbbgcallicgledbeoc";} # VisBug (click-to-edit page editor)
@@ -44,4 +48,9 @@
       {id = "hfjbmagddngcpeloejdejnfgbamkjaeg";} # Vimium C (Tridactyl-like page navigation)
     ];
   };
+
+  # mkBefore so the tag lands before its consumers — Hyprland applies rules in order.
+  wayland.windowManager.hyprland.settings.windowrule = lib.mkBefore [
+    "tag +browser, match:class ^(chromium-browser)$"
+  ];
 }

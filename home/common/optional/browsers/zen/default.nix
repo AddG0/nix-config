@@ -49,7 +49,7 @@
         "7190e4e9-bead-4b40-8f57-95d852ddc941" # Tab title fixes
         # "803c7895-b39b-458e-84f8-a521f4d7a064" # Hide Inactive Workspaces
         "906c6915-5677-48ff-9bfc-096a02a72379" # Floating Status Bar
-        "a6335949-4465-4b71-926c-4a52d34bc9c0" # Better Find Bar
+        # "a6335949-4465-4b71-926c-4a52d34bc9c0" # Better Find Bar
         # "c6813222-6571-4ba6-8faf-58f3343324f6" # Disable Rounded Corners
         "c8d9e6e6-e702-4e15-8972-3596e57cf398" # Zen Back Forward
         "cb15abdb-0514-4e09-8ce5-722cf1f4a20f" # Hide Extension Name
@@ -299,4 +299,9 @@
       ];
     };
   };
+
+  # mkBefore so the tag lands before its consumers — Hyprland applies rules in order.
+  wayland.windowManager.hyprland.settings.windowrule = lib.mkBefore [
+    "tag +browser, match:class ^(zen|zen-alpha|zen-beta)$"
+  ];
 }

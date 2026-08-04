@@ -258,7 +258,7 @@ in {
     # dim overlay.
     windowrule = [
       # `override` beats the global active/inactive_opacity, so these never dim.
-      "opacity 1.0 override 1.0 override 1.0 override, match:class ^(zen|zen-alpha|zen-beta)$"
+      "opacity 1.0 override 1.0 override 1.0 override, match:tag browser"
       "opacity 1.0 override 1.0 override 1.0 override, match:class ^(vlc)$"
       "opacity 1.0 override 1.0 override 1.0 override, match:class ^(eog|org.gnome.eog)$"
       # Color grading needs true pixel values, not wallpaper-blended ones.

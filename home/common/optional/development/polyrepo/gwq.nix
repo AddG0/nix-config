@@ -3,10 +3,21 @@
   pkgs,
   ...
 }: let
-  gwadd = pkgs.writeShellApplication {
+  gwadd-script = pkgs.writeShellApplication {
     name = "gwadd";
     runtimeInputs = with pkgs; [git gwq gawk sesh tmux];
     text = builtins.readFile ./scripts/gwadd.sh;
+  };
+
+  gwadd-zsh-completion = pkgs.writeTextFile {
+    name = "gwadd-zsh-completion";
+    destination = "/share/zsh/site-functions/_gwadd";
+    text = builtins.readFile ./scripts/gwadd-completion.zsh;
+  };
+
+  gwadd = pkgs.symlinkJoin {
+    name = "gwadd";
+    paths = [gwadd-script gwadd-zsh-completion];
   };
 in {
   home.packages = [pkgs.gwq gwadd];
