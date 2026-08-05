@@ -31,6 +31,8 @@
   services.scx = {
     enable = lib.mkDefault true;
     scheduler = lib.mkDefault "scx_lavd";
+    # Autopilot, the default, core-compacts: it packs threads onto fewer cores.
+    extraArgs = ["--performance"];
   };
 
   # Auto-renice launched games above background tasks; pairs with scx (scx picks

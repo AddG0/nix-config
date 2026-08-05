@@ -116,6 +116,9 @@
     forza-horizon-5.launchOptions.wrappers = [gamemoderun] ++ gamescope;
     forza-horizon-6.launchOptions.wrappers = [gamemoderun] ++ gamescope;
 
+    # Maps its X11 window as a dialog, so Hyprland auto-floats it at a tiny size.
+    scrap-mechanic.launchOptions.wrappers = [gamemoderun] ++ gamescope;
+
     overwatch.launchOptions.wrappers = mouseDpi 1800 ++ [gamemoderun];
 
     # 2000 DPI + in-game sens 2 reproduces the Aim Lab cm/360 (0.52% off).

@@ -61,7 +61,6 @@ in {
     settings = {
       # See gamemode man page for settings info
       general = {
-        softrealtime = "on";
         inhibit_screensaver = 1;
       };
       gpu = {
