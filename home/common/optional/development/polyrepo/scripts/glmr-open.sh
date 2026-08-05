@@ -51,18 +51,41 @@ branch=$(field branch)
   echo "glmr-open: bad iid" >&2
   exit 1
 }
-# Only clone from hosts you trust — a rogue link must not make us `ghq get`
-# arbitrary repos. Tighten this to your exact GitLab host.
-case $host in
-gitlab.com | gitlab.*) ;;
-*)
-  echo "glmr-open: host not allowed: $host" >&2
+# `..` satisfies the regexes above but escapes the ghq root.
+[[ $project != *..* && $branch != *..* ]] || {
+  echo "glmr-open: path traversal rejected" >&2
   exit 1
-  ;;
-esac
+}
 
 root=$(ghq root)
 clone="$root/$host/$project"
+
+# Any web page can fire glmr://, and the inner script reaches the network, so a
+# human confirms the target — no host allowlist to keep in sync. Cancel and a
+# failed/absent dialog both stop here. The field regexes above rule out Pango
+# markup, so the target can't dress itself up as dialog chrome.
+if [[ -d "$clone/.git" ]]; then
+  action="Use existing clone"
+else
+  action="CLONE $host/$project"
+fi
+rc=0
+yad --title="glmr-open" --image=dialog-question \
+  --button=Cancel:1 --button=Open:0 \
+  --text="Open merge request !$iid in Neovim?
+
+host     $host
+project  $project
+branch   $branch
+
+$action" || rc=$?
+if [[ $rc != 0 ]]; then
+  # 1 = Cancel, 252 = closed via ESC/WM. Anything else is yad itself failing,
+  # which has to be loud — a broken dialog must not read as a silent decline.
+  [[ $rc == 1 || $rc == 252 ]] && exit 0
+  echo "glmr-open: confirmation dialog failed (yad exit $rc)" >&2
+  exit 1
+fi
 
 # `bash -lc` gives the inner shell the interactive PATH (gwadd/ghq/nvim/git). The
 # inner is single-quoted and takes $1..$4 as positional args, so the URL never

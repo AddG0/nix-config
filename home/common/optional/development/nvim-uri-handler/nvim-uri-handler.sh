@@ -58,6 +58,27 @@ for sock in "${XDG_RUNTIME_DIR:-/run/user/$(id -u)}"/nvim.*; do
 done
 
 if [[ -z $server ]]; then
+  # No running nvim owns this file, so it's either a project you don't have open
+  # or a rogue nvim:// link — confirm before spawning a window. Unlike
+  # glmr-open's fields, $path is any existing path, so escape Pango markup to
+  # stop a crafted filename impersonating dialog chrome.
+  shown=${path//&/&amp;}
+  shown=${shown//</&lt;}
+  rc=0
+  yad --title="nvim-uri-handler" --image=dialog-question \
+    --button=Cancel:1 --button=Open:0 \
+    --text="Open in a new Neovim window?
+
+$shown:$line:$col" || rc=$?
+  if [[ $rc != 0 ]]; then
+    # 1 = Cancel, 252 = closed via ESC/WM. Anything else is yad itself failing,
+    # which has to be loud — a broken dialog must not read as a silent decline.
+    [[ $rc == 1 || $rc == 252 ]] && exit 0
+    notify-send -u critical "nvim-uri-handler" "Confirmation dialog failed (yad $rc); not opening"
+    echo "nvim-uri-handler: confirmation dialog failed (yad exit $rc)" >&2
+    exit 1
+  fi
+
   exec ghostty --title=nvim-uri-handler -e \
     nvim "+call cursor($line, $col)" -- "$path"
 fi

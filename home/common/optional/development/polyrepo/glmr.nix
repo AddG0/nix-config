@@ -9,7 +9,7 @@
   # gwadd/ghq/nvim resolve from the interactive PATH.
   glmr-open = pkgs.writeShellApplication {
     name = "glmr-open";
-    runtimeInputs = [pkgs.ghq pkgs.ghostty pkgs.bash pkgs.coreutils];
+    runtimeInputs = [pkgs.ghq pkgs.ghostty pkgs.bash pkgs.coreutils pkgs.yad];
     text = builtins.readFile ./scripts/glmr-open.sh;
   };
 in

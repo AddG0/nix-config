@@ -11,6 +11,7 @@
       config.programs.nixvim.build.package
       pkgs.ghostty
       pkgs.libnotify
+      pkgs.yad
       pkgs.jq
       pkgs.procps
       pkgs.coreutils
