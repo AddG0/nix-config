@@ -8,7 +8,14 @@
 # right monitor without showing a dialog.
 # https://wiki.hyprland.org/Configuring/Monitors/#10-bit-support
 #
-{pkgs, ...}: let
+{
+  pkgs,
+  lib,
+  ...
+}: let
+  # GSR matches pipewire node.name exactly; VLC's embeds its version, minus nixpkgs' -N suffix.
+  vlcAudioName = "VLC media player (LibVLC ${lib.head (lib.splitString "-" pkgs.vlc.version)})";
+
   # Moves each saved clip into a subdirectory named after the running Steam game.
   sortClipScript = pkgs.writeShellApplication {
     name = "gsr-sort-clip";
@@ -42,7 +49,7 @@ in {
     enable = true;
     postRecordSeconds = 10;
     postSaveScript = sortClipScript;
-    # Everything but spotify
-    audioDevices = ["app-inverse:spotify|default_input"];
+    # Everything but spotify and vlc
+    audioDevices = ["app-inverse:spotify|app-inverse:${vlcAudioName}|default_input"];
   };
 }
