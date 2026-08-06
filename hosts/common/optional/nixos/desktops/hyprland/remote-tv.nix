@@ -1,6 +1,21 @@
-{pkgs, ...}: {
-  environment.systemPackages = with pkgs; [
-    gnome-network-displays # remote display manager
+{pkgs, ...}: let
+  # The session's LIBVA_DRIVER_NAME=nvidia hides vah264enc — that driver is
+  # decode-only — silently downgrading GND to software x264enc, which stalls.
+  gnome-network-displays-hwenc = pkgs.symlinkJoin {
+    name = "gnome-network-displays-hwenc";
+    paths = [pkgs.gnome-network-displays];
+    nativeBuildInputs = [pkgs.makeWrapper];
+    postBuild = ''
+      for bin in gnome-network-displays gnome-network-displays-daemon; do
+        rm "$out/bin/$bin"
+        makeWrapper "${pkgs.gnome-network-displays}/bin/$bin" "$out/bin/$bin" \
+          --unset LIBVA_DRIVER_NAME
+      done
+    '';
+  };
+in {
+  environment.systemPackages = [
+    gnome-network-displays-hwenc # remote display manager
   ];
 
   services.avahi = {

@@ -74,6 +74,10 @@
         end
       end
     end
+
+    -- One global call covers every buffer: client.lua re-reads this marker on
+    -- each client→buffer attach, and the capability debounces its own refresh.
+    vim.lsp.codelens.enable(true)
   '';
 
   autoCmd = [
@@ -89,30 +93,14 @@
           if vim.bo[args.buf].buftype ~= ""
             or not vim.startswith(vim.uri_from_bufnr(args.buf), "file://") then
             vim.lsp.buf_detach_client(args.buf, client.id)
+            -- Detaching alone doesn't stick: client.lua re-attaches capabilities in a
+            -- vim.schedule after LspAttach returns, without re-testing attachment.
+            vim.lsp.codelens.enable(false, { bufnr = args.buf })
             return
           end
           if client:supports_method("textDocument/inlayHint") then
             vim.lsp.inlay_hint.enable(true, { bufnr = args.buf })
           end
-          if client:supports_method("textDocument/codeLens")
-            and vim.g.codelens_enabled ~= false then
-            vim.lsp.codelens.refresh({ bufnr = args.buf })
-          end
-        end
-      '';
-    }
-    {
-      # BufWritePost not CursorHold: counts change only on edits, avoiding CursorHold lens flicker.
-      event = ["BufEnter" "BufWritePost" "InsertLeave"];
-      desc = "Refresh CodeLens on real file buffers";
-      callback.__raw = ''
-        function(args)
-          if vim.g.codelens_enabled == false then return end
-          if vim.bo[args.buf].buftype ~= ""
-            or not vim.startswith(vim.uri_from_bufnr(args.buf), "file://") then
-            return
-          end
-          vim.lsp.codelens.refresh({ bufnr = args.buf })
         end
       '';
     }

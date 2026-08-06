@@ -111,6 +111,9 @@ in {
   # recoverable instead of a permanent `rm`.
   extraPackages = [pkgs.trash-cli];
 
+  # On the runtimepath so `require("nix-logo-3d")` resolves.
+  extraPlugins = [pkgs.nix-logo-3d];
+
   plugins = {
     web-devicons.enable = true;
 
@@ -231,8 +234,6 @@ in {
         dashboard = {
           enabled = true;
           preset = {
-            # Logo is a real nix-snowflake PNG rendered with chafa (terminal
-            # section below) — crisp on ghostty vs blocky ASCII. Keys are
             # LazyVim-style quick actions wired to our snacks pickers / binds.
             keys = [
               {
@@ -285,20 +286,12 @@ in {
               }
             ];
           };
-          # The default `startup` section needs lazy.nvim's lazy.stats (absent on
-          # nixvim → throws), so use: nix logo (chafa) + hostname + our keys +
-          # recent files + projects.
+          # No `startup` section: it needs lazy.nvim's lazy.stats, which nixvim
+          # has no equivalent of, so it throws.
           sections = [
             {
-              # chafa renders the PNG as colored half-block symbols (reliable in
-              # any terminal). The terminal section spans the full dashboard
-              # width (60), so `--align mid,mid` centers the image *inside* chafa
-              # (section align doesn't move terminal output). Keep --size's width
-              # == dashboard width (60) and tweak --size/height to resize.
-              section = "terminal";
-              cmd = "${pkgs.chafa}/bin/chafa ${pkgs.nixos-icons}/share/icons/hicolor/1024x1024/apps/nix-snowflake.png --format symbols --symbols vhalf --size 60x16 --align mid,mid; sleep 0.05";
-              height = 16;
-              padding = 1;
+              # Animated 3D nix snowflake; the module owns its height and timer.
+              __raw = ''require("nix-logo-3d").section({padding = 1})'';
             }
             {
               text.__raw = "vim.fn.hostname()";

@@ -454,17 +454,14 @@
     }
     {
       mode = "n";
-      key = "<leader>uL";
+      key = "<leader>uC";
       action.__raw = ''
         function()
-          local on = vim.g.codelens_enabled ~= false
-          vim.g.codelens_enabled = not on
-          if on then
-            vim.lsp.codelens.clear()
-          else
-            vim.lsp.codelens.refresh({ bufnr = 0 })
-          end
-          vim.notify("CodeLens " .. (on and "disabled" or "enabled"))
+          Snacks.toggle.new({
+            name = "CodeLens",
+            get = function() return vim.lsp.codelens.is_enabled() end,
+            set = function(state) vim.lsp.codelens.enable(state) end,
+          }):toggle()
         end
       '';
       options.desc = "Toggle CodeLens";

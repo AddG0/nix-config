@@ -33,6 +33,7 @@ pkgs: rec {
   # Desktop environment
   blueprint = pkgs.callPackage ./blueprint {};
   claude-desktop = pkgs.callPackage ./claude-desktop {};
+  nix-logo-3d = pkgs.callPackage ./nix-logo-3d {};
   rofi-presets = pkgs.callPackage ./rofi-presets {};
   wallpaper-picker = pkgs.callPackage ./wallpaper-picker {};
 
