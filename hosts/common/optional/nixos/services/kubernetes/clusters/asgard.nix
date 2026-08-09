@@ -76,4 +76,11 @@ in {
     enable = true;
     name = "${config.networking.hostName}-initiatorhost";
   };
+
+  # Longhorn nsenters into the host mount namespace and resolves `iscsiadm`/`mount`
+  # against a hardcoded FHS PATH that NixOS has none of; without this, volumes hang
+  # in `attaching` forever. https://github.com/longhorn/longhorn/issues/2166
+  systemd.tmpfiles.rules = [
+    "L+ /usr/local/bin - - - - /run/current-system/sw/bin/"
+  ];
 }

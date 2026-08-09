@@ -25,7 +25,8 @@ _: {
         ## 1024 frames gives a good latency / stability tradeoff
         "default.clock.quantum" = 1024;
         "default.clock.min-quantum" = 1024;
-        "default.clock.max-quantum" = 2048;
+        ## Browsers ask for ~75ms buffers; a low ceiling leaves them no slack to ride out a stall.
+        "default.clock.max-quantum" = 8192;
       };
     };
 

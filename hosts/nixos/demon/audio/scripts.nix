@@ -84,7 +84,11 @@ in {
       # Play audio files to the soundboard sink
       # Usage: soundboard file.mp3 [additional mpv options]
       # Default 45% volume, can be overridden with: soundboard file.mp3 --volume=80
-      ${pkgs.mpv}/bin/mpv --no-video --audio-device=pipewire/soundboard_sink --volume=45 "$@"
+      # Own stream, not a soundboard_source→DAC link, which would merge the
+      # capture and playback graphs — see virtual-devices.nix.
+      ${pkgs.mpv}/bin/mpv --no-video --audio-device=pipewire/soundboard_sink --volume=45 "$@" &
+      ${pkgs.mpv}/bin/mpv --no-video --volume=45 "$@" &
+      wait
     '')
   ];
 }

@@ -168,10 +168,7 @@ in {
         enabled = true;
         unit = "imperial"; # metric = °C, imperial = °F
       };
+      wallpaper.default.path = "${pkgs.kdePackages.plasma-workspace-wallpapers}/share/wallpapers/Nexus/contents/images_dark/5120x2880.png";
     };
-  };
-
-  home.file.".cache/noctalia/wallpapers.json".text = builtins.toJSON {
-    defaultWallpaper = "${pkgs.kdePackages.plasma-workspace-wallpapers}/share/wallpapers/Nexus/contents/images_dark/5120x2880.png";
   };
 }

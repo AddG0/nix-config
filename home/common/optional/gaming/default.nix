@@ -57,17 +57,22 @@ in {
   # fullscreen request — the game still renders fine windowed-borderless.
   # mkBefore so `tag +game` sorts ahead of the tag:game consumers in other
   # modules (e.g. the opacity rule in visuals) — Hyprland applies rules in order.
-  wayland.windowManager.hyprland.settings.windowrule = lib.mkBefore [
-    "suppress_event fullscreen, match:title ^(Forza Horizon \\d+)$"
-    "suppress_event fullscreen, match:class ^(steam_app_2483190)$"
-    # gamescope's render loop runs off Wayland frame callbacks, which Hyprland
-    # stops sending to windows on an inactive workspace — so the game freezes on
-    # return until a resize kicks it.
-    "render_unfocused on, match:class ^(gamescope)$"
-    # Steam games (Proton or native) map as XWayland class steam_app_<id>.
-    "tag +game, match:class ^(steam_app_\\d+)$"
-    # Gamescoped ones don't: they map on gamescope's Xwayland, not Hyprland's.
-    "tag +game, match:class ^(gamescope)$"
+  wayland.windowManager.hyprland.settings.windowrule = lib.mkMerge [
+    (lib.mkBefore [
+      "suppress_event fullscreen, match:title ^(Forza Horizon \\d+)$"
+      "suppress_event fullscreen, match:class ^(steam_app_2483190)$"
+      # gamescope's render loop runs off Wayland frame callbacks, which Hyprland
+      # stops sending to windows on an inactive workspace — so the game freezes on
+      # return until a resize kicks it.
+      "render_unfocused on, match:class ^(gamescope)$"
+      # Steam games (Proton or native) map as XWayland class steam_app_<id>.
+      "tag +game, match:class ^(steam_app_\\d+)$"
+      # Gamescoped ones don't: they map on gamescope's Xwayland, not Hyprland's.
+      "tag +game, match:class ^(gamescope)$"
+    ])
+    # Games mapping as X11 dialogs (Scrap Mechanic) get auto-floated tiny.
+    # Default priority so it sorts after every module's `tag +game`.
+    ["float off, match:tag game"]
   ];
 
   # Disable the desktop entry for Protontricks since steam gives me that option anyway

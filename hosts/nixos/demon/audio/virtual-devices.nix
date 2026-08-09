@@ -37,6 +37,12 @@ in {
   #   Soundboard → Main Input Mixer
   #   Music Sink → music_input + Hugo TT2 (Spotify/Zen → own mic + speakers)
   #   Main Input Mixer → main_input (use this in Discord/apps)
+  #
+  # Keep the capture side and the Hugo in separate driver groups: one node linked
+  # to both (e.g. soundboard_source feeding the mixer and the DAC) merges them
+  # into a single graph, demoting the Scarlett to a follower of the DAC's USB
+  # clock, which it can't track — it resyncs constantly and drops playback audio.
+  # Anything that needs to be both heard and sent to Discord plays two streams.
   # ============================================================================
 
   services.pipewire = {
@@ -230,16 +236,6 @@ in {
             })
           '';
         };
-
-        # Auto-link soundboard to default audio sink (dynamic - follows default changes)
-        "99-soundboard-to-default.lua" = {
-          text = ''
-            table.insert(links, {
-              out_node = "soundboard_source",
-              in_node  = "@DEFAULT_AUDIO_SINK@",
-            })
-          '';
-        };
       };
     };
 
@@ -277,10 +273,6 @@ in {
 
         # Gated mic into direct_input, which mic-mute never touches
         ${pkgs.pipewire}/bin/pw-link gate_source:capture_MONO direct_input_sink:playback_MONO || true
-
-        # Also link soundboard to default speakers (HugoTT2) so I can hear it
-        ${pkgs.pipewire}/bin/pw-link soundboard_source:capture_1 ${headsetDevice}:playback_FL || true
-        ${pkgs.pipewire}/bin/pw-link soundboard_source:capture_2 ${headsetDevice}:playback_FR || true
 
         # Music sink → music_input (dedicated music mic for Discord)
         ${pkgs.pipewire}/bin/pw-link music_source:capture_1 music_input_sink:playback_1 || true

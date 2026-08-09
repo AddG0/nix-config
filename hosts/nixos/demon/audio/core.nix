@@ -69,6 +69,9 @@ _: {
           ];
           actions.update-props = {
             "priority.driver" = 3000;
+            # The Scarlett capture shares this driver group and resyncs its USB
+            # clock often; without extra slack a resync underruns the DAC.
+            "api.alsa.headroom" = 2048;
           };
         }
         {

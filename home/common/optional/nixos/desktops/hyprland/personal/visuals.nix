@@ -335,8 +335,7 @@ in {
     };
   };
 
-  # Noctalia styling — personal shape/layout only. Colors, fonts, and opacity
-  # are stylix-derived and live in ./stylix-noctalia-compat.nix.
+  # Noctalia shape/layout; colors and fonts come from stylix's noctalia target.
   programs.noctalia.settings = {
     # macOS-style drop shadow — straight down, never horizontal offset.
     shell.shadow.direction = "down";
@@ -347,6 +346,8 @@ in {
       radius = windowRounding; # Same source of truth as windows + tabs.
       capsule = true; # Pill-shaped widget backgrounds (Control Center vibe)
       border_width = 0; # Shadow + transparency do the framing, not a border.
+      # stylix routes opacity.desktop to the dock and never sets bar opacity.
+      background_opacity = config.stylix.opacity.desktop;
       widget_spacing = 6;
       padding = 4;
       shadow = true;

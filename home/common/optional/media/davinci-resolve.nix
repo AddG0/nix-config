@@ -12,4 +12,9 @@
   };
 in {
   home.packages = [davinci];
+
+  # No frame callbacks on inactive workspaces stalls Resolve's loop mid-render.
+  wayland.windowManager.hyprland.settings.windowrule = [
+    "render_unfocused on, match:class ^(resolve)$"
+  ];
 }

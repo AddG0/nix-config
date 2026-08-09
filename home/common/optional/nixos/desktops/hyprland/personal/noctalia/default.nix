@@ -48,7 +48,7 @@ in {
         type = "custom_button";
         glyph = "search";
         tooltip = "Search";
-        command = lib.getExe pkgs.walker;
+        actions.left = "exec ${lib.getExe pkgs.walker}";
       };
 
       # Bar-widget plugins (installed via ./plugins/*).
@@ -75,14 +75,9 @@ in {
         unit = "imperial"; # metric = °C, imperial = °F
       };
 
-      # Single source for weather + night light. auto_locate resolves
-      # coordinates from IP; the fixed sunrise/sunset are an offline fallback
-      # used only when no coordinates resolve.
-      location = {
-        auto_locate = true;
-        sunrise = "06:30";
-        sunset = "18:00";
-      };
+      # sunrise/sunset are not a geolocation fallback — they apply only under
+      # custom_schedule, which then overrides coordinates entirely.
+      location.auto_locate = true;
 
       # Night light follows the resolved location's sun times.
       nightlight = {

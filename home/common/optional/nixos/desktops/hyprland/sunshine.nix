@@ -7,8 +7,6 @@
   pkgs,
   ...
 }: let
-  jq = "${pkgs.jq}/bin/jq";
-
   hyprLib = import ./common/lib.nix;
   transformToHyprland = hyprLib.transformMap;
   vrrToHyprland = hyprLib.vrrMap;
@@ -32,7 +30,6 @@
     }"'')
   config.display.monitors;
 
-  primaryJson = builtins.toJSON primaryNames;
   primaryMon = builtins.head primaryNames;
 
   # Parse workspace rules like "1, monitor:DP-3, default:true" → { ws, mon }
@@ -65,7 +62,9 @@
   # Bash case pattern for configured workspace IDs (e.g. "1|2|3")
   configuredPattern = lib.concatStringsSep "|" configuredWsIds;
 
-  nocSettings = "\${XDG_RUNTIME_DIR:-/run/user/$(id -u)}/noctalia/settings.json";
+  # Noctalia merges its config dir's *.toml alphabetically, so the zz- prefix is
+  # load-bearing: it must sort after home-manager's config.toml to override it.
+  nocDropIn = "\${XDG_CONFIG_HOME:-$HOME/.config}/noctalia/zz-sunshine.toml";
 
   # Sunshine starts before Hyprland imports its env into the systemd user manager,
   # so the service inherits no HYPRLAND_INSTANCE_SIGNATURE. Detect the running
@@ -112,11 +111,9 @@
       ${disableMonitors}
 
       # Redirect Noctalia notifications to headless monitor
-      NOC_SETTINGS="${nocSettings}"
-      if [ -f "$NOC_SETTINGS" ]; then
-        ${jq} --arg mon "$HEADLESS" '.notifications.monitors = [$mon]' "$NOC_SETTINGS" > "$NOC_SETTINGS.tmp" \
-          && mv "$NOC_SETTINGS.tmp" "$NOC_SETTINGS"
-      fi
+      NOC_DROP_IN="${nocDropIn}"
+      mkdir -p "$(dirname "$NOC_DROP_IN")"
+      printf '[notification]\nmonitors = ["%s"]\n' "$HEADLESS" > "$NOC_DROP_IN"
 
       echo "Sunshine session active on $HEADLESS"
     '';
@@ -147,12 +144,8 @@
       }
       done
 
-      # Restore Noctalia notifications to primary monitors
-      NOC_SETTINGS="${nocSettings}"
-      if [ -f "$NOC_SETTINGS" ]; then
-        ${jq} --argjson monitors '${primaryJson}' '.notifications.monitors = $monitors' "$NOC_SETTINGS" > "$NOC_SETTINGS.tmp" \
-          && mv "$NOC_SETTINGS.tmp" "$NOC_SETTINGS"
-      fi
+      # Restore Noctalia notifications to the monitors declared in config.toml
+      rm -f "${nocDropIn}"
 
       # Remove headless outputs
       for HEAD in $(hyprctl -j monitors | jq -r '.[] | select(.name | test("^HEADLESS-")).name'); do
