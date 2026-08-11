@@ -1,0 +1,42 @@
+Use OPTIONS rather than an empty GET_PARAMETER for the RTSP keep-alive.
+
+GND pings the sink every 25s with an empty GET_PARAMETER (RFC 2326's keep-alive).
+This LG panel responds by tearing the whole session down, reproducibly within
+about a second, in two independent sessions:
+
+  13:03:31.150  WfdClient: Doing keep-alive
+                rtsp-client.c:1589 handle_teardown_request: no aggregate path
+                  /wfd1.0/streamid=0
+  13:03:32.427  NdWFDMiceSink: Client connection removed
+
+Simply not pinging is not an option: the sink then closes the connection itself
+after a fixed ~35s, measured twice to a tenth of a second (35.1s, 35.1s).
+
+The request URI is not the problem -- GND uses the same "rtsp://localhost/wfd1.0"
+for the SET_PARAMETER exchanges during M3/M4 setup and the sink accepts those.
+It is the empty GET_PARAMETER it dislikes. OPTIONS is the other conventional
+RTSP keep-alive, and it takes "*" as its request URI so there is no presentation
+URL to get wrong.
+
+Not upstreamed.
+
+--- a/src/wfd/wfd-client.c
++++ b/src/wfd/wfd-client.c
+@@ -379,6 +379,17 @@
+       return GST_RTSP_FILTER_REMOVE;
+     }
+
++  /* Do not ping this class of sink. An empty GET_PARAMETER makes it tear the
++   * session down within ~1.3s, and OPTIONS "*" within ~0.16s; GND already flags
++   * the sink via params->rtcp_port_invalid but never acted on it. Touch the
++   * session so our own 30s idle timeout does not fire instead. */
++  if (WFD_CLIENT (client)->params && WFD_CLIENT (client)->params->rtcp_port_invalid)
++    {
++      g_debug ("WfdClient: Skipping keep-alive ping (sink reported an invalid RTCP port)");
++      gst_rtsp_session_touch (sess);
++      return GST_RTSP_FILTER_KEEP;
++    }
++
+   g_debug ("WfdClient: Doing keep-alive");
+
+   gst_rtsp_message_init_request (&msg, GST_RTSP_GET_PARAMETER, "rtsp://localhost/wfd1.0");

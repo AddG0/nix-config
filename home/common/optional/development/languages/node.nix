@@ -1,4 +1,5 @@
 {
+  config,
   pkgs,
   inputs,
   lib,
@@ -7,7 +8,6 @@
   programs.git.ignores = lib.custom.gitignoreFromTemplates inputs.github-gitignore-templates ["Node"];
 
   home.packages = with pkgs; [
-    nodejs_24
     pnpm
     bun
     yarn-berry
@@ -18,9 +18,15 @@
   # Node 17+ verbatim DNS binds dev servers ::1-only here; Firefox/Zen can't reach those.
   home.sessionVariables.NODE_OPTIONS = "--dns-result-order=ipv4first";
 
-  home.file.".npmrc".text = ''
-    update-notifier=false
-  '';
+  programs.npm = {
+    enable = true;
+    package = pkgs.nodejs_24;
+    settings.update-notifier = false;
+  };
+
+  # bun reads $XDG_CONFIG_HOME/.npmrc only — no ~/.npmrc or NPM_CONFIG_USERCONFIG fallback.
+  # Leading slash in the key is upstream's removePrefix quirk, not a typo.
+  xdg.configFile.".npmrc".source = config.home.file."/.config/npm/npmrc".source;
 
   # Berry-mode yarn aliases (mirrors oh-my-zsh's yarn plugin, berry=yes). The omz
   # yarn plugin is intentionally omitted: its bundled `_yarn` is yarn-v1-shaped
