@@ -73,6 +73,10 @@ file = "config/inventoryhud.json"
 hash = "3ce1a3bfdd4d2d25815c786c9d7838f3cf064743f6bf872cba21e29e4087316e"
 
 [[files]]
+file = "config/modmenu.json"
+hash = "ee42e1893d9c5ea4358c8bbaf28acd44ac2a0770480227f31aa13e14843ffaa7"
+
+[[files]]
 file = "config/redstone_multimeter/hotkeys.txt"
 hash = "499b83912137cf6ba5518bb2fa608acf30e54c3954bf976b27a0db7a0be79813"
 
@@ -86,7 +90,7 @@ hash = "6c99e9d39b436fb0b9c9724b0b39bb7d9c2030b50a1bc54a3667cfee36e64ce1"
 
 [[files]]
 file = "config/xaero/world-map/client.cfg"
-hash = "39d51a678722c3cf4b3e2904d7f8646a02e60341e6068e98463267797c57bdec"
+hash = "c9deeb03e26dc0567d6fc4e2baa47d4ef5e156ef10b7173d8ad6430940e76715"
 
 [[files]]
 file = "g4mespeed/cache/hotkeys.cfg"
