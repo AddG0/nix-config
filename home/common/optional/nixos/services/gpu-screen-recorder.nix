@@ -16,7 +16,8 @@
   # GSR matches pipewire node.name exactly; VLC's embeds its version, minus nixpkgs' -N suffix.
   vlcAudioName = "VLC media player (LibVLC ${lib.head (lib.splitString "-" pkgs.vlc.version)})";
 
-  # Moves each saved clip into a subdirectory named after the running Steam game.
+  # Moves each saved clip into a subdirectory named after the running Steam game,
+  # or Minecraft/<instance> for PrismLauncher.
   sortClipScript = pkgs.writeShellApplication {
     name = "gsr-sort-clip";
     runtimeInputs = with pkgs; [coreutils gnugrep gnused];
@@ -24,24 +25,40 @@
       file="''${1:?usage: gsr-sort-clip <filepath> [type]}"
       [ -f "$file" ] || exit 0
 
+      # First value matching an env-var regex across all running processes.
+      # -z splits on NUL so values keep any spaces.
+      proc_env() {
+        grep -aohz "$1" /proc/[0-9]*/environ 2>/dev/null \
+          | tr '\0' '\n' | cut -d= -f2- | head -1 || true
+      }
+
+      # A slash in a game or instance name would fork the path.
+      sanitize() {
+        printf '%s' "$1" | tr '/' '_'
+      }
+
       # SteamAppId is in the env of every process Steam launches a game in (0 for
       # non-Steam shortcuts) — covers Proton, and ignores which window is focused.
-      appid=$(grep -aohz 'SteamAppId=[1-9][0-9]*' /proc/[0-9]*/environ 2>/dev/null \
-        | tr '\0' '\n' | cut -d= -f2 | head -1 || true)
+      appid=$(proc_env 'SteamAppId=[1-9][0-9]*')
+      # PrismLauncher's INST_NAME is the display name, not the dir id.
+      inst=$(proc_env 'INST_NAME=.*')
 
-      if [ -z "$appid" ]; then
-        echo "gsr-sort-clip: no Steam game running, leaving clip in place" >&2
+      if [ -n "$appid" ]; then
+        name=$(sed -n 's|^[[:space:]]*"name"[[:space:]]*"\(.*\)"|\1|p' \
+          "$HOME/.steam/root/steamapps/appmanifest_$appid.acf" 2>/dev/null | head -1 || true)
+        subdir=$(sanitize "''${name:-AppID $appid}")
+      elif [ -n "$inst" ]; then
+        # Instances are profiles rather than separate games, so keep them together.
+        subdir="Minecraft/$(sanitize "$inst")"
+      else
+        echo "gsr-sort-clip: no game running, leaving clip in place" >&2
         exit 0
       fi
 
-      name=$(sed -n 's|^[[:space:]]*"name"[[:space:]]*"\(.*\)"|\1|p' \
-        "$HOME/.steam/root/steamapps/appmanifest_$appid.acf" 2>/dev/null | head -1 || true)
-      label=$(printf '%s' "''${name:-AppID $appid}" | tr '/' '_')
-
-      dir="$(dirname "$file")/$label"
+      dir="$(dirname "$file")/$subdir"
       mkdir -p "$dir"
       mv -- "$file" "$dir/"
-      echo "gsr-sort-clip: $label <- $(basename "$file")"
+      echo "gsr-sort-clip: $subdir <- $(basename "$file")"
     '';
   };
 in {

@@ -112,7 +112,7 @@
   in {
     name = validName;
     source = filteredSource;
-    inherit (modpack) group javaArgs javaPackage excludeMods enableGameMode enableMangoHud useDiscreteGpu servers;
+    inherit (modpack) group javaArgs javaPackage minMemory maxMemory excludeMods enableGameMode enableMangoHud useDiscreteGpu servers;
     worlds = lib.mapAttrs resolveWorld modpack.worlds;
     icon = iconResolved.key;
     iconPath = iconResolved.path;
@@ -146,11 +146,26 @@
         ++ loaderComponents.${modpack.loader} modpack.mcVersion modpack.loaderVersion;
     };
 
+  # Prism's compiled-in heap defaults, in MiB
+  prismDefaultMinMemory = 512;
+  prismDefaultMaxMemory = 4096;
+
   # Generate instance.cfg content
   mkInstanceCfg = name: modpack: let
     # A single OverridePerformance gate unlocks all three performance keys.
     needsPerformanceOverride =
       modpack.enableGameMode || modpack.enableMangoHud || modpack.useDiscreteGpu;
+    # Under OverrideMemory an omitted key falls back to Prism's default, not the
+    # launcher-wide value - so write both.
+    needsMemoryOverride = modpack.minMemory != null || modpack.maxMemory != null;
+    minMemory =
+      if modpack.minMemory != null
+      then modpack.minMemory
+      else prismDefaultMinMemory;
+    maxMemory =
+      if modpack.maxMemory != null
+      then modpack.maxMemory
+      else prismDefaultMaxMemory;
   in ''
     [General]
     ConfigVersion=1.2
@@ -168,6 +183,11 @@
       IgnoreJavaCompatibility=true
       OverrideJavaLocation=true
       JavaPath=${modpack.javaPackage}/bin/java
+    ''}
+    ${optionalString needsMemoryOverride ''
+      OverrideMemory=true
+      MinMemAlloc=${toString minMemory}
+      MaxMemAlloc=${toString maxMemory}
     ''}
     ${optionalString needsPerformanceOverride "OverridePerformance=true"}
     ${optionalString modpack.enableGameMode "EnableFeralGamemode=true"}
@@ -242,6 +262,25 @@
         default = null;
         example = literalExpression "pkgs.jdk25";
         description = "Java package for this instance (overrides Prism's auto-detect)";
+      };
+
+      minMemory = mkOption {
+        type = types.nullOr types.ints.positive;
+        default = null;
+        example = 2048;
+        description = ''
+          Minimum heap size in MiB. Setting either memory option overrides the
+          launcher-wide setting for this instance; the one left unset takes
+          Prism's default (${toString prismDefaultMinMemory} min,
+          ${toString prismDefaultMaxMemory} max) rather than your global value.
+        '';
+      };
+
+      maxMemory = mkOption {
+        type = types.nullOr types.ints.positive;
+        default = null;
+        example = 8192;
+        description = "Maximum heap size in MiB (see minMemory)";
       };
 
       enableGameMode = mkOption {
@@ -411,6 +450,22 @@
 in {
   # Extend upstream programs.prismlauncher with modpack options
   options.programs.prismlauncher = {
+    onPrismRunning = mkOption {
+      type = types.enum ["ignore" "skip" "close" "force-close"];
+      default = "ignore";
+      example = "close";
+      description = ''
+        What to do when instance files need writing while Prism Launcher is running.
+        Prism rewrites instance.cfg wholesale from memory, so writes made under a
+        live launcher are reverted the moment it saves any setting.
+
+        - `"ignore"`: write anyway
+        - `"skip"`: leave instances untouched, apply on the next activation
+        - `"close"`: quit Prism first, unless a game is running (then skip)
+        - `"force-close"`: quit Prism first even if a game is running
+      '';
+    };
+
     cleanupOrphans = mkOption {
       type = types.bool;
       default = true;
@@ -427,7 +482,7 @@ in {
             source = ./modpacks/my-pack;
             icon = ./icons/my-pack.png;
             group = "Modded";
-            javaArgs = "-Xmx4G";
+            maxMemory = 8192;
           };
         }
       '';
@@ -435,6 +490,17 @@ in {
   };
 
   config = mkIf (cfg.enable && hasModpacks) {
+    assertions =
+      mapAttrsToList (name: modpack: {
+        assertion =
+          modpack.minMemory
+          == null
+          || modpack.maxMemory == null
+          || modpack.maxMemory >= modpack.minMemory;
+        message = "programs.prismlauncher.modpacks.\"${name}\": maxMemory (${toString modpack.maxMemory}) must be at least minMemory (${toString modpack.minMemory})";
+      })
+      cfg.modpacks;
+
     # Add packwiz tool (prismlauncher package handled by upstream module)
     home.packages = [pkgs.packwiz];
 
@@ -467,9 +533,12 @@ in {
 
     # Create writable instance files and manage groups
     home.activation.setupPrismInstances = lib.hm.dag.entryAfter ["writeBoundary"] ''
-      ${optionalString cfg.cleanupOrphans (scripts.mkCleanupScript {inherit prismDir managedInstancesStr;})}
-      ${concatStringsSep "\n" instanceSetups}
-      ${scripts.mkUpdateGroupsScript {inherit prismDir instGroupsJson;}}
+      ${scripts.mkRunningGuard {mode = cfg.onPrismRunning;}}
+      if [ "''${prismSkip:-}" != "1" ]; then
+        ${optionalString cfg.cleanupOrphans (scripts.mkCleanupScript {inherit prismDir managedInstancesStr;})}
+        ${concatStringsSep "\n" instanceSetups}
+        ${scripts.mkUpdateGroupsScript {inherit prismDir instGroupsJson;}}
+      fi
     '';
   };
 }

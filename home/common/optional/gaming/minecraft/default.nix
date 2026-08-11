@@ -6,11 +6,15 @@
 }: let
   mainSource = ./modpacks/main-1.21.11;
   mainIcon = ../../../../../assets/avatars/addg-halloween.png;
+  # Heap in MiB; Prism defaults to 512/4096, too small for this pack
+  minMemory = 2048;
+  maxMemory = lib.mkDefault 8192;
   # Offload to the dGPU only on hybrid hosts
   useDiscreteGpu = config.hostSpec.gpu.offload != null;
 in {
   programs.prismlauncher = {
     enable = true;
+    onPrismRunning = "close";
     modpacks = {
       "main-1.21.11" = {
         source = mainSource;
@@ -18,7 +22,7 @@ in {
         icon = mainIcon;
         javaPackage = pkgs.jdk25;
         enableGameMode = true;
-        inherit useDiscreteGpu;
+        inherit useDiscreteGpu minMemory maxMemory;
       };
       "main-1.21.11-smp" = {
         source = mainSource;
@@ -26,7 +30,7 @@ in {
         icon = mainIcon;
         javaPackage = pkgs.jdk25;
         enableGameMode = true;
-        inherit useDiscreteGpu;
+        inherit useDiscreteGpu minMemory maxMemory;
         group = "SMP";
         servers = [
           {
@@ -46,7 +50,7 @@ in {
         icon = mainIcon;
         javaPackage = pkgs.jdk25;
         enableGameMode = true;
-        inherit useDiscreteGpu;
+        inherit useDiscreteGpu minMemory maxMemory;
       };
     };
   };

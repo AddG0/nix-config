@@ -9,7 +9,10 @@ maxFps:260
 fov:0.75
 fovEffectScale:0.1
 toggleSprint:true
+autoJump:false
+skipMultiplayerWarning:true
 key_key.drop:key.keyboard.g
+key_key.itemnamechanger.opengui:key.keyboard.0
 key_key.hotbar.1:key.keyboard.1
 key_key.hotbar.2:key.keyboard.2
 key_key.hotbar.3:key.keyboard.3
@@ -25,6 +28,7 @@ key_key.loadToolbarActivator:key.keyboard.unknown
 key_iris.keybind.reload:key.keyboard.unknown
 key_key.replaymod.marker:key.keyboard.unknown
 key_gui.xaero_open_map:key.keyboard.j
+key_gui.xaero_open_settings:key.keyboard.unknown
 key_key.mute_microphone:key.keyboard.unknown
 key_iris.keybind.shaderPackSelection:key.keyboard.unknown
 key_gui.xaero_toggle_minimap:key.keyboard.f9
@@ -40,6 +44,5 @@ key_rsmm.keybind.toggleTickMarker:key.keyboard.down
 key_rsmm.keybind.openMultimeterScreen:key.keyboard.f8
 key_Toggle Flight HUD:key.keyboard.unknown
 key_key.inventoryhud.toggle:key.keyboard.unknown
-key_keybind.custom_crosshair_mod.open_edit_crosshair_gui:key.keyboard.unknown
 resourcePacks:["file/Redstone Tweaks 2.5.3.zip","file/Better Low Shield.zip","file/CleanView.zip","file/Low Fire.zip","file/NoCaveAmbience.zip"]
 incompatibleResourcePacks:["file/Better Low Shield.zip","file/CleanView.zip"]

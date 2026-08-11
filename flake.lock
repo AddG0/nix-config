@@ -143,11 +143,11 @@
         ]
       },
       "locked": {
-        "lastModified": 1782354993,
-        "narHash": "sha256-mtXHBhx9EI+xhYd4YcCuZInW8QEj/d4fJTrUk0Zowjo=",
+        "lastModified": 1786368543,
+        "narHash": "sha256-YeNx0stklITQHTwn3b9Ko8mxD3dFTzMWkc4kuUkrb6Y=",
         "owner": "AddG0",
         "repo": "awsvpnclient-nix",
-        "rev": "bc3d6fefb77130618f7f9936f9046dc241016353",
+        "rev": "1417c7533309cfbe224f0cfce972b2aa645ccd90",
         "type": "github"
       },
       "original": {

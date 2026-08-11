@@ -49,6 +49,7 @@
 | [**Sodium Extra**](https://modrinth.com/mod/sodium-extra) | Adds extra features to Sodium |
 | [**Sodium Fullbright**](https://modrinth.com/mod/sodium-fullbright) | Fullbright for Sodium |
 | [**Reese's Sodium Options**](https://modrinth.com/mod/reeses-sodium-options) | Alternative options menu for Sodium |
+| [**Nvidium**](https://modrinth.com/mod/nvidium) | GPU-driven chunk rendering for high render distances (NVIDIA Turing+; disables itself when Iris shaders are active) |
 
 ## Carpet
 
@@ -134,7 +135,6 @@
 | [**Custom Tooltips**](https://modrinth.com/mod/custom-tooltips) | Tooltip customization |
 | [**ClearDespawn Reworked**](https://modrinth.com/mod/clear-despawn-reworked) | Makes items blink when they are about to despawn |
 | [**Map In Slot**](https://modrinth.com/mod/map-in-slot) | Makes maps render in inventory/hotbar slots |
-| [**Custom Crosshair Mod**](https://modrinth.com/mod/custom-crosshair-mod) | Fully customizable crosshair (shape, color, outline, dot) with in-game editor |
 | [**Crosshair Addons Public**](https://modrinth.com/mod/crosshair-addons-public) | Crosshair indicators |
 | [**Crosshair Indicator**](https://modrinth.com/mod/crosshair-indicator) | Hit indicator on crosshair |
 | [**Reach Display (maintained)**](https://modrinth.com/mod/reach-display-(maintained)) | Shows target distance and hit reach on the HUD |

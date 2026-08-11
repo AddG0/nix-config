@@ -39,13 +39,12 @@ _: {
 
   services.pipewire = {
     extraConfig.pipewire = {
-      # High-fidelity audio: Pass native sample rates to Hugo TT2
-      # Let the DAC's WTA filter handle upsampling (Chord's specialty)
+      # audio.rate on the Hugo node below is what holds the DAC at 96kHz — not
+      # clock.force-rate, which pipewire 1.6.8 parses but never applies.
       "99-hifi.conf" = {
         "context.properties" = {
           "default.clock.rate" = 96000;
           "default.clock.allowed-rates" = [44100 48000 88200 96000 176400 192000];
-          "default.clock.force-rate" = 96000; # Force 96kHz regardless of stream requests
           "resample.quality" = 14;
         };
       };
@@ -69,8 +68,8 @@ _: {
           ];
           actions.update-props = {
             "priority.driver" = 3000;
-            # The Scarlett capture shares this driver group and resyncs its USB
-            # clock often; without extra slack a resync underruns the DAC.
+            "audio.rate" = 96000;
+            # Underruns at the default 512 — shares an xHCI controller with the Scarlett.
             "api.alsa.headroom" = 2048;
           };
         }
@@ -82,6 +81,10 @@ _: {
           ];
           actions.update-props = {
             "priority.driver" = 100;
+            # Don't let this negotiate its own rate: it opened at 48kHz against a
+            # 96kHz group timebase and then waited a full cycle every cycle,
+            # starving the whole mic chain.
+            "audio.rate" = 96000;
           };
         }
       ];

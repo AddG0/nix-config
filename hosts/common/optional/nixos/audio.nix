@@ -25,8 +25,9 @@ _: {
         ## 1024 frames gives a good latency / stability tradeoff
         "default.clock.quantum" = 1024;
         "default.clock.min-quantum" = 1024;
-        ## Browsers ask for ~75ms buffers; a low ceiling leaves them no slack to ride out a stall.
-        "default.clock.max-quantum" = 8192;
+        ## Keep the spread narrow: a client asking for a big buffer (Spotify: 8192)
+        ## drags the group's quantum up, and each renegotiation bursts xruns.
+        "default.clock.max-quantum" = 2048;
       };
     };
 

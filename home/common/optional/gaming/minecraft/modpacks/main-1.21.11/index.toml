@@ -2,11 +2,11 @@ hash-format = "sha256"
 
 [[files]]
 file = "KEYBINDS.md"
-hash = "75fe68aebbc3e9dd74c811824938368b332c1819bd26a1e486e2d40f59688c7c"
+hash = "d249093ea40ee51cd8bc8757c4cce63ea43c08cc55185658031a012e5a10d2d1"
 
 [[files]]
 file = "MODS.md"
-hash = "8504b2e90e657cc8b8132f882042c8153788bb222243b7ef2e12c1fa36fb9eab"
+hash = "2f66e541969f11dbbd5467a61799b9ca8d5d056ce9aed08d001b45019ab10539"
 
 [[files]]
 file = "USEFUL_KEYS.md"
@@ -85,8 +85,8 @@ file = "config/xaero/minimap/profiles/default.cfg"
 hash = "6c99e9d39b436fb0b9c9724b0b39bb7d9c2030b50a1bc54a3667cfee36e64ce1"
 
 [[files]]
-file = "crosshair_config.ccmcfg"
-hash = "4082208791c6b7c475523e73e8baf3b097ce29b3f1b94930680bd33e788691d6"
+file = "config/xaero/world-map/client.cfg"
+hash = "39d51a678722c3cf4b3e2904d7f8646a02e60341e6068e98463267797c57bdec"
 
 [[files]]
 file = "g4mespeed/cache/hotkeys.cfg"
@@ -235,11 +235,6 @@ metafile = true
 [[files]]
 file = "mods/cubes-without-borders.pw.toml"
 hash = "982801b4473e11e6f8c5899f18a260515239dfce397c650c6920fc6ae03f6abb"
-metafile = true
-
-[[files]]
-file = "mods/custom-crosshair-mod.pw.toml"
-hash = "770773f8e4ec987ead5d99e0a01cd2fb4dc221006fc54aa74004b29fa4240460"
 metafile = true
 
 [[files]]
@@ -420,6 +415,11 @@ metafile = true
 [[files]]
 file = "mods/nuit.pw.toml"
 hash = "5cbf651fc829decdc8d67994da24b446c0baf79c06b607550e34cde62c4c9dc5"
+metafile = true
+
+[[files]]
+file = "mods/nvidium.pw.toml"
+hash = "2d8b19bbf6ff9949d94b02c8e1891d3abf8857a65461cfadc28a381c47b3681d"
 metafile = true
 
 [[files]]
@@ -604,7 +604,7 @@ metafile = true
 
 [[files]]
 file = "options.txt"
-hash = "16c1f3748fbd298692285e4547d313590c7337fc5e2fdb860f4d18205a3887ca"
+hash = "886021d746eaea166f18ff61f6f2f8de8f56a08dfd80b0f64955095b9933d24f"
 
 [[files]]
 file = "resourcepacks/better-low-shield.pw.toml"

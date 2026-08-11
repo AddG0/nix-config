@@ -1,0 +1,13 @@
+name = "Nvidium"
+filename = "nvidium-0.4.3-beta13-1.21.11.jar"
+side = "client"
+
+[download]
+url = "https://cdn.modrinth.com/data/SfMw2IZN/versions/4x9ci9sF/nvidium-0.4.3-beta13-1.21.11.jar"
+hash-format = "sha512"
+hash = "12ea425d80d33eff9713876daf03d52874a08cb3ce50848eb861cf5f6008a57fa6fee863f610a823eac055f9ba154ae4054109fd46abc47b74ea2e7a8a9ff69f"
+
+[update]
+[update.modrinth]
+mod-id = "SfMw2IZN"
+version = "4x9ci9sF"

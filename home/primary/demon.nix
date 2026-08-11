@@ -103,6 +103,18 @@
   # so Claude Code keeps hearing me when I hit mic-mute.
   programs.claude-code-profiles.captureNode = "direct_input";
 
+  # Bobby's fake chunks scale with render distance squared; the shared 8G OOMs.
+  programs.prismlauncher.modpacks =
+    lib.genAttrs [
+      "main-1.21.11"
+      "main-1.21.11-smp"
+      "main-1.21.11-pvp-practice"
+    ] (_: {
+      maxMemory = 24576;
+      # ZGC keeps pauses sub-ms at this heap size; G1's young collections ran ~42ms.
+      javaArgs = "-XX:+UseZGC";
+    });
+
   home.file."Videos/Movies".source = config.lib.file.mkOutOfStoreSymlink "/mnt/videos";
 
   services.gpu-screen-recorder = {

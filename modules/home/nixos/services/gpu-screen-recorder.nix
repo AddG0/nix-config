@@ -265,8 +265,8 @@
   #        from compositor outputs (compositor-disable, unplug, etc.), kill
   #        GSR — otherwise screencopy keeps delivering stale buffers from
   #        the old session and GSR doesn't notice.
-  #     4. Stream GSR output; kill on the boot-race format-negotiation
-  #        failure signature.
+  #     4. Stream GSR output; kill on a dead-capture signature (boot-race
+  #        format negotiation, or a mid-session stream disconnect).
   #     5. If GSR exited within 10s, sleep before respawn (avoid hot loop
   #        on a compositor that re-disables the output immediately).
   #
@@ -364,8 +364,10 @@
         while IFS= read -r line <&"''${GSR[0]}"; do
           printf '%s\n' "$line"
           case $line in
-            *"no more input formats"*)
-              echo "gsr: pipewire format negotiation failed — killing GSR" >&2
+            # GSR won't exit or recover on a dead capture — mid-session it keeps
+            # encoding the last frame, so replays silently become frozen screenshots.
+            *"no more input formats"* | *'new state: "unconnected"'*)
+              echo "gsr: pipewire capture died — killing GSR" >&2
               kill "$GSR_PID" 2>/dev/null || true
               break
               ;;

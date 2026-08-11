@@ -16,6 +16,11 @@ Mods with their own config files note the path below.
 
 - `xaero_open_map` rebound to J
 - `xaero_toggle_minimap` bound to F9
+- `xaero_open_settings` unbound — reachable from the map screen
+
+## Item Name Changer
+
+- `opengui` moved to 0 — defaulted to G, which is drop
 
 ## ReplayMod
 

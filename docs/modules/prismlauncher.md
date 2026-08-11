@@ -42,7 +42,8 @@ packwiz modrinth add sodium lithium starlight
         # Versions auto-detected from pack.toml
         icon = ./icons/my-pack.png;  # Or "diamond" for built-in
         group = "Modded";
-        javaArgs = "-Xmx4G -Xms2G";
+        minMemory = 2048;
+        maxMemory = 8192;
       };
     };
   };
@@ -64,6 +65,7 @@ Launch Prism Launcher - your instance appears ready to play.
 | `enable` | bool | false | Enable Prism Launcher with packwiz |
 | `package` | package | pkgs.prismlauncher | Prism Launcher package |
 | `cleanupOrphans` | bool | true | Remove instances no longer in config |
+| `onPrismRunning` | enum | "ignore" | ignore/skip/close/force-close when Prism is running |
 | `modpacks.<name>.source` | path | required | Path to packwiz modpack directory |
 | `modpacks.<name>.mcVersion` | string | null | MC version (auto-detected if null) |
 | `modpacks.<name>.loader` | enum | null | fabric/quilt/forge/neoforge (auto-detected) |
@@ -71,6 +73,49 @@ Launch Prism Launcher - your instance appears ready to play.
 | `modpacks.<name>.icon` | string/path | "default" | Built-in icon key or path to image |
 | `modpacks.<name>.group` | string | null | Instance group in Prism |
 | `modpacks.<name>.javaArgs` | string | null | JVM arguments |
+| `modpacks.<name>.minMemory` | int | null | Minimum heap in MiB |
+| `modpacks.<name>.maxMemory` | int | null | Maximum heap in MiB |
+
+## Activating While Prism Is Running
+
+Prism reads `instance.cfg` once at startup and rewrites the whole file from
+memory whenever any setting changes. Activating under a live launcher therefore
+looks like it worked and then silently reverts. `onPrismRunning` decides what to
+do about it:
+
+```nix
+programs.prismlauncher.onPrismRunning = "close";
+```
+
+| Value | Behaviour |
+|-------|-----------|
+| `ignore` | Write anyway (default; the old behaviour) |
+| `skip` | Leave instances alone, apply on the next activation |
+| `close` | Quit Prism first — unless a game is running, then skip |
+| `force-close` | Quit Prism first even mid-game |
+
+`close` and `force-close` send SIGTERM and wait up to 10s. Prism flushes its
+settings on a clean quit, so terminating it politely avoids racing the writes
+that follow. Under `--dry-run` nothing is killed.
+
+## Memory
+
+Prism's launcher-wide default is 512 MiB min / 4096 MiB max. Set `minMemory` /
+`maxMemory` to override it per instance:
+
+```nix
+"my-pack" = {
+  source = ./modpacks/my-pack;
+  minMemory = 2048;
+  maxMemory = 8192;
+};
+```
+
+Setting either one flips Prism's `OverrideMemory` gate, which covers both keys.
+The module always writes both — with the gate on, a missing key resolves to
+Prism's compiled default rather than your launcher-wide setting, so leaving one
+out would silently reset it. Prefer these over `-Xmx`/`-Xms` in `javaArgs`, so
+the values show up in Prism's settings UI.
 
 ## Packwiz Commands
 
