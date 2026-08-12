@@ -13,6 +13,7 @@
 | [**Nuit**](https://modrinth.com/mod/nuit) | Custom UI/theming framework |
 | [**Nuit Interop**](https://modrinth.com/mod/nuit-interop) | Interop layer for Nuit |
 | [**Cloud Tweaks**](https://modrinth.com/mod/cloud_tweaks) | Improved cloud rendering |
+| [**Sound Physics Remastered**](https://modrinth.com/mod/sound-physics-remastered) | Reverb, occlusion and absorption, including Simple Voice Chat audio |
 
 ###  Shader Packs
 

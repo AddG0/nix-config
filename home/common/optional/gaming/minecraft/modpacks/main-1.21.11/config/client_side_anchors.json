@@ -1,0 +1,9 @@
+{
+  "enabled": true,
+  "instantExplosion": true,
+  "removeOutline": false,
+  "introShown": true,
+  "autoUpdate": false,
+  "autoUpdateFirstRunComplete": true,
+  "autoUpdateTouched": true
+}

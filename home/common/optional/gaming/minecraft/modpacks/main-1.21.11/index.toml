@@ -6,7 +6,7 @@ hash = "d249093ea40ee51cd8bc8757c4cce63ea43c08cc55185658031a012e5a10d2d1"
 
 [[files]]
 file = "MODS.md"
-hash = "2f66e541969f11dbbd5467a61799b9ca8d5d056ce9aed08d001b45019ab10539"
+hash = "64f800937882e4eaf30d8db1aef755803e5b2b3729779ae012cd1186d6ea3c47"
 
 [[files]]
 file = "USEFUL_KEYS.md"
@@ -14,7 +14,11 @@ hash = "8c13107024791632d2f2ac875daff617e968c257c3e916cc46dbfb033769a11b"
 
 [[files]]
 file = "config/README.md"
-hash = "dad5a39e4a2ba9b4d62c59888be7fe4a7e9ecb3584a79d43a22a5acc5cbc9ea9"
+hash = "e807223b05a69ef59e0fa36becaab174a4d68497d9851e4fbf2a574b7ae0bd7e"
+
+[[files]]
+file = "config/client_side_anchors.json"
+hash = "d4213143955902f53de40133a4a4869d63793d5ce5e347b206ce7b6b5b673dbf"
 
 [[files]]
 file = "config/clientkits/kits/Main.json"
@@ -74,15 +78,27 @@ hash = "3ce1a3bfdd4d2d25815c786c9d7838f3cf064743f6bf872cba21e29e4087316e"
 
 [[files]]
 file = "config/modmenu.json"
-hash = "ee42e1893d9c5ea4358c8bbaf28acd44ac2a0770480227f31aa13e14843ffaa7"
+hash = "697b68c462edd944d4cbd23fd21195e81c170595e69a1294a85dbcdcf1894925"
 
 [[files]]
 file = "config/redstone_multimeter/hotkeys.txt"
 hash = "499b83912137cf6ba5518bb2fa608acf30e54c3954bf976b27a0db7a0be79813"
 
 [[files]]
+file = "config/replaymod.json"
+hash = "f3351e65d0b59ec0eb08d92ca6697e60ccfa789f4ea55e17b3434fc1cc5a44e4"
+
+[[files]]
+file = "config/sodium-extra-options.json"
+hash = "db899cc99626c21fd1109e3e0d535448600191e84710a4eaeca64f3f70a56712"
+
+[[files]]
 file = "config/techutils.json"
 hash = "bfb937838b250fb0ca4d05e9fe47c974398af14cd520c34696434a11f0247580"
+
+[[files]]
+file = "config/voicechat/voicechat-client.properties"
+hash = "4ae272f14cd1befbdf68f5efd0806884fc76b307579c73ef9429e29c932b1a7d"
 
 [[files]]
 file = "config/xaero/minimap/profiles/default.cfg"
@@ -504,6 +520,11 @@ metafile = true
 [[files]]
 file = "mods/sodium.pw.toml"
 hash = "6747f2e71e6d9ae5b6c4aea899f6af5fbbb612aac8c9bbb45990463826af3398"
+metafile = true
+
+[[files]]
+file = "mods/sound-physics-remastered.pw.toml"
+hash = "b01870e848aee7e1a2e19c6530bdd4c479b21a2f6f67134da75210844252d48f"
 metafile = true
 
 [[files]]

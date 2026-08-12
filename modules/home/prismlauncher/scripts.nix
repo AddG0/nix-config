@@ -56,16 +56,14 @@
     fi
   '';
 
-  # Gate the instance writes on Prism not running. Prism holds instance.cfg in
-  # memory and rewrites the whole file on any settings change, so writing under a
-  # live launcher is silently reverted. Sets $prismSkip=1 to suppress the writes.
+  # Prism rewrites instance.cfg wholesale from memory, so writes under a live
+  # launcher get reverted. Sets $prismSkip=1 when the caller should skip them.
   mkRunningGuard = {mode}: let
     procps = "${pkgs.procps}/bin";
     # The game runs as a java child, so match the launcher's own binary exactly.
     running = "${procps}/pgrep -x prismlauncher >/dev/null 2>&1";
     gameRunning = "${procps}/pgrep -f org.prismlauncher.EntryPoint >/dev/null 2>&1";
-    # SIGTERM: Prism flushes its settings on a clean quit, so a kill -9 here would
-    # race the very writes we are about to make.
+    # SIGTERM not KILL: Prism flushes settings on a clean quit; a hard kill races our writes.
     closePrism = ''
       run ${procps}/pkill -x prismlauncher || true
       for _ in $(seq 1 100); do

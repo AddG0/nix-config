@@ -15,6 +15,8 @@ in {
   programs.prismlauncher = {
     enable = true;
     onPrismRunning = "close";
+    # The Safe Eyes game guard watches gamemoded, so cover unmanaged instances too
+    settings.EnableFeralGamemode = true;
     modpacks = {
       "main-1.21.11" = {
         source = mainSource;

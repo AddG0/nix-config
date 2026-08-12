@@ -80,6 +80,7 @@ in {
   imports = [
     ./obsbot-guard.nix
     ./game-guard.nix
+    ./hyprland-game-guard.nix
     ./screenshare-guard.nix
     ./media-guard.nix
   ];
