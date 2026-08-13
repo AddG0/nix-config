@@ -1,8 +1,7 @@
 ---
 description: Get familiar with a codebase using 4 parallel haiku agents for rapid exploration
 allowed-tools:
-  - Task
-  - TaskOutput
+  - Agent
   - Read
   - Glob
   - Grep
@@ -21,4 +20,4 @@ Rapidly understand an unfamiliar codebase by launching 4 haiku agents in paralle
 
 ## Workflow
 
-**IMPORTANT:** Launch all 4 agents in a **single message** with multiple Task tool calls. Do NOT launch them sequentially.
+**IMPORTANT:** Launch all 4 agents in a **single message** with multiple `Agent` tool calls, so they run concurrently. Do NOT launch them sequentially, and do not poll for status — the harness re-invokes you as each finishes.

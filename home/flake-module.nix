@@ -94,8 +94,8 @@
             _module.args = {
               colors = catppuccinMocha;
               fonts = {
-                monospace.name = "JetBrainsMono Nerd Font";
-                sansSerif.name = "DejaVu Sans";
+                monospace.name = "Monaspace Neon NF";
+                sansSerif.name = "Inter";
               };
               sshSettings = {};
             };

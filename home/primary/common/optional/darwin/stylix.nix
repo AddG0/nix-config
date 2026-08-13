@@ -17,8 +17,8 @@
         name = "Inter";
       };
       monospace = {
-        package = pkgs.nerd-fonts.meslo-lg;
-        name = "MesloLGS Nerd Font";
+        package = pkgs.monaspace;
+        name = "Monaspace Neon NF";
       };
       emoji = {
         package = pkgs.noto-fonts-color-emoji;

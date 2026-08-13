@@ -46,6 +46,7 @@
       {id = "bhlhnicpbhignbdhedgjhgdocnmhomnp";} # ColorZilla (eyedropper + gradient gen)
       {id = "dhdgffkkebhmkfjojejmpbldmpobfkfo";} # Tampermonkey (userscript manager)
       {id = "hfjbmagddngcpeloejdejnfgbamkjaeg";} # Vimium C (Tridactyl-like page navigation)
+      {id = "fkmaohpngenfoccdgceedjkfhkdcohmg";} # Figma (capture localhost → editable Figma layers)
     ];
   };
 

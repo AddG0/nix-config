@@ -49,8 +49,8 @@ for sock in "${XDG_RUNTIME_DIR:-/run/user/$(id -u)}"/nvim.*; do
   [[ -S $sock ]] || continue
   cwd=$(timeout 2 nvim --server "$sock" --remote-expr 'getcwd()' 2>/dev/null) || continue
   [[ -n $cwd ]] || continue
-  # Trailing slash anchors on a path boundary: `…/NewDashboard` must not claim
-  # `…/NewDashboard--ENG26-1714/src/App.tsx`.
+  # Trailing slash anchors on a path boundary: `…/myrepo` must not claim
+  # `…/myrepo--some-branch/src/App.tsx`.
   if [[ $path == "$cwd"/* && ${#cwd} -gt ${#server_cwd} ]]; then
     server=$sock
     server_cwd=$cwd

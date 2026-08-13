@@ -17,11 +17,11 @@
         ]
       },
       "locked": {
-        "lastModified": 1783505635,
-        "narHash": "sha256-kDYts6I1JRS6lG5Dvx6RtOtuSnWb2FKvdfay2X9USJM=",
+        "lastModified": 1786052358,
+        "narHash": "sha256-PjZSsVsf7Wd1HprfxgOqkPM45M3A++Z5GxpJDqMqmZg=",
         "ref": "develop",
-        "rev": "d0c3280cc5884fb90ff71a25f0a79ac8be75e9bb",
-        "revCount": 315,
+        "rev": "c2110a96de9128627175e73005c99458065337ee",
+        "revCount": 318,
         "type": "git",
         "url": "ssh://git@gitlab.com/ShipperHQ/internal-tooling-2026/dev-environments/ai-eng-framework.git"
       },
@@ -47,11 +47,11 @@
         "shq-env": "shq-env"
       },
       "locked": {
-        "lastModified": 1784757560,
-        "narHash": "sha256-5oO9ty5SR9I4DAzSAP1AYAGA/E6NXeQkEGIzfndjcmY=",
+        "lastModified": 1786637287,
+        "narHash": "sha256-fzlOHHVwjla97lFOmIO47qI1buaiRZ6YG99CD/dcg48=",
         "ref": "refs/heads/main",
-        "rev": "30ceceb675ff14e9c3ea3367b4ffd691b7ee1996",
-        "revCount": 189,
+        "rev": "1e1f3a3eb4e4959b01873a54fff1542b8f17e1cd",
+        "revCount": 190,
         "type": "git",
         "url": "ssh://git@github.com/addg0/ai-toolkit.git"
       },
@@ -1565,11 +1565,11 @@
         ]
       },
       "locked": {
-        "lastModified": 1783222121,
-        "narHash": "sha256-E/ElL373TO8lQ2aMvYyzN+k4xkVaUGoRqoa8AtM71tI=",
+        "lastModified": 1783823409,
+        "narHash": "sha256-OI4IkRjRXa1e7hYmCGJDPDq5H/kPwhsyoS80cNUF9fI=",
         "owner": "nix-community",
         "repo": "home-manager",
-        "rev": "a1645f40777620c4bd2b6d854b290c2fc354a266",
+        "rev": "7566825d4652a1b885bd4ce65bd9e8def432fec9",
         "type": "github"
       },
       "original": {
@@ -3123,11 +3123,11 @@
         "nixpkgs-unstable": "nixpkgs-unstable_2"
       },
       "locked": {
-        "lastModified": 1781729784,
-        "narHash": "sha256-fq+l57AB9eNvhYhHKd1VHfaGeUF/+4v9ZdRqvUJ1T+0=",
+        "lastModified": 1783453961,
+        "narHash": "sha256-2PiJTidcxdRcErJ0H8Kni0cF6TG8SwtugYupEwA77I0=",
         "ref": "refs/heads/develop",
-        "rev": "6dd2e2758829c7afd3619598a788a9eb30a7e727",
-        "revCount": 25,
+        "rev": "1d435bf5cb6ea449b4e3297a4c7220cf7fba313c",
+        "revCount": 26,
         "type": "git",
         "url": "ssh://git@gitlab.com/ShipperHQ/shipperhq-ai/Infrastructure/platform/nix.git"
       },
@@ -3397,11 +3397,11 @@
         ]
       },
       "locked": {
-        "lastModified": 1783231873,
-        "narHash": "sha256-cTDI249Vl2JTQ3aicT9jeJPIBlNlodpJbdO0yLigCzU=",
+        "lastModified": 1783921439,
+        "narHash": "sha256-DsSIQSRMrLOz40LrGZ03sp2RlJ9sz3wKpd8XPTOzXnw=",
         "owner": "oxalica",
         "repo": "rust-overlay",
-        "rev": "cb368fd55ced25a1fa12414b9e984cdfb1681d18",
+        "rev": "e013376c32a8fcf07ddb6ec71739552bc118b7bd",
         "type": "github"
       },
       "original": {
@@ -3491,11 +3491,11 @@
         "rust-overlay": "rust-overlay_2"
       },
       "locked": {
-        "lastModified": 1783505713,
-        "narHash": "sha256-o/S7habRwOf0UfaEcjT9yZIItGyVSpiLwEVppdzwUcw=",
+        "lastModified": 1786052529,
+        "narHash": "sha256-pwDe1f1BH3WEZAFejp6J1QDKBERaJDfiqba0VzPI4u4=",
         "ref": "develop",
-        "rev": "bf89fda8714b982296e2b32e9973e9a78ce0df53",
-        "revCount": 43,
+        "rev": "b870fb16fe3b4202508607f010c6c0f2ba593ce5",
+        "revCount": 50,
         "type": "git",
         "url": "ssh://git@gitlab.com/ShipperHQ/internal-tooling-2026/dev-environments/shq-env.git"
       },

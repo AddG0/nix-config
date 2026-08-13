@@ -174,7 +174,8 @@ in {
       "SUPERCTRL,j,movecurrentworkspacetomonitor,d"
 
       # System controls
-      "SUPERSHIFT,e,exit,"
+      # Deliberately awkward to reach — a finger-slip into logout is unrecoverable.
+      "SUPERCTRLSHIFTALT,delete,exit,"
       "SUPERSHIFT,r,exec,${lib.getExe reloadScript}"
 
       # Screen annotation. NOT `pkill -SIGUSR1 wayscriber` — that also kills the

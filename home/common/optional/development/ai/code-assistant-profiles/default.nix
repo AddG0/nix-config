@@ -61,7 +61,7 @@ in {
         commit-commands
         documentation
         architecture
-        spec-driven-dev
+        design-notes
         caveman
         tmux-dev
         jira
@@ -90,14 +90,26 @@ in {
           - Minimal function signatures — only params actually used
         '';
 
+        investigation.content.text = ''
+          Read-only diagnostics — `git log`/`diff`, `kubectl get`/`describe`/`logs`, `curl`, `nix eval` — are never risky, so run them without asking. When a check surfaces a problem, chase it to root cause instead of reporting status and asking whether to look into it. "Check it" means check and diagnose; asking twice means go deeper, not print the same output again.
+
+          Ground causal claims in something you actually gathered — a command you ran, a file you read, docs you fetched. A hypothesis is worth less than the cheapest command that would disprove it, so run that command before you explain the theory or act on it, and don't edit code to fix a cause you haven't confirmed. Keep verified findings and guesses distinguishable, and treat "I don't know yet, here's what would settle it" as a complete answer. A confident wrong diagnosis costs far more to unwind than the check would have cost to run.
+        '';
+
+        repos.content.text = ''
+          Repo layout — resolve paths yourself instead of asking where a repo is.
+
+          - ghq root is `~/Projects/code`; clones sit at `<host>/<owner…>/<repo>`, with GitLab subgroups fully nested (`gitlab.com/ShipperHQ/shipperhq-ai/Apps/NewDashboard`).
+          - `ghq list <substring>` finds a repo among ~360 clones; `-p` prints absolute paths, `-e` matches exactly. `ghq get <url|owner/repo>` clones a missing one.
+          - Work clones sit under `gitlab.com/ShipperHQ/…`, but their stored remote is `git@gitlab-work:…` — an ssh alias, not a resolvable hostname. Derive web and clone URLs from the ghq path, or map the alias back to `gitlab.com`; `insteadOf` rewrites only at transport time, so the alias stays in `.git/config`.
+          - Worktrees are siblings of their clone with a `--<branch>` suffix and show up in `ghq list`; `gwq list` shows only worktrees.
+          - `~/nix-config` and `~/nix-secrets` live outside the ghq root.
+        '';
+
         "multi-agent".content.text = ''
-          Multi-agent orchestration:
-          - Batch ALL independent agent spawns in ONE message for parallel execution
-          - Use `run_in_background: true` for all agent Task calls
-          - After spawning agents, STOP — do not poll TaskOutput or check status
-          - Trust agents to return results; review ALL results before proceeding
-          - Batch independent file reads/writes/edits in one message
-          - Batch independent Bash commands in one message
+          `Agent` and `TaskCreate`/`TaskUpdate` are easy to conflate and their parameters are not interchangeable: `Agent` spawns a subagent and takes `prompt`/`subagent_type`, while the Task tools manage the visible task list and take `subject`/`description`. Mixing them fails validation.
+
+          `Monitor` and `SendMessage` are the deferred tools that actually bite here — load the schema with `ToolSearch` before the first call rather than after the failure.
         '';
       };
     };

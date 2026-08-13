@@ -1,0 +1,13 @@
+# Project Structure
+
+## Directory Layout
+{Tree of top-level directories with one-line descriptions}
+
+## Key Entry Points
+{Main files, config files, module roots}
+
+## Module Boundaries
+{How code is organized — packages, features, layers}
+
+## Naming Conventions
+{File naming, function naming, variable naming patterns observed}

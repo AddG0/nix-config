@@ -85,6 +85,8 @@ in {
             # Try primary first, then fall back to other agent keys.
             IdentityFile = "~/.ssh/primary.pub";
             TCPKeepAlive = "yes";
+            # Without a forwarded locale, remote tmux runs non-UTF-8 and mangles glyphs.
+            SendEnv = ["LANG" "LC_*"];
           };
 
           # Stable attr name for DAG ordering; the real Host pattern is set

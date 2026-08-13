@@ -1,0 +1,19 @@
+# Technical Context
+
+## Stack
+{Languages, frameworks, runtimes detected from config files}
+
+## Architecture
+{High-level architecture inferred from directory structure and imports}
+
+## Build & Test
+{Build commands, test commands, CI — from package.json scripts, Makefile targets, etc.}
+
+## Conventions
+{Code style, naming patterns, file organization detected from the codebase}
+
+## Key Dependencies
+{Major dependencies and their roles — from lockfiles and config}
+
+## Constraints
+{Known limitations, compatibility requirements}

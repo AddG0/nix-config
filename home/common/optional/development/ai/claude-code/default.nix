@@ -162,17 +162,7 @@ in {
     };
 
     profiles = {
-      default = {
-        include = [addons.spec-driven-dev];
-        rules.investigation = ''
-          Investigation behavior — overrides default caution for read-only work:
-          - Read-only diagnostic commands (kubectl get/describe/logs, git log/diff, curl, nix eval) are NEVER risky. Run them without hesitation or confirmation.
-          - When a status check reveals a problem, investigate the root cause immediately. Do not report status and ask "want me to look into it?" — just look into it.
-          - If the user repeats a request (e.g. "check it" twice), they want deeper action, not the same output again. Escalate: check logs, describe resources, diff configs, trace the actual error.
-          - "Check it" = check status AND diagnose any issues found. Never just report and stop.
-          - When debugging, follow the error chain to root cause before reporting back. One deep investigation is worth more than five shallow status checks.
-        '';
-      };
+      default.include = [addons.design-notes];
 
       grafana = {
         description = "Default with Grafana";

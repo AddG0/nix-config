@@ -21,6 +21,7 @@
   # Key rationale per category:
   #   - Inter is the de-facto free substitute for Apple's SF Pro.
   #   - Catppuccin Mocha is the closest base16 scheme to macOS dark mode.
+  #   - Monaspace's "NF" is the nerd-font-patched build; plain "Neon" has no icons.
   #   - Opacities <1.0 enable the compositor's frosted-glass blur to show
   #     through panels/popups/desktop surfaces.
   stylix = {
@@ -42,8 +43,8 @@
         name = "Inter";
       };
       monospace = {
-        package = pkgs.nerd-fonts.meslo-lg;
-        name = "MesloLGS Nerd Font";
+        package = pkgs.monaspace;
+        name = "Monaspace Neon NF";
       };
       emoji = {
         package = pkgs.noto-fonts-color-emoji;

@@ -50,6 +50,7 @@
       "secrets/buf.nix"
 
       # Gaming
+      "gaming"
       "gaming/steam"
       "gaming/minecraft"
       "gaming/heroic.nix"

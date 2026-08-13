@@ -450,9 +450,15 @@ firewall-ports:
   done
 
 [group('utilities')]
-[doc("Visualize disk usage with Filelight (WinDirStat-like treemap)")]
-disk-usage:
+[doc("Browse disk usage as a treemap in a window (your files only)")]
+disk-usage-gui:
   nix run nixpkgs#kdePackages.filelight
+
+[group('utilities')]
+[doc("Find what's eating disk space, including system files (requires sudo)")]
+disk-usage path="/":
+  # absolute path because gdu lives in ~/.nix-profile/bin, outside root's PATH
+  sudo "$(command -v gdu)" --no-cross {{path}}
 
 [group('utilities')]
 [doc("Flush DNS resolver cache")]

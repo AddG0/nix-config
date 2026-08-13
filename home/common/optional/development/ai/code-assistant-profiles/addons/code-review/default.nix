@@ -14,7 +14,11 @@ in {
       "historical-context-reviewer" = fromClaudeAgent "${cek}/plugins/review/agents/historical-context-reviewer.md";
       "security-auditor" = fromClaudeAgent "${cek}/plugins/review/agents/security-auditor.md";
       "test-coverage-reviewer" = fromClaudeAgent "${cek}/plugins/review/agents/test-coverage-reviewer.md";
+      "shortcut-hunter".prompt.source = ./agents/shortcut-hunter.md;
+      "silent-failure-hunter".prompt.source = ./agents/silent-failure-hunter.md;
     };
+
+    rules."quality-standards".content.source = ./rules/quality-standards.md;
 
     commands."review-branch".content.source = ./commands/review-branch/prompt.md;
 

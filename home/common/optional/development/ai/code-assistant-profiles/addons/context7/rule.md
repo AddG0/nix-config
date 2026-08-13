@@ -1,25 +1,9 @@
 ---
-description: Use Context7 MCP server proactively for live library and framework documentation.
+description: Loading and using the Context7 MCP tools for live library documentation.
 ---
 
-Use Context7 MCP server to fetch live documentation for libraries/frameworks.
+The Context7 server ships its own usage instructions; this covers only what they leave out.
 
-## When to use - PROACTIVELY, not just on request
+Both tools are deferred, so their schemas are absent until fetched and calling one cold sends untyped parameters that fail validation (`libraryName: expected string, received undefined`). Fetch both in a single call at first use — `ToolSearch` with `select:mcp__context7__resolve-library-id,mcp__context7__query-docs` — then use them for the rest of the session rather than re-searching per lookup. Being listed in `permissions.allow` does not load a schema.
 
-Use Context7 automatically whenever you:
-- Encounter a framework/library API you're not 100% certain about
-- Debug errors related to framework behavior (e.g. serialization, config, runtime modes)
-- Need to know how a specific feature works (e.g. Flink batch mode, Iceberg catalog API)
-- Are about to suggest a fix involving framework-specific code
-- See runtime errors that reference framework classes or configuration
-
-Do NOT guess at API behavior from training data. If you're unsure, look it up first.
-
-"use context7" in a user message is an explicit override - but the default is to use it proactively.
-
-## How to use
-
-1. `resolve-library-id` to find the library (e.g. "apache flink", "apache iceberg")
-2. `query-docs` with a focused topic (e.g. "POJO type serialization requirements", "batch mode REST endpoint")
-3. Ground your answer in the fetched docs, cite version-specific differences
-4. If docs don't cover it, say so - don't fill the gap with guesses
+`resolve-library-id` first, then `query-docs` with a focused topic rather than a broad one. Cite version-specific differences where the docs draw them, and if the docs do not answer the question, say so instead of filling the gap.
