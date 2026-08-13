@@ -8,28 +8,35 @@
   ...
 }: let
   inherit (config.hostSpec.networking) hostsAddr;
-  inherit (hostsAddr.asgard) ipv4 iface;
+  inherit (hostsAddr.asgard) ipv4;
 
   cluster = {
     vip = ipv4;
     masterAddr = "https://${ipv4}:6443";
     nodes = {
       odin = "server";
-      loki = "agent";
-      thor = "agent";
+      loki = "server";
+      thor = "server";
     };
+    initNode = "odin";
   };
 
   currentNode = config.hostSpec.hostName;
   nodeRole = cluster.nodes.${currentNode};
   isServer = nodeRole == "server";
-  isAgent = nodeRole == "agent";
+  isInitNode = currentNode == cluster.initNode;
 in {
   # ==========================================================================
   # Firewall - open k3s ports
   # ==========================================================================
   networking.firewall = {
-    allowedTCPPorts = lib.optionals isServer [6443] ++ [7946]; # k3s API server, MetalLB memberlist
+    allowedTCPPorts =
+      lib.optionals isServer [
+        6443 # k3s API server
+        2379 # etcd client
+        2380 # etcd peer
+      ]
+      ++ [7946]; # MetalLB memberlist
     allowedUDPPorts = [8472 7946]; # flannel VXLAN, MetalLB memberlist
   };
 
@@ -47,13 +54,18 @@ in {
   services.k3s = {
     enable = true;
     role = nodeRole;
-    serverAddr = lib.mkIf isAgent cluster.masterAddr;
+    # Only ever one node: a second bootstraps its own cluster instead of joining, and
+    # moving it to a different node would do the same.
+    clusterInit = isInitNode;
+    serverAddr = lib.mkIf (!isInitNode) cluster.masterAddr;
     tokenFile = config.sops.secrets.k3sMainToken.path;
 
     addons.kube-vip = lib.mkIf isServer {
       enable = true;
       vipAddress = cluster.vip;
-      interface = iface;
+      # NICs differ per host (enp131s0 / enp2s0 / enp87s0) but a DaemonSet carries one
+      # config for all of them -- kube-vip#273. Empty autodetects from the default route.
+      interface = "";
     };
 
     extraFlags = toString (lib.optionals isServer [

@@ -4,6 +4,7 @@
 {
   config,
   lib,
+  pkgs,
   ...
 }:
 with lib; let
@@ -44,7 +45,10 @@ in {
         sha256 = "0hn6dyn6g742ihakkp7k3bnjgmfzx965kizmwb6axbx2csplkbb8";
       };
 
-      kube-vip-ds.content = {
+      # Not `.content`: the k3s module renders it via pkgs.formats.yaml, which emits a
+      # `%YAML 1.1` directive; k3s splits on `---` first, so that becomes a document of
+      # its own and the file is rejected every boot, silently. JSON parses cleanly.
+      kube-vip-ds.source = pkgs.writeText "kube-vip-ds.yaml" (builtins.toJSON {
         apiVersion = "apps/v1";
         kind = "DaemonSet";
         metadata = {
@@ -169,7 +173,7 @@ in {
             };
           };
         };
-      };
+      });
     };
   };
 }
