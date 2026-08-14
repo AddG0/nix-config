@@ -38,11 +38,9 @@ in {
   #   Music Sink → music_input + Hugo TT2 (Spotify/Zen → own mic + speakers)
   #   Main Input Mixer → main_input (use this in Discord/apps)
   #
-  # Keep the capture side and the Hugo in separate driver groups: one node linked
-  # to both (e.g. soundboard_source feeding the mixer and the DAC) merges them
-  # into a single graph, demoting the Scarlett to a follower of the DAC's USB
-  # clock, which it can't track — it resyncs constantly and drops playback audio.
-  # Anything that needs to be both heard and sent to Discord plays two streams.
+  # A node feeding both the mixer and the DAC merges them into one driver group,
+  # making the Scarlett follow the DAC clock — safe only while both are pinned to
+  # the same rate (core.nix). Anything heard *and* sent to Discord plays two streams.
   # ============================================================================
 
   services.pipewire = {

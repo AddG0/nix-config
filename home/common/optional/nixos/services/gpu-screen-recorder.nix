@@ -1,13 +1,9 @@
-#
 # GPU Screen Recorder replay buffer.
 #
-# Importing hosts must set `services.gpu-screen-recorder.display` (e.g.
-# `"portal"` to capture via xdg-desktop-portal — recommended for HDR/10-bit
-# monitors since direct capture there produces oversaturated colors) and
-# typically `matchMonitorName` so the smart xdph picker can auto-select the
-# right monitor without showing a dialog.
-# https://wiki.hyprland.org/Configuring/Monitors/#10-bit-support
-#
+# Importing hosts must set `services.gpu-screen-recorder.display` — use
+# `"portal"` on HDR/10-bit monitors, where direct capture is oversaturated
+# (https://wiki.hyprland.org/Configuring/Monitors/#10-bit-support) — and
+# usually `matchMonitorName`, so the xdph picker skips its dialog.
 {
   pkgs,
   lib,
@@ -16,8 +12,7 @@
   # GSR matches pipewire node.name exactly; VLC's embeds its version, minus nixpkgs' -N suffix.
   vlcAudioName = "VLC media player (LibVLC ${lib.head (lib.splitString "-" pkgs.vlc.version)})";
 
-  # Moves each saved clip into a subdirectory named after the running Steam game,
-  # or Minecraft/<instance> for PrismLauncher.
+  # Sorts each saved clip into <Steam game name>/, or Minecraft/<instance>/.
   sortClipScript = pkgs.writeShellApplication {
     name = "gsr-sort-clip";
     runtimeInputs = with pkgs; [coreutils gnugrep gnused];
@@ -25,7 +20,6 @@
       file="''${1:?usage: gsr-sort-clip <filepath> [type]}"
       [ -f "$file" ] || exit 0
 
-      # First value matching an env-var regex across all running processes.
       # -z splits on NUL so values keep any spaces.
       proc_env() {
         grep -aohz "$1" /proc/[0-9]*/environ 2>/dev/null \
@@ -66,7 +60,7 @@ in {
     enable = true;
     postRecordSeconds = 10;
     postSaveScript = sortClipScript;
-    # Everything but spotify and vlc
+    # Keep as one -a: separate flags make separate tracks, and players play only the first.
     audioDevices = ["app-inverse:spotify|app-inverse:${vlcAudioName}|default_input"];
   };
 }
