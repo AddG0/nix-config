@@ -51,16 +51,14 @@
 in {
   programs.hyprlock.settings = {
     general = {
-      grace = 2; # 2-second window to dismiss without auth after lock fires
       ignore_empty_input = true; # Don't show fail state on bare Enter
       immediate_render = true; # No flash of unstyled lock at start
       hide_cursor = true; # Apple hides the cursor until movement
     };
 
-    # Hyprlock animation system (v0.7.0+). Replaces the old `fail_transition`/
-    # `fade_on_empty` flags with proper bezier-driven transitions. The slow
-    # `fadeIn` is the single biggest "feels Apple" upgrade — lock fades up
-    # instead of popping in.
+    # Hyprlock animation system (v0.7.0+); `inputFieldColors` supersedes the old
+    # `fail_transition`. The slow `fadeIn` is the single biggest "feels Apple"
+    # upgrade — lock fades up instead of popping in.
     animations = {
       enabled = true;
       bezier = [
@@ -225,7 +223,6 @@ in {
           check_color = "rgba(89b4faff)"; # Catppuccin blue while checking
           fail_color = "rgba(f38ba8ee)"; # Catppuccin red on fail
           fail_text = "<i>$FAIL ($ATTEMPTS)</i>";
-          fail_transition = 300;
           capslock_color = "rgba(fab387ee)"; # Catppuccin peach
           rounding = 26; # Half of height — full pill
           shadow_passes = 1;

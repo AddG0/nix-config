@@ -99,6 +99,10 @@ in {
       control_center.calendar.event_time_format = "%I:%M %p";
 
       wallpaper.enabled = false;
+
+      # hyprlock owns session locking; noctalia's pre-suspend lock races it for
+      # the ext-session-lock and can strand the session locked with no client.
+      lockscreen.lock_before_suspend = false;
     };
   };
 
