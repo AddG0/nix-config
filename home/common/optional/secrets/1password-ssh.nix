@@ -28,7 +28,7 @@
 }: let
   # Platform-specific socket paths for 1Password SSH agent
   agentPath =
-    if pkgs.stdenv.isDarwin
+    if pkgs.stdenv.hostPlatform.isDarwin
     then "${config.home.homeDirectory}/Library/Group Containers/2BUA8C4S2C.com.1password/t/agent.sock"
     else "${config.home.homeDirectory}/.1password/agent.sock";
 in {

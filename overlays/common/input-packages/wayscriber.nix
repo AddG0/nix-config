@@ -1,7 +1,7 @@
 # wayscriber shells out to grim/slurp for screen capture but isn't self-contained,
 # so capture fails when they're missing from its PATH (as under systemd).
 {inputs, ...}: _final: prev:
-prev.lib.optionalAttrs prev.stdenv.isLinux {
+prev.lib.optionalAttrs prev.stdenv.hostPlatform.isLinux {
   wayscriber = let
     base = inputs.wayscriber.packages.${prev.stdenv.hostPlatform.system}.default;
   in

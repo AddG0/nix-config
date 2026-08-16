@@ -6,7 +6,7 @@
 {inputs, ...}: final: prev: let
   inherit (final.stdenv.hostPlatform) system;
 in
-  prev.lib.optionalAttrs prev.stdenv.isLinux {
+  prev.lib.optionalAttrs prev.stdenv.hostPlatform.isLinux {
     hyprland = inputs.hy3.inputs.hyprland.packages.${system}.hyprland;
     hyprlandPlugins =
       (prev.hyprlandPlugins or {})

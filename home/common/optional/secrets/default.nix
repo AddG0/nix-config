@@ -31,7 +31,7 @@
   # sops-nix's own darwin activation (upstream modules/home-manager/sops.nix)
   # hardcodes the gui/$UID domain when reloading the agent, so it hits the same
   # 125 regardless of the option above. Retarget the reload to user/$UID.
-  home.activation.sops-nix = lib.mkIf pkgs.stdenv.isDarwin (lib.mkForce (
+  home.activation.sops-nix = lib.mkIf pkgs.stdenv.hostPlatform.isDarwin (lib.mkForce (
     lib.hm.dag.entryAfter ["writeBoundary"] ''
       domain="user/$(id -u)"
       run /bin/launchctl bootout "$domain/org.nix-community.home.sops-nix" 2>/dev/null || true

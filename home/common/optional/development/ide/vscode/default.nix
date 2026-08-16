@@ -26,7 +26,7 @@
       postBuild = ''
         wrapProgram $out/bin/code \
           ${lib.optionalString hasKubeconfig ''--set KUBECONFIG "${config.home.sessionVariables.KUBECONFIG}"''} \
-          ${lib.optionalString pkgs.stdenv.isLinux "--add-flags --password-store=gnome-libsecret"}
+          ${lib.optionalString pkgs.stdenv.hostPlatform.isLinux "--add-flags --password-store=gnome-libsecret"}
       '';
     })
     // {

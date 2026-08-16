@@ -16,7 +16,7 @@
   specFileAttrs = builtins.listToAttrs (
     map (file: {
       name =
-        if pkgs.stdenv.isDarwin
+        if pkgs.stdenv.hostPlatform.isDarwin
         then "Library/Application Support/carapace/specs/${file}"
         else ".config/carapace/specs/${file}";
       value = {source = ./carapace/specs/${file};};

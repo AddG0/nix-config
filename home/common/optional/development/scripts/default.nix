@@ -13,7 +13,7 @@
     notify = pkgs.writeShellApplication {
       name = "notify";
       runtimeInputs =
-        if pkgs.stdenv.isDarwin
+        if pkgs.stdenv.hostPlatform.isDarwin
         then [pkgs.terminal-notifier]
         else [pkgs.libnotify];
       text = builtins.readFile ./notify.sh;

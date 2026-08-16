@@ -31,7 +31,7 @@
         text = builtins.readFile ./yubikey-enroll.sh;
       };
     }
-    // lib.optionalAttrs (!pkgs.stdenv.isDarwin) {
+    // lib.optionalAttrs (!pkgs.stdenv.hostPlatform.isDarwin) {
       open-port = pkgs.writeShellApplication {
         name = "open-port";
         runtimeInputs = with pkgs; [iptables];

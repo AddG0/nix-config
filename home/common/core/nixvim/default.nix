@@ -82,7 +82,7 @@ in {
     ];
   };
 
-  xdg.desktopEntries.nvim-ghostty = lib.mkIf (pkgs.stdenv.isLinux && config.hostSpec.hostType != "server") {
+  xdg.desktopEntries.nvim-ghostty = lib.mkIf (pkgs.stdenv.hostPlatform.isLinux && config.hostSpec.hostType != "server") {
     name = "Neovim in Ghostty";
     genericName = "Text Editor";
     comment = "Edit text and config files in Neovim";
@@ -98,6 +98,6 @@ in {
   };
 
   xdg.mimeApps.defaultApplications =
-    lib.mkIf (pkgs.stdenv.isLinux && config.hostSpec.hostType != "server")
+    lib.mkIf (pkgs.stdenv.hostPlatform.isLinux && config.hostSpec.hostType != "server")
     (lib.genAttrs textTypes (_: [textEditorDesktop]));
 }

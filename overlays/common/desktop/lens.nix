@@ -1,7 +1,7 @@
 # Lens: disable GPU to fix invisible window on NVIDIA + Wayland (Electron bug).
 _: _final: prev: {
   lens = prev.lens.overrideAttrs (oldAttrs:
-    prev.lib.optionalAttrs prev.stdenv.isLinux {
+    prev.lib.optionalAttrs prev.stdenv.hostPlatform.isLinux {
       buildCommand =
         (oldAttrs.buildCommand or "")
         + ''

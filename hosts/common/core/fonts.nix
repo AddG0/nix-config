@@ -29,7 +29,7 @@
           nerd-fonts.jetbrains-mono # JetBrains Mono - used in VS Code terminal
         ]
         ++ (
-          if pkgs.stdenv.isDarwin
+          if pkgs.stdenv.hostPlatform.isDarwin
           then [
             nerd-fonts.fira-code
             nerd-fonts.iosevka
@@ -37,7 +37,7 @@
           else []
         );
     }
-    // lib.optionalAttrs (!pkgs.stdenv.isDarwin) {
+    // lib.optionalAttrs (!pkgs.stdenv.hostPlatform.isDarwin) {
       fontconfig.defaultFonts = {
         sansSerif = ["DejaVu Sans" "Source Han Sans"];
         serif = ["DejaVu Serif" "Source Han Serif"];

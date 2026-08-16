@@ -2,7 +2,7 @@
 # Patch the VSCode Java extension to use the Nix-provided JDK instead of the
 # bundled dynamically-linked JRE.
 _: _final: prev:
-prev.lib.optionalAttrs prev.stdenv.isLinux {
+prev.lib.optionalAttrs prev.stdenv.hostPlatform.isLinux {
   vscode-marketplace-release =
     prev.vscode-marketplace-release
     // {

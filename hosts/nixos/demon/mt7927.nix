@@ -9,8 +9,8 @@
 #  kernel, plus the MT6639 Wi-Fi+BT firmware extracted from ASUS's driver
 #  package (not in linux-firmware).
 #
-#  The firmware ZIP is fetched from ASUS behind an expiring signed URL, so it
-#  can't live in a Nix fetcher — supply it once (see requireFile message).
+#  The firmware ZIP lives behind an expiring signed ASUS URL, so `fetchurl`
+#  can't reach it — see driverZip below for how it's fetched instead.
 #
 ###############################################################
 {
@@ -30,16 +30,47 @@
   };
 
   # ASUS Windows driver package — used only for MT6639 firmware extraction.
-  driverZip = pkgs.requireFile {
-    name = "DRV_WiFi_MTK_MT7925_MT7927_TP_W11_64_V5603998_20250709R.zip";
-    sha256 = "sha256-s3f/+iggi7FnGg6yGchMYvukzW+SFht05LCQlHYwfMg=";
-    message = ''
-      MT7927 firmware ZIP not in the store. Fetch and add it once (expiring
-      ASUS URL), then put the printed hash in the `sha256` above:
+  #
+  # ASUS serves it from CloudFront behind a URL their token API signs, which
+  # `fetchurl` can't produce. A fixed-output derivation can: FODs get network
+  # access, so this does the token dance itself. It used to be a `requireFile`
+  # supplied by hand, but nothing roots that store path — the first
+  # `nix-collect-garbage` deleted it and broke the build.
+  #
+  # Flat FODs hash to the same store path as `nix store add-file`, so if ASUS
+  # ever pulls the file, dropping a saved copy in still satisfies this:
+  #   nix store add-file DRV_WiFi_MTK_*.zip
+  driverZipName = "DRV_WiFi_MTK_MT7925_MT7927_TP_W11_64_V5603998_20250709R.zip";
+  driverZip =
+    pkgs.runCommand driverZipName {
+      outputHashAlgo = "sha256";
+      outputHashMode = "flat";
+      outputHash = "sha256-s3f/+iggi7FnGg6yGchMYvukzW+SFht05LCQlHYwfMg=";
 
-        d=$(mktemp -d) && curl -fsSL https://raw.githubusercontent.com/jetm/mediatek-mt7927-dkms/master/download-driver.sh | bash -s "$d" && nix store add-file "$d"/DRV_*.zip && nix hash file "$d"/DRV_*.zip
+      nativeBuildInputs = [pkgs.curl pkgs.jq];
+      impureEnvVars = lib.fetchers.proxyImpureEnvVars;
+      # 24MB straight off a CDN; not worth shipping to a remote builder.
+      preferLocalBuild = true;
+    } ''
+      export SSL_CERT_FILE=${pkgs.cacert}/etc/ssl/certs/ca-bundle.crt
+
+      base=https://dlcdnta.asus.com/pub/ASUS/mb/08WIRELESS/${driverZipName}
+      model=ROG%20CROSSHAIR%20X870E%20HERO
+
+      # The token only signs the exact URL named in filePath, model query
+      # string included — hence the doubly-encoded %2520 separators.
+      token=$(curl -sSf -X POST -H 'Origin: https://rog.asus.com' \
+        "https://cdnta.asus.com/api/v1/TokenHQ?systemCode=rog&filePath=https:%2F%2Fdlcdnta.asus.com%2Fpub%2FASUS%2Fmb%2F08WIRELESS%2F${driverZipName}%3Fmodel%3DROG%2520CROSSHAIR%2520X870E%2520HERO")
+
+      # -e so a changed response shape fails the build instead of signing an
+      # empty token and handing curl a 403 to puzzle over.
+      sig=$(jq -er '.result.signature' <<<"$token")
+      exp=$(jq -er '.result.expires' <<<"$token")
+      kid=$(jq -er '.result.keyPairId' <<<"$token")
+
+      curl -sSfL -o "$out" \
+        "$base?model=$model&Signature=$sig&Expires=$exp&Key-Pair-Id=$kid"
     '';
-  };
 
   mt7927 = pkgs.stdenv.mkDerivation {
     pname = "mt7927-mt76";

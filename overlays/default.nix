@@ -43,8 +43,8 @@ in {
       (import ./packages.nix {inherit inputs;})
     ]
     ++ importOverlays ./common
-    ++ guardPlatform (stdenv: stdenv.isLinux) (importOverlays ./nixos)
-    ++ guardPlatform (stdenv: stdenv.isDarwin) (importOverlays ./darwin)
+    ++ guardPlatform (stdenv: stdenv.hostPlatform.isLinux) (importOverlays ./nixos)
+    ++ guardPlatform (stdenv: stdenv.hostPlatform.isDarwin) (importOverlays ./darwin)
     # Temporary workarounds for nixpkgs builds broken on the current pin. Comment
     # this line out to disable them all — e.g. to check whether a `nix flake
     # update` has made them redundant.

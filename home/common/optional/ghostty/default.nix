@@ -4,7 +4,7 @@
     enable = true;
     # ghostty has no darwin build in nix (the macOS app is built via Xcode).
     package =
-      if pkgs.stdenv.isDarwin
+      if pkgs.stdenv.hostPlatform.isDarwin
       then pkgs.ghostty-bin
       else pkgs.ghostty;
 

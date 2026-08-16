@@ -96,7 +96,7 @@
   };
 
   platformKeymapDir =
-    if pkgs.stdenv.isDarwin
+    if pkgs.stdenv.hostPlatform.isDarwin
     then "mac"
     else "linux";
 

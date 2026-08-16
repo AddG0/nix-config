@@ -11,7 +11,7 @@
   });
 in {
   home.packages =
-    if pkgs.stdenv.isLinux
+    if pkgs.stdenv.hostPlatform.isLinux
     then [slackFixed pkgs.discord]
     # On Darwin, Slack is managed via homebrew cask for stable path (avoids
     # SMAppService re-registration popups on every nix store path change)

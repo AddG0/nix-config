@@ -14,7 +14,7 @@ See how to find all the defaults for the config and auto-generate nix options?
 }: let
   cfg = config.programs.copyq;
   configDir =
-    if (pkgs.stdenv.isDarwin && !config.xdg.enable)
+    if (pkgs.stdenv.hostPlatform.isDarwin && !config.xdg.enable)
     then
       # TODO: Someone on Darwin can confirm this
       "Library/Preferences/copyq"

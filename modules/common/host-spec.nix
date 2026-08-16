@@ -71,7 +71,7 @@
       default = let
         user = config.hostSpec.primaryUsername;
       in
-        if pkgs.stdenv.isLinux
+        if pkgs.stdenv.hostPlatform.isLinux
         then "/home/${user}"
         else "/Users/${user}";
     };
@@ -165,7 +165,7 @@
     # ============================================================================
     # Platform-specific Configuration
     # ============================================================================
-    # Sometimes we can't use pkgs.stdenv.isLinux due to infinite recursion
+    # Sometimes we can't use pkgs.stdenv.hostPlatform.isLinux due to infinite recursion
     isDarwin = lib.mkOption {
       type = lib.types.bool;
       default = false;

@@ -19,7 +19,7 @@
     text = builtins.readFile ./nvim-uri-handler.sh;
   };
 in
-  lib.mkIf (pkgs.stdenv.isLinux && config.hostSpec.hostType != "server") {
+  lib.mkIf (pkgs.stdenv.hostPlatform.isLinux && config.hostSpec.hostType != "server") {
     home.packages = [nvim-uri-handler];
 
     # nvim://file/{path}:{line}:{column} — paste as DevTools' "Open in Editor URL".

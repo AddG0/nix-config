@@ -163,7 +163,7 @@
       # Keybindings
       vim
     ]
-    ++ (lib.optionals pkgs.stdenv.isLinux) [
+    ++ (lib.optionals pkgs.stdenv.hostPlatform.isLinux) [
       # Productivity
       # Postman uses hashes in the paths so I can't declaritively control the config so settings file keeps saying can't save
       # I prefer to disable it to avoid

@@ -22,7 +22,7 @@
         highlight # Syntax highlighting
         skim # Fuzzy finder integration
       ]
-      ++ lib.optionals pkgs.stdenv.isLinux [
+      ++ lib.optionals pkgs.stdenv.hostPlatform.isLinux [
         semver # Semantic version handling (Linux only)
       ];
 

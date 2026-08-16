@@ -2,7 +2,7 @@
 # $out/<rootDir>/bin/* (inside the .app bundle) but misses $out/bin/* where the
 # convenience launcher lives, leaving a disallowed reference to the unwrapped IDE.
 _: _final: prev:
-prev.lib.optionalAttrs prev.stdenv.isDarwin {
+prev.lib.optionalAttrs prev.stdenv.hostPlatform.isDarwin {
   jetbrains =
     prev.jetbrains
     // {

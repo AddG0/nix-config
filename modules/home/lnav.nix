@@ -9,7 +9,7 @@
 }: let
   cfg = config.programs.lnav;
   configDir =
-    if (pkgs.stdenv.isDarwin && !config.xdg.enable)
+    if (pkgs.stdenv.hostPlatform.isDarwin && !config.xdg.enable)
     then "Library/Application Support/lnav"
     else "${config.xdg.configHome}/lnav";
 in {

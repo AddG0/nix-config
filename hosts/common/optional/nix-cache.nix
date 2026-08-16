@@ -11,7 +11,7 @@
   cacheUrl = "s3://${bucketName}?endpoint=https://storage.googleapis.com&profile=personal-nix-cache&want-mass-query=true&multipart-upload=true";
 
   rootHome =
-    if pkgs.stdenv.isDarwin
+    if pkgs.stdenv.hostPlatform.isDarwin
     then "/var/root"
     else "/root";
   awsCredentialsPath = "${rootHome}/.aws/credentials";
@@ -50,11 +50,11 @@ in {
     };
   };
 
-  systemd.tmpfiles.rules = lib.mkIf pkgs.stdenv.isLinux [
+  systemd.tmpfiles.rules = lib.mkIf pkgs.stdenv.hostPlatform.isLinux [
     "d ${rootHome}/.aws 0700 root root -"
   ];
 
-  system.activationScripts.nixCacheAwsDir = lib.mkIf pkgs.stdenv.isDarwin {
+  system.activationScripts.nixCacheAwsDir = lib.mkIf pkgs.stdenv.hostPlatform.isDarwin {
     text = ''
       mkdir -p ${rootHome}/.aws
       chmod 700 ${rootHome}/.aws

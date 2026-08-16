@@ -1,5 +1,5 @@
 {inputs, ...}: _final: prev:
-prev.lib.optionalAttrs prev.stdenv.isLinux {
+prev.lib.optionalAttrs prev.stdenv.hostPlatform.isLinux {
   # Stop noctalia auto-locking on logind's Lock signal so hyprlock is the sole
   # locker. --replace-fail errors the build if upstream moves this.
   noctalia = inputs.noctalia.packages.${prev.stdenv.hostPlatform.system}.default.overrideAttrs (old: {

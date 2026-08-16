@@ -20,7 +20,7 @@
     };
   };
 
-  xdg.desktopEntries.lnav = lib.mkIf (pkgs.stdenv.isLinux && config.hostSpec.hostType != "server") {
+  xdg.desktopEntries.lnav = lib.mkIf (pkgs.stdenv.hostPlatform.isLinux && config.hostSpec.hostType != "server") {
     name = "lnav";
     genericName = "Log File Navigator";
     comment = "View and analyze log files";
@@ -34,5 +34,5 @@
     mimeType = ["text/x-log"];
   };
 
-  xdg.mimeApps.defaultApplications."text/x-log" = lib.mkIf (pkgs.stdenv.isLinux && config.hostSpec.hostType != "server") ["lnav.desktop"];
+  xdg.mimeApps.defaultApplications."text/x-log" = lib.mkIf (pkgs.stdenv.hostPlatform.isLinux && config.hostSpec.hostType != "server") ["lnav.desktop"];
 }

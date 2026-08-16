@@ -13,7 +13,7 @@
     text = builtins.readFile ./scripts/glmr-open.sh;
   };
 in
-  lib.mkIf (pkgs.stdenv.isLinux && config.hostSpec.hostType != "server") {
+  lib.mkIf (pkgs.stdenv.hostPlatform.isLinux && config.hostSpec.hostType != "server") {
     home.packages = [glmr-open];
 
     # glmr://open?host=…&project=…&iid=…&branch=… — open that MR's review in nvim.

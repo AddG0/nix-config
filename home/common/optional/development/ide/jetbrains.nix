@@ -148,10 +148,10 @@ in {
   # JetBrains IDEs scan ~/.jdks/ for JDKs. Generic-Linux JDKs (e.g. Microsoft,
   # Temurin downloads) fail with "Could not start dynamically linked executable"
   # on NixOS, so expose nixpkgs-patched JDKs here for IntelliJ to discover.
-  home.file = lib.mkIf pkgs.stdenv.isLinux jdkLinks;
+  home.file = lib.mkIf pkgs.stdenv.hostPlatform.isLinux jdkLinks;
 
   home.packages = with pkgs; (
-    if pkgs.stdenv.isLinux
+    if pkgs.stdenv.hostPlatform.isLinux
     then [
       android-studio
     ]

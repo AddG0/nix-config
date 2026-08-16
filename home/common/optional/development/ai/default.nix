@@ -22,5 +22,5 @@
       ollama-zsh-completion
       repomix
     ]
-    ++ (lib.optionals pkgs.stdenv.isLinux) [claude-desktop];
+    ++ (lib.optionals pkgs.stdenv.hostPlatform.isLinux) [claude-desktop];
 }
