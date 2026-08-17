@@ -35,7 +35,6 @@
   skillFactory = "${inputs.claude-code-skill-factory}/.claude";
 in {
   imports = lib.flatten [
-    ./tmux-agent-sidebar.nix
     (lib.custom.scanPaths ./addons)
     inputs.ai-toolkit.homeModules.default
   ];

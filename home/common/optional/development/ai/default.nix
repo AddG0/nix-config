@@ -9,6 +9,7 @@
     ./codex.nix
     ./opencode
     ./t3code.nix
+    ./tmux-agent-sidebar.nix
   ];
 
   programs.zsh.shellAliases = {
