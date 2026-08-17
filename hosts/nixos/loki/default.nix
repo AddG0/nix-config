@@ -7,6 +7,7 @@
 {
   inputs,
   lib,
+  pkgs,
   ...
 }: {
   imports = lib.flatten [
@@ -52,6 +53,8 @@
     networkmanager.enable = true;
     enableIPv6 = false;
   };
+
+  boot.kernelPackages = pkgs.linuxPackages_latest;
 
   boot.loader = {
     systemd-boot.enable = true;
