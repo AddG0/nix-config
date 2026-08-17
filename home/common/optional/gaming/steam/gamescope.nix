@@ -1,8 +1,8 @@
-# Builds a gamescope prefix for Steam's launchOptions.wrappers.
+# Builds a gamescope prefix for Steam's wrappers.
 # Laptops resolve the target output at launch via hyprctl; desktops bake the
 # declared primary at build. Neither re-checks mid-game. Set GAMESCOPE_OUTPUT to
 # a connector name to override. Opt in per-game:
-# launchOptions.wrappers = [gamemoderun] ++ gamescope;
+# wrappers = [gamemoderun] ++ gamescope;
 # Skip for: anti-cheat (EAC), games needing the Steam overlay,
 # PROTON_ENABLE_WAYLAND=1 titles, and games you want to tile freely.
 #

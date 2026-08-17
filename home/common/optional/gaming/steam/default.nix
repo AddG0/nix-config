@@ -47,13 +47,11 @@
 
   mouseDpi = import ./mouse-dpi.nix {inherit lib pkgs razerEnabled;};
 
-  # name → Steam appid. Each game gets a default config of
-  # `{ id; launchOptions.wrappers = [gamemoderun]; }`; per-game overrides
-  # are merged below.
+  # name → Steam appid.
   defaults =
     lib.mapAttrs (_: id: {
       inherit id;
-      launchOptions.wrappers = [gamemoderun];
+      wrappers = [gamemoderun];
     }) {
       rocket-league = 252950;
       satisfactory = 526870;
@@ -107,19 +105,19 @@
     # Gamescope wrap: HZD's native fullscreen on Linux/Proton is broken
     # (wrong resolution, multi-monitor misbehavior, alt-tab loss).
     # Gamescope forces a sane fullscreen surface and fixes it.
-    horizon-zero-dawn.launchOptions.wrappers = [gamemoderun] ++ gamescope;
+    horizon-zero-dawn.wrappers = [gamemoderun] ++ gamescope;
 
-    aimlabs.launchOptions.wrappers = mouseDpi 1600 ++ [gamemoderun];
+    aimlabs.wrappers = mouseDpi 1600 ++ [gamemoderun];
 
     # Wrap in gaemscope to fix weird fullscreen behavior
-    forza-horizon-4.launchOptions.wrappers = [gamemoderun] ++ gamescope;
-    forza-horizon-5.launchOptions.wrappers = [gamemoderun] ++ gamescope;
-    forza-horizon-6.launchOptions.wrappers = [gamemoderun] ++ gamescope;
+    forza-horizon-4.wrappers = [gamemoderun] ++ gamescope;
+    forza-horizon-5.wrappers = [gamemoderun] ++ gamescope;
+    forza-horizon-6.wrappers = [gamemoderun] ++ gamescope;
 
-    overwatch.launchOptions.wrappers = mouseDpi 1800 ++ [gamemoderun];
+    overwatch.wrappers = mouseDpi 1800 ++ [gamemoderun];
 
     # 2000 DPI + in-game sens 2 reproduces the Aim Lab cm/360 (0.52% off).
-    cyberpunk-2077.launchOptions.wrappers = mouseDpi 2000 ++ [gamemoderun];
+    cyberpunk-2077.wrappers = mouseDpi 2000 ++ [gamemoderun];
 
     # Bigscreen Beyond Utility — Windows-only app for adjusting the
     # headset's fan, brightness, refresh rate, and LED color.
@@ -140,7 +138,7 @@ in {
     inherit defaultCompatTool;
     apps = lib.mapAttrs (_: app:
       lib.recursiveUpdate app {
-        launchOptions.wrappers = (app.launchOptions.wrappers or []) ++ gpuOffload;
+        wrappers = (app.wrappers or []) ++ gpuOffload;
       })
     (lib.recursiveUpdate defaults overrides);
   };
@@ -151,13 +149,15 @@ in {
   # NOTE: You must also enable "Allow background processing of Vulkan shaders"
   # in Steam → Settings → Downloads. This setting can only be toggled via GUI,
   # not via config files (it's stored in config.vdf which Steam manages internally).
-  home.file.".steam/steam/steam_dev.cfg".text = ''
+  # Not ~/.steam/steam: home-manager would create that as a real directory,
+  # squatting the path Steam symlinks on first run — "Couldn't set up Steam data".
+  home.file.".local/share/Steam/steam_dev.cfg".text = ''
     unShaderBackgroundProcessingThreads 1
   '';
 
   # Decky Loader injects its UI via Steam's CEF debugger (port 8080); this
   # marker enables it. Requires a full Steam restart after first creation.
-  home.file.".steam/steam/.cef-enable-remote-debugging".text = "";
+  home.file.".local/share/Steam/.cef-enable-remote-debugging".text = "";
 
   wayland.windowManager.hyprland.settings.windowrule =
     [
