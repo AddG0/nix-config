@@ -45,14 +45,15 @@ with lib; let
       supportedFeatures = linuxFeatures;
       hostKey = "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIHeai+FZVjhCqBFYfvg0YF1xXkywmJSz9n4Q2CODJGsR";
     };
-    # Add more builders here as needed:
-    # ghost = {
-    #   system = "aarch64-darwin";
-    #   maxJobs = 8;
-    #   speedFactor = 50;
-    #   supportedFeatures = ["big-parallel"];
-    #   hostKey = "ssh-ed25519 AAAA...";
-    # };
+    # M4 Max, 16 cores. Darwin can't offer kvm/nixos-test.
+    ghost = {
+      system = "aarch64-darwin";
+      maxJobs = 16;
+      speedFactor = 100;
+      supportedFeatures = ["big-parallel" "benchmark"];
+      hostKey = "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIBYMtWlTHq7q73dw/0VNr7dDv8Rw5M3s4xW3oAdElXIO";
+    };
+    # Add more builders here as needed.
   };
 
   currentHost = config.hostSpec.hostName;

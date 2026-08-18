@@ -12,4 +12,7 @@
       "secrets"
     ]))
   ];
+
+  # Headless: no console login, so there is no gui/<uid> domain to bootstrap into.
+  launchd.agents.colima-default.domain = "user";
 }
