@@ -358,6 +358,12 @@ _: {
     }
     {
       mode = "n";
+      key = "<leader>sj";
+      action = "<cmd>lua Snacks.picker.jumps()<cr>";
+      options.desc = "Jumps";
+    }
+    {
+      mode = "n";
       key = "<leader>sd";
       action = "<cmd>lua Snacks.picker.diagnostics()<cr>";
       options.desc = "Diagnostics";

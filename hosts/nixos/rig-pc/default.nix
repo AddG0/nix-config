@@ -32,12 +32,7 @@
     ]))
   ];
 
-  gaming.gamescopeSession = {
-    standalone = true;
-    # Default is one Xwayland, shared between Steam and games, and keyboard/mouse
-    # don't reach Big Picture; >1 also has gamescope export STEAM_MULTIPLE_XWAYLANDS=1.
-    extraArgs = ["--xwayland-count" "2"];
-  };
+  gaming.gamescopeSession.standalone = true;
 
   networking.networkmanager.enable = true;
 
