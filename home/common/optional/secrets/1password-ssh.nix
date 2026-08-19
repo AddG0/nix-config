@@ -36,13 +36,12 @@ in {
     # Include 1Password's generated per-key config.
     includes = ["~/.ssh/1Password/config"];
 
-    # Only use 1Password as IdentityAgent for local sessions.
-    # When SSH'd in (SSH_TTY is set), the match is skipped so the forwarded
-    # agent via SSH_AUTH_SOCK is used instead. Recommended pattern per 1Password docs.
+    # tmux does not propagate SSH_TTY, so panes look local — and IdentityAgent
+    # would then override their forwarded SSH_AUTH_SOCK.
     settings."1password-agent" = {
       # Stable attr name for ordering; the literal Match header carries the
       # actual condition.
-      header = ''Match host * exec "test -z $SSH_TTY"'';
+      header = ''Match host * exec "test -z $SSH_TTY && ! test -S $HOME/.ssh/ssh_auth_sock"'';
       IdentityAgent = ''"${agentPath}"'';
     };
 
@@ -50,10 +49,10 @@ in {
     enableTraditionalAgent = false;
   };
 
-  # Set SSH_AUTH_SOCK to 1Password's agent socket, but only for local sessions
-  # (preserve forwarded agent when SSH'd in with -A)
+  # Local sessions only, so an SSH'd-in shell keeps its forwarded agent;
+  # inside tmux, ssh.nix owns SSH_AUTH_SOCK.
   programs.zsh.initContent = lib.mkBefore ''
-    if [[ -z "$SSH_CONNECTION" ]]; then
+    if [[ -z "$SSH_CONNECTION" && -z "$TMUX" ]]; then
       export SSH_AUTH_SOCK="${agentPath}"
     fi
   '';

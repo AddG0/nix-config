@@ -10,7 +10,6 @@
 {
   config,
   inputs,
-  lib,
   ...
 }: let
   # UUID from `cloudflared tunnel create ha-1`. Not secret (the creds file is).

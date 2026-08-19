@@ -54,6 +54,7 @@ in {
     package = tmuxWrapped;
     tmuxinator.enable = true;
     tmuxp.enable = false;
+    prefix = "C-Space";
     mouse = true;
     clock24 = false;
     terminal = "tmux-256color";

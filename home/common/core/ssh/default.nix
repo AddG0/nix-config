@@ -1,6 +1,7 @@
 {
   config,
   lib,
+  pkgs,
   ...
 }: let
   cfg = config.programs.ssh;
@@ -14,6 +15,8 @@
     filename: _:
       lib.nameValuePair ".ssh/${filename}" {source = "${primaryKeys}/${filename}";}
   ) (builtins.readDir primaryKeys);
+
+  sshAuthSockLink = "${pkgs.callPackage ./agent-link.nix {}}/bin/tmux-ssh-auth-sock-link";
 
   hosts = [
     "ghost"
@@ -114,6 +117,29 @@ in {
     programs.zsh.oh-my-zsh.extraConfig = lib.mkIf cfg.enableTraditionalAgent ''
       zstyle :omz:plugins:ssh-agent agent-forwarding yes
     '';
+
+    # programs.tmux.extraConfig merges with the core tmux module.
+    # update-environment refreshes the session env before client-attached fires.
+    programs.tmux.extraConfig = import ./hooks.nix sshAuthSockLink;
+
+    programs.zsh.initContent = lib.mkMerge [
+      # Drop a dead inherited socket so the agent plugin below starts a local one.
+      (lib.mkBefore ''
+        if [[ -n "$TMUX" && -n "$SSH_AUTH_SOCK" && ! -S "$SSH_AUTH_SOCK" ]]; then
+          unset SSH_AUTH_SOCK
+        fi
+      '')
+      # mkAfter so a locally started agent is what gets linked when none was forwarded.
+      # Exported even while dangling: the next attach repairs a symlink, not a baked-in path.
+      (lib.mkAfter ''
+        if [[ -n "$TMUX" ]]; then
+          if [[ ! -S "$HOME/.ssh/ssh_auth_sock" && -S "$SSH_AUTH_SOCK" ]]; then
+            ln -sfn "$SSH_AUTH_SOCK" "$HOME/.ssh/ssh_auth_sock"
+          fi
+          export SSH_AUTH_SOCK="$HOME/.ssh/ssh_auth_sock"
+        fi
+      '')
+    ];
 
     home.file =
       {
