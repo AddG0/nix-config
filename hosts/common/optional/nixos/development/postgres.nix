@@ -33,6 +33,8 @@ in {
   services.postgresql = {
     enable = true;
     package = pkgs.postgresql;
+    # pgcli/psql with no args default to a db named after $USER
+    ensureDatabases = ["${config.hostSpec.primaryUsername}"];
     ensureUsers = [
       {
         name = "${config.hostSpec.primaryUsername}";
