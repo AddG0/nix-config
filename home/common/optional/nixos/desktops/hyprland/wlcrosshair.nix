@@ -3,9 +3,13 @@
   pkgs,
   ...
 }: let
-  # Cyan plus, no centre dot, no outline. 32x32 PNG.
-  # Arms 2 thick, 5 long, 3-pixel gap from centre on each side.
+  # Cyan plus with a 2-pixel black outline, no centre dot. 64x64 PNG.
+  # Arms 4 thick, 10 long, 6-pixel gap from centre on each side.
   # Nearest-neighbour blit: draw at the on-screen `size` or arms come out uneven.
+  # Even canvas and even arm thickness: the sprite's centre falls on a pixel
+  # boundary, which is where the compositor centres it on an even-width output.
+  # The outline is what carries contrast where the arms match the background —
+  # Overwatch's blue team outlines, skyboxes and water all sit near cyan.
   # #00E0E0 instead of pure #00FFFF: on the 10-bit HDR pipeline the per-
   # channel sRGB→wide-gamut conversion of max-value channels at 2-pixel
   # widths splits into visible RGB fringing. Keeping the lit channels below
@@ -17,11 +21,17 @@
       # PNG32: force RGBA + sRGB encoding. Without this, ImageMagick auto-
       # detects equal RGB channels and saves as grayscale, which Hyprland's
       # HDR pipeline appears to mis-convert into chromatically split colors.
-      magick -size 32x32 xc:none -fill '#00E0E0' \
-        -draw 'rectangle 15,8  16,12' \
-        -draw 'rectangle 15,19 16,23' \
-        -draw 'rectangle 8,15  12,16' \
-        -draw 'rectangle 19,15 23,16' \
+      magick -size 64x64 xc:none \
+        -fill '#000000' \
+        -draw 'rectangle 28,14 35,27' \
+        -draw 'rectangle 28,36 35,49' \
+        -draw 'rectangle 14,28 27,35' \
+        -draw 'rectangle 36,28 49,35' \
+        -fill '#00E0E0' \
+        -draw 'rectangle 30,16 33,25' \
+        -draw 'rectangle 30,38 33,47' \
+        -draw 'rectangle 16,30 25,33' \
+        -draw 'rectangle 38,30 47,33' \
         -define png:color-type=6 PNG32:"$out"
     '';
 
@@ -39,7 +49,7 @@
       config="$config_dir/config.toml"
       socket="/tmp/crosshair.sock"
       image=${lib.escapeShellArg image}
-      size="''${WLCROSSHAIR_SIZE:-32}"
+      size="''${WLCROSSHAIR_SIZE:-64}"
 
       mkdir -p "$config_dir"
 

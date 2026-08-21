@@ -55,9 +55,9 @@
         "nixos/services/ollama.nix"
         "nixos/services/lact.nix" # GPU overclocking/monitoring
         "nixos/virtualisation/docker.nix" # docker
-        "nixos/development/mysql.nix"
+        # "nixos/development/mysql.nix"
         "nixos/development/postgres.nix"
-        "nixos/development/redis.nix"
+        # "nixos/development/redis.nix"
 
         "nixos/gaming" # steam, gamescope, gamemode, and related hardware
         "nixos/vr.nix" # monado OpenXR runtime (Bigscreen Beyond)

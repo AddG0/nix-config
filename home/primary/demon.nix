@@ -231,12 +231,13 @@
     {
       output = "HDMI-A-1";
       name = "right";
-      width = 1920;
-      height = 1080;
-      refreshRate = 60;
+      width = 3840;
+      height = 2160;
+      refreshRate = 120;
+      scale = 1.2; # matches DP-3's logical px/mm so the portrait spans its true physical height
       transform = "270";
       x = 7680;
-      y = 240; # bottom-aligned with DP-3 (2160 - 1920 = 240)
+      y = -732; # 597mm panel overhangs the 392mm DP-3 by 205mm; ~56mm of that below its bottom edge
     }
   ];
 }

@@ -157,7 +157,9 @@
 
   configJson = builtins.toJSON {ides = ideMergeConfigs;};
 
-  configHash = builtins.hashString "sha256" configJson;
+  # Hashed in too: a fix to how settings are written must break the stamp,
+  # or the merge never re-runs.
+  configHash = builtins.hashString "sha256" (configJson + builtins.hashFile "sha256" ./merge-settings.py);
 
   # Type=oneshot + RemainAfterExit only dedupes within a session, so without the
   # stamp every fresh login re-runs a ~15s merge that reads thousands of jars.

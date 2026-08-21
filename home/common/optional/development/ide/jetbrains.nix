@@ -143,6 +143,11 @@ in {
     webstorm = mkIde webstorm [];
   };
 
+  # Welcome window is fixed-size; tiling stretches it to the full column.
+  wayland.windowManager.hyprland.settings.windowrule = [
+    "float on, match:class ^(jetbrains-idea)$, match:title ^(Welcome to IntelliJ IDEA)$"
+  ];
+
   programs.git.ignores = lib.custom.gitignoreFromTemplates inputs.github-gitignore-templates ["Global/JetBrains"];
 
   # JetBrains IDEs scan ~/.jdks/ for JDKs. Generic-Linux JDKs (e.g. Microsoft,

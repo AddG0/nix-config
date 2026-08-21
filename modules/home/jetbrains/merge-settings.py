@@ -48,7 +48,7 @@ def merge_ignored(ide_dir, patterns):
     merged = (current - old_managed) | new_managed
     ignore_elem.set("list", ";".join(sorted(merged)))
 
-    ET.ElementTree(root).write(target, xml_declaration=False)
+    write_xml_file(root, target)
     write_manifest(manifest, merged)
 
 
@@ -58,6 +58,14 @@ def write_text_file(path, content):
         os.unlink(path)
     with open(path, "w") as f:
         f.write(content)
+
+
+def write_xml_file(root, path):
+    # ET.write() makes no parent dir and writes through symlinks; both bite here.
+    os.makedirs(os.path.dirname(path), exist_ok=True)
+    if os.path.islink(path):
+        os.unlink(path)
+    ET.ElementTree(root).write(path, xml_declaration=False)
 
 
 # Walking the package tree is expensive; every caller only reads the result.
@@ -245,8 +253,29 @@ def replace_children(element, children):
         element.append(child)
 
 
-def merge_theme(ide_dir, theme):
+def strip_stale_laf_manager(ide_dir):
+    # ui.lnf.xml is IntelliJ's UISettings storage, so a LafManager written here
+    # (as an older version of this script did) is silently ignored.
     target = os.path.join(ide_dir, "ui.lnf.xml")
+    if not os.path.exists(target) or os.path.islink(target):
+        return
+
+    root = ET.parse(target).getroot()
+    stale = root.findall("component[@name='LafManager']")
+    if not stale:
+        return
+
+    for component in stale:
+        root.remove(component)
+    if len(root) == 0:
+        os.remove(target)
+    else:
+        write_xml_file(root, target)
+
+
+def merge_theme(ide_dir, theme):
+    strip_stale_laf_manager(ide_dir)
+    target = os.path.join(ide_dir, "laf.xml")
 
     if not os.path.exists(target):
         root = ET.Element("application")
@@ -256,7 +285,7 @@ def merge_theme(ide_dir, theme):
     component = find_or_create_component(root, "LafManager")
     set_unique_child(component, "laf", {"themeId": theme})
 
-    ET.ElementTree(root).write(target, xml_declaration=False)
+    write_xml_file(root, target)
 
 
 def merge_theme_preferences(ide_dir, package_dir, theme):
@@ -264,7 +293,7 @@ def merge_theme_preferences(ide_dir, package_dir, theme):
     if preferences is None:
         return
 
-    target = os.path.join(ide_dir, "ui.lnf.xml")
+    target = os.path.join(ide_dir, "laf.xml")
     if not os.path.exists(target):
         root = ET.Element("application")
     else:
@@ -279,7 +308,7 @@ def merge_theme_preferences(ide_dir, package_dir, theme):
         scheme_tag = "preferred-dark-editor-scheme" if preferences["dark"] else "preferred-light-editor-scheme"
         set_unique_child(component, scheme_tag, {"editorSchemeId": editor_scheme_id})
 
-    ET.ElementTree(root).write(target, xml_declaration=False)
+    write_xml_file(root, target)
 
 
 def write_color_scheme(ide_dir, package_dir, scheme_name):
