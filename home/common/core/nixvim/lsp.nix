@@ -88,10 +88,14 @@
         function(args)
           local client = vim.lsp.get_client_by_id(args.data.client_id)
           if not client then return end
+          local uri = vim.uri_from_bufnr(args.buf)
           -- clangd-derived servers (nixd) reject non-file:// URIs with -32602 — e.g.
           -- diffview/gitsigns/neogit/picker previews and `nofile` scratch buffers.
+          -- diffview also hands over real file:// URIs carrying a synthetic revision
+          -- segment (…/.git/:0:/src/foo.rs), which the scheme test alone lets through.
           if vim.bo[args.buf].buftype ~= ""
-            or not vim.startswith(vim.uri_from_bufnr(args.buf), "file://") then
+            or not vim.startswith(uri, "file://")
+            or uri:find("/%.git/") then
             vim.lsp.buf_detach_client(args.buf, client.id)
             -- Detaching alone doesn't stick: client.lua re-attaches capabilities in a
             -- vim.schedule after LspAttach returns, without re-testing attachment.

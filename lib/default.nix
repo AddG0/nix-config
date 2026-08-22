@@ -5,6 +5,7 @@ in {
   # genK3sServerModule = import ./genK3sServerModule.nix;
 
   inherit frontmatter;
+  colors = import ./colors.nix {inherit lib;};
   ai = import ./ai {
     inherit frontmatter lib;
   };

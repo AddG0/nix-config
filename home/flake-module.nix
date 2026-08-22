@@ -93,6 +93,7 @@
           {
             _module.args = {
               colors = catppuccinMocha;
+              muted = lib.custom.colors.muted catppuccinMocha;
               fonts = {
                 monospace.name = "Monaspace Neon NF";
                 sansSerif.name = "Inter";

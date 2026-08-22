@@ -33,10 +33,9 @@ in {
     # instance, so custom packages like kotlin-lsp resolve in the submodule.
     nixpkgs.useGlobalPackages = true;
     _module.args = {
-      # nixvim auto-provides `nixvimLib` (host lib + nixvim overlay, with our
-      # lib.custom) to submodule modules; that's what they use for lib.custom.
       inherit self osConfig;
       colors = config.lib.stylix.colors.withHashtag;
+      muted = config.lib.palette.muted;
       fonts = config.stylix.fonts;
       sshSettings = config.programs.ssh.settings or {};
     };

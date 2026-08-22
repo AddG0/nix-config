@@ -4,6 +4,7 @@
   ...
 }: let
   c = config.lib.stylix.colors.withHashtag;
+  m = config.lib.palette.muted;
   sans = config.stylix.fonts.sansSerif.name;
   mono = config.stylix.fonts.monospace.name;
   power-menu = pkgs.writeShellScript "power-menu" ''
@@ -81,7 +82,7 @@ in {
             on-scroll = 1;
             format = {
               months = "<span color='${c.base0D}'><b>{}</b></span>";
-              weeks = "<span color='${c.base03}'><b>W{}</b></span>";
+              weeks = "<span color='${m.ui}'><b>W{}</b></span>";
               weekdays = "<span color='${c.base0B}'><b>{}</b></span>";
               today = "<span color='${c.base00}' bgcolor='${c.base0D}'><b> {} </b></span>";
               days = "<span color='${c.base05}'>{}</span>";
@@ -200,8 +201,8 @@ in {
     style = let
       glass = "alpha(${c.base00}, 0.65)";
       border = "alpha(${c.base02}, 0.35)";
-      fg = c.base04; # muted foreground — monochrome default
-      dim = c.base03; # disabled / inactive
+      fg = m.text; # muted foreground — monochrome default
+      dim = m.ui; # disabled / inactive
     in ''
       /* ---- Reset ---- */
       * {

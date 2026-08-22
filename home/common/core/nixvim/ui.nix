@@ -1,6 +1,7 @@
 {
   colors,
   lib,
+  muted,
   pkgs,
   sshSettings ? {},
   ...
@@ -85,15 +86,11 @@ in {
   # LazyVim-style UI layer. No colorscheme — stylix's nixvim target themes
   # everything from the catppuccin-mocha base16 palette automatically.
 
-  # stylix maps comments to base03 (surface1), and even base04 (surface2,
-  # #585b70) is too dim to read on the base00 background — the base16 palette has
-  # no lighter grey (base05 is the full text colour, which would make comments
-  # indistinguishable from code). So use catppuccin's "overlay2" (#9399b2) — the
-  # readable comment tone catppuccin's own themes use, not in the 16-colour set.
+  # stylix maps Comment to base03, too dim to read against base00 or CursorLine.
   # highlightOverride re-applies on ColorScheme so it survives stylix's theme.
   highlightOverride = {
-    Comment.fg = "#9399b2";
-    "@comment".fg = "#9399b2";
+    Comment.fg = muted.text;
+    "@comment".fg = muted.text;
     # flash.nvim (`s`): leave the match highlights at flash's defaults and only
     # recolour the jump label (the key you press) so it's easy to spot — red
     # badge on the base00 background.
@@ -105,6 +102,18 @@ in {
     # Visible current line; also marks the open file in the explorer (follow_file
     # parks the unfocused selection there, rendered with CursorLine).
     CursorLine.bg = colors.base02;
+    # gitsigns links this to NonText (base03), which only ever renders on the
+    # CursorLine set above — low enough that ghostty's minimum-contrast recolours it.
+    # Needs muted.text specifically: muted.ui doesn't clear 4.5:1 on base02.
+    GitSignsCurrentLineBlame.fg = muted.text;
+    # snacks pickers, dashboard and notifier all link their dim text to NonText,
+    # so base03 makes ignored/untracked entries unreadable. listchars is unset,
+    # leaving the ~ filler as the only caller that wants it near-invisible.
+    NonText.fg = muted.ui;
+    EndOfBuffer.fg = colors.base01;
+    LineNr.fg = muted.ui;
+    SignColumn.fg = muted.ui;
+    CursorLineNr.fg = muted.text;
   };
 
   # Gives Snacks.explorer a `trash` command so deleting files there is

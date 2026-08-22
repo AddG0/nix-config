@@ -11,25 +11,26 @@
   # semantic color options onto Stylix base16 roles. Read raw (`tmux show -g`),
   # so they must be literal hex — @thm_ references would not expand.
   c = config.lib.stylix.colors.withHashtag;
+  m = config.lib.palette.muted;
   colors = {
     accent = c.base0E;
     border = c.base03;
     all = c.base0D;
     running = c.base0B;
     waiting = c.base0A;
-    idle = c.base04;
+    idle = m.text;
     error = c.base08;
-    filter_inactive = c.base03;
+    filter_inactive = m.ui;
     agent_claude = c.base09;
     agent_codex = c.base0E;
     agent_opencode = c.base0C;
     pet_body = c.base09;
     pet_eye = c.base0B;
     text_active = c.base05;
-    text_muted = c.base04;
-    text_inactive = c.base03;
+    text_muted = m.text;
+    text_inactive = m.ui;
     session = c.base0D;
-    port = c.base04;
+    port = m.text;
     wait_reason = c.base0A;
     selection = c.base02;
     branch = c.base0C;
@@ -41,7 +42,7 @@
     file_change = c.base0A;
     pr_link = c.base0D;
     section_title = c.base0D;
-    activity_timestamp = c.base04;
+    activity_timestamp = m.text;
     response_arrow = c.base0C;
   };
   colorCfg = lib.concatStringsSep "\n" (

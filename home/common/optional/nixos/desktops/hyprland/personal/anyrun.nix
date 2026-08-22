@@ -5,6 +5,7 @@
 }: let
   inherit (pkgs) anyrun;
   c = config.lib.stylix.colors.withHashtag;
+  m = config.lib.palette.muted;
 in {
   programs.anyrun = {
     enable = true;
@@ -103,7 +104,7 @@ in {
 
       label.match.description {
         font-size: 0.8em;
-        color: ${c.base04};
+        color: ${m.text};
       }
 
       .match:selected label.match.description {
@@ -112,7 +113,7 @@ in {
 
       label.plugin.info {
         font-size: 0.8em;
-        color: ${c.base03};
+        color: ${m.ui};
       }
     '';
   };

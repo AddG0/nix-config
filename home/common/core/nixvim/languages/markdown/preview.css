@@ -40,19 +40,19 @@
 /* Theme the scrollbars to match (Chromium/WebKit). */
 [data-theme="dark"] * {
   scrollbar-width: thin;
-  scrollbar-color: var(--base03) transparent;
+  scrollbar-color: var(--ui-muted) transparent;
 }
 [data-theme="dark"] *::-webkit-scrollbar {
   width: 10px;
   height: 10px;
 }
 [data-theme="dark"] *::-webkit-scrollbar-thumb {
-  background: var(--base03);
+  background: var(--ui-muted);
   border-radius: 6px;
   border: 2px solid var(--base00);
 }
 [data-theme="dark"] *::-webkit-scrollbar-thumb:hover {
-  background: var(--base04);
+  background: var(--text-muted);
 }
 
 [data-theme="dark"] .markdown-body {
@@ -128,7 +128,7 @@
   /* Smallest heading: don't let it drop below body weight into fine-print
      territory. Muted color carries the hierarchy instead of tiny size. */
   font-size: 0.9em;
-  color: var(--base04);
+  color: var(--text-muted);
   text-transform: uppercase;
   letter-spacing: 0.04em;
 }
@@ -167,7 +167,7 @@
 }
 
 [data-theme="dark"] .markdown-body blockquote {
-  color: var(--base04);
+  color: var(--text-muted);
   border-left: 0.25em solid var(--base0D);
   background: var(--base01);
   border-radius: 0 6px 6px 0;
@@ -294,7 +294,7 @@
   color: var(--base05);
 }
 [data-theme="dark"] .markdown-body del {
-  color: var(--base04);
+  color: var(--text-muted);
 }
 [data-theme="dark"] .markdown-body mark {
   background: var(--base0A);
@@ -331,7 +331,7 @@
 /* Footnotes: smaller and muted, set apart by the gradient hr mkdp emits. */
 [data-theme="dark"] .markdown-body .footnotes {
   font-size: 0.85em;
-  color: var(--base04);
+  color: var(--text-muted);
 }
 [data-theme="dark"] .markdown-body .footnotes li:target {
   background: var(--base01);

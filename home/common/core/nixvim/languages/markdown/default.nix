@@ -1,4 +1,5 @@
 {
+  muted,
   pkgs,
   colors,
   fonts,
@@ -28,6 +29,8 @@
         --base0D: ${c.base0D};
         --base0E: ${c.base0E};
         --base0F: ${c.base0F};
+        --text-muted: ${muted.text};
+        --ui-muted: ${muted.ui};
         --font-sans: "${fonts.sansSerif.name}";
         --font-mono: "${fonts.monospace.name}";
       }

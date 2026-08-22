@@ -148,8 +148,17 @@ in {
         }
       ];
     extraConfig = ''
+      # Stylix's tmux target is sourced after catppuccin and overwrites these.
       set -g pane-active-border-style 'fg=magenta,bg=default'
       set -g pane-border-style 'fg=brightblack,bg=default'
+      # fill clears the rest of the line; without it the value abuts the window list.
+      set -gF message-style "fg=#{@thm_fg},bg=default,underscore,us=#{@thm_mauve},fill=#{@thm_bg}"
+      set -gF message-command-style "fg=#{@thm_fg},bg=default,underscore,us=#{@thm_peach},bold,fill=#{@thm_bg}"
+
+      # command-prompt splits -p on commas, so these can't be inlined there.
+      set -gF @prompt_rename_window "#[fg=#{@thm_mauve},bg=default,nounderscore]#[fg=#{@thm_crust},bg=#{@thm_mauve},bold,nounderscore]  rename window #[fg=#{@thm_mauve},bg=default,nobold,nounderscore] "
+      set -gF @prompt_rename_session "#[fg=#{@thm_mauve},bg=default,nounderscore]#[fg=#{@thm_crust},bg=#{@thm_mauve},bold,nounderscore]  rename session #[fg=#{@thm_mauve},bg=default,nobold,nounderscore] "
+      set -gF @prompt_new_session "#[fg=#{@thm_mauve},bg=default,nounderscore]#[fg=#{@thm_crust},bg=#{@thm_mauve},bold,nounderscore]  new session #[fg=#{@thm_mauve},bg=default,nobold,nounderscore] "
 
       set -g mode-keys vi              # enable vi mode keys for copy mode
       set -g base-index 1              # start indexing windows at 1 instead of 0

@@ -17,6 +17,9 @@
 in {
   plugins.lsp.servers.nixd = {
     enable = true;
+    # nixd defaults to --log=info, which traces every request to stderr; nvim
+    # captures that as ERROR and writes it to lsp.log synchronously as you type.
+    cmd = ["nixd" "--log=error"];
     settings.nixd =
       {
         # Package + lib completion/hover, from this flake's own nixpkgs input.

@@ -111,6 +111,8 @@ in {
         "workspace special silent, match:class ^(AWS VPN Client)$"
         "workspace special silent, match:class ^(me\\.kavishdevar\\.librepods|librepods|applinux)$"
         "float on, match:class ^(me\\.kavishdevar\\.librepods|librepods|applinux)$"
+        # Slack huddle — its title changes once connected, so match the initial one
+        "float on, match:class ^(slack)$, match:initial_title ^(Slack - Huddle Preview)$"
         # Spotify — float on special workspace, centered at a comfortable size
         "workspace special silent, match:class ^(Spotify|spotify)$"
         "float on, match:class ^(Spotify|spotify)$"

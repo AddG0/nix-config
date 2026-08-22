@@ -13,6 +13,7 @@
   ...
 }: let
   c = config.lib.stylix.colors.withHashtag;
+  m = config.lib.palette.muted;
   sans = config.stylix.fonts.sansSerif.name;
   # Duplicated from visuals.nix — keep in sync.
   windowRounding = 10;
@@ -95,8 +96,8 @@ in {
         @define-color bg_alt ${c.base01};
         @define-color border ${c.base02};
         @define-color fg ${c.base05};
-        @define-color fg_dim ${c.base04};
-        @define-color fg_subtle ${c.base03};
+        @define-color fg_dim ${m.text};
+        @define-color fg_subtle ${m.ui};
         @define-color sel ${c.base02};
 
         /* Outer layer-shell window — transparent so only .box-wrapper draws. */

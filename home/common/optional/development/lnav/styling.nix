@@ -1,5 +1,6 @@
 {config, ...}: let
   c = config.lib.stylix.colors.withHashtag;
+  m = config.lib.palette.muted;
   lnavStylixTheme =
     (builtins.fromJSON (builtins.readFile ./stylix-theme.json))
     // {
@@ -11,9 +12,7 @@
         bgdarker = c.base00;
         foreground = c.base05;
         selection = c.base02;
-        # base03/base04 are too dim on base00; match nixvim's comment fix
-        # (catppuccin overlay2, not in the 16-colour set).
-        comment = "#9399b2";
+        comment = m.text;
         black = c.base00;
         red = c.base08;
         green = c.base0B;
