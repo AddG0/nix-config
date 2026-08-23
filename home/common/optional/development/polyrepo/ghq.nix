@@ -1,5 +1,6 @@
 {
   config,
+  lib,
   pkgs,
   ...
 }: let
@@ -8,6 +9,17 @@
     runtimeInputs = with pkgs; [glab ghq jq git];
     text = builtins.readFile ./scripts/ghq-gitlab-group.sh;
   };
+
+  # One long line per root: a multi-line Nix block interpolates with its own
+  # indent baseline and lands crooked in the generated .zshrc.
+  extraRootLines =
+    lib.concatMapStringsSep "\n        " (
+      extra: let
+        levels = "-mindepth ${toString extra.depth} -maxdepth ${toString extra.depth}";
+        display = ''"${extra.label}/''${checkout#${extra.path}/}"'';
+      in "find ${lib.escapeShellArg extra.path} ${levels} -type d 2>/dev/null | while IFS= read -r checkout; do printf '%s\\t%s\\n' ${display} \"$checkout\"; done"
+    )
+    config.polyrepo.extraSearchRoots;
 in {
   home.packages = [pkgs.ghq ghq-gitlab-group];
 
@@ -26,17 +38,27 @@ in {
     ghqu = "ghq get -u";
   };
 
-  # Alt-G: fuzzy-jump to any ghq-managed repo.
+  # Alt-G: fuzzy-jump to any ghq-managed repo, plus any polyrepo.extraSearchRoots.
   # Ctrl-G is reserved by fzf-git-sh for in-repo chords.
+  #
+  # Lines are "<display>\t<absolute path>", fzf matching the display only:
+  # extra roots sit outside the ghq tree, so no single prefix rebuilds a path.
   programs.zsh.initContent = ''
     ghq-fzf-widget() {
-      local root repo
+      local root selection target
       root=$(ghq root)
-      repo=$(ghq list | fzf \
+      selection=$({
+        ghq list -p | while IFS= read -r checkout; do
+          printf '%s\t%s\n' "''${checkout#$root/}" "$checkout"
+        done
+        ${extraRootLines}
+      } | fzf \
         --height 60% --reverse --border \
-        --preview "eza --tree --color=always --level=2 --git-ignore $root/{} 2>/dev/null || ls $root/{}") || return
-      [[ -z "$repo" ]] && return
-      BUFFER="cd $root/$repo"
+        --delimiter='\t' --with-nth=1 \
+        --preview "eza --tree --color=always --level=2 --git-ignore {2} 2>/dev/null || ls {2}") || return
+      [[ -z "$selection" ]] && return
+      target=''${selection#*$'\t'}
+      BUFFER="cd ''${(q)target}"
       zle accept-line
     }
     zle -N ghq-fzf-widget

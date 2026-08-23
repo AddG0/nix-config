@@ -2,6 +2,7 @@
   lib,
   stdenv,
   buildGoModule,
+  coreutils,
   fetchFromGitHub,
   installShellFiles,
   versionCheckHook,
@@ -9,16 +10,22 @@
 }:
 buildGoModule rec {
   pname = "bootdev-cli";
-  version = "1.29.6";
+  version = "1.32.1";
 
   src = fetchFromGitHub {
     owner = "bootdotdev";
     repo = "bootdev";
     tag = "v${version}";
-    hash = "sha256-uoFnhcJvvY+lb8VLv0kPI8hp4H8XfQOY5R83Rj17gfw=";
+    hash = "sha256-DScpeUQdkzJy+RVkA8ZmGzp5Z9YzkvZViCoov64WAJk=";
   };
 
   vendorHash = "sha256-ZDioEU5uPCkd+kC83cLlpgzyOsnpj2S7N+lQgsQb8uY=";
+
+  # The timeout test's fake `go` execs /bin/sleep, absent from the sandbox.
+  postPatch = ''
+    substituteInPlace version/version_test.go \
+      --replace-fail /bin/sleep ${lib.getExe' coreutils "sleep"}
+  '';
 
   ldflags = [
     "-s"

@@ -1,18 +1,29 @@
-{pkgs, ...}: {
+{
+  config,
+  lib,
+  pkgs,
+  ...
+}: let
+  profiles = config.programs.claude-code-profiles;
+  activeProfileDir = profiles.profiles.${profiles.defaultProfile}.profileDir;
+in {
   extensions = [
     pkgs.vscode-marketplace.anthropic.claude-code
   ];
   userSettings = {
-    # Use system claude binary (NixOS can't run bundled dynamically linked binary)
-    "claudeCode.claudeProcessWrapper" = "${pkgs.claude-code}/bin/claude";
+    # The extension's bundled binary is dynamically linked and won't run on
+    # NixOS. Points at the profile wrapper, not the bare CLI, so the extension
+    # gets the same CLAUDE_CONFIG_DIR, MCP servers and plugins as the shell.
+    "claudeCode.claudeProcessWrapper" = lib.getExe' config.programs.claude-code-profiles.wrapperPackage "claude";
 
     # Open in sidebar (not as editor tab)
     "claudeCode.preferredLocation" = "sidebar";
 
-    # Custom instructions file locations
+    # Not ~/.claude/rules: that is where a profile-less install would put them,
+    # and it stays empty here. The relative entry is per-repo rules.
     "chat.instructionsFilesLocations" = {
       ".claude/rules" = true;
-      "~/.claude/rules" = true;
+      "${config.home.homeDirectory}/${activeProfileDir}/rules" = true;
     };
   };
   keybindings = [

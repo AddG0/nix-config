@@ -147,6 +147,19 @@ in {
 
     package = lib.mkPackageOption pkgs "claude-code" {nullable = true;};
 
+    wrapperPackage = lib.mkOption {
+      type = lib.types.nullOr lib.types.package;
+      readOnly = true;
+      description = ''
+        The profile-aware `claude`, for callers that must name an absolute path
+        rather than resolve the command. Prefer it over {option}`package`, which
+        is only what the wrapper execs: the wrapper also exports
+        `CLAUDE_CONFIG_DIR` and passes the profile's `--mcp-config` and
+        `--plugin-dir`. Only defined while `enable` is true, so read it behind
+        that check.
+      '';
+    };
+
     captureNode = lib.mkOption {
       type = lib.types.nullOr lib.types.str;
       default = null;

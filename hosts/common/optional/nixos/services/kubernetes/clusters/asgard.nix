@@ -80,6 +80,16 @@ in {
     ]);
   };
 
+  # flannel takes the first address on its interface after sorting with IFA_F_PERMANENT
+  # preferred (compareAddrs, flannel pkg/ip/iface.go), so kube-vip's permanent VIP beats
+  # a DHCP lease. A reservation does not help -- the lease is still flagged dynamic.
+  assertions = [
+    {
+      assertion = !config.networking.useDHCP && config.networking.interfaces != {};
+      message = "asgard: ${currentNode} needs a statically assigned address (import nixos/static-networking.nix), or flannel binds its VXLAN tunnel to the kube-vip VIP";
+    }
+  ];
+
   # ==========================================================================
   # Longhorn dependencies
   # ==========================================================================

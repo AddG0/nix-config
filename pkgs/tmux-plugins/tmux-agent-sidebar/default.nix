@@ -32,8 +32,14 @@
       "--skip=group::tests::worktree_and_main_share_same_repo_root"
     ];
   };
-in
-  tmuxPlugins.mkTmuxPlugin {
+  # mkTmuxPlugin's default omits --flake, so it looks for a default.nix this
+  # repo doesn't have. --subpackage keeps bin's cargoHash in step with the bump.
+  extraPassthru = {
+    inherit bin;
+    updateScript = ["nix-update" "--flake" "tmuxPlugins-tmux-agent-sidebar" "--subpackage" "bin"];
+  };
+
+  plugin = tmuxPlugins.mkTmuxPlugin {
     pluginName = "tmux-agent-sidebar";
     rtpFilePath = "tmux-agent-sidebar.tmux";
     inherit version src;
@@ -49,8 +55,6 @@ in
         --prefix PATH : ${lib.makeBinPath [bash tmux gnused gawk coreutils]}
     '';
 
-    passthru.bin = bin;
-
     meta = {
       description = "Real-time tmux sidebar TUI monitoring AI coding agents across sessions";
       homepage = "https://github.com/hiroppy/tmux-agent-sidebar";
@@ -58,4 +62,8 @@ in
       platforms = lib.platforms.unix;
       mainProgram = "tmux-agent-sidebar";
     };
-  }
+  };
+in
+  # mkTmuxPlugin shallow-merges its own `passthru` over the attrs it is given,
+  # dropping ours, so re-attach them to the result instead.
+  plugin // extraPassthru // {passthru = plugin.passthru // extraPassthru;}

@@ -35,6 +35,7 @@
       # "nixos/services/home-assistant-oci.nix"
       # "nixos/services/nginx.nix" # nginx
       "nixos/nix-access-token.nix"
+      "nixos/static-networking.nix"
       "nixos/services/kubernetes/clusters/asgard.nix"
       "nixos/services/nomad/clusters/midgard/client.nix"
     ]))
@@ -47,7 +48,6 @@
   };
 
   networking = {
-    networkmanager.enable = true;
     enableIPv6 = false;
   };
 

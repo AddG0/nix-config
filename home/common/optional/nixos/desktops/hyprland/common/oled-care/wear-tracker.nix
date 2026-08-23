@@ -67,13 +67,18 @@ in {
     };
 
     systemd.user.timers.oled-wear-tracker = {
-      Unit.Description = "OLED wear tracker timer";
+      Unit = {
+        Description = "OLED wear tracker timer";
+        PartOf = ["graphical-session.target"];
+      };
       Timer = {
         OnActiveSec = "${toString pollIntervalSec}s";
         OnUnitActiveSec = "${toString pollIntervalSec}s";
         AccuracySec = "5s";
       };
-      Install.WantedBy = ["timers.target"];
+      # timers.target is also reached at boot on lingering hosts, where every
+      # tick would poll a compositor that isn't running.
+      Install.WantedBy = ["graphical-session.target"];
     };
   };
 }

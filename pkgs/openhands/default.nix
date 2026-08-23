@@ -8,7 +8,7 @@
 }:
 stdenv.mkDerivation {
   pname = "openhands";
-  version = "cloud-1.46.2";
+  version = "1.15.0";
 
   # No source needed, we're just creating a wrapper
   dontUnpack = true;

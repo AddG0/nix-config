@@ -17,6 +17,26 @@
       description = "Base shared configuration merged into all profiles by future adapters.";
     };
 
+    defaultAgent = lib.mkOption {
+      type = lib.types.nullOr (lib.types.enum ["claude-code" "codex" "opencode"]);
+      default = null;
+      example = "claude-code";
+      description = ''
+        Target whose agent `agent-run` launches when no `--agent` is given.
+        Names match `targets`, and the chosen target must be enabled.
+      '';
+    };
+
+    launcher = lib.mkOption {
+      type = lib.types.nullOr lib.types.package;
+      readOnly = true;
+      description = ''
+        The `agent-run` launcher. Null when no target is enabled, and null
+        while `enable` is false, so a consumer can test it without also
+        testing `enable`.
+      '';
+    };
+
     addons = lib.mkOption {
       type = lib.types.attrsOf (lib.types.submodule {options = typesModule.sharedProfileOptions;});
       default = {};

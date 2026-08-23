@@ -65,6 +65,7 @@ in {
         caveman
         tmux-dev
         jira
+        crash-capture
       ];
 
       skills."frontend-design" = lib.custom.ai.fromClaudeSkillDir {

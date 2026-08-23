@@ -176,11 +176,19 @@ in {
     source ${kind-stop}/share/nushell/vendor/autoload/kind-stop.nu
   '';
 
-  # Disable Kind container auto-start at boot. Type=simple (not oneshot) so
-  # the slow docker call doesn't block default.target / login.
+  # Kind gives its nodes a restart policy, so docker revives whole clusters at
+  # boot. A user unit cannot depend on docker.service, so the socket appearing is
+  # the only handle it has.
+  systemd.user.paths.kind-disable-autostart = {
+    Unit.Description = "Wait for docker to disable Kind container auto-start";
+    Path.PathExists = "/run/docker.sock";
+    Install.WantedBy = ["default.target"];
+  };
+
   systemd.user.services.kind-disable-autostart = {
     Unit.Description = "Disable Kind container auto-start";
     Service = {
+      # Not oneshot: that would block default.target, and login behind it.
       Type = "simple";
       ExecStart = pkgs.writeShellScript "kind-disable-autostart" ''
         set -eu
@@ -193,6 +201,5 @@ in {
         fi
       '';
     };
-    Install.WantedBy = ["default.target"];
   };
 }

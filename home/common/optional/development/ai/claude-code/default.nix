@@ -47,7 +47,13 @@ in {
     ]
     ++ lib.custom.gitignoreFromTemplates inputs.github-gitignore-templates ["Global/Agents"];
 
-  programs.code-assistant-profiles.targets.claude-code.enable = true;
+  programs.code-assistant-profiles = {
+    targets.claude-code.enable = true;
+
+    # Set here rather than alongside the profiles so the default can't name a
+    # target this host hasn't enabled.
+    defaultAgent = lib.mkDefault "claude-code";
+  };
 
   programs.claude-code-profiles = {
     enable = true;

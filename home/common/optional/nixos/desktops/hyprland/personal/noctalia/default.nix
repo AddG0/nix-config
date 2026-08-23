@@ -51,6 +51,9 @@ in {
         actions.left = "exec ${lib.getExe pkgs.walker}";
       };
 
+      widget.cpu.actions.left = "exec ${config.modules.hyprland.btop.toggleCommand}";
+      widget.ram.actions.left = "exec ${config.modules.hyprland.btop.toggleCommand}";
+
       # Bar-widget plugins (installed via ./plugins/*).
       plugins.enabled = ["addg/next-event"];
       widget.calendar.type = "addg/next-event:agenda";
@@ -131,12 +134,17 @@ in {
   # automatic-timezoned (root) touches $XDG_RUNTIME_DIR/tz-changed on change;
   # this path unit reacts.
   systemd.user.paths.noctalia-tz-watch = {
-    Unit.Description = "Watch TZ-change marker to restart noctalia";
+    Unit = {
+      Description = "Watch TZ-change marker to restart noctalia";
+      PartOf = ["graphical-session.target"];
+    };
     Path = {
       PathChanged = "%t/tz-changed";
       Unit = "noctalia-tz-restart.service";
     };
-    Install.WantedBy = ["default.target"];
+    # default.target is also reached at boot on lingering hosts, where there is
+    # no noctalia to restart.
+    Install.WantedBy = ["graphical-session.target"];
   };
 
   systemd.user.services.noctalia-tz-restart = {

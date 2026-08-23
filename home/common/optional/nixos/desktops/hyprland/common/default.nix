@@ -9,6 +9,8 @@
     ./plugins
     ./apps
     ./pip.nix
+    ./btop.nix
+    ./crash-capture.nix
     ./monitor-control.nix
     ./recovery.nix
     ./wallpaper.nix

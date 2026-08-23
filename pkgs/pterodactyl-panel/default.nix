@@ -10,11 +10,11 @@
 # vendor is pure PHP, so php-fpm may run it on a different 8.x at runtime.
 php83.buildComposerProject (finalAttrs: {
   pname = "pterodactyl-panel";
-  version = "1.14.1";
+  version = "1.15.1";
 
   src = fetchurl {
     url = "https://github.com/pterodactyl/panel/releases/download/v${finalAttrs.version}/panel.tar.gz";
-    hash = "sha256-tPoTedcXt3htmWML6lsalWuTXKAooNPXvNHAxSdATJ4=";
+    hash = "sha256-YsiMA1s+Dzw93Qa8PvEiSdCHrw52X0mHi2MnoGbthgs=";
   };
 
   # Release tarball unpacks its files at the top level (no wrapping directory).
@@ -31,7 +31,7 @@ php83.buildComposerProject (finalAttrs: {
     if (isset(\$_ENV['APP_STORAGE_PATH'])) {"
   '';
 
-  vendorHash = "sha256-8Or6CY2EYD5nwnRCAlXDqYFPaoOBcVItLkkaMXN+pZQ=";
+  vendorHash = "sha256-kjx6ZJtk0VfYzKw0QuH3u7L+9PScYbAjOoT4LBtQgVA=";
 
   # php83.buildComposerProject (v1) builds an internal composer-repository
   # derivation via mkComposerRepository, but doesn't forward sourceRoot to

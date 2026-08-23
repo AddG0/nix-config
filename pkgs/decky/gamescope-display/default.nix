@@ -24,6 +24,9 @@ stdenvNoCC.mkDerivation {
     runHook postInstall
   '';
 
+  # In-tree source: no upstream release to track.
+  passthru.nixUpdate.version = "skip";
+
   meta = {
     description = "Choose which monitor the gamescope session runs on, from the Quick Access menu";
     license = lib.licenses.mit;

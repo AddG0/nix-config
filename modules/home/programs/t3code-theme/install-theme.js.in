@@ -1,0 +1,44 @@
+// Installs the declared palette as a t3code custom theme. localStorage is the
+// only place t3code keeps its theme library.
+(() => {
+  const THEME = @theme@;
+  const REVISION = "@revision@";
+  const THEMES_KEY = "t3code:themes:v1";
+  const SELECTED_KEY = "t3code:theme";
+  const APPEARANCE_KEY = "t3code:theme-appearance-mode";
+  const FOLLOW_SYSTEM_KEY = "t3code:theme-follow-system";
+  const HALVES_KEY = "t3code:theme-halves:v1";
+  const REVISION_KEY = "t3code:managed-theme-revision";
+
+  try {
+    const store = window.localStorage;
+
+    let library = [];
+    const raw = store.getItem(THEMES_KEY);
+    if (raw) {
+      try {
+        const parsed = JSON.parse(raw);
+        if (Array.isArray(parsed)) library = parsed;
+      } catch (error) {
+        console.error("Replacing an unreadable t3code theme library.", error);
+      }
+    }
+
+    const others = library.filter((entry) => entry?.id !== THEME.id);
+    store.setItem(THEMES_KEY, JSON.stringify([...others, THEME]));
+
+    // Gated on the revision so a theme chosen in the UI survives until the
+    // declared palette moves.
+    if (store.getItem(REVISION_KEY) !== REVISION) {
+      store.setItem(SELECTED_KEY, THEME.id);
+      store.setItem(APPEARANCE_KEY, THEME.appearance);
+      store.setItem(FOLLOW_SYSTEM_KEY, "false");
+      // A stored light/dark mix names its own theme per appearance, outranking
+      // the selection above.
+      store.removeItem(HALVES_KEY);
+      store.setItem(REVISION_KEY, REVISION);
+    }
+  } catch (error) {
+    console.error("Could not install the managed t3code theme.", error);
+  }
+})();

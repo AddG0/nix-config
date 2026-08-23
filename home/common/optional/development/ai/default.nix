@@ -8,7 +8,7 @@
     ./claude-code
     ./codex.nix
     ./opencode
-    ./t3code.nix
+    ./t3code
     ./tmux-agent-sidebar.nix
   ];
 

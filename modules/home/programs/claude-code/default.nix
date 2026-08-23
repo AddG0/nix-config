@@ -69,6 +69,8 @@ in {
         }
       ];
 
+      programs.claude-code-profiles.wrapperPackage = wrapperScriptModule.wrapperScript;
+
       home.packages = [wrapperScriptModule.wrapperScript] ++ lib.optional cfg.enableZshIntegration zshCompletionModule.zshCompletion;
 
       home.file = lib.foldl' (
