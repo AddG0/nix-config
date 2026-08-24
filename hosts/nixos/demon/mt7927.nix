@@ -5,7 +5,7 @@
 #  demon's X870E Hero onboard radio (PCI 14c3:6639) has no mainline driver:
 #  the in-tree mt7925e only binds 14c3:7925/0717. This builds the patched
 #  mt76/mt7925e (Wi-Fi) and btusb/btmtk (Bluetooth) out-of-tree — jetm's
-#  MT7927 patches over mainline 7.1.3 source — against demon's running
+#  MT7927 patches over mainline 7.2 source — against demon's running
 #  kernel, plus the MT6639 Wi-Fi+BT firmware extracted from ASUS's driver
 #  package (not in linux-firmware).
 #
@@ -23,10 +23,10 @@
   kernel = config.boot.kernelPackages.kernel;
 
   # Mainline version whose mt76/bluetooth source jetm's patches apply onto.
-  mt76Kver = "7.1.3";
+  mt76Kver = "7.2";
   kernelSrc = pkgs.fetchurl {
     url = "mirror://kernel/linux/kernel/v7.x/linux-${mt76Kver}.tar.xz";
-    hash = "sha256-vkHAaOiPUkKhm8zb/74HexjEe0X2J+IyVQS0+red0dw=";
+    hash = "sha256-+f7z0UwN9TgZAm9L50RZg1wqCw3L9bW72eoZ8IKUArM=";
   };
 
   # ASUS Windows driver package — used only for MT6639 firmware extraction.
@@ -74,7 +74,7 @@
 
   mt7927 = pkgs.stdenv.mkDerivation {
     pname = "mt7927-mt76";
-    version = "2.13-${kernel.modDirVersion}";
+    version = "2.14-${kernel.modDirVersion}";
     src = inputs.mt7927-driver;
 
     # CachyOS kernel is clang-built but moduleBuildDependencies omits the

@@ -1,7 +1,6 @@
 --- a/src/shell/notification/notification_toast.cpp
 +++ b/src/shell/notification/notification_toast.cpp
-@@ -2189,8 +2189,22 @@
-                             && entry.actions[0] == "default"](const InputArea::PointerData& data) {
+@@ -2289,7 +2289,21 @@
      if (data.button == BTN_RIGHT) {
        requestClose(id, CloseReason::Dismissed);
 -    } else if (data.button == BTN_LEFT && hasDefaultAction) {
@@ -22,6 +21,6 @@
 +        }
 +      }
 +      if (hasDefaultAction && m_notifications != nullptr) {
-         if (!m_notifications->invokeAction(id, "default", true)) {
-           kLog.warn("notification toast: failed to invoke default action for #{}", id);
-         }
+         const std::string activationToken =
+             m_wayland != nullptr ? m_wayland->requestActivationToken(sourceSurface) : std::string{};
+         if (!m_notifications->invokeAction(id, "default", activationToken, true)) {

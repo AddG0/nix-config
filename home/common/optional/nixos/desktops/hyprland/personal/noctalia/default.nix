@@ -1,5 +1,4 @@
 {
-  inputs,
   pkgs,
   config,
   lib,
@@ -10,7 +9,7 @@
   noctaliaPkg = pkgs.noctalia;
 in {
   # ./plugins installs the bar-widget plugins (mkPlugin per dir); they're enabled + placed below.
-  imports = [inputs.noctalia.homeModules.default ./plugins];
+  imports = [./plugins];
 
   programs.noctalia = {
     enable = true;
@@ -50,9 +49,6 @@ in {
         tooltip = "Search";
         actions.left = "exec ${lib.getExe pkgs.walker}";
       };
-
-      widget.cpu.actions.left = "exec ${config.modules.hyprland.btop.toggleCommand}";
-      widget.ram.actions.left = "exec ${config.modules.hyprland.btop.toggleCommand}";
 
       # Bar-widget plugins (installed via ./plugins/*).
       plugins.enabled = ["addg/next-event"];

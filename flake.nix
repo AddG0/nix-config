@@ -197,7 +197,7 @@
     # MT7927 (Filogic 380) Wi-Fi 7 driver patches + firmware, for demon's X870E
     # Hero; consumed by hosts/nixos/demon/mt7927.nix.
     mt7927-driver = {
-      url = "github:jetm/mediatek-mt7927-dkms/ad1f3e4d19fe540aaa1f449ddba86c65db9bfc82";
+      url = "github:jetm/mediatek-mt7927-dkms/05614ebc5dec99daef52098ab25b18d53473a936";
       flake = false;
     };
 
@@ -212,7 +212,11 @@
     # Hyprland commit it was built against, and we overlay pkgs.hyprland to
     # match it (see overlays/default.nix). Keeping hy3's own hyprland/nixpkgs
     # also lets us pull both from hyprland.cachix.org instead of compiling.
-    hy3.url = "github:outfoxxed/hy3";
+    #
+    # Pinned to the 0.56.0.1 tag: hy3 main ("fixup: chase git") builds against
+    # Hyprland git, where Window.hpp moved to desktop/view/window/, but its own
+    # lock still points at 0.56.0 — so main does not compile as a flake.
+    hy3.url = "github:outfoxxed/hy3/42b7ed8fd9aefd3f36e5f617afd5071245c67853";
 
     niri = {
       url = "github:sodiboo/niri-flake";

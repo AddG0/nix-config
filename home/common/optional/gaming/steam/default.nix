@@ -136,10 +136,15 @@ in {
     enable = true;
     onSteamRunning = "close";
     inherit defaultCompatTool;
-    apps = lib.mapAttrs (_: app:
-      lib.recursiveUpdate app {
-        wrappers = (app.wrappers or []) ++ gpuOffload;
-      })
+    # steam-config-nix keys apps by app ID; the slug lives on as `name` (desktop
+    # entry / systemd target), so the tables above stay readable.
+    apps = lib.mapAttrs' (name: app:
+      lib.nameValuePair (toString app.id) (
+        lib.recursiveUpdate app {
+          inherit name;
+          wrappers = (app.wrappers or []) ++ gpuOffload;
+        }
+      ))
     (lib.recursiveUpdate defaults overrides);
   };
 

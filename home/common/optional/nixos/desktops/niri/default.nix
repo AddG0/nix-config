@@ -25,7 +25,6 @@
   };
 in {
   imports = [
-    inputs.noctalia.homeModules.default
     ./binds.nix
   ];
 

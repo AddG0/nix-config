@@ -16,10 +16,10 @@
       generateKey = true;
     };
 
-    secrets."personal_accounts/github_personal_token" = {};
+    secrets."github/token".sopsFile = "${inputs.nix-secrets}/global/api-keys/development.yaml";
 
     templates."nix-access-tokens.conf".content = ''
-      access-tokens = github.com=${config.sops.placeholder."personal_accounts/github_personal_token"}
+      access-tokens = github.com=${config.sops.placeholder."github/token"}
     '';
   };
 
@@ -50,7 +50,7 @@
   ];
 
   programs.zsh.initContent = ''
-    export GITHUB_TOKEN=$(cat ${config.sops.secrets."personal_accounts/github_personal_token".path})
+    export GITHUB_TOKEN=$(cat ${config.sops.secrets."github/token".path})
     export SOPS_AGE_KEY_FILE=~/.config/sops-nix/age/keys.txt
   '';
 
