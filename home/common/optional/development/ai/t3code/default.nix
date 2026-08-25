@@ -2,7 +2,10 @@
   config,
   lib,
   ...
-}: {
+}: let
+  claudeProfiles = config.programs.claude-code-profiles;
+  claudeProfileDir = "${config.home.homeDirectory}/${claudeProfiles.profiles.${claudeProfiles.defaultProfile}.profileDir}";
+in {
   imports = [
     ./keybindings.nix
     ./nvim.nix
@@ -34,11 +37,14 @@
         };
         claudeAgent = {
           driver = "claudeAgent";
-          # The profile wrapper, not the packaged CLI: it passes the profile's
-          # --mcp-config and --plugin-dir as flags on top of CLAUDE_CONFIG_DIR,
-          # so t3code's own homePath setting would still drop the MCP servers
-          # and plugins.
-          config.binaryPath = lib.getExe' config.programs.claude-code-profiles.wrapperPackage "claude";
+          # The profile wrapper, not the packaged CLI: homePath only exports
+          # CLAUDE_CONFIG_DIR; the MCP servers and plugins arrive as wrapper flags.
+          config = {
+            binaryPath = lib.getExe' claudeProfiles.wrapperPackage "claude";
+            # Usage and skill discovery both scan under homePath; empty resolves
+            # to ~/.claude, which the profile layout leaves unused.
+            homePath = claudeProfileDir;
+          };
         };
         opencode = {
           driver = "opencode";

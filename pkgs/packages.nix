@@ -5,6 +5,7 @@ pkgs: rec {
   # Development tools
   bootdev-cli = pkgs.callPackage ./bootdev-cli {};
   kotlin-lsp = pkgs.callPackage ./kotlin-lsp {};
+  ai-usagebar = pkgs.callPackage ./ai-usagebar {};
   gwq = pkgs.callPackage ./gwq {};
   gke-gcloud-auth-plugin = pkgs.callPackage ./gke-gcloud-auth-plugin {};
   openhands = pkgs.callPackage ./openhands {};
@@ -49,6 +50,9 @@ pkgs: rec {
 
   # Decky Loader plugins - modular namespace
   decky = import ./decky pkgs;
+
+  # Noctalia shell plugins - modular namespace
+  noctalia-plugins = import ./noctalia-plugins pkgs;
 
   # KDE/KWin - modular namespace
   kwin-scripts = import ./kwin-scripts pkgs;

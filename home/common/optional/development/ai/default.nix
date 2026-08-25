@@ -4,6 +4,7 @@
   ...
 }: {
   imports = [
+    ./ai-usagebar.nix
     ./code-assistant-profiles
     ./claude-code
     ./codex.nix

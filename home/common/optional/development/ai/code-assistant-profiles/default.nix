@@ -6,6 +6,14 @@
   ...
 }: let
   inherit (config.programs.code-assistant-profiles) addons;
+  # jdtls derives its workspace from sha1(basename(cwd)), so a bare launch shares
+  # nvim's Eclipse workspace and the two corrupt each other's index. Without the
+  # lombok agent, generated members read as errors.
+  jdtlsForClaude = pkgs.writeShellScriptBin "jdtls-claude" ''
+    data="''${XDG_CACHE_HOME:-$HOME/.cache}/jdtls-claude/$(printf %s "$PWD" | ${pkgs.coreutils}/bin/sha1sum | ${pkgs.coreutils}/bin/cut -d' ' -f1)"
+    exec ${pkgs.jdt-language-server}/bin/jdtls -data "$data" \
+      --jvm-arg=-javaagent:${pkgs.lombok.src} "$@"
+  '';
 in {
   imports = lib.flatten [
     (lib.custom.scanPaths ./addons)
@@ -39,7 +47,7 @@ in {
           };
         };
         java = {
-          command = "${pkgs.jdt-language-server}/bin/jdtls";
+          command = lib.getExe jdtlsForClaude;
           extensionToLanguage = {".java" = "java";};
           startupTimeout = 120000;
         };

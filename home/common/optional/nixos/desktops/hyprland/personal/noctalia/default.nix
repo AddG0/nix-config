@@ -6,6 +6,9 @@
 }: let
   isLaptop = config.hostSpec.hostType == "laptop";
 
+  # The capsule shells out to `ai-usagebar`, which the AI tooling module installs.
+  aiUsage = config.programs.code-assistant-profiles.enable;
+
   noctaliaPkg = pkgs.noctalia;
 in {
   # ./plugins installs the bar-widget plugins (mkPlugin per dir); they're enabled + placed below.
@@ -37,29 +40,42 @@ in {
         start = ["search" "clock" "cpu" "ram" "active_window" "media"];
         center = ["workspaces"];
         end =
-          ["tray" "calendar" "bluetooth" "input_volume" "notifications" "volume"]
+          lib.optional aiUsage "ai_usage"
+          ++ ["tray" "calendar" "bluetooth" "input_volume" "notifications" "volume"]
           ++ lib.optionals isLaptop ["power_profile" "battery"]
           ++ ["control-center"];
       };
 
-      # Search button opens walker instead of noctalia's built-in launcher.
-      widget.search = {
-        type = "custom_button";
-        glyph = "search";
-        tooltip = "Search";
-        actions.left = "exec ${lib.getExe pkgs.walker}";
-      };
-
       # Bar-widget plugins (installed via ./plugins/*).
-      plugins.enabled = ["addg/next-event"];
-      widget.calendar.type = "addg/next-event:agenda";
+      plugins.enabled = ["addg/next-event"] ++ lib.optional aiUsage "felipeartur/ai-usagebar";
 
-      # strftime clock formats.
-      widget.clock = {
-        format = "{:%I:%M %p %a, %b %d}";
-        vertical_format = "{:%I\n%M %p}";
-        tooltip_format = "{:%I:%M %p %a, %b %d}";
-      };
+      widget =
+        {
+          # Search button opens walker instead of noctalia's built-in launcher.
+          search = {
+            type = "custom_button";
+            glyph = "search";
+            tooltip = "Search";
+            actions.left = "exec ${lib.getExe pkgs.walker}";
+          };
+
+          calendar.type = "addg/next-event:agenda";
+
+          # strftime clock formats.
+          clock = {
+            format = "{:%I:%M %p %a, %b %d}";
+            vertical_format = "{:%I\n%M %p}";
+            tooltip_format = "{:%I:%M %p %a, %b %d}";
+          };
+        }
+        // lib.optionalAttrs aiUsage {
+          # Rides the default `auto` ordering: the 2 plans nearest their limit.
+          ai_usage = {
+            type = "felipeartur/ai-usagebar:bar";
+            style = "gauge";
+            provider_limit = 2;
+          };
+        };
 
       dock.enabled = false;
 

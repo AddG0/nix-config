@@ -332,6 +332,11 @@ in {
     };
   };
 
+  # stylix maps on_surface_variant to base04, a Catppuccin *surface* tone: 2.5:1
+  # as secondary-label text. The shared muted tone gets it to 7.4:1.
+  programs.noctalia.customPalettes.stylix.dark.mOnSurfaceVariant =
+    lib.mkForce config.lib.palette.muted.text;
+
   # Noctalia shape/layout; colors and fonts come from stylix's noctalia target.
   programs.noctalia.settings = {
     # macOS-style drop shadow — straight down, never horizontal offset.
