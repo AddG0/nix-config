@@ -16,6 +16,7 @@ pkgs: rec {
   ollama-zsh-completion = pkgs.callPackage ./ollama-zsh-completion {};
   yarn-berry-completions = pkgs.callPackage ./yarn-berry-completions {};
   pterodactyl-panel = pkgs.callPackage ./pterodactyl-panel {};
+  sqry = pkgs.callPackage ./sqry {};
 
   # OpenTelemetry
   opentelemetry-javaagent = pkgs.callPackage ./opentelemetry-javaagent {};

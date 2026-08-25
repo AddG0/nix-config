@@ -74,6 +74,7 @@ in {
         tmux-dev
         jira
         crash-capture
+        sqry
       ];
 
       skills."frontend-design" = lib.custom.ai.fromClaudeSkillDir {
