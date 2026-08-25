@@ -1,0 +1,52 @@
+diff --git a/lua/neotest-gradle/hooks/build_run_specification.lua b/lua/neotest-gradle/hooks/build_run_specification.lua
+index 7fe1f1e..a83096d 100644
+--- a/lua/neotest-gradle/hooks/build_run_specification.lua
++++ b/lua/neotest-gradle/hooks/build_run_specification.lua
+@@ -20,8 +20,9 @@ end
+
+ --- Runs the given Gradle executable in the respective project directory to
+ --- query the `testResultsDir` property. Has to do so some plain text parsing of
+---- the Gradle command output. The child folder named `test` is always added to
+---- this path.
++--- the Gradle command output. Falls back to `buildDir` for Gradle versions that
++--- no longer back that property. The child folder named `test` is always added
++--- to this path.
+ --- Is empty is directory could not be determined.
+ ---
+ --- @param gradle_executable string
+@@ -33,16 +34,30 @@ local function get_test_results_directory(gradle_executable, project_directory)
+     '--project-dir',
+     project_directory,
+     'properties',
+-    '--property',
+-    'testResultsDir',
+   }
+   local _, output = lib.process.run(command, { stdout = true })
+   local output_lines = vim.split(output.stdout or '', '\n')
+
+-  for _, line in pairs(output_lines) do
+-    if line:match('testResultsDir: ') then
+-      return line:gsub('testResultsDir: ', '') .. lib.files.sep .. 'test'
++  local test_results_dir
++  local build_dir
++
++  for _, line in ipairs(output_lines) do
++    -- Gradle 9 dropped this property; it is absent, or printed as the literal 'null'.
++    local value = line:match('^testResultsDir: (.+)$')
++
++    if value ~= nil and value ~= 'null' then
++      test_results_dir = value
+     end
++
++    build_dir = build_dir or line:match('^buildDir: (.+)$')
++  end
++
++  if test_results_dir == nil and build_dir ~= nil then
++    test_results_dir = build_dir .. lib.files.sep .. 'test-results'
++  end
++
++  if test_results_dir ~= nil then
++    return test_results_dir .. lib.files.sep .. 'test'
+   end
+
+   return ''

@@ -116,6 +116,9 @@ in {
     }
   ];
 
+  # Without an entry here conform's `_` catch-all (../lsp.nix) counts as a formatter, so `lsp_format = "fallback"` never reaches jdtls.
+  plugins.conform-nvim.settings.formatters_by_ft.java = ["google-java-format"];
+
   # jdtls JVM runtime.
   extraPackages = [pkgs.jdk21];
 

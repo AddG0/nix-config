@@ -1,6 +1,7 @@
 # klnav: tail matching pods (via stern) into lnav, one file per
-# namespace/pod/container so each is a separately toggleable source. The tailing
-# logic lives in klnav.sh; this derivation bundles it with a zsh completion.
+# namespace/pod/container so each is a separately toggleable source. Takes any
+# number of queries and merges them into the one view. The tailing logic lives
+# in klnav.sh; this derivation bundles it with a zsh completion.
 {
   symlinkJoin,
   writeShellApplication,
@@ -21,8 +22,9 @@
   # Reuse stern's own cobra completion, rewritten to drive `klnav`: rename
   # _stern→_klnav so it can't clash with stern's, and force the dynamic lookup
   # to call the real `stern __complete` (cobra emits `${words[1]} __complete`,
-  # which would otherwise re-enter the klnav wrapper). klnav forwards its args to
-  # stern, so stern's completions (pod queries, -n, -l, flags) apply verbatim.
+  # which would otherwise re-enter the klnav wrapper). klnav forwards its flags to
+  # stern, so stern's completions (pod queries, -n, -l, flags) apply verbatim,
+  # and cobra completes every positional, not just the first.
   zshCompletion = runCommand "klnav-zsh-completion" {} ''
     mkdir -p $out/share/zsh/site-functions
     ${stern}/bin/stern --completion zsh \
