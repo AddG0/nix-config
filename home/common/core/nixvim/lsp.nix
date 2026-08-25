@@ -78,6 +78,81 @@
     -- One global call covers every buffer: client.lua re-reads this marker on
     -- each client→buffer attach, and the capability debounces its own refresh.
     vim.lsp.codelens.enable(true)
+
+    -- Filters to clients supporting prepareTypeHierarchy and pins the follow-up
+    -- request to that client (core's vim.lsp.buf.typehierarchy does the same,
+    -- runtime/lua/vim/lsp/buf.lua) — a plain buf_request broadcast fails here:
+    -- an unrelated attached client (typos_lsp) answers prepare with nothing
+    -- first, and that "no result" wins the race before jdtls's real one arrives.
+    --
+    -- quickfixtextfunc overrides the whole rendered line, not just `text`: the
+    -- quickfix window always leads with `filename`, and vim.uri_to_fname() on
+    -- jdtls' synthetic jdt:// URIs (jar/JDK contents) is an unreadable blob.
+    function _G.LspTypeHierarchy(kind)
+      local method = "typeHierarchy/" .. kind
+      local bufnr = vim.api.nvim_get_current_buf()
+      local clients = vim.lsp.get_clients({bufnr = bufnr, method = "textDocument/prepareTypeHierarchy"})
+      if #clients == 0 then
+        vim.notify("No LSP client here supports type hierarchy", vim.log.levels.WARN)
+        return
+      end
+
+      local function show(client_id, item)
+        local client = assert(vim.lsp.get_client_by_id(client_id))
+        client:request(method, {item = item}, function(_, items)
+          if not items or #items == 0 then
+            vim.notify("No " .. kind, vim.log.levels.INFO)
+            return
+          end
+          local qf = vim.tbl_map(function(it)
+            return {
+              filename = vim.uri_to_fname(it.uri),
+              lnum = it.range.start.line + 1,
+              col = it.range.start.character + 1,
+              text = (it.detail and it.detail ~= "" and (it.detail .. ".") or "") .. it.name,
+            }
+          end, items)
+          vim.fn.setqflist({}, " ", {
+            title = "Type " .. kind,
+            items = qf,
+            quickfixtextfunc = function(info)
+              local list = vim.fn.getqflist({id = info.id, items = 1}).items
+              local lines = {}
+              for i = info.start_idx, info.end_idx do
+                lines[#lines + 1] = list[i].text
+              end
+              return lines
+            end,
+          })
+          vim.cmd("copen")
+        end, bufnr)
+      end
+
+      local params = vim.lsp.util.make_position_params(0, clients[1].offset_encoding)
+      local pending, found = #clients, {}
+      for _, client in ipairs(clients) do
+        client:request("textDocument/prepareTypeHierarchy", params, function(_, result)
+          pending = pending - 1
+          for _, item in ipairs(result or {}) do
+            found[#found + 1] = {client.id, item}
+          end
+          if pending > 0 then
+            return
+          elseif #found == 0 then
+            vim.notify("No type hierarchy item here", vim.log.levels.INFO)
+          elseif #found == 1 then
+            show(found[1][1], found[1][2])
+          else
+            vim.ui.select(found, {
+              prompt = "Select a type hierarchy item:",
+              format_item = function(x) return x[2].name end,
+            }, function(x)
+              if x then show(x[1], x[2]) end
+            end)
+          end
+        end, bufnr)
+      end
+    end
   '';
 
   autoCmd = [
@@ -212,6 +287,20 @@
         end
       '';
       options.desc = "Restart LSP";
+    }
+    # IntelliJ-style Type Hierarchy: walk up to supertypes / down to subtypes.
+    # LspTypeHierarchy (extraConfigLua above), results in the quickfix list (<leader>xq).
+    {
+      mode = "n";
+      key = "<leader>ch";
+      action.__raw = ''function() _G.LspTypeHierarchy("supertypes") end'';
+      options.desc = "Supertypes (hierarchy up)";
+    }
+    {
+      mode = "n";
+      key = "<leader>cH";
+      action.__raw = ''function() _G.LspTypeHierarchy("subtypes") end'';
+      options.desc = "Subtypes (hierarchy down)";
     }
   ];
 }
