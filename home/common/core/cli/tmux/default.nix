@@ -28,6 +28,38 @@
     '';
   };
 
+  # Remember actual session use independently of pane output, so background
+  # processes do not keep abandoned sessions alive indefinitely.
+  tmuxTouchSession = pkgs.writeShellScript "tmux-touch-session" ''
+    state_dir="''${XDG_STATE_HOME:-$HOME/.local/state}/tmux/last-attached"
+    ${pkgs.coreutils}/bin/mkdir -p "$state_dir"
+    ${pkgs.coreutils}/bin/chmod 700 "$state_dir"
+    key=$(${pkgs.coreutils}/bin/printf '%s' "$1" | ${pkgs.coreutils}/bin/base64 -w 0)
+    ${pkgs.coreutils}/bin/date +%s > "$state_dir/$key"
+  '';
+
+  # Runs from a user timer. Sessions without a saved attachment time fall back
+  # to their creation time, which also covers sessions created detached.
+  tmuxPruneInactive = pkgs.writeShellScript "tmux-prune-inactive-sessions" ''
+    tmux=${pkgs.tmux}/bin/tmux
+    now=$(${pkgs.coreutils}/bin/date +%s)
+    max_age=$((3 * 24 * 60 * 60))
+    state_dir="''${XDG_STATE_HOME:-$HOME/.local/state}/tmux/last-attached"
+    separator=$(${pkgs.coreutils}/bin/printf '\037')
+
+    "$tmux" list-sessions -F "#{session_name}$separator#{session_created}$separator#{session_attached}" 2>/dev/null \
+      | while IFS="$separator" read -r name created attached; do
+          [ "$attached" -eq 0 ] 2>/dev/null || continue
+          key=$(${pkgs.coreutils}/bin/printf '%s' "$name" | ${pkgs.coreutils}/bin/base64 -w 0)
+          last_attached="$created"
+          [ -r "$state_dir/$key" ] && IFS= read -r last_attached < "$state_dir/$key"
+          [ "$last_attached" -gt 0 ] 2>/dev/null || last_attached="$created"
+          [ $((now - last_attached)) -gt "$max_age" ] || continue
+          "$tmux" kill-session -t "$name"
+          ${pkgs.coreutils}/bin/rm -f "$state_dir/$key"
+        done
+  '';
+
   # On the last session, wipe the continuum/resurrect snapshot so a deliberate
   # exit starts fresh; a reboot with sessions still alive keeps it and restores.
   tmuxQuit = pkgs.writeShellScript "tmux-quit-session" ''
@@ -188,6 +220,10 @@ in {
 
       ${builtins.readFile ./binds.conf}
 
+      # Last attachment is a better signal of active work than pane output.
+      set-hook -ag client-attached "run-shell -b '${tmuxTouchSession} #{client_session}'"
+      set-hook -ag session-renamed "run-shell -b '${tmuxTouchSession} #{session_name}'"
+
       # Quit current session; forget the continuum snapshot if it was the last one
       bind-key Q run-shell "${tmuxQuit} #{session_name}"
 
@@ -201,6 +237,24 @@ in {
         bind-key -T copy-mode-vi Enter send -X copy-pipe-and-cancel 'xclip -in -selection clipboard'
       }
     '';
+  };
+  systemd.user = {
+    services.tmux-prune-inactive = {
+      Unit.Description = "Remove tmux sessions not opened for three days";
+      Service = {
+        Type = "oneshot";
+        ExecStart = tmuxPruneInactive;
+      };
+    };
+    timers.tmux-prune-inactive = {
+      Unit.Description = "Hourly tmux stale-session cleanup";
+      Timer = {
+        OnBootSec = "10m";
+        OnUnitActiveSec = "1h";
+        Persistent = true;
+      };
+      Install.WantedBy = ["timers.target"];
+    };
   };
   home.shellAliases = shellAliases;
 }

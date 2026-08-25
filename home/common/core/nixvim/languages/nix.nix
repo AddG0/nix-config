@@ -20,6 +20,17 @@ in {
     # nixd defaults to --log=info, which traces every request to stderr; nvim
     # captures that as ERROR and writes it to lsp.log synchronously as you type.
     cmd = ["nixd" "--log=error"];
+    # FLAKE-UPDATE: drop once the pinned Neovim gates auto-attach by buffer name
+    # (neovim#32074, milestone 0.13). nixd inherits clangd's file://-only URI
+    # parser, so diffview:// buffers fail every request with -32602. Declining
+    # on_dir is the only pre-attach hook; a detach from LspAttach gets reverted.
+    extraOptions.root_dir.__raw = ''
+      function(bufnr, on_dir)
+        local uri = vim.uri_from_bufnr(bufnr)
+        if not vim.startswith(uri, "file://") or uri:find("/%.git/") then return end
+        on_dir() -- nil root: vim.lsp.start still resolves root_markers
+      end
+    '';
     settings.nixd =
       {
         # Package + lib completion/hover, from this flake's own nixpkgs input.

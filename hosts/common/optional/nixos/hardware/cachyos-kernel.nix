@@ -28,8 +28,12 @@
 
   # BORE isn't topology- or LLC-aware (hybrid P/E, dual-CCD V-cache); scx_lavd
   # keeps latency-critical game threads on the fast cores.
+  #
+  # FLAKE-UPDATE: scx 1.1.3 vs kernel 7.2.0 sched_ext ABI skew drops lavd's
+  # starvation-rescue knobs; the watchdog then kills the scheduler every few
+  # minutes, stalling xhci long enough to drop USB HID. Re-enable once resynced.
   services.scx = {
-    enable = lib.mkDefault true;
+    enable = lib.mkDefault false;
     scheduler = lib.mkDefault "scx_lavd";
     # Autopilot, the default, core-compacts: it packs threads onto fewer cores.
     extraArgs = ["--performance"];

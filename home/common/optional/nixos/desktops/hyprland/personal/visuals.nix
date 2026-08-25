@@ -69,12 +69,10 @@ in {
       # Squircle exponent (Hyprland >=0.45). 2.0 = circular arc; 3.0 = Apple
       # superellipse — corners look slightly "fatter" near the midpoint.
       rounding_power = 3.0;
-      # Kept close to opaque — a hint of glass for depth, but the 0.9/0.8
-      # pairing read as too transparent once the full decoration block
-      # applied on the hyprlang backend. The blur below carries most of the
-      # frosted look, so the windows themselves don't need much see-through.
-      active_opacity = 0.97;
-      inactive_opacity = 0.90;
+      # Blending is linear-light, so on near-black window backgrounds even
+      # 0.97/0.90 read as plainly see-through.
+      active_opacity = 0.99;
+      inactive_opacity = 0.96;
       fullscreen_opacity = 1.0;
 
       # Drop shadow is the single biggest macOS-feel win. Pure-vertical
@@ -265,7 +263,6 @@ in {
       "opacity 1.0 override 1.0 override 1.0 override, match:class ^(resolve)$"
       # Games (tagged in the gaming module) stay fully opaque, not dimmed when unfocused.
       "opacity 1.0 override 1.0 override 1.0 override, match:tag game"
-      "opacity 0.97 override 0.95 override, match:class ^(com.mitchellh.ghostty)$"
     ];
 
     # Layer rules govern blur for shell-surfaces (waybar, rofi, notifications).

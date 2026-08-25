@@ -46,6 +46,7 @@
       "development/bootdev.nix"
       "development/nomad.nix"
       "secrets/buf.nix"
+      "development/ai/t3code/server.nix"
 
       # Gaming
       "gaming"

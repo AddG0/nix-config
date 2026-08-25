@@ -79,29 +79,31 @@
       options.desc = "Send selection to CLI";
     }
 
-    # ── codecompanion: in-editor chat/inline ──
+    # ── codecompanion: in-editor chat/inline (grouped under <leader>ac, away
+    # from sidekick's flat <leader>a* leaves, so which-key shows them as a
+    # distinct submenu) ──
     {
       mode = ["n" "x"];
-      key = "<leader>ac";
+      key = "<leader>acc";
       action = "<cmd>CodeCompanionChat Toggle<cr>";
       options.desc = "Toggle chat";
     }
     {
       mode = ["n" "x"];
-      key = "<leader>ax";
+      key = "<leader>acx";
       action = "<cmd>CodeCompanionActions<cr>";
       options.desc = "Action palette";
     }
     # Leaves the cmdline open so you type the instruction (e.g. "refactor").
     {
       mode = ["n" "x"];
-      key = "<leader>ai";
+      key = "<leader>aci";
       action = ":CodeCompanion ";
       options.desc = "Inline prompt";
     }
     {
       mode = "x";
-      key = "<leader>ae";
+      key = "<leader>ace";
       action = "<cmd>CodeCompanionChat Add<cr>";
       options.desc = "Add selection to chat";
     }

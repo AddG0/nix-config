@@ -70,6 +70,9 @@ in {
       # never syncs, and a dependency added after the first import (e.g. gitlab4j)
       # stays off the classpath until the workspace is wiped by hand.
       settings.java.configuration.updateBuildConfiguration = "automatic";
+      # workspace/symbol excludes method declarations by default — only types
+      # (classes/interfaces/enums) come back, so a method-name search returns nothing.
+      settings.java.symbols.includeSourceMethodDeclarations = true;
       # Default JavaSE-25 (current work targets it); JavaSE-21 kept for older
       # projects. Independent of the jdtls server JVM, which stays jdk21.
       settings.java.configuration.runtimes = [
@@ -115,4 +118,14 @@ in {
 
   # jdtls JVM runtime.
   extraPackages = [pkgs.jdk21];
+
+  # jdtls indexes generated sources under Gradle's build/ or Maven's target/
+  # (e.g. protobuf/gRPC) as real symbols, often duplicating a hand-written
+  # class of the same name. Used by the workspace symbol pickers in ../editor.nix
+  # (<leader>sf/<leader>sc) to filter them back out.
+  extraConfigLua = ''
+    function _G.SnacksExcludeBuildOutput(item)
+      return not (item.file and (item.file:find("/build/", 1, true) or item.file:find("/target/", 1, true)))
+    end
+  '';
 }

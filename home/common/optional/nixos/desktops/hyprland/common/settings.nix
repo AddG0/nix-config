@@ -113,10 +113,10 @@ in {
         "float on, match:class ^(me\\.kavishdevar\\.librepods|librepods|applinux)$"
         # Slack huddle — its title changes once connected, so match the initial one
         "float on, match:class ^(slack)$, match:initial_title ^(Slack - Huddle Preview)$"
-        # Spotify — float on special workspace, centered at a comfortable size
+        # Spotify — size/center resolve once, against whichever monitor it maps on
         "workspace special silent, match:class ^(Spotify|spotify)$"
         "float on, match:class ^(Spotify|spotify)$"
-        "size 60% 44%, match:class ^(Spotify|spotify)$"
+        "size 45% 64%, match:class ^(Spotify|spotify)$"
         "center 1, match:class ^(Spotify|spotify)$"
       ];
 

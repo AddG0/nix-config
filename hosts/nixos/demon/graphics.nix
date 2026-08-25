@@ -17,6 +17,8 @@
   boot.kernelParams = ["module_blacklist=amdgpu,amdxcp,snd_hda_codec_atihdmi"];
 
   hardware.nvidia = {
-    package = config.boot.kernelPackages.nvidiaPackages.stable;
+    # New Feature Branch: 610 is the first to expose nvenc API 13.1, which
+    # gpu-screen-recorder demands when built against ffmpeg 9 (avcodec 63).
+    package = config.boot.kernelPackages.nvidiaPackages.latest;
   };
 }

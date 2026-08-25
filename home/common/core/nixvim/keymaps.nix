@@ -218,7 +218,7 @@
       mode = "n";
       key = "<leader>bD";
       action = "<cmd>:bd<cr>";
-      options.desc = "Delete buffer and window";
+      options.desc = "Delete buffer (:bd)";
     }
 
     # ── Diagnostics navigation (vim.diagnostic.jump, nvim 0.11+) ──

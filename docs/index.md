@@ -33,6 +33,17 @@ Vim-style keyboard control for Zen:
 - Modes and escaping (ignore mode for web apps)
 - Dead zones where extensions can't run
 
+### ⌨️ [nixvim keybinds](guides/nixvim-keybinds.html)
+Reference for the LazyVim-style nixvim config:
+- Essentials cheat table plus full grouped reference (git, LSP, DAP, AI, GitLab MR…)
+- `<leader>sk` as the live, always-current keymap picker
+
+### 🤖 [t3code](guides/t3code.md)
+Keymap reference for the coding-agent GUI:
+- Panels, terminal, threads, composer, pickers — defaults plus our nix binds
+- `when` context variables and the closed command list
+- Actions that are mouse-only (pin, settle, snooze…) and the missing scroll keys
+
 ### 🖥️ [herdr](guides/herdr.md)
 Agent-aware terminal multiplexer (tmux-like):
 - Workspace/tab/pane keybinds, mirroring the tmux setup

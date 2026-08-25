@@ -177,9 +177,15 @@ closure target="" top="0" impure="false" json="false":
 alias u := update
 
 [group('dependencies')]
-[doc("Update flake inputs")]
-update *ARGS:
+[doc("Update flake inputs, then list the workarounds a bump may have made redundant")]
+update *ARGS: && check-markers
   nix flake update {{ARGS}}
+
+# docs/ and this justfile explain the convention; they carry no real markers.
+[group('dependencies')]
+[doc("List the `FLAKE-UPDATE:` markers to re-check after an input bump")]
+check-markers:
+  @rg -n 'FLAKE-UPDATE:' -g '!docs/**' -g '!justfile' || echo "no markers left"
 
 [group('system')]
 [doc("Update dependencies then rebuild system")]
@@ -192,7 +198,7 @@ update-packages *ARGS:
 
 [group('dependencies')]
 [doc("Check whether the flake-update workarounds still apply. Optional args filter by name, e.g. `just check-workarounds gdal`")]
-check-workarounds *ARGS:
+check-workarounds *ARGS: && check-markers
   @scripts/check-flake-workarounds.sh {{ARGS}}
 
 [group('development')]

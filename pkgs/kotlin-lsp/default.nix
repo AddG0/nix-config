@@ -34,13 +34,27 @@
 # prebuilt archive with its own bundled JetBrains Runtime and a native Rust
 # launcher (bin/intellij-server). On NixOS the launcher + bundled JBR need
 # autoPatchelfHook to fix their interpreters/rpaths.
-stdenvNoCC.mkDerivation (finalAttrs: {
+stdenvNoCC.mkDerivation (finalAttrs: let
+  # JetBrains publishes a separate archive per linux arch: the x86_64 build has
+  # no suffix, aarch64 adds "-aarch64" before the extension.
+  archs = {
+    x86_64-linux = {
+      suffix = "";
+      hash = "sha256-u2IcSjMCAukvcDEZdvfyT6hWJJ+e5O49/SAWbqlXJyo=";
+    };
+    aarch64-linux = {
+      suffix = "-aarch64";
+      hash = "sha256-nV4q64DG3P7/84YMjJbNYfLFkezNrrTPvuIyb5Yr+DQ=";
+    };
+  };
+  arch = archs.${stdenvNoCC.hostPlatform.system} or (throw "kotlin-lsp: no published build for ${stdenvNoCC.hostPlatform.system}");
+in {
   pname = "kotlin-lsp";
   version = "262.7569.0";
 
   src = fetchzip {
-    url = "https://download-cdn.jetbrains.com/kotlin-lsp/${finalAttrs.version}/kotlin-server-${finalAttrs.version}.tar.gz";
-    hash = "sha256-u2IcSjMCAukvcDEZdvfyT6hWJJ+e5O49/SAWbqlXJyo=";
+    url = "https://download-cdn.jetbrains.com/kotlin-lsp/${finalAttrs.version}/kotlin-server-${finalAttrs.version}${arch.suffix}.tar.gz";
+    inherit (arch) hash;
   };
 
   nativeBuildInputs = [autoPatchelfHook makeWrapper];
@@ -99,7 +113,7 @@ stdenvNoCC.mkDerivation (finalAttrs: {
     description = "Official JetBrains Kotlin Language Server (standalone)";
     homepage = "https://github.com/Kotlin/kotlin-lsp";
     license = lib.licenses.unfree; # bundles proprietary IntelliJ platform
-    platforms = ["x86_64-linux"];
+    platforms = builtins.attrNames archs;
     mainProgram = "kotlin-lsp";
   };
 })

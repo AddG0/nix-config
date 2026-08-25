@@ -3,6 +3,7 @@
   lib,
   muted,
   pkgs,
+  self,
   sshSettings ? {},
   ...
 }: let
@@ -184,6 +185,18 @@ in {
         {
           __unkeyed-1 = "<leader>gh";
           group = "hunks";
+        }
+        {
+          __unkeyed-1 = "<leader>gm";
+          group = "gitlab mr";
+        }
+        {
+          __unkeyed-1 = "<leader>ac";
+          group = "codecompanion";
+        }
+        {
+          __unkeyed-1 = "<leader><tab>";
+          group = "tabs";
         }
         {
           __unkeyed-1 = "<leader>w";
@@ -369,6 +382,15 @@ in {
           end)
         end
       '';
+    }
+  ];
+
+  keymaps = [
+    {
+      mode = "n";
+      key = "<leader>sK";
+      action.__raw = ''function() vim.ui.open("${self}/docs/guides/nixvim-keybinds.html") end'';
+      options.desc = "Keybind guide (browser)";
     }
   ];
 }

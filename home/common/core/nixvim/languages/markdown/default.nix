@@ -42,7 +42,19 @@
     MD013 = false; # line length: noise for prose, we don't hard-wrap markdown
   });
 in {
-  plugins.lsp.servers.marksman.enable = true;
+  plugins.lsp.servers.marksman = {
+    enable = true;
+    # FLAKE-UPDATE: drop with the identical gate in ../nix.nix (neovim#32074,
+    # milestone 0.13). On didClose marksman reloads the doc from disk; a
+    # diffview:// URI's path doesn't exist, and the IO error kills the server.
+    extraOptions.root_dir.__raw = ''
+      function(bufnr, on_dir)
+        local uri = vim.uri_from_bufnr(bufnr)
+        if not vim.startswith(uri, "file://") or uri:find("/%.git/") then return end
+        on_dir() -- nil root: vim.lsp.start still resolves root_markers
+      end
+    '';
+  };
 
   # marksman exits 143 (SIGTERM) on teardown; nvim misreports it as a crash.
   extraConfigLua = ''

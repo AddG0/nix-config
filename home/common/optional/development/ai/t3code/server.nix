@@ -2,9 +2,13 @@
 # readiness waits on the initial provider probes, and codex and opencode each
 # take 1.5-2.5s of that.
 #
-# Don't also run t3code-desktop here — it spawns its own server child, and two
-# servers would share one ~/.t3/userdata/state.sqlite. Don't run
-# `t3 service install` either; its unit self-updates from npm.
+# The desktop app has no attach mode — it forks its own backend — so a host
+# running both ends up with two servers over one ~/.t3/userdata: state.sqlite is
+# WAL and safe, but server-runtime.json holds a single record, so `t3 pair`
+# discovery follows whichever started last. The app is pinned off this port in
+# overlays/common/development/t3code.nix.
+#
+# Don't run `t3 service install` either; its unit self-updates from npm.
 #
 # On hosts nobody logs into, pair with
 # hosts/common/optional/nixos/services/user-linger.nix.

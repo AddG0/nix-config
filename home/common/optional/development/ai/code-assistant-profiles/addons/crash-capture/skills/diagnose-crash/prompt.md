@@ -5,6 +5,8 @@ allowed-tools:
   - Read
   - Grep
   - Glob
+  - Edit
+  - Write
 ---
 
 # Diagnosing a Crash
@@ -96,15 +98,30 @@ shared one, and delete it when you are done.
 Be straight about the limits of the evidence. If the cause is genuinely
 ambiguous, say so rather than assembling confidence out of guesswork.
 
-**Leave the system as you found it.** Diagnosis reads; it does not fix, tidy, or
-reconfigure. Do not rebuild, do not edit the flake, do not roll back a
-generation — report what would fix it and let the decision be made. The one thing
-to clean up is your own: delete the core you extracted above.
+Delete the core you extracted above — it is a copy of the crashed process's
+memory.
+
+## Fixing it
+
+The session opens in `~/nix-config`, so when the fix belongs there, make it.
+Two limits, both firm:
+
+- **Only a cause you demonstrated.** Never edit to fix a mechanism you inferred
+  but did not confirm; a confident wrong fix costs far more to unwind than the
+  check would have cost to run.
+- **Never rebuild.** No `nixos-rebuild`, `home-manager switch`, or `nh`. Make the
+  edit, say what it changes, and leave the rebuild as a deliberate step.
+
+Leave everything else as you found it — no tidying, no unrelated refactors, no
+rolling back a generation.
 
 ## Where the bug belongs
 
+Only the third case below is yours to edit. The other two get reported, not
+patched around in this config.
+
 Most application crashes are upstream bugs in the application, not packaging
-bugs. Before suggesting anywhere to report it, separate the two:
+bugs. Separate the three:
 
 - **Upstream** — the crash reproduces on the same version elsewhere. Almost all
   of them.

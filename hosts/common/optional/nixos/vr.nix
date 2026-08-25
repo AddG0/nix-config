@@ -35,6 +35,11 @@ in {
   environment.sessionVariables.PRESSURE_VESSEL_IMPORT_OPENXR_1_RUNTIMES = "1";
   */
 
+  # SteamVR's compositor exhausts the inherited 1024 soft limit seconds in;
+  # nvidia-drm's fence export then fails and libnvidia-glcore null-derefs on
+  # its own error path. Does not fix the separate Beyond 2 present hang.
+  systemd.user.settings.Manager.DefaultLimitNOFILE = "524288:524288";
+
   # Bigscreen Beyond / Beyond 2 hidraw access. hardware.steam-hardware
   # (enabled transitively by programs.steam) only covers Valve/HTC PIDs,
   # so vendor 35bd needs its own rules.

@@ -56,13 +56,16 @@
   ];
   # Zeppelin notebooks need the Python community modules
   # (`intellij.python.community.execService`/`venv`). PyCharm bundles them; on
-  # IDEA Ultimate they come from the external `Pythonid` plugin (see
-  # ideaBigData). DataGrip has no Python plugin, so zeppelin stays off it.
+  # IDEA Ultimate they come from the external Python plugins (see ideaBigData).
+  # DataGrip has no Python plugin, so zeppelin stays off it.
   zeppelinPlugins = ["com.intellij.bigdatatools.zeppelin"];
 
-  # IDEA Ultimate hosts the Big Data Tools meta-plugin: Pythonid supplies
+  # Pythonid (Python Pro) hard-depends on PythonCore since the 2025.2 split; IDEA bundles neither.
+  pythonPlugins = ["PythonCore" "Pythonid"];
+
+  # IDEA Ultimate hosts the Big Data Tools meta-plugin: the Python plugins supply
   # zeppelin's Python modules, zeppelin then satisfies the meta's hard dep.
-  ideaBigData = bigDataPlugins ++ ["Pythonid"] ++ zeppelinPlugins ++ ["com.intellij.bigdatatools"];
+  ideaBigData = bigDataPlugins ++ pythonPlugins ++ zeppelinPlugins ++ ["com.intellij.bigdatatools"];
 
   # Java LTS releases: 8, 11, 17, then every 4 versions (21, 25, 29, ...).
   # Filter to the ones nixpkgs currently exposes and take the 3 newest, so a

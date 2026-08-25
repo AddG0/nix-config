@@ -1,11 +1,12 @@
 #!/usr/bin/env bash
-# Updates pkgs/kotlin-lsp/default.nix to the latest kotlin-lsp standalone build.
+# Updates pkgs/kotlin-lsp/default.nix to the latest kotlin-lsp standalone build,
+# for both published Linux architectures (x86_64, aarch64).
 #
 # JetBrains tags many versions on GitHub (kotlin-lsp/v<VERSION>) but only
 # publishes a subset as downloadable archives on the JetBrains CDN. nix-update
 # blindly bumps to the newest tag, which routinely has no CDN artifact and 404s.
-# Instead, walk tags newest-first and pick the first one whose archive actually
-# exists on the CDN.
+# Instead, walk tags newest-first and pick the first one with both arch archives
+# published.
 set -euo pipefail
 
 FLAKE_ROOT=$(git rev-parse --show-toplevel)
@@ -26,14 +27,15 @@ fi
 
 new_version=""
 for v in $tags; do
-  if curl -sfI "$CDN/$v/kotlin-server-$v.tar.gz" >/dev/null 2>&1; then
+  if curl -sfI "$CDN/$v/kotlin-server-$v.tar.gz" >/dev/null 2>&1 &&
+    curl -sfI "$CDN/$v/kotlin-server-$v-aarch64.tar.gz" >/dev/null 2>&1; then
     new_version="$v"
     break
   fi
 done
 
 if [[ -z $new_version ]]; then
-  echo "kotlin-lsp: no tag has a published CDN artifact" >&2
+  echo "kotlin-lsp: no tag has published CDN artifacts for both architectures" >&2
   exit 1
 fi
 
@@ -46,10 +48,18 @@ fi
 
 echo "kotlin-lsp: $cur_version -> $new_version"
 
-raw=$(nix-prefetch-url --unpack --type sha256 "$CDN/$new_version/kotlin-server-$new_version.tar.gz")
-sri=$(nix hash convert --hash-algo sha256 --to sri "$raw")
+sri_for() {
+  local raw
+  raw=$(nix-prefetch-url --unpack --type sha256 "$1")
+  nix hash convert --hash-algo sha256 --to sri "$raw"
+}
 
-sed -i \
-  -e "s|^  version = \".*\";|  version = \"$new_version\";|" \
-  -e "s|hash = \"sha256-[^\"]*\";|hash = \"$sri\";|" \
-  "$DEFAULT_NIX"
+x86_64_sri=$(sri_for "$CDN/$new_version/kotlin-server-$new_version.tar.gz")
+aarch64_sri=$(sri_for "$CDN/$new_version/kotlin-server-$new_version-aarch64.tar.gz")
+
+sed -i "s|^  version = \".*\";|  version = \"$new_version\";|" "$DEFAULT_NIX"
+
+# Each arch's hash line is matched by the distinct `suffix` line right above it,
+# since both otherwise share the same `hash = "sha256-...";` shape.
+perl -0777 -pi -e "s/(suffix = \"\";\\s*\\n\\s*hash = \")sha256-[^\"]*(\";)/\${1}$x86_64_sri\${2}/" "$DEFAULT_NIX"
+perl -0777 -pi -e "s/(suffix = \"-aarch64\";\\s*\\n\\s*hash = \")sha256-[^\"]*(\";)/\${1}$aarch64_sri\${2}/" "$DEFAULT_NIX"

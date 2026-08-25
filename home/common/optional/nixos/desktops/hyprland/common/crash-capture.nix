@@ -21,6 +21,10 @@
   # Fixed app-id so a windowrule can single out the diagnosis window.
   appId = "dev.crash-capture.diagnosis";
 
+  # The flake nh builds from, so a diagnosis that finds a config fix opens in the
+  # tree holding it. $HOME is resolved here because user units get no session vars.
+  configDir = lib.replaceStrings ["$HOME"] [config.home.homeDirectory] config.home.sessionVariables.NH_FLAKE;
+
   # See systemd.journal-fields(7).
   coredumpMessageId = "fc2e22bc6ee647b6b90729ab34a250b1";
 
@@ -66,8 +70,15 @@
         signal:   $signal
         time:     ''${when:-unknown}"
 
+        # A missing checkout would otherwise make agent-run reject --cwd and turn
+        # the click into a no-op.
+        cwd=()
+        if [[ -d ${configDir} ]]; then
+          cwd=(--cwd ${configDir})
+        fi
+
         ghostty --class=${appId} -e \
-          agent-run "$@" --skill diagnose-crash --prompt "$prompt"
+          agent-run "''${cwd[@]}" "$@" --skill diagnose-crash --prompt "$prompt"
       }
 
       # -A implies --wait, so this blocks until the toast is answered or expires;

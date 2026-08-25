@@ -1,8 +1,15 @@
 # Source patches, applied in `unwrapped`: stdenv skips fixupPhase when
 # `buildCommand` is set, so postFixup on the `t3code` symlinkJoin is a silent
-# no-op, and the built bin.mjs has null bytes substituteInPlace refuses.
+# no-op, and the built bin.mjs has null bytes substituteInPlace refuses. The
+# join bakes its postBuild into that buildCommand too, so overrideAttrs reaches
+# neither phase.
 _: _final: prev: let
   inherit (prev.lib) escapeShellArg;
+
+  # The app forks its own backend instead of attaching to a running one, so it
+  # needs a port of its own; 3773 stays with the server unit (home
+  # .../development/ai/t3code/server.nix).
+  desktopPort = 3774;
 
   # t3code shows an "update available" banner when a provider CLI (codex,
   # claude-code, opencode) is behind the latest npm release. We pin those CLIs
@@ -42,6 +49,13 @@ in {
 
           substituteInPlace apps/server/src/vcs/GitVcsDriverCore.ts \
             --replace-fail ${escapeShellArg worktreePathAnchor} ${escapeShellArg worktreePathPatch}
+        '';
+
+      postFixup =
+        (old.postFixup or "")
+        + ''
+          wrapProgram "$out/bin/t3code-desktop" \
+            --set-default T3CODE_PORT ${toString desktopPort}
         '';
     });
     # Pinned to avoid a Rust rebuild for an identical binary.

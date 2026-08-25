@@ -96,9 +96,11 @@
           if vim.bo[args.buf].buftype ~= ""
             or not vim.startswith(uri, "file://")
             or uri:find("/%.git/") then
+            -- Doesn't stick: Client:on_attach re-marks the buffer attached after the
+            -- autocmd returns. Servers that break on non-file URIs are gated before
+            -- attach instead (nixd, marksman in ./languages).
             vim.lsp.buf_detach_client(args.buf, client.id)
-            -- Detaching alone doesn't stick: client.lua re-attaches capabilities in a
-            -- vim.schedule after LspAttach returns, without re-testing attachment.
+            -- Capabilities are re-inited in a vim.schedule without re-testing attachment.
             vim.lsp.codelens.enable(false, { bufnr = args.buf })
             return
           end

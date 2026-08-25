@@ -374,6 +374,37 @@ _: {
       action = "<cmd>lua Snacks.picker.lsp_symbols()<cr>";
       options.desc = "LSP symbols";
     }
+    # IntelliJ-style Go to Class/Symbol: workspace-wide and kind-filtered,
+    # unlike <leader>ss above (buffer-only, unfiltered). cwd filter drops
+    # library/JDK symbols; SnacksExcludeBuildOutput is defined in languages/java.nix.
+    {
+      mode = "n";
+      key = "<leader>sf";
+      action.__raw = ''
+        function()
+          Snacks.picker.lsp_workspace_symbols({
+            filter = { default = { "Function", "Method" }, cwd = true },
+            transform = _G.SnacksExcludeBuildOutput or function(_) return true end,
+            title = "Functions/Methods",
+          })
+        end
+      '';
+      options.desc = "Functions/methods (workspace)";
+    }
+    {
+      mode = "n";
+      key = "<leader>sc";
+      action.__raw = ''
+        function()
+          Snacks.picker.lsp_workspace_symbols({
+            filter = { default = { "Class", "Interface", "Struct", "Enum" }, cwd = true },
+            transform = _G.SnacksExcludeBuildOutput or function(_) return true end,
+            title = "Classes/Types",
+          })
+        end
+      '';
+      options.desc = "Classes/types (workspace)";
+    }
     {
       mode = "n";
       key = "<leader>sR";
