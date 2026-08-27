@@ -3,11 +3,14 @@
   lib,
   inputs,
   config,
+  pkgs,
   ...
 }: {
   #the import for inputs.sops-nix.nixosModules.sops is handled in hosts/common/core/default.nix so that it can be dynamically input according to the platform
 
   sops = lib.mkIf (!config.hostSpec.disableSops) {
+    # Same patched build as the home-manager side, so the closure carries one copy.
+    package = pkgs.sops-install-secrets;
     #    defaultSopsFile = "${secretsFile}";
     # defaultSopsFile = "${inputs.nix-secrets}/secrets/secrets.yaml";
     validateSopsFiles = false;

@@ -22,7 +22,6 @@
       name = lib.mkOption {
         type = lib.types.str;
         default = name;
-        readOnly = true;
         description = "Command name.";
       };
 
@@ -57,7 +56,6 @@
       name = lib.mkOption {
         type = lib.types.str;
         default = name;
-        readOnly = true;
         description = "Rule name.";
       };
 
@@ -190,7 +188,6 @@
       name = lib.mkOption {
         type = lib.types.str;
         default = name;
-        readOnly = true;
         description = "MCP server name.";
       };
 
@@ -243,7 +240,6 @@
       name = lib.mkOption {
         type = lib.types.str;
         default = name;
-        readOnly = true;
         description = "LSP server name.";
       };
 
@@ -289,7 +285,6 @@
       name = lib.mkOption {
         type = lib.types.str;
         default = name;
-        readOnly = true;
         description = "Agent name.";
       };
 
@@ -426,7 +421,6 @@
         name = lib.mkOption {
           type = lib.types.str;
           default = name;
-          readOnly = true;
           description = "Profile name.";
         };
       };

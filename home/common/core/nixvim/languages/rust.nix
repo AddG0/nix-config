@@ -8,6 +8,8 @@ in {
     enable = true;
     installCargo = true;
     installRustc = true;
+    # inline #[cfg(test)] mods share the file they test, so no path filter reaches them
+    settings.references.excludeTests = true;
   };
   plugins.conform-nvim.settings.formatters_by_ft.rust = ["rustfmt"];
   plugins.neotest.adapters.rust.enable = true; # cargo test runner (framework: ../testing.nix)

@@ -52,15 +52,14 @@
     in
       map (item: stripQuotes (lib.strings.trim item)) (lib.splitString "," unwrapped);
 
-  parseDocument = input: let
-    text = readInput input;
+  # `desc` names the origin in errors; inline text has none, which is how it
+  # avoids readInput's path heuristic.
+  splitDocument = desc: text: let
     lines = lib.splitString "\n" text;
     inputDesc =
-      if lib.isPath input || lib.isDerivation input
-      then " in ${toString input}"
-      else if lib.isString input && lib.hasPrefix "/" input
-      then " in ${input}"
-      else "";
+      if desc == ""
+      then ""
+      else " in ${desc}";
   in
     if lines != [] && builtins.head lines == "---"
     then let
@@ -76,6 +75,15 @@
       frontmatter = "";
       body = text;
     };
+
+  describeInput = input:
+    if lib.isPath input || lib.isDerivation input
+    then toString input
+    else if lib.isString input && lib.hasPrefix "/" input
+    then input
+    else "";
+
+  parseDocument = input: splitDocument (describeInput input) (readInput input);
 
   flushBlockScalar = state:
     if state.blockScalar == null
@@ -338,6 +346,15 @@
     attrs = parse document.frontmatter;
   };
 
+  # `fromFile` reads a leading "/" as a path and throws, so a body opening with
+  # a slash command needs this.
+  fromText = text: let
+    document = splitDocument "" text;
+  in {
+    inherit (document) body;
+    attrs = parse document.frontmatter;
+  };
+
   toFile = {
     attrs ? {},
     body ? "",
@@ -349,5 +366,5 @@
     then cleanBody
     else lib.concatStringsSep "\n" (["---"] ++ frontmatterLines ++ ["---" "" cleanBody]);
 in {
-  inherit fromFile normalizeStringList toFile;
+  inherit fromFile fromText normalizeStringList toFile;
 }

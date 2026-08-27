@@ -1,6 +1,6 @@
 ---
 name: grafana-dashboard-builder
-description: Builds and improves Grafana dashboards using MCP tools. Discovers metrics, designs panels, and creates dashboards following observability best practices. Use when asked to create, build, or improve a Grafana dashboard.
+description: Builds and improves Grafana dashboards over MCP — discovers metrics, designs panels, follows observability conventions.
 model: sonnet
 ---
 

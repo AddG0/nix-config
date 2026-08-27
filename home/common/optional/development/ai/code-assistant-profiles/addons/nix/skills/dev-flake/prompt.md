@@ -1,5 +1,5 @@
 ---
-description: Scaffolds and updates Nix flake dev environments — flake.nix, devShells, .envrc, direnv, process-compose services, pre-commit hooks. Use when setting up project dev shells with Nix or adding services to an existing flake.
+description: Scaffolds and updates Nix flake dev environments — devShells, .envrc, direnv, process-compose services, pre-commit hooks.
 argument-hint: "[language] [services...] - e.g. python-uv postgres, java redis kafka"
 allowed-tools:
   - Bash

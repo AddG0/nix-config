@@ -33,6 +33,33 @@ After adding a new addon directory: `git add -N` it before `nix flake check` —
 - **Selection text = `description` + `when_to_use`** concatenated, capped together at 1,536 chars in Claude Code.
 - Only `name` + `description` are pre-loaded into the system prompt. Everything else (body, resources) loads only after the skill triggers — too late to influence selection.
 
+## Budgets are checked at build time
+
+`programs.code-assistant-profiles.budgets` measures each resolved profile and
+reports over-budget content as a home-manager warning. Set `enforce = "error"` to
+fail the build instead, or `"off"` to skip the check. The defaults:
+
+| Budget | Default | What it measures |
+| ------ | ------- | ---------------- |
+| `alwaysOn.lines` | 200 | `instructions` plus every rule *without* `paths`. [Anthropic's documented target](https://code.claude.com/docs/en/memory); past it, adherence drops. |
+| `alwaysOn.characters` | 20000 | The same content, ~5k tokens. Catches the long unwrapped lines most rules here are written in, which the line count under-reports. |
+| `description.total` | derived | Every skill `description` + `when_to_use` and every agent `description` combined — the shared listing budget. Left null it derives from `contextWindow`: 1% of the window, at ~4 characters per token. |
+| `description.characters` | 1536 | One entry's selection text, the point where Claude Code truncates it. |
+| `contextWindow` | 200000 | Window of the model the profiles actually run against. This repo sets 1000000 (Opus 5), giving a 40000-character listing budget. Null drops the derived check. |
+
+A rule with `paths` is outside `alwaysOn` entirely: it loads only when Claude
+opens a matching file. That is the first thing to reach for when the always-on
+budget complains — then moving detail into a skill body.
+
+`description.total` counts skills you never invoke as well as ones you do, and
+vendored skills from flake inputs count too without being shortenable in place.
+Before dropping one as unused, check **both** invocation paths — a `Skill` tool
+call and a `/name` slash command are recorded separately, and querying only the
+first undercounts.
+
+Set `contextWindow` to the window you really run against. Budgeting a 1M-token
+model as though it were 200K only manufactures warnings.
+
 ## Description: best practices
 
 Aim for **150 characters or less**, hard ceiling 200. Front-load trigger keywords in the first 50 characters.
@@ -119,7 +146,7 @@ When adding a new skill:
 4. Register in `addons/<name>/default.nix` (use `resourcesRoot` if there are resources).
 5. `git add -N` the new files.
 6. Add the addon to `profiles.default.include` (or a more specific profile).
-7. `nix flake check --no-build` to verify.
+7. `nix flake check --no-build` to verify, and read the warnings — the budget check reports there.
 8. Inspect rendered output:
    `nix eval --impure --raw --expr 'let f = builtins.getFlake "/home/addg/nix-config"; in builtins.readFile "${f.nixosConfigurations.<host>.config.home-manager.users.<user>.programs.opencode.skills.<skill>}/SKILL.md"'`
 

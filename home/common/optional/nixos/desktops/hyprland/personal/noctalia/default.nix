@@ -74,6 +74,7 @@ in {
             type = "felipeartur/ai-usagebar:bar";
             style = "gauge";
             provider_limit = 2;
+            extras = "both";
           };
         };
 

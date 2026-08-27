@@ -19,6 +19,13 @@
     then spec.text
     else builtins.readFile spec.source;
 
+  # Both forms count: a source-only instructions block renders to a file for
+  # claude-code, but here it has to be inlined into the single context string.
+  hasInstructions =
+    (profile.instructions.text or null)
+    != null
+    || (profile.instructions.source or null) != null;
+
   skillInstallDir = name: "${config.xdg.configHome}/opencode/skills/${name}";
 
   substituteSkillDir = name:
@@ -179,7 +186,7 @@
 
   combinedRules = lib.concatStringsSep "\n\n" (
     lib.filter (s: s != "") (
-      lib.optional ((profile.instructions.text or null) != null) profile.instructions.text
+      lib.optional hasInstructions (readContent profile.instructions)
       ++ lib.mapAttrsToList renderRule (profile.rules or {})
     )
   );

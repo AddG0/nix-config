@@ -29,6 +29,19 @@
 
   enabledAgents = lib.filter (name: cfg.targets.${name}.enable) launcherModule.targetNames;
 
+  # mergeConfigs projects onto the strategy keys, so a shared-profile field with
+  # no strategy resolves to its type default no matter what a profile sets.
+  unmergedFields =
+    lib.subtractLists resolveProfileModule.mergeStrategyNames
+    (lib.attrNames typesModule.sharedProfileOptions);
+
+  budgetFor = name: profile:
+    validationModule.budgetMessages "profile '${name}'" cfg.budgets profile;
+
+  budgetComplaints =
+    lib.optionals (cfg.budgets.enforce != "off")
+    (lib.flatten (lib.mapAttrsToList budgetFor cfg.resolved));
+
   launcher =
     if enabledAgents == []
     then null
@@ -46,6 +59,9 @@
           else [];
       };
 in {
+  # targets/claude-code.nix is absent on purpose: modules/home/programs/claude-code
+  # imports it, owning the option tree it feeds. These two adapt an upstream
+  # home-manager module instead, so they self-register.
   imports = [
     ./targets/opencode.nix
     ./targets/codex.nix
@@ -59,8 +75,14 @@ in {
 
     home.packages = lib.optional (launcher != null) launcher;
 
+    warnings = lib.optionals (cfg.budgets.enforce == "warn") budgetComplaints;
+
     assertions =
       [
+        {
+          assertion = unmergedFields == [];
+          message = "code-assistant-profiles: resolve-profile.nix has no merge strategy for ${lib.concatStringsSep ", " unmergedFields}; profiles setting those fields would resolve to the type default. Add a strategy to mergeStrategies.";
+        }
         {
           assertion = cfg.profiles != {};
           message = "At least one profile must be defined in programs.code-assistant-profiles.profiles";
@@ -74,6 +96,13 @@ in {
           message = "programs.code-assistant-profiles.defaultAgent is '${toString cfg.defaultAgent}', so programs.code-assistant-profiles.targets.${toString cfg.defaultAgent}.enable must be true";
         }
       ]
+      ++ lib.optionals (cfg.budgets.enforce == "error")
+      (map (message: {
+          assertion = false;
+          inherit message;
+        })
+        budgetComplaints)
+      ++ lib.flatten (lib.mapAttrsToList validationModule.collisionAssertions cfg.profiles)
       ++ validationModule.validateSharedConfig "baseConfig" (resolveProfileModule.normalizeSharedConfig cfg.baseConfig)
       ++ lib.flatten (lib.mapAttrsToList (
           name: profile:

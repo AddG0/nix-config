@@ -10,6 +10,10 @@
   ];
 
   sops = {
+    # Patched in overlays/common/input-packages: decrypts each sops file once and
+    # concurrently, instead of one serial KMS round trip per secret.
+    package = pkgs.sops-install-secrets;
+
     defaultSopsFile = "${inputs.nix-secrets}/users/${config.hostSpec.primaryUsername}/personal.yaml";
     age = {
       keyFile = "${config.home.homeDirectory}/.config/sops-nix/age/keys.txt";

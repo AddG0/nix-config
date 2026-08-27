@@ -75,19 +75,21 @@ alias r := rebuild
 # Pass extra nix flags after `--`, e.g. `just rebuild -- --option substitute false`
 # (give a hostname, or "" for the current host, before the `--`). Add
 # --option eval-cache false if you end up caching a failure you can't get around.
+# -u/--update-inputs is opt-in: refreshing the 7 personal inputs costs ~3.3s and, when
+# one has moved, pulls upstream commits that trigger rebuilds you did not ask for.
 [group('system')]
-[doc("Rebuild system configuration (--boot to only set next boot, --test for temporary, --show-trace for debug, --fast to skip rebuilding nixos-rebuild, --verbose for debug output; extra nix flags after `--`)")]
+[doc("Rebuild system configuration (--boot to only set next boot, --test for temporary, --show-trace for debug, --fast to skip rebuilding nixos-rebuild, --verbose for debug output, -u to refresh personal flake inputs first; extra nix flags after `--`)")]
 [arg("boot", long, value="boot")]
 [arg("test", long, value="test")]
 [arg("show-trace", long, value="true")]
 [arg("fast", long, value="true")]
 [arg("verbose", long, value="true")]
 [arg("use-nh", long="no-nh", value="false")]
-[arg("no-pre", long="no-pre", value="true")]
-rebuild hostname="" boot="switch" test="false" show-trace="false" fast="false" verbose="false" use-nh=USE_NH_DEFAULT no-pre="false" *nix_args="": pre
+[arg("update-inputs", short="u", long="update-inputs", value="true")]
+rebuild hostname="" boot="switch" test="false" show-trace="false" fast="false" verbose="false" use-nh=USE_NH_DEFAULT update-inputs="false" *nix_args="": pre
   #!/usr/bin/env bash
   set -euo pipefail
-  if [ "{{no-pre}}" != "true" ]; then
+  if [ "{{update-inputs}}" = "true" ]; then
     just rebuild-pre
   fi
   USE_NH={{use-nh}} scripts/rebuild.sh {{ if show-trace == "true" { "-t" } else { "" } }} {{ if verbose == "true" { "-v" } else { "" } }} -m {{ if test == "test" { "test" } else { boot } }} "{{hostname}}" {{ if fast == "true" { "--fast" } else { "" } }} {{nix_args}}

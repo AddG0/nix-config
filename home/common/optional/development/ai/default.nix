@@ -7,7 +7,7 @@
     ./ai-usagebar.nix
     ./code-assistant-profiles
     ./claude-code
-    ./codex.nix
+    ./codex
     ./opencode
     ./t3code
     ./tmux-agent-sidebar.nix

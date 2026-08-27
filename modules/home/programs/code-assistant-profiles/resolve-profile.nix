@@ -10,12 +10,19 @@
     then value
     else fallback;
 
+  emptyDocument = {
+    attrs = {};
+    body = "";
+  };
+
+  # Empty parses to nothing rather than throwing: this runs while the assertion
+  # list is built, so a throw would pre-empt validation.nix's named message.
   parseContentSource = spec:
     if (spec.source or null) != null
     then frontmatter.fromFile spec.source
     else if (spec.text or null) != null
-    then frontmatter.fromFile spec.text
-    else throw "code-assistant-profiles: content spec has neither 'text' nor 'source' set; provide exactly one";
+    then frontmatter.fromText spec.text
+    else emptyDocument;
 
   normalizeContentSpec = spec: let
     parsed = parseContentSource spec;
@@ -142,18 +149,29 @@
 
   mergeStrategies = {
     description = base: overlay: overlay.description or base.description or "";
+    # Never both at once: claude-code projects them onto one home.file entry,
+    # which home-manager rejects. A lone source stays a source so it stays a link.
     instructions = base: overlay: let
-      texts = lib.filter (t: t != null) [
-        (base.instructions.text or null)
-        (overlay.instructions.text or null)
-      ];
-    in {
-      text =
-        if texts != []
-        then lib.concatStringsSep "\n\n" texts
-        else null;
-      source = overlay.instructions.source or base.instructions.source or null;
-    };
+      specOf = c: {
+        text = c.instructions.text or null;
+        source = c.instructions.source or null;
+      };
+      b = specOf base;
+      o = specOf overlay;
+      isEmpty = spec: spec.text == null && spec.source == null;
+      read = spec:
+        if spec.text != null
+        then spec.text
+        else builtins.readFile spec.source;
+    in
+      if isEmpty b
+      then o
+      else if isEmpty o
+      then b
+      else {
+        text = lib.concatStringsSep "\n\n" [(read b) (read o)];
+        source = null;
+      };
     mcpServers = recursiveMerge "mcpServers";
     lspServers = recursiveMerge "lspServers";
     agents = recursiveMerge "agents";
@@ -193,4 +211,8 @@
     // {inherit name;};
 in {
   inherit mergeConfigs mergeWithBase normalizeSharedConfig resolveProfile;
+
+  # Exported so default.nix can assert every shared-profile field has a strategy;
+  # mergeConfigs maps over these keys, so an unlisted field is silently dropped.
+  mergeStrategyNames = lib.attrNames mergeStrategies;
 }

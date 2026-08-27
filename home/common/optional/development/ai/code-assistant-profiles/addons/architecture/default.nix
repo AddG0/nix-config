@@ -30,14 +30,6 @@ in {
         inherit pkgs;
         source = "${skillsCollection}/decision-matrix";
       };
-      "forecast-premortem" = fromClaudeSkillDir {
-        inherit pkgs;
-        source = "${skillsCollection}/forecast-premortem";
-      };
-      "postmortem" = fromClaudeSkillDir {
-        inherit pkgs;
-        source = "${skillsCollection}/postmortem";
-      };
       "security-threat-model" = fromClaudeSkillDir {
         inherit pkgs;
         source = "${skillsCollection}/security-threat-model";

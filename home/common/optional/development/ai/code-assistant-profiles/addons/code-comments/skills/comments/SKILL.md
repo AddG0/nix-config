@@ -1,6 +1,6 @@
 ---
 name: comments
-description: This skill should be used when writing, editing, or reviewing code comments, docstrings, or doc comments (Javadoc, JSDoc/TSDoc, PHPDoc, Go/Rust doc comments), and when naming tests. It enforces restraint — it deletes comments that restate the code, narrate language/library idioms, justify a choice, or record a change, and keeps only the non-obvious *why*. Run it as a final pass over every code change to prune the comments just written.
+description: Prunes comments and docstrings down to the non-obvious why, deleting those that restate the code or narrate an idiom. Also names tests. Use as a final pass over any code change.
 ---
 
 # Comments

@@ -108,7 +108,7 @@ in {
 
         --agent <name>    Agent to launch instead of the configured default.
         --prompt <text>   Initial prompt for the agent.
-        --skill <name>    Ask the agent to use this skill, with a path fallback.
+        --skill <name>    Append "Use the <name> skill." to the prompt.
         --cwd <dir>       Run the agent in this directory.
         --list-agents     Print the available agents and exit.
         --list-skills     Print the available skills and exit.

@@ -30,6 +30,7 @@ pkgs: rec {
   bt-proximity-monitor = pkgs.callPackage ./bt-proximity-monitor {};
   bt-scan = pkgs.callPackage ./bt-scan {};
   helium = pkgs.callPackage ./helium {};
+  razer-cli = pkgs.callPackage ./razer-cli {};
   timezone-hover = pkgs.callPackage ./timezone-hover {};
 
   # Desktop environment

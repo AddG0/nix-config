@@ -10,6 +10,9 @@ in {
 
   programs.codex = {
     enable = true;
+
+    # Codex writes project trust into config.toml; keep it writable.
+    mutableConfig.enable = true;
     settings =
       {
         check_for_update_on_startup = false;

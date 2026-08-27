@@ -19,6 +19,13 @@
     then spec.text
     else builtins.readFile spec.source;
 
+  # Both forms count: a source-only instructions block renders to a file for
+  # claude-code, but here it has to be inlined into the single context string.
+  hasInstructions =
+    (profile.instructions.text or null)
+    != null
+    || (profile.instructions.source or null) != null;
+
   fallbackString = preferred: fallback:
     if preferred != null
     then preferred
@@ -92,7 +99,6 @@
     '';
 
   # Commands surface as user-invocable skills since ~/.codex/prompts/ is deprecated.
-  # Avoid reading command.name — it's a readOnly option keyed off the parent attr name.
   commandToSkill = name: command: {
     inherit name;
     description = command.description or null;
@@ -103,8 +109,7 @@
 
   # Agents surface as skills (Codex has no subagent concept). Drops the
   # fields with no Codex equivalent: tools, disallowedTools, maxTurns,
-  # color, category, reasoningEffort, skills. Avoid reading agent.name —
-  # it's a readOnly option keyed off the parent attr name.
+  # color, category, reasoningEffort, skills.
   agentToSkill = name: agent: {
     inherit name;
     description = agent.description or null;
@@ -144,7 +149,7 @@
 
   combinedRules = lib.concatStringsSep "\n\n" (
     lib.filter (s: s != "") (
-      lib.optional ((profile.instructions.text or null) != null) profile.instructions.text
+      lib.optional hasInstructions (readContent profile.instructions)
       ++ lib.mapAttrsToList renderRule (profile.rules or {})
     )
   );

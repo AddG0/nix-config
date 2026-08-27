@@ -1,6 +1,6 @@
 ---
 name: silent-failure-hunter
-description: "Scans for silent failure patterns: empty catch blocks, swallowed errors, missing error propagation, and unhandled rejections. Use after code changes or as a periodic codebase health check. Severity-rated findings. Read-only."
+description: "Scans for silent failures: empty catch blocks, swallowed errors, missing propagation, unhandled rejections. Read-only, severity-rated. Use after a code change."
 tools: Read, Glob, Grep, Bash
 disallowedTools: Write, Edit
 model: sonnet

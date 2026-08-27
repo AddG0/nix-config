@@ -73,6 +73,9 @@ in {
       # workspace/symbol excludes method declarations by default — only types
       # (classes/interfaces/enums) come back, so a method-name search returns nothing.
       settings.java.symbols.includeSourceMethodDeclarations = true;
+      # "main" drops test sources from grr, but narrows gri + workspace symbols too;
+      # rename still covers tests (JDT refactoring ignores this scope).
+      settings.java.search.scope = "main";
       # Default JavaSE-25 (current work targets it); JavaSE-21 kept for older
       # projects. Independent of the jdtls server JVM, which stays jdk21.
       settings.java.configuration.runtimes = [

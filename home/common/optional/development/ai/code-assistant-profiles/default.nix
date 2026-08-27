@@ -26,6 +26,10 @@ in {
     enable = true;
     defaultProfile = "default";
 
+    # claude-code is the default target and runs Opus 5 at 1M, so the skill
+    # listing gets 1% of that, not of the 200K the module assumes by default.
+    budgets.contextWindow = 1000000;
+
     baseConfig = {
       lspServers = {
         rust = {

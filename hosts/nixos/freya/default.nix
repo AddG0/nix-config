@@ -21,6 +21,7 @@
     ./graphics.nix
     ./hardware-configuration.nix
     ./razer-blade-keyboard.nix
+    ./razer-battery-care.nix
     ./audio.nix
     # ./ai.nix
     ./media.nix

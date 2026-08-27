@@ -3,7 +3,7 @@
     patches =
       (old.patches or [])
       ++ [
-        ./gnd-cap-capture-fps.patch
+        ./gnd-dmabuf-path.patch
         ./gnd-keepalive-quirk.patch
         ./gnd-prefer-video-only.patch
       ];
