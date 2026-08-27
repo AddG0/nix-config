@@ -12,6 +12,104 @@
   ];
   amixer = "${pkgs.alsa-utils}/bin/amixer";
   setOn = lib.concatMapStringsSep "\n" (c: ''${amixer} -c sofsoundwire cset name="${c}" on'') controls;
+
+  # The generic topology loads no vendor coefficients — the `Post Mixer Speaker
+  # Playback IIR/FIR Eq bytes` controls are empty and the DRC switch is off — so the
+  # amp gets an unshaped feed. These are by ear, not measured.
+  eqBands = [
+    # Measured by ear 2026-08-26: 60/90/120 Hz are inaudible, 180 Hz is not, so
+    # nothing below ~150 Hz is tone — it is excursion that smears the midrange.
+    # Cascaded for 4th-order slope; a single biquad is too gentle to clear it.
+    {
+      label = "bq_highpass";
+      freq = 140.0;
+      q = 0.7;
+      gain = 0.0;
+    }
+    {
+      label = "bq_highpass";
+      freq = 140.0;
+      q = 0.7;
+      gain = 0.0;
+    }
+    {
+      label = "bq_peaking";
+      freq = 300.0;
+      q = 1.0;
+      gain = 2.5;
+    } # body, kept above the measured knee rather than on it
+    {
+      label = "bq_peaking";
+      freq = 700.0;
+      q = 1.2;
+      gain = -3.5;
+    } # small-enclosure boxiness
+    {
+      label = "bq_peaking";
+      freq = 2000.0;
+      q = 1.5;
+      gain = -2.0;
+    } # shout / listening fatigue
+    {
+      label = "bq_peaking";
+      freq = 4500.0;
+      q = 1.0;
+      gain = 2.0;
+    } # vocal presence
+    {
+      label = "bq_highshelf";
+      freq = 10000.0;
+      q = 0.7;
+      gain = 1.5;
+    } # air
+  ];
+
+  # Holds the worst-case overlapping band sum at 0 dBFS: the RT1320 runs open-loop
+  # (`R0 Calibration` off, no I/V sense), so nothing downstream catches a clip.
+  # = 10^(-3/20); Nix has no pow(), so recompute by hand if you retune.
+  preampMult = 0.7079457843841379;
+
+  # A graph with fewer ports than channels gets replicated; both are spelled out so
+  # the port-to-channel mapping stays explicit.
+  eqChannels = ["FL" "FR"];
+  preampOf = ch: "preamp_${ch}";
+  bandOf = ch: i: "eq_${ch}_${toString i}";
+  chainOf = ch: [(preampOf ch)] ++ lib.imap0 (i: _: bandOf ch i) eqBands;
+
+  filterGraph = {
+    nodes = lib.concatMap (ch:
+      [
+        {
+          type = "builtin";
+          name = preampOf ch;
+          label = "linear";
+          control = {"Mult" = preampMult;};
+        }
+      ]
+      ++ lib.imap0 (i: b: {
+        type = "builtin";
+        name = bandOf ch i;
+        inherit (b) label;
+        # All bq_* share one port set, so Gain rides along unused on the highpass.
+        control = {
+          "Freq" = b.freq;
+          "Q" = b.q;
+          "Gain" = b.gain;
+        };
+      })
+      eqBands)
+    eqChannels;
+    links = lib.concatMap (ch: let
+      c = chainOf ch;
+    in
+      lib.zipListsWith (a: b: {
+        output = "${a}:Out";
+        input = "${b}:In";
+      }) (lib.init c) (lib.tail c))
+    eqChannels;
+    inputs = map (ch: "${preampOf ch}:In") eqChannels;
+    outputs = map (ch: "${lib.last (chainOf ch)}:Out") eqChannels;
+  };
 in {
   # FLAKE-UPDATE: drop this whole module once the pinned kernel gains a SoundWire
   # machine driver for the RT721+RT1320 combo. Re-check after a kernel bump: if
@@ -41,6 +139,10 @@ in {
           "audio.channels" = 2;
           "audio.position" = "FL,FR";
           "node.icon-name" = "audio-speakers";
+          # The order suffix is required: bare `audioconvert.filter-graph` is only the
+          # PropInfo entry and gets parsed then silently dropped. Wrapping the value in
+          # a `filter.graph` key fails with "unexpected graph key".
+          "audioconvert.filter-graph.0" = builtins.toJSON filterGraph;
         };
       }
       {

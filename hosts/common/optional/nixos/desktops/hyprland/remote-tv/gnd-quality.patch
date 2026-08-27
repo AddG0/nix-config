@@ -1,0 +1,27 @@
+--- a/src/wfd/wfd-media-factory.c
++++ b/src/wfd/wfd-media-factory.c
+@@ -527,10 +527,10 @@
+   guint gop_size = resolution->refresh_rate;
+   guint bitrate_kbit = wfd_video_codec_get_max_bitrate_kbit (codec);
+
+-  /* Limit initial video bitrate to 512kBit/s to ensure we don't
+-   * saturate the wifi link.
+-   * This is a rather bad method, but it kind of works. */
+-  bitrate_kbit = MIN (bitrate_kbit, 512 * 8);
++  /* A P2P group is a dedicated 5GHz link, not shared wifi, so the 4 Mbit/s clamp
++   * upstream calls "a rather bad method" is far too conservative -- and nothing
++   * ever raises it, so it capped every stream. */
++  bitrate_kbit = MIN (bitrate_kbit, 8192 * 8);
+
+   if (resolution->interlaced)
+     g_warning ("Resolution should never be set to interlaced as that is not supported with all codecs.");
+@@ -638,6 +638,10 @@
+       g_object_set (encoder,
+                     "key-int-max", (guint) gop_size,
+                     "bitrate",  bitrate_kbit,
++                    /* x264 gets zerolatency/ultrafast; VA was left on balanced
++                     * defaults that trade latency we cannot spare on a live cast. */
++                    "target-usage", (guint) 6,
++                    "ref-frames", (guint) 1,
+                     NULL);
+       break;

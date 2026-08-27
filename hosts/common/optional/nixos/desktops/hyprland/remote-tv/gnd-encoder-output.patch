@@ -1,0 +1,82 @@
+Prefer H.264 High profile, and make the encoded colour range selectable.
+
+Two things the sink cannot be trusted to negotiate, so neither is left to it --
+but neither is hardcoded either, because the right answer differs per sink.
+
+Sinks routinely advertise WFD_H264_PROFILE_BASE only (this Samsung reports
+profile 1) while their decoder handles High perfectly well for ordinary video.
+constrained-baseline forbids CABAC and the 8x8 transform, and vah264enc defaults
+both to TRUE, so the caps were switching them off at a cost of roughly 15-25%
+efficiency -- at 2560x1600@60 that is ~0.13 bits/pixel, where the loss shows.
+High is therefore the default; GND_FORCE_PROFILE=base accommodates a sink that
+genuinely cannot decode it without needing a rebuild.
+
+Nothing set colorimetry anywhere, so the RGB->YUV conversion produced BT.709
+limited range (16-235) and vah264enc -- which has no colour properties of its own
+and inherits its input caps -- signalled that. Limited range is spec-correct and
+stays the default, but sinks that assume full range for a PC-style resolution
+render 16 as dark grey instead of black, i.e. washed out; those want
+GND_COLOR_RANGE=full. The filter has to sit after videoconvert: wfd-sinkfilter is
+upstream of it and fed by videoscale, which cannot convert colour at all, so
+constraining there makes the pipeline unnegotiable ("not-negotiated (-4)" out of
+screencastsrc).
+
+Not upstreamed.
+
+--- a/src/wfd/wfd-media-factory.c
++++ b/src/wfd/wfd-media-factory.c
+@@ -129,6 +129,7 @@
+   GstElement *scale;
+   GstElement *sinkfilter;
+   GstElement *convert;
++  GstElement *colorfilter;
+   GstElement *queue_pre_encoder;
+   GstElement *encoder;
+   GstElement *encoder_elem;
+@@ -168,6 +169,22 @@
+                 NULL);
+   success &= gst_bin_add (bin, convert);
+
++  /* Must sit after videoconvert: wfd-sinkfilter is fed by videoscale, which
++   * cannot convert colour, so constraining there makes the pipeline
++   * unnegotiable. Default to limited range per the spec; sinks that assume full
++   * range for a PC-style resolution render it washed out and want
++   * GND_COLOR_RANGE=full. */
++  colorfilter = gst_element_factory_make ("capsfilter", "wfd-colorfilter");
++  success &= gst_bin_add (bin, colorfilter);
++  {
++    gboolean full = !g_strcmp0 (g_getenv ("GND_COLOR_RANGE"), "full");
++    g_autoptr (GstCaps) ccaps =
++      gst_caps_from_string (full ? "video/x-raw,colorimetry=1:3:5:1"
++                                 : "video/x-raw,colorimetry=2:3:5:1");
++
++    g_object_set (colorfilter, "caps", ccaps, NULL);
++  }
++
+   queue_pre_encoder = gst_element_factory_make ("queue", "wfd-pre-encoder-queue");
+   g_object_set (queue_pre_encoder,
+                 "max-size-buffers", (guint) 1,
+@@ -316,6 +333,7 @@
+                                     scale,
+                                     sinkfilter,
+                                     convert,
++                                    colorfilter,
+                                     queue_pre_encoder,
+                                     encoder,
+                                     encoding_perf,
+@@ -676,6 +694,15 @@
+       g_assert_not_reached ();
+     }
+
++  /* Sinks routinely advertise BASE only (some report profile 1) while decoding
++   * High fine, and constrained-baseline forbids CABAC and the 8x8 transform at a
++   * cost of ~15-25% efficiency. Prefer High, but let a sink that really cannot
++   * decode it be accommodated without a rebuild. */
++  if (!g_strcmp0 (g_getenv ("GND_FORCE_PROFILE"), "base"))
++    profile = WFD_H264_PROFILE_BASE;
++  else
++    profile = WFD_H264_PROFILE_HIGH;
++
+   if (profile == WFD_H264_PROFILE_HIGH)
+     caps = gst_caps_from_string ("video/x-h264,stream-format=byte-stream,profile=high");
+   else

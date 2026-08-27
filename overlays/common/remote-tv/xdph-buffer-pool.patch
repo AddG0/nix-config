@@ -1,0 +1,18 @@
+--- a/src/shared/ScreencopyShared.hpp
++++ b/src/shared/ScreencopyShared.hpp
+@@ -16,7 +16,15 @@
+ #include "wlr-foreign-toplevel-management-unstable-v1.hpp"
+ #include "../includes.hpp"
+
+-#define XDPH_PWR_BUFFERS     4
++/* 4 buffers means only four frames may be in flight, so every frame must make
++ * the whole round trip through the consumer -- for a screen cast that is
++ * pipewiresrc -> videoscale -> videoconvert -> encoder -- and be released again
++ * within four frame intervals. At 60fps that is a ~66ms budget for the pool, and
++ * a consumer doing software scale/convert on a high-resolution capture exceeds
++ * it, drains the pool and stalls. The param below already negotiates a range up
++ * to 32, so the default was simply conservative; 16 gives the consumer real
++ * slack at a cost of a few more frame buffers. */
++#define XDPH_PWR_BUFFERS     16
+ #define XDPH_PWR_BUFFERS_MIN 2
+ #define XDPH_PWR_ALIGN       16

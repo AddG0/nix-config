@@ -1,0 +1,90 @@
+--- a/src/wfd/wfd-client.c
++++ b/src/wfd/wfd-client.c
+@@ -1,3 +1,4 @@
++#include <stdio.h>
+ #include <glib-object.h>
+ #include <gst/rtsp/gstrtspmessage.h>
+ #include <gst/video/video.h>
+@@ -138,35 +139,55 @@
+   else
+     g_warning ("No codec/resolution could be found, falling back to defaults!");
+
+-#if 0
+-  /* The native resolution reported by some devices is just useless */
+-  if (codec->native)
+-    self->params->selected_resolution = wfd_resolution_copy (codec->native);
+-  else
++  /* Upstream #if 0'd this, but the complaint ("the native resolution reported by
++   * some devices is just useless") only condemns codec->native -- it took the
++   * bitmask-decoded list down with it, pinning every session to a hardcoded
++   * 1920x1080@30. Rank what the sink advertised; never consult codec->native. */
++  {
++    g_autoptr(GList) resolutions = NULL;
++    GList *last;
++
++    resolutions = wfd_video_codec_get_resolutions (codec);
++    resolutions = g_list_sort (resolutions, compare_resolutions);
++    last = g_list_last (resolutions);
++    if (last)
++      self->params->selected_resolution = wfd_resolution_copy ((WfdResolution *) last->data);
++  }
++
++  if (!self->params->selected_resolution)
+     {
+-      /* Find a good resolution. */
+-      g_autoptr(GList) resolutions = NULL;
+-      GList *last;
+-
+-      resolutions = wfd_video_codec_get_resolutions (codec);
+-      resolutions = g_list_sort (resolutions, compare_resolutions);
+-      last = g_list_last (resolutions);
+-      if (last)
+-        self->params->selected_resolution = wfd_resolution_copy ((WfdResolution *) last->data);
+-      else
++      /* Some sinks advertise empty CEA/VESA/HH masks, leaving nothing to
++       * negotiate from. The right mode then depends on the source panel and on
++       * what the sink privately accepts, so keep it settable per run instead of
++       * baking in a guess. */
++      const char *env = g_getenv ("GND_FALLBACK_RESOLUTION");
++      guint w = 1920, h = 1080, r = 60;
++
++      if (env)
+         {
+-#endif
+-  /* Create a standard full HD resolution if everything fails. */
+-  g_warning ("WfdClient: No resolution found, falling back to standard FullHD resolution.");
+-  self->params->selected_resolution = wfd_resolution_new ();
+-  self->params->selected_resolution->width = 1920;
+-  self->params->selected_resolution->height = 1080;
+-  self->params->selected_resolution->refresh_rate = 30;
+-  self->params->selected_resolution->interlaced = FALSE;
+-#if 0
+-}
+-}
+-#endif
++          guint ew, eh, er;
++
++          if (sscanf (env, "%ux%u@%u", &ew, &eh, &er) == 3 && ew >= 16 && eh >= 16 && er > 0)
++            {
++              w = ew;
++              h = eh;
++              r = er;
++            }
++          else
++            {
++              g_warning ("WfdClient: GND_FALLBACK_RESOLUTION is not WIDTHxHEIGHT@RATE: %s", env);
++            }
++        }
++
++      g_warning ("WfdClient: sink advertised no usable resolution, falling back to %ux%u@%u", w, h, r);
++
++      self->params->selected_resolution = wfd_resolution_new ();
++      self->params->selected_resolution->width = w;
++      self->params->selected_resolution->height = h;
++      self->params->selected_resolution->refresh_rate = r;
++      self->params->selected_resolution->interlaced = FALSE;
++    }
++
+   g_debug ("selected resolution %i, %i @%i", self->params->selected_resolution->width, self->params->selected_resolution->height, self->params->selected_resolution->refresh_rate);
+
+   /* We currently only support AAC with two channels  */

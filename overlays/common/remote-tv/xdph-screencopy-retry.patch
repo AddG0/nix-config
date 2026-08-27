@@ -1,0 +1,65 @@
+Keep retrying screencopy instead of disabling capture for good.
+
+Screencopy.cpp bails out of the "Out of buffers" path once copyRetries exceeds
+MAX_RETRIES (10), but it queues no further frame while still resetting
+frameCallback immediately below. Nothing is left to restart capture, so frames
+stop permanently: the session stays alive, pipewire stays connected, and the
+consumer keeps redisplaying its last frame. copyRetries is only cleared after a
+successful copy, so any sustained buffer shortage -- high capture rate, or a
+consumer slow to return buffers -- trips it for good.
+
+This is the "casting works for a little then freezes" bug (upstream
+hyprwm/xdg-desktop-portal-hyprland#180). Reproduced on demand by removing the
+screencopy max_fps cap: "Out of buffers" -> "Retrying screencopy (1/10)" ->
+frames stop while RTSP stays ESTABLISHED and the sink shows a frozen picture.
+The max_fps cap only works by keeping demand low enough that the pool never
+drains 10 times in a row.
+
+Always re-arm; the retry delay is already clamped to >= 6ms in
+queueNextShareFrame(), so a persistent shortage self-throttles rather than
+spinning. Both the output/geometry and toplevel paths have the same bug.
+
+--- a/src/portals/Screencopy.cpp
++++ b/src/portals/Screencopy.cpp
+@@ -492,11 +492,19 @@
+             if (!PSTREAM->currentPWBuffer) {
+                 Debug::log(LOG, "[screencopy/pipewire] Out of buffers");
+                 sharingData.status = FRAME_NONE;
+-                if (sharingData.copyRetries++ < MAX_RETRIES) {
++                // Always re-arm. Bailing out after MAX_RETRIES consecutive misses
++                // queued no further frame while still resetting frameCallback
++                // below, so capture stopped for good: the session stays alive,
++                // pipewire stays connected, and the consumer keeps its last frame
++                // forever. copyRetries is only cleared on a successful copy, so a
++                // sustained shortage (high capture rate, slow consumer) trips it
++                // permanently -- this is the "works for a while then freezes" bug.
++                if (sharingData.copyRetries++ < MAX_RETRIES)
+                     Debug::log(LOG, "[sc] Retrying screencopy ({}/{})", sharingData.copyRetries, MAX_RETRIES);
+-                    g_pPortalManager->m_sPortals.screencopy->m_pPipewire->updateStreamParam(PSTREAM);
+-                    g_pPortalManager->m_sPortals.screencopy->queueNextShareFrame(this);
+-                }
++                else
++                    Debug::log(TRACE, "[sc] Still out of buffers after {} tries, re-arming anyway", sharingData.copyRetries);
++                g_pPortalManager->m_sPortals.screencopy->m_pPipewire->updateStreamParam(PSTREAM);
++                g_pPortalManager->m_sPortals.screencopy->queueNextShareFrame(this);
+                 sharingData.frameCallback.reset();
+                 return;
+             }
+@@ -607,11 +615,13 @@
+             if (!PSTREAM->currentPWBuffer) {
+                 Debug::log(LOG, "[screencopy/pipewire] Out of buffers");
+                 sharingData.status = FRAME_NONE;
+-                if (sharingData.copyRetries++ < MAX_RETRIES) {
++                // Same self-disabling retry as the output path above.
++                if (sharingData.copyRetries++ < MAX_RETRIES)
+                     Debug::log(LOG, "[sc] Retrying screencopy ({}/{})", sharingData.copyRetries, MAX_RETRIES);
+-                    g_pPortalManager->m_sPortals.screencopy->m_pPipewire->updateStreamParam(PSTREAM);
+-                    g_pPortalManager->m_sPortals.screencopy->queueNextShareFrame(this);
+-                }
++                else
++                    Debug::log(TRACE, "[sc] Still out of buffers after {} tries, re-arming anyway", sharingData.copyRetries);
++                g_pPortalManager->m_sPortals.screencopy->m_pPipewire->updateStreamParam(PSTREAM);
++                g_pPortalManager->m_sPortals.screencopy->queueNextShareFrame(this);
+                 sharingData.windowFrameCallback.reset();
+                 return;
+             }

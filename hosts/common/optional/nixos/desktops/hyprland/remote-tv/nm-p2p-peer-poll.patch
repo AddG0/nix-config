@@ -1,0 +1,226 @@
+--- a/src/core/supplicant/nm-supplicant-interface.c	2026-08-26 21:19:39.049332928 -0500
++++ b/src/core/supplicant/nm-supplicant-interface.c	2026-08-27 16:31:31.803606073 -0500
+@@ -135,6 +135,8 @@
+     guint bss_properties_changed_id;
+     guint peer_properties_changed_id;
+     guint p2p_group_properties_changed_id;
++    guint p2p_peers_poll_id;
++    char *p2p_synth_iface_path;
+
+     int ifindex;
+
+@@ -1119,6 +1121,9 @@
+
+     _emit_signal_state(self, priv->state, old_state, 0);
+
++    nm_clear_g_source(&priv->p2p_peers_poll_id);
++    nm_clear_g_free(&priv->p2p_synth_iface_path);
++
+     nm_clear_g_dbus_connection_signal(priv->dbus_connection, &priv->properties_changed_id);
+     nm_clear_g_dbus_connection_signal(priv->dbus_connection, &priv->signal_id);
+     nm_clear_g_dbus_connection_signal(priv->dbus_connection, &priv->bss_properties_changed_id);
+@@ -2922,14 +2927,180 @@
+
+ /*****************************************************************************/
+
++typedef struct {
++    NMSupplicantInterface *self;
++    char                  *iface_path;
++} P2pGroupProbe;
++
++/* Mirror of the GroupStarted signal handler below. wpa announces a formed group
++ * only via that signal, and it is not reaching _signal_cb here, so the group is
++ * instead discovered by polling and the same work is done by hand: build the
++ * NMSupplicantInterface for the group interface and emit GROUP_STARTED, which is
++ * what NMDeviceWifiP2P waits on to leave the "config" state. The IpAddr carried
++ * by the real signal is optional; without it NM configures the group as usual. */
++static void
++_p2p_group_probe_cb(GVariant *result, GError *error, gpointer user_data)
++{
++    P2pGroupProbe                *probe = user_data;
++    NMSupplicantInterface        *self  = probe->self;
++    NMSupplicantInterfacePrivate *priv  = NM_SUPPLICANT_INTERFACE_GET_PRIVATE(self);
++    gs_unref_variant GVariant    *properties = NULL;
++    gs_unref_object NMSupplicantInterface *iface = NULL;
++    const char                   *group_path;
++
++    if (nm_utils_error_is_cancelled(error))
++        goto out;
++    if (!result)
++        goto out;
++
++    g_variant_get(result, "(@a{sv})", &properties);
++    if (!nm_g_variant_lookup(properties, "Group", "&o", &group_path))
++        goto out;
++    if (nm_streq0(group_path, "/"))
++        goto out;
++
++    /* Already handled this one. */
++    if (nm_streq0(priv->p2p_synth_iface_path, probe->iface_path))
++        goto out;
++
++    iface = nm_supplicant_manager_create_interface_from_path(priv->supplicant_manager,
++                                                             probe->iface_path);
++    if (!iface)
++        goto out;
++
++    g_free(priv->p2p_synth_iface_path);
++    priv->p2p_synth_iface_path = g_strdup(probe->iface_path);
++
++    /* NMDeviceWifiP2P's check_connection_peer_joined() reads this off the group
++     * interface; nothing else populates it on a synthesized group, and while it
++     * is NULL the peer looks like it never joined. */
++    _p2p_group_set_path(iface, group_path);
++
++    _LOGI("synthesized GroupStarted for iface=%s group=%s",
++          probe->iface_path, group_path);
++
++    g_signal_emit(self, signals[GROUP_STARTED], 0, iface);
++
++out:
++    g_object_unref(probe->self);
++    g_free(probe->iface_path);
++    g_slice_free(P2pGroupProbe, probe);
++}
++
++static void
++_p2p_group_scan_cb(GVariant *result, GError *error, gpointer user_data)
++{
++    NMSupplicantInterface        *self = user_data;
++    NMSupplicantInterfacePrivate *priv = NM_SUPPLICANT_INTERFACE_GET_PRIVATE(self);
++    gs_unref_variant GVariant    *properties = NULL;
++    gs_free const char          **v_strv = NULL;
++    const char *const            *iter;
++
++    if (nm_utils_error_is_cancelled(error))
++        return;
++    if (!result)
++        return;
++
++    g_variant_get(result, "(@a{sv})", &properties);
++    if (!nm_g_variant_lookup(properties, "Interfaces", "^a&o", &v_strv))
++        return;
++
++    for (iter = v_strv; *iter; iter++) {
++        P2pGroupProbe *probe;
++
++        /* The group lives on its own interface object, never on ours. */
++        if (nm_streq0(*iter, priv->object_path->str))
++            continue;
++
++        probe  = g_slice_new(P2pGroupProbe);
++        *probe = (P2pGroupProbe) {
++            .self       = g_object_ref(self),
++            .iface_path = g_strdup(*iter),
++        };
++
++        nm_dbus_connection_call_get_all(priv->dbus_connection,
++                                        priv->name_owner->str,
++                                        probe->iface_path,
++                                        NM_WPAS_DBUS_IFACE_INTERFACE_P2P_DEVICE,
++                                        5000,
++                                        priv->main_cancellable,
++                                        _p2p_group_probe_cb,
++                                        probe);
++    }
++}
++
++static void
++_p2p_peers_refetch_cb(GVariant *result, GError *error, gpointer user_data)
++{
++    NMSupplicantInterface     *self = user_data;
++    gs_unref_variant GVariant *properties = NULL;
++
++    if (nm_utils_error_is_cancelled(error))
++        return;
++    if (!result)
++        return;
++
++    g_variant_get(result, "(@a{sv})", &properties);
++
++    /* Full add+reap. An add-only refresh keeps peers whose object paths wpa has
++     * already unregistered -- and wpa renumbers its interface objects freely
++     * (/Interfaces/0,1,3,5,...), so NM ends up handing a stale peer path to
++     * P2PDevice.Connect and wpa rejects the call with "Did not receive correct
++     * message arguments", meaning GO negotiation never starts at all. */
++    _properties_changed_p2p_device(self, properties);
++}
++
++/* wpa_supplicant announces peers with DeviceFound on the interface object, but
++ * those signals are not reaching us here, and it never emits PropertiesChanged
++ * for that object either -- so the Peers property is read once at startup, when
++ * it is still empty, and never again. Re-read it on a timer while a find is
++ * running; _properties_changed_p2p_device() already knows how to diff the list
++ * and emit PEER_CHANGED for additions and removals. */
++static gboolean
++_p2p_peers_poll_cb(gpointer user_data)
++{
++    NMSupplicantInterface        *self = user_data;
++    NMSupplicantInterfacePrivate *priv = NM_SUPPLICANT_INTERFACE_GET_PRIVATE(self);
++
++    if (!priv->name_owner || !priv->object_path)
++        return G_SOURCE_CONTINUE;
++
++    nm_dbus_connection_call_get_all(priv->dbus_connection,
++                                    priv->name_owner->str,
++                                    priv->object_path->str,
++                                    NM_WPAS_DBUS_IFACE_INTERFACE_P2P_DEVICE,
++                                    5000,
++                                    priv->main_cancellable,
++                                    _p2p_peers_refetch_cb,
++                                    self);
++
++    /* ...and look for a group interface wpa may have created. */
++    nm_dbus_connection_call_get_all(priv->dbus_connection,
++                                    priv->name_owner->str,
++                                    NM_WPAS_DBUS_PATH,
++                                    NM_WPAS_DBUS_INTERFACE,
++                                    5000,
++                                    priv->main_cancellable,
++                                    _p2p_group_scan_cb,
++                                    self);
++    return G_SOURCE_CONTINUE;
++}
++
+ void
+ nm_supplicant_interface_p2p_start_find(NMSupplicantInterface *self, guint timeout)
+ {
+-    GVariantBuilder builder;
++    GVariantBuilder               builder;
++    NMSupplicantInterfacePrivate *priv;
+
+     g_return_if_fail(NM_IS_SUPPLICANT_INTERFACE(self));
+     g_return_if_fail(timeout > 0 && timeout <= 600);
+
++    priv = NM_SUPPLICANT_INTERFACE_GET_PRIVATE(self);
++    if (priv->p2p_peers_poll_id == 0) {
++        _LOGD("polling the Peers property; DeviceFound is not arriving");
++        priv->p2p_peers_poll_id = g_timeout_add_seconds(2, _p2p_peers_poll_cb, self);
++    }
++
+     g_variant_builder_init(&builder, G_VARIANT_TYPE_VARDICT);
+     g_variant_builder_add(&builder, "{sv}", "Timeout", g_variant_new_int32(timeout));
+
+@@ -3158,6 +3329,11 @@
+     if (nm_utils_error_is_cancelled(error))
+         return;
+
++    {
++        NMSupplicantInterface *self = user_data;
++
++    }
++
+     if (result)
+         g_variant_get(result, "(@a{sv})", &properties);
+     _properties_changed(user_data, NM_WPAS_DBUS_IFACE_INTERFACE_P2P_DEVICE, properties, TRUE);
+@@ -3247,8 +3423,9 @@
+     }
+
+     if (nm_streq(signal_interface_name, NM_WPAS_DBUS_IFACE_INTERFACE_P2P_DEVICE)) {
+-        if (!priv->is_ready_p2p_device)
++        if (!priv->is_ready_p2p_device) {
+             return;
++        }
+
+         if (nm_streq(signal_name, "DeviceFound")) {
+             if (g_variant_is_of_type(parameters, G_VARIANT_TYPE("(o)"))) {

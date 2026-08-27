@@ -1,0 +1,13 @@
+--- a/src/nd-pulseaudio.c
++++ b/src/nd-pulseaudio.c
+@@ -441,7 +441,9 @@
+                 "device", device_name,
+                 "client-name", client_name,
+                 "do-timestamp", TRUE,
+-                "server", pa_context_get_server (self->context),
++                /* A stalled audio source must not stall video: mpegtsmux blocks
++                 * all output while one sink pad is broken. */
++                "provide-clock", FALSE,
+                 NULL);
+
+   return g_steal_pointer (&src);

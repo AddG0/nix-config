@@ -1,0 +1,49 @@
+--- a/src/wfd/wfd-media-factory.c
++++ b/src/wfd/wfd-media-factory.c
+@@ -305,9 +305,11 @@
+
+   queue_mpegmux_video = gst_element_factory_make ("queue", "wfd-mpegmux-video-queue");
+   success &= gst_bin_add (bin, queue_mpegmux_video);
++  /* The pre-encoder and pre-payloader queues hold one buffer each, so 500ms here
++   * was the only place a live cast could accumulate real delay. */
+   g_object_set (queue_mpegmux_video,
+-                "max-size-buffers", (guint) 1000,
+-                "max-size-time", 500 * GST_MSECOND,
++                "max-size-buffers", (guint) 8,
++                "max-size-time", 60 * GST_MSECOND,
+                 NULL);
+
+   success &= gst_element_link_many (source,
+@@ -497,14 +499,27 @@
+ static GstElement *
+ wfd_media_factory_create_pipeline (GstRTSPMediaFactory *factory, GstRTSPMedia *media)
+ {
+-  GstElement *pipeline;
++  WfdMediaFactory *self = WFD_MEDIA_FACTORY (factory);
++  GstElement      *pipeline;
++  GstClockTime     latency;
+
+   pipeline = GST_RTSP_MEDIA_FACTORY_CLASS (wfd_media_factory_parent_class)->create_pipeline (factory, media);
+
+-  /* We need a high latency for the openh264 encoder at least when the
+-   * usage-type is set to "screen". After e.g. scene changes the latency will
+-   * be very high for short periods of time, and this prevents further issues. */
+-  gst_pipeline_set_latency (GST_PIPELINE (pipeline), 500 * GST_MSECOND);
++  /* openh264 with usage-type "screen" spikes hard after scene changes and needs
++   * the 500ms; applying it to every profile made hardware encoders pay half a
++   * second of latency for a software encoder's problem. */
++  switch (wfd_media_factory_profiles[self->factory_profile].video_encoder)
++    {
++    case ELEMENT_OPENH264:
++      latency = 500 * GST_MSECOND;
++      break;
++
++    default:
++      latency = 50 * GST_MSECOND;
++      break;
++    }
++
++  gst_pipeline_set_latency (GST_PIPELINE (pipeline), latency);
+
+   return pipeline;
+ }

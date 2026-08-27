@@ -78,6 +78,12 @@ in {
           };
         };
 
+      audio = {
+        enable_sounds = true; # master toggle: also un-mutes the notification cue
+        sound_volume = 0.5;
+        volume_change_sound = "${pkgs.kdePackages.ocean-sound-theme}/share/sounds/ocean/stereo/button-pressed.oga";
+      };
+
       dock.enabled = false;
 
       # Show notifications on the primary monitor only on desktops; empty list

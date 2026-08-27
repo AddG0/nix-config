@@ -1,0 +1,44 @@
+--- a/src/app/nd-window.c
++++ b/src/app/nd-window.c
+@@ -223,11 +223,17 @@
+   return g_object_ref_sink (res);
+ }
+
+-static void
+-sink_notify_state_cb (NdWindow *self, GParamSpec *pspec, NdSink *sink)
++static gboolean
++sink_notify_state_apply (gpointer user_data)
+ {
++  NdWindow *self = user_data;
++  NdSink *sink = self->stream_sink;
+   NdSinkState state;
+
++  /* Notifications can queue up, and DISCONNECTED below drops stream_sink. */
++  if (!sink)
++    return G_SOURCE_REMOVE;
++
+   g_object_get (sink, "state", &state, NULL);
+   g_debug ("Got state change notification from streaming sink to state %s",
+            g_enum_to_string (ND_TYPE_SINK_STATE, state));
+@@ -296,6 +302,21 @@
+       g_clear_object (&self->stream_sink);
+       break;
+     }
++
++  return G_SOURCE_REMOVE;
++}
++
++/* notify::state arrives on gst-rtsp-server's thread, and everything above
++ * touches GTK -- which corrupted GTK's size-request cache and aborted in g_free.
++ * A race, so it looked like an occasional crash until a higher capture
++ * resolution shifted the timing. */
++static void
++sink_notify_state_cb (NdWindow *self, GParamSpec *pspec, NdSink *sink)
++{
++  g_idle_add_full (G_PRIORITY_DEFAULT,
++                   sink_notify_state_apply,
++                   g_object_ref (self),
++                   g_object_unref);
+ }
+
+ gboolean
