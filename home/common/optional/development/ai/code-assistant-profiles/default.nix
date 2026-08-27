@@ -79,6 +79,7 @@ in {
         jira
         crash-capture
         sqry
+        archify
       ];
 
       skills."frontend-design" = lib.custom.ai.fromClaudeSkillDir {

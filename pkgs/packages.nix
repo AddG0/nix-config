@@ -12,6 +12,7 @@ pkgs: rec {
   wifiman-desktop = pkgs.callPackage ./wifiman-desktop {};
   claude-hud = pkgs.callPackage ./claude-hud {};
   gitlab-nvim = pkgs.callPackage ./gitlab-nvim {};
+  nvim-material-icon = pkgs.callPackage ./nvim-material-icon {};
   node-sqlite3 = pkgs.callPackage ./node-sqlite3 {};
   ollama-zsh-completion = pkgs.callPackage ./ollama-zsh-completion {};
   yarn-berry-completions = pkgs.callPackage ./yarn-berry-completions {};

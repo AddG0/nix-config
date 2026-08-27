@@ -297,6 +297,11 @@
       flake = false;
     };
 
+    archify = {
+      url = "github:tt-a1i/archify";
+      flake = false;
+    };
+
     context-engineering-kit = {
       url = "github:NeoLabHQ/context-engineering-kit";
       flake = false;

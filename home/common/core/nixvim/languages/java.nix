@@ -48,10 +48,20 @@ in {
         "--jvm-arg=-XX:AdaptiveSizePolicyWeight=90"
         "--jvm-arg=-Dsun.zip.disableMemoryMapping=true"
       ];
+      # jacocoagent.jar and the test-runner fat jar aren't OSGi bundles — jdtls'
+      # BundleUtils.loadBundles() throws "Failed to load extension bundles" on them.
       init_options.bundles.__raw = ''
-        vim.list_extend(
-          vim.fn.glob("${javaDebug}/share/vscode/extensions/vscjava.vscode-java-debug/server/com.microsoft.java.debug.plugin-*.jar", true, true),
-          vim.fn.glob("${javaTest}/share/vscode/extensions/vscjava.vscode-java-test/server/*.jar", true, true)
+        vim.tbl_filter(
+          function(jar)
+            return not (
+              jar:find("jacocoagent.jar", 1, true)
+              or jar:find("runner-jar-with-dependencies.jar", 1, true)
+            )
+          end,
+          vim.list_extend(
+            vim.fn.glob("${javaDebug}/share/vscode/extensions/vscjava.vscode-java-debug/server/com.microsoft.java.debug.plugin-*.jar", true, true),
+            vim.fn.glob("${javaTest}/share/vscode/extensions/vscjava.vscode-java-test/server/*.jar", true, true)
+          )
         )
       '';
       # Without a checked-in wrapper Buildship falls back to its bundled Gradle 8.9,
@@ -63,7 +73,10 @@ in {
       settings.java.import.gradle = {
         home = gradleHome;
         java.home = "${pkgs.jdk21.home}";
-        jvmArguments = "-Dorg.gradle.java.installations.paths=${pkgs.jdk21.home},${pkgs.jdk25.home}";
+        # A bare string throws in jdtls' MapFlattener.getList and aborts
+        # Preferences.updateFrom, so every setting read after this one (gradle
+        # home, runtimes, search.scope, symbols) silently never applies.
+        jvmArguments = ["-Dorg.gradle.java.installations.paths=${pkgs.jdk21.home},${pkgs.jdk25.home}"];
       };
       # jdtls' "interactive" default wants to prompt before re-importing on a
       # build-file change, but nvim-jdtls surfaces no prompt UI — so it silently
@@ -132,6 +145,70 @@ in {
   extraConfigLua = ''
     function _G.SnacksExcludeBuildOutput(item)
       return not (item.file and (item.file:find("/build/", 1, true) or item.file:find("/target/", 1, true)))
+    end
+
+    -- IntelliJ-style per-file icon in the explorer/file pickers: distinguish a
+    -- class from an interface/enum/record, not just "this is a .java file".
+    -- Snacks.util.icon() is purely extension-based with no per-item hook, so
+    -- wrap it and special-case .java: scan for the first type-declaration
+    -- keyword (best-effort regex, not a real parser — a false positive just
+    -- means the wrong icon, not broken functionality) and reuse the exact
+    -- icon/highlight Snacks already uses for that LSP symbol kind elsewhere
+    -- (<leader>ss/sf/sc), so the explorer and symbol pickers read consistently.
+    -- Cached per path; invalidated on save so edits don't need a restart.
+    do
+      local java_kind_cache = {}
+      -- Same glyphs Snacks' own lsp_symbols picker uses for these kinds
+      -- (lua/snacks/picker/config/defaults.lua's icons.kinds), copied rather
+      -- than read live — that table isn't reliably reachable from here.
+      local java_kind_icons = {
+        Enum = " ",
+        Struct = "󰆼 ", -- record
+        Interface = " ",
+        Class = " ",
+      }
+
+      local function classify_java(path)
+        local ok, lines = pcall(vim.fn.readfile, path, "", 200)
+        if not ok then
+          return nil
+        end
+        for _, line in ipairs(lines) do
+          if line:find("%f[%w]enum%f[%W]%s+%u") then
+            return "Enum"
+          elseif line:find("%f[%w]record%f[%W]%s+%u") then
+            return "Struct"
+          elseif line:find("%f[%w]interface%f[%W]%s+%u") then
+            return "Interface"
+          elseif line:find("%f[%w]class%f[%W]%s+%u") then
+            return "Class"
+          end
+        end
+        return nil
+      end
+
+      vim.api.nvim_create_autocmd("BufWritePost", {
+        pattern = "*.java",
+        callback = function(args)
+          java_kind_cache[vim.api.nvim_buf_get_name(args.buf)] = nil
+        end,
+      })
+
+      vim.schedule(function()
+        local orig_icon = Snacks.util.icon
+        Snacks.util.icon = function(name, cat, opts)
+          if (cat == "file" or cat == "directory") and type(name) == "string" and name:match("%.java$") then
+            if java_kind_cache[name] == nil then
+              java_kind_cache[name] = classify_java(name) or false
+            end
+            local kind = java_kind_cache[name]
+            if kind then
+              return java_kind_icons[kind], "SnacksPickerIcon" .. kind
+            end
+          end
+          return orig_icon(name, cat, opts)
+        end
+      end)
     end
   '';
 }

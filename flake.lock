@@ -113,6 +113,22 @@
         "type": "github"
       }
     },
+    "archify": {
+      "flake": false,
+      "locked": {
+        "lastModified": 1787813363,
+        "narHash": "sha256-7+jRALjRNADoZpEKIR782BIf/8an1QpdIYPJFLMKtF8=",
+        "owner": "tt-a1i",
+        "repo": "archify",
+        "rev": "9a5060566c832832fb843e457e58c8ee6bac82fd",
+        "type": "github"
+      },
+      "original": {
+        "owner": "tt-a1i",
+        "repo": "archify",
+        "type": "github"
+      }
+    },
     "asus-numberpad-driver": {
       "inputs": {
         "nixpkgs": [
@@ -3278,6 +3294,7 @@
       "inputs": {
         "ai-toolkit": "ai-toolkit",
         "anthropic-skills": "anthropic-skills",
+        "archify": "archify",
         "asus-numberpad-driver": "asus-numberpad-driver",
         "awsvpnclient-nix": "awsvpnclient-nix",
         "base16": "base16",

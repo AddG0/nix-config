@@ -125,7 +125,14 @@ in {
   extraPlugins = [pkgs.nix-logo-3d];
 
   plugins = {
-    web-devicons.enable = true;
+    # Material Design Icon glyphs instead of the default devicons set, matching
+    # the file-icon theme already used elsewhere (vscode/extensions/core/material-icons.nix).
+    # Same module name ("nvim-web-devicons"), different package.
+    web-devicons = {
+      enable = true;
+      package = pkgs.nvim-material-icon;
+      settings.default = true;
+    };
 
     # VSCode-style smooth caret: animates a trailing smear as the cursor jumps.
     smear-cursor = {

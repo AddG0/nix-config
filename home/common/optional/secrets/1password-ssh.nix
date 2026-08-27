@@ -37,11 +37,12 @@ in {
     includes = ["~/.ssh/1Password/config"];
 
     # tmux does not propagate SSH_TTY, so panes look local — and IdentityAgent
-    # would then override their forwarded SSH_AUTH_SOCK.
+    # would then override their forwarded SSH_AUTH_SOCK. The link is persistent,
+    # so match on its value, not its existence.
     settings."1password-agent" = {
       # Stable attr name for ordering; the literal Match header carries the
       # actual condition.
-      header = ''Match host * exec "test -z $SSH_TTY && ! test -S $HOME/.ssh/ssh_auth_sock"'';
+      header = ''Match host * exec "test -z $SSH_TTY && test x$SSH_AUTH_SOCK != x$HOME/.ssh/ssh_auth_sock"'';
       IdentityAgent = ''"${agentPath}"'';
     };
 
