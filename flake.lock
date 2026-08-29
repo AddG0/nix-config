@@ -172,6 +172,29 @@
         "type": "github"
       }
     },
+    "bakkesmod-nix": {
+      "inputs": {
+        "flake-parts": [
+          "flake-parts"
+        ],
+        "nixpkgs": [
+          "nixpkgs"
+        ]
+      },
+      "locked": {
+        "lastModified": 1787961869,
+        "narHash": "sha256-wd2ouihDXnsvH8T8pDZwfX6+bP4SGmRq5t5rSlCCyx8=",
+        "owner": "AddG0",
+        "repo": "bakkesmod-nix",
+        "rev": "6d5279e6d4dc282797278d8f96a455a43f1805ff",
+        "type": "github"
+      },
+      "original": {
+        "owner": "AddG0",
+        "repo": "bakkesmod-nix",
+        "type": "github"
+      }
+    },
     "base16": {
       "inputs": {
         "fromYaml": "fromYaml"
@@ -3297,6 +3320,7 @@
         "archify": "archify",
         "asus-numberpad-driver": "asus-numberpad-driver",
         "awsvpnclient-nix": "awsvpnclient-nix",
+        "bakkesmod-nix": "bakkesmod-nix",
         "base16": "base16",
         "base16-vim": "base16-vim",
         "base16-zathura": "base16-zathura",

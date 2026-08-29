@@ -47,6 +47,9 @@
 
   mouseDpi = import ./mouse-dpi.nix {inherit lib pkgs razerEnabled;};
 
+  # `or false`: hosts without gaming/bakkesmod.nix have no such option at all.
+  bakkesLauncher = lib.optional (config.programs.bakkesmod.enable or false) config.programs.bakkesmod.launcherPackage;
+
   # name → Steam appid.
   defaults =
     lib.mapAttrs (_: id: {
@@ -95,6 +98,9 @@
   overrides = {
     # Rocket League has a linux build, but it's not maintained so we need to use the windows version
     rocket-league.compatTool = defaultCompatTool;
+    # Inert unless Steam's "Anti-Cheat Disabled" launch option is selected — a
+    # manual choice; BakkesMod cannot inject into the EAC executable.
+    rocket-league.wrappers = [gamemoderun] ++ bakkesLauncher;
     # I had multiplayer issues with the linux version. So I'm using the windows version.
     portal-2.compatTool = defaultCompatTool;
     # Wouldn't let me install if this wasn't set

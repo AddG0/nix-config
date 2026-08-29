@@ -344,6 +344,14 @@
       inputs.flake-parts.follows = "flake-parts";
     };
 
+    # BakkesMod for Rocket League
+    bakkesmod-nix = {
+      url = "github:AddG0/bakkesmod-nix";
+      # url = "path:/home/addg/Projects/code/github.com/AddG0/bakkesmod-nix";
+      inputs.nixpkgs.follows = "nixpkgs";
+      inputs.flake-parts.follows = "flake-parts";
+    };
+
     # Nitrox - Subnautica multiplayer
     nitrox-nix = {
       url = "git+ssh://git@github.com/AddG0/nitrox-nix";

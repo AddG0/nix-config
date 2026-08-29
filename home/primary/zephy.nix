@@ -41,6 +41,7 @@
       "gaming/minecraft"
       "gaming/heroic.nix"
       "gaming/r2modman.nix"
+      "gaming/bakkesmod.nix"
 
       # Ghostty (Terminal)
       "ghostty"
