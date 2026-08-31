@@ -11,6 +11,11 @@
 # the workaround is redundant and can be dropped; if it fails, the workaround is
 # still doing its job. Redundant ones can be deleted at the end when prompted.
 #
+# A workaround on a package from a flake input rather than nixpkgs declares
+# `# CHECK-FLAKE-ATTR: <input>.<attrpath>` instead — resolved under
+# `flake.inputs` with `system` in scope, e.g.
+# `wayscriber.packages.${system}.default`. Same verdict, different lookup.
+#
 # A workaround tagged `# CHECK-RUNTIME: <note>` fixes runtime behavior, not a
 # build failure — building it proves nothing, so it is NOT built and is always
 # reported as NEEDS MANUAL CHECK with its note.
@@ -61,8 +66,9 @@ expr_file="$TMPDIR/targets.nix"
 {
   echo 'let'
   echo "  flake = builtins.getFlake \"$FLAKE_DIR\";"
+  echo '  system = builtins.currentSystem;'
   echo '  pkgs = import flake.inputs.nixpkgs {'
-  echo '    system = builtins.currentSystem;'
+  echo '    inherit system;'
   echo '    config = { allowUnfree = true; permittedInsecurePackages = ["openssl-1.1.1w"]; };'
   echo '  };'
   echo 'in {'
@@ -72,6 +78,12 @@ expr_file="$TMPDIR/targets.nix"
     if [ -n "$note" ]; then
       runtime["$name"]="$note"
       manual+=("$name")
+      continue
+    fi
+    flakeAttr="$(sed -n 's/^# *CHECK-FLAKE-ATTR: *//p' "$f" | head -n1)"
+    if [ -n "$flakeAttr" ]; then
+      buildable+=("$name")
+      printf '  "%s" = flake.inputs.%s;\n' "$name" "$flakeAttr"
       continue
     fi
     attr="$(sed -n 's/^# *CHECK-ATTR: *//p' "$f" | head -n1)"

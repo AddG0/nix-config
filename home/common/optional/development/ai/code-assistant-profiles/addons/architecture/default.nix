@@ -22,6 +22,10 @@ in {
         prompt.source = ./skills/architecture-standards/prompt.md;
         resourcesRoot = ./skills/architecture-standards/resources;
       };
+      "domain-language-steward" = {
+        prompt.source = ./skills/domain-language-steward/prompt.md;
+        resourcesRoot = ./skills/domain-language-steward/resources;
+      };
       "software-architecture" = fromClaudeSkillDir {
         inherit pkgs;
         source = "${skillsCollection}/adr-architecture";

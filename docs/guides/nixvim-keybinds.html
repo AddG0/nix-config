@@ -1,652 +1,867 @@
 <!doctype html>
 <html lang="en">
-<head>
-<meta charset="utf-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>nixvim keybinds</title>
-<style>
-  :root {
-    --bg: #14161f;
-    --card-bg: #1b1e29;
-    --border: #2a2e3d;
-    --text: #cdd3e0;
-    --muted: #7d8399;
-    --key-bg: #0f1119;
-    --accent: #7dd3fc;
-  }
-  * { box-sizing: border-box; }
-  body {
-    margin: 0;
-    padding: 24px;
-    background: var(--bg);
-    color: var(--text);
-    font-family: ui-monospace, "JetBrains Mono", "Cascadia Code", Consolas, monospace;
-    font-size: 13.5px;
-  }
-  header {
-    max-width: 1600px;
-    margin: 0 auto 20px;
-  }
-  h1 {
-    font-size: 20px;
-    margin: 0 0 6px;
-    color: #fff;
-  }
-  .sub {
-    color: var(--muted);
-    font-size: 12.5px;
-    line-height: 1.6;
-    max-width: 900px;
-  }
-  .sub code {
-    background: var(--key-bg);
-    padding: 1px 5px;
-    border-radius: 4px;
-    color: var(--accent);
-  }
-  #controls {
-    max-width: 1600px;
-    margin: 0 auto 20px;
-    display: flex;
-    gap: 10px;
-    align-items: center;
-    flex-wrap: wrap;
-  }
-  #search {
-    flex: 1;
-    min-width: 240px;
-    background: var(--card-bg);
-    border: 1px solid var(--border);
-    color: var(--text);
-    padding: 9px 12px;
-    border-radius: 8px;
-    font-family: inherit;
-    font-size: 14px;
-    outline: none;
-  }
-  #search:focus { border-color: var(--accent); }
-  #count { color: var(--muted); font-size: 12px; white-space: nowrap; }
-  #board {
-    max-width: 1600px;
-    margin: 0 auto;
-    column-count: 4;
-    column-gap: 16px;
-  }
-  @media (max-width: 1400px) { #board { column-count: 3; } }
-  @media (max-width: 1000px) { #board { column-count: 2; } }
-  @media (max-width: 640px)  { #board { column-count: 1; } }
-  .card {
-    break-inside: avoid;
-    background: var(--card-bg);
-    border: 1px solid var(--border);
-    border-radius: 10px;
-    padding: 12px 14px 14px;
-    margin-bottom: 16px;
-  }
-  .card.essentials {
-    border-color: var(--accent);
-    box-shadow: 0 0 0 1px rgba(125, 211, 252, 0.15);
-  }
-  .badge {
-    display: inline-block;
-    font-size: 11.5px;
-    font-weight: 600;
-    padding: 2px 8px;
-    border-radius: 5px;
-    margin-bottom: 9px;
-    color: #10121a;
-  }
-  .row {
-    display: flex;
-    justify-content: space-between;
-    gap: 14px;
-    padding: 3px 0;
-    line-height: 1.5;
-  }
-  .row .action {
-    color: var(--text);
-    white-space: normal;
-  }
-  .row .mode {
-    color: var(--muted);
-    font-size: 11px;
-  }
-  .row .key {
-    color: var(--accent);
-    white-space: nowrap;
-    text-align: right;
-  }
-  .row.hidden { display: none; }
-  .card.hidden { display: none; }
-</style>
-</head>
-<body>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>nixvim keybinds</title>
+    <style>
+      :root {
+        --bg: #14161f;
+        --card-bg: #1b1e29;
+        --border: #2a2e3d;
+        --text: #cdd3e0;
+        --muted: #7d8399;
+        --key-bg: #0f1119;
+        --accent: #7dd3fc;
+      }
+      * {
+        box-sizing: border-box;
+      }
+      body {
+        margin: 0;
+        padding: 24px;
+        background: var(--bg);
+        color: var(--text);
+        font-family:
+          ui-monospace, "JetBrains Mono", "Cascadia Code", Consolas, monospace;
+        font-size: 13.5px;
+      }
+      header {
+        max-width: 1600px;
+        margin: 0 auto 20px;
+      }
+      h1 {
+        font-size: 20px;
+        margin: 0 0 6px;
+        color: #fff;
+      }
+      .sub {
+        color: var(--muted);
+        font-size: 12.5px;
+        line-height: 1.6;
+        max-width: 900px;
+      }
+      .sub code {
+        background: var(--key-bg);
+        padding: 1px 5px;
+        border-radius: 4px;
+        color: var(--accent);
+      }
+      #controls {
+        max-width: 1600px;
+        margin: 0 auto 20px;
+        display: flex;
+        gap: 10px;
+        align-items: center;
+        flex-wrap: wrap;
+      }
+      #search {
+        flex: 1;
+        min-width: 240px;
+        background: var(--card-bg);
+        border: 1px solid var(--border);
+        color: var(--text);
+        padding: 9px 12px;
+        border-radius: 8px;
+        font-family: inherit;
+        font-size: 14px;
+        outline: none;
+      }
+      #search:focus {
+        border-color: var(--accent);
+      }
+      #count {
+        color: var(--muted);
+        font-size: 12px;
+        white-space: nowrap;
+      }
+      #board {
+        max-width: 1600px;
+        margin: 0 auto;
+        column-count: 4;
+        column-gap: 16px;
+      }
+      @media (max-width: 1400px) {
+        #board {
+          column-count: 3;
+        }
+      }
+      @media (max-width: 1000px) {
+        #board {
+          column-count: 2;
+        }
+      }
+      @media (max-width: 640px) {
+        #board {
+          column-count: 1;
+        }
+      }
+      .card {
+        break-inside: avoid;
+        background: var(--card-bg);
+        border: 1px solid var(--border);
+        border-radius: 10px;
+        padding: 12px 14px 14px;
+        margin-bottom: 16px;
+      }
+      .card.essentials {
+        border-color: var(--accent);
+        box-shadow: 0 0 0 1px rgba(125, 211, 252, 0.15);
+      }
+      .badge {
+        display: inline-block;
+        font-size: 11.5px;
+        font-weight: 600;
+        padding: 2px 8px;
+        border-radius: 5px;
+        margin-bottom: 9px;
+        color: #10121a;
+      }
+      .row {
+        display: flex;
+        justify-content: space-between;
+        gap: 14px;
+        padding: 3px 0;
+        line-height: 1.5;
+      }
+      .row .action {
+        color: var(--text);
+        white-space: normal;
+      }
+      .row .mode {
+        color: var(--muted);
+        font-size: 11px;
+      }
+      .row .key {
+        color: var(--accent);
+        white-space: nowrap;
+        text-align: right;
+      }
+      .row.hidden {
+        display: none;
+      }
+      .card.hidden {
+        display: none;
+      }
+    </style>
+  </head>
+  <body>
+    <header>
+      <h1>nixvim keybinds</h1>
+      <div class="sub">
+        Leader is <code>Space</code>, shown as <code>␣</code> in the key column
+        — so <code>␣ff</code> means Space, then <code>f</code>, then
+        <code>f</code>. Unmarked rows are normal mode. which-key is enabled, so
+        pausing on any prefix (<code>␣</code>, <code>g</code>, <code>]</code>,
+        <code>[</code>…) pops up a live menu — and <code>␣sk</code> is a
+        searchable picker over every keymap, including anything not listed here.
+      </div>
+    </header>
 
-<header>
-  <h1>nixvim keybinds</h1>
-  <div class="sub">
-    Leader is <code>Space</code>, shown as <code>␣</code> in the key column — so <code>␣ff</code>
-    means Space, then <code>f</code>, then <code>f</code>.
-    Unmarked rows are normal mode. which-key is enabled, so pausing on any prefix
-    (<code>␣</code>, <code>g</code>, <code>]</code>, <code>[</code>…) pops up a live menu — and
-    <code>␣sk</code> is a searchable picker over every keymap, including anything not listed here.
-  </div>
-</header>
+    <div id="controls">
+      <input
+        id="search"
+        type="text"
+        placeholder="Filter keys or actions…"
+        autofocus
+      />
+      <span id="count"></span>
+    </div>
 
-<div id="controls">
-  <input id="search" type="text" placeholder="Filter keys or actions…" autofocus />
-  <span id="count"></span>
-</div>
+    <div id="board"></div>
 
-<div id="board"></div>
+    <script>
+      const DATA = [
+        {
+          title: "Essentials",
+          color: "#7dd3fc",
+          essentials: true,
+          rows: [
+            ["Save file", "n/i/v", "<C-s>"],
+            ["Quit all", "", "<leader>qq"],
+            ["Move to window (tmux-aware)", "", "<C-h/j/k/l>"],
+            ["Split below / right", "", "<leader>- / <leader>|"],
+            ["Prev / next buffer", "", "<S-h> / <S-l>"],
+            ["Delete buffer", "", "<leader>bd"],
+            ["Toggle file explorer", "", "<leader>e"],
+            ["Find files", "", "<leader>ff"],
+            ["Buffers", "", "<leader>fb"],
+            ["Grep", "", "<leader>/"],
+            ["Keymaps (live search)", "", "<leader>sk"],
+            ["Next / prev diagnostic", "", "]d / [d"],
+            ["Line diagnostics", "", "<leader>cd"],
+            ["Hover docs", "", "K"],
+            ["Goto definition", "", "gd"],
+            ["References", "", "grr"],
+            ["Code action", "", "<leader>ca"],
+            ["Rename", "", "<leader>cr"],
+            ["Format buffer", "", "<leader>cf"],
+            ["Lazygit (repo root)", "", "<leader>gg"],
+            ["Git status", "", "<leader>gs"],
+            ["Next / prev git hunk", "", "]h / [h"],
+            ["Harpoon add / menu", "", "<leader>H / <leader>h"],
+            ["Toggle Claude Code CLI", "", "<leader>aa"],
+            ["Toggle terminal", "n/t", "<C-\\>"],
+            ["Toggle scratch buffer", "", "<leader>."],
+          ],
+        },
 
-<script>
-const DATA = [
-  { title: "Essentials", color: "#7dd3fc", essentials: true, rows: [
-    ["Save file", "n/i/v", "<C-s>"],
-    ["Quit all", "", "<leader>qq"],
-    ["Move to window (tmux-aware)", "", "<C-h/j/k/l>"],
-    ["Split below / right", "", "<leader>- / <leader>|"],
-    ["Prev / next buffer", "", "<S-h> / <S-l>"],
-    ["Delete buffer", "", "<leader>bd"],
-    ["Toggle file explorer", "", "<leader>e"],
-    ["Find files", "", "<leader>ff"],
-    ["Buffers", "", "<leader>fb"],
-    ["Grep", "", "<leader>/"],
-    ["Keymaps (live search)", "", "<leader>sk"],
-    ["Next / prev diagnostic", "", "]d / [d"],
-    ["Line diagnostics", "", "<leader>cd"],
-    ["Hover docs", "", "K"],
-    ["Goto definition", "", "gd"],
-    ["References", "", "grr"],
-    ["Code action", "", "<leader>ca"],
-    ["Rename", "", "<leader>cr"],
-    ["Format buffer", "", "<leader>cf"],
-    ["Lazygit (repo root)", "", "<leader>gg"],
-    ["Git status", "", "<leader>gs"],
-    ["Next / prev git hunk", "", "]h / [h"],
-    ["Harpoon add / menu", "", "<leader>H / <leader>h"],
-    ["Toggle Claude Code CLI", "", "<leader>aa"],
-    ["Toggle terminal", "n/t", "<C-\\>"],
-    ["Toggle scratch buffer", "", "<leader>."],
-  ]},
+        {
+          title: "Vim: modes",
+          color: "#94a3b8",
+          rows: [
+            ["Insert before / after cursor", "", "i / a"],
+            ["Insert at start / end of line", "", "I / A"],
+            ["New line below / above (insert)", "", "o / O"],
+            ["Insert at last insert position", "", "gi"],
+            ["Visual: char / line / block", "", "v / V / <C-v>"],
+            ["Replace mode (overtype)", "", "R"],
+            ["Back to normal mode", "i/v", "<esc>"],
+          ],
+        },
 
-  { title: "Vim: modes", color: "#94a3b8", rows: [
-    ["Insert before / after cursor", "", "i / a"],
-    ["Insert at start / end of line", "", "I / A"],
-    ["New line below / above (insert)", "", "o / O"],
-    ["Insert at last insert position", "", "gi"],
-    ["Visual: char / line / block", "", "v / V / <C-v>"],
-    ["Replace mode (overtype)", "", "R"],
-    ["Back to normal mode", "i/v", "<esc>"],
-  ]},
+        {
+          title: "Vim: movement",
+          color: "#a8a29e",
+          rows: [
+            ["Left / down / up / right", "", "h / j / k / l"],
+            ["Next word / prev word / end of word", "", "w / b / e"],
+            ["Same, but WORD (whitespace-delimited)", "", "W / B / E"],
+            ["Start of line / first non-blank / end of line", "", "0 / ^ / $"],
+            ["Top / bottom of file", "", "gg / G"],
+            ["Go to line {n}", "", "{n}G"],
+            ["Jump to matching bracket", "", "%"],
+            ["Prev / next paragraph", "", "{ / }"],
+            ["Top / middle / bottom of screen", "", "H / M / L"],
+            ["Half page down / up", "", "<C-d> / <C-u>"],
+            ["Full page down / up", "", "<C-f> / <C-b>"],
+            [
+              "Center / top / bottom current line on screen",
+              "",
+              "zz / zt / zb",
+            ],
+          ],
+        },
 
-  { title: "Vim: movement", color: "#a8a29e", rows: [
-    ["Left / down / up / right", "", "h / j / k / l"],
-    ["Next word / prev word / end of word", "", "w / b / e"],
-    ["Same, but WORD (whitespace-delimited)", "", "W / B / E"],
-    ["Start of line / first non-blank / end of line", "", "0 / ^ / $"],
-    ["Top / bottom of file", "", "gg / G"],
-    ["Go to line {n}", "", "{n}G"],
-    ["Jump to matching bracket", "", "%"],
-    ["Prev / next paragraph", "", "{ / }"],
-    ["Top / middle / bottom of screen", "", "H / M / L"],
-    ["Half page down / up", "", "<C-d> / <C-u>"],
-    ["Full page down / up", "", "<C-f> / <C-b>"],
-    ["Center / top / bottom current line on screen", "", "zz / zt / zb"],
-  ]},
+        {
+          title: "Vim: editing",
+          color: "#78716c",
+          rows: [
+            ["Delete char under / before cursor", "", "x / X"],
+            ["Delete / yank / change line", "", "dd / yy / cc"],
+            ["Delete / change / yank to end of line", "", "D / C / Y"],
+            ["Replace one character", "", "r{char}"],
+            ["Toggle case", "", "~"],
+            ["Join line below", "", "J"],
+            ["Undo / redo", "", "u / <C-r>"],
+            ["Repeat last change", "", "."],
+            ["Indent / outdent line", "", ">> / <<"],
+            [
+              'Operator + motion/object, e.g. dw, ciw, di(, da"',
+              "",
+              "{op}{motion}",
+            ],
+          ],
+        },
 
-  { title: "Vim: editing", color: "#78716c", rows: [
-    ["Delete char under / before cursor", "", "x / X"],
-    ["Delete / yank / change line", "", "dd / yy / cc"],
-    ["Delete / change / yank to end of line", "", "D / C / Y"],
-    ["Replace one character", "", "r{char}"],
-    ["Toggle case", "", "~"],
-    ["Join line below", "", "J"],
-    ["Undo / redo", "", "u / <C-r>"],
-    ["Repeat last change", "", "."],
-    ["Indent / outdent line", "", ">> / <<"],
-    ["Operator + motion/object, e.g. dw, ciw, di(, da\"", "", "{op}{motion}"],
-  ]},
+        {
+          title: "Vim: text objects",
+          color: "#a1a1aa",
+          rows: [
+            ["Word / WORD", "with an operator or v", "iw / aw, iW / aW"],
+            ["Quotes", "with an operator or v", 'i" / a" (also \' `)'],
+            ["Brackets", "with an operator or v", "i( / a(, i[ / a[, i{ / a{"],
+            ["Paragraph", "with an operator or v", "ip / ap"],
+            ["Tag (html/xml)", "with an operator or v", "it / at"],
+          ],
+        },
 
-  { title: "Vim: text objects", color: "#a1a1aa", rows: [
-    ["Word / WORD", "with an operator or v", "iw / aw, iW / aW"],
-    ["Quotes", "with an operator or v", "i\" / a\" (also ' `)"],
-    ["Brackets", "with an operator or v", "i( / a(, i[ / a[, i{ / a{"],
-    ["Paragraph", "with an operator or v", "ip / ap"],
-    ["Tag (html/xml)", "with an operator or v", "it / at"],
-  ]},
+        {
+          title: "Plugin default: mini.ai (extra text objects)",
+          color: "#2dd4bf",
+          rows: [
+            [
+              "Around / inside the NEXT occurrence",
+              "with an operator or v",
+              "an / in",
+            ],
+            [
+              "Around / inside the LAST (prev) occurrence",
+              "with an operator or v",
+              "al / il",
+            ],
+            ["Jump to left / right edge of a text object", "", "g[ / g]"],
+          ],
+        },
 
-  { title: "Plugin default: mini.ai (extra text objects)", color: "#2dd4bf", rows: [
-    ["Around / inside the NEXT occurrence", "with an operator or v", "an / in"],
-    ["Around / inside the LAST (prev) occurrence", "with an operator or v", "al / il"],
-    ["Jump to left / right edge of a text object", "", "g[ / g]"],
-  ]},
+        {
+          title: "Plugin default: mini.surround",
+          color: "#14b8a6",
+          rows: [
+            ["Add surrounding (then a motion/object + char)", "", "sa"],
+            ["Delete surrounding", "", "sd"],
+            ["Replace surrounding", "", "sr"],
+            ["Find surrounding, searching right / left", "", "sf / sF"],
+            ["Highlight surrounding", "", "sh"],
+          ],
+        },
 
-  { title: "Plugin default: mini.surround", color: "#14b8a6", rows: [
-    ["Add surrounding (then a motion/object + char)", "", "sa"],
-    ["Delete surrounding", "", "sd"],
-    ["Replace surrounding", "", "sr"],
-    ["Find surrounding, searching right / left", "", "sf / sF"],
-    ["Highlight surrounding", "", "sh"],
-  ]},
+        {
+          title: "Plugin default: origami (smart folds)",
+          color: "#0d9488",
+          rows: [
+            [
+              "Close fold at column 0, else move left",
+              "this config requires column 0",
+              "h",
+            ],
+            ["Open fold under cursor, else move right", "", "l"],
+            [
+              "Close fold recursively at column 0",
+              "this config requires column 0",
+              "^",
+            ],
+            ["Open fold recursively", "", "$"],
+          ],
+        },
 
-  { title: "Plugin default: origami (smart folds)", color: "#0d9488", rows: [
-    ["Close fold at column 0, else move left", "this config requires column 0", "h"],
-    ["Open fold under cursor, else move right", "", "l"],
-    ["Close fold recursively at column 0", "this config requires column 0", "^"],
-    ["Open fold recursively", "", "$"],
-  ]},
+        {
+          title: "Plugin default: snacks picker (any picker window)",
+          color: "#0f766e",
+          rows: [
+            ["Confirm / open", "", "<CR>"],
+            ["Close picker", "", "<Esc> / q / <C-c>"],
+            ["Move down / up", "", "j / k, <C-j>/<C-k>"],
+            ["First / last result", "", "gg / G"],
+            ["Open in split / vsplit / tab", "", "<C-s> / <C-v> / <C-t>"],
+            ["Toggle selection, move down / up", "", "<Tab> / <S-Tab>"],
+            ["Select all results", "", "<C-a>"],
+            ["Send all results to quickfix", "", "<C-q>"],
+            ["Scroll preview up / down", "", "<C-b> / <C-f>"],
+            ["Toggle preview pane", "", "<A-p>"],
+            ["Toggle maximize", "", "<A-m>"],
+            ["Toggle hidden / ignored files", "", "<A-h> / <A-i>"],
+            ["Focus input from list", "", "i"],
+            ["Toggle focus between input and list", "", "/"],
+            ["Show all picker keymaps", "", "?"],
+          ],
+        },
 
-  { title: "Plugin default: snacks picker (any picker window)", color: "#0f766e", rows: [
-    ["Confirm / open", "", "<CR>"],
-    ["Close picker", "", "<Esc> / q / <C-c>"],
-    ["Move down / up", "", "j / k, <C-j>/<C-k>"],
-    ["First / last result", "", "gg / G"],
-    ["Open in split / vsplit / tab", "", "<C-s> / <C-v> / <C-t>"],
-    ["Toggle selection, move down / up", "", "<Tab> / <S-Tab>"],
-    ["Select all results", "", "<C-a>"],
-    ["Send all results to quickfix", "", "<C-q>"],
-    ["Scroll preview up / down", "", "<C-b> / <C-f>"],
-    ["Toggle preview pane", "", "<A-p>"],
-    ["Toggle maximize", "", "<A-m>"],
-    ["Toggle hidden / ignored files", "", "<A-h> / <A-i>"],
-    ["Focus input from list", "", "i"],
-    ["Toggle focus between input and list", "", "/"],
-    ["Show all picker keymaps", "", "?"],
-  ]},
+        {
+          title: "Plugin default: blink.cmp (completion menu)",
+          color: "#059669",
+          rows: [
+            ["Accept / snippet forward", "", "<Tab>"],
+            ["Snippet backward", "", "<S-Tab>"],
+            ["Prev / next item", "", "<Up>/<Down>, <C-p>/<C-n>"],
+            ["Show / hide docs", "", "<C-space>"],
+            ["Cancel completion", "", "<C-e>"],
+            ["Scroll docs up / down", "", "<C-b> / <C-f>"],
+            ["Show signature help", "", "<C-k>"],
+          ],
+        },
 
-  { title: "Plugin default: blink.cmp (completion menu)", color: "#059669", rows: [
-    ["Accept / snippet forward", "", "<Tab>"],
-    ["Snippet backward", "", "<S-Tab>"],
-    ["Prev / next item", "", "<Up>/<Down>, <C-p>/<C-n>"],
-    ["Show / hide docs", "", "<C-space>"],
-    ["Cancel completion", "", "<C-e>"],
-    ["Scroll docs up / down", "", "<C-b> / <C-f>"],
-    ["Show signature help", "", "<C-k>"],
-  ]},
+        {
+          title: "Plugin default: Trouble (any panel)",
+          color: "#10b981",
+          rows: [
+            ["Jump to item", "", "<CR>"],
+            ["Jump to item and close", "", "o"],
+            ["Next / prev item", "", "}/{ or ]] / [["],
+            ["Open in split / vsplit", "", "<C-s> / <C-v>"],
+            ["Toggle preview", "", "P"],
+            ["Toggle / open all / close all folds", "", "za / zR / zM"],
+            ["Refresh", "", "r"],
+            ["Close", "", "q"],
+            ["Help", "", "?"],
+          ],
+        },
 
-  { title: "Plugin default: Trouble (any panel)", color: "#10b981", rows: [
-    ["Jump to item", "", "<CR>"],
-    ["Jump to item and close", "", "o"],
-    ["Next / prev item", "", "}/{ or ]] / [["],
-    ["Open in split / vsplit", "", "<C-s> / <C-v>"],
-    ["Toggle preview", "", "P"],
-    ["Toggle / open all / close all folds", "", "za / zR / zM"],
-    ["Refresh", "", "r"],
-    ["Close", "", "q"],
-    ["Help", "", "?"],
-  ]},
+        {
+          title: "Plugin default: neotest summary (<leader>ts panel)",
+          color: "#34d399",
+          rows: [
+            ["Expand / collapse", "", "<CR>"],
+            ["Run nearest", "", "r"],
+            ["Debug nearest", "", "d"],
+            ["Stop", "", "u"],
+            ["Attach", "", "a"],
+            ["Show output / short output", "", "o / O"],
+            ["Mark for batch run", "", "m"],
+            ["Run / debug marked", "", "R / D"],
+            ["Next / prev failed", "", "J / K"],
+            ["Jump to test in buffer", "", "i"],
+            ["Help", "", "?"],
+          ],
+        },
 
-  { title: "Plugin default: neotest summary (<leader>ts panel)", color: "#34d399", rows: [
-    ["Expand / collapse", "", "<CR>"],
-    ["Run nearest", "", "r"],
-    ["Debug nearest", "", "d"],
-    ["Stop", "", "u"],
-    ["Attach", "", "a"],
-    ["Show output / short output", "", "o / O"],
-    ["Mark for batch run", "", "m"],
-    ["Run / debug marked", "", "R / D"],
-    ["Next / prev failed", "", "J / K"],
-    ["Jump to test in buffer", "", "i"],
-    ["Help", "", "?"],
-  ]},
+        {
+          title: "Plugin default: visual-multi (multi-cursor)",
+          color: "#6ee7b7",
+          rows: [
+            ["Find under cursor (this config's key)", "n/v", "<M-n>"],
+            ["Add cursor down / up", "", "<C-Down> / <C-Up>"],
+            ["Select all matches", "", "\\A"],
+            ["Start regex search", "", "\\/"],
+            ["Skip this region / remove this region", "once active", "q / Q"],
+            ["Find next / prev (once active)", "", "n / N"],
+            ["Toggle multiline mode", "", "M"],
+            ["Exit multi-cursor mode", "", "<Esc>"],
+          ],
+        },
 
-  { title: "Plugin default: visual-multi (multi-cursor)", color: "#6ee7b7", rows: [
-    ["Find under cursor (this config's key)", "n/v", "<M-n>"],
-    ["Add cursor down / up", "", "<C-Down> / <C-Up>"],
-    ["Select all matches", "", "\\A"],
-    ["Start regex search", "", "\\/"],
-    ["Skip this region / remove this region", "once active", "q / Q"],
-    ["Find next / prev (once active)", "", "n / N"],
-    ["Toggle multiline mode", "", "M"],
-    ["Exit multi-cursor mode", "", "<Esc>"],
-  ]},
+        {
+          title: "Vim: copy, paste & registers",
+          color: "#8b8f9a",
+          rows: [
+            ["Yank / put after / put before", "n/x", "y / p / P"],
+            ["Yank / put to a named register", "", '"{a-z}y / "{a-z}p'],
+            ["Put the last yank specifically", "survives deletes", '"0p'],
+            [
+              "System clipboard yank / put",
+              "already the default here",
+              '"+y / "+p',
+            ],
+            ["Record macro into register / stop recording", "", "q{a-z} … q"],
+            ["Replay macro / repeat last macro", "", "@{a-z} / @@"],
+          ],
+        },
 
-  { title: "Vim: copy, paste & registers", color: "#8b8f9a", rows: [
-    ["Yank / put after / put before", "n/x", "y / p / P"],
-    ["Yank / put to a named register", "", "\"{a-z}y / \"{a-z}p"],
-    ["Put the last yank specifically", "survives deletes", "\"0p"],
-    ["System clipboard yank / put", "already the default here", "\"+y / \"+p"],
-    ["Record macro into register / stop recording", "", "q{a-z} … q"],
-    ["Replay macro / repeat last macro", "", "@{a-z} / @@"],
-  ]},
+        {
+          title: "Vim: search",
+          color: "#71717a",
+          rows: [
+            ["Search forward / backward", "", "/ / ?"],
+            ["Repeat search forward / backward", "", "n / N"],
+            ["Search word under cursor forward / backward", "", "* / #"],
+            [
+              "Substitute on the line / whole buffer",
+              "",
+              ":s/old/new/ / :%s/old/new/g",
+            ],
+          ],
+        },
 
-  { title: "Vim: search", color: "#71717a", rows: [
-    ["Search forward / backward", "", "/ / ?"],
-    ["Repeat search forward / backward", "", "n / N"],
-    ["Search word under cursor forward / backward", "", "* / #"],
-    ["Substitute on the line / whole buffer", "", ":s/old/new/ / :%s/old/new/g"],
-  ]},
+        {
+          title: "Vim: marks & jumps",
+          color: "#6b7280",
+          rows: [
+            ["Set mark", "", "m{a-z}"],
+            ["Jump to mark: line / exact position", "", "'{a-z} / `{a-z}"],
+            ["Jump to position before last jump", "", "'' / ``"],
+            ["Back / forward in the jumplist", "", "<C-o> / <C-i>"],
+          ],
+        },
 
-  { title: "Vim: marks & jumps", color: "#6b7280", rows: [
-    ["Set mark", "", "m{a-z}"],
-    ["Jump to mark: line / exact position", "", "'{a-z} / `{a-z}"],
-    ["Jump to position before last jump", "", "'' / ``"],
-    ["Back / forward in the jumplist", "", "<C-o> / <C-i>"],
-  ]},
+        {
+          title: "Vim: command-line",
+          color: "#9ca3af",
+          rows: [
+            [
+              "Save / quit / save & quit / quit without saving",
+              "",
+              ":w / :q / :wq / :q!",
+            ],
+            ["Edit a file", "", ":e {path}"],
+            ["Filter buffer through an external command", "", ":%!{cmd}"],
+          ],
+        },
 
-  { title: "Vim: command-line", color: "#9ca3af", rows: [
-    ["Save / quit / save & quit / quit without saving", "", ":w / :q / :wq / :q!"],
-    ["Edit a file", "", ":e {path}"],
-    ["Filter buffer through an external command", "", ":%!{cmd}"],
-  ]},
+        {
+          title: "Motion & editing",
+          color: "#c084fc",
+          rows: [
+            ["Down / up (wraps by display line)", "n/x", "j / k"],
+            ["Down / up (arrow variants)", "n/x", "<Down> / <Up>"],
+            ["Resize window", "", "<C-Up/Down/Left/Right>"],
+            ["Move line/selection down / up", "n/v", "<A-j> / <A-k>"],
+            ["Clear search highlight", "", "<esc>"],
+            ["Next / prev search result (centered)", "", "n / N"],
+            ["Indent, reselect", "v", "< / >"],
+            ["Keywordprg (help under cursor)", "", "<leader>K"],
+            ["Delete one mark", "", "dm{a-z}"],
+            ["Delete all marks", "", "dm<space>"],
+            ["Flash jump", "n/x/o", "s"],
+            ["Flash Treesitter jump", "n/x/o", "S"],
+            ["Flash remote (act at a distance)", "o", "r"],
+            ["Flash Treesitter search", "o/x", "R"],
+            ["Function outer/inner (treesitter)", "x/o", "af / if"],
+            ["Class outer/inner (treesitter)", "x/o", "ac / ic"],
+            ["Parameter outer/inner (treesitter)", "x/o", "aa / ia"],
+            ["Next/prev function start", "n/x/o", "]f / [f"],
+            ["Next/prev class start", "n/x/o", "]c / [c"],
+            ["Next/prev parameter", "n/x/o", "]a / [a"],
+            ["Increment / decrement", "n/x", "<C-a> / <C-x>"],
+            ["Increment / decrement (cumulative)", "x", "g<C-a> / g<C-x>"],
+            ["Yank / put after / put before", "n/x", "y / p / P"],
+            ["Cycle prev / next yank", "", "<C-p> / <C-n>"],
+            ["Add comment below / above", "", "gco / gcO"],
+            ["Search & replace across project", "", "<leader>sr"],
+          ],
+        },
 
-  { title: "Motion & editing", color: "#c084fc", rows: [
-    ["Down / up (wraps by display line)", "n/x", "j / k"],
-    ["Down / up (arrow variants)", "n/x", "<Down> / <Up>"],
-    ["Resize window", "", "<C-Up/Down/Left/Right>"],
-    ["Move line/selection down / up", "n/v", "<A-j> / <A-k>"],
-    ["Clear search highlight", "", "<esc>"],
-    ["Next / prev search result (centered)", "", "n / N"],
-    ["Indent, reselect", "v", "< / >"],
-    ["Keywordprg (help under cursor)", "", "<leader>K"],
-    ["Delete one mark", "", "dm{a-z}"],
-    ["Delete all marks", "", "dm<space>"],
-    ["Flash jump", "n/x/o", "s"],
-    ["Flash Treesitter jump", "n/x/o", "S"],
-    ["Flash remote (act at a distance)", "o", "r"],
-    ["Flash Treesitter search", "o/x", "R"],
-    ["Function outer/inner (treesitter)", "x/o", "af / if"],
-    ["Class outer/inner (treesitter)", "x/o", "ac / ic"],
-    ["Parameter outer/inner (treesitter)", "x/o", "aa / ia"],
-    ["Next/prev function start", "n/x/o", "]f / [f"],
-    ["Next/prev class start", "n/x/o", "]c / [c"],
-    ["Next/prev parameter", "n/x/o", "]a / [a"],
-    ["Increment / decrement", "n/x", "<C-a> / <C-x>"],
-    ["Increment / decrement (cumulative)", "x", "g<C-a> / g<C-x>"],
-    ["Yank / put after / put before", "n/x", "y / p / P"],
-    ["Cycle prev / next yank", "", "<C-p> / <C-n>"],
-    ["Add comment below / above", "", "gco / gcO"],
-    ["Search & replace across project", "", "<leader>sr"],
-  ]},
+        {
+          title: "Windows, tabs & buffers",
+          color: "#93c5fd",
+          rows: [
+            ["Delete window", "", "<leader>wd"],
+            ["Maximize window (zoom toggle)", "", "<leader>wm"],
+            ["Prev / next buffer", "", "[b / ]b"],
+            ["Switch to alternate buffer", "", "<leader>bb"],
+            ["Switch to alternate buffer (alt key)", "", "<leader>`"],
+            ["Delete other buffers", "", "<leader>bo"],
+            ["Delete buffer (:bd)", "", "<leader>bD"],
+            ["New tab", "", "<leader><tab><tab>"],
+            ["Next / prev tab", "", "<leader><tab>] / <leader><tab>["],
+            ["Close tab", "", "<leader><tab>d"],
+            ["Close other tabs", "", "<leader><tab>o"],
+            ["First / last tab", "", "<leader><tab>f / <leader><tab>l"],
+            ["Rename tab", "", "<leader><tab>r"],
+          ],
+        },
 
-  { title: "Windows, tabs & buffers", color: "#93c5fd", rows: [
-    ["Delete window", "", "<leader>wd"],
-    ["Maximize window (zoom toggle)", "", "<leader>wm"],
-    ["Prev / next buffer", "", "[b / ]b"],
-    ["Switch to alternate buffer", "", "<leader>bb"],
-    ["Switch to alternate buffer (alt key)", "", "<leader>`"],
-    ["Delete other buffers", "", "<leader>bo"],
-    ["Delete buffer (:bd)", "", "<leader>bD"],
-    ["New tab", "", "<leader><tab><tab>"],
-    ["Next / prev tab", "", "<leader><tab>] / <leader><tab>["],
-    ["Close tab", "", "<leader><tab>d"],
-    ["Close other tabs", "", "<leader><tab>o"],
-    ["First / last tab", "", "<leader><tab>f / <leader><tab>l"],
-    ["Rename tab", "", "<leader><tab>r"],
-  ]},
+        {
+          title: "Diagnostics & quickfix",
+          color: "#fca5a5",
+          rows: [
+            ["Next / prev diagnostic", "", "]d / [d"],
+            ["Next / prev error only", "", "]e / [e"],
+            ["Next / prev warning only", "", "]w / [w"],
+            ["Line diagnostics (float)", "", "<leader>cd"],
+            ["Next / prev quickfix entry", "", "]q / [q"],
+            ["Quickfix list (Trouble)", "", "<leader>xq"],
+            ["Location list (Trouble)", "", "<leader>xl"],
+            ["Diagnostics (Trouble)", "", "<leader>xx"],
+            ["Todo (Trouble)", "", "<leader>xt"],
+            ["Todo/Fix/Fixme (Trouble)", "", "<leader>xT"],
+            ["Next / prev TODO comment", "", "]t / [t"],
+          ],
+        },
 
-  { title: "Diagnostics & quickfix", color: "#fca5a5", rows: [
-    ["Next / prev diagnostic", "", "]d / [d"],
-    ["Next / prev error only", "", "]e / [e"],
-    ["Next / prev warning only", "", "]w / [w"],
-    ["Line diagnostics (float)", "", "<leader>cd"],
-    ["Next / prev quickfix entry", "", "]q / [q"],
-    ["Quickfix list (Trouble)", "", "<leader>xq"],
-    ["Location list (Trouble)", "", "<leader>xl"],
-    ["Diagnostics (Trouble)", "", "<leader>xx"],
-    ["Todo (Trouble)", "", "<leader>xt"],
-    ["Todo/Fix/Fixme (Trouble)", "", "<leader>xT"],
-    ["Next / prev TODO comment", "", "]t / [t"],
-  ]},
+        {
+          title: "Find & search",
+          color: "#5eead4",
+          rows: [
+            ["Find files", "", "<leader>ff"],
+            ["Find files (alt key)", "", "<leader><space>"],
+            ["Recent files", "", "<leader>fr"],
+            ["Buffers", "", "<leader>fb"],
+            ["Buffers (alt key)", "", "<leader>,"],
+            ["Copy absolute path", "", "<leader>fp"],
+            ["Copy relative path", "", "<leader>fP"],
+            ["New file", "", "<leader>fn"],
+            ["Grep", "", "<leader>/"],
+            ["Grep (alt key)", "", "<leader>sg"],
+            ["Grep word under cursor", "n/x", "<leader>sw"],
+            ["Help pages", "", "<leader>sh"],
+            ["Marks", "", "<leader>sm"],
+            ["Jumps", "", "<leader>sj"],
+            ["Diagnostics", "", "<leader>sd"],
+            ["LSP symbols (buffer)", "", "<leader>ss"],
+            ["Functions/methods (workspace)", "", "<leader>sf"],
+            ["Classes/types (workspace)", "", "<leader>sc"],
+            ["Buffer lines", "", "<leader>sb"],
+            ["Commands", "", "<leader>sC"],
+            ["Registers", "", '<leader>s"'],
+            ["Todo", "", "<leader>st"],
+            ["Todo/Fix/Fixme", "", "<leader>sT"],
+            ["Keymaps", "", "<leader>sk"],
+            ["Resume last picker", "", "<leader>sR"],
+            ["Command history", "", "<leader>:"],
+            ["Keybind guide (browser)", "", "<leader>sK"],
+          ],
+        },
 
-  { title: "Find & search", color: "#5eead4", rows: [
-    ["Find files", "", "<leader>ff"],
-    ["Find files (alt key)", "", "<leader><space>"],
-    ["Recent files", "", "<leader>fr"],
-    ["Buffers", "", "<leader>fb"],
-    ["Buffers (alt key)", "", "<leader>,"],
-    ["Copy absolute path", "", "<leader>fp"],
-    ["Copy relative path", "", "<leader>fP"],
-    ["New file", "", "<leader>fn"],
-    ["Grep", "", "<leader>/"],
-    ["Grep (alt key)", "", "<leader>sg"],
-    ["Grep word under cursor", "n/x", "<leader>sw"],
-    ["Help pages", "", "<leader>sh"],
-    ["Marks", "", "<leader>sm"],
-    ["Jumps", "", "<leader>sj"],
-    ["Diagnostics", "", "<leader>sd"],
-    ["LSP symbols (buffer)", "", "<leader>ss"],
-    ["Functions/methods (workspace)", "", "<leader>sf"],
-    ["Classes/types (workspace)", "", "<leader>sc"],
-    ["Buffer lines", "", "<leader>sb"],
-    ["Commands", "", "<leader>sC"],
-    ["Registers", "", "<leader>s\""],
-    ["Todo", "", "<leader>st"],
-    ["Todo/Fix/Fixme", "", "<leader>sT"],
-    ["Keymaps", "", "<leader>sk"],
-    ["Resume last picker", "", "<leader>sR"],
-    ["Command history", "", "<leader>:"],
-    ["Keybind guide (browser)", "", "<leader>sK"],
-  ]},
+        {
+          title: "File explorer",
+          color: "#fdba74",
+          rows: [
+            ["Toggle explorer", "", "<leader>e"],
+            ["Expand folder subtree recursively", "in explorer", "E"],
+            ["Collapse folder subtree recursively", "in explorer", "W"],
+            [
+              "Open (auto-descends single-child chains)",
+              "in explorer",
+              "<CR> / l",
+            ],
+          ],
+        },
 
-  { title: "File explorer", color: "#fdba74", rows: [
-    ["Toggle explorer", "", "<leader>e"],
-    ["Expand folder subtree recursively", "in explorer", "E"],
-    ["Collapse folder subtree recursively", "in explorer", "W"],
-    ["Open (auto-descends single-child chains)", "in explorer", "<CR> / l"],
-  ]},
+        {
+          title: "Git",
+          color: "#f472b6",
+          rows: [
+            ["Lazygit (repo root)", "", "<leader>gg"],
+            ["Lazygit (cwd)", "", "<leader>gG"],
+            ["Neogit", "", "<leader>gN"],
+            ["Diffview", "", "<leader>gv"],
+            ["Git branches (checkout)", "", "<leader>gc"],
+            ["Git tree, full graph (Flog)", "n/x", "<leader>gt"],
+            ["Git log (repo root)", "", "<leader>gl"],
+            ["Git log (cwd)", "", "<leader>gL"],
+            ["Git blame line", "", "<leader>gb"],
+            ["Current file history", "", "<leader>gf"],
+            ["File history, following renames", "", "<leader>gF"],
+            ["Git status", "", "<leader>gs"],
+            ["Git stash", "", "<leader>gS"],
+            ["Git diff (hunks)", "", "<leader>gd"],
+            ["Git diff vs. origin", "", "<leader>gD"],
+            ["Open current line on remote", "n/x", "<leader>gB"],
+            ["Copy remote URL", "n/x", "<leader>gY"],
+          ],
+        },
 
-  { title: "Git", color: "#f472b6", rows: [
-    ["Lazygit (repo root)", "", "<leader>gg"],
-    ["Lazygit (cwd)", "", "<leader>gG"],
-    ["Neogit", "", "<leader>gN"],
-    ["Diffview", "", "<leader>gv"],
-    ["Git branches (checkout)", "", "<leader>gc"],
-    ["Git tree, full graph (Flog)", "n/x", "<leader>gt"],
-    ["Git log (repo root)", "", "<leader>gl"],
-    ["Git log (cwd)", "", "<leader>gL"],
-    ["Git blame line", "", "<leader>gb"],
-    ["Current file history", "", "<leader>gf"],
-    ["File history, following renames", "", "<leader>gF"],
-    ["Git status", "", "<leader>gs"],
-    ["Git stash", "", "<leader>gS"],
-    ["Git diff (hunks)", "", "<leader>gd"],
-    ["Git diff vs. origin", "", "<leader>gD"],
-    ["Open current line on remote", "n/x", "<leader>gB"],
-    ["Copy remote URL", "n/x", "<leader>gY"],
-  ]},
+        {
+          title: "Git hunks",
+          color: "#f9a8d4",
+          rows: [
+            ["Next hunk", "", "]h"],
+            ["Prev hunk", "", "[h"],
+            ["Last / first hunk", "", "]H / [H"],
+            ["Stage hunk", "n/x", "<leader>ghs"],
+            ["Reset hunk", "n/x", "<leader>ghr"],
+            ["Stage buffer", "", "<leader>ghS"],
+            ["Undo stage hunk", "", "<leader>ghu"],
+            ["Reset buffer", "", "<leader>ghR"],
+            ["Preview hunk inline", "", "<leader>ghp"],
+            ["Blame line (full)", "", "<leader>ghb"],
+            ["Blame buffer", "", "<leader>ghB"],
+            ["Diff this", "", "<leader>ghd"],
+            ["Diff this against ~", "", "<leader>ghD"],
+            ["Hunk text object", "o/x", "ih"],
+          ],
+        },
 
-  { title: "Git hunks", color: "#f9a8d4", rows: [
-    ["Next hunk", "", "]h"],
-    ["Prev hunk", "", "[h"],
-    ["Last / first hunk", "", "]H / [H"],
-    ["Stage hunk", "n/x", "<leader>ghs"],
-    ["Reset hunk", "n/x", "<leader>ghr"],
-    ["Stage buffer", "", "<leader>ghS"],
-    ["Undo stage hunk", "", "<leader>ghu"],
-    ["Reset buffer", "", "<leader>ghR"],
-    ["Preview hunk inline", "", "<leader>ghp"],
-    ["Blame line (full)", "", "<leader>ghb"],
-    ["Blame buffer", "", "<leader>ghB"],
-    ["Diff this", "", "<leader>ghd"],
-    ["Diff this against ~", "", "<leader>ghD"],
-    ["Hunk text object", "o/x", "ih"],
-  ]},
+        {
+          title: "GitLab MR",
+          color: "#fb923c",
+          rows: [
+            ["Create MR for current branch", "", "<leader>gmC"],
+            ["Choose MR", "", "<leader>gmo"],
+            ["Review current MR", "", "<leader>gmr"],
+            ["MR summary", "", "<leader>gms"],
+            ["Comment on line(s)", "n/v", "<leader>gmc"],
+            ["Toggle discussions", "", "<leader>gmd"],
+            ["Approve MR", "", "<leader>gmA"],
+            ["Revoke approval", "", "<leader>gmR"],
+            ["Add assignee", "", "<leader>gma"],
+            ["Add reviewer", "", "<leader>gmv"],
+            ["Pipeline status", "", "<leader>gmp"],
+            ["Open MR in browser", "", "<leader>gmb"],
+          ],
+        },
 
-  { title: "GitLab MR", color: "#fb923c", rows: [
-    ["Create MR for current branch", "", "<leader>gmC"],
-    ["Choose MR", "", "<leader>gmo"],
-    ["Review current MR", "", "<leader>gmr"],
-    ["MR summary", "", "<leader>gms"],
-    ["Comment on line(s)", "n/v", "<leader>gmc"],
-    ["Toggle discussions", "", "<leader>gmd"],
-    ["Approve MR", "", "<leader>gmA"],
-    ["Revoke approval", "", "<leader>gmR"],
-    ["Add assignee", "", "<leader>gma"],
-    ["Add reviewer", "", "<leader>gmv"],
-    ["Pipeline status", "", "<leader>gmp"],
-    ["Open MR in browser", "", "<leader>gmb"],
-  ]},
+        {
+          title: "LSP & code actions",
+          color: "#86efac",
+          rows: [
+            ["Hover", "", "K"],
+            ["Goto definition", "", "gd"],
+            ["References", "", "grr"],
+            ["Goto implementation", "", "gri"],
+            ["Goto type definition", "", "grt"],
+            ["Code action", "", "<leader>ca"],
+            ["Rename", "", "<leader>cr"],
+            ["Organize imports", "", "<leader>co"],
+            ["Format buffer", "", "<leader>cf"],
+            ["Run CodeLens", "", "<leader>cc"],
+            ["Restart LSP client(s)", "", "<leader>cR"],
+            ["Supertypes (hierarchy up)", "", "<leader>ch"],
+            ["Subtypes (hierarchy down)", "", "<leader>cH"],
+          ],
+        },
 
-  { title: "LSP & code actions", color: "#86efac", rows: [
-    ["Hover", "", "K"],
-    ["Goto definition", "", "gd"],
-    ["References", "", "grr"],
-    ["Goto implementation", "", "gri"],
-    ["Goto type definition", "", "grt"],
-    ["Code action", "", "<leader>ca"],
-    ["Rename", "", "<leader>cr"],
-    ["Organize imports", "", "<leader>co"],
-    ["Format buffer", "", "<leader>cf"],
-    ["Run CodeLens", "", "<leader>cc"],
-    ["Restart LSP client(s)", "", "<leader>cR"],
-    ["Supertypes (hierarchy up)", "", "<leader>ch"],
-    ["Subtypes (hierarchy down)", "", "<leader>cH"],
-  ]},
+        {
+          title: "LSP: Java (jdtls, buffer-local)",
+          color: "#a3e635",
+          rows: [
+            ["Organize imports (overrides generic)", "", "<leader>co"],
+            ["Extract variable", "n/x", "<leader>cxv"],
+            ["Extract constant", "n/x", "<leader>cxc"],
+            ["Extract method", "x", "<leader>cxm"],
+            ["Goto super implementation", "", "<leader>cgs"],
+          ],
+        },
 
-  { title: "LSP: Java (jdtls, buffer-local)", color: "#a3e635", rows: [
-    ["Organize imports (overrides generic)", "", "<leader>co"],
-    ["Extract variable", "n/x", "<leader>cxv"],
-    ["Extract constant", "n/x", "<leader>cxc"],
-    ["Extract method", "x", "<leader>cxm"],
-    ["Goto super implementation", "", "<leader>cgs"],
-  ]},
+        {
+          title: "Debugging (DAP)",
+          color: "#fbbf24",
+          rows: [
+            ["Toggle breakpoint", "", "<leader>db"],
+            ["Conditional breakpoint", "", "<leader>dB"],
+            ["Continue", "", "<leader>dc"],
+            ["Run to cursor", "", "<leader>dC"],
+            ["Step into", "", "<leader>di"],
+            ["Step out", "", "<leader>do"],
+            ["Step over", "", "<leader>dO"],
+            ["Terminate", "", "<leader>dt"],
+            ["Toggle REPL", "", "<leader>dr"],
+            ["Toggle DAP UI", "", "<leader>du"],
+            ["Eval", "n/v", "<leader>de"],
+          ],
+        },
 
-  { title: "Debugging (DAP)", color: "#fbbf24", rows: [
-    ["Toggle breakpoint", "", "<leader>db"],
-    ["Conditional breakpoint", "", "<leader>dB"],
-    ["Continue", "", "<leader>dc"],
-    ["Run to cursor", "", "<leader>dC"],
-    ["Step into", "", "<leader>di"],
-    ["Step out", "", "<leader>do"],
-    ["Step over", "", "<leader>dO"],
-    ["Terminate", "", "<leader>dt"],
-    ["Toggle REPL", "", "<leader>dr"],
-    ["Toggle DAP UI", "", "<leader>du"],
-    ["Eval", "n/v", "<leader>de"],
-  ]},
+        {
+          title: "Testing (neotest)",
+          color: "#4ade80",
+          rows: [
+            ["Run current file", "", "<leader>tt"],
+            ["Run all test files", "", "<leader>tT"],
+            ["Run nearest test", "", "<leader>tr"],
+            ["Run last", "", "<leader>tl"],
+            ["Debug nearest (via DAP)", "", "<leader>td"],
+            ["Toggle summary panel", "", "<leader>ts"],
+            ["Show output", "", "<leader>to"],
+            ["Toggle output panel", "", "<leader>tO"],
+            ["Stop", "", "<leader>tS"],
+            ["Toggle watch on current file", "", "<leader>tw"],
+          ],
+        },
 
-  { title: "Testing (neotest)", color: "#4ade80", rows: [
-    ["Run current file", "", "<leader>tt"],
-    ["Run all test files", "", "<leader>tT"],
-    ["Run nearest test", "", "<leader>tr"],
-    ["Run last", "", "<leader>tl"],
-    ["Debug nearest (via DAP)", "", "<leader>td"],
-    ["Toggle summary panel", "", "<leader>ts"],
-    ["Show output", "", "<leader>to"],
-    ["Toggle output panel", "", "<leader>tO"],
-    ["Stop", "", "<leader>tS"],
-    ["Toggle watch on current file", "", "<leader>tw"],
-  ]},
+        {
+          title: "Harpoon",
+          color: "#facc15",
+          rows: [
+            ["Add current file", "", "<leader>H"],
+            ["Open quick menu", "", "<leader>h"],
+            ["Jump to slot 1-5", "", "<leader>1 … <leader>5"],
+          ],
+        },
 
-  { title: "Harpoon", color: "#facc15", rows: [
-    ["Add current file", "", "<leader>H"],
-    ["Open quick menu", "", "<leader>h"],
-    ["Jump to slot 1-5", "", "<leader>1 … <leader>5"],
-  ]},
+        {
+          title: "AI",
+          color: "#a78bfa",
+          rows: [
+            ["Toggle AI CLI (sidekick)", "", "<leader>aa"],
+            ["Select AI CLI", "", "<leader>as"],
+            ["Close AI CLI", "", "<leader>ad"],
+            ["AI prompt picker", "", "<leader>ap"],
+            ["Send cursor context to CLI", "", "<leader>at"],
+            ["Send file to CLI", "", "<leader>af"],
+            ["Send selection to CLI", "x", "<leader>av"],
+            ["Toggle codecompanion chat", "n/x", "<leader>acc"],
+            ["Codecompanion action palette", "n/x", "<leader>acx"],
+            ["Codecompanion inline prompt", "n/x", "<leader>aci"],
+            ["Add selection to codecompanion chat", "x", "<leader>ace"],
+          ],
+        },
 
-  { title: "AI", color: "#a78bfa", rows: [
-    ["Toggle AI CLI (sidekick)", "", "<leader>aa"],
-    ["Select AI CLI", "", "<leader>as"],
-    ["Close AI CLI", "", "<leader>ad"],
-    ["AI prompt picker", "", "<leader>ap"],
-    ["Send cursor context to CLI", "", "<leader>at"],
-    ["Send file to CLI", "", "<leader>af"],
-    ["Send selection to CLI", "x", "<leader>av"],
-    ["Toggle codecompanion chat", "n/x", "<leader>acc"],
-    ["Codecompanion action palette", "n/x", "<leader>acx"],
-    ["Codecompanion inline prompt", "n/x", "<leader>aci"],
-    ["Add selection to codecompanion chat", "x", "<leader>ace"],
-  ]},
+        {
+          title: "Code screenshots",
+          color: "#f87171",
+          rows: [
+            ["Screenshot → clipboard", "x", "<leader>cy"],
+            ["Screenshot → file (timestamped)", "x", "<leader>cY"],
+          ],
+        },
 
-  { title: "Code screenshots", color: "#f87171", rows: [
-    ["Screenshot → clipboard", "x", "<leader>cy"],
-    ["Screenshot → file (timestamped)", "x", "<leader>cY"],
-  ]},
+        {
+          title: "Markdown",
+          color: "#60a5fa",
+          rows: [["Open live preview in browser", "", "<leader>cp"]],
+        },
 
-  { title: "Markdown", color: "#60a5fa", rows: [
-    ["Open live preview in browser", "", "<leader>cp"],
-  ]},
+        {
+          title: "UI toggles",
+          color: "#94a3b8",
+          rows: [
+            ["Wrap", "", "<leader>uw"],
+            ["Spelling", "", "<leader>us"],
+            ["Relative number", "", "<leader>uL"],
+            ["Line numbers", "", "<leader>ul"],
+            ["Diagnostics", "", "<leader>ud"],
+            ["Conceal level", "", "<leader>uc"],
+            ["Inlay hints", "", "<leader>uh"],
+            ["CodeLens", "", "<leader>uC"],
+            ["Treesitter", "", "<leader>uT"],
+            ["Indent guides", "", "<leader>ug"],
+            ["Smear cursor", "", "<leader>uS"],
+            ["Dismiss notifications", "", "<leader>un"],
+            ["Zen mode", "", "<leader>uz"],
+            ["Inspect position under cursor", "", "<leader>ui"],
+            ["Inspect treesitter tree", "", "<leader>uI"],
+            ["Redraw / clear hlsearch", "", "<leader>ur"],
+          ],
+        },
 
-  { title: "UI toggles", color: "#94a3b8", rows: [
-    ["Wrap", "", "<leader>uw"],
-    ["Spelling", "", "<leader>us"],
-    ["Relative number", "", "<leader>uL"],
-    ["Line numbers", "", "<leader>ul"],
-    ["Diagnostics", "", "<leader>ud"],
-    ["Conceal level", "", "<leader>uc"],
-    ["Inlay hints", "", "<leader>uh"],
-    ["CodeLens", "", "<leader>uC"],
-    ["Treesitter", "", "<leader>uT"],
-    ["Indent guides", "", "<leader>ug"],
-    ["Smear cursor", "", "<leader>uS"],
-    ["Dismiss notifications", "", "<leader>un"],
-    ["Zen mode", "", "<leader>uz"],
-    ["Inspect position under cursor", "", "<leader>ui"],
-    ["Inspect treesitter tree", "", "<leader>uI"],
-    ["Redraw / clear hlsearch", "", "<leader>ur"],
-  ]},
+        {
+          title: "Terminal & sessions",
+          color: "#38bdf8",
+          rows: [
+            ["Toggle terminal", "n/t", "<C-\\>"],
+            ["Leave terminal-insert mode", "t", "<esc><esc>"],
+            ["Toggle scratch buffer", "", "<leader>."],
+            ["Select scratch buffer", "", "<leader>S"],
+            ["Restore session", "", "<leader>qs"],
+            ["Restore last session", "", "<leader>ql"],
+            ["Don't save current session", "", "<leader>qd"],
+          ],
+        },
+      ];
 
-  { title: "Terminal & sessions", color: "#38bdf8", rows: [
-    ["Toggle terminal", "n/t", "<C-\\>"],
-    ["Leave terminal-insert mode", "t", "<esc><esc>"],
-    ["Toggle scratch buffer", "", "<leader>."],
-    ["Select scratch buffer", "", "<leader>S"],
-    ["Restore session", "", "<leader>qs"],
-    ["Restore last session", "", "<leader>ql"],
-    ["Don't save current session", "", "<leader>qd"],
-  ]},
-];
+      function render() {
+        const board = document.getElementById("board");
+        board.innerHTML = "";
+        DATA.forEach((section) => {
+          const card = document.createElement("div");
+          card.className = "card" + (section.essentials ? " essentials" : "");
+          const badge = document.createElement("span");
+          badge.className = "badge";
+          badge.textContent = section.title;
+          badge.style.background = section.color;
+          card.appendChild(badge);
+          section.rows.forEach(([action, mode, key]) => {
+            const row = document.createElement("div");
+            row.className = "row";
 
-function render() {
-  const board = document.getElementById("board");
-  board.innerHTML = "";
-  DATA.forEach(section => {
-    const card = document.createElement("div");
-    card.className = "card" + (section.essentials ? " essentials" : "");
-    const badge = document.createElement("span");
-    badge.className = "badge";
-    badge.textContent = section.title;
-    badge.style.background = section.color;
-    card.appendChild(badge);
-    section.rows.forEach(([action, mode, key]) => {
-      const row = document.createElement("div");
-      row.className = "row";
+            const actionSpan = document.createElement("span");
+            actionSpan.className = "action";
+            actionSpan.textContent = action;
+            if (mode) {
+              const modeSpan = document.createElement("span");
+              modeSpan.className = "mode";
+              modeSpan.textContent = ` (${mode})`;
+              actionSpan.appendChild(modeSpan);
+            }
 
-      const actionSpan = document.createElement("span");
-      actionSpan.className = "action";
-      actionSpan.textContent = action;
-      if (mode) {
-        const modeSpan = document.createElement("span");
-        modeSpan.className = "mode";
-        modeSpan.textContent = ` (${mode})`;
-        actionSpan.appendChild(modeSpan);
+            const keySpan = document.createElement("span");
+            keySpan.className = "key";
+            keySpan.textContent = key.replace(/<leader>/g, "␣");
+
+            row.appendChild(actionSpan);
+            row.appendChild(keySpan);
+            row.dataset.text = (action + " " + key).toLowerCase();
+            card.appendChild(row);
+          });
+          board.appendChild(card);
+        });
       }
 
-      const keySpan = document.createElement("span");
-      keySpan.className = "key";
-      keySpan.textContent = key.replace(/<leader>/g, "␣");
+      function filter() {
+        const q = document.getElementById("search").value.trim().toLowerCase();
+        let visible = 0,
+          total = 0;
+        document.querySelectorAll(".card").forEach((card) => {
+          let anyVisible = false;
+          card.querySelectorAll(".row").forEach((row) => {
+            total++;
+            const match = !q || row.dataset.text.includes(q);
+            row.classList.toggle("hidden", !match);
+            if (match) {
+              anyVisible = true;
+              visible++;
+            }
+          });
+          card.classList.toggle("hidden", !anyVisible);
+        });
+        document.getElementById("count").textContent = q
+          ? `${visible} / ${total} keybinds`
+          : `${total} keybinds`;
+      }
 
-      row.appendChild(actionSpan);
-      row.appendChild(keySpan);
-      row.dataset.text = (action + " " + key).toLowerCase();
-      card.appendChild(row);
-    });
-    board.appendChild(card);
-  });
-}
-
-function filter() {
-  const q = document.getElementById("search").value.trim().toLowerCase();
-  let visible = 0, total = 0;
-  document.querySelectorAll(".card").forEach(card => {
-    let anyVisible = false;
-    card.querySelectorAll(".row").forEach(row => {
-      total++;
-      const match = !q || row.dataset.text.includes(q);
-      row.classList.toggle("hidden", !match);
-      if (match) { anyVisible = true; visible++; }
-    });
-    card.classList.toggle("hidden", !anyVisible);
-  });
-  document.getElementById("count").textContent = q ? `${visible} / ${total} keybinds` : `${total} keybinds`;
-}
-
-render();
-filter();
-document.getElementById("search").addEventListener("input", filter);
-</script>
-</body>
+      render();
+      filter();
+      document.getElementById("search").addEventListener("input", filter);
+    </script>
+  </body>
 </html>

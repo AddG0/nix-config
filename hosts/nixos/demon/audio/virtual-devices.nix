@@ -3,25 +3,57 @@
   micDevice = "alsa_input.usb-Focusrite_Scarlett_Solo_4th_Gen_S1YE3VE3790E29-00.HiFi__Mic2__source";
   headsetDevice = "alsa_output.usb-Chord_Electronics_Ltd_HugoTT2_413-001-01.analog-stereo";
 
-  # Passive MONO loopback exposing `${name}_sink` (Sink) and `${name}` (Source);
-  # its sources are wired in by the pw-link service below, not here.
-  mkMixerInput = name: description: {
+  # Patch cable from `source` into `sink`, for fan-out: a stream can name only one
+  # target. Not passive — the mic must reach the mixer even when nothing listens.
+  # node.dont-fallback here and in mkTap stops a missing target from silently
+  # landing on some other device.
+  mkPatchModule = {
+    name,
+    description,
+    source,
+    sink,
+    position,
+  }: {
+    name = "libpipewire-module-loopback";
+    args = {
+      "node.description" = description;
+      "audio.position" = position;
+      "capture.props" = {
+        "node.name" = "capture.${name}";
+        "target.object" = source;
+        "node.dont-fallback" = true;
+      };
+      "playback.props" = {
+        "node.name" = name;
+        "target.object" = sink;
+        "node.dont-fallback" = true;
+      };
+    };
+  };
+
+  # Pulls from `source` and re-exposes it as `name`. Passive: nothing runs until
+  # something consumes `name`.
+  mkTap = {
+    name,
+    description,
+    source,
+    position,
+  }: {
     "context.modules" = [
       {
         name = "libpipewire-module-loopback";
         args = {
           "node.description" = description;
-          "audio.position" = ["MONO"];
+          "audio.position" = position;
           "capture.props" = {
-            "media.class" = "Audio/Sink";
-            "node.name" = "${name}_sink";
-            "stream.dont-remix" = true;
-            "node.passive" = true; # Don't generate silence when nothing connected
+            "node.name" = "capture.${name}";
+            "target.object" = source;
+            "node.dont-fallback" = true;
+            "node.passive" = true;
           };
           "playback.props" = {
             "media.class" = "Audio/Source";
             "node.name" = name;
-            "stream.dont-remix" = true;
             "node.passive" = true;
           };
         };
@@ -38,35 +70,19 @@ in {
   #   Music Sink → music_input + Hugo TT2 (Spotify/Zen → own mic + speakers)
   #   Main Input Mixer → main_input (use this in Discord/apps)
   #
+  # Every link here is declared on the node that wants it (target.object), so the
+  # session manager makes and remakes them. Deliberately no pw-link service — a
+  # one-shot link at boot races the USB probe and stays unmade when it loses.
+  #
   # A node feeding both the mixer and the DAC merges them into one driver group,
   # making the Scarlett follow the DAC clock — safe only while both are pinned to
   # the same rate (core.nix). Anything heard *and* sent to Discord plays two streams.
   # ============================================================================
 
   services.pipewire = {
-    # Auto-route Spotify and Zen Browser to Music Sink
-    extraConfig.pipewire-pulse."99-music-routing" = {
-      "pulse.rules" = [
-        {
-          matches = [
-            {"application.name" = "spotify";}
-          ];
-          actions.update-props = {
-            "target.object" = "music_sink";
-          };
-        }
-        {
-          matches = [
-            {"application.name" = "Zen";}
-          ];
-          actions.update-props = {
-            "target.object" = "music_sink";
-          };
-        }
-      ];
-    };
-
     extraConfig.pipewire = {
+      # Microphone → Discord
+
       # Noise Gate: Removes cable static and background noise below -60dB
       # Uses ZamGate LADSPA plugin with 2.3dB makeup gain to boost volume to 1.3x
       # Output: gate_source (use this if you only want gated mic without soundboard)
@@ -116,6 +132,10 @@ in {
             name = "libpipewire-module-loopback";
             args = {
               "node.description" = "Soundboard";
+              # Only ever feeds the MONO mixer — what you hear is a separate stream
+              # the script plays to the default device. The sink downmixes, so
+              # neither channel is lost.
+              "audio.position" = ["MONO"];
               "capture.props" = {
                 "media.class" = "Audio/Sink";
                 "node.name" = "soundboard_sink";
@@ -128,6 +148,64 @@ in {
           }
         ];
       };
+
+      # Combines gate_source + soundboard_source into the mic you pick in Discord.
+      # A summing point has to be a real sink, since a stream can target only one
+      # object — which is why the two producers arrive as patch cables below.
+      "99-main-input.conf" = {
+        "context.modules" = [
+          {
+            name = "libpipewire-module-loopback";
+            args = {
+              "node.description" = "Main Input";
+              "audio.position" = ["MONO"];
+              "capture.props" = {
+                "media.class" = "Audio/Sink";
+                "node.name" = "main_input_sink";
+                "stream.dont-remix" = true;
+                "node.passive" = true; # Don't generate silence when nothing connected
+              };
+              "playback.props" = {
+                "media.class" = "Audio/Source";
+                "node.name" = "main_input";
+                "stream.dont-remix" = true;
+                "node.passive" = true;
+              };
+            };
+          }
+        ];
+      };
+
+      # main_input sums two producers, so each needs its own patch cable in.
+      "99-main-input-patches.conf" = {
+        "context.modules" = [
+          (mkPatchModule {
+            name = "gate_to_main_input";
+            description = "Noise Gate → Main Input";
+            source = "gate_source";
+            sink = "main_input_sink";
+            position = ["MONO"];
+          })
+          (mkPatchModule {
+            name = "soundboard_to_main_input";
+            description = "Soundboard → Main Input";
+            source = "soundboard_source";
+            sink = "main_input_sink";
+            position = ["MONO"];
+          })
+        ];
+      };
+
+      # The mic feed on a node that mic-mute doesn't touch (it mutes main_input),
+      # for apps that should keep capturing while the mic is muted for everyone else.
+      "99-direct-input.conf" = mkTap {
+        name = "direct_input";
+        description = "Direct Input";
+        source = "gate_source";
+        position = ["MONO"];
+      };
+
+      # Music → Discord + speakers
 
       # Music Sink: Route Spotify/Zen here to send audio to speakers + its own mic
       # Set Spotify/Zen output to "Music Sink" in pavucontrol
@@ -151,9 +229,18 @@ in {
         ];
       };
 
+      # Music Input: Dedicated mic source for music audio
+      # Select this as mic input in Discord for the music bot
+      "99-music-input.conf" = mkTap {
+        name = "music_input";
+        description = "Music Input";
+        source = "music_source";
+        position = ["FL" "FR"];
+      };
+
       # Music Monitor: Adjusts the music you HEAR on the Hugo TT2 (see "Mult" below)
       # WITHOUT touching the music_input feed sent to Discord.
-      # Path: music_source → music_monitor_sink → [linear gain] → music_monitor → Hugo
+      # Path: music_source → capture.music_monitor → [linear gain] → music_monitor → Hugo
       # The builtin "linear" plugin applies new = old * Mult + Add per sample.
       "99-music-monitor.conf" = {
         "context.modules" = [
@@ -176,112 +263,51 @@ in {
                 ];
               };
               "capture.props" = {
-                "node.name" = "music_monitor_sink";
-                "media.class" = "Audio/Sink";
+                "node.name" = "capture.music_monitor";
                 "audio.position" = ["FL" "FR"];
+                "target.object" = "music_source";
+                "node.dont-fallback" = true;
                 "node.passive" = true; # Don't generate silence when no music plays
               };
+              # A stream, not an Audio/Source: only streams get routed.
               "playback.props" = {
                 "node.name" = "music_monitor";
-                "media.class" = "Audio/Source";
+                "media.class" = "Stream/Output/Audio";
                 "audio.position" = ["FL" "FR"];
+                "target.object" = headsetDevice;
+                # Reconnect is deliberately left on (not dont-reconnect, which
+                # would destroy the node) so it reattaches when the DAC returns.
+                "node.dont-fallback" = true;
               };
             };
           }
         ];
       };
-
-      # Music Input: Dedicated mic source for music audio
-      # Select this as mic input in Discord for the music bot
-      "99-music-input.conf" = {
-        "context.modules" = [
-          {
-            name = "libpipewire-module-loopback";
-            args = {
-              "node.description" = "Music Input";
-              "capture.props" = {
-                "media.class" = "Audio/Sink";
-                "node.name" = "music_input_sink";
-                "node.passive" = true;
-              };
-              "playback.props" = {
-                "media.class" = "Audio/Source";
-                "node.name" = "music_input";
-                "node.passive" = true;
-              };
-            };
-          }
-        ];
-      };
-
-      # Combines gate_source + soundboard_source into the mic you pick in Discord.
-      "99-main-input.conf" = mkMixerInput "main_input" "Main Input";
-
-      # The mic feed on a node that mic-mute doesn't touch (it mutes main_input),
-      # for apps that should keep capturing while the mic is muted for everyone else.
-      "99-direct-input.conf" = mkMixerInput "direct_input" "Direct Input";
     };
 
-    wireplumber = {
-      extraConfig = {
-        # Auto-connect physical mic to noise gate input
-        # WirePlumber's simple link table only works for node-to-node, not port-level
-        "99-auto-connect.lua" = {
-          text = ''
-            table.insert(links, {
-              out_node = "${micDevice}",
-              in_node  = "capture.gate_source",
-            })
-          '';
-        };
-      };
+    # Auto-route Spotify and Zen Browser to Music Sink
+    extraConfig.pipewire-pulse."99-music-routing" = {
+      "pulse.rules" = [
+        {
+          matches = [
+            {"application.name" = "spotify";}
+          ];
+          actions.update-props = {
+            "target.object" = "music_sink";
+          };
+        }
+        {
+          matches = [
+            {"application.name" = "Zen";}
+          ];
+          actions.update-props = {
+            "target.object" = "music_sink";
+          };
+        }
+      ];
     };
 
     # Make ZamGate (LADSPA) available on LADSPA_PATH for filter-chain
     extraLadspaPackages = [pkgs.zam-plugins];
-  };
-
-  # Port-level linking requires pw-link commands since WirePlumber's Lua API
-  # doesn't support channel-specific connections in NixOS's extraConfig format.
-  # This systemd service runs on boot to link:
-  #   - gate_source:capture_MONO → main_input_sink:playback_MONO
-  #   - soundboard_source:capture_1 → main_input_sink:playback_MONO
-  #   - soundboard_source:capture_2 → main_input_sink:playback_MONO
-  #   - music_source:capture_1/2 → music_input_sink (dedicated music mic for Discord, full volume)
-  #   - music_source:capture_1/2 → music_monitor_sink (gain) → HugoTT2:playback_FL/FR (you hear music)
-  systemd.user.services.pipewire-link-main-input = {
-    description = "Auto-link gate_source and soundboard to main_input";
-    after = ["pipewire.service" "wireplumber.service"];
-    wants = ["pipewire.service" "wireplumber.service"];
-    wantedBy = ["pipewire.service"];
-    serviceConfig = {
-      Type = "oneshot";
-      RemainAfterExit = true;
-      ExecStart = pkgs.writeShellScript "link-main-input" ''
-        # Wait for ports to be available (retry up to 10 times)
-        for i in {1..10}; do
-          ${pkgs.pipewire}/bin/pw-link gate_source:capture_MONO main_input_sink:playback_MONO 2>/dev/null && break
-          sleep 1
-        done
-
-        # Link all sources to main_input mixer
-        ${pkgs.pipewire}/bin/pw-link gate_source:capture_MONO main_input_sink:playback_MONO || true
-        ${pkgs.pipewire}/bin/pw-link soundboard_source:capture_1 main_input_sink:playback_MONO || true
-        ${pkgs.pipewire}/bin/pw-link soundboard_source:capture_2 main_input_sink:playback_MONO || true
-
-        # Gated mic into direct_input, which mic-mute never touches
-        ${pkgs.pipewire}/bin/pw-link gate_source:capture_MONO direct_input_sink:playback_MONO || true
-
-        # Music sink → music_input (dedicated music mic for Discord)
-        ${pkgs.pipewire}/bin/pw-link music_source:capture_1 music_input_sink:playback_1 || true
-        ${pkgs.pipewire}/bin/pw-link music_source:capture_2 music_input_sink:playback_2 || true
-
-        # Music sink → Music Monitor (gain) → HugoTT2 (you hear music)
-        ${pkgs.pipewire}/bin/pw-link music_source:capture_1 music_monitor_sink:playback_FL || true
-        ${pkgs.pipewire}/bin/pw-link music_source:capture_2 music_monitor_sink:playback_FR || true
-        ${pkgs.pipewire}/bin/pw-link music_monitor:capture_FL ${headsetDevice}:playback_FL || true
-        ${pkgs.pipewire}/bin/pw-link music_monitor:capture_FR ${headsetDevice}:playback_FR || true
-      '';
-    };
   };
 }

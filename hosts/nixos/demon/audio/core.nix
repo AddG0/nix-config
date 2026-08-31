@@ -51,12 +51,10 @@ _: {
     };
 
     # NOTE: Do NOT pin this DAC open with `session.suspend-timeout-seconds = 0`.
-    # Doing so makes WirePlumber eagerly open the device the instant its node
-    # appears, which races the pipewire-link-main-input service's pw-link to
-    # HugoTT2:playback (virtual-devices.nix). The link forces the node RUNNING
-    # mid set_hw_params → EBADFD, and a pinned device can never reopen, so audio
-    # dies until `systemctl --user restart wireplumber`. Letting it suspend
-    # normally keeps the link service the sole opener and restores self-recovery.
+    # It makes WirePlumber open the device the instant its node appears, racing
+    # the music_monitor stream that targets it (virtual-devices.nix): the node is
+    # forced RUNNING mid set_hw_params → EBADFD, and a pinned device can never
+    # reopen, so audio dies until `systemctl --user restart wireplumber`.
 
     wireplumber.extraConfig."51-demon-audio-driver-priority" = {
       "monitor.alsa.rules" = [

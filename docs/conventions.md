@@ -38,5 +38,7 @@ If the workaround is a package override rather than a line of config, it belongs
 in `overlays/flake-update-workarounds/` instead. Those get a stronger check:
 `just check-workarounds` builds each one against plain upstream nixpkgs and tells
 you which now build fine on their own — no judgement call needed. See the header
-of `scripts/check-flake-workarounds.sh` for the `CHECK-ATTR:` / `CHECK-RUNTIME:`
-lines it expects.
+of `scripts/check-flake-workarounds.sh` for the `CHECK-ATTR:` /
+`CHECK-FLAKE-ATTR:` / `CHECK-RUNTIME:` lines it expects. Packages from a flake
+input need the second — plain nixpkgs has a different package under that name,
+or none.
