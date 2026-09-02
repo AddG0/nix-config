@@ -5,13 +5,13 @@
 }:
 stdenv.mkDerivation rec {
   pname = "catppuccin-ghostty";
-  version = "0-unstable-2026-01-07";
+  version = "0-unstable-2026-08-28";
 
   src = fetchFromGitHub {
     owner = "catppuccin";
     repo = "ghostty";
-    rev = "5a58926563ddacbde4a12b4a347464c2c6945393";
-    sha256 = "sha256-Y6RFften1/6+1xdhIzEh/E7FBJTwY5a8NH4301HbgOM=";
+    rev = "b0b03ccee7ae8f16b13bd4fdfe267616defdb2b7";
+    sha256 = "sha256-XwUwWdBLyFwfyL9/kUhJaztTj+s3JShyc15YAA2HPaY=";
   };
 
   installPhase = ''

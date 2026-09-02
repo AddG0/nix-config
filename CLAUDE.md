@@ -18,3 +18,7 @@ command in dry-run mode and executes it otherwise. Same applies to other
 shell helpers home-manager exposes inside activation scripts.
 
 Source: [home-manager release notes (24.05)](https://nix-community.github.io/home-manager/release-notes.xhtml).
+
+## Update conventions
+
+@docs/conventions.md

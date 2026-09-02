@@ -9,7 +9,7 @@
 }:
 rustPlatform.buildRustPackage {
   pname = "razer-cli";
-  version = "0.6.0-unstable-2024-12-02";
+  version = "0.6.0";
 
   src = fetchFromGitHub {
     owner = "tdakhran";

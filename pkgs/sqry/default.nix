@@ -13,12 +13,12 @@ stdenvNoCC.mkDerivation (finalAttrs: let
 
   hashes = {
     x86_64 = {
-      sqry = "sha256-TGXt7EhkDj1I8Od6xzaePvDHHwBRB1PjuZ5sNWIJIBE=";
-      sqry-mcp = "sha256-8Q55wI0yVlXv1m4gppoSJCDOEOiScsy+T8pTob11eRA=";
+      sqry = "sha256-qmi045Btbr8/wOqj+Xy3cTeJkVFGw1C/yn+NaqB4zhs=";
+      sqry-mcp = "sha256-SV/1sQYT/YVkUj+eaYF6HXXrgJz1Q+aBh90xDQLvopc=";
     };
     arm64 = {
-      sqry = "sha256-kgWq/rE6Xs5VmlfGZ5SOdI9lMPOGb37mySE8xB+9RFM=";
-      sqry-mcp = "sha256-/NdT60RMlLHKH16u3bXxx280vzvrQAgSp6GD4C4lEaA=";
+      sqry = "sha256-pfjzUeeQwgJ0PPd6xYbJN3xgTbWDtZCiVe7biD1yzBQ=";
+      sqry-mcp = "sha256-zOfLLhJGtTmEwvs8iWrCZPadUVFc+wyzXknO1n9lzPU=";
     };
   };
 
@@ -29,7 +29,7 @@ stdenvNoCC.mkDerivation (finalAttrs: let
     };
 in {
   pname = "sqry";
-  version = "30.0.0";
+  version = "30.0.1";
 
   dontUnpack = true;
 
@@ -39,6 +39,9 @@ in {
     install -Dm755 ${fetchBin "sqry-mcp"} $out/bin/sqry-mcp
     runHook postInstall
   '';
+
+  # Prebuilt binaries, so there is no `src` for nix-update to follow.
+  passthru.updateScript = [./update.sh];
 
   meta = {
     description = "Structural semantic code search over ASTs";

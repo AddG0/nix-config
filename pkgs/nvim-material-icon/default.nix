@@ -9,7 +9,7 @@
 }:
 vimUtils.buildVimPlugin {
   pname = "nvim-material-icon";
-  version = "unstable-2025-10-25";
+  version = "0-unstable-2025-10-25";
 
   src = fetchFromGitHub {
     owner = "DaikyXendo";
@@ -21,6 +21,9 @@ vimUtils.buildVimPlugin {
   # buildVimPlugin's default check derives the module name from `pname`
   # ("nvim-material-icon"), but the plugin only exposes "nvim-web-devicons".
   doCheck = false;
+
+  # Upstream publishes no tags or releases, so `stable` has nothing to resolve.
+  passthru.nixUpdate.version = "branch";
 
   meta = {
     description = "Material Design Icon glyphs, as a drop-in nvim-web-devicons replacement";

@@ -5,16 +5,16 @@
 }:
 rustPlatform.buildRustPackage rec {
   pname = "ai-usagebar";
-  version = "1.5.2";
+  version = "1.10.0";
 
   src = fetchFromGitHub {
     owner = "akitaonrails";
     repo = "ai-usagebar";
     rev = "v${version}";
-    hash = "sha256-2T1QuihBJxPIR94Mu2YMf/Qds+o9bES6cpm00thOKKY=";
+    hash = "sha256-KM7tG1YasWs+ew5dlKvQtb66iHlrEF1Dc7G0Eg0tZso=";
   };
 
-  cargoHash = "sha256-EhXDjKxYG5qEbQst7sirVDmoOl2IKCciEbszcCrBV/A=";
+  cargoHash = "sha256-9cIxFoPy1qqLcDfZDTnbk4w14rPI1NWoszhG0DzQipQ=";
 
   # Both drive Claude Desktop rollback through a hardcoded /usr/bin/tar.
   checkFlags = [

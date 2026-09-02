@@ -5,13 +5,13 @@
 }:
 stdenvNoCC.mkDerivation {
   pname = "ollama-zsh-completion";
-  version = "0-unstable-2026-02-11";
+  version = "0-unstable-2026-08-24";
 
   src = fetchFromGitHub {
     owner = "ocodo";
     repo = "ollama_zsh_completion";
-    rev = "ff683469b770c59f9b150878baf7846540fefd9c";
-    hash = "sha256-TaNBTREO/YrvQ2v6Yf/EP8nR40zr1M4BT1cCTPaGuJE=";
+    rev = "edc7bd20a6f3ecea5aa9b651a7f20e2fd2a2f595";
+    hash = "sha256-uuIkrWmZqg3pbIcxI/8OLUvMKdc9PJtmWg+2nxGDsRo=";
   };
 
   installPhase = ''

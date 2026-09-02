@@ -7,11 +7,11 @@
 }:
 stdenvNoCC.mkDerivation rec {
   pname = "opentelemetry-javaagent";
-  version = "2.31.0";
+  version = "2.31.1";
 
   src = fetchurl {
     url = "https://github.com/open-telemetry/opentelemetry-java-instrumentation/releases/download/v${version}/opentelemetry-javaagent.jar";
-    hash = "sha256-1IZzsv+VaybYCbw0JDZJkT1O79kZHE4XW2htpjPgE0s=";
+    hash = "sha256-u/g8FRtkAHCeLyJb3QegT4OdnRO4uTRkJBMz/SXT47o=";
   };
 
   dontUnpack = true;
