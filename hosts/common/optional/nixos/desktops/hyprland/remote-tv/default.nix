@@ -66,8 +66,10 @@ in {
     })
   ];
 
-  # The sink reaches RTSP over the group interface, so trusting it is enough;
-  # opening 7236 globally would also expose it on the LAN. 7250/5353 are for
-  # casting over infrastructure instead of Wi-Fi Direct.
-  networking.firewall.trustedInterfaces = ["p2p-wl+"];
+  # MICE sinks (LG webOS) reach RTSP over the LAN, not the P2P group interface, so
+  # 7236 must be open there -- exposing an unauthenticated RTSP server while casting.
+  networking.firewall = {
+    trustedInterfaces = ["p2p-wl+"];
+    allowedTCPPorts = [7236];
+  };
 }
