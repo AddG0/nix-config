@@ -95,7 +95,11 @@ in {
         vim-tmux-navigator
         better-mouse-mode
         yank
-        tmux-thumbs
+        {
+          plugin = tmux-thumbs;
+          # default key is Space, which shadows next-layout
+          extraConfig = "set -g @thumbs-key g";
+        }
         {
           plugin = tmux-fzf;
           extraConfig = ''

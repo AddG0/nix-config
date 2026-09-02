@@ -1,4 +1,10 @@
 _: {
+  # Option-only, so a host that never sets them pays nothing.
+  imports = [
+    ./eq-sink.nix
+    ./focal-utopia-2022.nix
+  ];
+
   services.pulseaudio.enable = false;
   security.rtkit.enable = true;
   services.pipewire = {

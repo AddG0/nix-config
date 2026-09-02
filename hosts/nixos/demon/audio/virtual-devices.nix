@@ -1,7 +1,6 @@
 {pkgs, ...}: let
   # Device identifiers - update these if your hardware changes
   micDevice = "alsa_input.usb-Focusrite_Scarlett_Solo_4th_Gen_S1YE3VE3790E29-00.HiFi__Mic2__source";
-  headsetDevice = "alsa_output.usb-Chord_Electronics_Ltd_HugoTT2_413-001-01.analog-stereo";
 
   # Patch cable from `source` into `sink`, for fan-out: a stream can name only one
   # target. Not passive — the mic must reach the mixer even when nothing listens.
@@ -274,10 +273,12 @@ in {
                 "node.name" = "music_monitor";
                 "media.class" = "Stream/Output/Audio";
                 "audio.position" = ["FL" "FR"];
-                "target.object" = headsetDevice;
-                # Reconnect is deliberately left on (not dont-reconnect, which
+                # Unpinned on purpose: follows the default sink, so choosing an
+                # output (eq.nix) also chooses its correction for music. A
+                # target.object here silently bypasses the EQ sinks, and
+                # node.dont-fallback would block the default routing that
+                # replaces it. Reconnect stays on (not dont-reconnect, which
                 # would destroy the node) so it reattaches when the DAC returns.
-                "node.dont-fallback" = true;
               };
             };
           }

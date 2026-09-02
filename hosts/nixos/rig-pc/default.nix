@@ -22,7 +22,7 @@
     #################### Misc Inputs ####################
     (map lib.custom.relativeToHosts (map (f: "common/optional/${f}") [
       "nixos/hardware/cachyos-kernel.nix" # BORE + scx_lavd + ananicy
-      "nixos/audio.nix" # pipewire
+      "nixos/audio" # pipewire
       "nixos/services/bluetooth.nix" # wireless controller pairing
       "nixos/services/earlyoom.nix"
       "nixos/services/openssh.nix"

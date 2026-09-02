@@ -32,7 +32,7 @@
       "nixos/services/openssh.nix" # allow remote SSH access
       "nixos/services/tailscale.nix" # mesh VPN for secure remote access
       "nixos/services/openvpn.nix"
-      "nixos/audio.nix" # pipewire and cli controls
+      "nixos/audio" # pipewire and cli controls
       "nixos/services/bluetooth.nix"
       "nixos/services/airpods-autoconnect.nix"
       "nixos/services/automatic-timezoned.nix"

@@ -6,6 +6,7 @@ in {
 
   inherit frontmatter;
   colors = import ./colors.nix {inherit lib;};
+  inherit (import ./eqFilterGraph.nix {inherit lib;}) eqShapes mkEqFilterGraph;
   ai = import ./ai {
     inherit frontmatter lib;
   };

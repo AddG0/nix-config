@@ -227,6 +227,9 @@ route='
     out = mine[key] ? dir "/" key ".log" : ""
     if (out == "") next
     sub(/^[^\t]*\t[^\t]*\t[^\t]*\t/, "")
+    # lnav 0.14 drops the zone conversion on a backwards-stepping timestamp,
+    # shifting it by the UTC offset until its histogram aborts.
+    $0 = gensub(/^([0-9-]{10}T[0-9:]{8}\.[0-9]+)(Z|[-+][0-9]{2}:[0-9]{2}) /, "\\1 ", 1)
     print >> out
     fflush(out)
     next
@@ -239,9 +242,10 @@ spawn() { # $1 = namespace override, $2 = query (omitted for a bare -l run)
   local -a nf=()
   mapfile -t -d '' nf < <(ns_flags "$1")
   shift
-  # Ours last: cobra is last-wins, and a user -o/--color would break the routing.
+  # Ours last: cobra is last-wins; a user -o/--color would break the routing,
+  # --timezone the stamp rewrite above.
   stern --timestamps --tail "${KLNAV_TAIL:-10}" "${nf[@]}" \
-    --color never --template "$tmpl" "$@" 2>>"$errlog" |
+    --color never --timezone Local --template "$tmpl" "$@" 2>>"$errlog" |
     stdbuf -oL awk -F'\t' -v dir="$dir" -v claim="$claimdir" \
       -v ok='^[A-Za-z0-9._-]+$' "$route" &
   pids+=("$!")

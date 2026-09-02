@@ -40,7 +40,7 @@
       "nixos/hardware/cachyos-kernel.nix" # CachyOS kernel
       "nixos/services/openssh.nix" # allow remote SSH access
       # "nixos/nvtop.nix" # GPU monitor (not available in home-manager)
-      "nixos/audio.nix" # pipewire and cli controls
+      "nixos/audio" # pipewire and cli controls
       "nixos/gaming" # steam, gamescope, gamemode, and related hardware
       "nixos/virtualisation/docker.nix" # docker
       # "nixos/services/home-assistant.nix"

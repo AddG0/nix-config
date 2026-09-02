@@ -277,12 +277,26 @@
           local names = table.concat(
             vim.tbl_map(function(c) return c.name end, clients), ", "
           )
+          local ids = vim.tbl_map(function(c) return c.id end, clients)
           for _, client in ipairs(clients) do
-            client:stop(true)
+            -- SIGTERM-ing jdtls mid index-write corrupts its workspace and wedges
+            -- it on the next start.
+            client:stop(5000)
           end
-          vim.defer_fn(function()
+          -- A fixed delay can re-attach before the old client has exited.
+          local tries = 0
+          local function reattach()
+            tries = tries + 1
+            local live = vim.iter(ids):any(function(id)
+              return vim.lsp.get_client_by_id(id) ~= nil
+            end)
+            if live and tries < 50 then -- 10s cap, must outlast the stop() escalation
+              vim.defer_fn(reattach, 200)
+              return
+            end
             vim.api.nvim_exec_autocmds("FileType", { pattern = ft })
-          end, 500)
+          end
+          vim.defer_fn(reattach, 200)
           vim.notify("Restarting LSP: " .. names, vim.log.levels.INFO)
         end
       '';

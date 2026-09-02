@@ -35,7 +35,7 @@
         "nixos/hardware/cachyos-kernel.nix" # CachyOS kernel
         "nixos/secureboot.nix"
         "nixos/services/bluetooth.nix"
-        "nixos/audio.nix" # base pipewire + AirPods A2DP handling; ./audio layers demon-specific routing on top
+        "nixos/audio" # base pipewire + AirPods A2DP handling; ./audio layers demon-specific routing on top
 
         "nixos/services/tailscale.nix" # mesh VPN for secure remote access
 
