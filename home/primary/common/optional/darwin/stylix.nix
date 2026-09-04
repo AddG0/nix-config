@@ -9,16 +9,16 @@
     base16Scheme = "${inputs.tt-schemes}/base16/catppuccin-mocha.yaml";
     fonts = {
       sansSerif = {
-        package = pkgs.inter;
-        name = "Inter";
+        package = pkgs.roboto;
+        name = "Roboto";
       };
       serif = {
-        package = pkgs.inter;
-        name = "Inter";
+        package = pkgs.roboto;
+        name = "Roboto";
       };
       monospace = {
-        package = pkgs.monaspace;
-        name = "Monaspace Neon NF";
+        package = pkgs.nerd-fonts.roboto-mono;
+        name = "RobotoMono Nerd Font";
       };
       emoji = {
         package = pkgs.noto-fonts-color-emoji;
@@ -33,9 +33,9 @@
     };
     opacity = {
       applications = 1.0;
-      terminal = 0.95;
+      terminal = 1.0;
       desktop = 1.0;
-      popups = 0.9;
+      popups = 1.0;
     };
     polarity = "dark";
   };

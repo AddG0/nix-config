@@ -33,24 +33,29 @@ in {
         background-color: transparent;
       }
 
-      /* ---- Glass window (matches waybar) ---- */
+      /* ---- Surface panel ---- */
       window {
         all: unset;
-        background-color: alpha(${c.base00}, 0.45);
-        border: 1px solid alpha(${c.base02}, 0.4);
-        border-radius: 14px;
+        background-color: ${c.base02};
+        border: none;
+        border-radius: 28px;
         padding: 6px;
+        box-shadow:
+          0 1px 3px 0 rgba(0, 0, 0, 0.3),
+          0 4px 8px 3px rgba(0, 0, 0, 0.15);
       }
 
       /* ---- Search bar ---- */
+      /* Filled text field — a single active indicator, primary on focus. */
       #input {
         font-size: 15px;
-        font-weight: 500;
-        color: ${c.base06};
-        background-color: alpha(${c.base01}, 0.6);
-        border: 1px solid alpha(${c.base02}, 0.4);
-        border-radius: 10px;
-        padding: 10px 16px;
+        font-weight: 400;
+        color: ${c.base05};
+        background-color: transparent;
+        border: none;
+        border-bottom: 1px solid ${c.base04};
+        border-radius: 0;
+        padding: 12px 16px;
         margin: 8px 8px 4px 8px;
       }
 
@@ -59,7 +64,7 @@ in {
       }
 
       #input:focus {
-        border-color: alpha(${c.base0B}, 0.5);
+        border-bottom-color: ${c.base0D};
       }
 
       #outer-box {
@@ -78,11 +83,11 @@ in {
 
       /* ---- Entries ---- */
       #entry {
-        padding: 10px 14px;
+        padding: 10px 16px;
         margin: 2px 0;
-        border-radius: 8px;
+        border-radius: 9999px;
         background-color: transparent;
-        transition: all 0.12s ease;
+        transition: all 0.2s cubic-bezier(0.2, 0, 0, 1);
       }
 
       #entry:nth-child(odd) {
@@ -93,21 +98,25 @@ in {
         background-color: transparent;
       }
 
+      #entry:hover {
+        background-color: alpha(${c.base0D}, 0.08);
+      }
+
       #entry:selected {
-        background-color: alpha(${c.base0B}, 0.18);
+        background-color: alpha(${c.base0D}, 0.16);
       }
 
       /* ---- Text ---- */
       #text {
         font-size: 14px;
-        font-weight: 500;
-        color: ${c.base06};
+        font-weight: 400;
+        color: ${c.base05};
         margin-left: 12px;
       }
 
       #entry:selected #text {
-        color: ${c.base07};
-        font-weight: 600;
+        color: ${c.base05};
+        font-weight: 500;
       }
 
       /* ---- Icons ---- */
@@ -120,9 +129,5 @@ in {
 
   wayland.windowManager.hyprland.settings = {
     bind = ["SUPER,space,exec,wofi --show drun"];
-    layerrule = [
-      "blur on, match:namespace wofi"
-      "ignore_alpha 0.3, match:namespace wofi"
-    ];
   };
 }

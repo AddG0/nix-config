@@ -14,16 +14,18 @@
     && config.stylix.cursor != null
     && pkgs.stdenv.hostPlatform.isLinux;
 
-  # macOS-leaning theme. Stylix is the top-level theming engine — all visual
+  # Material Design 3 theme. Stylix is the top-level theming engine — all visual
   # values (colors, fonts, opacities, cursor) live here so every stylix-aware
   # app (noctalia, KDE, GTK, terminals, etc.) inherits a consistent look.
   #
-  # Key rationale per category:
-  #   - Inter is the de-facto free substitute for Apple's SF Pro.
-  #   - Catppuccin Mocha is the closest base16 scheme to macOS dark mode.
-  #   - Monaspace's "NF" is the nerd-font-patched build; plain "Neon" has no icons.
-  #   - Opacities <1.0 enable the compositor's frosted-glass blur to show
-  #     through panels/popups/desktop surfaces.
+  # Non-obvious bits:
+  #   - RobotoMono's "Nerd Font" build is the patched one; plain roboto-mono
+  #     has no icon glyphs.
+  #   - Catppuccin's elevation ramp is base02/03/04 (surface0/1/2) — base01 is
+  #     `mantle`, *darker* than base00, so it is never a container tone.
+  #   - The cursor stays Bibata: material-cursors is XCursor-only, so it loses
+  #     hyprcursor rendering.
+  #   - Opacity is 1.0 everywhere; M3 conveys depth with elevation, not alpha.
   stylix = {
     enable = true;
     image = "${pkgs.kdePackages.plasma-workspace-wallpapers}/share/wallpapers/Nexus/contents/images_dark/5120x2880.png";
@@ -35,16 +37,16 @@
     };
     fonts = {
       sansSerif = {
-        package = pkgs.inter;
-        name = "Inter";
+        package = pkgs.roboto;
+        name = "Roboto";
       };
       serif = {
-        package = pkgs.inter;
-        name = "Inter";
+        package = pkgs.roboto;
+        name = "Roboto";
       };
       monospace = {
-        package = pkgs.monaspace;
-        name = "Monaspace Neon NF";
+        package = pkgs.nerd-fonts.roboto-mono;
+        name = "RobotoMono Nerd Font";
       };
       emoji = {
         package = pkgs.noto-fonts-color-emoji;
@@ -57,23 +59,44 @@
         popups = 12;
       };
     };
-    # Desktop surfaces (bar/dock/panels) stay opaque because noctalia uses
-    # `auto_hide` with no exclusion zone — a transparent bar over content reads
-    # as visual noise. Popups are also kept opaque so notifications/OSDs read
-    # cleanly over busy content.
     opacity = {
       applications = 1.0;
-      terminal = 1.0; # ghostty applies this to default-bg cells only — a shell would go glassy, nvim would not
+      terminal = 1.0;
       desktop = 1.0;
-      popups = 1.0; # menus, OSDs, notifications
+      popups = 1.0;
     };
     polarity = "dark";
-    # papirus-icon-theme is Linux-only; skip icon theming on Darwin.
+    # colloid-icon-theme is Linux-only; skip icon theming on Darwin.
     icons = lib.mkIf pkgs.stdenv.hostPlatform.isLinux {
       enable = true;
-      package = pkgs.papirus-icon-theme;
-      dark = "Papirus-Dark";
-      light = "Papirus-Light";
+      package = pkgs.colloid-icon-theme;
+      dark = "Colloid-Dark";
+      light = "Colloid-Light";
     };
+
+    # Stylix recolors adw-gtk3 but leaves its shapes alone. Layering the M3
+    # shape scale on top keeps stylix the single colour source — a Material GTK
+    # theme like orchis would pin the palette to that theme instead.
+    targets.gtk.extraCss = lib.mkIf pkgs.stdenv.hostPlatform.isLinux ''
+      window, .background { border-radius: 16px; }
+      popover, popover > contents, menu, .context-menu { border-radius: 12px; }
+      .card, frame, .frame { border-radius: 12px; }
+
+      button, .text-button, .toggle { border-radius: 9999px; }
+      button.circular, button.image-button { border-radius: 9999px; }
+      switch, switch slider { border-radius: 9999px; }
+      radio { border-radius: 9999px; }
+      check { border-radius: 2px; }
+
+      /* Filled text field: rounded top, square bottom under the active line. */
+      entry, .entry, spinbutton { border-radius: 4px 4px 0 0; }
+
+      scale slider, progressbar progress, progressbar trough,
+      levelbar block, scrollbar slider { border-radius: 9999px; }
+
+      notebook > header > tabs > tab { border-radius: 8px 8px 0 0; }
+      list > row, .list-row { border-radius: 9999px; }
+      tooltip, tooltip.background { border-radius: 4px; }
+    '';
   };
 }

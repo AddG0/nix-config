@@ -2,11 +2,8 @@
 # plugin API). Walker's daemon model + provider system is the closest match
 # to anyrun's shape, and the GTK4 CSS port from anyrun.nix is direct.
 #
-# Layout intent: same as the rest of the desktop — frosted base00 panel,
-# hairline alpha-fg border, soft drop shadow, soft-fg selection. Tokens
-# (windowRounding = 10) are duplicated from visuals.nix intentionally;
-# see prior conversation about not factoring out a shared design-tokens
-# module for a single-WM setup.
+# Layout intent: an M3 search view — opaque surface-container, elevation-3
+# shadow, primary state layers on rows.
 {
   inputs,
   config,
@@ -15,8 +12,9 @@
   c = config.lib.stylix.colors.withHashtag;
   m = config.lib.palette.muted;
   sans = config.stylix.fonts.sansSerif.name;
-  # Duplicated from visuals.nix — keep in sync.
-  windowRounding = 10;
+  # Deliberately NOT visuals.nix's windowRounding (16) — M3 puts dialogs a step
+  # above containers, so these two are meant to differ. Don't reconcile them.
+  panelRounding = 28;
 in {
   imports = [inputs.walker.homeManagerModules.default];
 
@@ -27,7 +25,7 @@ in {
     runAsService = true;
 
     config = {
-      theme = "macos";
+      theme = "material";
 
       # Layer-shell mode (default); leave `as_window = false` so the
       # launcher floats above other surfaces with no window-decoration.
@@ -39,7 +37,7 @@ in {
       # Show the bottom action-hint row — Walker populates it with the
       # keybinds for the currently selected item (↵ open, ⌘↵ open-new,
       # etc.). Custom .keybinds CSS rule below tames the default jarring
-      # accent chips into subtle base-fg labels.
+      # accent chips into subtle on-surface-variant labels.
       hide_action_hints = false;
 
       placeholders."default" = {
@@ -79,7 +77,7 @@ in {
       };
     };
 
-    themes.macos = {
+    themes.material = {
       # Walker GTK4 stylesheet. Selectors verified against walker's default
       # theme — the `* { all: unset; }` reset is REQUIRED, without it GTK
       # default styling (focus rings, entry borders, button chrome) leaks
@@ -92,103 +90,69 @@ in {
           font-family: "${sans}";
         }
 
-        @define-color bg ${c.base00};
-        @define-color bg_alt ${c.base01};
-        @define-color border ${c.base02};
-        @define-color fg ${c.base05};
-        @define-color fg_dim ${m.text};
-        @define-color fg_subtle ${m.ui};
-        @define-color sel ${c.base02};
+        /* Catppuccin's ramp is base02/03/04 — base01 is `mantle`, darker than
+           base00. base04 is 2.46:1 as text, hence the muted tone instead. */
+        @define-color surface ${c.base00};
+        @define-color surface_container ${c.base02};
+        @define-color surface_container_high ${c.base03};
+        @define-color outline ${c.base04};
+        @define-color on_surface ${c.base05};
+        @define-color on_surface_variant ${m.text};
+        @define-color primary ${c.base0D};
 
         /* Outer layer-shell window — transparent so only .box-wrapper draws. */
         window {
           background-color: transparent;
         }
 
-        /* The launcher panel itself. Semi-transparent so the layerrule
-           blur (in visuals.nix peer config) actually shows through —
-           solid bg = nothing to frost. Border uses stylix foreground at
-           low alpha = Apple inner-edge highlight that tracks the active
-           scheme (warmer fg → warmer edge).
-           Subtle vertical gradient (top slightly lighter) is the Apple
-           panel trick — makes the surface read as physically lit from
-           above rather than uniformly tinted. */
+        /* Opaque — blur is off globally (visuals.nix), so a translucent panel
+           would show raw wallpaper rather than frosting it. */
         .box-wrapper {
-          background-image: linear-gradient(
-            to bottom,
-            alpha(@fg, 0.04),
-            alpha(@bg, 0)
-          );
-          background-color: alpha(@bg, 0.72);
-          border: 1px solid alpha(@fg, 0.14);
-          border-radius: ${toString windowRounding}px;
+          background-color: @surface_container;
+          border-radius: ${toString panelRounding}px;
           padding: 8px;
           margin: 24px; /* breathing room for shadow to render */
-          /* Shadow stays raw rgba(0,0,0,…) — shadows darken rather than
-             tint, so deriving from stylix would be wrong here.
-             Previous version (24px offset, 60px blur, 0.65 opacity) read
-             as a dark "bar" below the panel because the shadow density
-             was concentrated downward. This is tuned tighter:
-             - Close ambient (2px/6px/0.15) grounds the panel
-             - Soft halo (8px/32px/0.22) surrounds it without bleeding
-               aggressively downward — lower offset = more even surround
-             - Inset top-edge gleam is the Apple "lit-from-above" cue
-             Apple's macOS popover shadows use this same close+soft
-             pairing with low opacities. */
           box-shadow:
-            0 3px 10px 0 rgba(0, 0, 0, 0.3),
-            0 12px 40px 0 rgba(0, 0, 0, 0.5),
-            inset 0 1px 0 0 alpha(@fg, 0.08);
+            0 1px 3px 0 rgba(0, 0, 0, 0.3),
+            0 4px 8px 3px rgba(0, 0, 0, 0.15);
           min-width: 640px;
         }
 
-        /* Search input — large Spotlight-scale font. No background fill
-           (would compete with the frosted panel); the separator below is
-           what distinguishes the input from the result list. Generous
-           padding gives the launcher a "breathy" Apple feel. */
+        /* No fill of its own — the divider below separates query from results. */
         .input {
           background-color: transparent;
-          color: @fg;
-          caret-color: @fg;
-          padding: 14px 16px 16px 16px;
+          color: @on_surface;
+          caret-color: @primary;
+          padding: 14px 20px 16px 20px;
           font-size: 1.35em;
           font-weight: 400;
         }
 
-        /* Placeholder slightly more dim than default 0.5 — keeps the
-           focus on actual typed text. */
         .input placeholder {
-          opacity: 0.4;
+          color: @on_surface_variant;
         }
 
-        /* List container — hairline separator above so the input reads as
-           a distinct surface. Same alpha-fg pattern as the panel border. */
         .list {
           background-color: transparent;
           padding: 8px 0 0 0;
-          border-top: 1px solid alpha(@fg, 0.08);
+          border-top: 1px solid @outline;
         }
 
-        /* Each result row — more vertical breathing room than the default
-           tight 8/10. Spotlight rows feel tall and luxurious. */
+        /* 26px == half the row height, so the pill closes. */
         .item-box {
-          padding: 10px 12px;
-          border-radius: 8px;
+          padding: 10px 16px;
+          border-radius: 26px;
         }
 
-        /* Hover state — subtle pre-selection cue. Half the alpha of
-           the selection so it doesn't compete with keyboard nav. */
+        /* M3 state layers — one token, two intensities. */
         child:hover .item-box,
         row:hover .item-box {
-          background-color: alpha(@fg, 0.05);
+          background-color: alpha(@primary, 0.08);
         }
 
-        /* Selection — soft translucent highlight (Spotlight style), not
-           a solid base02 block. alpha(@fg) reads through the frosted
-           panel as a gentle gleam. */
         child:selected .item-box,
         row:selected .item-box {
-          background-color: alpha(@fg, 0.12);
+          background-color: alpha(@primary, 0.16);
         }
 
         /* Icon — authoritative selector per walker's layout XML
@@ -201,23 +165,16 @@ in {
           min-height: 32px;
         }
 
-        /* Primary label (app name). Medium weight — Spotlight uses
-           SF Pro Medium for results; in our stack Inter Medium fills the
-           same role and reads better against frosted glass than Regular. */
         .item-text {
-          color: @fg;
+          color: @on_surface;
           font-size: 1em;
-          font-weight: 500;
+          font-weight: 400;
         }
 
-        /* Secondary label (description / generic-name). Smaller + dim so
-           the eye picks the primary label first; 2px top margin breathes
-           against the primary label (walker's item.xml uses spacing=0).
-           Most providers don't populate subtext in walker, but when they
-           do (calc result preview, file path under match, etc.) the
-           styling here applies. */
+        /* Most providers don't populate subtext; calc previews and file
+           paths do. */
         .item-subtext {
-          color: @fg_dim;
+          color: @on_surface_variant;
           font-size: 0.85em;
           margin-top: 2px;
         }
@@ -232,8 +189,8 @@ in {
            plain text label so the chip reads as a typography hint, not
            a clickable control. */
         .keybinds {
-          padding: 10px 4px 2px 4px;
-          border-top: 1px solid alpha(@fg, 0.08);
+          padding: 10px 8px 2px 8px;
+          border-top: 1px solid @outline;
         }
 
         /* Spacing between hint columns. */
@@ -253,36 +210,33 @@ in {
           min-height: 0;
         }
 
-        /* Action name (top line of each chip). */
+        /* Action name — top line of each chip. */
         .keybind-label {
-          color: @fg_dim;
+          color: @on_surface_variant;
           font-size: 0.8em;
+          font-weight: 500;
         }
 
-        /* Key combo glyph (bottom line). Slightly dimmer + tabular nums
-           so glyphs like ↵/↑/↓ sit on their own visual baseline and
-           ⌘+digit combinations don't shift width per digit. */
+        /* Key combo glyph (bottom line). tabular nums so glyphs like ↵/↑/↓
+           sit on their own baseline and ⌘+digit combos don't shift width. */
         .keybind-bind {
-          color: @fg_subtle;
+          color: @on_surface_variant;
           font-size: 0.78em;
           font-feature-settings: "tnum";
         }
 
-        /* Per-row quick-activation chip (F1/F2/F3/F4). Default theme
-           gave these a saturated accent bg that fights the frosted look;
-           drop to a hairline pill that reads as a keyboard hint, not a
-           UI control.
-           tabular-nums + min-width keep F1/F2/F3/F4 visually identical —
-           Inter renders `1` narrower than other digits at proportional
-           spacing, which made F1 shift right vs F2-F4. tnum forces
-           equal-width digits; min-width is the safety net for fonts
-           that don't honour font-feature-settings. */
+        /* Per-row quick-activation chip (F1-F4), shaped as an M3 assist chip.
+           tnum + min-width keep them identical in width — proportional digits
+           render `1` narrower, which shifted F1 right of F2-F4. min-width is
+           the safety net for fonts that ignore font-feature-settings. */
         .item-quick-activation {
-          background-color: alpha(@fg, 0.08);
-          color: @fg_dim;
-          border-radius: 5px;
+          background-color: transparent;
+          color: @on_surface_variant;
+          border: 1px solid @outline;
+          border-radius: 8px;
           padding: 2px 8px;
           font-size: 0.8em;
+          font-weight: 500;
           font-feature-settings: "tnum";
           min-width: 18px;
         }
@@ -290,15 +244,14 @@ in {
         /* "No Results" empty-state label. Default would render at full
            foreground — way too loud for a "nothing found" message. */
         .placeholder {
-          color: @fg_subtle;
+          color: @on_surface_variant;
           font-size: 1.1em;
           padding: 24px;
         }
 
         /* Scrollbar is set to opacity:0 in walker default theme — keep
            that, but explicitly override here so any GTK4 default reset
-           doesn't bring it back. The frosted panel reads cleaner
-           without a visible scroll track. */
+           doesn't bring it back. */
         scrollbar {
           opacity: 0;
         }
@@ -309,22 +262,11 @@ in {
   wayland.windowManager.hyprland.settings = {
     # SUPER+space — same bind anyrun owned.
     bind = ["SUPER,space,exec,walker"];
-  };
 
-  # Match the rofi/wofi blur rules in visuals.nix so the launcher gets the
-  # same frosted-glass treatment as other layer-shell popups.
-  #
-  # `animation popin 88%` overrides the global `layersIn` slide for walker
-  # so the launcher scales up from 88% rather than sliding from an edge —
-  # Spotlight/Raycast feel. 88% sits between the subtle 92% used for
-  # windows (visuals.nix) and the more dramatic 80% favored by Raycast.
-  # Timing/curve still inherit from the global snappy layersIn rule
-  # (per-layer timing override isn't supported by Hyprland; only style).
-  wayland.windowManager.hyprland.settings.layerrule = [
-    "blur on, match:namespace walker"
-    "ignore_alpha 0.5, match:namespace walker"
-    "animation popin 88%, match:namespace walker"
-  ];
+    # Scale up in place rather than slide from an edge. Only the style can be
+    # overridden per-layer — timing/curve still come from the global layersIn.
+    layerrule = ["animation popin 88%, match:namespace walker"];
+  };
 
   # Bundled into SUPER+SHIFT+R via the reload pipeline in binds.nix.
   wayland.windowManager.hyprland.reload.commands.elephant = "systemctl --user try-restart elephant.service";

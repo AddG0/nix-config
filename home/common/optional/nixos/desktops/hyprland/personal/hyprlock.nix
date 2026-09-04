@@ -1,10 +1,9 @@
-# Hyprlock — macOS-leaning lock screen. Stylix doesn't ship a hyprlock target
-# so colors/fonts are explicit here. Catppuccin Mocha foreground over a
-# heavily-blurred screenshot of what was last on screen.
+# Hyprlock — Material Design 3 lock screen. Colors are set here rather than
+# left to stylix's hyprlock target, which can't reach the roles the layout
+# needs (primary while checking, error on a failed attempt).
 #
-# Layout (top to bottom): big time, smaller date, frosted-glass card holding
-# the user avatar (circle), greeting, and pill-shaped password input. Matches
-# the macOS Sequoia/Tahoe lock-screen vertical stack.
+# The wallpaper blur below is the only blur left in the desktop — Android blurs
+# the wallpaper behind the lock, so it stays. Surfaces are still opaque.
 #
 # OLED gating: if any monitor on this host is OLED, the full rich lock is
 # swapped for a minimal one — just the pill input field with fade-on-empty.
@@ -20,10 +19,18 @@
   config,
   ...
 }: let
+  c = config.lib.stylix.colors;
+  # Catppuccin's containers are surface0/1 (base02/03) — base01 is darker than
+  # base00. base04 is 2.46:1 as text, hence the muted tone instead.
+  surfaceContainer = c.base02;
+  surfaceContainerHigh = c.base03;
+  outline = c.base04;
+  onSurfaceVariant = lib.removePrefix "#" config.lib.palette.muted.text;
+  sans = config.stylix.fonts.sansSerif.name;
   hostHasOled = lib.any (m: m.oled) config.display.monitors;
   enabledMonitors = lib.filter (m: m.enabled) config.display.monitors;
 
-  # Default: macOS/Gnome-style blurred screenshot. Any module that needs
+  # Default: blurred screenshot of the last frame. Any module that needs
   # to override a specific output's lock background writes into
   # `programs.hyprlock.backgroundOverrides` (declared in ../common/hyprlock.nix)
   # — that hook keeps this file agnostic about who's overriding what.
@@ -53,25 +60,25 @@ in {
     general = {
       ignore_empty_input = true; # Don't show fail state on bare Enter
       immediate_render = true; # No flash of unstyled lock at start
-      hide_cursor = true; # Apple hides the cursor until movement
+      hide_cursor = true; # Reveal on movement only
     };
 
     # Hyprlock animation system (v0.7.0+); `inputFieldColors` supersedes the old
-    # `fail_transition`. The slow `fadeIn` is the single biggest "feels Apple"
-    # upgrade — lock fades up instead of popping in.
+    # `fail_transition`. The slow `fadeIn` is what keeps the lock from popping
+    # in; deliberately left at 500ms when the desktop dropped to 200.
     animations = {
       enabled = true;
       bezier = [
-        "easeOutQuint, 0.22, 1, 0.36, 1"
-        "snappy, 0.25, 0.8, 0.25, 1"
+        "emphasized, 0.2, 0, 0, 1"
+        "emphasizedDecelerate, 0.05, 0.7, 0.1, 1"
       ];
       animation = [
-        "fadeIn, 1, 4, easeOutQuint"
-        "fadeOut, 1, 6, easeOutQuint"
-        "inputFieldColors, 1, 2, snappy"
-        "inputFieldFade, 1, 4, easeOutQuint"
-        "inputFieldWidth, 1, 4, easeOutQuint"
-        "inputFieldDots, 1, 2, snappy"
+        "fadeIn, 1, 5, emphasizedDecelerate"
+        "fadeOut, 1, 6, emphasizedDecelerate"
+        "inputFieldColors, 1, 2, emphasized"
+        "inputFieldFade, 1, 4, emphasizedDecelerate"
+        "inputFieldWidth, 1, 4, emphasizedDecelerate"
+        "inputFieldDots, 1, 2, emphasized"
       ];
     };
 
@@ -103,16 +110,14 @@ in {
       else map bgForMonitor enabledMonitors
     );
 
-    # Frosted-glass card behind the avatar / greeting / input stack — the
-    # Tahoe "liquid glass" cue. Reintroduces the depth that aggressive
-    # background blur flattens. zindex -1 keeps it behind labels & inputs.
+    # Card behind the avatar / greeting / input stack, shaped as an M3 dialog.
+    # zindex -1 keeps it behind labels & inputs.
     shape = lib.mkIf (!hostHasOled) [
       {
         size = "380, 300";
-        color = "rgba(14141c59)"; # Catppuccin base @ ~35% alpha
+        color = "rgba(${surfaceContainer}ff)";
         rounding = 28;
-        border_size = 1;
-        border_color = "rgba(ffffff14)"; # Hairline matching window borders
+        border_size = 0;
         position = "0, -150";
         halign = "center";
         valign = "center";
@@ -122,42 +127,37 @@ in {
 
     label = lib.mkIf (!hostHasOled) (
       [
-        # Big time, top-center. Inter Thin at 140px mimics the iconic macOS
-        # Tahoe ultra-light clock face. Thin weights need more size to read
-        # at the same visual weight as a regular face.
+        # Light at 140px carries the same visual mass as a regular face at
+        # half the size.
         {
           text = ''cmd[update:1000] date +"%I:%M"'';
-          color = "rgba(cdd6f4ee)"; # Catppuccin text
+          color = "rgba(${c.base05}ff)";
           font_size = 140;
-          font_family = "Inter Thin";
+          font_family = "${sans} Light";
           position = "0, 220";
           halign = "center";
           valign = "center";
           # Subtle lift, not glow — shadow_boost > 1.2 reads gamer.
           shadow_passes = 2;
           shadow_size = 4;
-          shadow_color = "rgba(00000059)";
+          shadow_color = "rgba(0000004d)";
           shadow_boost = 1.0;
         }
-        # Date — Medium weight provides hierarchy contrast against the thin
-        # time. Slightly bigger than before (24 vs 22) to balance the bigger
-        # clock above.
+        # Medium weight for hierarchy against the light clock above.
         {
           text = ''cmd[update:60000] date +"%A, %B %-d"'';
-          color = "rgba(cdd6f4cc)";
+          color = "rgba(${onSurfaceVariant}ff)";
           font_size = 24;
-          font_family = "Inter Medium";
+          font_family = "${sans} Medium";
           position = "0, 110";
           halign = "center";
           valign = "center";
         }
-        # Greeting just above the input. Regular weight, slight size bump
-        # (17 vs 16) — matches macOS's subtle but legible username line.
         {
           text = "Hi, $USER";
-          color = "rgba(cdd6f4ee)";
-          font_size = 17;
-          font_family = "Inter";
+          color = "rgba(${c.base05}ff)";
+          font_size = 16;
+          font_family = "${sans}";
           position = "0, -150";
           halign = "center";
           valign = "center";
@@ -165,9 +165,9 @@ in {
         # Fingerprint prompt — only shows text when fprintd is active.
         {
           text = "$FPRINTPROMPT";
-          color = "rgba(cdd6f4aa)";
+          color = "rgba(${onSurfaceVariant}ff)";
           font_size = 12;
-          font_family = "Inter";
+          font_family = "${sans}";
           position = "0, -310";
           halign = "center";
           valign = "center";
@@ -178,9 +178,9 @@ in {
       ++ lib.optionals (config.hostSpec.hostType == "laptop") [
         {
           text = ''cmd[update:30000] echo "  $(cat /sys/class/power_supply/BAT*/capacity 2>/dev/null | head -1)%"'';
-          color = "rgba(cdd6f4cc)";
+          color = "rgba(${onSurfaceVariant}ff)";
           font_size = 14;
-          font_family = "Inter";
+          font_family = "${sans}";
           position = "-24, 24";
           halign = "right";
           valign = "bottom";
@@ -199,7 +199,7 @@ in {
         valign = "center";
         shadow_passes = 2;
         shadow_size = 5;
-        shadow_color = "rgba(00000060)";
+        shadow_color = "rgba(0000004d)";
       }
     ];
 
@@ -207,7 +207,7 @@ in {
     # placeholder text and turn on fade_on_empty so the screen returns to
     # pure black when the user stops typing — only lit pixels are the
     # password dots while actively entering. On LCD we keep the richer
-    # variant with persistent placeholder text matching macOS.
+    # variant with persistent placeholder text.
     input-field = lib.mkForce [
       ({
           size = "320, 52";
@@ -216,18 +216,18 @@ in {
           dots_spacing = 0.4;
           dots_center = true;
           dots_rounding = -1;
-          outer_color = "rgba(ffffff20)"; # Hairline border, matches windows
-          inner_color = "rgba(00000060)"; # Translucent dark fill
-          font_color = "rgba(cdd6f4ee)";
-          font_family = "Inter";
-          check_color = "rgba(89b4faff)"; # Catppuccin blue while checking
-          fail_color = "rgba(f38ba8ee)"; # Catppuccin red on fail
+          outer_color = "rgba(${outline}ff)"; # M3 outline
+          inner_color = "rgba(${surfaceContainerHigh}ff)";
+          font_color = "rgba(${c.base05}ff)";
+          font_family = "${sans}";
+          check_color = "rgba(${c.base0D}ff)"; # primary, while checking
+          fail_color = "rgba(${c.base08}ff)"; # error
           fail_text = "<i>$FAIL ($ATTEMPTS)</i>";
-          capslock_color = "rgba(fab387ee)"; # Catppuccin peach
-          rounding = 26; # Half of height — full pill
+          capslock_color = "rgba(${c.base0A}ff)"; # tertiary
+          rounding = 26; # Half of height — M3 full shape, like a search bar
           shadow_passes = 1;
           shadow_size = 4;
-          shadow_color = "rgba(00000050)";
+          shadow_color = "rgba(0000004d)";
           halign = "center";
           valign = "center";
         }

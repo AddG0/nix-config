@@ -199,9 +199,11 @@ in {
     ];
 
     style = let
-      glass = "alpha(${c.base00}, 0.65)";
-      border = "alpha(${c.base02}, 0.35)";
-      fg = m.text; # muted foreground — monochrome default
+      # Opaque — blur is off system-wide, so a translucent fill would show raw
+      # wallpaper rather than frosting it.
+      surface = c.base02; # surface0 — base01 is darker than base00 here
+      elevation = "0 1px 2px 0 rgba(0, 0, 0, 0.3), 0 2px 6px 2px rgba(0, 0, 0, 0.15)";
+      fg = m.text; # on-surface-variant, the monochrome default
       dim = m.ui; # disabled / inactive
     in ''
       /* ---- Reset ---- */
@@ -221,14 +223,15 @@ in {
         color: ${fg};
       }
 
-      /* ---- Capsule islands ---- */
+      /* ---- Surface islands ---- */
       .modules-left,
       .modules-center,
       .modules-right {
-        background: ${glass};
-        border: 1px solid ${border};
-        border-radius: 14px;
+        background: ${surface};
+        border: none;
+        border-radius: 16px;
         margin: 6px 4px;
+        box-shadow: ${elevation};
       }
 
       /* ---- Left ---- */
@@ -250,20 +253,20 @@ in {
         color: ${dim};
         background: transparent;
         border: none;
-        border-radius: 8px;
+        border-radius: 9999px;
         text-decoration: none;
         box-shadow: none;
-        transition: all 0.15s ease;
+        transition: all 0.2s cubic-bezier(0.2, 0, 0, 1);
       }
       #workspaces button.active {
-        font-weight: 600;
-        color: ${c.base07};
-        background: alpha(${c.base0D}, 0.18);
+        font-weight: 500;
+        color: ${c.base0D};
+        background: alpha(${c.base0D}, 0.16);
       }
       #workspaces button.urgent { color: ${c.base08}; }
       #workspaces button:hover {
         color: ${c.base05};
-        background: alpha(${c.base05}, 0.06);
+        background: alpha(${c.base0D}, 0.08);
       }
 
       #window {
@@ -328,13 +331,14 @@ in {
       #tray > .passive { -gtk-icon-effect: dim; }
       #tray > .needs-attention { -gtk-icon-effect: highlight; }
 
-      /* ---- Tooltips (glass) ---- */
+      /* ---- Tooltips ---- */
       tooltip {
-        background: ${glass};
-        border: 1px solid ${border};
+        background: ${surface};
+        border: none;
         border-radius: 12px;
         padding: 8px 12px;
         color: ${c.base05};
+        box-shadow: ${elevation};
       }
       tooltip label {
         font-size: 13px;
@@ -352,10 +356,6 @@ in {
   # Keybinds
   wayland.windowManager.hyprland.settings = {
     exec-once = ["waybar" "${pkgs.blueman}/bin/blueman-applet"];
-    layerrule = [
-      "blur on, match:namespace gtk-layer-shell"
-      "ignore_alpha 0.3, match:namespace gtk-layer-shell"
-    ];
     binde = [
       ",XF86AudioRaiseVolume,exec,swayosd-client --output-volume raise"
       ",XF86AudioLowerVolume,exec,swayosd-client --output-volume lower"

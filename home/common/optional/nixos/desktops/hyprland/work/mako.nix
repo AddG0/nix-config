@@ -2,8 +2,9 @@
   services.mako = {
     enable = true;
     settings = {
-      border-radius = 12;
-      border-size = 1;
+      # No outline — elevation separates the notification from the content.
+      border-radius = 16;
+      border-size = 0;
       default-timeout = 5000;
       padding = "14,18";
       margin = "12";
@@ -20,9 +21,5 @@
 
   wayland.windowManager.hyprland.settings = {
     exec-once = ["${pkgs.mako}/bin/mako"];
-    layerrule = [
-      "blur on, match:namespace makoctl"
-      "ignore_alpha 0.3, match:namespace makoctl"
-    ];
   };
 }

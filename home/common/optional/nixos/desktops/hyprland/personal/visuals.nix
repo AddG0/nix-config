@@ -1,194 +1,144 @@
-# Hyprland visual config — macOS-leaning aesthetic.
+# Hyprland visual config — Material Design 3.
 #
 # Design pillars:
-#   1. Depth via shadows, not borders. Hairline borders + soft drop shadow
-#      communicate focus; thick colored frames fight the rounded corners.
-#   2. Frosted-glass blur on panels/menus (Big Sur look). Vibrancy + noise
-#      mimic Apple's saturation boost and grain.
-#   3. Squircle corners (rounding_power 3.0) — Apple's superellipse, not a
-#      plain circular arc.
-#   4. Snappy ease-out motion — all curves end at y2=1 (no overshoot, no
-#      bounce). macOS-leaning but tightened from Apple's slower defaults
-#      because tiling-WM workflows feel sluggish with full Apple timing.
-#   5. Symmetric in/out on layers (~0.2s each) so menus/notifications feel
-#      responsive both opening and closing.
+#   1. Depth from tonal elevation + shadow, never translucency or blur.
+#   2. Circular corners — rounding_power 2.0; M3 never draws a superellipse.
+#   3. State is carried by the primary accent, not a neutral tint.
+#   4. Enter decelerates, exit accelerates. The asymmetry is the spec.
 #
 # mkForce calls below override two upstream sources:
 #   - settings.nix in ../common sets gaps_in / gaps_out to 5/10
-#   - stylix's catppuccin hyprland target auto-themes col.active_border,
+#   - stylix's hyprland target auto-themes col.active_border,
 #     col.inactive_border, decoration.shadow.color, and background_color
-#     from base16 (base0D/base03/base00). We want the soft-white aesthetic,
-#     not the auto-themed blue accent, so we force the override.
+#     from base16; the roles we want don't match its base0D/base03/base00 picks.
 {
   lib,
   config,
   ...
 }: let
   c = config.lib.stylix.colors;
+  # M3 colour roles on base16, bare hex for hyprland's rgba(). Catppuccin's
+  # ramp is base02/03/04 (surface0/1/2) — base01 is `mantle`, darker than
+  # base00. Check a new scheme ramps upward before reusing these.
+  surfaceContainer = c.base02;
+  outline = c.base04;
+  outlineVariant = c.base03;
+  onSurface = c.base05;
+  onSurfaceVariant = lib.removePrefix "#" config.lib.palette.muted.text; # base04 is 2.46:1 — too dim for text
+  primary = c.base0D;
+  error = c.base08;
+  tertiary = c.base0A;
   sans = config.stylix.fonts.sansSerif.name;
-  # Stylix-driven desktop text size — same value waybar/notifications use,
-  # so the hy3 tab labels match the rest of the system chrome.
+  # Stylix-driven desktop text size — same value the bar and notifications use,
+  # so hy3 tab labels match the rest of the system chrome.
   desktopFontSize = config.stylix.fonts.sizes.desktop;
-  # Rounded-corner radius — used by window decoration, hy3 tabs, and the
-  # noctalia bar frame so they can't drift apart. Also duplicated in
-  # walker.nix; keep them in sync.
-  windowRounding = 10;
-  # Outer gap between windows and screen edge. Reused by the noctalia bar
-  # horizontal margin so the bar and window edges align.
+  # M3 "large" step, shared by window decoration, hy3 tabs and the noctalia bar.
+  windowRounding = 16;
+  # Deciseconds (Hyprland's unit), a step under M3's 200/300/400 scale: the
+  # spec targets touch, where longer reads as considered rather than as lag.
+  short = 1; # 100ms
+  medium = 2; # 200ms
+  long = 3; # 300ms
+  # Reused as the noctalia bar margin so bar and window edges align.
   edgeGap = 8;
 in {
   wayland.windowManager.hyprland.settings = {
-    # NOTE: we used to `source` catppuccin's themes/mocha.conf here, but
-    # catppuccin/hyprland migrated to Lua-only themes (no .conf ships
-    # anymore), and nothing below references its palette vars — every color
-    # is mkForce'd from stylix or a literal rgba. So the source is dropped;
-    # stylix's catppuccin hyprland target still drives the base16 colors we
-    # then override.
-
     general = {
-      # 1px hairline. macOS uses ~1px; 4px competes with the drop shadow.
-      border_size = 1;
-      # Tight gaps so shadows are visible without screaming "tiling WM".
-      # Overrides settings.nix defaults of 5/10 — hence mkForce.
+      # A hairline is a weak focus cue at gaps_in 4, and Hyprland stair-steps
+      # a 1px arc on a 16px radius.
+      border_size = 2;
       gaps_in = lib.mkForce 4;
       gaps_out = lib.mkForce edgeGap;
-      # Soft white gradient on focus — still secondary to the shadow, but
-      # bumped a touch (60/20 alpha vs prior 40/10) so the active window has
-      # a perceptible edge against dark wallpapers.
-      "col.active_border" = lib.mkForce "rgba(ffffff60) rgba(ffffff20) 45deg";
-      "col.inactive_border" = lib.mkForce "rgba(00000020)";
+      "col.active_border" = lib.mkForce "rgba(${primary}ff)";
+      # outline, not outline-variant: base03 is 1.80:1 against base00 and
+      # effectively invisible; base04 is 2.46:1.
+      "col.inactive_border" = lib.mkForce "rgba(${outline}ff)";
     };
 
     decoration = {
-      # 10 = tightest reasonable macOS-ish rounding. Tahoe (26) bumped the
-      # system default to 16, but 16 visually clipped corner items in the
-      # walker launcher list. 12 was the Sequoia-leaning compromise; 10
-      # goes a touch further for usability (bigger corners shrink the
-      # resize hot-zone) while still reading as Apple-ish.
       rounding = windowRounding;
-      # Squircle exponent (Hyprland >=0.45). 2.0 = circular arc; 3.0 = Apple
-      # superellipse — corners look slightly "fatter" near the midpoint.
-      rounding_power = 3.0;
-      # Blending is linear-light, so on near-black window backgrounds even
-      # 0.97/0.90 read as plainly see-through.
-      active_opacity = 0.99;
-      inactive_opacity = 0.96;
+      rounding_power = 2.0;
+      active_opacity = 1.0;
+      inactive_opacity = 1.0;
       fullscreen_opacity = 1.0;
 
-      # Drop shadow is the single biggest macOS-feel win. Pure-vertical
-      # offset (Apple never offsets horizontally), gentle range, alpha-only
-      # color (never pure black — looks like Windows 7).
+      # ~M3 elevation 4. render_power 2's quick falloff keeps the shadow
+      # attached to the window edge instead of spreading into a halo.
       shadow = {
         enabled = true;
-        range = 30; # 20–40 is the sweet spot; higher = softer but more GPU.
-        render_power = 3; # 1–4 falloff curve; 3 matches Apple's gentle fade.
-        offset = "0 8"; # Apple uses ~8–12px down, 0 horizontal.
-        color = lib.mkForce "rgba(00000055)"; # ~33% black.
-        color_inactive = "rgba(00000028)"; # Lighter — subtle focus cue.
-        scale = 0.97; # Slight shrink so shadow doesn't bleed past rounded corners.
+        range = 20;
+        render_power = 2;
+        offset = "0 5";
+        color = lib.mkForce "rgba(00000066)";
+        color_inactive = "rgba(00000033)";
+        scale = 0.97;
       };
 
-      # Dim everything behind the special workspace when it's active. Gives
-      # special-workspace apps (Spotify scratchpad, AWS VPN, etc.) a modal /
-      # macOS Notification Center feel instead of just floating windows.
-      dim_special = 0.4;
+      # M3 scrim behind a modal surface is 32% black.
+      dim_special = 0.32;
 
-      # Frosted glass. Big Sur uses ~30px Gaussian; size 8 + passes 3
-      # approximates it. vibrancy + noise are end-4's widely-copied magic
-      # numbers: vibrancy saturates the blurred content (Apple "vibrancy"),
-      # noise hides banding on gradients (imperceptible film grain).
-      blur = {
-        enabled = true;
-        size = 8;
-        passes = 3; # >3 is diminishing returns + FPS hit on 4K.
-        new_optimizations = true; # Free perf win, no visual cost.
-        vibrancy = 0.1696;
-        noise = 0.0117;
-        popups = true; # Blur menus/tooltips too — critical for Finder/menubar feel.
-        popups_ignorealpha = 0.2;
-        ignore_opacity = false;
-      };
+      # Also makes any `blur on` layerrule a no-op, hence none are declared.
+      blur.enabled = false;
     };
 
-    # hy3 tab-group styling (Super+G toggles a tabbed group). Follows the
-    # same pillars as the window decoration above:
-    #   - Pill shape (radius = height/2) — Safari-style; reads as a control,
-    #     not a panel.
-    #   - Hairline 1px borders matching general.border_size = 1 — anything
-    #     thicker fights the rounded shape (pillar #1).
-    #   - Soft white tints for active/focused; urgent keeps base08 because
-    #     urgency must read at a glance (the one exception).
+    # hy3 tab-group styling (Super+G toggles a tabbed group), shaped as an M3
+    # segmented button.
     #
-    # Color-key syntax is version-dependent. For hy3 ≤ 0.54.x (current),
-    # the canonical keys are flat dotted at the tabs level:
+    # Color-key syntax is version-dependent. For hy3 <= 0.54.x (current), the
+    # canonical keys are flat dotted at the tabs level:
     #   col.active        col.active.border        col.active.text
     # Master branch moved them under a `colors { ... }` subsection with
-    # snake_case names — that syntax is silently ignored on 0.54.x. If you
-    # bump hy3 past the rename, swap the keys back to `colors.*`. Verify
-    # with `hyprctl getoption plugin:hy3:tabs:col.active.border` — `set:
-    # true` means it bound.
+    # snake_case names — that syntax is silently ignored on 0.54.x. If you bump
+    # hy3 past the rename, swap the keys back to `colors.*`. Verify with
+    # `hyprctl getoption plugin:hy3:tabs:col.active.border` — `set: true` means
+    # it bound.
     plugin.hy3.tabs = {
-      # 32px tab strip matches macOS Safari proportions. radius reuses
-      # windowRounding so the tab corners and window corners can't drift
-      # apart — single knob controls both.
+      # radius == height/2 gives M3 "full" shape; reusing windowRounding keeps
+      # tab and window corners on one knob.
       height = 32;
       padding = 6;
       radius = windowRounding;
       border_width = 1;
       render_text = true;
       text_center = true;
-      # Pango font description — appending the weight bumps the label from
-      # Regular (400) to Medium (500). Thin weights smear against blurred
-      # backdrops at small sizes; Medium is what Safari uses for tab labels.
+      # M3 label-large is Medium (500).
       text_font = "${sans} Medium";
-      # Drive text size from stylix so tab labels track the same scale as
-      # waybar, notifications, and every other desktop chrome surface.
       text_height = desktopFontSize;
       # text_padding is left-padding only (no-op with text_center = true).
 
-      # Slide in from above the window — matches the `layersIn` slide and
-      # reads as a macOS-style dropdown header instead of popping up from
-      # below the content.
+      # Slide in from above the window — reads as a header attached to the
+      # group rather than a popup rising from below the content.
       from_top = true;
 
-      blur = true;
-      opacity = 0.96;
+      blur = false;
+      opacity = 1.0;
 
-      # Active: bright white pill, hairline white edge — focus reads via
-      # contrast against the blurred backdrop, not via a saturated frame.
-      # Fill bumped from 30 → 40 alpha so the active pill pops more clearly
-      # against the darker inactive substrate.
-      "col.active" = "rgba(ffffff40)";
-      "col.active.border" = "rgba(ffffff70)";
-      "col.active.text" = "rgba(ffffffff)";
+      "col.active" = "rgba(${primary}33)";
+      "col.active.border" = "rgba(${primary}ff)";
+      "col.active.text" = "rgba(${primary}ff)";
 
-      # Same tab on a non-focused monitor — one step dimmer. Default is a
-      # harsh grey that breaks the macOS feel on multi-monitor.
-      "col.active_alt_monitor" = "rgba(ffffff1c)";
-      "col.active_alt_monitor.border" = "rgba(ffffff35)";
-      "col.active_alt_monitor.text" = "rgba(${c.base05}ee)";
+      "col.active_alt_monitor" = "rgba(${primary}1a)";
+      "col.active_alt_monitor.border" = "rgba(${outline}ff)";
+      "col.active_alt_monitor.text" = "rgba(${onSurface}ff)";
 
-      # Focused (group focused, tab not active) — between active and
-      # inactive in weight.
-      "col.focused" = "rgba(ffffff1c)";
-      "col.focused.border" = "rgba(ffffff35)";
-      "col.focused.text" = "rgba(${c.base05}ee)";
+      # hy3 "focused" = group has focus but this tab isn't the active one.
+      "col.focused" = "rgba(${primary}1a)";
+      "col.focused.border" = "rgba(${outline}ff)";
+      "col.focused.text" = "rgba(${onSurface}ff)";
 
-      # Inactive uses a dark substrate so lightened base05 text reads
-      # against a busy wallpaper through the blur.
-      "col.inactive" = "rgba(00000066)";
-      "col.inactive.border" = "rgba(00000028)";
-      "col.inactive.text" = "rgba(${c.base05}bb)";
+      "col.inactive" = "rgba(${surfaceContainer}ff)";
+      "col.inactive.border" = "rgba(${outlineVariant}ff)";
+      "col.inactive.text" = "rgba(${onSurfaceVariant}ff)";
 
-      "col.urgent" = "rgba(${c.base08}80)";
-      "col.urgent.border" = "rgba(${c.base08}dd)";
-      "col.urgent.text" = "rgba(ffffffff)";
+      # The one role that breaks the accent pattern — urgency must read instantly.
+      "col.urgent" = "rgba(${error}ff)";
+      "col.urgent.border" = "rgba(${error}ff)";
+      "col.urgent.text" = "rgba(${c.base00}ff)";
 
-      # Locked (hy3:locktab pin) — base0A yellow keeps the "pinned"
-      # signal without the urgency-red scream.
-      "col.locked" = "rgba(${c.base0A}40)";
-      "col.locked.border" = "rgba(${c.base0A}aa)";
-      "col.locked.text" = "rgba(${c.base05}ee)";
+      # Set by hy3:locktab; tertiary keeps "pinned" distinct from selected/urgent.
+      "col.locked" = "rgba(${tertiary}33)";
+      "col.locked.border" = "rgba(${tertiary}ff)";
+      "col.locked.text" = "rgba(${tertiary}ff)";
     };
 
     misc = {
@@ -202,7 +152,7 @@ in {
       enable_swallow = true;
       swallow_regex = "^(ghostty|kitty|Alacritty|foot|wezterm)$";
       # On focus request while fullscreen: un-fullscreen, then focus. Stacking
-      # behavior (default 0) feels broken on macOS-y workflows.
+      # behavior (default 0) feels broken here.
       # (Renamed from new_window_takes_over_fullscreen in Hyprland 0.50+.)
       on_focus_under_fullscreen = 2;
       # Apps stop yanking focus when they want attention — they get an
@@ -210,14 +160,14 @@ in {
       focus_on_activate = false;
       # Solid dark color behind windows. Eliminates the brief flash before
       # wpaperd loads the wallpaper. Tracks stylix base00 so it stays in
-      # sync with theme changes — stylix's catppuccin target also sets this
+      # sync with theme changes — stylix's hyprland target also sets this
       # to rgb(base00), but home-manager flags any redefinition as a
       # conflict, so we mkForce.
       background_color = lib.mkForce "0xff${c.base00}";
     };
 
-    # macOS-style three-finger swipe between workspaces. Only triggers if a
-    # touchpad is present, so safe to define globally.
+    # Three-finger swipe between workspaces. Only triggers if a touchpad is
+    # present, so safe to define globally.
     #
     # Hyprland 0.50+ split this into two parts:
     #   - `gesture = N, direction, dispatcher` enables it (replaces the old
@@ -229,15 +179,13 @@ in {
     gestures = {
       # ~400px feels right; 300 is too sensitive, 500+ is sluggish.
       workspace_swipe_distance = 400;
-      # Assumes natural-scroll touchpads (the macOS default). If a host
-      # disables natural scroll system-wide, swipes will feel inverted —
-      # override per-host in that case.
+      # Assumes natural-scroll touchpads. If a host disables natural scroll
+      # system-wide, swipes will feel inverted — override per-host in that case.
       workspace_swipe_invert = true;
       # Lower = flicks more reliable; 30 (default) is sluggish.
       workspace_swipe_min_speed_to_force = 15;
-      # Past halfway commits, otherwise springs back — macOS behavior.
+      # Past halfway commits, otherwise springs back.
       workspace_swipe_cancel_ratio = 0.5;
-      # Apple doesn't conjure new spaces mid-swipe.
       workspace_swipe_create_new = false;
       # Keep swiping past first workspace without snapping.
       workspace_swipe_forever = true;
@@ -247,107 +195,52 @@ in {
       workspace_swipe_use_r = true;
     };
 
-    # Window rules — visual treatment for specific app classes.
-    #
-    # Note: Hyprland's `dim_around` effect is layer-only, not a windowrule;
-    # polkit/auth prompts can't get a macOS-modal dim through windowrules.
-    # The closest equivalents would be `decoration.dim_inactive = true` (dims
-    # everything unfocused, globally) or a polkit theme that draws its own
-    # dim overlay.
-    windowrule = [
-      # `override` beats the global active/inactive_opacity, so these never dim.
-      "opacity 1.0 override 1.0 override 1.0 override, match:tag browser"
-      "opacity 1.0 override 1.0 override 1.0 override, match:class ^(vlc)$"
-      "opacity 1.0 override 1.0 override 1.0 override, match:class ^(eog|org.gnome.eog)$"
-      # Color grading needs true pixel values, not wallpaper-blended ones.
-      "opacity 1.0 override 1.0 override 1.0 override, match:class ^(resolve)$"
-      # Games (tagged in the gaming module) stay fully opaque, not dimmed when unfocused.
-      "opacity 1.0 override 1.0 override 1.0 override, match:tag game"
-    ];
-
-    # Layer rules govern blur for shell-surfaces (waybar, rofi, notifications).
-    # `ignore_alpha N` skips blur on pixels with alpha < N — this is what kills
-    # the dark halo around panels and is the single biggest panel-blur upgrade.
-    # Rules for namespaces that don't exist on this host are no-ops.
-    #
-    # Hyprland 0.50+ syntax notes:
-    #   - `blur` -> `blur on` (the rule needs an explicit value)
-    #   - `ignorealpha` -> `ignore_alpha` (underscore)
-    #   - bare namespace -> `match:namespace <regex>`
-    #   - `ignorezero` was removed; use a small `ignore_alpha` value instead.
-    layerrule = [
-      "blur on, match:namespace waybar"
-      "ignore_alpha 0.2, match:namespace waybar"
-      "blur on, match:namespace rofi"
-      "ignore_alpha 0.5, match:namespace rofi"
-      "blur on, match:namespace wofi"
-      "ignore_alpha 0.5, match:namespace wofi"
-      "blur on, match:namespace notifications"
-      "ignore_alpha 0.3, match:namespace notifications"
-      "blur on, match:namespace swaync-control-center"
-      "blur on, match:namespace swaync-notification-window"
-      "blur on, match:namespace logout_dialog"
-    ];
-
     animations = {
       enabled = true;
-      # Bezier curves are `name, x1, y1, x2, y2` — same as CSS cubic-bezier.
-      # All curves keep Y values within [0,1] so nothing overshoots. macOS
-      # uses smooth ease-out curves throughout — no springy/bouncy motion.
+      # M3 easing tokens. The enter/exit split is what reads as Material
+      # rather than as generically smooth motion.
       bezier = [
-        # Snappy ease-out — sharper than easeOutExpo, less time hanging at
-        # the end. Used for window/workspace/layer motion.
-        "snappy, 0.25, 0.8, 0.25, 1"
-        # Apple-standard ease-out for cases where snappy is too aggressive
-        # (fades, scratchpad, color blends).
-        "easeOutExpo, 0.16, 1, 0.3, 1"
+        "emphasized, 0.2, 0, 0, 1"
+        "emphasizedDecelerate, 0.05, 0.7, 0.1, 1"
+        "emphasizedAccelerate, 0.3, 0, 0.8, 0.15"
       ];
-      # Durations in deciseconds (3 = 0.3s). Roughly half of the previous
-      # "macOS deliberate" timings — feels fast and responsive without
-      # losing the ease-out polish.
+      # Retune speed via the short/medium/long tokens, not these lines.
       animation = [
-        # Window open: snappy with minimal zoom (92% start = barely scales).
-        "windows, 1, 3, snappy, popin 92%"
-        "windowsOut, 1, 2, snappy, popin 92%"
-        "fadeOut, 1, 2, snappy"
-        "fadeIn, 1, 2, snappy"
+        "windows, 1, ${toString medium}, emphasizedDecelerate, popin 92%"
+        "windowsOut, 1, ${toString short}, emphasizedAccelerate, popin 92%"
+        "fadeIn, 1, ${toString medium}, emphasizedDecelerate"
+        "fadeOut, 1, ${toString short}, emphasizedAccelerate"
         # Focus-transition events.
-        "fadeSwitch, 1, 2, easeOutExpo"
-        "fadeShadow, 1, 3, easeOutExpo"
-        "fadeDim, 1, 2, easeOutExpo"
-        # Workspace transition: tighter slide (20%), snappy curve.
-        "workspaces, 1, 3, snappy, slidefade 20%"
-        # Scratchpad still gets the deliberate full slide-from-top, but
-        # quicker than before. Distinct feel from regular workspace switches.
-        "specialWorkspace, 1, 4, easeOutExpo, slidefadevert -100%"
-        # Layers (menus, notifications) — symmetric snappy in/out.
-        "layersIn, 1, 2, snappy, slide"
-        "layersOut, 1, 2, snappy, slide"
-        "fadeLayersIn, 1, 1, easeOutExpo"
-        "fadeLayersOut, 1, 1, easeOutExpo"
-        # Border color blend — was 10 (liner, very slow); 5 with ease-out
-        # reads as deliberate without being sluggish.
-        "border, 1, 5, easeOutExpo"
+        "fadeSwitch, 1, ${toString short}, emphasized"
+        "fadeShadow, 1, ${toString medium}, emphasized"
+        "fadeDim, 1, ${toString short}, emphasized"
+        "workspaces, 1, ${toString medium}, emphasized, slidefade 20%"
+        # The one transition that reads better slightly slower — it slides the
+        # full height of the screen and looks broken when it snaps.
+        "specialWorkspace, 1, ${toString long}, emphasizedDecelerate, slidefadevert -100%"
+        "layersIn, 1, ${toString medium}, emphasizedDecelerate, slide"
+        "layersOut, 1, ${toString short}, emphasizedAccelerate, slide"
+        "fadeLayersIn, 1, ${toString short}, emphasizedDecelerate"
+        "fadeLayersOut, 1, ${toString short}, emphasizedAccelerate"
+        "border, 1, ${toString short}, emphasized"
       ];
     };
   };
 
-  # stylix maps on_surface_variant to base04, a Catppuccin *surface* tone: 2.5:1
-  # as secondary-label text. The shared muted tone gets it to 7.4:1.
+  # stylix maps this to base04 — 2.46:1 as label text. The muted tone is 7.37:1.
   programs.noctalia.customPalettes.stylix.dark.mOnSurfaceVariant =
     lib.mkForce config.lib.palette.muted.text;
 
   # Noctalia shape/layout; colors and fonts come from stylix's noctalia target.
   programs.noctalia.settings = {
-    # macOS-style drop shadow — straight down, never horizontal offset.
     shell.shadow.direction = "down";
 
     bar.main = {
       margin_ends = edgeGap; # Align bar ends with window outer gap.
       margin_edge = edgeGap; # Match so top spacing equals the sides.
       radius = windowRounding; # Same source of truth as windows + tabs.
-      capsule = true; # Pill-shaped widget backgrounds (Control Center vibe)
-      border_width = 0; # Shadow + transparency do the framing, not a border.
+      capsule = true; # M3 pill-shaped widget containers.
+      border_width = 0; # Elevation does the framing, not a border.
       # stylix routes opacity.desktop to the dock and never sets bar opacity.
       background_opacity = config.stylix.opacity.desktop;
       widget_spacing = 6;
