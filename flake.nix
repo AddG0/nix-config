@@ -292,8 +292,8 @@
       flake = false;
     };
 
-    caveman = {
-      url = "github:JuliusBrussee/caveman";
+    ponytail = {
+      url = "github:DietrichGebert/ponytail";
       flake = false;
     };
 

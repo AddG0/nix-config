@@ -2,36 +2,7 @@
   pkgs,
   lib,
   ...
-}: let
-  # Our Steam Protons (GE-Proton, proton-cachyos) live in the Nix store, and a
-  # prefix symlinks its core files into that store path. On a proton update the
-  # old path orphans and min-free GC reaps it → the prefix's symlinks dangle.
-  # Proton won't rebuild it because every Proton 11.x reports the same prefix
-  # version "11.0-100", so the game just crashes on launch.
-  pruneBrokenPrefixes = pkgs.writeShellApplication {
-    name = "steam-prune-broken-prefixes";
-    runtimeInputs = with pkgs; [coreutils procps];
-    text = ''
-      compatdata="$HOME/.local/share/Steam/steamapps/compatdata"
-      [ -d "$compatdata" ] || exit 0
-
-      if pgrep -x steam >/dev/null; then
-        echo "Steam is running; skipping prefix prune."
-        exit 0
-      fi
-
-      shopt -s nullglob
-      for dir in "$compatdata"/*/; do
-        exe="$dir/pfx/drive_c/windows/system32/steam.exe"
-        # Only a dangling symlink is broken; real files and live links are fine.
-        if [ -L "$exe" ] && [ ! -e "$exe" ]; then
-          echo "Resetting broken Proton prefix (GC'd store path): $(basename "$dir")"
-          rm -rf "$dir"
-        fi
-      done
-    '';
-  };
-in {
+}: {
   imports = [
     ./steam
     ./sens-convert.nix
@@ -41,14 +12,11 @@ in {
     mangohud
   ];
 
-  systemd.user.services.steam-prune-broken-prefixes = {
-    Unit.Description = "Reset Proton prefixes whose GC'd Nix-store symlinks dangle";
-    Service = {
-      Type = "oneshot";
-      ExecStart = "${pruneBrokenPrefixes}/bin/steam-prune-broken-prefixes";
-    };
-    Install.WantedBy = ["default.target"];
-  };
+  # Proton bakes dirname(sys.argv[0]) into each prefix, never realpath'd, so
+  # these names must stay stable; a store path dies with its last generation.
+  xdg.dataFile."Steam/compatibilitytools.d/GE-Proton".source =
+    pkgs.proton-ge-bin.steamcompattool;
+  xdg.dataFile."Steam/compatibilitytools.d/proton-cachyos-native".source = "${pkgs.proton-cachyos}/share/steam/compatibilitytools.d/proton-cachyos-native";
 
   # Forza Horizon's XWayland fullscreen-on-map path crashes Hyprland 0.54.3
   # inside CCompositor::setWindowFullscreenInternal (null deref on the

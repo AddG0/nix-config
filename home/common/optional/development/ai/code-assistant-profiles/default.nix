@@ -74,7 +74,7 @@ in {
         documentation
         architecture
         design-notes
-        caveman
+        ponytail
         tmux-dev
         jira
         crash-capture

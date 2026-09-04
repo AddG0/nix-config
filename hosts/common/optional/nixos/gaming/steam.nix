@@ -30,9 +30,7 @@
       extraArgs = "-devtools-port 21379";
     };
 
-    extraCompatPackages = [
-      pkgs.proton-ge-bin
-      pkgs.proton-cachyos
-    ];
+    # No extraCompatPackages: it would bake a collectable store path into every
+    # Proton prefix. The gaming home module installs the tools instead.
   };
 }

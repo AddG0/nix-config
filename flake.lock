@@ -426,22 +426,6 @@
         "type": "github"
       }
     },
-    "caveman": {
-      "flake": false,
-      "locked": {
-        "lastModified": 1788039956,
-        "narHash": "sha256-KuOJYB+HH/vhQLEDOuHEETNUNtHSHdDuxvb5xFjk7Jc=",
-        "owner": "JuliusBrussee",
-        "repo": "caveman",
-        "rev": "df2ccd85c94ec3c8289cb62ac020d241ccfb0c60",
-        "type": "github"
-      },
-      "original": {
-        "owner": "JuliusBrussee",
-        "repo": "caveman",
-        "type": "github"
-      }
-    },
     "claude-code": {
       "flake": false,
       "locked": {
@@ -3164,6 +3148,22 @@
         "url": "ssh://git@gitlab.com/ShipperHQ/shipperhq-ai/Infrastructure/platform/nix.git"
       }
     },
+    "ponytail": {
+      "flake": false,
+      "locked": {
+        "lastModified": 1786139041,
+        "narHash": "sha256-bGdXvzhWPwGdz3T2Yh2h6lf+3PBRFAfdBxP5pESmCHI=",
+        "owner": "DietrichGebert",
+        "repo": "ponytail",
+        "rev": "2ed6c52c9d7e5e56942508591085fd45dea277d3",
+        "type": "github"
+      },
+      "original": {
+        "owner": "DietrichGebert",
+        "repo": "ponytail",
+        "type": "github"
+      }
+    },
     "pre-commit": {
       "inputs": {
         "flake-compat": "flake-compat_8",
@@ -3325,7 +3325,6 @@
         "base16-vim": "base16-vim",
         "base16-zathura": "base16-zathura",
         "catppuccin-obsidian": "catppuccin-obsidian",
-        "caveman": "caveman",
         "claude-code": "claude-code",
         "claude-code-skill-factory": "claude-code-skill-factory",
         "claude-code-skills-collection": "claude-code-skills-collection",
@@ -3363,6 +3362,7 @@
         "nur": "nur",
         "nur-ataraxiasjel": "nur-ataraxiasjel",
         "plasma-manager": "plasma-manager",
+        "ponytail": "ponytail",
         "pre-commit-hooks": "pre-commit-hooks_4",
         "pterodactyl-addons": "pterodactyl-addons",
         "queued-build-hook": "queued-build-hook",
