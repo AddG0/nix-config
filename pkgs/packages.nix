@@ -33,6 +33,7 @@ pkgs: rec {
   helium = pkgs.callPackage ./helium {};
   razer-cli = pkgs.callPackage ./razer-cli {};
   timezone-hover = pkgs.callPackage ./timezone-hover {};
+  wooting-bg-service = pkgs.callPackage ./wooting-bg-service {};
 
   # Desktop environment
   blueprint = pkgs.callPackage ./blueprint {};

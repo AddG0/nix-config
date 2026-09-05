@@ -22,6 +22,8 @@
   c = config.lib.stylix.colors;
   # Catppuccin's containers are surface0/1 (base02/03) — base01 is darker than
   # base00. base04 is 2.46:1 as text, hence the muted tone instead.
+  # Matches the window shadow weight in visuals.nix.
+  shadowColor = "rgba(00000066)";
   surfaceContainer = c.base02;
   surfaceContainerHigh = c.base03;
   outline = c.base04;
@@ -114,14 +116,18 @@ in {
     # zindex -1 keeps it behind labels & inputs.
     shape = lib.mkIf (!hostHasOled) [
       {
-        size = "380, 300";
+        size = "380, 264";
         color = "rgba(${surfaceContainer}ff)";
         rounding = 28;
         border_size = 0;
-        position = "0, -150";
+        position = "0, -132";
         halign = "center";
         valign = "center";
         zindex = -1;
+        shadow_passes = 3;
+        shadow_size = 6;
+        shadow_color = shadowColor;
+        shadow_boost = 1.0;
       }
     ];
 
@@ -140,7 +146,7 @@ in {
           # Subtle lift, not glow — shadow_boost > 1.2 reads gamer.
           shadow_passes = 2;
           shadow_size = 4;
-          shadow_color = "rgba(0000004d)";
+          shadow_color = shadowColor;
           shadow_boost = 1.0;
         }
         # Medium weight for hierarchy against the light clock above.
@@ -157,8 +163,10 @@ in {
           text = "Hi, $USER";
           color = "rgba(${c.base05}ff)";
           font_size = 16;
-          font_family = "${sans}";
-          position = "0, -150";
+          # Medium — the identity block needs a title weight against a 96px
+          # avatar, not body weight.
+          font_family = "${sans} Medium";
+          position = "0, -146";
           halign = "center";
           valign = "center";
         }
@@ -168,7 +176,8 @@ in {
           color = "rgba(${onSurfaceVariant}ff)";
           font_size = 12;
           font_family = "${sans}";
-          position = "0, -310";
+          # Clears the card's bottom edge (y=-264) by the 24px the interior uses.
+          position = "0, -296";
           halign = "center";
           valign = "center";
         }
@@ -194,12 +203,12 @@ in {
         path = "/var/lib/AccountsService/icons/${config.home.username}";
         size = 96;
         rounding = -1; # -1 = perfect circle
-        position = "0, -80";
+        position = "0, -72";
         halign = "center";
         valign = "center";
         shadow_passes = 2;
         shadow_size = 5;
-        shadow_color = "rgba(0000004d)";
+        shadow_color = shadowColor;
       }
     ];
 
@@ -211,7 +220,7 @@ in {
     input-field = lib.mkForce [
       ({
           size = "320, 52";
-          outline_thickness = 1;
+          outline_thickness = 2; # matches general.border_size in visuals.nix
           dots_size = 0.22;
           dots_spacing = 0.4;
           dots_center = true;
@@ -222,12 +231,12 @@ in {
           font_family = "${sans}";
           check_color = "rgba(${c.base0D}ff)"; # primary, while checking
           fail_color = "rgba(${c.base08}ff)"; # error
-          fail_text = "<i>$FAIL ($ATTEMPTS)</i>";
+          fail_text = "$FAIL ($ATTEMPTS)";
           capslock_color = "rgba(${c.base0A}ff)"; # tertiary
           rounding = 26; # Half of height — M3 full shape, like a search bar
           shadow_passes = 1;
           shadow_size = 4;
-          shadow_color = "rgba(0000004d)";
+          shadow_color = shadowColor;
           halign = "center";
           valign = "center";
         }
@@ -240,9 +249,9 @@ in {
             placeholder_text = "";
           }
           else {
-            position = "0, -240";
+            position = "0, -213";
             fade_on_empty = false;
-            placeholder_text = "<i>Enter password</i>";
+            placeholder_text = "Enter password";
           }
         ))
     ];
