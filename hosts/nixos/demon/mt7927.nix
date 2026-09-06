@@ -2,12 +2,15 @@
 #
 #  mt7927 - MediaTek MT7927 / MT6639 (Filogic 380) Wi-Fi 7 + Bluetooth
 #
-#  demon's X870E Hero onboard radio (PCI 14c3:6639) has no mainline driver:
-#  the in-tree mt7925e only binds 14c3:7925/0717. This builds the patched
-#  mt76/mt7925e (Wi-Fi) and btusb/btmtk (Bluetooth) out-of-tree — jetm's
-#  MT7927 patches over mainline 7.2 source — against demon's running
-#  kernel, plus the MT6639 Wi-Fi+BT firmware extracted from ASUS's driver
-#  package (not in linux-firmware).
+#  demon's X870E Hero onboard radio (PCI 14c3:6639). Mainline 7.2 drives it;
+#  this builds mt76/mt7925e out-of-tree only for jetm's four AP-mode patches
+#  that aren't upstream yet, plus the MT6639 Wi-Fi+BT firmware extracted from
+#  ASUS's driver package (not in linux-firmware).
+#
+#  Bluetooth is deliberately NOT built here: it's in-tree from 7.1, and
+#  btusb/btmtk from this package land in updates/, shadowing the in-tree stack
+#  for every USB BT device while adding only an ID demon doesn't have. Upstream
+#  stopped building them on 7.1+ for the same reason (v2.14-6).
 #
 #  The firmware ZIP lives behind an expiring signed ASUS URL, so `fetchurl`
 #  can't reach it — see driverZip below for how it's fetched instead.
@@ -22,7 +25,7 @@
 }: let
   kernel = config.boot.kernelPackages.kernel;
 
-  # Mainline version whose mt76/bluetooth source jetm's patches apply onto.
+  # Mainline version whose mt76 source jetm's patches apply onto.
   mt76Kver = "7.2";
   kernelSrc = pkgs.fetchurl {
     url = "mirror://kernel/linux/kernel/v7.x/linux-${mt76Kver}.tar.xz";
@@ -72,6 +75,9 @@
         "$base?model=$model&Signature=$sig&Expires=$exp&Key-Pair-Id=$kid"
     '';
 
+  # FLAKE-UPDATE: drop this whole module once linux-firmware ships
+  # mediatek/mt7927/* and the four mt7927-wifi-*.patch AP-mode additions land
+  # upstream — nothing else here is still needed on a 7.2+ kernel.
   mt7927 = pkgs.stdenv.mkDerivation {
     pname = "mt7927-mt76";
     version = "2.14-${kernel.modDirVersion}";
@@ -87,19 +93,13 @@
 
     buildPhase = ''
       runHook preBuild
-      mkdir -p _build/mt76 _build/bluetooth _build/firmware
+      mkdir -p _build/mt76 _build/firmware
 
       tar -xf ${kernelSrc} --strip-components=6 -C _build/mt76 \
         linux-${mt76Kver}/drivers/net/wireless/mediatek/mt76
-      tar -xf ${kernelSrc} --strip-components=3 -C _build/bluetooth \
-        linux-${mt76Kver}/drivers/bluetooth
 
       for p in "$src"/mt7927-wifi-*.patch; do patch -d _build/mt76 -p1 <"$p"; done
-      for p in "$src"/mt6639-bt-[0-9]*.patch "$src"/mt6639-bt-compat-*.patch; do
-        patch -d _build/bluetooth -p1 <"$p"
-      done
 
-      cp "$src"/bluetooth.Makefile _build/bluetooth/Makefile
       cp "$src"/mt76.Kbuild _build/mt76/Kbuild
       cp "$src"/mt7921.Kbuild _build/mt76/mt7921/Kbuild
       cp "$src"/mt7925.Kbuild _build/mt76/mt7925/Kbuild
@@ -111,7 +111,6 @@
 
       kdir=${kernel.dev}/lib/modules/${kernel.modDirVersion}/build
       llvm=$(grep -qs '^CONFIG_CC_IS_CLANG=y' "$kdir/.config" && echo LLVM=1 || true)
-      make -j$NIX_BUILD_CORES $llvm -C "$kdir" M="$PWD/_build/bluetooth" modules
       make -j$NIX_BUILD_CORES $llvm -C "$kdir" M="$PWD/_build/mt76" modules
       runHook postBuild
     '';
