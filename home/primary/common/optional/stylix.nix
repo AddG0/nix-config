@@ -66,12 +66,12 @@
       popups = 1.0;
     };
     polarity = "dark";
-    # colloid-icon-theme is Linux-only; skip icon theming on Darwin.
+    # papirus-icon-theme is Linux-only; skip icon theming on Darwin.
     icons = lib.mkIf pkgs.stdenv.hostPlatform.isLinux {
       enable = true;
-      package = pkgs.colloid-icon-theme;
-      dark = "Colloid-Dark";
-      light = "Colloid-Light";
+      package = pkgs.papirus-icon-theme;
+      dark = "Papirus-Dark";
+      light = "Papirus-Light";
     };
 
     # Stylix recolors adw-gtk3 but leaves its shapes alone. Layering the M3
