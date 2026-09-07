@@ -9,6 +9,8 @@
 
   programs.bakkesmod = {
     enable = true;
+    # Custom maps render untextured without the UDK editor packages.
+    workshopTextures.enable = true;
     plugins = with pkgs.bakkesmod-plugins; [
       better-steam-workshop-loader
       # Hosts a joinable local/LAN match on any loaded map.

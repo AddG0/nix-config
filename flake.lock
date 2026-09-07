@@ -182,11 +182,11 @@
         ]
       },
       "locked": {
-        "lastModified": 1788374199,
-        "narHash": "sha256-1aLb9f8qmKnSQ+7gfaQ+LhELxEi32FoKSzC7T9orbnU=",
+        "lastModified": 1788748774,
+        "narHash": "sha256-XOxEdb1n4oyYuxj/uipiQN/ZfACzlWaXRrkpLVQIVvQ=",
         "owner": "AddG0",
         "repo": "bakkesmod-nix",
-        "rev": "7d8a874ab6f7b56f3dc5a0344f4565d5dae7fb83",
+        "rev": "b1ee848d7f8a8ff75f4b38fff20c179400820bbb",
         "type": "github"
       },
       "original": {
