@@ -48,6 +48,10 @@
     inherit (config.users.users.${config.hostSpec.primaryUsername}) group;
   in ''
     mkdir -p ${ageFolder} || true
-    chown -R ${user}:${group} ${config.hostSpec.home}/.config
+    # Not -R: that walks all of ~/.config (300k files on demon, ~3s of initrd).
+    chown ${user}:${group} \
+      ${config.hostSpec.home}/.config \
+      ${config.hostSpec.home}/.config/sops \
+      ${ageFolder}
   '');
 }

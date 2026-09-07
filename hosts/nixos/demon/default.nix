@@ -108,6 +108,8 @@
       configurationLimit = 20;
     };
     efi.canTouchEfiVariables = true;
+    # A keypress in the window holds the menu open indefinitely.
+    timeout = 1;
   };
 
   # qemu user-mode emulation so demon can build aarch64-linux derivations
