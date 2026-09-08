@@ -55,7 +55,7 @@
       "gaming/r2modman.nix"
       "gaming/nitrox.nix"
       "gaming/bigscreen-beyond.nix"
-      "gaming/bakkesmod.nix"
+      "gaming/rocket-league.nix"
       "gaming/queued-build-cache-pause.nix"
 
       # Ghostty (Terminal)

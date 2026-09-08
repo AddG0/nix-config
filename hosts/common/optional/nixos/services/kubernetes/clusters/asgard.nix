@@ -103,6 +103,10 @@ in {
       ]);
   };
 
+  # The module ships TimeoutStartSec=0, so a wedged start never fails and
+  # Restart=always never fires. Minutes, not seconds: etcd catch-up is slow.
+  systemd.services.k3s.serviceConfig.TimeoutStartSec = lib.mkForce "15m";
+
   # flannel takes the first address on its interface after sorting with IFA_F_PERMANENT
   # preferred (compareAddrs, flannel pkg/ip/iface.go), so kube-vip's permanent VIP beats
   # a DHCP lease. A reservation does not help -- the lease is still flagged dynamic.

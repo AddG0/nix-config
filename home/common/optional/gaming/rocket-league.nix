@@ -17,6 +17,12 @@
       rocket-plugin
       # Support plugin for multiplayer workshop maps and plugins.
       netcode-plugin
+      # Spawns a bot in freeplay to take kickoffs against you.
+      kickoff-practice
+      # Kickoffs against a recording of your own inputs.
+      better-kickoff-training
+      # Scripted inputs for custom shots and speedruns.
+      tas-plugin
     ];
     config = {
       gui.scale = 1.2;
@@ -28,6 +34,8 @@
       };
     };
   };
+
+  programs.rlbot.enable = true;
 
   # Match on title — the injector shares Rocket League's class (steam_app_252950).
   wayland.windowManager.hyprland.settings.windowrule = [

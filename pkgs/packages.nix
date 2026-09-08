@@ -49,6 +49,12 @@ pkgs: rec {
   proton-cachyos = pkgs.callPackage ./proton-cachyos {};
   wlcrosshair = pkgs.callPackage ./wlcrosshair {};
 
+  # RLBot - Rocket League bot framework
+  rlbot = pkgs.callPackage ./rlbot {inherit rlbot-server rlbot-gui;};
+  rlbot-server = pkgs.callPackage ./rlbot/server.nix {};
+  rlbot-gui = pkgs.callPackage ./rlbot/gui.nix {};
+  rlbot-proton-shim = pkgs.callPackage ./rlbot/proton-shim.nix {};
+
   # tmux plugins - modular namespace, merged into pkgs.tmuxPlugins by the overlay
   tmuxPlugins = import ./tmux-plugins pkgs;
 

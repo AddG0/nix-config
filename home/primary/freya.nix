@@ -56,7 +56,7 @@
       "gaming/heroic.nix"
       "gaming/r2modman.nix"
       "gaming/nitrox.nix"
-      "gaming/bakkesmod.nix"
+      "gaming/rocket-league.nix"
 
       # Ghostty (Terminal)
       "ghostty"

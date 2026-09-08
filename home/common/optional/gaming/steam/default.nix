@@ -47,7 +47,7 @@
 
   mouseDpi = import ./mouse-dpi.nix {inherit lib pkgs razerEnabled;};
 
-  # `or false`: hosts without gaming/bakkesmod.nix have no such option at all.
+  # `or false`: hosts without gaming/rocket-league.nix have no such option at all.
   bakkesLauncher = lib.optional (config.programs.bakkesmod.enable or false) config.programs.bakkesmod.launcherPackage;
 
   # name → Steam appid.
