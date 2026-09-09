@@ -4,7 +4,7 @@ let
     Status = "locked";
   });
 in {
-  AutofillAddressEnabled = true;
+  AutofillAddressEnabled = false;
   AutofillCreditCardEnabled = false;
   DisableAppUpdate = true;
   DisableFeedbackCommands = true;

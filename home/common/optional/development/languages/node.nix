@@ -21,8 +21,18 @@
   programs.npm = {
     enable = true;
     package = pkgs.nodejs_24;
-    settings.update-notifier = false;
+    settings = {
+      update-notifier = false;
+      # pnpm prefix-matches this key with no fallback, so it needs the full path.
+      "//gitlab.com/api/v4/:_authToken" = "\${GITLAB_NPM_TOKEN}";
+    };
   };
+
+  # pnpm errors on an undefined ${...}, and ${VAR:-default} is pnpm-only so the
+  # npmrc cannot self-default. The real PAT arrives per tree via directoryEnv.
+  programs.zsh.initContent = ''
+    export GITLAB_NPM_TOKEN="''${GITLAB_NPM_TOKEN:-}"
+  '';
 
   # bun reads $XDG_CONFIG_HOME/.npmrc only — no ~/.npmrc or NPM_CONFIG_USERCONFIG fallback.
   # Leading slash in the key is upstream's removePrefix quirk, not a typo.

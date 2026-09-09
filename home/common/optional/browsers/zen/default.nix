@@ -68,6 +68,7 @@
         pay-by-privacy # Privacy.com virtual cards
         leechblock-ng # Block time-wasting sites (youtube, reddit, etc) with time limits
         steam-database # SteamDB (steamdb.info) price/data overlay on Steam store
+        youtube-auto-hd-fps # Force highest available quality on every YouTube video
         (buildFirefoxXpiAddon {
           pname = "jetbrains-toolbox";
           version = "3.0.0";

@@ -32,16 +32,16 @@
     then "(monitor_w-${moveWidth}-${toString cfg.margin}) (monitor_h-${moveHeight}-${toString cfg.margin})"
     else "${toString cfg.margin} (monitor_h-${moveHeight}-${toString cfg.margin})";
 
-  # Bash expressions computing absolute pixel coords from monitor mx/my/mw/mh.
-  # Used by the SUPER-bound toggle, which dispatches `movewindowpixel exact`.
+  # Absolute coords for the toggle's `movewindowpixel exact`, over the
+  # work-area wx/wy/ww/wh the script reads.
   scriptX =
     if cfg.corner == "top-right" || cfg.corner == "bottom-right"
-    then "$((mx+mw-${toString cfg.size.width}-${toString cfg.margin}))"
-    else "$((mx+${toString cfg.margin}))";
+    then "$((wx+ww-${toString cfg.size.width}-${toString cfg.margin}))"
+    else "$((wx+${toString cfg.margin}))";
   scriptY =
     if cfg.corner == "top-right" || cfg.corner == "top-left"
-    then "$((my+${toString cfg.margin}))"
-    else "$((my+mh-${toString cfg.size.height}-${toString cfg.margin}))";
+    then "$((wy+${toString cfg.margin}))"
+    else "$((wy+wh-${toString cfg.size.height}-${toString cfg.margin}))";
 
   # `opacity FOCUSED UNFOCUSED [override]`. `override` bypasses the global
   # inactive_opacity setting — necessary if you want video to stay fully
@@ -76,8 +76,16 @@
     else
       # Fullscreen windows silently reject pin/float/resize — exit first.
       [ "$fs" != 0 ] && hyprctl dispatch fullscreenstate 0 -1
-      read -r mx my mw mh < <(
-        hyprctl monitors -j | jq -r --argjson i "$mon" '.[]|select(.id==$i)|[.x,.y,.width,.height]|@tsv'
+      # hyprctl's .width/.height are the mode in physical px — transform and
+      # scale are not folded in. .reserved is already logical.
+      read -r wx wy ww wh < <(
+        hyprctl monitors -j | jq -r --argjson i "$mon" '.[]|select(.id==$i)
+          | (if (.transform % 2) == 1 then [.height,.width] else [.width,.height] end) as $px
+          | .reserved as $r
+          | [ .x + $r[0],
+              .y + $r[1],
+              ($px[0]/.scale|round) - $r[0] - $r[2],
+              ($px[1]/.scale|round) - $r[1] - $r[3] ]|@tsv'
       )
       printf '%s %s %s %s %s %s\n' "$fl" "$pin" "$x" "$y" "$w" "$h" > "$f"
       b=""

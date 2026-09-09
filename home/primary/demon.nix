@@ -7,6 +7,7 @@
   imports = lib.flatten [
     (map (f: ./common/optional/${f}) [
       "development/aws.nix"
+      "development/node.nix"
       "nixos/services/rclone.nix"
       "stylix.nix"
       "work.nix"
