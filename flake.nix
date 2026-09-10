@@ -302,6 +302,11 @@
       flake = false;
     };
 
+    i-have-adhd = {
+      url = "github:ayghri/i-have-adhd";
+      flake = false;
+    };
+
     context-engineering-kit = {
       url = "github:NeoLabHQ/context-engineering-kit";
       flake = false;
@@ -362,7 +367,7 @@
 
     # AWS VPN Client
     awsvpnclient-nix = {
-      url = "github:AddG0/awsvpnclient-nix";
+      url = "github:AddG0/awsvpnclient-nix?ref=v6.0.1";
       # url = "path:/home/addg/Projects/code/github.com/AddG0/awsvpnclient-nix";
       inputs.nixpkgs.follows = "nixpkgs";
       inputs.flake-parts.follows = "flake-parts";

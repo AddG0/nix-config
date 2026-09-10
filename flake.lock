@@ -159,15 +159,16 @@
         ]
       },
       "locked": {
-        "lastModified": 1786368543,
-        "narHash": "sha256-YeNx0stklITQHTwn3b9Ko8mxD3dFTzMWkc4kuUkrb6Y=",
+        "lastModified": 1788983755,
+        "narHash": "sha256-mVRlEyy0OS6oyV/jafWvZCYAwWrFmti6UD21nlXrZE4=",
         "owner": "AddG0",
         "repo": "awsvpnclient-nix",
-        "rev": "1417c7533309cfbe224f0cfce972b2aa645ccd90",
+        "rev": "6d685af2b86eb10ad0d4b8280ecaae211b00c44b",
         "type": "github"
       },
       "original": {
         "owner": "AddG0",
+        "ref": "v6.0.1",
         "repo": "awsvpnclient-nix",
         "type": "github"
       }
@@ -182,11 +183,11 @@
         ]
       },
       "locked": {
-        "lastModified": 1788748774,
-        "narHash": "sha256-XOxEdb1n4oyYuxj/uipiQN/ZfACzlWaXRrkpLVQIVvQ=",
+        "lastModified": 1789069823,
+        "narHash": "sha256-BF6EgojrHBVczb89KM27csSjJTkuaWrNCdjYoiY2Bkg=",
         "owner": "AddG0",
         "repo": "bakkesmod-nix",
-        "rev": "b1ee848d7f8a8ff75f4b38fff20c179400820bbb",
+        "rev": "84a443e98e704dcd003ac4c3837f2433f27e0b01",
         "type": "github"
       },
       "original": {
@@ -2017,6 +2018,22 @@
         "type": "github"
       }
     },
+    "i-have-adhd": {
+      "flake": false,
+      "locked": {
+        "lastModified": 1788887334,
+        "narHash": "sha256-xTVs8SFhJEil8yjx3ODB7Gn3h1rg4QSq4zHPncWvV3c=",
+        "owner": "ayghri",
+        "repo": "i-have-adhd",
+        "rev": "24d22f783e57cb73c957848b588c6f651b6f9cd8",
+        "type": "github"
+      },
+      "original": {
+        "owner": "ayghri",
+        "repo": "i-have-adhd",
+        "type": "github"
+      }
+    },
     "import-tree": {
       "locked": {
         "lastModified": 1763762820,
@@ -3337,6 +3354,7 @@
         "hardware": "hardware",
         "home-manager": "home-manager_4",
         "hy3": "hy3",
+        "i-have-adhd": "i-have-adhd",
         "jovian": "jovian",
         "lanzaboote": "lanzaboote",
         "lumenboard-player": "lumenboard-player",

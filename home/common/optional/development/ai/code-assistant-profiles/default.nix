@@ -80,6 +80,7 @@ in {
         crash-capture
         sqry
         archify
+        i-have-adhd
       ];
 
       skills."frontend-design" = lib.custom.ai.fromClaudeSkillDir {
