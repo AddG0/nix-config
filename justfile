@@ -7,10 +7,13 @@ default:
   @just --list
 
 [private]
+[script]
 [doc("Pull latest changes and stage all files")]
 pre:
-  git pull || true
-  git add '**/*'
+  git rev-parse --git-dir > /dev/null 2>&1 || exit 0
+
+  git pull || true;
+  git add '**/*';
 
 [private]
 [doc("Display platform-specific warning for Darwin systems")]
@@ -33,10 +36,10 @@ check: check-pre && pre
 check-trace: check-pre && pre
   nix flake check --show-trace
 
+[script]
 [group('validation')]
 [doc("Audit a host for Import From Derivation. Reports the first offender; fix it and re-run to surface the next.")]
 check-ifd hostname=`hostname`:
-  #!/usr/bin/env bash
   set -uo pipefail
   attr_root=$(if [ "$(uname -s)" = "Darwin" ]; then echo darwinConfigurations; else echo nixosConfigurations; fi)
   attr=".#${attr_root}.{{hostname}}.config.system.build.toplevel.drvPath"
@@ -53,10 +56,10 @@ check-ifd hostname=`hostname`:
   fi
   exit 1
 
+[script]
 [group('validation')]
 [doc("Hermetic eval of a host in a clean nix container (no SSH auth, no host cache) — proves the host can be built without access to private inputs")]
 check-hermetic hostname:
-  #!/usr/bin/env bash
   set -euo pipefail
   echo "Evaluating .#nixosConfigurations.{{hostname}} in clean nixos/nix container..."
   echo "  (no SSH agent, no host /nix store — fetches only what eval actually forces)"
@@ -77,6 +80,7 @@ alias r := rebuild
 # --option eval-cache false if you end up caching a failure you can't get around.
 # -u/--update-inputs is opt-in: refreshing the 7 personal inputs costs ~3.3s and, when
 # one has moved, pulls upstream commits that trigger rebuilds you did not ask for.
+[script]
 [group('system')]
 [doc("Rebuild system configuration (--boot to only set next boot, --test for temporary, --show-trace for debug, --fast to skip rebuilding nixos-rebuild, --verbose for debug output, -u to refresh personal flake inputs first; extra nix flags after `--`)")]
 [arg("boot", long, value="boot")]
@@ -87,7 +91,6 @@ alias r := rebuild
 [arg("use-nh", long="no-nh", value="false")]
 [arg("update-inputs", short="u", long="update-inputs", value="true")]
 rebuild hostname="" boot="switch" test="false" show-trace="false" fast="false" verbose="false" use-nh=USE_NH_DEFAULT update-inputs="false" *nix_args="": pre
-  #!/usr/bin/env bash
   set -euo pipefail
   if [ "{{update-inputs}}" = "true" ]; then
     just rebuild-pre
@@ -413,10 +416,10 @@ check-platform-compat hostname target="aarch64-linux":
 tmpfiles-create:
   sudo systemd-tmpfiles --create
 
+[script]
 [group('utilities')]
 [doc("Show firewall-allowed TCP/UDP ports with the .nix file that opened each (requires sudo)")]
 firewall-ports:
-  #!/usr/bin/env bash
   set -euo pipefail
   config_dir="{{justfile_directory()}}"
 
@@ -479,10 +482,10 @@ wifi-unblock:
   rfkill unblock wifi
   sudo systemctl restart NetworkManager
 
+[script]
 [group('utilities')]
 [doc("Full audio stack restart (PipeWire + WirePlumber + pipewire-pulse), then restart Noctalia")]
 restart-audio:
-  #!/usr/bin/env bash
   set -euo pipefail
   echo "Restarting audio stack..."
   systemctl --user restart wireplumber.service pipewire-pulse.service pipewire.service
@@ -494,18 +497,18 @@ restart-audio:
   echo "Restarting Noctalia..."
   just restart-noctalia
 
+[script]
 [group('utilities')]
 [doc("Restart Noctalia (Hyprland bar)")]
 restart-noctalia:
-  #!/usr/bin/env bash
   set -euo pipefail
   systemctl --user restart noctalia.service
   echo "Restarted noctalia.service"
 
+[script]
 [group('utilities')]
 [doc("Restart Plasma shell (KDE Plasma desktop)")]
 restart-plasma:
-  #!/usr/bin/env bash
   if pgrep plasmashell > /dev/null; then \
     echo "Restarting Plasma shell..."; \
     pkill plasmashell && sleep 2 && plasmashell > /dev/null 2>&1 & \
@@ -519,9 +522,9 @@ restart-plasma:
 # K3s cluster management commands
 
 # Helper to run command locally or via SSH based on hostname
+[script]
 [private]
 _run-on HOST USER CMD:
-  #!/usr/bin/env bash
   if [ "{{HOST}}" = "$(hostname)" ] || [ "{{HOST}}" = "$(hostname -s)" ]; then
     eval "{{CMD}}"
   else
@@ -560,10 +563,10 @@ k3s-logs HOST USER=DEFAULT_USER:
   @{{ if HOST == "" { error("HOST parameter is required") } else { "" } }}
   just _run-on {{HOST}} {{USER}} 'sudo journalctl -u k3s -u k3s-agent -f'
 
+[script]
 [group('setup')]
 [doc("Sync .git/hooks/ in existing clones to match the template dir — adds new hooks, prunes symlinks for hooks removed from the template. New clones get hooks via init.templateDir.")]
 setup-git-hooks *roots="$HOME/Projects/code $HOME/home":
-  #!/usr/bin/env bash
   set -euo pipefail
   template="$HOME/.config/git/template/hooks"
   if [ ! -d "$template" ]; then

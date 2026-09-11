@@ -70,15 +70,6 @@ in {
         algorithm = "histogram";
       };
 
-      url = {
-        "ssh://git@github.com" = {
-          insteadOf = "https://github.com";
-        };
-        "ssh://git@gitlab.com" = {
-          insteadOf = "https://gitlab.com";
-        };
-      };
-
       gpg = {
         format = "ssh";
         ssh.allowedSignersFile = toString allowedSigners;

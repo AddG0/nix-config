@@ -110,6 +110,10 @@ function no_or_yes() {
   done
 }
 
+function is_git_repo() {
+  git rev-parse --git-dir >/dev/null 2>&1
+}
+
 ### SOPS helpers
 # nix-secrets lives at its ghq-standard checkout, not beside nix-config. No ghq = machine not
 # set up for secrets, so leave it unset; callers gate on HAS_NIX_SECRETS to skip secrets actions.

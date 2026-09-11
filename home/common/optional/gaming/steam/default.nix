@@ -89,6 +89,7 @@
       portal-2 = 620;
       fps-chess = 2021910;
       cyberpunk-2077 = 1091500;
+      valheim = 892970;
 
       # VR
       bigscreen-beyond-utility = 2467050;
@@ -114,6 +115,9 @@
     horizon-zero-dawn.wrappers = [gamemoderun] ++ gamescope;
 
     aimlabs.wrappers = mouseDpi 1600 ++ [gamemoderun];
+
+    # Had some issues with resolution not being correct or having an option to make it correct
+    portal-2.wrappers = [gamemoderun] ++ gamescope;
 
     # Wrap in gaemscope to fix weird fullscreen behavior
     forza-horizon-4.wrappers = [gamemoderun] ++ gamescope;

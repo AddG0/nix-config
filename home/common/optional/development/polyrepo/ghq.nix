@@ -32,6 +32,17 @@ in {
     "https://gitlab.com/".vcs = "git";
   };
 
+  # Not global so hosts that I don't need to develop on can work with no ssh key
+  programs.git.includes = [
+    {
+      condition = "gitdir:${config.polyrepo.ghqRoot}/";
+      contents.url = {
+        "ssh://git@github.com".insteadOf = "https://github.com";
+        "ssh://git@gitlab.com".insteadOf = "https://gitlab.com";
+      };
+    }
+  ];
+
   home.shellAliases = {
     ghql = "ghq list";
     ghqg = "ghq get";

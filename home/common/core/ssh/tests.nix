@@ -1,5 +1,6 @@
-# Three suites over the REAL tmux-ssh-auth-sock-link script: logic against a
-# stub tmux, behaviour against a live one, and the zsh ordering it relies on.
+# Suites over the REAL tmux-ssh-auth-sock-link script: logic against a stub
+# tmux, behaviour against a live one, and the zsh ordering it relies on. The
+# credential policy is guarded separately in ./credential-tests.nix.
 #
 # Auto-discovered and wired into `nix flake check` by checks/module-tests.nix.
 {
@@ -142,10 +143,12 @@
       echo "zsh ordering ok on ${pluginHost}: clear=$clear omz=$omz claim=$claim"
       touch $out
     '';
+  credentials = import ./credential-tests.nix {inherit pkgs lib self;};
 in
   runCommand "tmux-ssh-auth-sock-link-tests" {
     nativeBuildInputs = [coreutils];
     inherit integration ordering;
+    inherit (credentials) resolves offers;
   } ''
         export TMUX_SSH_LINK_TMUX=${stub}/bin/tmux-stub
         run=${script}/bin/tmux-ssh-auth-sock-link

@@ -34,7 +34,10 @@
 
   gaming.gamescopeSession.standalone = true;
 
-  networking.networkmanager.enable = true;
+  networking = {
+    networkmanager.enable = true;
+    interfaces.enp8s0.wakeOnLan.enable = true;
+  };
 
   boot.loader = {
     systemd-boot = {

@@ -26,8 +26,8 @@ in {
         AddKeysToAgent yes
       '';
 
-      # Transport mechanics only; which hosts get a key or a forwarded agent
-      # is per-user policy (mine: home/primary/common/core/ssh.nix).
+      # Transport mechanics; which of *my* keys a host may use is per-user
+      # policy (mine: home/primary/common/core/ssh.nix).
       settings."*" = {
         ControlMaster = "auto";
         # %n (alias as typed) instead of %h (resolved hostname) so two

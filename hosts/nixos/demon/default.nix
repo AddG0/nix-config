@@ -56,7 +56,7 @@
         "nixos/services/lact.nix" # GPU overclocking/monitoring
         "nixos/virtualisation/docker.nix" # docker
         # "nixos/development/mysql.nix"
-        "nixos/development/postgres.nix"
+        # "nixos/development/postgres.nix"
         # "nixos/development/redis.nix"
 
         "nixos/gaming" # steam, gamescope, gamemode, and related hardware

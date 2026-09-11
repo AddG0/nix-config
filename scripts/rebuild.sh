@@ -127,11 +127,11 @@ else
   rebuild_linux
 fi
 
-log_info "====== POST‑REBUILD ======"
+is_git_repo && log_info "====== POST‑REBUILD ======"
 log_info "Rebuilt successfully"
 
 # Check for pending git changes before tagging the commit as buildable.
-if git diff --exit-code >/dev/null && git diff --staged --exit-code >/dev/null; then
+if is_git_repo && git diff --exit-code >/dev/null && git diff --staged --exit-code >/dev/null; then
   if git tag --points-at HEAD | grep -q buildable; then
     log_warning "Current commit is already tagged as buildable"
   else
