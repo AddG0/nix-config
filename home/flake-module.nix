@@ -128,6 +128,9 @@
         };
         modules = [
           (lib.custom.relativeToHome "common/core")
+          # Same import set hosts/common/users/default.nix builds for the
+          # primary user; without it primary-only modules vanish standalone.
+          (lib.custom.relativeToHome "primary/common/core")
           ./primary/${file}
         ];
       };

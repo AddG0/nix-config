@@ -9,6 +9,7 @@
       "development/aws.nix"
       "development/node.nix"
       "nixos/services/rclone.nix"
+      "secrets/1password-ssh.nix"
       "stylix.nix"
       "work.nix"
     ])
@@ -98,7 +99,6 @@
       "secrets/kubeconfig.nix"
       "secrets/ai.nix"
       "secrets/elevenlabs.nix"
-      "secrets/1password-ssh.nix"
     ]))
   ];
 

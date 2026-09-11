@@ -8,12 +8,12 @@
 #   3. SSH keys must be stored in 1Password (can import existing keys)
 #
 # Usage:
-#   Import this module in your home-manager configuration:
+#   Import this module from a host file's primary-only optional list:
 #
 #   # home/primary/<hostname>.nix
-#   imports = [
+#   (map (f: ./common/optional/${f}) [
 #     "secrets/1password-ssh.nix"
-#   ];
+#   ])
 #
 # How it works:
 #   - Sets IdentityAgent to 1Password's SSH agent socket

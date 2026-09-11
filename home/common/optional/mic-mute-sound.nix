@@ -72,8 +72,9 @@ in {
     Service = {
       Type = "simple";
       ExecStart = "${daemon}";
-      Restart = "on-failure";
-      RestartSec = 2;
+      # `pactl subscribe` exits 0 when pipewire-pulse restarts under it.
+      Restart = "always";
+      RestartSec = 5; # under systemd's 5-starts-in-10s limit if pipewire is down
     };
     Install.WantedBy = ["graphical-session.target"];
   };

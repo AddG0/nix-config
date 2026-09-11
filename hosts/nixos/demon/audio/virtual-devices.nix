@@ -102,7 +102,7 @@ in {
                     control = {
                       # Was -62, Needs testing at lower levels
                       "Threshold" = -55.0; # Audio below this level is muted
-                      "Makeup" = 2.3; # Boost because my mic is quiet (≈1.3x volume)
+                      "Makeup" = 2.8; # Boost because my mic is quiet (≈1.3x volume)
                     };
                   }
                 ];

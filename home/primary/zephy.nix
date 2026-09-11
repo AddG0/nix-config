@@ -2,6 +2,7 @@
   imports = lib.flatten [
     (map (f: ./common/optional/${f}) [
       "development/aws.nix"
+      "secrets/1password-ssh.nix"
       "stylix.nix"
       "work.nix"
     ])
@@ -70,7 +71,6 @@
       "secrets/kubeconfig.nix"
       "secrets/ai.nix"
       "secrets/elevenlabs.nix"
-      "secrets/1password-ssh.nix"
     ]))
   ];
 
