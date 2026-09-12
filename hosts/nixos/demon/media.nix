@@ -42,9 +42,8 @@
     ];
   };
 
-  # NetworkManager-wait-online "Finishes" before the Realtek r8169 driver has
-  # bound enp12s0, so network-online.target lies. Poll the NAS directly to
-  # gate consumers (and the mount) on real reachability.
+  # network-online.target doesn't mean the NAS answers, so poll it directly.
+  # Pull from the mount only -- via jellyfin it lands Before=multi-user.target.
   systemd.services.wait-for-nas = {
     description = "Wait for NAS (10.61.60.49) to be reachable";
     after = ["network-online.target"];
@@ -62,11 +61,6 @@
         exit 1
       '';
     };
-  };
-
-  systemd.services.jellyfin = {
-    after = ["wait-for-nas.service"];
-    wants = ["wait-for-nas.service"];
   };
 
   services.jellyfin = {
