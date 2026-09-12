@@ -135,8 +135,10 @@ if is_git_repo && git diff --exit-code >/dev/null && git diff --staged --exit-co
   if git tag --points-at HEAD | grep -q buildable; then
     log_warning "Current commit is already tagged as buildable"
   else
-    git tag buildable-"$(date +%Y%m%d%H%M%S)" -m ''
-    log_info "Tagged current commit as buildable"
+    # Signed (git.nix), so a keyless host goes untagged instead of failing the rebuild.
+    if git tag buildable-"$(date +%Y%m%d%H%M%S)" -m '' 2>/dev/null; then
+      log_info "Tagged current commit as buildable"
+    fi
   fi
 else
   log_warning "There are pending changes that could affect the build. Commit them before tagging."
