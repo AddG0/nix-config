@@ -12,6 +12,7 @@
   ...
 }: {
   imports = lib.flatten [
+    ./gamepadui-theme.nix
     ./graphics.nix
     ./hardware-configuration.nix
 
