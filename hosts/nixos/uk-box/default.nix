@@ -35,7 +35,6 @@
       "nixos/services/openssh.nix" # allow remote SSH access
       "nixos/services/nginx.nix" # nginx
       "nixos/services/home-assistant-oci.nix"
-      "nixos/nix-access-token.nix"
     ]))
   ];
 

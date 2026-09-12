@@ -38,7 +38,7 @@
       "nixos/services/gitlab-runner.nix" # GitLab CI runner
       "nixos/plymouth.nix" # fancy boot screen
 
-      "nixos/nix-access-token.nix"
+      "nixos/nix-secrets-deploy-key.nix"
     ]))
   ];
 

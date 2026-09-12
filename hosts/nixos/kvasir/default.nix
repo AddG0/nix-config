@@ -21,7 +21,7 @@
 
     (map lib.custom.relativeToHosts (map (f: "common/optional/${f}") [
       "nixos/services/openssh.nix" # allow remote SSH access
-      "nixos/nix-access-token.nix"
+      "nixos/nix-secrets-deploy-key.nix"
     ]))
   ];
 

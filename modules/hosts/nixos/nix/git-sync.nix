@@ -102,18 +102,6 @@ in {
       example = "/root/.ssh/id_ed25519";
     };
 
-    accessTokensFile = mkOption {
-      type = types.nullOr types.path;
-      default = null;
-      description = ''
-        Optional root-readable nix.conf fragment containing access-tokens for private flake inputs.
-
-        Example content:
-          access-tokens = github.com=ghp_... gitlab.com=PAT:glpat-...
-      '';
-      example = "/etc/nix/access-tokens.conf";
-    };
-
     notifications = {
       enable = mkOption {
         type = types.bool;
@@ -151,12 +139,6 @@ in {
 
           ${optionalString (cfg.sshKey != null) ''
             export GIT_SSH_COMMAND="ssh -i ${cfg.sshKey} -o StrictHostKeyChecking=accept-new"
-          ''}
-
-          ${optionalString (cfg.accessTokensFile != null) ''
-            if [ -f "${cfg.accessTokensFile}" ]; then
-              export NIX_USER_CONF_FILES="${cfg.accessTokensFile}''${NIX_USER_CONF_FILES:+:}''${NIX_USER_CONF_FILES:-}"
-            fi
           ''}
 
           # Baked in at build time from inputs.self.lastModified
@@ -222,12 +204,6 @@ in {
 
           ${optionalString (cfg.sshKey != null) ''
             export GIT_SSH_COMMAND="ssh -i ${cfg.sshKey} -o StrictHostKeyChecking=accept-new"
-          ''}
-
-          ${optionalString (cfg.accessTokensFile != null) ''
-            if [ -f "${cfg.accessTokensFile}" ]; then
-              export NIX_USER_CONF_FILES="${cfg.accessTokensFile}''${NIX_USER_CONF_FILES:+:}''${NIX_USER_CONF_FILES:-}"
-            fi
           ''}
 
           ${lib.custom.mkNetworkWaitScript {host = "github.com";}}

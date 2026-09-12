@@ -117,8 +117,10 @@ list-generations:
 alias rf := rebuild-full
 
 [group('system')]
-[doc("Full system rebuild with validation")]
-rebuild-full hostname="": rebuild-pre
+[doc("Full system rebuild with validation (-u to refresh personal flake inputs first)")]
+[arg("update-inputs", short="u", long="update-inputs", value="true")]
+rebuild-full hostname="" update-inputs="false":
+  @{{ if update-inputs == "true" { "just rebuild-pre" } else { "true" } }}
   scripts/rebuild.sh {{hostname}}
   just check
 
@@ -302,10 +304,12 @@ sync-ssh HOST USER=DEFAULT_USER:
   rsync -av -L -e "ssh -l {{USER}}" ~/.ssh/id_ed25519* {{USER}}@{{HOST}}:~/.ssh/
 
 [group('deployment')]
-[doc("Deploy NixOS to remote host using nixos-anywhere")]
-nixos-anywhere HOSTNAME IP USER="root" SSH_OPTS="": rebuild-pre
+[doc("Deploy NixOS to remote host using nixos-anywhere (-u to refresh personal flake inputs first)")]
+[arg("update-inputs", short="u", long="update-inputs", value="true")]
+nixos-anywhere HOSTNAME IP USER="root" SSH_OPTS="" update-inputs="false":
   @{{ if HOSTNAME == "" { error("HOSTNAME parameter is required") } else { "" } }}
   @{{ if IP == "" { error("IP parameter is required") } else { "" } }}
+  @{{ if update-inputs == "true" { "just rebuild-pre" } else { "true" } }}
   echo "{{IS_DARWIN}}"
   nix run github:nix-community/nixos-anywhere -- \
     {{ if IS_DARWIN == "true" { "--build-on-remote" } else { "" } }} \
@@ -320,10 +324,12 @@ alias d := deploy
 IPV4_SUFFIX := ' [0-9]+(\.[0-9]+){3}$'
 
 [group('deployment')]
-[doc("Deploy using colmena (specify hostnames or deploys to all, use --boot to activate on next boot). Follow a host with an IP to override its target address, e.g. `just deploy kvasir 10.61.30.143`; use --ip for a DNS name.")]
+[doc("Deploy using colmena (specify hostnames or deploys to all, use --boot to activate on next boot, -u to refresh personal flake inputs first). Follow a host with an IP to override its target address, e.g. `just deploy kvasir 10.61.30.143`; use --ip for a DNS name.")]
 [arg("boot", long, value="boot")]
 [arg("ip", long)]
-deploy boot="switch" ip="" *hostnames: rebuild-pre
+[arg("update-inputs", short="u", long="update-inputs", value="true")]
+deploy boot="switch" ip="" update-inputs="false" *hostnames:
+  @{{ if update-inputs == "true" { "just rebuild-pre" } else { "true" } }}
   DEPLOY_TARGET_NODE="{{ replace_regex(replace_regex(hostnames, IPV4_SUFFIX, ''), '^.* ', '') }}" \
   DEPLOY_TARGET_HOST="{{ if ip != '' { ip } else if hostnames =~ IPV4_SUFFIX { replace_regex(hostnames, '^.* ', '') } else { '' } }}" \
     colmena apply --impure {{ if hostnames != '' { '--on ' + replace(replace_regex(hostnames, IPV4_SUFFIX, ''), ' ', ',') } else { '' } }} {{boot}}
@@ -331,10 +337,12 @@ deploy boot="switch" ip="" *hostnames: rebuild-pre
 # First push fails until the host trusts USER; bootstrap once on the box (via `ssh -A`):
 #   sudo env SSH_AUTH_SOCK="$SSH_AUTH_SOCK" nixos-rebuild switch --flake .#HOST
 [group('deployment')]
-[doc("Build locally and push to a remote host with nixos-rebuild, no colmena (IP defaults to HOST, --boot to activate on next boot)")]
+[doc("Build locally and push to a remote host with nixos-rebuild, no colmena (IP defaults to HOST, --boot to activate on next boot, -u to refresh personal flake inputs first)")]
 [arg("boot", long, value="boot")]
-deploy-remote HOST IP="" USER=DEFAULT_USER boot="switch": rebuild-pre
+[arg("update-inputs", short="u", long="update-inputs", value="true")]
+deploy-remote HOST IP="" USER=DEFAULT_USER boot="switch" update-inputs="false":
   @{{ if HOST == "" { error("HOST parameter is required") } else { "" } }}
+  @{{ if update-inputs == "true" { "just rebuild-pre" } else { "true" } }}
   nixos-rebuild {{boot}} --flake .#{{HOST}} \
     --build-host localhost \
     --target-host {{USER}}@{{ if IP != "" { IP } else { HOST } }} \
