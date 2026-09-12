@@ -302,11 +302,6 @@
       flake = false;
     };
 
-    i-have-adhd = {
-      url = "github:ayghri/i-have-adhd";
-      flake = false;
-    };
-
     context-engineering-kit = {
       url = "github:NeoLabHQ/context-engineering-kit";
       flake = false;

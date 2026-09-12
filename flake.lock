@@ -1957,22 +1957,6 @@
         "type": "github"
       }
     },
-    "i-have-adhd": {
-      "flake": false,
-      "locked": {
-        "lastModified": 1789055321,
-        "narHash": "sha256-ijQ7Mz0FbeWxlkn7rbn5JuG0e6jQeEYBkuroE2N/MZY=",
-        "owner": "ayghri",
-        "repo": "i-have-adhd",
-        "rev": "6f1f982d0a47c65899af3c5a7450b7098bc65325",
-        "type": "github"
-      },
-      "original": {
-        "owner": "ayghri",
-        "repo": "i-have-adhd",
-        "type": "github"
-      }
-    },
     "jovian": {
       "inputs": {
         "nix-github-actions": "nix-github-actions",
@@ -3263,7 +3247,6 @@
         "hardware": "hardware",
         "home-manager": "home-manager_4",
         "hy3": "hy3",
-        "i-have-adhd": "i-have-adhd",
         "jovian": "jovian",
         "lanzaboote": "lanzaboote",
         "lumenboard-player": "lumenboard-player",
