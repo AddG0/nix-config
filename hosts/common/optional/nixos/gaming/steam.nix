@@ -25,8 +25,8 @@
           ;
       });
 
-      # Move Steam's CEF debugger off 8080 (commonly used; leave it free);
-      # decky-loader is patched to match in gaming/decky.nix.
+      # Everything that connects to the debugger is retargeted to match in
+      # overlays/common/gaming/steam-devtools-port.nix.
       extraArgs = "-devtools-port 21379";
     };
 

@@ -4,7 +4,7 @@
   pkgs,
   ...
 }: let
-  dir = "/var/lib/decky-loader/themes/UltrawidePlayButton";
+  themeDir = "/var/lib/decky-loader/themes/UltrawidePlayButton";
 
   manifest = pkgs.writeText "theme.json" (builtins.toJSON {
     name = "Ultrawide Play Button";
@@ -28,13 +28,13 @@
   # Read once at theme load and only rewritten by a UI toggle, so a store
   # symlink holds. _USER rather than _ROOT because decky runs as the login
   # user (jovian.decky-loader.user in gaming/decky.nix).
-  active = pkgs.writeText "config_USER.json" (builtins.toJSON {active = true;});
+  enabledState = pkgs.writeText "config_USER.json" (builtins.toJSON {active = true;});
 in {
   # CSS Loader writes into the theme folder, so it cannot be a store symlink.
   systemd.tmpfiles.rules = [
-    "d ${dir} 0755 ${config.hostSpec.primaryUsername} users -"
-    "L+ ${dir}/theme.json - - - - ${manifest}"
-    "L+ ${dir}/bigpicture.css - - - - ${css}"
-    "L+ ${dir}/config_USER.json - - - - ${active}"
+    "d ${themeDir} 0755 ${config.hostSpec.primaryUsername} users -"
+    "L+ ${themeDir}/theme.json - - - - ${manifest}"
+    "L+ ${themeDir}/bigpicture.css - - - - ${css}"
+    "L+ ${themeDir}/config_USER.json - - - - ${enabledState}"
   ];
 }

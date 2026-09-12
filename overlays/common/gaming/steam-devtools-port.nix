@@ -1,6 +1,5 @@
-# Steam's CEF debugger is moved off 8080 in gaming/steam.nix, since 8080 is
-# commonly wanted elsewhere. Everything that talks to that debugger hardcodes
-# the old port, so each one has to be retargeted here.
+# Everything that talks to Steam's CEF debugger hardcodes CEF's default 8080,
+# so each one has to be retargeted to the port gaming/steam.nix launches with.
 #
 # `--replace-fail` on purpose: a future release that renames or moves one of
 # these URLs breaks the build rather than silently reverting to a dead port,
