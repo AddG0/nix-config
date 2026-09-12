@@ -40,6 +40,7 @@
       "development/terraform.nix"
 
       # Gaming
+      "gaming"
       "gaming/minecraft"
       "gaming/heroic.nix"
       "gaming/r2modman.nix"
