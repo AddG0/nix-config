@@ -30,8 +30,10 @@
   lucideImport = "import { ChevronDownIcon, FolderClosedIcon } from \"lucide-react\";";
   lucideImportWithTerminal = "import { ChevronDownIcon, FolderClosedIcon, TerminalIcon } from \"lucide-react\";";
 
-  pickerAnchor = "    {\n      label: isMacPlatform(platform)\n        ? \"Finder\"";
-  pickerEntry = "    {\n      label: \"Neovim\",\n      Icon: TerminalIcon,\n      value: \"nvim\",\n      kind: \"generic\",\n    },\n";
+  # Labels come from the contracts EDITORS list since 0.0.38, so the picker entry
+  # needs none of its own.
+  pickerAnchor = "    {\n      Icon: FolderClosedIcon,\n      value: \"file-manager\",\n      kind: \"generic\",\n    },";
+  pickerEntry = "    {\n      Icon: TerminalIcon,\n      value: \"nvim\",\n      kind: \"generic\",\n    },\n";
 
   withNvim = pkgs.t3code.override {
     t3code-unwrapped = pkgs.t3code.unwrapped.overrideAttrs (old: {

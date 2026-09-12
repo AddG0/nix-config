@@ -15,8 +15,10 @@ function fail(message) {
 
 const indexHtml = readFileSync(path.join(clientDir, "index.html"), "utf8");
 const assetDir = path.join(clientDir, "assets");
+// Every chunk, not just index-*: 0.0.38 moved the role list into a lazily
+// loaded one, which a narrower filter reports as a missing contract.
 const bundles = readdirSync(assetDir)
-  .filter((name) => /^index-.*\.js$/.test(name))
+  .filter((name) => name.endsWith(".js"))
   .map((name) => readFileSync(path.join(assetDir, name), "utf8"));
 if (bundles.length === 0) fail(`no client bundle under ${assetDir}`);
 const source = [indexHtml, ...bundles].join("\n");

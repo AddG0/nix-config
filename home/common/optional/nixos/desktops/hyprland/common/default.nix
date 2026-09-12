@@ -28,5 +28,5 @@
   # Without it, apps like 1Password fail to store credentials:
   # "The name org.gnome.keyring.SystemPrompter was not provided by any .service files"
   # gnome-keyring itself is started via PAM (see nixos/desktops/hyprland)
-  home.packages = [pkgs.gcr];
+  home.packages = [pkgs.gcr_3];
 }
