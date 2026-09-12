@@ -11,7 +11,6 @@
   ...
 }: {
   imports = lib.flatten [
-    inputs.awsvpnclient-nix.nixosModules.default
     #################### Hardware ####################
     inputs.hardware.nixosModules.common-cpu-amd
     inputs.hardware.nixosModules.common-gpu-amd

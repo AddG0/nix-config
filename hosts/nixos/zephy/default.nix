@@ -10,7 +10,6 @@
   ...
 }: {
   imports = lib.flatten [
-    inputs.awsvpnclient-nix.nixosModules.default
     ./asus.nix
     ./graphics.nix
     ./hardware-configuration.nix
@@ -39,6 +38,7 @@
     (map lib.custom.relativeToHosts (map (f: "common/optional/${f}") [
       "nixos/hardware/cachyos-kernel.nix" # CachyOS kernel
       "nixos/services/openssh.nix" # allow remote SSH access
+      "nixos/awsvpnclient.nix"
       # "nixos/nvtop.nix" # GPU monitor (not available in home-manager)
       "nixos/audio" # pipewire and cli controls
       "nixos/gaming" # steam, gamescope, gamemode, and related hardware
@@ -65,8 +65,6 @@
       "nixos/services/tailscale.nix"
     ]))
   ];
-
-  programs.awsvpnclient.enable = true;
 
   programs.kdeconnect.enable = true;
 

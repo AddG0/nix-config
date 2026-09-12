@@ -12,7 +12,6 @@
 }: {
   imports = lib.flatten [
     inputs.stylix.nixosModules.stylix
-    inputs.awsvpnclient-nix.nixosModules.default
     #################### Hardware ####################
     inputs.hardware.nixosModules.common-cpu-intel
     inputs.hardware.nixosModules.common-pc-ssd
@@ -32,6 +31,7 @@
       "nixos/services/openssh.nix" # allow remote SSH access
       "nixos/services/tailscale.nix" # mesh VPN for secure remote access
       "nixos/services/openvpn.nix"
+      "nixos/awsvpnclient.nix"
       "nixos/audio" # pipewire and cli controls
       "nixos/services/bluetooth.nix"
       "nixos/services/airpods-autoconnect.nix"
@@ -60,9 +60,6 @@
       # "nixos/development/redis.nix"
     ]))
   ];
-
-  # AWS VPN Client with SAML support
-  programs.awsvpnclient.enable = true;
 
   programs.kdeconnect.enable = true;
 

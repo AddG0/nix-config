@@ -12,7 +12,6 @@
 }: {
   imports = lib.flatten [
     inputs.stylix.nixosModules.stylix
-    inputs.awsvpnclient-nix.nixosModules.default
     #################### Hardware ####################
     inputs.hardware.nixosModules.common-cpu-amd
     inputs.hardware.nixosModules.common-pc-ssd
@@ -47,6 +46,7 @@
         "nixos/hardware/openrgb.nix" # OpenRGB (motherboard SMBus set below)
         "nixos/hardware/wacom-dial-scroll.nix"
         "nixos/1password.nix"
+        "nixos/awsvpnclient.nix"
         "nixos/services/clamav.nix"
         "nixos/services/earlyoom.nix"
 
@@ -78,9 +78,6 @@
   };
 
   # nix.remoteBuilder.enableClient = true;
-
-  # AWS VPN Client with SAML support
-  programs.awsvpnclient.enable = true;
 
   programs.gpu-screen-recorder.enable = true;
 

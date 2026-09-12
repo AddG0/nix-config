@@ -15,6 +15,7 @@
     ])
 
     (map lib.custom.relativeToHome (map (f: "common/optional/${f}") [
+      "awsvpnclient.nix"
       # Helper Scripts
       # "helper-scripts"
       "helper-scripts"
