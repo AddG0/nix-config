@@ -11,6 +11,14 @@
   cfg = config.services.greetd;
 in {
   config = {
+    # Type=idle holds ExecStart until the job queue drains, capped at 5s -- it keeps
+    # a greeter off the console mid-boot, which autologin to a compositor doesn't need.
+    systemd.services.greetd.serviceConfig.Type = lib.mkForce (
+      if cfg.autoLogin.enable
+      then "simple"
+      else "idle"
+    );
+
     services.greetd = {
       enable = true;
 

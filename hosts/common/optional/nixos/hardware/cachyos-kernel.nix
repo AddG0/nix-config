@@ -48,5 +48,10 @@
     # pointing at the removed pkgs.ananicy (nixpkgs#541881 dropped the package
     # but not the module defaults). Re-check after `nix flake update`.
     rulesProvider = pkgs.ananicy-rules-cachyos;
+
+    # Moves SCHED_RR processes to the root cgroup, where polkit finds no session,
+    # so login1.chvt is denied and Ctrl+Alt+Fn stops switching VTs. CachyOS's own
+    # ananicy.conf ships it off for this reason; only nixpkgs forces it on.
+    settings.cgroup_realtime_workaround = lib.mkForce false;
   };
 }

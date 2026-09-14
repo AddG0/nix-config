@@ -531,14 +531,37 @@ in {
         customIcons))
     ];
 
-    # Create writable instance files and manage groups
-    home.activation.setupPrismInstances = lib.hm.dag.entryAfter ["writeBoundary"] ''
-      ${scripts.mkRunningGuard {mode = cfg.onPrismRunning;}}
-      if [ "''${prismSkip:-}" != "1" ]; then
-        ${optionalString cfg.cleanupOrphans (scripts.mkCleanupScript {inherit prismDir managedInstancesStr;})}
-        ${concatStringsSep "\n" instanceSetups}
-        ${scripts.mkUpdateGroupsScript {inherit prismDir instGroupsJson;}}
-      fi
-    '';
+    # Activation gates systemd-user-sessions and so the login prompt; ~0.2s of work
+    # here cost ~2.6s at boot.
+    systemd.user.services.prism-instance-sync = {
+      Unit.Description = "Sync declared Prism Launcher instances";
+      Service = {
+        Type = "oneshot";
+        RemainAfterExit = true;
+        ExecStart = "${pkgs.writeShellScript "prism-instance-sync" ''
+          set -eu
+          set -o pipefail
+
+          # Stand in for the helpers home-manager.sh gives activation scripts.
+          run() {
+            case "$1" in
+              --quiet) shift; "$@" >/dev/null ;;
+              --silence) shift; "$@" >/dev/null 2>&1 ;;
+              *) "$@" ;;
+            esac
+          }
+          noteEcho() { echo "$*"; }
+          warnEcho() { echo "$*" >&2; }
+
+          ${scripts.mkRunningGuard {mode = cfg.onPrismRunning;}}
+          if [ "''${prismSkip:-}" != "1" ]; then
+            ${optionalString cfg.cleanupOrphans (scripts.mkCleanupScript {inherit prismDir managedInstancesStr;})}
+            ${concatStringsSep "\n" instanceSetups}
+            ${scripts.mkUpdateGroupsScript {inherit prismDir instGroupsJson;}}
+          fi
+        ''}";
+      };
+      Install.WantedBy = ["default.target"];
+    };
   };
 }

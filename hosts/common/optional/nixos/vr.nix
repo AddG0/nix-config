@@ -1,10 +1,10 @@
 # VR for the Bigscreen Beyond on NVIDIA — SteamVR only.
 #
-# Monado (commented below) is disabled: the Beyond 2's panel won't scan out on
-# NVIDIA in any runtime yet — an unresolved driver DSC gap, not fixable here.
-# The hidraw rules and setcap below still serve SteamVR.
+# Headset shows nothing: SteamVR and Monado both hang before any present
+# completes. modetest sets the mode on the connector fine, so the panel, the DP
+# link and scanout all work — what never arrives is the page-flip event.
 #
-# Ref: https://wiki.vronlinux.org/docs/hardware/bigscreen-beyond/
+# Ref: https://vronlinux.org/docs/hardware/bigscreen-beyond/
 {
   config,
   pkgs,
@@ -39,6 +39,10 @@ in {
   # nvidia-drm's fence export then fails and libnvidia-glcore null-derefs on
   # its own error path. Does not fix the separate Beyond 2 present hang.
   systemd.user.settings.Manager.DefaultLimitNOFILE = "524288:524288";
+
+  # SteamVR dlopens the unversioned `libdrm.so` for the lease fd; NixOS ships
+  # that symlink only in libdrm's `out`, so without this the lease never happens.
+  programs.steam.extraPackages = [pkgs.libdrm];
 
   # Bigscreen Beyond / Beyond 2 hidraw access. hardware.steam-hardware
   # (enabled transitively by programs.steam) only covers Valve/HTC PIDs,
@@ -76,11 +80,9 @@ in {
     serviceConfig = {
       Type = "oneshot";
       RemainAfterExit = true;
-      # +eip, not +ep: the launcher raises CAP_SYS_NICE into its ambient
-      # set to pass it to the vrcompositor child. Ambient raise needs the
-      # cap inheritable, so the file cap must include 'i' — without it the
-      # launcher logs "Failed to raise ambient cap", vrcompositor can't get
-      # RT priority, and its render thread dies on a WaitForPresent watchdog.
+      # The 'i' buys nothing: exec leaves the process inheritable set empty, so
+      # the launcher still logs "Failed to raise ambient cap". Harmless either
+      # way — RLIMIT_RTPRIO is 95 here, so the compositor gets SCHED_RR unaided.
       ExecStart = "${pkgs.libcap}/bin/setcap cap_sys_nice+eip ${launcher}";
     };
   };

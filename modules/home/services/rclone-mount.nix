@@ -118,6 +118,9 @@ in {
               (lib.nameValuePair "rclone-mount:${replaceSlashes mount-path}@${remote-name}" {
                 Unit = {
                   Description = "Rclone FUSE daemon for ${remote-name}:${mount-path}";
+                  # Nothing orders this after DNS, so the first tries lose the boot race.
+                  StartLimitIntervalSec = 300;
+                  StartLimitBurst = 30;
                 };
 
                 Service = {
@@ -139,6 +142,7 @@ in {
                     "${mount.mountPoint}"
                   ];
                   Restart = "on-failure";
+                  RestartSec = 10;
                 };
 
                 Install.WantedBy = ["default.target"];

@@ -188,8 +188,10 @@ in {
   systemd.user.services.kind-disable-autostart = {
     Unit.Description = "Disable Kind container auto-start";
     Service = {
-      # Not oneshot: that would block default.target, and login behind it.
-      Type = "simple";
+      # The socket never goes away, so without RemainAfterExit the .path
+      # retriggers this the instant it exits, until the start limit kills both.
+      Type = "oneshot";
+      RemainAfterExit = true;
       ExecStart = pkgs.writeShellScript "kind-disable-autostart" ''
         set -eu
         names=$(${pkgs.docker}/bin/docker ps -a \
