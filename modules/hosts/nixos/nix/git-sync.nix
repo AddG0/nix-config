@@ -133,7 +133,7 @@ in {
       flake = "${cfg.flakeRef}#${config.networking.hostName}";
       check-newer-script = pkgs.writeShellApplication {
         name = "nix-remote-rebuild-check-newer";
-        runtimeInputs = with pkgs; [nix jq coreutils];
+        runtimeInputs = with pkgs; [nix jq coreutils git openssh];
         text = ''
           set -euo pipefail
 
