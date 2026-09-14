@@ -114,11 +114,8 @@ in {
       calendar = {
         enabled = true;
         refresh_minutes = 15;
+        event_time_format = "%I:%M %p"; # 12h, matching the clock/time formats above (upstream default is 24h)
       };
-
-      # Control Center calendar tab lists event times in 12h (upstream default
-      # is 24h %H:%M); matches the 12h clock/time formats above.
-      control_center.calendar.event_time_format = "%I:%M %p";
 
       wallpaper.enabled = false;
 

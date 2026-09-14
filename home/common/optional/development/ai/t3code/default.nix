@@ -9,6 +9,7 @@ in {
   imports = [
     ./keybindings.nix
     ./nvim.nix
+    ./sync-projects
     ./theme.nix
   ];
 
@@ -26,7 +27,7 @@ in {
       # Any binaryPath containing a separator makes t3code treat the CLI as
       # manually managed, removing the one-click update button (it only knows how
       # to run npm/brew/pnpm). The separate "update available" banner is
-      # suppressed by the overlay in overlays/common/development/t3code.nix.
+      # suppressed by overlays/common/development/t3code/update-banner.nix.
       #
       # Each points at the same build the shell gets, so t3code inherits the
       # telemetry wrappers and the code-assistant-profiles content.

@@ -131,7 +131,13 @@
   renderRule = name: rule: let
     body = readContent rule.content;
     header = lib.optional (rule.paths != []) "Applies to: ${lib.concatStringsSep ", " rule.paths}";
-    title = lib.optional (rule.description != null || rule.paths != []) "## ${rule.description or name}";
+    # Not `description or name`: the attribute exists and defaults to null,
+    # which `or` does not catch.
+    title = lib.optional (rule.description != null || rule.paths != []) "## ${
+      if rule.description != null
+      then rule.description
+      else name
+    }";
     sections = lib.filter (part: part != "") (title ++ header ++ [body]);
   in
     lib.concatStringsSep "\n\n" sections;

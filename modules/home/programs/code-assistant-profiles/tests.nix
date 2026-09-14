@@ -340,12 +340,14 @@
 
   evalTargets = profileConfig:
     (lib.evalModules {
+      # specialArg, not _module.args.lib, which lands too late for the imported
+      # modules' own `lib` argument.
+      specialArgs.lib = libWithCustom;
       modules = [
         hostStub
         ./default.nix
         {
           _module.args = {inherit pkgs;};
-          _module.args.lib = libWithCustom;
           programs.code-assistant-profiles = {
             enable = true;
             targets.codex.enable = true;
@@ -358,6 +360,15 @@
     .config;
 
   fromSource = evalTargets {instructions.source = fixtureFile;};
+
+  # Via evalTargets, not `scopedRule`: `description` has to be the option's null
+  # default, not an absent attribute.
+  fromScopedRule = evalTargets {
+    rules.comments = {
+      paths = ["**/*.{ts,nix}"];
+      content.text = "rule body";
+    };
+  };
 
   # A readOnly `name` throws once resolution feeds the value back in, which stays
   # invisible until something reads it.
@@ -450,6 +461,8 @@ in
     ${expect "a rule with no paths renders as its bare source" claudeRendered.rules.plain "plain body"}
     ${expect "codex inlines an instructions source" fromSource.programs.codex.context fixtureBody}
     ${expect "opencode inlines an instructions source" (lib.removeAttrs fromSource.programs.opencode.context ["_type" "priority"]).content fixtureBody}
+    ${expect "codex titles a path-scoped rule by name when it has no description" fromScopedRule.programs.codex.context "## comments\n\nApplies to: **/*.{ts,nix}\n\nrule body"}
+    ${expect "opencode titles a path-scoped rule by name when it has no description" (lib.removeAttrs fromScopedRule.programs.opencode.context ["_type" "priority"]).content "## comments\n\nApplies to: **/*.{ts,nix}\n\nrule body"}
     ${expect "every entity name is readable after resolution" resolvedNames ["a" "c" "r" "s" "m" "l"]}
 
     # --- build-time guard: same rule, enforced against the assembled dir ---

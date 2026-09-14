@@ -146,6 +146,12 @@
 
   boot.resumeDevice = "/dev/disk/by-uuid/8d35d53d-c3c1-4ed0-8a09-513992136532";
 
+  # From filefrag -v. Untested — hibernate stalls in nvidia's PM notifier.
+  boot.kernelParams = ["resume_offset=6469632"];
+
+  # s2idle only: stops the dGPU wake-to-evict that hung suspend 2026-09-02.
+  hardware.nvidia.moduleParams.nvidia.NVreg_EnableS0ixPowerManagement = 1;
+
   # Battery status reporting for desktop widgets
   services.upower.enable = true;
 

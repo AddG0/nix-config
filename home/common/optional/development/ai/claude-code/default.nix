@@ -37,6 +37,7 @@ in {
   imports = lib.flatten [
     (lib.custom.scanPaths ./addons)
     inputs.ai-toolkit.homeModules.default
+    ./glab-permissions.nix
   ];
 
   programs.git.ignores =

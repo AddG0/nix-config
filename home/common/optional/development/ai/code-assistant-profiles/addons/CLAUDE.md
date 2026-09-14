@@ -51,6 +51,27 @@ A rule with `paths` is outside `alwaysOn` entirely: it loads only when Claude
 opens a matching file. That is the first thing to reach for when the always-on
 budget complains — then moving detail into a skill body.
 
+Set `paths` in nix rather than the rule file's frontmatter — nix wins in
+`mkNormalizer`, and the target re-emits the frontmatter either way.
+
+**Check the trigger before reaching for `paths`.** It fires on the Read tool
+only — not Edit, not Write, and not a file read through Bash. Bypass-permissions
+mode steers hard toward `cat`/`sed`/heredocs, so in that mode a path-scoped rule
+frequently never loads at all. Measured over 317 local sessions: 89% touched a
+code file by some means, but only 41% did so through Read/Edit/Write, and a
+glob-matched rule fired in 57% of the sessions that edited code. `comments` was
+path-scoped for exactly this reason and was moved back to always-on.
+
+Verified against claude-code 2.1.266, by diffing the `instructions` and
+`nested_memory` attachments in a scratch session's transcript. Two traps if you
+repeat that: `claude` on PATH is the profile wrapper and re-exports
+`CLAUDE_CONFIG_DIR`, silently ignoring yours — invoke the wrapped binary
+directly; and hooks, including `InstructionsLoaded`, do not fire in an untrusted
+scratch directory, so the transcript is the reliable observation point.
+
+When it does load it is injected once per session, deduped on the rule's path,
+and re-injected after a compact — which a loaded skill body is not.
+
 `description.total` counts skills you never invoke as well as ones you do, and
 vendored skills from flake inputs count too without being shortenable in place.
 Before dropping one as unused, check **both** invocation paths — a `Skill` tool

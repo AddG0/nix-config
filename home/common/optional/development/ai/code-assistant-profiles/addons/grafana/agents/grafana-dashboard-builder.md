@@ -36,11 +36,45 @@ Row 4: Detail — tables, logs panels, per-instance views
 
 Create via `update_dashboard` with full JSON (`dashboard` field).
 
-Follow all conventions from the loaded Grafana dashboard rules. Additionally, apply these styling defaults:
+Follow the conventions in the always-on Grafana rule — framework choice, layout order,
+threshold semantics, `$__rate_interval`, template variables — plus the following, which
+only matter while building.
+
+Styling defaults:
 
 - **Table legends** with calcs (sum, lastNotNull) on time series
 - **Donut style** on pie charts (`options.pieType: "donut"`)
 - **Smooth lines** with gradient fill (`custom.lineInterpolation: "smooth"`, `custom.gradientMode: "scheme"`)
+
+Documentation and correlation:
+
+- Header text panel at the top with dashboard purpose and data source info
+- Shared crosshair (`graphTooltip: 1`) so panels correlate on time
+- Deployment annotations where relevant
+- Refresh rate matched to data cadence — overview 1-5m, troubleshooting 10-30s
+
+Query efficiency:
+
+- Recording rules for expensive queries shared across dashboards
+- Min interval matching the scrape interval
+- Grafana transformations for client-side calculations rather than extra queries
+
+Multi-signal observability:
+
+- Pair Prometheus time series with Loki logs panels for drill-down
+- Exemplars on histogram panels to link metrics to traces
+- Derived fields on Loki to extract trace IDs for logs to traces
+- Trace-to-logs on the Tempo datasource for traces to logs
+- Hierarchy: Fleet Overview → Service Dashboard → Explore (ad-hoc)
+
+OTel metric naming:
+
+- Dot-separated OTel names become underscores in Prometheus
+- Unit suffixes are appended automatically (`_seconds`, `_bytes`, `_ratio`), as are type
+  suffixes (`_total` for counters, `_bucket`/`_count`/`_sum` for histograms)
+- Do not double-convert units — a metric already suffixed `_seconds` takes a seconds panel unit
+- Resource attributes live in `target_info` unless promoted; join with
+  `* on(instance) group_left() target_info`
 
 ### 4. Modify Existing Dashboards
 

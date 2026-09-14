@@ -6,7 +6,7 @@
 # running both ends up with two servers over one ~/.t3/userdata: state.sqlite is
 # WAL and safe, but server-runtime.json holds a single record, so `t3 pair`
 # discovery follows whichever started last. The app is pinned off this port in
-# overlays/common/development/t3code.nix.
+# overlays/common/development/t3code/desktop-port.nix.
 #
 # Don't run `t3 service install` either; its unit self-updates from npm.
 #
