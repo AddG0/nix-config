@@ -146,8 +146,14 @@
 
   boot.resumeDevice = "/dev/disk/by-uuid/8d35d53d-c3c1-4ed0-8a09-513992136532";
 
-  # From filefrag -v; verified by a hibernate round-trip.
-  boot.kernelParams = ["resume_offset=6469632"];
+  # resume_offset from filefrag -v; verified by a hibernate round-trip. Threads
+  # default to 3 regardless of core count, and must be set here rather than in
+  # sysfs so the resume kernel decompresses with them too.
+  boot.kernelParams = ["resume_offset=6469632" "hibernate_compression_threads=12"];
+
+  # Only 5GB of a 25GB snapshot was anonymous; the rest was page cache getting
+  # compressed to disk and read back. Capping it trades a cold cache for ~15s.
+  systemd.tmpfiles.rules = ["w /sys/power/image_size - - - - 8589934592"];
 
   # s2idle only: stops the dGPU wake-to-evict that hung suspend.
   hardware.nvidia.moduleParams.nvidia.NVreg_EnableS0ixPowerManagement = 1;
