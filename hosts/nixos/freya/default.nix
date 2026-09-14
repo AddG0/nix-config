@@ -146,11 +146,18 @@
 
   boot.resumeDevice = "/dev/disk/by-uuid/8d35d53d-c3c1-4ed0-8a09-513992136532";
 
-  # From filefrag -v. Untested — hibernate stalls in nvidia's PM notifier.
+  # From filefrag -v; verified by a hibernate round-trip.
   boot.kernelParams = ["resume_offset=6469632"];
 
-  # s2idle only: stops the dGPU wake-to-evict that hung suspend 2026-09-02.
+  # s2idle only: stops the dGPU wake-to-evict that hung suspend.
   hardware.nvidia.moduleParams.nvidia.NVreg_EnableS0ixPowerManagement = 1;
+
+  # s2idle costs 1.3 W (~72h); hand off to hibernate once actually discharging.
+  services.logind.settings.Login.HandleLidSwitch = "suspend-then-hibernate";
+  systemd.sleep.settings.Sleep = {
+    HibernateDelaySec = "45min";
+    HibernateOnACPower = false;
+  };
 
   # Battery status reporting for desktop widgets
   services.upower.enable = true;
