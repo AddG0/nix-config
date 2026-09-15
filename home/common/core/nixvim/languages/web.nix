@@ -1,6 +1,13 @@
-{
+{pkgs, ...}: {
   # TypeScript / JavaScript.
   plugins = {
+    lsp.servers.html.enable = true;
+    lsp.servers.cssls.enable = true;
+    lsp.servers.cssmodules_ls = {
+      enable = true;
+      package = pkgs.cssmodules-language-server;
+    };
+
     lsp.servers.ts_ls = {
       enable = true;
       # vim.lsp.inlay_hint.enable only renders hints; ts_ls sends none until these

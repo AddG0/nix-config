@@ -4,6 +4,7 @@
 pkgs: rec {
   # Development tools
   bootdev-cli = pkgs.callPackage ./bootdev-cli {};
+  cssmodules-language-server = pkgs.callPackage ./cssmodules-language-server {};
   kotlin-lsp = pkgs.callPackage ./kotlin-lsp {};
   ai-usagebar = pkgs.callPackage ./ai-usagebar {};
   gwq = pkgs.callPackage ./gwq {};
