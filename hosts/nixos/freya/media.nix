@@ -16,7 +16,6 @@
   users.groups.media.gid = 984;
 
   users.users.${config.hostSpec.primaryUsername}.extraGroups = ["media"];
-  users.users.jellyfin.extraGroups = ["media"];
 
   fileSystems."/mnt/videos" = {
     device = "//10.61.60.49/videos";
@@ -47,9 +46,9 @@
     ];
   };
 
-  # network-online.target lies here: NetworkManager-wait-online is masked, so
-  # jellyfin scans the share before wifi associates.
-  # Pull this in from the mount only -- via jellyfin it inherits an implicit
+  # network-online.target lies here: NetworkManager-wait-online is masked, so the
+  # mount fires before wifi associates.
+  # Pull this in from the mount only -- anything else inherits an implicit
   # Before=multi-user.target and lands on the boot path.
   systemd.services.wait-for-nas = {
     description = "Wait for NAS (10.61.60.49) to be reachable";
@@ -69,29 +68,4 @@
       '';
     };
   };
-
-  services.jellyfin = {
-    enable = true;
-    # Use non-default port to avoid conflict with AWS VPN Client (which uses 8096 for OpenVPN management)
-    network = {
-      enable = true;
-      httpPort = 41865;
-      httpsPort = 41866;
-    };
-  };
-
-  services.nginx.virtualHosts."jellyfin.${config.hostSpec.domain}" = {
-    useACMEHost = config.hostSpec.domain;
-    forceSSL = true;
-    locations."/" = {
-      proxyPass = "http://127.0.0.1:41865";
-      proxyWebsockets = true;
-    };
-  };
-
-  networking.hosts."127.0.0.1" = ["jellyfin.${config.hostSpec.domain}"];
-
-  environment.systemPackages = with pkgs; [
-    jellyfin-desktop
-  ];
 }

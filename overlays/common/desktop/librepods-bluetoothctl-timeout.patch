@@ -1,0 +1,26 @@
+--- a/main.cpp
++++ b/main.cpp
+@@ -850,7 +850,10 @@
+                 LOG_INFO("Disconnected from AirPods");
+                 QProcess process;
+                 process.start("bluetoothctl", QStringList() << "disconnect" << m_deviceInfo->bluetoothAddress());
+-                process.waitForFinished();
++                if (!process.waitForFinished(5000)) {
++                    process.kill();
++                    process.waitForFinished();
++                }
+                 QString output = process.readAllStandardOutput().trimmed();
+                 LOG_INFO("Bluetoothctl output: " << output);
+                 isConnectedLocally = false;
+@@ -922,7 +925,10 @@
+             LOG_INFO("Forcing connection to AirPods");
+             QProcess process;
+             process.start("bluetoothctl", QStringList() << "connect" << m_deviceInfo->bluetoothAddress());
+-            process.waitForFinished();
++            if (!process.waitForFinished(5000)) {
++                process.kill();
++                process.waitForFinished();
++            }
+             QString output = process.readAllStandardOutput().trimmed();
+             LOG_INFO("Bluetoothctl output: " << output);
+         }
