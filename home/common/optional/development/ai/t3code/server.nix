@@ -48,6 +48,8 @@ in {
         # network is the restart loop's job — these just bound it.
         StartLimitIntervalSec = 300;
         StartLimitBurst = 5;
+        # t3code hydrates PATH with `zsh -ilc`, so startup cats the sops secrets.
+        After = ["sops-nix.service"];
       };
 
       Service = {

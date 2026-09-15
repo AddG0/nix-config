@@ -1,5 +1,6 @@
 _: {
   imports = [
+    ./crystal.nix
     ./docker.nix
     ./go.nix
     ./helm.nix

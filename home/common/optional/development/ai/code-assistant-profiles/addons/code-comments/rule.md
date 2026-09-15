@@ -1,33 +1,33 @@
-Comments say the *why*, never the *what*, and default to none: if a reader who
-knows the language and its libraries could write the comment from the adjacent
-code alone, it adds nothing. This holds as you write, not as a pass afterward.
+Default to none, and cap what survives at one line. A comment earns its place only
+by saying what the adjacent code cannot — the non-obvious *why*. Needing a second
+line means you are justifying the choice instead of informing the reader: keep the
+fact, cut the defence. This holds as you write, not as a pass afterward.
 
-Delete on the first match:
+```nix
+# BAD — justifies the choice
+# t3code runs `zsh -ilc` at startup so the whole .zshrc runs; both units are
+# WantedBy=default.target, so without this they race and the secrets are missing.
+After = ["sops-nix.service"];
 
-- Cosmetic — banner `===`, divider, `// end if`, closing-brace label.
-- Commented-out or dead code. Version control remembers it.
-- A change, author, date, or "as requested" — that belongs in the commit message.
-- Meta-commentary on the edit: `// new`, `// changed per request`, `// previously X`.
-- Restates the code, echoes the name, or narrates a standard language or library idiom.
-- Justifies the choice instead of informing the reader — keep any real fact, cut the defence.
-- A TODO with no ticket and no resolution condition.
-- Floating above code it does not describe — move it onto that code, or drop it.
-- Possibly stale because the surrounding code just changed — verify, then fix or delete.
+# GOOD — the one fact the code cannot say
+# t3code hydrates PATH with `zsh -ilc`, so startup cats the sops secrets.
+After = ["sops-nix.service"];
+```
 
-Keep, one line each:
+Keep, one line each: **why** (`// insertion sort: input is nearly sorted, N < 50`),
+**warning** (`// Don't cache — this table is write-heavy`), **workaround** with a
+reference (`// vendor API returns 1-based indices; see ACME-1234`), **domain rule**
+(`// clamp to 86°F — HVAC max`), **TODO** carrying a ticket and a resolution
+condition, and public-API docs adding precision beyond the name and signature.
 
-- **Why** — the non-obvious reason for this approach. `// insertion sort: input is nearly sorted and N < 50`
-- **Warning** — a consequence a reader would not expect. `// Don't cache — this table is write-heavy`
-- **Workaround** — an external quirk, with a reference. `// vendor API returns 1-based indices; see ACME-1234`
-- **Domain rule** invisible in the code. `// clamp to 86°F — HVAC max`
-- **Public-API doc** adding precision beyond the name and signature.
-- **TODO** carrying a ticket and a resolution condition.
+Delete the rest: restating the code or narrating a standard idiom; commented-out
+code; banners, dividers, `// end if`; meta-commentary on the edit (`// new`,
+`// changed per request`); a change, author, or date, which belong in the commit
+message; a comment floating above code it does not describe; anything the
+surrounding change may have left stale.
 
-Compress rather than justify — a real *why* fits on one line. Prefer a better name
-or an extracted function over a comment explaining *what*, but do not invent
-`longCamelCaseNamesThatAreReallyComments`.
-
-Doc comments: public and non-trivial only, first sentence is the summary, never
-restate the type system. Tests: name the behavior, not the implementation
-(`rejects login when password is expired`, not `testLogin`). File headers: a
-one-line purpose is fine, never `@author`, date, or revision history.
+Prefer a better name or an extracted function over explaining *what*, without
+inventing `longCamelCaseNamesThatAreReallyComments`. Doc comments: public and
+non-trivial only, first sentence the summary, never restating the type system.
+Tests name the behavior (`rejects login when password is expired`, not `testLogin`).
+File headers: a one-line purpose, never `@author`, date, or revision history.

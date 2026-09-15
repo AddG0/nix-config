@@ -6,6 +6,11 @@
 }: let
   home = config.home.homeDirectory;
 
+  # Stylix's kde target only applies ColorScheme via plasma-apply-lookandfeel, a no-op without a running Plasma session (we're on Hyprland).
+  kdeColorSchemeSlug = lib.concatStrings (
+    lib.filter lib.isString (builtins.split "[^a-zA-Z]" config.lib.stylix.colors.scheme)
+  );
+
   # Re-asserted on every rebuild, so Dolphin can't persist GUI reordering of the
   # Places sidebar. No plasma-manager option for it yet
   # (nix-community/plasma-manager#330), hence the hand-built XBEL.
@@ -189,6 +194,9 @@ in {
   xdg.configFile."kdeglobals".text = ''
     [Icons]
     Theme=${config.stylix.icons.dark}
+
+    [General]
+    ColorScheme=${kdeColorSchemeSlug}
   '';
 
   xdg.configFile."dolphinrc".text = ''

@@ -28,6 +28,8 @@
       "x-systemd.mount-timeout=30s"
       "x-systemd.after=wait-for-nas.service"
       "x-systemd.requires=wait-for-nas.service"
+      # tun0 carries the route to the NAS -- unmount has to finish before it drops.
+      "x-systemd.after=openvpn-homeVPN.service"
       "uid=${toString config.users.users.${config.hostSpec.primaryUsername}.uid}"
       "forceuid"
       "gid=${toString config.users.groups.media.gid}"

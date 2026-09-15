@@ -14,6 +14,11 @@
     && config.stylix.cursor != null
     && pkgs.stdenv.hostPlatform.isLinux;
 
+  # Forces Kirigami onto the kdeglobals-reading style; qt5ct (our platform theme) doesn't advertise it like plasma-integration would.
+  # systemd.user.sessionVariables (not home.sessionVariables) because that's what reaches environment.d, read by systemd at
+  # user-manager startup — home.sessionVariables only reaches shell-spawned processes, too late for Hyprland's systemd unit.
+  systemd.user.sessionVariables.QT_QUICK_CONTROLS_STYLE = lib.mkIf pkgs.stdenv.hostPlatform.isLinux "org.kde.desktop";
+
   # Material Design 3 theme. Stylix is the top-level theming engine — all visual
   # values (colors, fonts, opacities, cursor) live here so every stylix-aware
   # app (noctalia, KDE, GTK, terminals, etc.) inherits a consistent look.
