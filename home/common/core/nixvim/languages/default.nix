@@ -13,6 +13,7 @@ _: {
     ./nix.nix
     ./proto.nix
     ./python.nix
+    ./qml.nix
     ./rust.nix
     ./shell.nix
     ./tailwind.nix

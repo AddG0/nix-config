@@ -1,0 +1,76 @@
+--- a/vcs.go
++++ b/vcs.go
+@@ -52,16 +52,14 @@
+
+ // getGitRemoteURL retrieves the remote URL from a git repository.
+ // It tries 'origin' first, then falls back to the first remote.
++//
++// The URL comes from the raw config, not `git remote get-url`: that applies
++// insteadOf, which rewrites for transport and would name the path after the
++// rewrite target rather than the host the repository actually lives on.
+ func getGitRemoteURL(dir string) (string, error) {
+ 	// Try 'origin' first
+-	originCmd := exec.Command("git", "remote", "get-url", "origin")
+-	originCmd.Dir = dir
+-	originOut, originErr := originCmd.Output()
+-	if originErr == nil {
+-		originURL := strings.TrimSpace(string(originOut))
+-		if originURL != "" {
+-			return originURL, nil
+-		}
++	if originURL, err := getGitConfiguredRemoteURL(dir, "origin"); err == nil && originURL != "" {
++		return originURL, nil
+ 	}
+
+ 	// List all remotes
+@@ -79,14 +77,10 @@
+
+ 	// Get first remote URL
+ 	first := allRemotes[0]
+-	urlCmd := exec.Command("git", "remote", "get-url", first)
+-	urlCmd.Dir = dir
+-	urlOut, urlErr := urlCmd.Output()
++	finalURL, urlErr := getGitConfiguredRemoteURL(dir, first)
+ 	if urlErr != nil {
+ 		return "", fmt.Errorf("failed to get URL of remote %q: %w", first, urlErr)
+ 	}
+-
+-	finalURL := strings.TrimSpace(string(urlOut))
+ 	if finalURL == "" {
+ 		return "", fmt.Errorf("remote %q has no URL", first)
+ 	}
+@@ -94,6 +88,34 @@
+ 	return finalURL, nil
+ }
+
++// getGitConfiguredRemoteURL reads remote.<name>.url as configured, before any
++// insteadOf rewriting. --get-all's first line matches what `git remote get-url`
++// reports for a multi-URL remote, where plain --get would report the last.
++func getGitConfiguredRemoteURL(dir, remote string) (string, error) {
++	cmd := exec.Command("git", "config", "--local", "--get-all", "remote."+remote+".url")
++	cmd.Dir = dir
++	// Legacy GIT_CONFIG aims `git config` at one file and conflicts with
++	// --local, so it would hide the very remotes being asked about.
++	cmd.Env = envWithout(os.Environ(), "GIT_CONFIG")
++	out, err := cmd.Output()
++	if err != nil {
++		return "", err
++	}
++	first, _, _ := strings.Cut(strings.TrimSpace(string(out)), "\n")
++	return strings.TrimSpace(first), nil
++}
++
++func envWithout(env []string, key string) []string {
++	prefix := key + "="
++	kept := make([]string, 0, len(env))
++	for _, kv := range env {
++		if !strings.HasPrefix(kv, prefix) {
++			kept = append(kept, kv)
++		}
++	}
++	return kept
++}
++
+ // GitBackend is the VCSBackend of git
+ var GitBackend = &VCSBackend{
+ 	// support submodules?

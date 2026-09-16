@@ -17,8 +17,11 @@
       config.gaming.gamescopeSession.displayTool
     ];
     extraPythonPackages = ps: [ps.aiohttp-cors]; # Deckcord backend imports it
-    # Silence the "plugin update available" notification (loader.json).
-    settings.notificationSettings.pluginUpdates = false;
+    # Plugins are pinned here, so both update notifications are dead ends.
+    settings.notificationSettings = {
+      pluginUpdates = false;
+      deckyUpdates = false;
+    };
     # Keys are the store's own folder names, so a UI install wouldn't duplicate.
     plugins = {
       Deckcord = pkgs.decky.deckcord;
