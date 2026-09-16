@@ -5,10 +5,13 @@
 }: let
   claudeProfiles = config.programs.claude-code-profiles;
   claudeProfileDir = "${config.home.homeDirectory}/${claudeProfiles.profiles.${claudeProfiles.defaultProfile}.profileDir}";
+
+  # Threads spawn the CLI at the repo with no shell between, so chpwd never fires.
+  inDirectoryEnv = exe: lib.getExe (config.programs.directoryEnv.wrap exe);
 in {
   imports = [
     ./keybindings.nix
-    ./nvim.nix
+    ./package.nix
     ./sync-projects
     ./theme.nix
   ];
@@ -34,14 +37,14 @@ in {
       providerInstances = {
         codex = {
           driver = "codex";
-          config.binaryPath = lib.getExe' config.programs.codex.package "codex";
+          config.binaryPath = inDirectoryEnv (lib.getExe' config.programs.codex.package "codex");
         };
         claudeAgent = {
           driver = "claudeAgent";
           # The profile wrapper, not the packaged CLI: homePath only exports
           # CLAUDE_CONFIG_DIR; the MCP servers and plugins arrive as wrapper flags.
           config = {
-            binaryPath = lib.getExe' claudeProfiles.wrapperPackage "claude";
+            binaryPath = inDirectoryEnv (lib.getExe' claudeProfiles.wrapperPackage "claude");
             # Usage and skill discovery both scan under homePath; empty resolves
             # to ~/.claude, which the profile layout leaves unused.
             homePath = claudeProfileDir;
@@ -49,7 +52,7 @@ in {
         };
         opencode = {
           driver = "opencode";
-          config.binaryPath = lib.getExe' config.programs.opencode.package "opencode";
+          config.binaryPath = inDirectoryEnv (lib.getExe' config.programs.opencode.package "opencode");
         };
       };
     };

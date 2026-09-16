@@ -1,15 +1,18 @@
-# Adds Neovim to t3code's "Open in" picker, whose editor list is a closed table
-# in the source with no config hook. Both the contracts table and the picker's
-# own hardcoded options need the entry, or the editor launches but never shows.
-#
-# Chained through theme.basePackage so both patches land in one derivation —
-# disabling the theme would drop this too.
+# t3code package overrides that read this user's config, so cannot live in overlays/.
 {
   config,
   lib,
   pkgs,
   ...
 }: let
+  # t3code runs glab itself with the server's env, so the per-tree token a shell would export is missing.
+  withScopedGlab = pkgs.t3code.override {
+    glab = config.programs.directoryEnv.wrap (lib.getExe pkgs.glab);
+  };
+
+  # ghostty rules the nvim picker entry out on a headless host.
+  nvimPickerSupported = pkgs.stdenv.hostPlatform.isLinux && config.hostSpec.hostType != "server";
+
   t3code-nvim = pkgs.writeShellApplication {
     name = "t3code-nvim";
     runtimeInputs = with pkgs; [ghostty bash coreutils];
@@ -35,7 +38,8 @@
   pickerAnchor = "    {\n      Icon: FolderClosedIcon,\n      value: \"file-manager\",\n      kind: \"generic\",\n    },";
   pickerEntry = "    {\n      Icon: TerminalIcon,\n      value: \"nvim\",\n      kind: \"generic\",\n    },\n";
 
-  withNvim = pkgs.t3code.override {
+  # The "Open in" editor list is closed: the contracts table and the picker both need the entry.
+  withNvim = withScopedGlab.override {
     t3code-unwrapped = pkgs.t3code.unwrapped.overrideAttrs (old: {
       postPatch =
         (old.postPatch or "")
@@ -51,7 +55,10 @@
     # Pinned to avoid a Rust rebuild for an identical binary.
     t3code-resource-monitor = pkgs.t3code.resourceMonitor;
   };
-in
-  lib.mkIf (pkgs.stdenv.hostPlatform.isLinux && config.hostSpec.hostType != "server") {
-    programs.t3code.theme.basePackage = withNvim;
-  }
+in {
+  # The theme module owns basePackage, so disabling it drops these too.
+  programs.t3code.theme.basePackage =
+    if nvimPickerSupported
+    then withNvim
+    else withScopedGlab;
+}

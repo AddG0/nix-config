@@ -24,7 +24,6 @@ in {
   home.packages = with pkgs; [
     jdk
     maven
-    gradle_9
     gradle-completion
   ];
 
@@ -37,19 +36,22 @@ in {
     "Maven"
   ];
 
-  home.file.".gradle/gradle.properties".text = ''
-    # NixOS Compatibility
-    org.gradle.java.installations.auto-detect=false
+  programs.gradle = {
+    enable = true;
+    package = pkgs.gradle_9;
 
-    # Performance Optimizations
-    org.gradle.parallel=true
-    org.gradle.caching=true
-    org.gradle.configuration-cache=true
-    org.gradle.vfs.watch=true
+    settings = {
+      # Auto-detection walks the store looking for JDKs; home.file plants the ones we want.
+      "org.gradle.java.installations.auto-detect" = "false";
 
-    # Gradle Daemon Settings
-    org.gradle.jvmargs=-Xmx4g -XX:MaxMetaspaceSize=768m -XX:+HeapDumpOnOutOfMemoryError -Dfile.encoding=UTF-8 ${lib.concatStringsSep " " errorproneCompilerArgs}
-    org.gradle.workers.max=2
-    org.gradle.daemon.idletimeout=1800000
-  '';
+      "org.gradle.parallel" = "true";
+      "org.gradle.caching" = "true";
+      "org.gradle.configuration-cache" = "true";
+      "org.gradle.vfs.watch" = "true";
+
+      "org.gradle.jvmargs" = "-Xmx4g -XX:MaxMetaspaceSize=768m -XX:+HeapDumpOnOutOfMemoryError -Dfile.encoding=UTF-8 ${lib.concatStringsSep " " errorproneCompilerArgs}";
+      "org.gradle.workers.max" = "2";
+      "org.gradle.daemon.idletimeout" = "1800000";
+    };
+  };
 }

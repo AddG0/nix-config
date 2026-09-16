@@ -1,10 +1,8 @@
-# Directory-scoped environment variables (zsh). Each rule exports its `env`
-# while $PWD is at or under any of its `paths`, and unsets those vars on leaving
-# — via zsh's chpwd_functions (the hook direnv uses), independent of .envrc.
-# Generic by design; concrete paths/secrets live in the consuming config.
+# Environment variables scoped to directory trees — declarative rules, not direnv's .envrc.
 {
   config,
   lib,
+  pkgs,
   ...
 }: let
   cfg = config.programs.directoryEnv;
@@ -24,12 +22,14 @@
       unset ${unsets}
     fi
   '';
+
+  ruleBlocks = lib.concatStringsSep "\n" (lib.imap0 ruleBlock cfg.rules);
 in {
   options.programs.directoryEnv = {
-    enable = lib.mkOption {
+    enableZshIntegration = lib.mkOption {
       type = lib.types.bool;
       default = cfg.rules != [];
-      description = "Export env vars scoped to directory trees (zsh). On by default when rules are set.";
+      description = "Install the rules as a zsh chpwd hook. On by default when rules are set.";
     };
 
     rules = lib.mkOption {
@@ -52,13 +52,43 @@ in {
         };
       });
     };
+
+    runner = lib.mkOption {
+      type = lib.types.package;
+      readOnly = true;
+      default = pkgs.writeShellScriptBin "directory-env" ''
+        ${ruleBlocks}
+        exec "$@"
+      '';
+      defaultText = lib.literalMD "a `directory-env` runner carrying `rules`";
+      description = ''
+        `directory-env CMD [ARGS...]` applies the rules matching $PWD, then
+        execs CMD. For processes spawned without a shell, which never reach the
+        chpwd hook — a GUI's child, a systemd unit, an agent CLI.
+      '';
+    };
+
+    wrap = lib.mkOption {
+      type = lib.types.functionTo lib.types.package;
+      readOnly = true;
+      default = exe:
+        pkgs.writeShellScriptBin (baseNameOf exe) ''
+          exec ${lib.getExe cfg.runner} ${exe} "$@"
+        '';
+      defaultText = lib.literalMD "wraps an executable in `runner`";
+      description = ''
+        `wrap "/nix/store/…/bin/foo"` is a package whose `foo` applies the
+        rules and execs the real one — for a caller that resolves the program
+        by path or off PATH rather than running it from a shell.
+      '';
+    };
   };
 
   # One chpwd handler runs every rule; registered once, fired once on init.
-  config = lib.mkIf (cfg.enable && cfg.rules != []) {
+  config = lib.mkIf (cfg.enableZshIntegration && cfg.rules != []) {
     programs.zsh.initContent = lib.mkAfter ''
       _directory_env() {
-      ${lib.concatStringsSep "\n" (lib.imap0 ruleBlock cfg.rules)}
+      ${ruleBlocks}
       }
       typeset -ag chpwd_functions
       (( ''${chpwd_functions[(I)_directory_env]} )) || chpwd_functions=(_directory_env $chpwd_functions)
