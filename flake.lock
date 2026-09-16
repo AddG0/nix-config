@@ -2038,11 +2038,11 @@
         ]
       },
       "locked": {
-        "lastModified": 1784738986,
-        "narHash": "sha256-bd6YCGR6nFjeaOj9hbpu/fm4KaKooK64PvtCKNBt8oM=",
+        "lastModified": 1789571021,
+        "narHash": "sha256-faqJGmOAvLQRBuAfki/oumrz6C9fOqM1YnZt0AOZA2g=",
         "ref": "tmp",
-        "rev": "38645956d3989fb8c84ecbb8881a9a630fd3fcf7",
-        "revCount": 70,
+        "rev": "b83d5d8f75711ac8e461569b14d58e132ad7781d",
+        "revCount": 71,
         "type": "git",
         "url": "ssh://git@github.com/addg0/lumenboard-player.git"
       },
@@ -2376,11 +2376,11 @@
         "pre-commit-hooks": "pre-commit-hooks_3"
       },
       "locked": {
-        "lastModified": 1789222222,
-        "narHash": "sha256-5nM3E8Vg+0UjiL9W/sSFuptG5R6tXt1IeIY1bsh1oTg=",
+        "lastModified": 1789582770,
+        "narHash": "sha256-GVcoQsU3rHzn6MF+GqLJDhmgDQtYXObdA7YNwWrEcLI=",
         "ref": "main",
-        "rev": "ae4c17c3e9f03beb956d727df44052d69697bcc0",
-        "revCount": 353,
+        "rev": "387beab1c2d04fe37e07dfa407899a8ba6646b9a",
+        "revCount": 354,
         "type": "git",
         "url": "ssh://git@github.com/addg0/nix-secrets.git"
       },
