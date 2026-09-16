@@ -19,8 +19,10 @@ in {
       credentials_path = claudeCredentials;
     };
 
-    # "openai" is the Codex CLI login (~/.codex/auth.json).
-    openai.enabled = true;
+    openai = {
+      enabled = true;
+      codex_auth_path = "${config.xdg.configHome}/codex/auth.json";
+    };
 
     # On by default upstream; with no key they only add error rows.
     zai.enabled = false;

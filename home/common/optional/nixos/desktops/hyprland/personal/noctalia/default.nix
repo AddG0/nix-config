@@ -72,7 +72,7 @@ in {
           # Rides the default `auto` ordering: the 2 plans nearest their limit.
           ai_usage = {
             type = "felipeartur/ai-usagebar:bar";
-            style = "gauge";
+            visualization = "gauge";
             provider_limit = 2;
             extras = "both";
           };
