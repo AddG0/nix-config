@@ -1,6 +1,6 @@
 # E / W recursively expand / collapse the folder subtree under the cursor.
 # snacks only ships `Z` (reset the whole tree), so these add the scoped variant
-# (mirrors nvim-tree's E/W). Expansion respects the explorer exclude list.
+# (mirrors nvim-tree's E/W).
 _: {
   plugins.snacks.settings.picker.sources.explorer = {
     actions = {
@@ -12,11 +12,18 @@ _: {
           local root = item.dir and Tree:find(item.file)
             or Tree:find(vim.fs.dirname(item.file))
           if not root then return end
+          -- Tree:expand scandirs unfiltered, so without this a repo-root E
+          -- materialises every node under target/, .direnv/ and friends.
+          local keep = Tree:filter({
+            hidden = true,
+            exclude = picker.opts.exclude,
+            include = picker.opts.include,
+          })
           local function expand(node)
             Tree:open(node.path)
             Tree:expand(node)
             for _, child in pairs(node.children or {}) do
-              if child.dir then expand(child) end
+              if child.dir and keep(child) then expand(child) end
             end
           end
           expand(root)
