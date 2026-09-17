@@ -12,6 +12,8 @@
         ./gnd-gtk-thread.patch
         ./gnd-encoder-output.patch
         ./gnd-resolution-negotiation.patch
+        ./gnd-pipeline-tuning.patch
+        ./gnd-ui-rounding.patch
       ];
   });
 

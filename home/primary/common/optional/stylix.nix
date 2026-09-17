@@ -96,6 +96,8 @@
 
       notebook > header > tabs > tab { border-radius: 8px 8px 0 0; }
       list > row, .list-row { border-radius: 9999px; }
+      /* A pill clamps to a 20px arc and cannot meet a 12px frame corner. */
+      frame > list > row { border-radius: 12px; }
       tooltip, tooltip.background { border-radius: 4px; }
     '';
   };

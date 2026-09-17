@@ -1,0 +1,48 @@
+Let the sink-list frames clip their rows.
+
+Each GtkListBox sits in a GtkFrame that draws a rounded border. In GTK4 a
+widget's children are not clipped to its border-radius unless its "overflow"
+property is hidden, so the rows painted their own corners straight over the
+frame's -- visible wherever the theme gives a row a different radius than the
+frame, which a pill row always does.
+
+Setting overflow=hidden makes the frame clip, so the corners agree by
+construction whatever radius the theme picks. Applied to all four lists; the
+connect, streaming and error pages have the same frame.
+
+Not upstreamed.
+
+--- a/src/nd-window.ui
++++ b/src/nd-window.ui
+@@ -76,6 +76,7 @@
+                                             </child>
+                                             <child>
+                                               <object class="GtkFrame">
++                                                <property name="overflow">hidden</property>
+                                                 <child>
+                                                   <object class="GtkListBox" id="find_sink_list"/>
+                                                 </child>
+@@ -148,6 +149,7 @@
+                                 </child>
+                                 <child>
+                                   <object class="GtkFrame">
++                                    <property name="overflow">hidden</property>
+                                     <child>
+                                       <object class="GtkListBox" id="connect_sink_list"/>
+                                     </child>
+@@ -216,6 +218,7 @@
+                                 </child>
+                                 <child>
+                                   <object class="GtkFrame">
++                                    <property name="overflow">hidden</property>
+                                     <child>
+                                       <object class="GtkListBox" id="stream_sink_list"/>
+                                     </child>
+@@ -284,6 +287,7 @@
+                                 </child>
+                                 <child>
+                                   <object class="GtkFrame">
++                                    <property name="overflow">hidden</property>
+                                     <child>
+                                       <object class="GtkListBox" id="error_sink_list"/>
+                                     </child>

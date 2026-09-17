@@ -1,3 +1,23 @@
+Select a resolution the sink will actually render.
+
+Upstream #if 0'd this whole block, so every session ran at a hardcoded
+1920x1080@30. Its comment condemns only codec->native ("the native resolution
+reported by some devices is just useless"), but the bitmask-decoded list went
+with it.
+
+Trust codec->native first. Ranking the advertised list by pixel count is wrong
+for an LG webOS panel, which declares native 1920x1080@60 yet omits that mode
+from the selected codec's own 37-entry list, leaving 1920x1200@30 on top -- a
+16:10 30Hz mode it accepts during negotiation and then never renders, showing a
+loading screen for the whole session. Both sinks tested report a native that is
+correct; ranking only wins when there is no native to trust.
+
+GND_FORCE_RESOLUTION=WIDTHxHEIGHT@RATE overrides the choice, and
+GND_FALLBACK_RESOLUTION still covers sinks that advertise empty CEA/VESA/HH
+masks and no native.
+
+Not upstreamed.
+
 --- a/src/wfd/wfd-client.c
 +++ b/src/wfd/wfd-client.c
 @@ -1,3 +1,4 @@
@@ -5,46 +25,51 @@
  #include <glib-object.h>
  #include <gst/rtsp/gstrtspmessage.h>
  #include <gst/video/video.h>
-@@ -138,35 +139,55 @@
+@@ -138,13 +139,28 @@
    else
      g_warning ("No codec/resolution could be found, falling back to defaults!");
 
 -#if 0
 -  /* The native resolution reported by some devices is just useless */
 -  if (codec->native)
--    self->params->selected_resolution = wfd_resolution_copy (codec->native);
--  else
-+  /* Upstream #if 0'd this, but the complaint ("the native resolution reported by
-+   * some devices is just useless") only condemns codec->native -- it took the
-+   * bitmask-decoded list down with it, pinning every session to a hardcoded
-+   * 1920x1080@30. Rank what the sink advertised; never consult codec->native. */
 +  {
-+    g_autoptr(GList) resolutions = NULL;
-+    GList *last;
++    const char *force = g_getenv ("GND_FORCE_RESOLUTION");
++    guint fw, fh, fr;
 +
-+    resolutions = wfd_video_codec_get_resolutions (codec);
-+    resolutions = g_list_sort (resolutions, compare_resolutions);
-+    last = g_list_last (resolutions);
-+    if (last)
-+      self->params->selected_resolution = wfd_resolution_copy ((WfdResolution *) last->data);
++    if (force && sscanf (force, "%ux%u@%u", &fw, &fh, &fr) == 3 && fw >= 16 && fh >= 16 && fr > 0)
++      {
++        self->params->selected_resolution = wfd_resolution_new ();
++        self->params->selected_resolution->width = fw;
++        self->params->selected_resolution->height = fh;
++        self->params->selected_resolution->refresh_rate = fr;
++        self->params->selected_resolution->interlaced = FALSE;
++      }
 +  }
++
++  /* An LG panel omits its own native mode from the codec's resolution list, so
++   * ranking picks 1920x1200@30 over the native 1920x1080@60 -- which it accepts
++   * during negotiation and then never renders. */
++  if (!self->params->selected_resolution && codec->native)
+     self->params->selected_resolution = wfd_resolution_copy (codec->native);
+-  else
 +
 +  if (!self->params->selected_resolution)
      {
 -      /* Find a good resolution. */
--      g_autoptr(GList) resolutions = NULL;
--      GList *last;
--
--      resolutions = wfd_video_codec_get_resolutions (codec);
--      resolutions = g_list_sort (resolutions, compare_resolutions);
--      last = g_list_last (resolutions);
--      if (last)
--        self->params->selected_resolution = wfd_resolution_copy ((WfdResolution *) last->data);
+       g_autoptr(GList) resolutions = NULL;
+       GList *last;
+
+@@ -153,20 +169,35 @@
+       last = g_list_last (resolutions);
+       if (last)
+         self->params->selected_resolution = wfd_resolution_copy ((WfdResolution *) last->data);
 -      else
++    }
++
++  if (!self->params->selected_resolution)
++    {
 +      /* Some sinks advertise empty CEA/VESA/HH masks, leaving nothing to
-+       * negotiate from. The right mode then depends on the source panel and on
-+       * what the sink privately accepts, so keep it settable per run instead of
-+       * baking in a guess. */
++       * negotiate from; the usable mode is then sink-specific. */
 +      const char *env = g_getenv ("GND_FALLBACK_RESOLUTION");
 +      guint w = 1920, h = 1080, r = 60;
 +
@@ -66,14 +91,10 @@
 +
 +          if (sscanf (env, "%ux%u@%u", &ew, &eh, &er) == 3 && ew >= 16 && eh >= 16 && er > 0)
 +            {
-+              w = ew;
-+              h = eh;
-+              r = er;
++              w = ew; h = eh; r = er;
 +            }
 +          else
-+            {
-+              g_warning ("WfdClient: GND_FALLBACK_RESOLUTION is not WIDTHxHEIGHT@RATE: %s", env);
-+            }
++            g_warning ("WfdClient: GND_FALLBACK_RESOLUTION is not WIDTHxHEIGHT@RATE: %s", env);
 +        }
 +
 +      g_warning ("WfdClient: sink advertised no usable resolution, falling back to %ux%u@%u", w, h, r);
@@ -84,7 +105,6 @@
 +      self->params->selected_resolution->refresh_rate = r;
 +      self->params->selected_resolution->interlaced = FALSE;
 +    }
-+
    g_debug ("selected resolution %i, %i @%i", self->params->selected_resolution->width, self->params->selected_resolution->height, self->params->selected_resolution->refresh_rate);
 
    /* We currently only support AAC with two channels  */
