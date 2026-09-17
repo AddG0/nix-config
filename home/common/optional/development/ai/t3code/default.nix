@@ -52,6 +52,8 @@ in {
         };
         opencode = {
           driver = "opencode";
+          # Since 0.0.38 the opencode driver defaults off; without this it probes as "disabled".
+          enabled = true;
           config.binaryPath = inDirectoryEnv (lib.getExe' config.programs.opencode.package "opencode");
         };
       };

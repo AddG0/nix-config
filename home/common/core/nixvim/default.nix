@@ -41,6 +41,13 @@ in {
     };
   };
 
+  # These print live-share.nix's tunnel URL only on the master connection, so a muxed client reads silence.
+  programs.ssh.settings."tunnel-brokers" = {
+    header = "Host localhost.run serveo.net";
+    ControlMaster = "no";
+    ControlPath = "none";
+  };
+
   # The GitHub Global/Vim gitignore template ships an over-broad swap-file
   # glob `[._]s[a-rt-v][a-z]` that also matches `.sdd` (our spec-driven-
   # development folder), silently untracking the whole directory. The other

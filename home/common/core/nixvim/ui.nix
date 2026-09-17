@@ -210,6 +210,10 @@ in {
           group = "windows";
         }
         {
+          __unkeyed-1 = "<leader>l";
+          group = "live share";
+        }
+        {
           __unkeyed-1 = "<leader>q";
           group = "quit/session";
         }
