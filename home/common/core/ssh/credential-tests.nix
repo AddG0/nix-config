@@ -7,18 +7,58 @@
   self,
 }: let
   inherit (pkgs) runCommand openssh coreutils gnugrep gawk;
+  testLib = self.lib.extend (_: _: {inherit (self.inputs.home-manager.lib) hm;});
+  hostSpec = {
+    hostName = "test-host";
+    hostPlatform = "x86_64-linux";
+    primaryUsername = "tester";
+    handle = "tester";
+    home = "/home/tester";
+    domain = "example.test";
+    userFullName = "Test User";
+    email.personal = "tester@example.test";
+    githubEmail = "tester@example.test";
+    networking = {
+      ports.tcp.ssh = 22;
+      hostsAddr.testhost.ipv4 = "127.0.0.1";
+    };
+  };
+  evalHome = modules:
+    (self.inputs.home-manager.lib.homeManagerConfiguration {
+      inherit pkgs;
+      lib = testLib;
+      extraSpecialArgs = {inherit self hostSpec;};
+      modules =
+        [
+          {
+            config = {
+              inherit hostSpec;
+              home = {
+                username = "tester";
+                homeDirectory = "/home/tester";
+                stateVersion = "24.05";
+              };
+            };
+          }
+          ../../../../modules/common/host-spec.nix
+          ./default.nix
+          ../../../primary/common/core/ssh.nix
+        ]
+        ++ modules;
+    }).config;
+  homes = {
+    standard = evalHome [];
+    onePassword = evalHome [../../../primary/common/optional/secrets/1password-ssh.nix];
+  };
 
-  hmFor = name: let
-    cfg = self.nixosConfigurations.${name}.config;
-  in
-    cfg.home-manager.users.${cfg.hostSpec.primaryUsername};
+  hmFor = name: homes.${name};
 
   usable = name:
     ((hmFor name).home.file ? ".ssh/config")
-    && self.nixosConfigurations.${name}.config.hostSpec.networking.hostsAddr != {};
+    && hostSpec.networking.hostsAddr != {};
   hasAgentBlock = name: (hmFor name).programs.ssh.settings ? "1password-agent";
 
-  names = builtins.filter usable (lib.naturalSort (builtins.attrNames self.nixosConfigurations));
+  names = builtins.filter usable (lib.naturalSort (builtins.attrNames homes));
   # An IdentityAgent block is a `Match host *` that outranks `Host *`, so cover a
   # host that has one and a host that does not.
   withAgentBlock = lib.findFirst hasAgentBlock null names;
@@ -44,7 +84,7 @@
   sshConfigOf = name: pkgs.writeText "ssh-config-${name}" (hmFor name).home.file.".ssh/config".text;
   grantedHost = name:
     lib.head (lib.naturalSort
-      (lib.attrNames self.nixosConfigurations.${name}.config.hostSpec.networking.hostsAddr));
+      (lib.attrNames hostSpec.networking.hostsAddr));
 
   # ssh expands ~ from getpwuid, not $HOME, so a config placed under $HOME is
   # silently never read in a sandbox; -F names it instead.

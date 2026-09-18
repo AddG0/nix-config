@@ -11,6 +11,31 @@
   ...
 }: let
   inherit (pkgs) runCommand coreutils tmux util-linux gnugrep ncurses;
+  testLib = self.lib.extend (_: _: {inherit (self.inputs.home-manager.lib) hm;});
+  tmuxConfig =
+    (self.inputs.home-manager.lib.homeManagerConfiguration {
+      inherit pkgs;
+      lib = testLib;
+      extraSpecialArgs = {
+        inherit self;
+        hostSpec = {
+          primaryUsername = "tester";
+          home = "/home/tester";
+          system.stateVersion = "24.05";
+        };
+      };
+      modules = [
+        {
+          home = {
+            username = "tester";
+            homeDirectory = "/home/tester";
+            stateVersion = "24.05";
+          };
+        }
+        ./default.nix
+        ../../../ssh/default.nix
+      ];
+    }).config;
 
   recordAttach = pkgs.callPackage ./record-attach.nix {};
   prune = pkgs.callPackage ./prune.nix {};
@@ -37,32 +62,17 @@
     alive() { $tm list-sessions -F '#{session_name}' 2>/dev/null | grep -Fxq "$1"; }
   '';
 
-  # The clobber below is a cross-module interaction, so only a host's assembled
-  # config shows it. Found rather than named, so retiring a host cannot quietly
-  # leave this pointing at nothing.
-  userOf = name: let
-    cfg = self.nixosConfigurations.${name}.config;
-  in
-    cfg.home-manager.users.${cfg.hostSpec.primaryUsername};
-
-  tmuxHost =
-    lib.findFirst (n: (userOf n).programs.tmux.enable or false) null
-    (lib.naturalSort (builtins.attrNames self.nixosConfigurations));
-
   hooks =
-    lib.throwIf (tmuxHost == null)
-    "stale-sessions/tests.nix: no host enables tmux, so this guard is vacuous"
     runCommand "tmux-stale-sessions-hooks" {
       nativeBuildInputs = [coreutils tmux util-linux gnugrep ncurses];
-      hostConf = pkgs.writeText "tmux.conf" (userOf tmuxHost).programs.tmux.extraConfig;
+      hostConf = pkgs.writeText "tmux.conf" tmuxConfig.programs.tmux.extraConfig;
     } ''
       ${preamble}
 
-      echo "--- should keep this module's hook when another also hooks client-attached"
+      # The isolated module graph catches an accidental hook replacement.
       grep -E "^set-hook -ag client-attached" "$hostConf" >hooks.conf
       want=$(grep -c . hooks.conf)
-      [ "$want" -ge 2 ] || fail "expected this module's and ssh's hooks in the host config, found $want"
-
+      [ "$want" -ge 2 ] || fail "expected this module's and ssh's hooks in the module config, found $want"
       $tm new-session -d -s probe -x 80 -y 24
       $tm source-file hooks.conf
       got=$($tm show-hooks -g | grep -c "^client-attached")

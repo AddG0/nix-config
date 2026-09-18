@@ -7,6 +7,7 @@
 {
   inputs,
   config,
+  pkgs,
   ...
 }: let
   c = config.lib.stylix.colors.withHashtag;
@@ -17,6 +18,10 @@
   panelRounding = 28;
 in {
   imports = [inputs.walker.homeManagerModules.default];
+
+  # Patched in overlays/nixos/input-packages/elephant.nix to stop showing raw
+  # Exec paths in search results.
+  programs.elephant.package = pkgs.elephant-with-providers;
 
   programs.walker = {
     enable = true;

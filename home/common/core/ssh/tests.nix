@@ -11,6 +11,31 @@
 }: let
   inherit (pkgs) runCommand writeShellScriptBin coreutils python3;
   inherit (pkgs) tmux util-linux gnugrep ncurses;
+  testLib = self.lib.extend (_: _: {inherit (self.inputs.home-manager.lib) hm;});
+  sshConfig =
+    (self.inputs.home-manager.lib.homeManagerConfiguration {
+      inherit pkgs;
+      lib = testLib;
+      extraSpecialArgs = {
+        inherit self;
+        hostSpec = {
+          primaryUsername = "tester";
+          home = "/home/tester";
+          system.stateVersion = "24.05";
+        };
+      };
+      modules = [
+        {
+          home = {
+            username = "tester";
+            homeDirectory = "/home/tester";
+            stateVersion = "24.05";
+          };
+        }
+        {programs.zsh.oh-my-zsh.enable = true;}
+        ./default.nix
+      ];
+    }).config;
 
   script = pkgs.callPackage ./agent-link.nix {};
   # Stand-in for tmux:
@@ -96,51 +121,20 @@
           echo "integration ok"
           touch $out
     '';
-  # Found rather than named, so retiring a host cannot quietly leave this
-  # pointing at nothing.
-  pluginHost = let
-    enabled = name: let
-      cfg = self.nixosConfigurations.${name}.config;
-    in
-      cfg.home-manager.users.${cfg.hostSpec.primaryUsername}.programs.ssh.enableTraditionalAgent or false;
-  in
-    lib.findFirst enabled null (lib.naturalSort (builtins.attrNames self.nixosConfigurations));
-
-  pluginHostZshrc = let
-    cfg = self.nixosConfigurations.${pluginHost}.config;
-  in
-    cfg.home-manager.users.${cfg.hostSpec.primaryUsername}.programs.zsh.initContent;
-
-  # Reorder the zsh halves around oh-my-zsh and a host with its own key silently
-  # stops loading it — invisible to any test of the script itself.
   ordering =
-    lib.throwIf (pluginHost == null)
-    "ssh/tests.nix: no host enables the ssh-agent plugin, so this guard is vacuous"
     runCommand "ssh-agent-zsh-order" {
-      zshrc = pkgs.writeText "zshrc" pluginHostZshrc;
+      zshrc = pkgs.writeText "zshrc" sshConfig.programs.zsh.initContent;
     } ''
-      line() {
-        grep -n "$1" "$zshrc" | head -1 | cut -d: -f1
-      }
+      line() { grep -n "$1" "$zshrc" | head -1 | cut -d: -f1; }
       clear=$(line 'unset SSH_AUTH_SOCK')
       omz=$(line 'source \$ZSH/oh-my-zsh.sh')
       claim=$(line 'export SSH_AUTH_SOCK="\$HOME/.ssh/ssh_auth_sock"')
 
       for v in clear omz claim; do
-        [ -n "''${!v}" ] || {
-          echo "FAIL: could not locate the $v line in the rendered zshrc"
-          exit 1
-        }
+        [ -n "''${!v}" ] || { echo "FAIL: could not locate the $v line in the rendered zshrc"; exit 1; }
       done
-      [ "$clear" -lt "$omz" ] || {
-        echo "FAIL: dead-socket clear ($clear) must precede oh-my-zsh ($omz)"
-        exit 1
-      }
-      [ "$claim" -gt "$omz" ] || {
-        echo "FAIL: link claim ($claim) must follow oh-my-zsh ($omz)"
-        exit 1
-      }
-      echo "zsh ordering ok on ${pluginHost}: clear=$clear omz=$omz claim=$claim"
+      [ "$clear" -lt "$omz" ] || { echo "FAIL: dead-socket clear must precede oh-my-zsh"; exit 1; }
+      [ "$claim" -gt "$omz" ] || { echo "FAIL: link claim must follow oh-my-zsh"; exit 1; }
       touch $out
     '';
   credentials = import ./credential-tests.nix {inherit pkgs lib self;};
