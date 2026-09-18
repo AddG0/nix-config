@@ -82,7 +82,7 @@
     "ssh/credential-tests.nix: ${name} pins ${lib.concatStringsSep ", " missing} but never materializes it";
 
   sshConfigOf = name: pkgs.writeText "ssh-config-${name}" (hmFor name).home.file.".ssh/config".text;
-  grantedHost = name:
+  grantedHost = _name:
     lib.head (lib.naturalSort
       (lib.attrNames hostSpec.networking.hostsAddr));
 

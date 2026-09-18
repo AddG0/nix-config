@@ -3,6 +3,7 @@
   lib,
   pkgs,
   self,
+  inputs,
   hostSpec,
   ...
 }: let
@@ -13,6 +14,7 @@
 in {
   imports = lib.flatten [
     (lib.custom.scanPaths ./.)
+    inputs.sops-nix.homeManagerModules.sops
     self.homeModules.default
     ./${platform}
   ];

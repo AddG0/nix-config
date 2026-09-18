@@ -5,10 +5,6 @@
   pkgs,
   ...
 }: {
-  imports = [
-    inputs.sops-nix.homeManagerModules.sops
-  ];
-
   sops = {
     # Patched in overlays/common/input-packages: decrypts each sops file once and
     # concurrently, instead of one serial KMS round trip per secret.

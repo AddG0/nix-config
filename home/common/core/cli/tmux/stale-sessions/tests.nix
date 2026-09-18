@@ -6,7 +6,6 @@
 # Auto-discovered and wired into `nix flake check` by checks/module-tests.nix.
 {
   pkgs,
-  lib,
   self,
   ...
 }: let
