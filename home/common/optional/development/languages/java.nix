@@ -4,6 +4,22 @@
   lib,
   ...
 }: let
+  # Reap by age: per-worktree store paths defeat Gradle's compat dedup, and jdtls's auto-import polling defeats its idle timeout.
+  gradleDaemonReaper = pkgs.writeShellApplication {
+    name = "gradle-daemon-reaper";
+    runtimeInputs = [pkgs.procps];
+    text = ''
+      max_age_minutes=90
+      for pid in $(pgrep -f GradleDaemon); do
+        etimes=$(ps -o etimes= -p "$pid" | tr -d ' ')
+        if [ -n "$etimes" ] && [ "$etimes" -gt "$((max_age_minutes * 60))" ]; then
+          echo "gradle-daemon-reaper: stopping pid $pid, age $((etimes / 60))m"
+          kill -TERM "$pid" || true
+        fi
+      done
+    '';
+  };
+
   # On the daemon JVM these make the errorprone plugin compile in-process instead of
   # forking a compiler JVM per task; those forks are never reaped (JEP 396 needs them).
   # See: https://github.com/tbroyer/gradle-errorprone-plugin (JDK 16+ / JPMS section)
@@ -25,7 +41,25 @@ in {
     jdk
     maven
     gradle-completion
+    gradleDaemonReaper
   ];
+
+  systemd.user.services.gradle-daemon-reaper = {
+    Unit.Description = "Stop Gradle daemons older than 90 minutes";
+    Service = {
+      Type = "oneshot";
+      ExecStart = lib.getExe gradleDaemonReaper;
+    };
+  };
+
+  systemd.user.timers.gradle-daemon-reaper = {
+    Unit.Description = "Periodic stale Gradle daemon reap";
+    Timer = {
+      OnStartupSec = "5m";
+      OnUnitActiveSec = "20m";
+    };
+    Install.WantedBy = ["timers.target"];
+  };
 
   home.sessionVariables = {
     JAVA_HOME = "${pkgs.jdk}";

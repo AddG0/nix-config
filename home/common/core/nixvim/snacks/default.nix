@@ -6,5 +6,6 @@ _: {
     ./explorer-expand-collapse.nix
     ./explorer-git-refresh.nix
     ./explorer-nesting.nix
+    ./explorer-tmux-navigate-left.nix
   ];
 }

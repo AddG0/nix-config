@@ -168,7 +168,6 @@
       },
       "original": {
         "owner": "AddG0",
-        "ref": "v6.0.1",
         "repo": "awsvpnclient-nix",
         "type": "github"
       }

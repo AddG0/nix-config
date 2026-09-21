@@ -1,0 +1,12 @@
+--- a/subprojects/wlroots/xwayland/sockets.c
++++ b/subprojects/wlroots/xwayland/sockets.c
+@@ -96,7 +96,8 @@ static bool check_socket_dir(void) {
+ 		wlr_log(WLR_ERROR, "%s is not a directory", socket_dir);
+ 		return false;
+ 	}
+-	if (!((buf.st_uid == 0) || (buf.st_uid == getuid()))) {
++	// 65534 is the kernel's unmapped-uid sentinel seen from inside a bwrap userns.
++	if (!((buf.st_uid == 0) || (buf.st_uid == getuid()) || (buf.st_uid == 65534))) {
+ 		wlr_log(WLR_ERROR, "%s not owned by root or us", socket_dir);
+ 		return false;
+ 	}
