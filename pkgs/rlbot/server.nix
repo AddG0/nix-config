@@ -47,4 +47,7 @@ stdenvNoCC.mkDerivation (finalAttrs: {
     mainProgram = "RLBotServer";
     sourceProvenance = [lib.sourceTypes.binaryNativeCode];
   };
+
+  # Upstream tags releases as vX.Y.Z-rcN, which nix-update treats as unstable.
+  passthru.nixUpdate.version = "unstable";
 })

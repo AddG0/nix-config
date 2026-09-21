@@ -32,8 +32,8 @@ in {
 
   hltb = mkStorePlugin {
     pname = "hltb-for-deck";
-    version = "2.0.9";
-    hash = "a5547a4ad99a6d63d475476396359a4f89fc8aacdf1e9deca0015d9f4ab9751d";
+    version = "2.0.10";
+    hash = "cf282be160f2b6f649405ec5c4f1e19cf12ff9256f780e56496d0344b8b65bcc";
     storeName = "HLTB for Deck";
     meta.description = "HowLongToBeat completion times in the library";
   };

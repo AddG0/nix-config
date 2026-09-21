@@ -5,14 +5,14 @@
 }:
 stdenvNoCC.mkDerivation {
   pname = "noctalia-plugin-ai-usagebar";
-  version = "0-unstable-2026-09-02";
+  version = "0-unstable-2026-09-20";
 
   # 24 MiB monorepo of 120 plugins.
   src = fetchgit {
     url = "https://github.com/noctalia-dev/community-plugins.git";
-    rev = "493654cce31889936decce8cc5549ec15321b7fc";
+    rev = "f6350fe5542d414bbbe0bcca2bacbe9b59502667";
     sparseCheckout = ["ai-usagebar"];
-    hash = "sha256-uTES49F0QAnKS15wMTZ7KtDoW1iWSzjePk6QMtnZJOo=";
+    hash = "sha256-iCMPf51xWOAaVLfbxJX0az8mdzhSnfCKN4mqih5rSsE=";
   };
 
   dontBuild = true;

@@ -1,5 +1,5 @@
 diff --git a/apps/web/src/components/BranchToolbar.logic.test.ts b/apps/web/src/components/BranchToolbar.logic.test.ts
-index 251b076..f7b25fa 100644
+index ff4bb76..0098d4f 100644
 --- a/apps/web/src/components/BranchToolbar.logic.test.ts
 +++ b/apps/web/src/components/BranchToolbar.logic.test.ts
 @@ -1,9 +1,14 @@
@@ -182,7 +182,7 @@ index 251b076..f7b25fa 100644
        }),
      ).toBe("From upstream/feature/demo");
    });
-@@ -820,3 +746,199 @@ describe("sanitizeNewRefName", () => {
+@@ -834,3 +760,199 @@ describe("sanitizeNewRefName", () => {
      expect(sanitizeNewRefName("foo--bar")).toBe("foo--bar");
    });
  });
@@ -383,11 +383,11 @@ index 251b076..f7b25fa 100644
 +  });
 +});
 diff --git a/apps/web/src/components/BranchToolbar.logic.ts b/apps/web/src/components/BranchToolbar.logic.ts
-index 0a8e07d..27f34c7 100644
+index 0577f5e..7a80d5b 100644
 --- a/apps/web/src/components/BranchToolbar.logic.ts
 +++ b/apps/web/src/components/BranchToolbar.logic.ts
 @@ -1,6 +1,7 @@
- import type { EnvironmentId, VcsRef, ProjectId } from "@t3tools/contracts";
+ import type { EnvironmentId, EnvironmentMachineKind, VcsRef, ProjectId } from "@t3tools/contracts";
  import * as Schema from "effect/Schema";
 -import { toSortableTimestamp } from "../lib/threadSort";
 +import { formatWorktreePathForDisplay } from "../worktreeCleanup";
@@ -395,7 +395,7 @@ index 0a8e07d..27f34c7 100644
  export {
    dedupeRemoteBranchesWithLocalMatches,
    deriveLocalBranchNameFromRemoteRef,
-@@ -66,6 +67,93 @@ export function resolveEnvModeLabel(mode: EnvMode): string {
+@@ -86,6 +87,93 @@ export function resolveEnvModeLabel(mode: EnvMode): string {
    return mode === "worktree" ? "New worktree" : "Current checkout";
  }
 
@@ -489,7 +489,7 @@ index 0a8e07d..27f34c7 100644
  export function resolveCurrentWorkspaceLabel(activeWorktreePath: string | null): string {
    return activeWorktreePath ? "Current worktree" : resolveEnvModeLabel("local");
  }
-@@ -74,53 +162,6 @@ export function resolveLockedWorkspaceLabel(activeWorktreePath: string | null):
+@@ -94,53 +182,6 @@ export function resolveLockedWorkspaceLabel(activeWorktreePath: string | null):
    return activeWorktreePath ? "Worktree" : "Local checkout";
  }
 
@@ -543,7 +543,7 @@ index 0a8e07d..27f34c7 100644
  export function resolveEffectiveEnvMode(input: {
    activeWorktreePath: string | null;
    hasServerThread: boolean;
-@@ -170,6 +211,7 @@ export function resolveBranchTriggerLabel(input: {
+@@ -190,6 +231,7 @@ export function resolveBranchTriggerLabel(input: {
    resolvedActiveBranch: string | null;
    resolvedActiveBranchIsRemote: boolean | null;
    startFromOrigin: boolean;
@@ -551,7 +551,7 @@ index 0a8e07d..27f34c7 100644
  }): string {
    const {
      activeWorktreePath,
-@@ -177,16 +219,20 @@ export function resolveBranchTriggerLabel(input: {
+@@ -197,16 +239,20 @@ export function resolveBranchTriggerLabel(input: {
      resolvedActiveBranch,
      resolvedActiveBranchIsRemote,
      startFromOrigin,
@@ -575,30 +575,31 @@ index 0a8e07d..27f34c7 100644
    return resolvedActiveBranch;
  }
 diff --git a/apps/web/src/components/BranchToolbar.tsx b/apps/web/src/components/BranchToolbar.tsx
-index b0b1440..61305c8 100644
+index d0207b9..64e1fbd 100644
 --- a/apps/web/src/components/BranchToolbar.tsx
 +++ b/apps/web/src/components/BranchToolbar.tsx
-@@ -6,24 +6,29 @@ import {
+@@ -5,25 +5,30 @@ import {
    FolderGit2Icon,
    FolderGitIcon,
    FolderIcon,
 -  HistoryIcon,
-   MonitorIcon,
+   ScaleIcon,
  } from "lucide-react";
  import { memo, useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
 
  import { useComposerDraftStore, type DraftId } from "../composerDraftStore";
+ import { EnvironmentMachineIcon } from "./EnvironmentMachineIcon";
 -import { useProject, useThread, useThreadShellsForProjectRefs } from "../state/entities";
 +import { useProject, useThread } from "../state/entities";
 +import { useEnvironmentQuery } from "../state/query";
 +import { vcsEnvironment } from "../state/vcs";
- import { useIsMobile } from "../hooks/useMediaQuery";
  import {
    type EnvMode,
    type EnvironmentOption,
 +  type NewWorktreeBranchPlan,
 +  type WorktreeOption,
 +  parseWorktreeSelectValue,
+   resolveContextStripLabelsCompact,
    resolveCurrentWorkspaceLabel,
    resolveEnvModeLabel,
    resolveEffectiveEnvMode,
@@ -612,9 +613,9 @@ index b0b1440..61305c8 100644
  } from "./BranchToolbar.logic";
  import { BranchToolbarBranchSelector } from "./BranchToolbarBranchSelector";
  import { BranchToolbarEnvironmentSelector } from "./BranchToolbarEnvironmentSelector";
-@@ -42,6 +47,10 @@ import {
- import { Separator } from "./ui/separator";
- import { ComposerSurface } from "./chat/ComposerSurface";
+@@ -46,6 +51,10 @@ import { measureRestingComposerControls } from "./chat/restingComposerControlsMe
+ import { resolveRestingComposerControlsNaturalWidth } from "./composerFooterLayout";
+ import { cn } from "~/lib/utils";
 
 +// One page covers the local branches of any repo that could plausibly have a
 +// worktree per branch; the picker does not paginate.
@@ -623,16 +624,16 @@ index b0b1440..61305c8 100644
  interface BranchToolbarProps {
    environmentId: EnvironmentId;
    threadId: ThreadId;
-@@ -53,6 +62,8 @@ interface BranchToolbarProps {
+@@ -57,6 +66,8 @@ interface BranchToolbarProps {
    onActiveThreadBranchOverrideChange?: (branch: string | null) => void;
    startFromOrigin: boolean;
    onStartFromOriginChange: (startFromOrigin: boolean) => void;
 +  newWorktreeBranchPlan: NewWorktreeBranchPlan;
 +  onNewWorktreeBranchPlanChange: (plan: NewWorktreeBranchPlan) => void;
+   autoEnvironmentLabel?: string | undefined;
+   onAutoEnvironment?: (() => void) | undefined;
    envLocked: boolean;
-   onCheckoutPullRequestRequest?: (reference: string) => void;
-   onComposerFocusRequest?: () => void;
-@@ -71,8 +82,9 @@ interface MobileRunContextSelectorProps {
+@@ -81,8 +92,9 @@ interface MobileRunContextSelectorProps {
    effectiveEnvMode: EnvMode;
    activeWorktreePath: string | null;
    onEnvModeChange: (mode: EnvMode) => void;
@@ -644,7 +645,7 @@ index b0b1440..61305c8 100644
  }
 
  const MobileRunContextSelector = memo(function MobileRunContextSelector({
-@@ -86,24 +98,31 @@ const MobileRunContextSelector = memo(function MobileRunContextSelector({
+@@ -98,24 +110,31 @@ const MobileRunContextSelector = memo(function MobileRunContextSelector({
    effectiveEnvMode,
    activeWorktreePath,
    onEnvModeChange,
@@ -681,9 +682,9 @@ index b0b1440..61305c8 100644
 +        ? resolveEnvModeLabel("worktree")
 +        : resolveCurrentWorkspaceLabel(activeWorktreePath);
    const isLocked = envLocked || envModeLocked;
-   const EnvironmentIcon = activeEnvironment?.isPrimary ? MonitorIcon : CloudIcon;
    const icon = showEnvironmentIndicator ? (
-@@ -134,7 +153,7 @@ const MobileRunContextSelector = memo(function MobileRunContextSelector({
+     // Button's base styles apply `-mx-0.5` to descendant SVGs, which eats 4px
+@@ -164,7 +183,7 @@ const MobileRunContextSelector = memo(function MobileRunContextSelector({
    }
 
    return (
@@ -691,8 +692,8 @@ index b0b1440..61305c8 100644
 +    <Menu onOpenChange={onOpenChange}>
        <MenuTrigger
          render={<Button variant="ghost" size="xs" />}
-         className="min-w-0 max-w-[48%] flex-1 justify-start text-muted-foreground/70 hover:text-foreground/80 md:hidden"
-@@ -174,41 +193,52 @@ const MobileRunContextSelector = memo(function MobileRunContextSelector({
+         className="min-w-0 max-w-[48%] flex-initial justify-start font-normal text-muted-foreground/70 text-xs! hover:text-foreground/80"
+@@ -222,41 +241,52 @@ const MobileRunContextSelector = memo(function MobileRunContextSelector({
          <MenuGroup>
            <MenuGroupLabel>Workspace</MenuGroupLabel>
            <MenuRadioGroup
@@ -766,16 +767,16 @@ index b0b1440..61305c8 100644
            </MenuRadioGroup>
          </MenuGroup>
        </MenuPopup>
-@@ -387,6 +417,8 @@ export const BranchToolbar = memo(function BranchToolbar({
+@@ -448,6 +478,8 @@ export const BranchToolbar = memo(function BranchToolbar({
    onActiveThreadBranchOverrideChange,
    startFromOrigin,
    onStartFromOriginChange,
 +  newWorktreeBranchPlan,
 +  onNewWorktreeBranchPlanChange,
+   autoEnvironmentLabel,
+   onAutoEnvironment,
    envLocked,
-   onCheckoutPullRequestRequest,
-   onComposerFocusRequest,
-@@ -419,39 +451,67 @@ export const BranchToolbar = memo(function BranchToolbar({
+@@ -484,39 +516,67 @@ export const BranchToolbar = memo(function BranchToolbar({
      });
    const envModeLocked = envLocked || (serverThread !== null && activeWorktreePath !== null);
 
@@ -873,21 +874,21 @@ index b0b1440..61305c8 100644
 
    const showEnvironmentPicker = Boolean(
      availableEnvironments && availableEnvironments.length > 1 && onEnvironmentChange,
-@@ -484,9 +544,10 @@ export const BranchToolbar = memo(function BranchToolbar({
-           onEnvironmentChange={onEnvironmentChange}
-           effectiveEnvMode={effectiveEnvMode}
-           activeWorktreePath={activeWorktreePath}
--          onEnvModeChange={onEnvModeChange}
--          previousWorktreeLabel={previousWorktreeLabel}
--          onUsePreviousWorktree={onUsePreviousWorktree}
-+          onEnvModeChange={onEnvModeSelected}
-+          worktreeOptions={worktreeOptions}
-+          onSelectWorktree={onSelectWorktree}
-+          onOpenChange={onWorkspaceMenuOpenChange}
-         />
-       ) : (
-         <div className="flex min-w-10 flex-1 items-center gap-1">
-@@ -512,9 +573,10 @@ export const BranchToolbar = memo(function BranchToolbar({
+@@ -558,9 +618,10 @@ export const BranchToolbar = memo(function BranchToolbar({
+             onEnvironmentChange={onEnvironmentChange}
+             effectiveEnvMode={effectiveEnvMode}
+             activeWorktreePath={activeWorktreePath}
+-            onEnvModeChange={onEnvModeChange}
+-            previousWorktreeLabel={previousWorktreeLabel}
+-            onUsePreviousWorktree={onUsePreviousWorktree}
++            onEnvModeChange={onEnvModeSelected}
++            worktreeOptions={worktreeOptions}
++            onSelectWorktree={onSelectWorktree}
++            onOpenChange={onWorkspaceMenuOpenChange}
+           />
+         </div>
+       ) : null}
+@@ -596,9 +657,10 @@ export const BranchToolbar = memo(function BranchToolbar({
                envLocked={envModeLocked}
                effectiveEnvMode={effectiveEnvMode}
                activeWorktreePath={activeWorktreePath}
@@ -901,7 +902,7 @@ index b0b1440..61305c8 100644
              />
            ) : null}
          </div>
-@@ -532,6 +594,9 @@ export const BranchToolbar = memo(function BranchToolbar({
+@@ -628,6 +690,9 @@ export const BranchToolbar = memo(function BranchToolbar({
            {...(onActiveThreadBranchOverrideChange ? { onActiveThreadBranchOverrideChange } : {})}
            startFromOrigin={startFromOrigin}
            onStartFromOriginChange={onStartFromOriginChange}
@@ -912,12 +913,12 @@ index b0b1440..61305c8 100644
            {...(onComposerFocusRequest ? { onComposerFocusRequest } : {})}
          />
 diff --git a/apps/web/src/components/BranchToolbarBranchSelector.tsx b/apps/web/src/components/BranchToolbarBranchSelector.tsx
-index 5fcad2f..5bd827c 100644
+index 94697b9..56534a1 100644
 --- a/apps/web/src/components/BranchToolbarBranchSelector.tsx
 +++ b/apps/web/src/components/BranchToolbarBranchSelector.tsx
-@@ -35,8 +35,11 @@ import { cn } from "../lib/utils";
- import { parsePullRequestReference } from "../pullRequestReference";
+@@ -37,8 +37,11 @@ import { parsePullRequestReference } from "../pullRequestReference";
  import { getSourceControlPresentation } from "../sourceControlPresentation";
+ import { composerFloatingLayerProps } from "./chat/composerEventScope";
  import {
 +  AUTO_NEW_WORKTREE_BRANCH_PLAN,
 +  type NewWorktreeBranchPlan,
@@ -927,7 +928,7 @@ index 5fcad2f..5bd827c 100644
    resolveBranchToolbarPrBranch,
    resolveBranchSelectionTarget,
    resolveBranchToolbarValue,
-@@ -77,6 +80,10 @@ interface BranchToolbarBranchSelectorProps {
+@@ -75,6 +78,10 @@ interface BranchToolbarBranchSelectorProps {
    onActiveThreadBranchOverrideChange?: (refName: string | null) => void;
    startFromOrigin: boolean;
    onStartFromOriginChange: (startFromOrigin: boolean) => void;
@@ -938,7 +939,7 @@ index 5fcad2f..5bd827c 100644
    onCheckoutPullRequestRequest?: (reference: string) => void;
    onComposerFocusRequest?: () => void;
  }
-@@ -96,6 +103,9 @@ export function BranchToolbarBranchSelector({
+@@ -94,6 +101,9 @@ export function BranchToolbarBranchSelector({
    onActiveThreadBranchOverrideChange,
    startFromOrigin,
    onStartFromOriginChange,
@@ -1044,7 +1045,7 @@ index 5fcad2f..5bd827c 100644
    });
 
    // PR pill shown next to the branch selector when the active branch has one.
-@@ -669,7 +711,11 @@ export function BranchToolbarBranchSelector({
+@@ -670,7 +712,11 @@ export function BranchToolbarBranchSelector({
            className="pe-1.5"
            onClick={() => createRef(trimmedBranchQuery)}
          >
@@ -1057,7 +1058,7 @@ index 5fcad2f..5bd827c 100644
          </ComboboxItem>
        );
      }
-@@ -835,7 +881,7 @@ export function BranchToolbarBranchSelector({
+@@ -855,7 +901,7 @@ export function BranchToolbarBranchSelector({
                />
              </ComboboxListVirtualized>
            </div>
@@ -1067,7 +1068,7 @@ index 5fcad2f..5bd827c 100644
                <TooltipTrigger
                  render={
 diff --git a/apps/web/src/components/BranchToolbarEnvModeSelector.tsx b/apps/web/src/components/BranchToolbarEnvModeSelector.tsx
-index 23589d6..9fb28b5 100644
+index 4685dbf..2c6487e 100644
 --- a/apps/web/src/components/BranchToolbarEnvModeSelector.tsx
 +++ b/apps/web/src/components/BranchToolbarEnvModeSelector.tsx
 @@ -1,11 +1,14 @@
@@ -1085,13 +1086,13 @@ index 23589d6..9fb28b5 100644
    type EnvMode,
 +  type WorktreeOption,
  } from "./BranchToolbar.logic";
+ import { composerFloatingLayerProps } from "./chat/composerEventScope";
  import {
-   Select,
-@@ -17,15 +20,14 @@ import {
+@@ -18,15 +21,14 @@ import {
    SelectValue,
  } from "./ui/select";
 
--export const PREVIOUS_WORKTREE_SELECT_VALUE = "previous-worktree";
+-const PREVIOUS_WORKTREE_SELECT_VALUE = "previous-worktree";
 -
  interface BranchToolbarEnvModeSelectorProps {
    envLocked: boolean;
@@ -1106,7 +1107,7 @@ index 23589d6..9fb28b5 100644
  }
 
  export const BranchToolbarEnvModeSelector = memo(function BranchToolbarEnvModeSelector({
-@@ -33,19 +35,27 @@ export const BranchToolbarEnvModeSelector = memo(function BranchToolbarEnvModeSe
+@@ -34,19 +36,27 @@ export const BranchToolbarEnvModeSelector = memo(function BranchToolbarEnvModeSe
    effectiveEnvMode,
    activeWorktreePath,
    onEnvModeChange,
@@ -1142,16 +1143,16 @@ index 23589d6..9fb28b5 100644
    );
 
    if (envLocked) {
-@@ -67,7 +77,7 @@ export const BranchToolbarEnvModeSelector = memo(function BranchToolbarEnvModeSe
+@@ -68,7 +78,7 @@ export const BranchToolbarEnvModeSelector = memo(function BranchToolbarEnvModeSe
              data-composer-label-motion
-             className="block w-full min-w-0 max-w-[240px] origin-left truncate transition-[opacity,transform] duration-180 ease-[cubic-bezier(0.32,0.72,0,1)] group-data-[compact]/composer-context:[transform:translateX(-0.25rem)_scaleX(0.95)] group-data-[compact]/composer-context:opacity-0 motion-reduce:transform-none motion-reduce:transition-opacity"
+             className="block w-full min-w-0 max-w-[240px] truncate transition-opacity duration-180 ease-[cubic-bezier(0.32,0.72,0,1)] group-data-[compact]/composer-context:opacity-0 motion-reduce:transition-none"
            >
 -            {resolveLockedWorkspaceLabel(activeWorktreePath)}
 +            {activeWorktreeOption?.label ?? resolveLockedWorkspaceLabel(activeWorktreePath)}
            </span>
          </span>
        </span>
-@@ -77,10 +87,13 @@ export const BranchToolbarEnvModeSelector = memo(function BranchToolbarEnvModeSe
+@@ -78,10 +88,13 @@ export const BranchToolbarEnvModeSelector = memo(function BranchToolbarEnvModeSe
    return (
      <Select
        modal={false}
@@ -1168,7 +1169,7 @@ index 23589d6..9fb28b5 100644
            return;
          }
          onEnvModeChange(value as EnvMode);
-@@ -94,7 +107,7 @@ export const BranchToolbarEnvModeSelector = memo(function BranchToolbarEnvModeSe
+@@ -95,7 +108,7 @@ export const BranchToolbarEnvModeSelector = memo(function BranchToolbarEnvModeSe
          aria-label="Workspace"
          data-composer-context-control
        >
@@ -1177,8 +1178,8 @@ index 23589d6..9fb28b5 100644
            <FolderGit2Icon className="size-3" />
          ) : activeWorktreePath ? (
            <FolderGitIcon className="size-3" />
-@@ -116,30 +129,32 @@ export const BranchToolbarEnvModeSelector = memo(function BranchToolbarEnvModeSe
-       <SelectPopup>
+@@ -117,30 +130,32 @@ export const BranchToolbarEnvModeSelector = memo(function BranchToolbarEnvModeSe
+       <SelectPopup alignItemWithTrigger={false} {...composerFloatingLayerProps}>
          <SelectGroup>
            <SelectGroupLabel>Workspace</SelectGroupLabel>
 -          <SelectItem value="local">
@@ -1228,19 +1229,20 @@ index 23589d6..9fb28b5 100644
        </SelectPopup>
      </Select>
 diff --git a/apps/web/src/components/ChatView.tsx b/apps/web/src/components/ChatView.tsx
-index a475230..217d685 100644
+index 7d5e9c9..9c84a33 100644
 --- a/apps/web/src/components/ChatView.tsx
 +++ b/apps/web/src/components/ChatView.tsx
-@@ -299,6 +299,8 @@ import { type ExpandedImagePreview } from "./chat/ExpandedImagePreview";
+@@ -321,7 +321,9 @@ import { expandedImageKey, type ExpandedImagePreview } from "./chat/ExpandedImag
  import { NoActiveThreadState } from "./NoActiveThreadState";
  import { WorkspacePageHeader } from "./WorkspacePageHeader";
  import {
 +  AUTO_NEW_WORKTREE_BRANCH_PLAN,
+   type EnvironmentOption,
 +  type NewWorktreeBranchPlan,
    resolveEffectiveEnvMode,
    resolveLocalCheckoutBranchMismatch,
    shouldShowComposerContextStrip,
-@@ -1529,6 +1531,9 @@ function ChatViewContent(props: ChatViewProps) {
+@@ -1640,6 +1642,9 @@ export default function ChatView(props: ChatViewProps) {
    const [pendingServerThreadEnvMode, setPendingServerThreadEnvMode] =
      useState<DraftThreadEnvMode | null>(null);
    const [pendingServerThreadBranch, setPendingServerThreadBranch] = useState<string | null>();
@@ -1250,7 +1252,7 @@ index a475230..217d685 100644
    const [
      pendingServerThreadStartFromOriginByThreadId,
      setPendingServerThreadStartFromOriginByThreadId,
-@@ -5235,6 +5240,7 @@ function ChatViewContent(props: ChatViewProps) {
+@@ -5802,6 +5807,7 @@ export default function ChatView(props: ChatViewProps) {
    useEffect(() => {
      setPendingServerThreadEnvMode(null);
      setPendingServerThreadBranch(undefined);
@@ -1258,7 +1260,7 @@ index a475230..217d685 100644
    }, [activeThread?.id]);
 
    useEffect(() => {
-@@ -6201,8 +6207,18 @@ function ChatViewContent(props: ChatViewProps) {
+@@ -6821,8 +6827,18 @@ export default function ChatView(props: ChatViewProps) {
                      prepareWorktree: {
                        projectCwd: activeProject.workspaceRoot,
                        baseBranch: baseBranchForWorktree,
@@ -1279,7 +1281,7 @@ index a475230..217d685 100644
                      },
                      runSetupScript: true,
                    }
-@@ -6952,6 +6968,7 @@ function ChatViewContent(props: ChatViewProps) {
+@@ -7594,6 +7610,7 @@ export default function ChatView(props: ChatViewProps) {
    );
    const onEnvModeChange = useCallback(
      (mode: DraftThreadEnvMode) => {
@@ -1287,7 +1289,7 @@ index a475230..217d685 100644
        if (canOverrideServerThreadEnvMode) {
          setPendingServerThreadEnvMode(mode);
          scheduleComposerFocus();
-@@ -6964,7 +6981,9 @@ function ChatViewContent(props: ChatViewProps) {
+@@ -7606,7 +7623,9 @@ export default function ChatView(props: ChatViewProps) {
              envMode: mode,
              newWorktreesStartFromOrigin: primaryServerSettings.newWorktreesStartFromOrigin,
            }),
@@ -1298,7 +1300,7 @@ index a475230..217d685 100644
          });
        }
        scheduleComposerFocus();
-@@ -7493,6 +7512,8 @@ function ChatViewContent(props: ChatViewProps) {
+@@ -8202,6 +8221,8 @@ export default function ChatView(props: ChatViewProps) {
                                  onEnvModeChange={onEnvModeChange}
                                  startFromOrigin={startFromOrigin}
                                  onStartFromOriginChange={onStartFromOriginChange}
@@ -1308,7 +1310,7 @@ index a475230..217d685 100644
                                    ? { effectiveEnvModeOverride: envMode }
                                    : {})}
 diff --git a/apps/web/src/hooks/useThreadActions.ts b/apps/web/src/hooks/useThreadActions.ts
-index 6491522..f474169 100644
+index cefe81a..652799a 100644
 --- a/apps/web/src/hooks/useThreadActions.ts
 +++ b/apps/web/src/hooks/useThreadActions.ts
 @@ -4,7 +4,11 @@ import {
@@ -1324,7 +1326,7 @@ index 6491522..f474169 100644
  import { canSnooze, threadWokeAt } from "@t3tools/client-runtime/state/thread-settled";
  import { EnvironmentId, type ScopedThreadRef, ThreadId } from "@t3tools/contracts";
  import * as Cause from "effect/Cause";
-@@ -35,7 +39,12 @@ import {
+@@ -36,7 +40,12 @@ import {
  import { useTerminalUiStateStore } from "../terminalUiStateStore";
  import { useUiStateStore } from "../uiStateStore";
  import { buildThreadRouteParams, resolveThreadRouteRef } from "../threadRoutes";
@@ -1338,7 +1340,7 @@ index 6491522..f474169 100644
  import { stackedThreadToast, toastManager } from "../components/ui/toast";
  import { useClientSettings } from "./useSettings";
  import { useAtomCommand } from "../state/use-atom-command";
-@@ -180,6 +189,9 @@ export function useThreadActions() {
+@@ -211,6 +220,9 @@ export function useThreadActions() {
    const removeWorktree = useAtomCommand(vcsEnvironment.removeWorktree, {
      reportFailure: false,
    });
@@ -1348,7 +1350,7 @@ index 6491522..f474169 100644
    const refreshVcsStatus = useAtomCommand(vcsEnvironment.refreshStatus, {
      reportFailure: false,
    });
-@@ -479,6 +491,84 @@ export function useThreadActions() {
+@@ -497,6 +509,84 @@ export function useThreadActions() {
      ],
    );
 
@@ -1433,7 +1435,7 @@ index 6491522..f474169 100644
    const settleThread = useCallback(
      async (target: ScopedThreadRef) => {
        // Version skew: never send the command to a server that predates it —
-@@ -497,18 +587,45 @@ export function useThreadActions() {
+@@ -515,18 +605,45 @@ export function useThreadActions() {
        const wokeAt = resolved
          ? threadWokeAt(resolved.thread, { now: new Date().toISOString() })
          : null;

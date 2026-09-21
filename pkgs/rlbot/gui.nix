@@ -47,4 +47,7 @@ stdenvNoCC.mkDerivation (finalAttrs: {
     mainProgram = "rlbotgui";
     sourceProvenance = [lib.sourceTypes.binaryNativeCode];
   };
+
+  # Upstream tags releases as betaN, which nix-update treats as unstable.
+  passthru.nixUpdate.version = "unstable";
 })
