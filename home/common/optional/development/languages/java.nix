@@ -4,13 +4,20 @@
   lib,
   ...
 }: let
+  gradle = pkgs.gradle_9;
+
   # Reap by age: per-worktree store paths defeat Gradle's compat dedup, and jdtls's auto-import polling defeats its idle timeout.
+  # Only IDLE daemons qualify (via `gradle --status`) so a daemon still hosting a live task (e.g. bootRun) is never killed underneath it.
   gradleDaemonReaper = pkgs.writeShellApplication {
     name = "gradle-daemon-reaper";
-    runtimeInputs = [pkgs.procps];
+    runtimeInputs = [pkgs.procps gradle];
     text = ''
       max_age_minutes=90
+      idle_pids=$(gradle --status | awk '$NF == "IDLE" {print $1}')
       for pid in $(pgrep -f GradleDaemon); do
+        if ! grep -qx "$pid" <<<"$idle_pids"; then
+          continue
+        fi
         etimes=$(ps -o etimes= -p "$pid" | tr -d ' ')
         if [ -n "$etimes" ] && [ "$etimes" -gt "$((max_age_minutes * 60))" ]; then
           echo "gradle-daemon-reaper: stopping pid $pid, age $((etimes / 60))m"
@@ -72,7 +79,7 @@ in {
 
   programs.gradle = {
     enable = true;
-    package = pkgs.gradle_9;
+    package = gradle;
 
     settings = {
       # Auto-detection walks the store looking for JDKs; home.file plants the ones we want.

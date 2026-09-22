@@ -11,7 +11,7 @@ set -euo pipefail
 
 FLAKE_ROOT=$(git rev-parse --show-toplevel)
 DEFAULT_NIX="$FLAKE_ROOT/pkgs/kotlin-lsp/default.nix"
-CDN="https://download-cdn.jetbrains.com/kotlin-lsp"
+CDN="https://download-cdn.jetbrains.com/language-server/kotlin-server"
 
 tags=$(
   curl -sfL "https://api.github.com/repos/Kotlin/kotlin-lsp/tags?per_page=100" |

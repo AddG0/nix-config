@@ -321,6 +321,7 @@
 
     # Private secrets repo.  See ./docs/secretsmgmt.md
     nix-secrets = {
+      # url = "path:/home/addg/Projects/code/github.com/AddG0/nix-secrets";
       url = "git+ssh://git@github.com/addg0/nix-secrets.git?ref=main";
       inputs.nixpkgs.follows = "nixpkgs";
       inputs.flake-parts.follows = "flake-parts";

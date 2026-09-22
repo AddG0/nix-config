@@ -24,6 +24,9 @@
 
     profiles.default = rec {
       settings = {
+        # Without this, quitting Zen can wipe zen-live-folders.jsonlz4 on save.
+        "zen.window-sync.enabled" = true;
+        "zen.window-sync.sync-only-pinned-tabs" = true;
         # Workspaces
         "zen.workspaces.disabled_for_testing" = false;
         "zen.workspaces.hide-deactivated-workspaces" = false;
@@ -168,7 +171,6 @@
           workspace = spaces."Main".id;
           container = containers."Personal".id;
         };
-
         # Work workspace
         "Gmail (Work)" = {
           id = "6003d95b-8446-478e-8a2f-098ec81df105";
@@ -218,6 +220,13 @@
           id = "e24b14d3-5057-46ee-954e-0a515c0286ea";
           url = "https://drive.google.com/drive/u/0/folders/1MUa6UZl7c-x0fRSpXJi_oQnJjvIZSNEm";
           position = 8000;
+          workspace = spaces."Work".id;
+          container = containers."Work".id;
+        };
+        "ClickUp" = {
+          id = "79f7ae43-e4cd-4ff7-9571-c9fef8e05b37";
+          url = "https://app.clickup.com/90141311281/my-work/tasks";
+          position = 8500;
           workspace = spaces."Work".id;
           container = containers."Work".id;
         };

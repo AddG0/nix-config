@@ -40,20 +40,21 @@ stdenvNoCC.mkDerivation (finalAttrs: let
   archs = {
     x86_64-linux = {
       suffix = "";
-      hash = "sha256-u2IcSjMCAukvcDEZdvfyT6hWJJ+e5O49/SAWbqlXJyo=";
+      hash = "sha256-v7afkhXixaB2nSqhuyMhr0z5/biodUl5uuHJyMoBciQ=";
     };
     aarch64-linux = {
       suffix = "-aarch64";
-      hash = "sha256-nV4q64DG3P7/84YMjJbNYfLFkezNrrTPvuIyb5Yr+DQ=";
+      hash = "sha256-Q5hvGLC8LTJf6OZ+YDHFmqHd3smszeOqhg3A2vGw/98=";
     };
   };
   arch = archs.${stdenvNoCC.hostPlatform.system} or (throw "kotlin-lsp: no published build for ${stdenvNoCC.hostPlatform.system}");
 in {
   pname = "kotlin-lsp";
-  version = "262.7569.0";
+  # EAP build: hard-expires a few months out, then refuses to start. Re-run update.sh.
+  version = "263.4702.0";
 
   src = fetchzip {
-    url = "https://download-cdn.jetbrains.com/kotlin-lsp/${finalAttrs.version}/kotlin-server-${finalAttrs.version}${arch.suffix}.tar.gz";
+    url = "https://download-cdn.jetbrains.com/language-server/kotlin-server/${finalAttrs.version}/kotlin-server-${finalAttrs.version}${arch.suffix}.tar.gz";
     inherit (arch) hash;
   };
 
