@@ -61,6 +61,9 @@ in {
 
           calendar.type = "addg/next-event:agenda";
 
+          # F1-F12 workspaces are labeled by name; the 1-char default renders them all as "F".
+          workspaces.max_label_chars = 3;
+
           # strftime clock formats.
           clock = {
             format = "{:%I:%M %p %a, %b %d}";
