@@ -1,6 +1,7 @@
 {
   config,
   inputs,
+  pkgs,
   ...
 }: {
   programs.obsidian = {
@@ -32,6 +33,11 @@
             }
           ];
         };
+
+        communityPlugins = with pkgs.obsidian-plugins; [
+          kanban-bases-view
+          self-hosted-livesync
+        ];
 
         themes = [
           inputs.catppuccin-obsidian

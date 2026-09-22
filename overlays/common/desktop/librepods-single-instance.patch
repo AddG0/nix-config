@@ -1,0 +1,14 @@
+--- a/main.cpp
++++ b/main.cpp
+@@ -1010,12 +1010,6 @@
+         }
+     }
+
+-    QLocalServer::removeServer("app_server");
+-
+-    QFile stale("/tmp/app_server");
+-    if (stale.exists())
+-        stale.remove();
+-
+     QLocalSocket socket_check;
+     socket_check.connectToServer("app_server");

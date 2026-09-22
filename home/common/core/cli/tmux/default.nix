@@ -145,6 +145,8 @@ in {
           extraConfig = ''
             set -g @resurrect-strategy-nvim 'session'
             set -g @resurrect-capture-pane-contents 'on'
+            # resurrect expands only ~, $HOME and $HOSTNAME here, never $XDG_DATA_HOME.
+            set -g @resurrect-dir '$HOME/.local/share/tmux/resurrect'
           '';
         }
         {

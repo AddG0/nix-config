@@ -71,6 +71,9 @@ pkgs: rec {
   # Grafana plugins - modular namespace
   grafana-plugins = import ./grafana-plugins pkgs;
 
+  # Obsidian community plugins - modular namespace
+  obsidian-plugins = import ./obsidian-plugins pkgs;
+
   # Themes - modular namespace with nested structure
   themes = import ./themes pkgs;
 }

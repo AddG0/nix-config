@@ -99,6 +99,14 @@
       /* A pill clamps to a 20px arc and cannot meet a 12px frame corner. */
       frame > list > row { border-radius: 12px; }
       tooltip, tooltip.background { border-radius: 4px; }
+
+      /* nwg-displays draws each monitor as a Gtk.Button; its own square-corner
+         rule loads at PRIORITY_APPLICATION, which this file outranks. Typed to
+         keep the bare ids from matching same-named widgets in other apps. */
+      button#output, button#selected-output, button#inactive-output,
+      window#indicator {
+        border-radius: 0;
+      }
     '';
   };
 }

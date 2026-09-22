@@ -129,7 +129,10 @@ in {
           color: @on_surface;
           caret-color: @primary;
           padding: 14px 20px 16px 20px;
-          font-size: 1.35em;
+          /* Whole pixels, not 1.35em (19.8px) — SearchContainer is
+             overflow:hidden, and the fractional size intermittently shaved a
+             row off the glyph tops. */
+          font-size: 20px;
           font-weight: 400;
         }
 
