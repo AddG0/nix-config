@@ -9,6 +9,8 @@
   cachePublicKey = "personal-nix-cache:UjZ7D/QNTD8Rgihk5XdxHq2POpKlIZe3SPj8+qScv74=";
 
   cacheUrl = "s3://${bucketName}?endpoint=https://storage.googleapis.com&profile=personal-nix-cache&want-mass-query=true&multipart-upload=true";
+  # Ranked after the free upstreams (40-42) so their hits cost no GCS egress.
+  substituterUrl = "${cacheUrl}&priority=45";
 
   rootHome =
     if pkgs.stdenv.hostPlatform.isDarwin
@@ -62,7 +64,7 @@ in {
   };
 
   nix.settings = {
-    substituters = [cacheUrl];
+    substituters = [substituterUrl];
     trusted-public-keys = [cachePublicKey];
     # A stalled cache fetch shouldn't wedge a rebuild for the 300s default.
     stalled-download-timeout = 20;

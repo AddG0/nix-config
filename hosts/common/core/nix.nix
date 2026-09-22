@@ -46,11 +46,12 @@
         "configurable-impure-env"
       ];
       extra-nix-path = "nixpkgs=flake:nixpkgs";
+      # Lower is queried first; these lists merge across modules, so order here means nothing.
       substituters = [
-        "https://cache.nixos.org"
-        "https://nix-community.cachix.org"
-        "https://nixpkgs-python.cachix.org"
-        "https://cache.nixos-cuda.org"
+        "https://cache.nixos.org?priority=40"
+        "https://nix-community.cachix.org?priority=41"
+        "https://nixpkgs-python.cachix.org?priority=42"
+        "https://cache.nixos-cuda.org?priority=50"
       ];
       trusted-public-keys = [
         "cache.nixos.org-1:6NCHdD59X431o0gWypbMrAURkbJ16ZPMQFGspcDShjY="
