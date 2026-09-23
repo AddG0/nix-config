@@ -204,6 +204,18 @@ update-packages *ARGS:
   @scripts/update-packages.sh {{ARGS}}
 
 [group('dependencies')]
+[doc("Pull a claude-code release manifest into the overlay (default: latest)")]
+update-claude-code version="latest":
+  #!/usr/bin/env bash
+  set -euo pipefail
+  base=https://downloads.claude.ai/claude-code-releases
+  version="{{version}}"
+  if [ "$version" = "latest" ]; then version="$(curl -fsSL "$base/latest")"; fi
+  curl -fsSL "$base/$version/manifest.zst.json" \
+    -o overlays/common/development/claude-code/manifest.zst.json
+  echo "claude-code manifest pinned to $version"
+
+[group('dependencies')]
 [doc("Check whether the flake-update workarounds still apply. Optional args filter by name, e.g. `just check-workarounds gdal`")]
 check-workarounds *ARGS: && check-markers
   @scripts/check-flake-workarounds.sh {{ARGS}}

@@ -16,7 +16,7 @@
   '';
   claudeWrapped = pkgs.symlinkJoin {
     name = "claude-code-wrapped";
-    paths = [pkgs.unstable.claude-code];
+    paths = [pkgs.claude-code];
     buildInputs = [pkgs.makeWrapper];
     postBuild = let
       telemetryEnabled = config.hostSpec.telemetry.enabled && config.hostSpec.telemetry.claude-code.enabled;
