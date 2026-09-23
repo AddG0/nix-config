@@ -3,6 +3,6 @@
 # skill: an output style only works if it loads every turn.
 _: {
   programs.code-assistant-profiles.addons.i-have-adhd = {
-    rules."i-have-adhd".content.source = ./rule.md;
+    rules."i-have-adhd".content.source = ./rules/i-have-adhd.md;
   };
 }

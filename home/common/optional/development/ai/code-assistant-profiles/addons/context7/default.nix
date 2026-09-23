@@ -14,6 +14,6 @@ in {
   programs.code-assistant-profiles.addons.context7 = {
     mcpServers.context7.command = "${context7-wrapper}";
 
-    rules.context7.content.source = ./rule.md;
+    rules.context7.content.source = ./rules/context7.md;
   };
 }

@@ -1,0 +1,24 @@
+name: replace-me
+purpose: CHANGE_ME
+input_schema:
+  type: object
+  properties: {}
+output_schema:
+  type: object
+  properties: {}
+effects: []
+risk: read-only
+idempotent: true
+scope:
+  paths: []
+  hosts: []
+authorization:
+  default: ask
+approval: null
+timeout_seconds: 30
+retry:
+  max_attempts: 1
+postconditions: []
+telemetry:
+  arguments: redacted
+  sensitive_content: false

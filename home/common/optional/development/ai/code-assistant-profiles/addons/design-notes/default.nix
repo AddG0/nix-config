@@ -1,4 +1,6 @@
 _: {
+  imports = [./claude-code.nix];
+
   programs.code-assistant-profiles.addons.design-notes = {
     agents = {
       "requirements-reviewer".prompt.source = ./agents/requirements-reviewer.md;

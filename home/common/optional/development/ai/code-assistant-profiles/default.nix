@@ -81,6 +81,7 @@ in {
         sqry
         archify
         i-have-adhd
+        code-assistant-configurator
       ];
 
       skills."frontend-design" = lib.custom.ai.fromClaudeSkillDir {

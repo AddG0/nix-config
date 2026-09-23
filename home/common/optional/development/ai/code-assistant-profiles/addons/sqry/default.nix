@@ -12,6 +12,6 @@
       env.SQRY_REDACTION_PRESET = "none";
     };
 
-    rules.sqry.content.source = ./rule.md;
+    rules.sqry.content.source = ./rules/sqry.md;
   };
 }

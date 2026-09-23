@@ -1,0 +1,22 @@
+version: 1
+default: ask
+deny:
+  - effect: privilege-escalation
+  - effect: production-mutation
+  - operation: force-push
+  - path: "${HOME}/.ssh/**"
+  - path: "${HOME}/.aws/**"
+ask:
+  - effect: external-write
+  - effect: publish
+  - effect: deploy
+allow:
+  - effect: filesystem-read
+  - effect: filesystem-write
+    paths: ["${WORKTREE}/**"]
+network:
+  default: deny
+credentials:
+  model_visible: false
+telemetry:
+  sensitive_content: false

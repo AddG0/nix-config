@@ -1,4 +1,6 @@
 _: {
+  imports = [./claude-code.nix];
+
   programs.code-assistant-profiles.addons.spec-driven-dev = {
     agents = {
       "system-architect".prompt.source = ./02-spec/agents/system-architect.md;
