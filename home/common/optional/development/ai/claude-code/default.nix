@@ -42,8 +42,7 @@
   anthropicSkills = "${inputs.anthropic-skills}/skills";
   skillFactory = "${inputs.claude-code-skill-factory}/.claude";
 in {
-  imports = lib.flatten [
-    (lib.custom.scanPaths ./addons)
+  imports = [
     inputs.ai-toolkit.homeModules.default
     ./glab-permissions.nix
   ];

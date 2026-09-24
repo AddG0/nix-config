@@ -1,0 +1,85 @@
+api_version: assistant.config/v1
+kind: CodeAssistant
+metadata:
+  name: CHANGE_ME
+  version: 1.0.0
+  owner: CHANGE_ME
+spec:
+  purpose: CHANGE_ME
+  risk_class: reversible-write
+  inputs: {}
+  outputs: {}
+  instructions: {}
+  model_policy:
+    class: auto
+    fallback: disclose
+  non_goals: []
+  invocation:
+    modes: [interactive]
+  architecture:
+    type: single-agent
+    primary: engineer
+    agents:
+      engineer:
+        role: repository-scoped software engineer
+  skills: []
+  commands: []
+  tools: []
+  policies: []
+  permissions:
+    default: ask
+    allow: []
+    ask: []
+    deny: []
+  sandbox:
+    filesystem:
+      writable: []
+    network:
+      default: deny
+  credentials:
+    model_visible: false
+    identities: []
+  state:
+    run:
+      fields: [plan, changed_files, verification_status, approvals]
+  memory:
+    project:
+      provenance_required: true
+    semantic:
+      enabled: false
+  hooks: []
+  verification:
+    required_before_success: true
+    steps: []
+  approvals: []
+  budgets:
+    max_tool_calls: 100
+    max_fix_cycles: 3
+    wall_clock_minutes: 30
+  retries:
+    transient_tool_error:
+      max_attempts: 2
+  failure:
+    authorization_error: fail-closed
+    budget_exhausted: partial-result
+  observability:
+    tracing: true
+    tool_events: true
+    policy_decisions: true
+    sensitive_content: false
+  evals:
+    trigger: true
+    negative_trigger: true
+    trajectory: true
+    outcome: true
+    adversarial: true
+
+  dependencies: {}
+  compatibility: {}
+  release:
+    assistant_config: 1.0.0
+    skills_bundle: null
+    policy_bundle: null
+    tool_contracts: null
+    eval_suite: null
+    sandbox_image: null

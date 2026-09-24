@@ -37,12 +37,12 @@
     };
     fonts = {
       sansSerif = {
-        package = pkgs.roboto;
-        name = "Roboto";
+        package = pkgs.lexend;
+        name = "Lexend";
       };
       serif = {
-        package = pkgs.roboto;
-        name = "Roboto";
+        package = pkgs.lexend;
+        name = "Lexend";
       };
       monospace = {
         package = pkgs.nerd-fonts.roboto-mono;

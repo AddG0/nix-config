@@ -11,8 +11,15 @@ addons/<name>/
 │   ├── prompt.md                     # required; YAML frontmatter + body
 │   └── resources/                    # optional reference files (resourcesRoot)
 ├── agents/<agent-name>.md            # optional
-└── rules/<rule-name>.md              # optional
+├── rules/<rule-name>.md              # optional; file named after the rule
+├── claude-code.nix                   # optional; Claude-only settings (hooks, permissions) under programs.claude-code-profiles.addons.<name>
+└── hooks/<hook>.sh                   # optional; scripts claude-code.nix wraps
 ```
+
+Keep an addon in one folder. Claude-only wiring goes in `claude-code.nix`,
+imported from `default.nix` with `imports = [./claude-code.nix];` — it isn't
+`default.nix`, so `scanPaths` never loads it twice. The Claude profile still
+needs its own `include` line in `../../claude-code/default.nix`.
 
 `default.nix` template (skill-only, no resources):
 
