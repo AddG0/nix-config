@@ -120,7 +120,7 @@ in {
           - `ghq list <substring>` finds a repo among ~360 clones; `-p` prints absolute paths, `-e` matches exactly. `ghq get <url|owner/repo>` clones a missing one.
           - Work clones sit under `gitlab.com/ShipperHQ/…`, but their stored remote is `git@gitlab-work:…` — an ssh alias, not a resolvable hostname. Derive web and clone URLs from the ghq path, or map the alias back to `gitlab.com`; `insteadOf` rewrites only at transport time, so the alias stays in `.git/config`.
           - Worktrees are siblings of their clone with a `--<branch>` suffix and show up in `ghq list`; `gwq list` shows only worktrees.
-          - `~/nix-config` and `~/nix-secrets` live outside the ghq root.
+          - `~/nix-config` lives outside the ghq root.
         '';
 
         "multi-agent".content.text = ''

@@ -1,5 +1,34 @@
-{pkgs, ...}: let
+{
+  lib,
+  pkgs,
+  ...
+}: let
   inherit (pkgs.hyprlandPlugins) hy3;
+
+  # A game holds a pointer grab under fullscreen, so a stray SUPER+SHIFT+Q is
+  # unrecoverable — require the chord twice for anything windowrule-tagged `game`.
+  smart-kill = pkgs.writeShellApplication {
+    name = "hypr-smart-kill";
+    runtimeInputs = with pkgs; [hyprland jq libnotify coreutils findutils];
+    text = ''
+      timeout=''${HYPR_KILL_CONFIRM_SECONDS:-3}
+      win=$(hyprctl activewindow -j)
+      armed="''${XDG_RUNTIME_DIR:-/tmp}/hypr-kill-armed-$(jq -r .address <<<"$win")"
+
+      # Rule-applied tags carry a `*` suffix, so match on the prefix.
+      if ! jq -e '.tags | any(startswith("game"))' <<<"$win" >/dev/null ||
+        [ -n "$(find "$armed" -newermt "-$timeout seconds" 2>/dev/null)" ]; then
+        rm -f "$armed"
+        exec hyprctl dispatch hy3:killactive
+      fi
+
+      touch "$armed"
+      notify-send --app-name hypr-smart-kill --icon dialog-warning \
+        --expire-time $((timeout * 1000)) \
+        "Kill $(jq -r .title <<<"$win")?" \
+        "Press SUPER+SHIFT+Q again within ''${timeout}s"
+    '';
+  };
 in {
   wayland.windowManager.hyprland = {
     plugins = [hy3];
@@ -14,7 +43,7 @@ in {
       ];
       bind = [
         # Window management
-        "SUPERSHIFT,q,hy3:killactive"
+        "SUPERSHIFT,q,exec,${lib.getExe smart-kill}"
 
         # Groups
         "SUPER,v,hy3:makegroup,v"
