@@ -28,6 +28,8 @@
     # Allow NVIDIA GPU to fully power down at runtime when idle.
     # Requires modesetting (already set via nvidia-drm.modeset=1).
     powerManagement.finegrained = true;
+    # FLAKE-UPDATE: drop once NVIDIA/open-gpu-kernel-modules#1226/#1335 are fixed; notifier path hangs hibernate entry on hybrid laptops.
+    powerManagement.kernelSuspendNotifier = false;
 
     prime = {
       offload = {
