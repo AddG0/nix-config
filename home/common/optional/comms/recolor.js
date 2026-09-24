@@ -75,7 +75,10 @@
       for (let i = 0; i < r.style.length; i++) {
         const p = r.style[i];
         if (!p.startsWith("--") && !PROPS.includes(p)) continue;
-        const out = convert(r.style.getPropertyValue(p).trim());
+        const raw = r.style.getPropertyValue(p).trim();
+        if (!raw) continue;
+        // Everything is re-declared !important so the copies keep the originals' specificity order.
+        const out = convert(raw) ?? (!p.startsWith("--") || /var\(/.test(raw) ? raw : null);
         if (out) decls.push(`${p}: ${out} !important;`);
       }
       if (!decls.length) continue;
