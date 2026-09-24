@@ -16,6 +16,7 @@ in {
       "test-coverage-reviewer" = fromClaudeAgent "${cek}/plugins/review/agents/test-coverage-reviewer.md";
       "shortcut-hunter".prompt.source = ./agents/shortcut-hunter.md;
       "silent-failure-hunter".prompt.source = ./agents/silent-failure-hunter.md;
+      "spec-reviewer".prompt.source = ./agents/spec-reviewer.md;
     };
 
     rules."quality-standards".content.source = ./rules/quality-standards.md;
@@ -24,7 +25,8 @@ in {
 
     skills = {
       "review-local-changes" = fromClaudeSkillFile "${cek}/plugins/review/skills/review-local-changes/SKILL.md";
-      "review-pr" = fromClaudeSkillFile "${cek}/plugins/review/skills/review-pr/SKILL.md";
+      # Posts inline comments on the PR.
+      "review-pr" = fromClaudeSkillFile "${cek}/plugins/review/skills/review-pr/SKILL.md" // {invocation.model = false;};
     };
   };
 }

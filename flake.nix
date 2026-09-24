@@ -287,6 +287,11 @@
       flake = false;
     };
 
+    mattpocock-skills = {
+      url = "github:mattpocock/skills";
+      flake = false;
+    };
+
     ponytail = {
       url = "github:DietrichGebert/ponytail";
       flake = false;
@@ -299,16 +304,6 @@
 
     context-engineering-kit = {
       url = "github:NeoLabHQ/context-engineering-kit";
-      flake = false;
-    };
-
-    anthropic-skills = {
-      url = "github:anthropics/skills";
-      flake = false;
-    };
-
-    claude-code-skill-factory = {
-      url = "github:alirezarezvani/claude-code-skill-factory";
       flake = false;
     };
 

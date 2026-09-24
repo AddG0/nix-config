@@ -194,6 +194,11 @@ update *ARGS: && check-markers
 check-markers:
   @rg -n 'FLAKE-UPDATE:' -g '!docs/**' -g '!justfile' || echo "no markers left"
 
+[group('validation')]
+[doc("Check which skills a Claude Code profile triggers (headless, costs tokens)")]
+eval-skills profile="default":
+  scripts/skill-trigger-evals.sh {{profile}}
+
 [group('system')]
 [doc("Update dependencies then rebuild system")]
 rebuild-update: update && rebuild

@@ -69,6 +69,7 @@ Determine Applicable Reviews, then launch up to 6 parallel (Sonnet or Opus) agen
 - **contracts-reviewer** - Analyze code contracts, including: type design and invariants (if new types added), API changes, data modeling, etc.
 - **test-coverage-reviewer** - Review test coverage quality and completeness
 - **historical-context-reviewer** - Review historical context of the code, including git blame and history of the code modified
+- **spec-reviewer** - Check the diff against the ticket, design doc, or ADR it implements: requirements met, nothing unrequested added
 
 Note: Default option is to run **all** applicable review agents.
 
@@ -81,6 +82,7 @@ Based on changes summary from phase 1 and their complexity, determine which revi
 - **If test files changed**: test-coverage-reviewer
 - **If types, API, data modeling changed**: contracts-reviewer
 - **If complexity of changes is high or historical context is needed**: historical-context-reviewer
+- **Always**: spec-reviewer — pass it the ticket or design text if you have it; it reports `NO SPEC` rather than guessing
 
 #### Launch Review Agents
 
@@ -127,3 +129,5 @@ Based on changes summary from phase 1 and their complexity, determine which revi
 ### Phase 4: Final Report
 
 Present findings ordered by severity, with file references and concise reasoning. Keep summaries brief and prioritize concrete issues over general commentary.
+
+Report spec-reviewer's verdict in its own **Spec fidelity** section, unscored and unmerged: whether the change does what was asked is a separate question from whether it is well written.
