@@ -26,7 +26,7 @@
 {pkgs, ...}: let
   screenshot = pkgs.writeShellApplication {
     name = "screenshot";
-    runtimeInputs = with pkgs; [hyprland slurp grim wl-clipboard libnotify jq coreutils];
+    runtimeInputs = with pkgs; [hyprland hyprpicker slurp grim wl-clipboard libnotify jq coreutils];
     text = ''
       mode="region"
       while [ $# -gt 0 ]; do
@@ -37,10 +37,7 @@
       done
 
       case "$mode" in
-        region)
-          if ! geometry=$(slurp); then exit 0; fi
-          grim_target=(-g "$geometry")
-          ;;
+        region) ;;
         output)
           # By output name, not geometry: a hand-built geometry mixes logical
           # position with physical size and breaks on scaled monitors.
@@ -64,7 +61,9 @@
       cy=''${pos#*,}
       border_was=$(hyprctl getoption general:border_size -j | jq -r '.int')
       hwcursor_was=$(hyprctl getoption cursor:no_hardware_cursors -j | jq -r '.int')
+      freeze_pid=""
       restore() {
+        if [ -n "$freeze_pid" ]; then kill "$freeze_pid" 2>/dev/null || true; fi
         hyprctl --batch "keyword cursor:no_hardware_cursors $hwcursor_was ; dispatch movecursor $cx $cy ; keyword general:border_size $border_was" >/dev/null
       }
       trap restore EXIT
@@ -80,6 +79,16 @@
         hyprctl dispatch movecursor $((cx + 1)) "$cy" >/dev/null
       fi
       sleep 0.05
+
+      # Freeze before slurp: its overlay steals pointer focus, which clears hover.
+      hyprpicker -r -z >/dev/null 2>&1 &
+      freeze_pid=$!
+      sleep 0.2
+
+      if [ "$mode" = region ]; then
+        if ! geometry=$(slurp); then exit 0; fi
+        grim_target=(-g "$geometry")
+      fi
 
       outdir="$HOME/Pictures/Screenshots"
       mkdir -p "$outdir"
@@ -107,6 +116,7 @@ in {
     # explicit `on` value (same migration that hit `blur` → `blur on`).
     layerrule = [
       "no_anim on, match:namespace selection"
+      "no_anim on, match:namespace hyprpicker"
     ];
   };
 }

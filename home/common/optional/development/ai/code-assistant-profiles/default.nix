@@ -82,6 +82,9 @@ in {
         archify
         i-have-adhd
         code-assistant-configurator
+        handoff
+        work
+        mattpocock-skills
       ];
 
       skills."frontend-design" = lib.custom.ai.fromClaudeSkillDir {

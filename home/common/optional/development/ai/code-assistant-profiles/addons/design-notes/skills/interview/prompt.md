@@ -1,6 +1,6 @@
 ---
 name: interview
-description: "Explores the codebase autonomously, then interviews the user about decisions only humans can make. Produces a structured spec covering problem, scope, tradeoffs, and edge cases."
+description: "Researches the codebase, then interviews the user to turn a new feature idea into a requirements summary. Use when requirements for new work are unclear."
 argument-hint: "[topic or feature name]"
 ---
 
@@ -33,49 +33,23 @@ Before asking the user a single question, gather as much context as you can:
 
 **Present a brief summary of what you found** before starting questions. This shows the user you've done your homework and lets them correct any misunderstandings early.
 
-**IMPORTANT**: For ALL questions across all phases, use the `AskUserQuestion` tool — never ask inline in chat text. One question per `AskUserQuestion` call.
+## Phase 1: Interview
 
-## Phase 1: Human-Only Questions (3-5 questions)
+Call the Skill tool with `grilling`, and run the interview through it.
 
-Now ask ONLY questions that require human judgment — things you cannot determine from the code:
+Seed the design tree with these branches, dropping any that research or the user's opening message already settled:
 
-1. **The problem**: What are you trying to solve? For whom? Why now?
-2. **Success criteria**: How will you know this works? What's the business outcome?
-3. **Scope**: What is explicitly NOT part of this? What can wait for v2?
-4. **Priorities**: If you had to choose between {X} and {Y}, which matters more?
+- **Problem**: what it solves, for whom, why now
+- **Success criteria**: how you'll know it works
+- **Scope**: what is explicitly out, what waits for v2
+- **Priorities**: which of two named goals wins when they conflict
+- **Business rules and edge cases** not visible in the code
+- **User experience** expectations
+- **Security**: who must not have access, compliance constraints
+- **External dependencies**: third-party services, APIs, other teams
+- **Tradeoffs**: what to cut to ship sooner, how it may change in 6 months, where to be extra careful
 
-**Do NOT ask about:**
-- Tech stack, test framework, build commands (you already know)
-- Directory structure, file naming conventions (you already know)
-- Existing patterns, schemas, API routes (you already know)
-- How existing features work (you already know)
-
-Use `AskUserQuestion` for questions. Skip questions the user already addressed in their initial description.
-
-## Phase 2: Targeted Depth (2-4 questions)
-
-Based on Phase 0 research + Phase 1 answers, ask about gaps only a human can fill:
-
-1. **Business rules**: Are there domain-specific rules or edge cases that aren't in the code?
-2. **User expectations**: What should the user experience be? Any UX requirements?
-3. **Security/authorization**: Who should NOT have access? Any compliance requirements?
-4. **External dependencies**: Are there third-party services, APIs, or teams involved?
-
-Skip anything you can infer from the codebase.
-
-## Phase 3: Tradeoffs (1-3 questions)
-
-1. **MVP scope**: What could be cut to ship faster?
-2. **Evolution**: How might this need to change in 6 months?
-3. **Risk tolerance**: Any areas where we should be extra careful vs. move fast?
-
-## Adaptive Behavior
-
-- If the user gives comprehensive answers, skip redundant questions
-- If the user says "I don't know" or "whatever you think", note it as an open question and move on
-- If security or data concerns emerge, dig deeper
-- Total questions across all phases should typically be **5-10**, not 15+
-- End the interview when coverage is sufficient
+Never put a question to the user that the Phase 0 research answers — tech stack, layout, existing patterns, schemas. If the user says "I don't know" or "you pick", record it as an open question and move on.
 
 ## Output
 
@@ -94,7 +68,7 @@ Synthesize everything (your research + user answers) into a structured document:
 {What you found during autonomous research — existing patterns, related code, integration points, tech constraints}
 
 ## Requirements
-{Extracted from all phases, using EARS format where applicable}
+{Extracted from research and the interview, using EARS format where applicable}
 
 ### Must Have
 1. {requirement}
@@ -115,7 +89,7 @@ Synthesize everything (your research + user answers) into a structured document:
 {From research + user input}
 
 ## Tradeoffs & Decisions
-{From Phase 3}
+{From the tradeoffs branch}
 
 ## Open Questions
 {Anything unresolved}
@@ -125,9 +99,6 @@ Offer to save this summary as `docs/work/{topic}/interview.md`, or alongside an 
 
 ## Rules
 
-- Research FIRST, ask SECOND — never ask what you can find yourself
-- One question at a time — wait for the answer
-- Maximum 10 questions total across all phases
-- Present your research summary before the first question
-- Never ask about implementation details you can read from the code
+- Research first, ask second — never ask what you can find yourself
+- Present your research summary before the first round
 - Always end with the synthesized summary

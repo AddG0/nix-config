@@ -39,8 +39,6 @@
   };
 
   inherit (config.programs.claude-code-profiles) addons;
-  anthropicSkills = "${inputs.anthropic-skills}/skills";
-  skillFactory = "${inputs.claude-code-skill-factory}/.claude";
 in {
   imports = [
     inputs.ai-toolkit.homeModules.default
@@ -292,23 +290,6 @@ in {
           # Docs
           "mcp__google-workspace__docs_read"
         ];
-      };
-
-      claude-code-maker = {
-        description = "Creating Claude Code skills, agents, and configs";
-        extends = "default";
-        skills = {
-          "skill-creator" = "${anthropicSkills}/skill-creator";
-        };
-        agents = {
-          "skills-guide" = builtins.readFile "${skillFactory}/agents/skills-guide.md";
-          "agents-guide" = builtins.readFile "${skillFactory}/agents/agents-guide.md";
-          "hooks-guide" = builtins.readFile "${skillFactory}/agents/hooks-guide.md";
-        };
-        commands = {
-          "build" = "${skillFactory}/commands/build.md";
-          "build-hook" = "${skillFactory}/commands/build-hook.md";
-        };
       };
     };
   };

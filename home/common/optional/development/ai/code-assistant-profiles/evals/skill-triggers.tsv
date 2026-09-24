@@ -1,0 +1,25 @@
+# expect<TAB>prompt — expect is a skill name, `none` (no Skill call), or `!name` (anything but name).
+nix-build	The flake output .#packages.x86_64-linux.foo fails to build. Fix it until it builds.
+dev-flake	Set up a nix devShell with direnv for this Rust project.
+tmux-dev	Start the dev server somewhere I can watch its logs.
+diagnose-crash	Hyprland just crashed. Work out why from its core dump.
+jira	What tickets are in my current sprint?
+decision-matrix	Compare Postgres, SQLite and DuckDB against weighted criteria and pick one.
+archify	Draw an architecture diagram of our request flow.
+code-assistant-configurator	Audit my CLAUDE.md and skills for descriptions that mis-trigger.
+review-local-changes	Review my uncommitted changes before I commit them.
+!commit	Commit these changes.
+!review-pr	Is PR 42 ready to merge?
+none	What does git rebase --onto do?
+none	Explain what a monad is in two sentences.
+!software-architecture	Record why we chose Postgres over DuckDB as an ADR.
+diagnosing-bugs	The export endpoint started returning 500s after yesterday's deploy. Debug it.
+!diagnosing-bugs	Add a CSV export button to the reports page.
+grilling	Grill me on this plan to move our queue from Redis to Postgres.
+!grilling	What's the difference between a queue and a topic?
+!resolving-merge-conflicts	What does a merge conflict marker look like?
+code-assistant-configurator	Create a new skill that formats our changelog entries.
+code-assistant-configurator	My review skill never triggers. Improve its description and test it.
+!code-assistant-configurator	Explain the difference between a skill and a subagent in two sentences.
+interview	I want to add team workspaces to the app but haven't worked out the requirements yet.
+!interview	Grill me on this plan to move our queue from Redis to Postgres.

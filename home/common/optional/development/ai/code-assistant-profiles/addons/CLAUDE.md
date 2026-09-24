@@ -185,3 +185,22 @@ When adding a new skill:
 - [claudefa.st — Skill listing budget](https://claudefa.st/blog/guide/mechanics/skill-listing-budget) — concrete length guidance
 - [Issue #47627](https://github.com/anthropics/claude-code/issues/47627) — 250→1536 cap change history
 - [agentskills.io specification](https://agentskills.io/specification) — open standard fields
+
+## Manual vs automatic skills
+
+Set `invocation.model = false` on any skill that writes outside the working tree
+(commits, branch deletion, PR/MR comments, tickets) or runs a whole multi-step
+flow. Commands have no `invocation` option — make them skills to gate them.
+
+## Trigger evals
+
+`just eval-skills [profile]` runs each case in `../evals/skill-triggers.tsv`
+through headless `claude -p` and checks which skill fires first. Add a positive
+and a negative case when you add or reword a model-invoked skill. It runs against
+the *installed* profile, so rebuild first.
+
+## The `/work` router
+
+`addons/work/` lists every flow. Adding, renaming, or removing a user-facing
+skill means updating its table; the build fails if the table names a skill the
+default profile lacks.

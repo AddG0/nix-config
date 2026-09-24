@@ -60,22 +60,6 @@
         "url": "ssh://git@github.com/addg0/ai-toolkit.git"
       }
     },
-    "anthropic-skills": {
-      "flake": false,
-      "locked": {
-        "lastModified": 1789069448,
-        "narHash": "sha256-tI4bTTBfI1ylltklGyiyA7pLoKXEWtrT6lrmwrpLbCw=",
-        "owner": "anthropics",
-        "repo": "skills",
-        "rev": "34040c9c568585f6929bedeaad110ad08f079624",
-        "type": "github"
-      },
-      "original": {
-        "owner": "anthropics",
-        "repo": "skills",
-        "type": "github"
-      }
-    },
     "aquamarine": {
       "inputs": {
         "hyprutils": [
@@ -438,22 +422,6 @@
       "original": {
         "owner": "anthropics",
         "repo": "claude-code",
-        "type": "github"
-      }
-    },
-    "claude-code-skill-factory": {
-      "flake": false,
-      "locked": {
-        "lastModified": 1762961422,
-        "narHash": "sha256-8xNiafdgvddiIkQRaKuRo1tBpGVB8mVW0T7oX5gCdmY=",
-        "owner": "alirezarezvani",
-        "repo": "claude-code-skill-factory",
-        "rev": "ba18b31703542d9d7eda5f9ba94f0df65a59dddf",
-        "type": "github"
-      },
-      "original": {
-        "owner": "alirezarezvani",
-        "repo": "claude-code-skill-factory",
         "type": "github"
       }
     },
@@ -2051,6 +2019,22 @@
         "url": "ssh://git@github.com/addg0/lumenboard-player.git"
       }
     },
+    "mattpocock-skills": {
+      "flake": false,
+      "locked": {
+        "lastModified": 1789726349,
+        "narHash": "sha256-L3CpIT2DeI+fUFl9fcygojtQo2DzEen69rMD1XqR1vM=",
+        "owner": "mattpocock",
+        "repo": "skills",
+        "rev": "c55ee46073ed923f86ce59a5eb3b6d895095d1b7",
+        "type": "github"
+      },
+      "original": {
+        "owner": "mattpocock",
+        "repo": "skills",
+        "type": "github"
+      }
+    },
     "mmdoc": {
       "inputs": {
         "nixpkgs": [
@@ -3225,7 +3209,6 @@
     "root": {
       "inputs": {
         "ai-toolkit": "ai-toolkit",
-        "anthropic-skills": "anthropic-skills",
         "archify": "archify",
         "asus-numberpad-driver": "asus-numberpad-driver",
         "awsvpnclient-nix": "awsvpnclient-nix",
@@ -3235,7 +3218,6 @@
         "base16-zathura": "base16-zathura",
         "catppuccin-obsidian": "catppuccin-obsidian",
         "claude-code": "claude-code",
-        "claude-code-skill-factory": "claude-code-skill-factory",
         "claude-code-skills-collection": "claude-code-skills-collection",
         "context-engineering-kit": "context-engineering-kit",
         "disko": "disko",
@@ -3249,6 +3231,7 @@
         "jovian": "jovian",
         "lanzaboote": "lanzaboote",
         "lumenboard-player": "lumenboard-player",
+        "mattpocock-skills": "mattpocock-skills",
         "mt7927-driver": "mt7927-driver",
         "niri": "niri",
         "nitrox-nix": "nitrox-nix",
