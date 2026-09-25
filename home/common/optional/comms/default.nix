@@ -76,6 +76,7 @@
     * {
     ${lib.concatStrings (lib.mapAttrsToList (k: v: "  --${k}: ${v} !important;\n") slackColors)}}
     .p-theme_background { background: ${c.base00} !important; }
+    .c-button--primary, .c-button--danger { color: ${c.base00} !important; }
   '';
 
   # Slack ships its own webfont and palette; only a user-origin sheet outranks its `!important` rules.
