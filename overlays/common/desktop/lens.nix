@@ -1,13 +1,12 @@
-# Lens needs two fixes applied around the AppImage, so this rebuilds the
+# Lens needs a fix applied inside the AppImage, so this rebuilds the
 # wrapper rather than using `overrideAttrs`: the extracted contents are patched
 # first, then re-wrapped. Mirrors nixpkgs' pkgs/by-name/le/lens/linux.nix —
 # re-check that file on version bumps.
 #
-#   1. --disable-gpu: invisible window on NVIDIA + Wayland (Electron bug).
-#   2. app.asar: the Lens Cloud auth callback server binds `listen(0,
-#      "localhost")` but hands the browser the *name* `localhost`, so the two
-#      resolve independently. Here it binds ::1 while a v4-only browser dials
-#      127.0.0.1 and gets connection refused. See the .py for the mechanics.
+# app.asar: the Lens Cloud auth callback server binds `listen(0,
+# "localhost")` but hands the browser the *name* `localhost`, so the two
+# resolve independently. Here it binds ::1 while a v4-only browser dials
+# 127.0.0.1 and gets connection refused. See the .py for the mechanics.
 _: _final: prev:
 prev.lib.optionalAttrs prev.stdenv.hostPlatform.isLinux {
   lens = let
@@ -31,8 +30,7 @@ prev.lib.optionalAttrs prev.stdenv.hostPlatform.isLinux {
 
       extraInstallCommands = ''
         wrapProgram $out/bin/${pname} \
-          --add-flags "\''${NIXOS_OZONE_WL:+\''${WAYLAND_DISPLAY:+--ozone-platform-hint=auto --enable-features=WaylandWindowDecorations --enable-wayland-ime=true}}" \
-          --add-flags "--disable-gpu"
+          --add-flags "\''${NIXOS_OZONE_WL:+\''${WAYLAND_DISPLAY:+--ozone-platform-hint=auto --enable-features=WaylandWindowDecorations --enable-wayland-ime=true}}"
         install -m 444 -D ${contents}/${pname}.desktop \
           $out/share/applications/${pname}.desktop
         install -m 444 -D ${contents}/usr/share/icons/hicolor/512x512/apps/${pname}.png \

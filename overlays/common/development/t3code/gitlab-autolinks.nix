@@ -57,25 +57,31 @@ _: _final: prev: let
 
   # The context carried the repository URL alone, which left the provider with
   # nowhere to travel from the panel to the plugin.
-  autolinkContextAnchor = "export const PullRequestMarkdownContext = createContext<string | null>(null);";
+  autolinkContextAnchor = builtins.concatStringsSep "\n" [
+    "export const PullRequestMarkdownContext = createContext<{"
+    "  repositoryUrl: string | null;"
+  ];
   autolinkContextPatch = builtins.concatStringsSep "\n" [
     "export type AutolinkRepository = {"
     "  readonly repositoryUrl: string;"
     "  readonly provider: \"github\" | \"gitlab\";"
     "};"
     ""
-    "export const PullRequestMarkdownContext = createContext<AutolinkRepository | null>(null);"
+    "export const PullRequestMarkdownContext = createContext<{"
+    "  autolinkRepository: AutolinkRepository | null;"
   ];
 
   autolinkPluginAnchor = builtins.concatStringsSep "\n" [
-    "  const repositoryUrl = useContext(PullRequestMarkdownContext);"
+    "  const repositoryUrl = context?.repositoryUrl;"
+    "  const resolvedThreadRef = threadRef ?? context?.threadRef ?? undefined;"
     "  const extraRemarkPlugins = useMemo<NonNullable<ReactMarkdownOptions[\"remarkPlugins\"]>>("
     "    () => (repositoryUrl ? [[remarkPullRequestAutolinks, { repositoryUrl }]] : []),"
     "    [repositoryUrl],"
     "  );"
   ];
   autolinkPluginPatch = builtins.concatStringsSep "\n" [
-    "  const autolinkRepository = useContext(PullRequestMarkdownContext);"
+    "  const autolinkRepository = context?.autolinkRepository;"
+    "  const resolvedThreadRef = threadRef ?? context?.threadRef ?? undefined;"
     "  const extraRemarkPlugins = useMemo<NonNullable<ReactMarkdownOptions[\"remarkPlugins\"]>>("
     "    () => (autolinkRepository ? [[remarkPullRequestAutolinks, autolinkRepository]] : []),"
     "    [autolinkRepository],"
@@ -103,8 +109,14 @@ _: _final: prev: let
     "  }, [detail?.provider, repositoryUrl]);"
   ];
 
-  autolinkGateAnchor = "          <PullRequestMarkdownContext value={detail.provider === \"github\" ? repositoryUrl : null}>";
-  autolinkGatePatch = "          <PullRequestMarkdownContext value={autolinkRepository}>";
+  autolinkGateAnchor = builtins.concatStringsSep "\n" [
+    "    () => ({ repositoryUrl: detail?.provider === \"github\" ? repositoryUrl : null, threadRef }),"
+    "    [detail?.provider, repositoryUrl, threadRef],"
+  ];
+  autolinkGatePatch = builtins.concatStringsSep "\n" [
+    "    () => ({ autolinkRepository, threadRef }),"
+    "    [autolinkRepository, threadRef],"
+  ];
 in {
   t3code = prev.t3code.override {
     t3code-unwrapped = prev.t3code.unwrapped.overrideAttrs (old: {

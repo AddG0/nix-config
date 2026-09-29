@@ -1,10 +1,7 @@
 {pkgs, ...}: {
-  # Prevent AWS VPN from hijacking all DNS queries.
-  # The AWS VPN client sets tun0 as a default DNS route, which causes
-  # all queries (including local domains) to go through the VPN DNS.
-  # This dispatcher script disables default-route on tun0 whenever it
-  # comes up, so non-VPN queries fall through to the local DNS server.
+  # The AWS VPN routes every DNS domain (~.) through tun0; a longer global routing domain keeps home names on the LAN resolver.
   networking.nameservers = ["10.61.20.1"];
+  services.resolved.settings.Resolve.Domains = ["~addg0.com"];
 
   networking.networkmanager.dispatcherScripts = [
     {

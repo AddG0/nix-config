@@ -26,7 +26,7 @@
 {pkgs, ...}: let
   screenshot = pkgs.writeShellApplication {
     name = "screenshot";
-    runtimeInputs = with pkgs; [hyprland hyprpicker slurp grim wl-clipboard libnotify jq coreutils];
+    runtimeInputs = with pkgs; [hyprland hyprpicker slurp grim wl-clipboard libnotify jq coreutils imagemagick];
     text = ''
       mode="region"
       while [ $# -gt 0 ]; do
@@ -80,20 +80,41 @@
       fi
       sleep 0.05
 
-      # Freeze before slurp: its overlay steals pointer focus, which clears hover.
-      hyprpicker -r -z >/dev/null 2>&1 &
-      freeze_pid=$!
-      sleep 0.2
-
-      if [ "$mode" = region ]; then
-        if ! geometry=$(slurp); then exit 0; fi
-        grim_target=(-g "$geometry")
-      fi
-
       outdir="$HOME/Pictures/Screenshots"
       mkdir -p "$outdir"
       outfile="$outdir/$(date +%Y-%m-%d_%H-%M-%S).png"
-      grim "''${grim_target[@]}" "$outfile"
+
+      if [ "$mode" = region ]; then
+        # Capture before slurp clears hover; never through the freeze, which darkens on HDR outputs.
+        frames=$(mktemp -d)
+        trap 'rm -rf "$frames"; restore' EXIT
+        monitors=$(hyprctl monitors -j)
+        for name in $(jq -r '.[].name' <<<"$monitors"); do
+          grim -t ppm -o "$name" "$frames/$name.ppm" &
+        done
+        wait
+        hyprpicker -r -z >/dev/null 2>&1 &
+        freeze_pid=$!
+        # slurp must map after the freeze, or the freeze stacks over its selection box.
+        for _ in $(seq 100); do
+          hyprctl layers -j | jq -e '[.. | objects | select(.namespace? == "hyprpicker")] | length > 0' >/dev/null && break
+          sleep 0.01
+        done
+        if ! geometry=$(slurp); then exit 0; fi
+        # Crop the monitor under the region's centre in native pixels; a region spanning monitors is clipped to it.
+        read -r name crop < <(jq -r --arg g "$geometry" '
+          ($g | capture("(?<x>-?[0-9]+),(?<y>-?[0-9]+) (?<w>[0-9]+)x(?<h>[0-9]+)") | map_values(tonumber)) as $r
+          | ($r.x + $r.w / 2) as $cx | ($r.y + $r.h / 2) as $cy
+          | map(. + {lw: (.width / .scale), lh: (.height / .scale)})
+          | map(select($cx >= .x and $cx < .x + .lw and $cy >= .y and $cy < .y + .lh))[0]
+          | ([$r.x, .x] | max) as $x0 | ([$r.y, .y] | max) as $y0
+          | ([$r.x + $r.w, .x + .lw] | min) as $x1 | ([$r.y + $r.h, .y + .lh] | min) as $y1
+          | "\(.name) \(($x1 - $x0) * .scale | round)x\(($y1 - $y0) * .scale | round)+\(($x0 - .x) * .scale | round)+\(($y0 - .y) * .scale | round)"
+        ' <<<"$monitors")
+        magick "$frames/$name.ppm" -crop "$crop" +repage "$outfile"
+      else
+        grim "''${grim_target[@]}" "$outfile"
+      fi
       wl-copy --type image/png < "$outfile"
       notify-send "Screenshot saved" "$outfile" -i "$outfile" -t 5000 -a screenshot
     '';
@@ -106,17 +127,7 @@ in {
       ",PRINT,exec,${screenshot}/bin/screenshot -m output"
       "SUPER,PRINT,exec,${screenshot}/bin/screenshot -m region"
     ];
-
-    # Kill the slurp selection-rectangle close animation. Without this,
-    # region screenshots can occasionally capture the half-faded selection
-    # box because screencopy reads the framebuffer before the layer's exit
-    # animation completes. Documented workaround from hyprwm/contrib#60.
-    #
-    # Hyprland 0.50+ renamed `noanim` → `no_anim` and now requires an
-    # explicit `on` value (same migration that hit `blur` → `blur on`).
-    layerrule = [
-      "no_anim on, match:namespace selection"
-      "no_anim on, match:namespace hyprpicker"
-    ];
+    # The freeze must appear instantly, not fade in over the live screen.
+    layerrule = ["no_anim on, match:namespace hyprpicker"];
   };
 }

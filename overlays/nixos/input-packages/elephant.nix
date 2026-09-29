@@ -14,9 +14,9 @@ prev.lib.optionalAttrs prev.stdenv.hostPlatform.isLinux (let
   system = prev.stdenv.hostPlatform.system;
   src = inputs.walker.inputs.elephant;
   version = prev.lib.trim (builtins.readFile "${src}/cmd/elephant/version.txt");
-  vendorHash = "sha256-EWXZ+9/QDRpidpVHBcfJgp0xoc3YtRsiC/UTk1R+FSY=";
+  vendorHash = "sha256-5AL1731OKp2AZgknZAvcfyL+TuU3DIPozjSItE5nOM8=";
 
-  elephant-bin = prev.buildGoModule {
+  elephant-bin = prev.buildGoLatestModule {
     pname = "elephant";
     inherit version src vendorHash;
     buildInputs = [prev.protobuf];
@@ -28,7 +28,7 @@ prev.lib.optionalAttrs prev.stdenv.hostPlatform.isLinux (let
     '';
   };
 
-  providers = prev.buildGoModule rec {
+  providers = prev.buildGoLatestModule rec {
     pname = "elephant-providers";
     inherit version src vendorHash;
     buildInputs = [prev.wayland];

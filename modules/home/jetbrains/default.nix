@@ -9,7 +9,7 @@
   majorMinor = v: lib.concatStringsSep "." (lib.take 2 (lib.splitVersion v));
 
   configDirNames = {
-    idea = "IntelliJIdea";
+    intellij-idea = "IntelliJIdea";
     pycharm = "PyCharm";
     datagrip = "DataGrip";
     webstorm = "WebStorm";

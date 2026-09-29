@@ -1,0 +1,49 @@
+--- a/playerctl/playerctl-daemon.c
++++ b/playerctl/playerctl-daemon.c
+@@ -127,7 +127,7 @@
+         interface = TRACKLIST;
+         // FIXME: new value of Tracks property is not sent in PropertiesChanged signal
+         // We may want to listen for TrackAdded, TrackRemoved and TrackListReplaced
+-        if (!player->playlists.supported) {
++        if (!player->tracklist.supported) {
+             g_warning("Player %s doesn't appear to support interface %s, but sent "
+                       "PropertiesChanged regarding its properties.",
+                       player->well_known, interface_name);
+@@ -960,7 +960,18 @@
+     GVariant *body = g_dbus_connection_call_finish(connection, res, &error);
+
+     if (error != NULL) {
+-        g_warning("could not get properties for active player: %s", error->message);
++        if (g_strcmp0(data->interface_name, TRACKLIST_INTERFACE) == 0) {
++            data->player->tracklist.supported = false;
++            g_debug("player %s has no %s: %s", data->player->well_known, data->interface_name,
++                    error->message);
++        } else if (g_strcmp0(data->interface_name, PLAYLISTS_INTERFACE) == 0) {
++            data->player->playlists.supported = false;
++            g_debug("player %s has no %s: %s", data->player->well_known, data->interface_name,
++                    error->message);
++        } else {
++            g_warning("could not get %s properties for active player %s: %s",
++                      data->interface_name, data->player->well_known, error->message);
++        }
+         g_clear_error(&error);
+         goto out;
+     }
+@@ -1472,7 +1483,7 @@
+             if (error != NULL) {
+                 // This interface is optional, so we can keep the player around
+                 player->tracklist.supported = false;
+-                g_warning("could not get tracklist properties for player: %s", player->well_known);
++                g_debug("could not get tracklist properties for player: %s", player->well_known);
+                 g_clear_error(&error);
+             } else {
+                 properties = g_variant_get_child_value(reply, 0);
+@@ -1490,7 +1501,7 @@
+             if (error != NULL) {
+                 // This interface is optional, so we can keep the player around
+                 player->playlists.supported = false;
+-                g_warning("could not get playlists properties for player: %s", player->well_known);
++                g_debug("could not get playlists properties for player: %s", player->well_known);
+                 g_clear_error(&error);
+             } else {
+                 properties = g_variant_get_child_value(reply, 0);

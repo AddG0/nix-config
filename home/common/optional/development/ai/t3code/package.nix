@@ -35,7 +35,7 @@
 
   # Labels come from the contracts EDITORS list since 0.0.38, so the picker entry
   # needs none of its own.
-  pickerAnchor = "    {\n      Icon: FolderClosedIcon,\n      value: \"file-manager\",\n      kind: \"generic\",\n    },";
+  pickerAnchor = "    {\n      Icon: isMacPlatform(platform)\n        ? FinderIcon";
   pickerEntry = "    {\n      Icon: TerminalIcon,\n      value: \"nvim\",\n      kind: \"generic\",\n    },\n";
 
   # The "Open in" editor list is closed: the contracts table and the picker both need the entry.
