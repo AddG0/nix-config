@@ -68,22 +68,17 @@ in {
       description = "Automatically rollback to previous generation if rebuild fails";
     };
 
-    flakeLastModified = mkOption {
-      type = types.nullOr types.int;
-      default = null;
-      example = literalExpression "self.lastModified";
-      description = "`lastModified` of the flake this system was built from; required by {option}`nix.git-sync.checkRemoteNewer`.";
-    };
-
     checkRemoteNewer = mkOption {
       type = types.bool;
       default = true;
       description = ''
-        Skip the rebuild when the remote flake is not newer than the
-        currently-deployed configuration.
+        Skip the rebuild when the remote flake is unchanged since the last
+        successful rebuild.
 
-        Compares {option}`nix.git-sync.flakeLastModified` (baked in at build
-        time) against the remote's `lastModified` from `nix flake metadata --refresh`.
+        Compares the remote's `locked.narHash` from `nix flake metadata --refresh`
+        against the one recorded after the last successful rebuild, so no build-time
+        revision needs passing in and whichever flake imports this module works.
+        A host with no recorded rebuild (e.g. freshly booted from an image) rebuilds once.
         Runs as a systemd `ExecCondition`, so the unit is marked "skipped"
         (not failed) when no update is needed.
       '';
@@ -126,10 +121,6 @@ in {
   config = mkIf cfg.enable {
     assertions = [
       {
-        assertion = cfg.checkRemoteNewer -> cfg.flakeLastModified != null;
-        message = "nix.git-sync.flakeLastModified must be set (e.g. to self.lastModified) when checkRemoteNewer is enabled";
-      }
-      {
         assertion = cfg.notifications.enable -> cfg.notifications.notifyUser != null;
         message = "nix.git-sync.notifications.notifyUser must be set when notifications are enabled";
       }
@@ -141,6 +132,7 @@ in {
 
     systemd.services.nix-remote-rebuild = let
       flake = "${cfg.flakeRef}#${config.networking.hostName}";
+      lastBuiltFile = "/var/lib/nix-remote-rebuild/last-built-narhash";
       check-newer-script = pkgs.writeShellApplication {
         name = "nix-remote-rebuild-check-newer";
         runtimeInputs = with pkgs; [nix jq coreutils git openssh];
@@ -151,15 +143,14 @@ in {
             export GIT_SSH_COMMAND="ssh -i ${cfg.sshKey} -o StrictHostKeyChecking=accept-new"
           ''}
 
-          current=${toString cfg.flakeLastModified}
-          remote=$(nix flake metadata "${cfg.flakeRef}" --refresh --json | jq '.lastModified')
+          remote=$(nix flake metadata "${cfg.flakeRef}" --refresh --json | jq -r '.locked.narHash')
 
-          if [ "$remote" -gt "$current" ]; then
-            echo "Remote flake is newer ($remote > $current); proceeding with rebuild."
-            exit 0
+          if [ -f "${lastBuiltFile}" ] && [ "$(cat "${lastBuiltFile}")" = "$remote" ]; then
+            echo "Remote flake unchanged since last rebuild ($remote); skipping."
+            exit 1
           fi
-          echo "Remote flake is not newer ($remote <= $current); skipping rebuild."
-          exit 1
+          echo "Remote flake changed or never built here ($remote); proceeding with rebuild."
+          exit 0
         '';
       };
       rebuild-script = pkgs.writeShellApplication {
@@ -175,6 +166,8 @@ in {
             util-linux
             git
             openssh
+            nix
+            jq
           ]
           ++ optionals cfg.notifications.enable [
             libnotify
@@ -222,7 +215,12 @@ in {
             ${cfg.preRebuildHook}
           ''}
 
-          log "Rebuilding from ${flake}..."
+          # Build the exact locked revision so the recorded hash matches what was deployed.
+          METADATA=$(nix flake metadata "${cfg.flakeRef}" --refresh --json)
+          LOCKED_URL=$(jq -r '.url' <<<"$METADATA")
+          LOCKED_NARHASH=$(jq -r '.locked.narHash' <<<"$METADATA")
+
+          log "Rebuilding from $LOCKED_URL#${config.networking.hostName}..."
           notify -u normal "NixOS Remote Rebuild" "Rebuilding from ${flake}..."
 
           CURRENT_GEN=$(nixos-rebuild list-generations | grep current | awk '{print $1}' || echo "unknown")
@@ -230,8 +228,9 @@ in {
           REBUILD_LOG=$(mktemp /tmp/nix-rebuild-XXXXXX.log)
           trap 'rm -f "$REBUILD_LOG"' EXIT
 
-          if nixos-rebuild ${cfg.rebuildCommand} --flake "${flake}" 2>&1 | tee "$REBUILD_LOG"; then
+          if nixos-rebuild ${cfg.rebuildCommand} --flake "$LOCKED_URL#${config.networking.hostName}" 2>&1 | tee "$REBUILD_LOG"; then
             log "Rebuild successful!"
+            echo "$LOCKED_NARHASH" > "${lastBuiltFile}"
             notify -u normal "NixOS Remote Rebuild" "Configuration updated successfully!"
 
             ${optionalString (cfg.postRebuildHook != "") ''
@@ -285,6 +284,7 @@ in {
       serviceConfig =
         {
           Type = "oneshot";
+          StateDirectory = "nix-remote-rebuild";
           ExecStart = "${rebuild-script}/bin/nix-remote-rebuild";
         }
         // optionalAttrs cfg.checkRemoteNewer {
