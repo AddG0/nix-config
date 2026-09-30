@@ -7,7 +7,7 @@
 #   4. Enter decelerates, exit accelerates. The asymmetry is the spec.
 #
 # mkForce calls below override two upstream sources:
-#   - settings.nix in ../common sets gaps_in / gaps_out to 5/10
+#   - settings.nix in ../_common sets gaps_in / gaps_out to 5/10
 #   - stylix's hyprland target auto-themes col.active_border,
 #     col.inactive_border, decoration.shadow.color, and background_color
 #     from base16; the roles we want don't match its base0D/base03/base00 picks.

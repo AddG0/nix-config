@@ -48,7 +48,7 @@
     }).config;
   homes = {
     standard = evalHome [];
-    onePassword = evalHome [../../../primary/common/optional/secrets/1password-ssh.nix];
+    onePassword = evalHome [../../../primary/common/optional/secrets/onepassword-ssh.nix];
   };
 
   hmFor = name: homes.${name};

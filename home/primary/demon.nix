@@ -5,102 +5,71 @@
   ...
 }: {
   imports = lib.flatten [
-    (map (f: ./common/optional/${f}) [
-      "development/aws.nix"
-      "development/node.nix"
-      "nixos/services/rclone.nix"
-      "secrets/1password-ssh.nix"
-      "stylix.nix"
-      "work.nix"
+    # lib.custom.suites.virtualization.home
+    lib.custom.suites.development.home
+    lib.custom.suites.ai.home
+    (with lib.custom.optional.home; [browsers comms ghostty helper-scripts mic-mute-sound])
+    (with lib.custom.optional.home.desktops; [
+      hyprland.nvidia
+      hyprland.software-dimming
+      # hyprland.sunshine
+      hyprland.wlcrosshair
+      # plasma6
     ])
-
-    (map lib.custom.relativeToHome (map (f: "common/optional/${f}") [
-      "awsvpnclient.nix"
-      # Helper Scripts
-      # "helper-scripts"
-      "helper-scripts"
-
-      # Browsers
-      "browsers"
-
-      # Communication
-      "comms"
-      "mic-mute-sound.nix"
-
-      # Development
-      "development"
-      "development/ide/vscode/server.nix"
-      "development/ide/jetbrains-remote.nix"
-      "development/jupyter-notebook.nix"
-      "development/virtualization/nixos-shell.nix"
-      "development/ai"
-      "development/postman.nix"
-      "development/jprofiler.nix"
-      "development/gcloud.nix"
-      "development/aws.nix"
-      # "development/virtualization"
-      "development/virtualization/lens.nix"
-      "development/virtualization/kubernetes"
-      "development/ai/litellm-proxy.nix"
-
-      "development/tilt.nix"
-      "development/grpc.nix"
-      "development/terraform.nix"
-      "development/bootdev.nix"
-      "development/nomad.nix"
-      "secrets/buf.nix"
-      "development/ai/t3code/server.nix"
-
-      # Gaming
-      "gaming"
-      "gaming/minecraft"
-      "gaming/heroic.nix"
-      "gaming/r2modman.nix"
-      "gaming/nitrox.nix"
-      "gaming/bigscreen-beyond.nix"
-      "gaming/rocket-league.nix"
-      "gaming/queued-build-cache-pause.nix"
-
-      # Ghostty (Terminal)
-      "ghostty"
-
-      # Media
-      "media"
-      "media/spicetify.nix"
-      "media/davinci-resolve.nix"
-      # "media/tidal.nix"
-
-      # Tools
-      "tools/wayscriber.nix"
-      # "tools/freecad.nix"
-      "tools/obsidian.nix"
-      "tools/krita.nix"
-      "tools/stylus-notes.nix"
-      "tools/bottles.nix"
-      "tools/fusion360.nix"
-
-      # NixOS Specific
-      # "nixos/desktops/plasma6"
-      "nixos/desktops/hyprland"
-      "nixos/desktops/hyprland/nvidia.nix"
-      # "nixos/desktops/hyprland/sunshine.nix"
-      "nixos/desktops/hyprland/software-dimming.nix"
-      "nixos/desktops/hyprland/wlcrosshair.nix"
-      "nixos/services/gpu-screen-recorder.nix"
-      "nixos/services/hass-agent.nix"
-      "nixos/services/safeeyes"
-      "media/vlc.nix"
-
-      # Remote Desktop
-      # "remote-desktop/rustdesk.nix"
-      # "remote-desktop/mouseshare/lan-mouse.nix"
-
-      # Secrets
-      "secrets"
-      "secrets/kubeconfig.nix"
-      "secrets/ai.nix"
-      "secrets/elevenlabs.nix"
-    ]))
+    (with lib.custom.optional.home.development; [
+      ai.litellm-proxy
+      ai.t3code-server
+      aws
+      bootdev
+      gcloud
+      grpc
+      ide.jetbrains-remote
+      ide.vscode-server
+      jprofiler
+      jupyter-notebook
+      nomad
+      postman
+      terraform
+      tilt
+      virtualization.kubernetes
+      virtualization.lens
+      virtualization.nixos-shell
+    ])
+    (with lib.custom.optional.home.gaming; [
+      bigscreen-beyond
+      heroic
+      minecraft
+      nitrox
+      queued-build-cache-pause
+      r2modman
+      rocket-league
+    ])
+    (with lib.custom.optional.home.media; [
+      core
+      davinci-resolve
+      spicetify
+      # tidal
+      vlc
+    ])
+    (with lib.custom.optional.home.remote-desktop; [
+      # mouseshare.lan-mouse
+      # rustdesk
+    ])
+    (with lib.custom.optional.home.secrets; [ai buf sops elevenlabs kubeconfig])
+    (with lib.custom.optional.home.services; [gpu-screen-recorder hass-agent safeeyes])
+    (with lib.custom.optional.home.tools; [
+      bottles
+      # freecad
+      fusion360
+      krita
+      obsidian
+      stylus-notes
+      wayscriber
+    ])
+    (with lib.custom.optional.primary; [stylix work])
+    (with lib.custom.optional.primary.development; [aws node])
+    (with lib.custom.optional.primary.secrets; [onepassword-ssh])
+    (with lib.custom.optional.primary.services; [rclone])
   ];
 
   # Record from the never-muted direct_input node (demon audio/virtual-devices.nix),

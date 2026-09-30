@@ -4,12 +4,6 @@
   lib,
   ...
 }: {
-  imports = [
-    ./steam
-    ./sens-convert.nix
-    ./reset-steam-prefix.nix
-  ];
-
   home.packages = with pkgs; [
     mangohud
   ];

@@ -18,8 +18,12 @@
   lib,
   ...
 }: let
-  # null on hosts without the NixOS stylix module; the greeter then keeps its default cursor.
-  cursor = config.stylix.cursor or null;
+  # The system stylix cursor if set, else the primary user's; null leaves the greeter's default.
+  systemCursor = config.stylix.cursor or null;
+  cursor =
+    if systemCursor != null
+    then systemCursor
+    else config.home-manager.users.${config.hostSpec.primaryUsername}.stylix.cursor or null;
 in {
   imports = [inputs.noctalia-greeter.nixosModules.default];
 

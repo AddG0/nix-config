@@ -6,10 +6,10 @@
 ###############################################################
 {lib, ...}: {
   imports = lib.flatten [
-    (map lib.custom.relativeToHosts (map (f: "common/optional/${f}") [
-      "darwin/services/tailscale.nix" # mesh VPN for secure remote access
-      "darwin/services/server-mode.nix" # headless: no sleep, SSH, auto-restart
-    ]))
+    (with lib.custom.optional.hosts.darwin.services; [
+      server-mode # headless: no sleep, SSH, auto-restart
+      tailscale # mesh VPN for secure remote access
+    ])
   ];
 
   time.timeZone = "America/Chicago";

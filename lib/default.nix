@@ -1,6 +1,66 @@
 {lib, ...}: let
   frontmatter = import ./frontmatter.nix {inherit lib;};
+
+  # by-name for modules: a .nix file or a dir with default.nix is a leaf (its path); any other dir is a namespace; `_*` is private.
+  moduleTree = dir:
+    lib.mapAttrs' (name: type: let
+      path = dir + "/${name}";
+    in
+      lib.nameValuePair (lib.removeSuffix ".nix" name) (
+        if type == "directory" && !builtins.pathExists (path + "/default.nix")
+        then moduleTree path
+        else path
+      ))
+    (lib.filterAttrs (name: type:
+      !(lib.hasPrefix "_" name)
+      && (type == "directory" || (lib.hasSuffix ".nix" name && name != "default.nix" && name != "tests.nix")))
+    (builtins.readDir dir));
+
+  trees = {
+    hosts = ../hosts/common/optional;
+    home = ../home/common/optional;
+    primary = ../home/primary/common/optional;
+  };
+
+  optional = lib.mapAttrs (_: moduleTree) trees;
+
+  # `_suites.nix` sits in the namespace holding its members; each returns `{ <suite>.<nixos|home> = [...]; }`.
+  suiteFiles = dir: let
+    entries = builtins.readDir dir;
+  in
+    lib.optional (entries ? "_suites.nix") (dir + "/_suites.nix")
+    ++ lib.concatLists (lib.mapAttrsToList (name: type:
+      lib.optionals (type == "directory" && !lib.hasPrefix "_" name && !builtins.pathExists (dir + "/${name}/default.nix"))
+      (suiteFiles (dir + "/${name}")))
+    entries);
+
+  mergeSuites = acc: file:
+    acc
+    // lib.mapAttrs (name: halves: let
+      prev = acc.${name} or {};
+      dup = builtins.attrNames (builtins.intersectAttrs prev halves);
+    in
+      if dup == []
+      then prev // halves
+      else throw "suite ${name}: ${lib.concatStringsSep ", " dup} defined in more than one _suites.nix")
+    file;
+
+  suites = lib.fix (self:
+    builtins.foldl' mergeSuites {} (map (f:
+      import f {
+        inherit optional;
+        suites = self;
+      }) (lib.concatMap suiteFiles (lib.attrValues trees))));
 in {
+  inherit optional suites;
+
+  # A host import for a suite: its nixos half, plus its home half for the primary user.
+  useSuite = suite:
+    (suite.nixos or [])
+    ++ lib.optional (suite ? home) ({config, ...}: {
+      home-manager.users.${config.hostSpec.primaryUsername}.imports = suite.home;
+    });
+
   # genK3sAgentModule = import ./genK3sAgentModule.nix;
   # genK3sServerModule = import ./genK3sServerModule.nix;
 

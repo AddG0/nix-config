@@ -13,7 +13,7 @@
 # user starts typing, mirroring iPhone/iPad OLED unlock behavior.
 #
 # The base `programs.hyprlock.enable = true` and the SUPER+escape bind live in
-# ../common/hyprlock.nix. This file only adds styling.
+# ../_common/hyprlock.nix. This file only adds styling.
 {
   lib,
   config,
@@ -34,7 +34,7 @@
 
   # Default: blurred screenshot of the last frame. Any module that needs
   # to override a specific output's lock background writes into
-  # `programs.hyprlock.backgroundOverrides` (declared in ../common/hyprlock.nix)
+  # `programs.hyprlock.backgroundOverrides` (declared in ../_common/hyprlock.nix)
   # — that hook keeps this file agnostic about who's overriding what.
   overrides = config.programs.hyprlock.backgroundOverrides;
 

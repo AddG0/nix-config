@@ -1,6 +1,6 @@
 {inputs, ...}: {
   imports = [
-    ../common
+    ../_common
     "${inputs.nix-secrets}/modules/shipperhq/hyprland"
     ./waybar.nix
     ./wofi.nix

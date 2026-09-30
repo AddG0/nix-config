@@ -1,10 +1,13 @@
 {
+  lib,
   pkgs,
   customPkgs,
   inputs,
   self,
   ...
 }: {
+  assertions = [(lib.hm.assertions.assertPlatform "home.desktops.plasma6" pkgs lib.platforms.linux)];
+
   imports = [
     inputs.plasma-manager.homeModules.plasma-manager
     self.homeModules.plasma6

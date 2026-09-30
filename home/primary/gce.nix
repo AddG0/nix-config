@@ -1,10 +1,6 @@
 {lib, ...}: {
   imports = lib.flatten [
-    (map lib.custom.relativeToHome (map (f: "common/optional/${f}") [
-      "helper-scripts"
-
-      "development/gcloud.nix"
-      "development/virtualization/kubernetes"
-    ]))
+    (with lib.custom.optional.home; [helper-scripts])
+    (with lib.custom.optional.home.development; [gcloud virtualization.kubernetes])
   ];
 }

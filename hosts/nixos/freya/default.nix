@@ -25,40 +25,42 @@
     # ./ai.nix
     ./media.nix
 
-    (map lib.custom.relativeToHosts (map (f: "common/optional/${f}") [
-      "nixos/hardware/cachyos-kernel.nix"
-      # "nixos/secureboot.nix"
-      "nixos/services/openssh.nix" # allow remote SSH access
-      "nixos/services/tailscale.nix" # mesh VPN for secure remote access
-      "nixos/services/openvpn.nix"
-      "nixos/awsvpnclient.nix"
-      "nixos/audio" # pipewire and cli controls
-      "nixos/services/bluetooth.nix"
-      "nixos/services/airpods-autoconnect.nix"
-      "nixos/services/automatic-timezoned.nix"
-      "nixos/services/earlyoom.nix"
-      "nixos/plymouth.nix" # fancy boot screen
-      "nixos/services/greetd.nix"
-      "nixos/desktops/hyprland"
-      "nix-cache.nix"
-
-      "nixos/gaming" # steam, gamescope, gamemode, and related hardware
-      "nixos/hardware/moza.nix" # MOZA R5 wheelbase (boxflat + udev)
-
-      # "nixos/obs.nix" # obs
-      "nixos/hardware/openrazer.nix" # openrazer
-      "nixos/hardware/wooting.nix" # wooting keyboard
-      "nixos/hardware/wacom-dial-scroll.nix"
-
-      "nixos/1password.nix"
-      # "nixos/services/bt-proximity.nix"
-      "nixos/services/ollama.nix"
-
-      "nixos/virtualisation/docker.nix" # docker
-      # "nixos/development/mysql.nix"
-      "nixos/development/postgres.nix"
-      # "nixos/development/redis.nix"
-    ]))
+    (lib.custom.useSuite lib.custom.suites.hyprland)
+    (lib.custom.useSuite lib.custom.suites.docker)
+    (lib.custom.useSuite lib.custom.suites.awsvpnclient)
+    (lib.custom.useSuite lib.custom.suites.gaming)
+    (with lib.custom.optional.hosts; [nix-cache])
+    (with lib.custom.optional.hosts.nixos; [
+      audio # pipewire and cli controls
+      # obs # obs
+      onepassword
+      plymouth # fancy boot screen
+      # secureboot
+    ])
+    (with lib.custom.optional.hosts.nixos.development; [
+      # mysql
+      postgres
+      # redis
+    ])
+    (with lib.custom.optional.hosts.nixos.hardware; [
+      cachyos-kernel
+      moza # MOZA R5 wheelbase (boxflat + udev)
+      openrazer # openrazer
+      wacom-dial-scroll
+      wooting # wooting keyboard
+    ])
+    (with lib.custom.optional.hosts.nixos.services; [
+      airpods-autoconnect
+      automatic-timezoned
+      bluetooth
+      # bt-proximity
+      earlyoom
+      greetd
+      ollama
+      openssh # allow remote SSH access
+      openvpn
+      tailscale # mesh VPN for secure remote access
+    ])
   ];
 
   programs.kdeconnect.enable = true;

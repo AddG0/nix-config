@@ -32,14 +32,15 @@
 
     #################### Misc Inputs ####################
 
-    (map lib.custom.relativeToHosts (map (f: "common/optional/${f}") [
-      "nixos/services/openssh.nix" # allow remote SSH access
-      "nixos/services/tailscale.nix" # mesh VPN for secure remote access
-      "nixos/services/gitlab-runner.nix" # GitLab CI runner
-      "nixos/plymouth.nix" # fancy boot screen
-
-      "nixos/nix-secrets-deploy-key.nix"
-    ]))
+    (with lib.custom.optional.hosts.nixos; [
+      nix-secrets-deploy-key
+      plymouth # fancy boot screen
+    ])
+    (with lib.custom.optional.hosts.nixos.services; [
+      gitlab-runner # GitLab CI runner
+      openssh # allow remote SSH access
+      tailscale # mesh VPN for secure remote access
+    ])
   ];
 
   nix.git-sync = {

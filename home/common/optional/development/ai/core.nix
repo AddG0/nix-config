@@ -4,16 +4,6 @@
   lib,
   ...
 }: {
-  imports = [
-    ./ai-usagebar.nix
-    ./code-assistant-profiles
-    ./claude-code
-    ./codex
-    ./opencode
-    ./t3code
-    ./tmux-agent-sidebar.nix
-  ];
-
   programs.zsh.shellAliases = {
     mcp-inspector = "${pkgs.nodejs}/bin/npx --yes @modelcontextprotocol/inspector";
   };

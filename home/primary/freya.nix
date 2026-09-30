@@ -5,96 +5,64 @@
   ...
 }: {
   imports = lib.flatten [
-    (map (f: ./common/optional/${f}) [
-      "development/aws.nix"
-      "secrets/1password-ssh.nix"
-      "stylix.nix"
-      "work.nix"
+    lib.custom.suites.development.home
+    lib.custom.suites.ai.home
+    lib.custom.suites.virtualization.home
+    (with lib.custom.optional.home; [
+      browsers
+      comms
+      ghostty
+      helper-scripts
+      librepods
+      mic-mute-sound
     ])
-
-    (map lib.custom.relativeToHome (map (f: "common/optional/${f}") [
-      "awsvpnclient.nix"
-      # Helper Scripts
-      # "helper-scripts"
-      "helper-scripts"
-
-      # Browsers
-      "browsers"
-
-      # Communication
-      "comms"
-      "librepods.nix"
-      "mic-mute-sound.nix"
-
-      # Development
-      "development"
-      # "development/ide/vscode/server.nix"
-      "development/ide/jetbrains-remote.nix"
-      # "development/jupyter-notebook.nix"
-      # "development/virtualization/nixos-shell.nix"
-      "development/ai"
-      "development/postman.nix"
-      "development/jprofiler.nix"
-      "development/gcloud.nix"
-      "development/aws.nix"
-      "development/virtualization"
-      "development/virtualization/lens.nix"
-      "development/virtualization/kubernetes"
-      "development/virtualization/nixos-shell.nix"
-      "development/terraform.nix"
-      "development/bootdev.nix"
-      "development/nomad.nix"
-
-      # "development/tilt.nix"
-      # "development/grpc.nix"
-      # "development/ai/litellm-proxy.nix"
-
-      "secrets/buf.nix"
-
-      # Gaming
-      "gaming"
-      "gaming/steam"
-      "gaming/minecraft"
-      "gaming/heroic.nix"
-      "gaming/r2modman.nix"
-      "gaming/nitrox.nix"
-      "gaming/rocket-league.nix"
-
-      # Ghostty (Terminal)
-      "ghostty"
-
-      # Media
-      "media"
-      "media/spicetify.nix"
-      "media/davinci-resolve.nix"
-      # "media/tidal.nix"
-
-      # Tools
-      # "tools/gromit-mpx.nix"
-      "tools/wayscriber.nix"
-      # "tools/freecad.nix"
-      "tools/obsidian.nix"
-      "tools/krita.nix"
-      "tools/stylus-notes.nix"
-
-      # NixOS Specific
-      # "nixos/desktops/plasma6"
-      "nixos/desktops/hyprland"
-      "nixos/desktops/hyprland/wlcrosshair.nix"
-      "nixos/desktops/hyprland/software-dimming.nix"
-      "nixos/desktops/hyprland/nvidia.nix"
-      "media/vlc.nix"
-
-      # Remote Desktop
-      # "remote-desktop/rustdesk.nix"
-      # "remote-desktop/mouseshare/lan-mouse.nix"
-
-      # Secrets
-      "secrets"
-      "secrets/kubeconfig.nix"
-      "secrets/ai.nix"
-      "secrets/elevenlabs.nix"
-    ]))
+    (with lib.custom.optional.home.desktops; [
+      hyprland.nvidia
+      hyprland.software-dimming
+      hyprland.wlcrosshair
+      # plasma6
+    ])
+    (with lib.custom.optional.home.development; [
+      # ai.litellm-proxy
+      aws
+      bootdev
+      gcloud
+      # grpc
+      ide.jetbrains-remote
+      # ide.vscode-server
+      jprofiler
+      # jupyter-notebook
+      nomad
+      postman
+      terraform
+      # tilt
+      virtualization.lens
+      virtualization.nixos-shell
+    ])
+    (with lib.custom.optional.home.gaming; [heroic minecraft nitrox r2modman rocket-league])
+    (with lib.custom.optional.home.media; [
+      core
+      davinci-resolve
+      spicetify
+      # tidal
+      vlc
+    ])
+    (with lib.custom.optional.home.remote-desktop; [
+      # mouseshare.lan-mouse
+      # rustdesk
+    ])
+    (with lib.custom.optional.home.secrets; [ai buf sops elevenlabs kubeconfig])
+    (with lib.custom.optional.home.tools; [
+      # freecad
+      # gromit-mpx
+      krita
+      obsidian
+      stylus-notes
+      wayscriber
+    ])
+    (with lib.custom.optional.primary; [stylix work])
+    (with lib.custom.optional.primary.development; [aws])
+    (with lib.custom.optional.primary.secrets; [onepassword-ssh])
   ];
 
   home.file."Videos/Movies".source = config.lib.file.mkOutOfStoreSymlink "/mnt/videos";

@@ -10,12 +10,14 @@
     inherit (inputs.home-manager.lib) hm;
   });
 
-  # Scan home/primary/ for host .nix files (each file = one home-manager config)
-  hostFiles = builtins.filter (
-    name: lib.hasSuffix ".nix" name && name != "default.nix"
-  ) (builtins.attrNames (builtins.readDir ./primary));
-
   mkHostName = file: lib.removeSuffix ".nix" file;
+
+  # Standalone homes only for machines without a host: a host's real home is the one it embeds, suites included.
+  hasHost = name: builtins.pathExists (../hosts/nixos + "/${name}") || builtins.pathExists (../hosts/darwin + "/${name}");
+
+  hostFiles = builtins.filter (
+    name: lib.hasSuffix ".nix" name && name != "default.nix" && !hasHost (mkHostName name)
+  ) (builtins.attrNames (builtins.readDir ./primary));
 
   # pkgs must be chosen before a host's module evaluates, so we read
   # hostSpec.hostPlatform as plain data first: call the module with dummy args

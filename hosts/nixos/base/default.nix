@@ -25,9 +25,7 @@
 ###############################################################
 {lib, ...}: {
   imports = lib.flatten [
-    (map lib.custom.relativeToHosts (map (f: "common/optional/${f}") [
-      "nixos/services/openssh.nix"
-    ]))
+    (with lib.custom.optional.hosts.nixos.services; [openssh])
   ];
 
   hostSpec = {

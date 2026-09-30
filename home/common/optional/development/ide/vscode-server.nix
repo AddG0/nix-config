@@ -9,7 +9,7 @@
   ...
 }: let
   # Import shared extension library
-  vscodeLib = import ./lib.nix {inherit lib pkgs customPkgs config;};
+  vscodeLib = import ./vscode/lib.nix {inherit lib pkgs customPkgs config;};
 
   inherit (vscodeLib.defaultProfile) extensions;
 

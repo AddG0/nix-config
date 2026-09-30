@@ -76,6 +76,33 @@
     }
     return withAlpha(PAL[best[0]], rgba[3]);
   };
+  const lum = (h) => {
+    const [r, g, b] = hex(h).map(lin);
+    return 0.2126 * r + 0.7152 * g + 0.0722 * b;
+  };
+  const contrast = (x, y) => {
+    const [a, b] = [lum(x), lum(y)].sort((p, q) => q - p);
+    return (a + 0.05) / (b + 0.05);
+  };
+  const onFill = (fill) =>
+    contrast(PAL.base00, fill) >= contrast(PAL.base05, fill)
+      ? PAL.base00
+      : PAL.base05;
+  const probe = document.createElement("div");
+  probe.hidden = true;
+  const fills = new Map();
+  // Accent a rule paints solid behind its text, with var()s resolved against the live document.
+  const accentFill = (raw) => {
+    if (!raw || /gradient|url\(/i.test(raw)) return null;
+    if (fills.has(raw)) return fills.get(raw);
+    probe.style.backgroundColor = "";
+    probe.style.backgroundColor = raw;
+    const rgba = parse(getComputedStyle(probe).backgroundColor);
+    const m = rgba && rgba[3] >= 0.9 ? map(rgba) : null;
+    const hit = m && m.startsWith("#") ? m.slice(0, 7) : null;
+    fills.set(raw, hit);
+    return hit;
+  };
   const PROPS = [
     "color",
     "background-color",
@@ -156,6 +183,19 @@
           (!p.startsWith("--") || /var\(/.test(raw) ? raw : null);
         if (out) decls.push(`${p}: ${out} !important;`);
       }
+      const fill = accentFill(
+        (
+          r.style.getPropertyValue("background-color") ||
+          r.style.getPropertyValue("background")
+        ).trim(),
+      );
+      const fg = r.style.getPropertyValue("color").trim();
+      const hidden = fg && !/var\(/.test(fg) && (parse(fg)?.[3] ?? 1) < 0.5;
+      if (fill && !hidden) {
+        const i = decls.findIndex((d) => d.startsWith("color:"));
+        if (i >= 0) decls.splice(i, 1);
+        decls.push(`color: ${onFill(fill)} !important;`);
+      }
       if (!decls.length) continue;
       const rule = `${r.selectorText} { ${decls.join(" ")} }`;
       chunks.push(wrap ? `${wrap} { ${rule} }` : rule);
@@ -178,6 +218,7 @@
     if (added) apply(chunks.join("\n"));
   };
   const start = () => {
+    document.body.append(probe);
     scan();
     const later = () => {
       clearTimeout(start.t);

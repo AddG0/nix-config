@@ -1,7 +1,5 @@
 {lib, ...}: {
   imports = lib.flatten [
-    (map lib.custom.relativeToHome (map (f: "common/optional/${f}") [
-      "helper-scripts"
-    ]))
+    (with lib.custom.optional.home; [helper-scripts])
   ];
 }

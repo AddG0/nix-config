@@ -221,6 +221,7 @@
     niri = {
       url = "github:sodiboo/niri-flake";
       inputs.nixpkgs.follows = "nixpkgs";
+      inputs.nixpkgs-stable.follows = "nixpkgs-stable";
     };
 
     noctalia = {
@@ -333,6 +334,14 @@
       # url = "path:/home/addg/Projects/code/github.com/AddG0/ai-toolkit";
       inputs.nixpkgs.follows = "nixpkgs";
       inputs.flake-parts.follows = "flake-parts";
+      # Its dependency tree pins its own nixpkgs copies; share ours instead.
+      inputs.bun2nix.inputs.nixpkgs.follows = "nixpkgs";
+      inputs.nix-secrets.inputs.pre-commit-hooks.inputs.nixpkgs.follows = "nixpkgs";
+      inputs.ai-eng-framework.inputs.bun2nix.inputs.nixpkgs.follows = "nixpkgs";
+      inputs.ai-eng-framework.inputs.platform-nix.inputs.nixpkgs-stable.follows = "nixpkgs-stable";
+      inputs.ai-eng-framework.inputs.platform-nix.inputs.nixpkgs-unstable.follows = "nixpkgs-unstable";
+      inputs.shq-env.inputs.platform-nix.inputs.nixpkgs-stable.follows = "nixpkgs-stable";
+      inputs.shq-env.inputs.platform-nix.inputs.nixpkgs-unstable.follows = "nixpkgs-unstable";
     };
 
     # BakkesMod for Rocket League

@@ -19,10 +19,10 @@
 
     #################### Misc Inputs ####################
 
-    (map lib.custom.relativeToHosts (map (f: "common/optional/${f}") [
-      "nixos/services/openssh.nix" # allow remote SSH access
-      "nixos/nix-secrets-deploy-key.nix"
-    ]))
+    (with lib.custom.optional.hosts.nixos; [nix-secrets-deploy-key])
+    (with lib.custom.optional.hosts.nixos.services; [
+      openssh # allow remote SSH access
+    ])
   ];
 
   nix.git-sync = {

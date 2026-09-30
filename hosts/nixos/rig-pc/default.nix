@@ -21,16 +21,19 @@
     inputs.hardware.nixosModules.common-pc-ssd
 
     #################### Misc Inputs ####################
-    (map lib.custom.relativeToHosts (map (f: "common/optional/${f}") [
-      "nixos/hardware/cachyos-kernel.nix" # BORE + scx_lavd + ananicy
-      "nixos/audio" # pipewire
-      "nixos/services/bluetooth.nix" # wireless controller pairing
-      "nixos/services/earlyoom.nix"
-      "nixos/services/openssh.nix"
-
-      "nixos/gaming" # steam, gamescope, gamemode, decky, xone
-      "nixos/services/greetd.nix" # gamescope-session hangs off greetd
-    ]))
+    (lib.custom.useSuite lib.custom.suites.gaming)
+    (with lib.custom.optional.hosts.nixos; [
+      audio # pipewire
+    ])
+    (with lib.custom.optional.hosts.nixos.hardware; [
+      cachyos-kernel # BORE + scx_lavd + ananicy
+    ])
+    (with lib.custom.optional.hosts.nixos.services; [
+      bluetooth # wireless controller pairing
+      earlyoom
+      greetd # gamescope-session hangs off greetd
+      openssh
+    ])
   ];
 
   gaming.gamescopeSession.standalone = true;

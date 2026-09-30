@@ -1,10 +1,6 @@
 {lib, ...}: {
   imports = lib.flatten [
-    (map lib.custom.relativeToHome (map (f: "common/optional/${f}") [
-      # Gaming
-      "gaming"
-      "gaming/minecraft"
-    ]))
+    (with lib.custom.optional.home.gaming; [minecraft])
   ];
 
   #

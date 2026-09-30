@@ -11,7 +11,6 @@
   ...
 }: {
   imports = lib.flatten [
-    inputs.stylix.nixosModules.stylix
     #################### Hardware ####################
     inputs.hardware.nixosModules.common-cpu-amd
     inputs.hardware.nixosModules.common-pc-ssd
@@ -28,49 +27,50 @@
     ./mt7927.nix
     ./openrgb-schedule.nix
 
-    (map lib.custom.relativeToHosts (
-      map (f: "common/optional/${f}") [
-        "nixos/services/openssh.nix" # allow remote SSH access
-        "nixos/hardware/cachyos-kernel.nix" # CachyOS kernel
-        "nixos/secureboot.nix"
-        "nixos/services/bluetooth.nix"
-        "nixos/audio" # base pipewire + AirPods A2DP handling; ./audio layers demon-specific routing on top
-
-        "nixos/services/tailscale.nix" # mesh VPN for secure remote access
-
-        "nixos/obs.nix" # obs
-        "nixos/hardware/openrazer.nix" # openrazer
-        "nixos/hardware/wooting.nix" # wooting keyboard
-        "nixos/hardware/flipperzero.nix" # flipper zero udev rules + qFlipper
-        "nixos/hardware/moza.nix" # MOZA R5 wheelbase (boxflat + udev)
-        "nixos/hardware/openrgb.nix" # OpenRGB (motherboard SMBus set below)
-        "nixos/hardware/wacom-dial-scroll.nix"
-        "nixos/1password.nix"
-        "nixos/awsvpnclient.nix"
-        "nixos/services/clamav.nix"
-        "nixos/services/earlyoom.nix"
-
-        # "nixos/remote-desktop/sunshine"
-
-        "nixos/services/ollama.nix"
-        "nixos/services/lact.nix" # GPU overclocking/monitoring
-        "nixos/virtualisation/docker.nix" # docker
-        # "nixos/development/mysql.nix"
-        # "nixos/development/postgres.nix"
-        # "nixos/development/redis.nix"
-
-        "nixos/gaming" # steam, gamescope, gamemode, and related hardware
-        "nixos/vr.nix" # monado OpenXR runtime (Bigscreen Beyond)
-
-        # "nixos/plymouth.nix" # fancy boot screen
-        "nixos/services/greetd.nix"
-        "nixos/services/noctalia-greeter.nix"
-        # "nixos/desktops/plasma6" # window manager
-        "nixos/desktops/hyprland"
-
-        "nix-cache.nix"
-      ]
-    ))
+    (lib.custom.useSuite lib.custom.suites.hyprland)
+    (lib.custom.useSuite lib.custom.suites.docker)
+    (lib.custom.useSuite lib.custom.suites.awsvpnclient)
+    (lib.custom.useSuite lib.custom.suites.gaming)
+    (with lib.custom.optional.hosts; [nix-cache])
+    (with lib.custom.optional.hosts.nixos; [
+      audio # base pipewire + AirPods A2DP handling; ./audio layers demon-specific routing on top
+      obs # obs
+      onepassword
+      # plymouth # fancy boot screen
+      secureboot
+      vr # monado OpenXR runtime (Bigscreen Beyond)
+    ])
+    (with lib.custom.optional.hosts.nixos.desktops; [
+      # plasma6 # window manager
+    ])
+    (with lib.custom.optional.hosts.nixos.development; [
+      # mysql
+      # postgres
+      # redis
+    ])
+    (with lib.custom.optional.hosts.nixos.hardware; [
+      cachyos-kernel # CachyOS kernel
+      flipperzero # flipper zero udev rules + qFlipper
+      moza # MOZA R5 wheelbase (boxflat + udev)
+      openrazer # openrazer
+      openrgb # OpenRGB (motherboard SMBus set below)
+      wacom-dial-scroll
+      wooting # wooting keyboard
+    ])
+    (with lib.custom.optional.hosts.nixos.remote-desktop; [
+      # sunshine
+    ])
+    (with lib.custom.optional.hosts.nixos.services; [
+      bluetooth
+      clamav
+      earlyoom
+      greetd
+      lact # GPU overclocking/monitoring
+      noctalia-greeter
+      ollama
+      openssh # allow remote SSH access
+      tailscale # mesh VPN for secure remote access
+    ])
   ];
 
   nix.git-sync = {
@@ -161,25 +161,4 @@
   };
 
   time.timeZone = "America/Chicago";
-
-  stylix = {
-    enable = false;
-    image = pkgs.fetchurl {
-      url = "https://unsplash.com/photos/3l3RwQdHRHg/download?ixid=M3wxMjA3fDB8MXxhbGx8fHx8fHx8fHwxNzM2NTE4NDQ2fA&force=true";
-      sha256 = "LtdnBAxruHKYE/NycsA614lL6qbGBlkrlj3EPNZ/phU=";
-    };
-    base16Scheme = "${inputs.tt-schemes}/base16/catppuccin-mocha.yaml";
-    cursor = {
-      package = pkgs.bibata-cursors;
-      name = "Bibata-Original-Classic";
-      size = 24; # adjust to your display
-    };
-    opacity = {
-      applications = 1.0;
-      terminal = 1.0;
-      desktop = 1.0;
-      popups = 0.8;
-    };
-    polarity = "dark";
-  };
 }

@@ -522,6 +522,7 @@ in {
 
   config = lib.mkIf cfg.enable {
     assertions = [
+      (lib.hm.assertions.assertPlatform "services.gpu-screen-recorder" pkgs lib.platforms.linux)
       {
         assertion = cfg.display != null || cfg.matchMonitorName != null;
         message = "gpu-screen-recorder: Set 'display' (e.g. \"DP-3\" or \"portal\") or 'matchMonitorName'";

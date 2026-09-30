@@ -218,6 +218,11 @@ check-workarounds *ARGS: && check-markers
 diff:
   git diff HEAD ':!flake.lock'
 
+[group('development')]
+[doc("List importable optional modules and suites; filter by prefix, e.g. `just optional home.development`")]
+optional FILTER="":
+  @scripts/list-optional.sh {{FILTER}}
+
 [group('vscode')]
 [doc("Compare VS Code extension versions between marketplace and release")]
 vscode-compare:

@@ -30,16 +30,15 @@
 
     #################### Misc Inputs ####################
 
-    (map lib.custom.relativeToHosts (map (f: "common/optional/${f}") [
-      "nixos/services/openssh.nix" # allow remote SSH access
-      "nixos/services/home-assistant-oci.nix"
-      "nixos/services/nginx.nix" # nginx
-      # "nixos/services/n8n.nix" # n8n
-      "nixos/nix-secrets-deploy-key.nix"
-      "nixos/static-networking.nix"
-      "nixos/services/kubernetes/clusters/asgard.nix"
-      "nixos/services/nomad/clusters/midgard/client.nix"
-    ]))
+    (with lib.custom.optional.hosts.nixos; [nix-secrets-deploy-key static-networking])
+    (with lib.custom.optional.hosts.nixos.services; [
+      home-assistant-oci
+      kubernetes.clusters.asgard
+      # n8n # n8n
+      nginx # nginx
+      nomad.clusters.midgard.client
+      openssh # allow remote SSH access
+    ])
   ];
 
   nix.git-sync = {

@@ -1,79 +1,44 @@
 {lib, ...}: {
   imports = lib.flatten [
-    (map (f: ./common/optional/${f}) [
-      "development/aws.nix"
-      "secrets/1password-ssh.nix"
-      "stylix.nix"
-      "work.nix"
+    # lib.custom.suites.virtualization.home
+    lib.custom.suites.development.home
+    lib.custom.suites.ai.home
+    (with lib.custom.optional.home; [browsers comms ghostty helper-scripts librepods])
+    (with lib.custom.optional.home.desktops; [
+      # hyprland.nvidia
+      # hyprland.personal
+      # hyprland.sunshine
     ])
-
-    (map lib.custom.relativeToHome (map (f: "common/optional/${f}") [
-      "awsvpnclient.nix"
-      # Helper Scripts
-      # "helper-scripts"
-      "helper-scripts"
-
-      # Browsers
-      "browsers"
-
-      # Communication
-      "comms"
-      "librepods.nix"
-
-      # Development
-      "development"
-      "development/ide/vscode/server.nix"
-      "development/ide/jetbrains-remote.nix"
-      "development/jupyter-notebook.nix"
-      "development/virtualization/nixos-shell.nix"
-      "development/ai"
-      "development/postman.nix"
-      "development/gcloud.nix"
-      "development/aws.nix"
-      # "development/virtualization"
-      "development/virtualization/lens.nix"
-      "development/virtualization/kubernetes"
-      "development/ai/litellm-proxy.nix"
-
-      "development/grpc.nix"
-      "secrets/buf.nix"
-      "development/terraform.nix"
-
-      # Gaming
-      "gaming"
-      "gaming/minecraft"
-      "gaming/heroic.nix"
-      "gaming/r2modman.nix"
-      "gaming/rocket-league.nix"
-
-      # Ghostty (Terminal)
-      "ghostty"
-
-      # Media
-      "media"
-      "media/spicetify.nix"
-      # "media/tidal.nix"
-
-      # Tools
-      "tools/wayscriber.nix"
-
-      # NixOS Specific
-      # "nixos/desktops/hyprland"
-      # "nixos/desktops/hyprland/nvidia.nix"
-      # "nixos/desktops/hyprland/sunshine.nix"
-      "nixos/desktops/plasma6"
-      "media/vlc.nix"
-
-      # Remote Desktop
-      # "remote-desktop/rustdesk.nix"
-      # "remote-desktop/mouseshare/lan-mouse.nix"
-
-      # Secrets
-      "secrets"
-      "secrets/kubeconfig.nix"
-      "secrets/ai.nix"
-      "secrets/elevenlabs.nix"
-    ]))
+    (with lib.custom.optional.home.development; [
+      ai.litellm-proxy
+      aws
+      gcloud
+      grpc
+      ide.jetbrains-remote
+      ide.vscode-server
+      jupyter-notebook
+      postman
+      terraform
+      virtualization.kubernetes
+      virtualization.lens
+      virtualization.nixos-shell
+    ])
+    (with lib.custom.optional.home.gaming; [heroic minecraft r2modman rocket-league])
+    (with lib.custom.optional.home.media; [
+      core
+      spicetify
+      # tidal
+      vlc
+    ])
+    (with lib.custom.optional.home.remote-desktop; [
+      # mouseshare.lan-mouse
+      # rustdesk
+    ])
+    (with lib.custom.optional.home.secrets; [ai buf sops elevenlabs kubeconfig])
+    (with lib.custom.optional.home.tools; [wayscriber])
+    (with lib.custom.optional.primary; [stylix work])
+    (with lib.custom.optional.primary.development; [aws])
+    (with lib.custom.optional.primary.secrets; [onepassword-ssh])
   ];
 
   # Doesn't work on plasma saddly

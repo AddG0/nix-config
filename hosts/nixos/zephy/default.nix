@@ -35,35 +35,37 @@
 
     #################### Misc Inputs ####################
 
-    (map lib.custom.relativeToHosts (map (f: "common/optional/${f}") [
-      "nixos/hardware/cachyos-kernel.nix" # CachyOS kernel
-      "nixos/services/openssh.nix" # allow remote SSH access
-      "nixos/awsvpnclient.nix"
-      # "nixos/nvtop.nix" # GPU monitor (not available in home-manager)
-      "nixos/audio" # pipewire and cli controls
-      "nixos/gaming" # steam, gamescope, gamemode, and related hardware
-      "nixos/virtualisation/docker.nix" # docker
-      # "nixos/services/home-assistant.nix"
-      # "nixos/virtualisation/docker.nix"
-      # "nixos/plymouth.nix" # fancy boot screen
-      "nixos/services/bluetooth.nix"
-      "nixos/services/bt-proximity.nix"
-      "nixos/services/automatic-timezoned.nix"
-      "nixos/services/earlyoom.nix"
-      # "nixos/services/openvpn.nix" # home VPN
-      "nixos/1password.nix"
-      "nixos/hardware/openrazer.nix" # openrazer
-      "nixos/hardware/wooting.nix" # wooting keyboard
-      "nixos/development/mysql.nix"
-
-      #################### Desktop ####################
-      "nixos/desktops/plasma6"
-      "nixos/services/greetd.nix"
-
-      #################### Remote Desktop ####################
-      "nixos/remote-desktop/sunshine"
-      "nixos/services/tailscale.nix"
-    ]))
+    (lib.custom.useSuite lib.custom.suites.docker)
+    (lib.custom.useSuite lib.custom.suites.awsvpnclient)
+    (lib.custom.useSuite lib.custom.suites.plasma6)
+    (lib.custom.useSuite lib.custom.suites.gaming)
+    (with lib.custom.optional.hosts.nixos; [
+      audio # pipewire and cli controls
+      # nvtop # GPU monitor (not available in home-manager)
+      onepassword
+      # plymouth # fancy boot screen
+    ])
+    (with lib.custom.optional.hosts.nixos.development; [mysql])
+    (with lib.custom.optional.hosts.nixos.hardware; [
+      cachyos-kernel # CachyOS kernel
+      openrazer # openrazer
+      wooting # wooting keyboard
+    ])
+    (with lib.custom.optional.hosts.nixos.remote-desktop; [sunshine])
+    (with lib.custom.optional.hosts.nixos.services; [
+      automatic-timezoned
+      bluetooth
+      bt-proximity
+      earlyoom
+      greetd
+      # home-assistant
+      openssh # allow remote SSH access
+      # openvpn # home VPN
+      tailscale
+    ])
+    (with lib.custom.optional.hosts.nixos.virtualisation; [
+      # docker
+    ])
   ];
 
   programs.kdeconnect.enable = true;

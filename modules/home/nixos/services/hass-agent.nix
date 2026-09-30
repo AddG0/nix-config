@@ -21,6 +21,8 @@ in {
   };
 
   config = lib.mkIf cfg.enable {
+    assertions = [(lib.hm.assertions.assertPlatform "services.hassAgent" pkgs lib.platforms.linux)];
+
     home.packages = [cfg.package];
 
     systemd.user.services.hass-agent = {

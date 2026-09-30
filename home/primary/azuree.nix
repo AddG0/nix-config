@@ -6,32 +6,27 @@
   ...
 }: {
   imports = lib.flatten [
-    (map lib.custom.relativeToHome (map (f: "common/optional/${f}") [
-      # "helper-scripts"
-      # "development/jupyter-notebook.nix"
-      "browsers"
-      "development/ide"
-      # "secrets"
-      # "secrets/kubeconfig.nix"
-      "gaming/minecraft"
-      "gaming/heroic.nix"
-      "comms"
-      "ghostty"
-      "media/spicetify.nix"
-      "media/tidal.nix"
-      "media"
-      "nixos/desktops/plasma6"
-      # "remote-desktop/rustdesk.nix"
-      # "development/virtualization"
-      # "development/virtualization/lens.nix"
-      "development/gcloud.nix"
-      "nixos/services/safeeyes"
-      "media/vlc.nix"
-      # "remote-desktop/mouseshare/lan-mouse.nix"
-      # "development/ai"
-      "development/postman.nix"
-      "helper-scripts"
-    ]))
+    # lib.custom.suites.ai.home
+    # lib.custom.suites.virtualization.home
+    lib.custom.suites.ide.home
+    (with lib.custom.optional.home; [browsers comms ghostty helper-scripts])
+    (with lib.custom.optional.home.development; [
+      gcloud
+      # jupyter-notebook
+      postman
+      # virtualization.lens
+    ])
+    (with lib.custom.optional.home.gaming; [heroic minecraft])
+    (with lib.custom.optional.home.media; [core spicetify tidal vlc])
+    (with lib.custom.optional.home.remote-desktop; [
+      # mouseshare.lan-mouse
+      # rustdesk
+    ])
+    (with lib.custom.optional.home.secrets; [
+      # sops
+      # kubeconfig
+    ])
+    (with lib.custom.optional.home.services; [safeeyes])
   ];
 
   home.file."Videos/Movies".source = config.lib.file.mkOutOfStoreSymlink "/mnt/videos";

@@ -231,7 +231,7 @@
       };
 
       # Icons: chrome://browser/skin/zen-icons/selectable/{name}.svg
-      # Full list: unzip -l $(nix eval .#homeConfigurations.addg@demon.config.programs.zen-browser.package --raw)/lib/zen/browser/omni.ja | grep selectable
+      # Full list: unzip -l $(nix eval .#nixosConfigurations.demon.config.home-manager.users.addg.programs.zen-browser.package --raw)/lib/zen/browser/omni.ja | grep selectable
       spaces = {
         "Main" = {
           id = "a1b2c3d4-e5f6-4a7b-8c9d-0e1f2a3b4c5d";

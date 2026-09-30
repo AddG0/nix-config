@@ -20,9 +20,9 @@
     ./hardware-configuration.nix
     # ./ai.nix
 
-    (map lib.custom.relativeToHosts (map (f: "common/optional/${f}") [
-      "nixos/services/openssh.nix" # allow remote SSH access
-    ]))
+    (with lib.custom.optional.hosts.nixos.services; [
+      openssh # allow remote SSH access
+    ])
   ];
 
   networking = {

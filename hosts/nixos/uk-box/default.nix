@@ -31,11 +31,11 @@
 
     #################### Misc Inputs ####################
 
-    (map lib.custom.relativeToHosts (map (f: "common/optional/${f}") [
-      "nixos/services/openssh.nix" # allow remote SSH access
-      "nixos/services/nginx.nix" # nginx
-      "nixos/services/home-assistant-oci.nix"
-    ]))
+    (with lib.custom.optional.hosts.nixos.services; [
+      home-assistant-oci
+      nginx # nginx
+      openssh # allow remote SSH access
+    ])
   ];
 
   services.homeAssistantOci.hostName = "home-assistant-eu.${config.hostSpec.domain}";

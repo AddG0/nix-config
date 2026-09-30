@@ -1,20 +1,15 @@
 {lib, ...}: {
   imports = lib.flatten [
-    (map (f: ./common/optional/${f}) [
-      # "development/aws.nix"
-      "secrets/1password-ssh.nix"
-      "stylix.nix"
-      "work.nix"
+    lib.custom.suites.development.home
+    lib.custom.suites.ai.home
+    (with lib.custom.optional.home; [browsers])
+    (with lib.custom.optional.home.development; [gcloud])
+    (with lib.custom.optional.home.secrets; [sops])
+    (with lib.custom.optional.primary; [stylix work])
+    (with lib.custom.optional.primary.development; [
+      # aws
     ])
-    (map lib.custom.relativeToHome (map (f: "common/optional/${f}") [
-      "browsers"
-
-      "development"
-      "development/ai"
-      "development/gcloud.nix"
-
-      "secrets"
-    ]))
+    (with lib.custom.optional.primary.secrets; [onepassword-ssh])
   ];
 
   hostSpec = {

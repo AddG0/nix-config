@@ -20,9 +20,7 @@
     "${modulesPath}/virtualisation/google-compute-image.nix"
 
     #################### Misc Inputs ####################
-    (map lib.custom.relativeToHosts (map (f: "common/optional/${f}") [
-      "nixos/services/openssh.nix"
-    ]))
+    (with lib.custom.optional.hosts.nixos.services; [openssh])
   ];
 
   hostSpec = {

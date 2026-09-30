@@ -43,10 +43,46 @@ of `scripts/check-flake-workarounds.sh` for the `CHECK-ATTR:` /
 Packages from a flake input need the second — plain nixpkgs has a different
 package under that name, or none.
 
-Our own packages live in `pkgs/by-name/` (nixpkgs' by-name layout: add
-`<name>/package.nix` or `<name>.nix`; a directory without `package.nix` becomes a
-nested scope) and are exposed as one attr, `pkgs.addg`. A workaround on one
-patches that scope rather than a top-level name —
-`addg = prev.addg.overrideScope (_: aprev: { … })`, one `overrideScope` per
-nesting level — and declares `CHECK-CUSTOM-ATTR:`, which builds that package
-with none of our workarounds.
+### Our own packages
+
+Our packages live in `pkgs/by-name/`: add `<name>/package.nix` (or `<name>.nix`);
+a directory without one nests. They're one attr, `pkgs.addg`, so a workaround
+patches the scope, one `overrideScope` per level:
+
+```nix
+addg = prev.addg.overrideScope (_: aprev: {
+  decky = aprev.decky.overrideScope (_: dprev: { … });
+});
+```
+
+Mark it `CHECK-CUSTOM-ATTR:` so `check-workarounds` builds the package without
+our workarounds. Modules get the scope as `customPkgs` and our lib as
+`customLib`, the same values as `pkgs.addg` and `lib.custom`. Why: ADR 0002.
+
+## Optional modules and suites
+
+Import optional modules through `lib.custom.optional.{hosts,home,primary}`. A
+`.nix` file or a directory with `default.nix` is a module, any other directory
+just groups them, and `_` hides a file. `just optional` lists everything.
+
+A suite is a set of modules taken together, declared in `_suites.nix` in the
+folder holding them; anything there it doesn't list is an add-on. Hosts import a
+suite with `lib.custom.useSuite`, which brings its home half along.
+
+Order imports external, then host-local, then ours: suites, the root block, then
+one `with` block per namespace.
+
+```nix
+imports = lib.flatten [
+  inputs.hardware.nixosModules.common-pc-ssd
+  ./hardware-configuration.nix
+  (lib.custom.useSuite lib.custom.suites.gaming)
+  (with lib.custom.optional.hosts; [nix-cache])
+  (with lib.custom.optional.hosts.nixos.services; [openssh tailscale])
+];
+```
+
+Home trees split by domain (`desktops/`, `services/`), never by platform; a
+platform-bound home module says so with `lib.hm.assertions.assertPlatform`. Only
+`hosts/common/optional` has `nixos/` and `darwin/`, because those are different
+module systems. Why: ADR 0001.

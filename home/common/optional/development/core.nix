@@ -19,19 +19,7 @@
     '';
   };
 in {
-  imports = lib.flatten [
-    ./ide
-    ./scripts
-    (lib.optional (!hostSpec.isDarwin) ./chromium.nix)
-    ./nvim-uri-handler
-    ./process-compose.nix
-    ./git.nix
-    ./gitlab.nix
-    ./herdr.nix
-    ./lnav
-    ./polyrepo
-    ./languages
-  ];
+  imports = lib.optional (!hostSpec.isDarwin) ./_chromium.nix;
 
   home.packages = with pkgs; [
     ttyplot

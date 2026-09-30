@@ -13,7 +13,6 @@
   ...
 }: {
   imports = lib.flatten [
-    inputs.stylix.nixosModules.stylix
     (lib.custom.scanPaths ./.)
     #################### Hardware ####################
     inputs.hardware.nixosModules.common-cpu-intel
@@ -32,22 +31,25 @@
 
     #################### Misc Inputs ####################
 
-    (map lib.custom.relativeToHosts (map (f: "common/optional/${f}") [
-      "nixos/services/openssh.nix" # allow remote SSH access
-      "nixos/nvtop.nix" # GPU monitor (not available in home-manager)
-      # "nixos/audio" # pipewire and cli controls - using local audio.nix instead
-      "nixos/gaming" # steam, gamescope, gamemode, and related hardware
-      # "nixos/services/home-assistant"
-      "nixos/virtualisation/docker.nix" # docker
-      # "nixos/plymouth.nix" # fancy boot screen
-      "nixos/services/nginx.nix" # nginx
-      "nixos/obs.nix" # obs
-      "nixos/hardware/openrazer.nix" # openrazer
-      "nixos/1password.nix"
-      #################### Desktop ####################
-      "nixos/desktops/plasma6" # window manager
-      "nixos/services/bluetooth.nix"
-    ]))
+    (lib.custom.useSuite lib.custom.suites.docker)
+    (lib.custom.useSuite lib.custom.suites.plasma6)
+    (lib.custom.useSuite lib.custom.suites.gaming)
+    (with lib.custom.optional.hosts.nixos; [
+      # audio # pipewire and cli controls - using local audio.nix instead
+      nvtop # GPU monitor (not available in home-manager)
+      obs # obs
+      onepassword
+      # plymouth # fancy boot screen
+    ])
+    (with lib.custom.optional.hosts.nixos.hardware; [
+      openrazer # openrazer
+    ])
+    (with lib.custom.optional.hosts.nixos.services; [
+      bluetooth
+      # home-assistant
+      nginx # nginx
+      openssh # allow remote SSH access
+    ])
   ];
 
   networking = {
@@ -101,25 +103,4 @@
   };
 
   time.timeZone = "America/Chicago";
-
-  stylix = {
-    enable = false;
-    image = pkgs.fetchurl {
-      url = "https://unsplash.com/photos/3l3RwQdHRHg/download?ixid=M3wxMjA3fDB8MXxhbGx8fHx8fHx8fHwxNzM2NTE4NDQ2fA&force=true";
-      sha256 = "LtdnBAxruHKYE/NycsA614lL6qbGBlkrlj3EPNZ/phU=";
-    };
-    base16Scheme = "${inputs.tt-schemes}/base16/catppuccin-mocha.yaml";
-    cursor = {
-      package = pkgs.bibata-cursors;
-      name = "Bibata-Original-Classic";
-      size = 24; # adjust to your display
-    };
-    opacity = {
-      applications = 1.0;
-      terminal = 1.0;
-      desktop = 1.0;
-      popups = 0.8;
-    };
-    polarity = "dark";
-  };
 }
