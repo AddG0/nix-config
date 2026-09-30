@@ -14,7 +14,7 @@
 
   networking.hostName = config.hostSpec.hostName;
 
-  nix.git-sync.flakeLastModified = self.lastModified;
+  nix.git-sync.flakeLastModified = lib.mkDefault self.lastModified;
 
   system.stateVersion = config.hostSpec.system.stateVersion;
 
