@@ -1,8 +1,12 @@
-{pkgs, ...}: {
+{
+  pkgs,
+  customPkgs,
+  ...
+}: {
   programs.nushell.extraConfig = ''
     # Load Catppuccin Mocha Theme from Nix store
     # ----------------------------------------------------------------------------
-    source ${pkgs.themes.catppuccin.nushell}/share/nu-themes/catppuccin_mocha.nu
+    source ${customPkgs.themes.catppuccin.nushell}/share/nu-themes/catppuccin_mocha.nu
 
     # General Settings
     # ----------------------------------------------------------------------------

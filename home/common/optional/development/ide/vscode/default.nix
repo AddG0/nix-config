@@ -9,12 +9,13 @@
 {
   lib,
   pkgs,
+  customPkgs,
   inputs,
   config,
   ...
 }: let
   # Import shared extension library
-  vscodeLib = import ./lib.nix {inherit lib pkgs config;};
+  vscodeLib = import ./lib.nix {inherit lib pkgs customPkgs config;};
 
   # Wrap VS Code with env vars
   hasKubeconfig = config.home.sessionVariables ? KUBECONFIG;

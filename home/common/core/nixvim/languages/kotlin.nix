@@ -1,9 +1,10 @@
 {
   pkgs,
+  customPkgs,
   lib,
   ...
 }: {
-  # Official JetBrains Kotlin LSP (pkgs/kotlin-lsp, our custom package) instead
+  # Official JetBrains Kotlin LSP (pkgs/by-name/kotlin-lsp, our custom package) instead
   # of the flaky/unmaintained fwcd kotlin-language-server. nixvim has the
   # lspconfig `kotlin_lsp` preset; we point cmd at our packaged launcher in
   # stdio mode. Needs a Gradle/Maven project (opened from its root) to resolve
@@ -14,8 +15,8 @@
   # treesitter highlighting but no LSP.
   plugins.lsp.servers.kotlin_lsp = lib.mkIf pkgs.stdenv.hostPlatform.isLinux {
     enable = true;
-    package = pkgs.kotlin-lsp;
-    cmd = ["${pkgs.kotlin-lsp}/bin/kotlin-lsp" "--stdio"];
+    package = customPkgs.kotlin-lsp;
+    cmd = ["${customPkgs.kotlin-lsp}/bin/kotlin-lsp" "--stdio"];
     filetypes = ["kotlin"];
     rootMarkers = [
       "settings.gradle"

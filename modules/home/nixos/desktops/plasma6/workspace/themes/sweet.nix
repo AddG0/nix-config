@@ -1,7 +1,6 @@
-{
+{customPkgs, ...}: {
   config,
   lib,
-  pkgs,
   ...
 }:
 with lib; let
@@ -38,16 +37,16 @@ in {
     xdg.dataFile = mkMerge [
       {
         # Color scheme
-        "color-schemes/Sweet.colors".source = "${pkgs.themes.plasma.sweet-kde}/share/color-schemes/Sweet.colors";
+        "color-schemes/Sweet.colors".source = "${customPkgs.themes.plasma.sweet-kde}/share/color-schemes/Sweet.colors";
 
         # Desktop theme (Plasma theme)
-        "plasma/desktoptheme/Sweet".source = "${pkgs.themes.plasma.sweet-kde}/share/plasma/desktoptheme/Sweet";
+        "plasma/desktoptheme/Sweet".source = "${customPkgs.themes.plasma.sweet-kde}/share/plasma/desktoptheme/Sweet";
       }
 
       # Aurorae window decorations (only if enabled)
       (mkIf cfg.useAuroraeDecoration (
         let
-          auroraeSrc = "${pkgs.themes.plasma.sweet-aurorae}/share/aurorae/themes";
+          auroraeSrc = "${customPkgs.themes.plasma.sweet-aurorae}/share/aurorae/themes";
         in {
           "aurorae/themes/Sweet-Dark".source = "${auroraeSrc}/Sweet-Dark";
           "aurorae/themes/Sweet-Dark-transparent".source = "${auroraeSrc}/Sweet-Dark-transparent";

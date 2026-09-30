@@ -3,6 +3,7 @@
   inputs,
   lib,
   pkgs,
+  customPkgs,
   ...
 }: let
   jsonFormat = pkgs.formats.json {};
@@ -167,7 +168,7 @@ in {
           }
         ];
         statusLine = {
-          command = "${pkgs.nodejs}/bin/node ${pkgs.claude-hud}/share/claude-code/plugins/claude-hud/dist/index.js";
+          command = "${pkgs.nodejs}/bin/node ${customPkgs.claude-hud}/share/claude-code/plugins/claude-hud/dist/index.js";
           padding = 0;
           type = "command";
         };

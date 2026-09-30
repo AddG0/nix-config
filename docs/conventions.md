@@ -39,6 +39,14 @@ in `overlays/flake-update-workarounds/` instead. Those get a stronger check:
 `just check-workarounds` builds each one against plain upstream nixpkgs and tells
 you which now build fine on their own — no judgement call needed. See the header
 of `scripts/check-flake-workarounds.sh` for the `CHECK-ATTR:` /
-`CHECK-FLAKE-ATTR:` / `CHECK-RUNTIME:` lines it expects. Packages from a flake
-input need the second — plain nixpkgs has a different package under that name,
-or none.
+`CHECK-FLAKE-ATTR:` / `CHECK-CUSTOM-ATTR:` / `CHECK-RUNTIME:` lines it expects.
+Packages from a flake input need the second — plain nixpkgs has a different
+package under that name, or none.
+
+Our own packages live in `pkgs/by-name/` (nixpkgs' by-name layout: add
+`<name>/package.nix` or `<name>.nix`; a directory without `package.nix` becomes a
+nested scope) and are exposed as one attr, `pkgs.addg`. A workaround on one
+patches that scope rather than a top-level name —
+`addg = prev.addg.overrideScope (_: aprev: { … })`, one `overrideScope` per
+nesting level — and declares `CHECK-CUSTOM-ATTR:`, which builds that package
+with none of our workarounds.

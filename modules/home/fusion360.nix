@@ -1,15 +1,14 @@
-# Autodesk Fusion 360 via Wine. See pkgs/fusion360 for the launcher/recipe.
-{
+# Autodesk Fusion 360 via Wine. See pkgs/by-name/fusion360 for the launcher/recipe.
+{customPkgs, ...}: {
   config,
   lib,
-  pkgs,
   ...
 }: let
   cfg = config.programs.fusion360;
 in {
   options.programs.fusion360 = {
     enable = lib.mkEnableOption "Autodesk Fusion 360 via Wine";
-    package = lib.mkPackageOption pkgs "fusion360" {};
+    package = lib.mkPackageOption customPkgs "fusion360" {pkgsText = "pkgs.addg";};
   };
 
   config = lib.mkIf cfg.enable {

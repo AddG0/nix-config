@@ -1,7 +1,6 @@
-{
+{customPkgs, ...}: {
   config,
   lib,
-  pkgs,
   ...
 }:
 with lib; let
@@ -9,7 +8,7 @@ with lib; let
 
   # Map of splash screen theme names to their packages
   splashScreenPackages = {
-    "Noir-Splash-6" = pkgs.themes.plasma.noir-splash-6;
+    "Noir-Splash-6" = customPkgs.themes.plasma.noir-splash-6;
   };
 
   # Get the package for the configured splash screen

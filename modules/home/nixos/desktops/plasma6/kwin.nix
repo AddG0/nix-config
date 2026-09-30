@@ -1,4 +1,4 @@
-{
+{customPkgs, ...}: {
   config,
   lib,
   pkgs,
@@ -27,7 +27,7 @@ in {
     (mkIf cfg.scripts.geometryChange.enable {
       home.file = {
         ".local/share/kwin/effects/kwin4_effect_geometry_change" = {
-          source = "${pkgs.kwin-scripts.kwin4-effect-geometry-change}/share/kwin/effects";
+          source = "${customPkgs.kwin-scripts.kwin4-effect-geometry-change}/share/kwin/effects";
           recursive = true;
         };
       };
@@ -40,7 +40,7 @@ in {
     (mkIf cfg.scripts.squash.enable {
       home.file = {
         ".local/share/kwin/effects/kwin4_effect_squash2" = {
-          source = "${pkgs.kwin-scripts.squash2}/share/kwin/effects/kwin4_effect_squash2";
+          source = "${customPkgs.kwin-scripts.squash2}/share/kwin/effects/kwin4_effect_squash2";
           recursive = true;
         };
       };

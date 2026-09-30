@@ -2,6 +2,7 @@
 # https://github.com/eth-p/bat-extras
 {
   pkgs,
+  customPkgs,
   lib,
   ...
 }: {
@@ -20,7 +21,7 @@
     themes = {
       # https://raw.githubusercontent.com/catppuccin/bat/main/Catppuccin-mocha.tmTheme
       catppuccin-mocha = {
-        src = pkgs.themes.catppuccin.bat;
+        src = customPkgs.themes.catppuccin.bat;
         file = "themes/Catppuccin Mocha.tmTheme";
       };
     };

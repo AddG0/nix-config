@@ -1,6 +1,7 @@
 {
   lib,
   pkgs,
+  customPkgs,
   ...
 }: let
   # Cyan plus with a 2-pixel black outline, no centre dot. 64x64 PNG.
@@ -43,7 +44,7 @@
   #   (rebinds the layer surface and reloads image), force visible.
   toggle = pkgs.writeShellApplication {
     name = "wlcrosshair-toggle-here";
-    runtimeInputs = with pkgs; [wlcrosshair hyprland jq coreutils procps util-linux];
+    runtimeInputs = with pkgs; [customPkgs.wlcrosshair hyprland jq coreutils procps util-linux];
     text = ''
       config_dir="''${XDG_CONFIG_HOME:-$HOME/.config}/wlcrosshair"
       config="$config_dir/config.toml"

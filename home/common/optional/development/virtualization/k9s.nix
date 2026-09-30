@@ -1,4 +1,8 @@
-{pkgs, ...}: {
+{
+  pkgs,
+  customPkgs,
+  ...
+}: {
   programs = {
     k9s = {
       enable = true;
@@ -11,7 +15,7 @@
       # fg/bg transparent. Passed as a path so HM symlinks the YAML directly.
       skins.catppuccin-mocha = toString (pkgs.runCommand "catppuccin-mocha.yaml" {} ''
         sed -E 's@(base: &base ).+@\1 "default"@g' \
-          "${pkgs.themes.catppuccin.k9s}/dist/catppuccin-mocha.yaml" > $out
+          "${customPkgs.themes.catppuccin.k9s}/dist/catppuccin-mocha.yaml" > $out
       '');
     };
   };

@@ -1,6 +1,7 @@
 {
   config,
   pkgs,
+  customPkgs,
   lib,
   ...
 }: let
@@ -38,6 +39,6 @@ in {
     }
     # Needs the `ai-usagebar` CLI from ../../../../../development/ai.
     // lib.optionalAttrs config.programs.code-assistant-profiles.enable {
-      "noctalia/plugins/ai-usagebar".source = pkgs.noctalia-plugins.ai-usagebar;
+      "noctalia/plugins/ai-usagebar".source = customPkgs.noctalia-plugins.ai-usagebar;
     };
 }

@@ -24,7 +24,6 @@ Ask at most one question, and only when the situation genuinely matches two rows
 | Nix build or flake output failing | `/nix-build` | — |
 | Program crashed (core dump) | `/diagnose-crash` | — |
 | Bug, regression, or something slow | `/diagnosing-bugs` | `/review-local-changes` |
-| Merge or rebase stopped on conflicts | `/resolving-merge-conflicts` | — |
 | Tests failing | `/fix-tests` | — |
 | Need a dev shell for a repo | `/dev-flake` | — |
 | Long-running server, watcher, or log tail | `/tmux-dev` | — |

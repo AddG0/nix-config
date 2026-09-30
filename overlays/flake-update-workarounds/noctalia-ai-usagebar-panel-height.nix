@@ -4,16 +4,15 @@
 # a non-floating panel, so the manifest is the only lever. 460 fits today's
 # card set exactly — a fifth window would clip again.
 #
-# Unlike its neighbours this patches our own pkgs/noctalia-plugins, not nixpkgs,
+# Unlike its neighbours this patches our own pkgs/by-name/noctalia-plugins, not nixpkgs,
 # so it retires on a `just update-packages` rev bump, not a flake input bump.
 # Upstream has already bumped their own stock value once (400 -> 430); re-check
 # the target height, not just the substitute pattern, on the next rev bump.
 # CHECK-RUNTIME: open the AI Usage panel — upstream is fixed when the last card renders whole at the stock height.
 _: _final: prev: {
-  noctalia-plugins =
-    prev.noctalia-plugins
-    // {
-      ai-usagebar = prev.noctalia-plugins.ai-usagebar.overrideAttrs (old: {
+  addg = prev.addg.overrideScope (_: aprev: {
+    noctalia-plugins = aprev.noctalia-plugins.overrideScope (_: nprev: {
+      ai-usagebar = nprev.ai-usagebar.overrideAttrs (old: {
         postPatch =
           (old.postPatch or "")
           + ''
@@ -21,5 +20,6 @@ _: _final: prev: {
               --replace-fail "height = 430" "height = 460"
           '';
       });
-    };
+    });
+  });
 }

@@ -86,12 +86,13 @@
         lib.custom.scanPaths ./common/core/nixvim
         ++ [
           {
-            # Same overlay/config the hosts use, so custom pkgs (kotlin-lsp, …) resolve.
+            # Same overlay/config the hosts use.
             nixpkgs.overlays = [self.overlays.default];
             nixpkgs.config.allowUnfree = true;
           }
           {
             _module.args = {
+              customPkgs = self.legacyPackages.${system};
               colors = catppuccinMocha;
               muted = lib.custom.colors.muted catppuccinMocha;
               fonts = {

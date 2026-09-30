@@ -1,8 +1,9 @@
 {
   lib,
   pkgs,
+  customLib,
 }: let
-  inherit (lib.custom) frontmatter;
+  inherit (customLib) frontmatter;
   skillResources = import ../skill-resources.nix {inherit lib;};
   readContent = spec:
     if spec.text != null

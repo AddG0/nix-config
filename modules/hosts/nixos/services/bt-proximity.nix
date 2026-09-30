@@ -1,4 +1,4 @@
-{
+{customPkgs, ...}: {
   config,
   lib,
   pkgs,
@@ -149,7 +149,7 @@ in {
         Type = "simple";
         Restart = "always";
         RestartSec = 10;
-        ExecStart = "${pkgs.bt-proximity-monitor}/bin/bt-proximity-monitor";
+        ExecStart = "${customPkgs.bt-proximity-monitor}/bin/bt-proximity-monitor";
       };
 
       environment =

@@ -1,11 +1,11 @@
-{
+{customLib, ...}: {
   config,
   lib,
   pkgs,
   ...
 }: let
   codingCfg = config.programs.code-assistant-profiles;
-  inherit (lib.custom) frontmatter;
+  inherit (customLib) frontmatter;
   skillResources = import ../skill-resources.nix {inherit lib;};
   profileName = codingCfg.defaultProfile;
   hasProfile = codingCfg.enable && builtins.hasAttr profileName codingCfg.resolved;

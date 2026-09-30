@@ -3,14 +3,18 @@
 #  Apache Kafka - Distributed Event Streaming (KRaft mode)
 #
 ###############################################################
-{pkgs, ...}: {
+{
+  pkgs,
+  customPkgs,
+  ...
+}: {
   services.apache-kafka = {
     enable = true;
     clusterId = "MkU3OEVBNTcwNTJENDM2Qk";
     formatLogDirs = true;
     # OpenTelemetry Java agent for metrics - pushes directly via OTLP
     jvmOptions = [
-      "-javaagent:${pkgs.opentelemetry-javaagent}/share/java/opentelemetry-javaagent.jar"
+      "-javaagent:${customPkgs.opentelemetry-javaagent}/share/java/opentelemetry-javaagent.jar"
       "-Dotel.jmx.target.system=kafka-broker"
       "-Dotel.service.name=kafka"
       "-Dotel.metrics.exporter=otlp"

@@ -1,4 +1,4 @@
-{
+{customPkgs, ...}: {
   config,
   lib,
   pkgs,
@@ -12,8 +12,8 @@ in {
 
     package = mkOption {
       type = types.package;
-      default = pkgs.wifiman-desktop;
-      defaultText = literalExpression "pkgs.wifiman-desktop";
+      default = customPkgs.wifiman-desktop;
+      defaultText = literalExpression "pkgs.addg.wifiman-desktop";
       description = "The wifiman-desktop package providing the GUI and the daemon binary.";
     };
   };

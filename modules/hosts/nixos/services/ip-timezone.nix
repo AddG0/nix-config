@@ -1,4 +1,4 @@
-{
+{customLib, ...}: {
   config,
   lib,
   pkgs,
@@ -40,7 +40,7 @@ in {
             ${pkgs.util-linux}/bin/logger -t ip-timezone "$*"
           }
 
-          ${lib.custom.mkNetworkWaitScript {inherit pkgs;}}
+          ${(customLib.mkNetworkWaitScript {inherit pkgs;})}
 
           # Get timezone from IP geolocation
           log "Fetching timezone from ${cfg.provider}"

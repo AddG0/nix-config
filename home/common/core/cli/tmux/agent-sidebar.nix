@@ -5,6 +5,7 @@
   config,
   lib,
   pkgs,
+  customPkgs,
   ...
 }: let
   # The binary ships xterm-256 defaults that clash with the theme; map its
@@ -52,7 +53,7 @@ in {
   programs.tmux.plugins = [
     {
       # Toggle keys: prefix e (this window), prefix E (all windows).
-      plugin = pkgs.tmuxPlugins.tmux-agent-sidebar;
+      plugin = customPkgs.tmux-plugins.tmux-agent-sidebar;
       extraConfig = ''
         ${colorCfg}
         # Manual-only: never inject the sidebar automatically; open it with

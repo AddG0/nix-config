@@ -1,11 +1,11 @@
-{
+{customLib, ...}: {
   config,
   lib,
   pkgs,
   ...
 }: let
   cfg = config.programs.code-assistant-profiles;
-  inherit (lib.custom) frontmatter;
+  inherit (customLib) frontmatter;
 
   typesModule = import ./types.nix {
     inherit lib;
@@ -63,8 +63,8 @@ in {
   # imports it, owning the option tree it feeds. These two adapt an upstream
   # home-manager module instead, so they self-register.
   imports = [
-    ./targets/opencode.nix
-    ./targets/codex.nix
+    (lib.modules.importApply ./targets/opencode.nix {inherit customLib;})
+    (lib.modules.importApply ./targets/codex.nix {inherit customLib;})
   ];
 
   inherit (optionsModule) options;

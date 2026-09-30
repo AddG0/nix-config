@@ -1,5 +1,6 @@
 {
   pkgs,
+  customPkgs,
   lib,
   ...
 }: {
@@ -17,7 +18,7 @@
   # these names must stay stable; a store path dies with its last generation.
   xdg.dataFile."Steam/compatibilitytools.d/GE-Proton".source =
     pkgs.proton-ge-bin.steamcompattool;
-  xdg.dataFile."Steam/compatibilitytools.d/proton-cachyos-native".source = "${pkgs.proton-cachyos}/share/steam/compatibilitytools.d/proton-cachyos-native";
+  xdg.dataFile."Steam/compatibilitytools.d/proton-cachyos-native".source = "${customPkgs.proton-cachyos}/share/steam/compatibilitytools.d/proton-cachyos-native";
 
   # Forza Horizon's XWayland fullscreen-on-map path crashes Hyprland 0.54.3
   # inside CCompositor::setWindowFullscreenInternal (null deref on the

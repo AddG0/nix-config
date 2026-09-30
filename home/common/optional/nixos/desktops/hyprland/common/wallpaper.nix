@@ -21,6 +21,7 @@
   config,
   lib,
   pkgs,
+  customPkgs,
   ...
 }: let
   homeDir = config.home.homeDirectory;
@@ -227,7 +228,7 @@
 
   pickerLauncher = pkgs.writeShellApplication {
     name = "wallpaper-picker-launch";
-    runtimeInputs = with pkgs; [wallpaper-picker util-linux];
+    runtimeInputs = with pkgs; [customPkgs.wallpaper-picker util-linux];
     text = ''
       export WP_FOLDERS=${lib.escapeShellArg (builtins.toJSON pickerFolderMap)}
       export WP_DEFAULTS=${lib.escapeShellArg (builtins.toJSON pickerDefaults)}

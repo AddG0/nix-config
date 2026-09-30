@@ -3,6 +3,7 @@
   lib,
   muted,
   pkgs,
+  customPkgs,
   self,
   sshSettings ? {},
   ...
@@ -122,7 +123,7 @@ in {
   extraPackages = [pkgs.trash-cli];
 
   # On the runtimepath so `require("nix-logo-3d")` resolves.
-  extraPlugins = [pkgs.nix-logo-3d];
+  extraPlugins = [customPkgs.nix-logo-3d];
 
   plugins = {
     # Material Design Icon glyphs instead of the default devicons set, matching
@@ -130,7 +131,7 @@ in {
     # Same module name ("nvim-web-devicons"), different package.
     web-devicons = {
       enable = true;
-      package = pkgs.nvim-material-icon;
+      package = customPkgs.nvim-material-icon;
       settings.default = true;
     };
 

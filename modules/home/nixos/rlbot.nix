@@ -1,9 +1,9 @@
-# RLBot v5 for Rocket League. See pkgs/rlbot for the packages.
+# RLBot v5 for Rocket League. See pkgs/by-name/rlbot* for the packages.
 #
 # RLBot starts the game itself, via the Proton shim below - which is also where
 # BakkesMod gets injected, since Steam's launch-option wrapper never runs. A
 # normal Steam launch resolves the tool in compatibilitytools.d and is untouched.
-{
+{customPkgs, ...}: {
   config,
   lib,
   pkgs,
@@ -21,8 +21,8 @@
 in {
   options.programs.rlbot = {
     enable = lib.mkEnableOption "RLBot v5, the Rocket League bot framework";
-    package = lib.mkPackageOption pkgs "rlbot" {};
-    serverPackage = lib.mkPackageOption pkgs "rlbot-server" {};
+    package = lib.mkPackageOption customPkgs "rlbot" {pkgsText = "pkgs.addg";};
+    serverPackage = lib.mkPackageOption customPkgs "rlbot-server" {pkgsText = "pkgs.addg";};
   };
 
   config = lib.mkIf cfg.enable {
@@ -60,9 +60,9 @@ in {
     ];
 
     # Core only scans steamapps/common, so the compatibilitytools.d entry is
-    # invisible to it; see pkgs/rlbot/proton-shim.nix.
+    # invisible to it; see pkgs/by-name/rlbot-proton-shim.
     xdg.dataFile = lib.mkIf (compatToolName != null) {
-      "Steam/steamapps/common/Proton-RLBot".source = pkgs.rlbot-proton-shim.override ({
+      "Steam/steamapps/common/Proton-RLBot".source = customPkgs.rlbot-proton-shim.override ({
           inherit compatToolName;
           proton = config.xdg.dataFile.${compatToolLink}.source;
         }

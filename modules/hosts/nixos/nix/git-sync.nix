@@ -1,4 +1,4 @@
-{
+{customLib, ...}: {
   config,
   inputs,
   lib,
@@ -206,7 +206,7 @@ in {
             export GIT_SSH_COMMAND="ssh -i ${cfg.sshKey} -o StrictHostKeyChecking=accept-new"
           ''}
 
-          ${lib.custom.mkNetworkWaitScript {host = "github.com";}}
+          ${(customLib.mkNetworkWaitScript {host = "github.com";})}
 
           ${optionalString (cfg.preRebuildHook != "") ''
             log "Running pre-rebuild hook..."

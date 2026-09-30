@@ -1,4 +1,4 @@
-{
+{customPkgs, ...}: {
   lib,
   pkgs,
   config,
@@ -16,11 +16,11 @@ in {
         bpExtensions = lib.optionals cfg.blueprint.enable (lib.attrValues cfg.blueprint.extensions);
         withBlueprint =
           if bpExtensions == []
-          then pkgs.pterodactyl-panel
+          then customPkgs.pterodactyl-panel
           else
             import ./bake-blueprint.nix {inherit pkgs lib;} {
-              panel = pkgs.pterodactyl-panel;
-              inherit (pkgs) blueprint;
+              panel = customPkgs.pterodactyl-panel;
+              inherit (customPkgs) blueprint;
               extensions = bpExtensions;
             };
       in
@@ -31,7 +31,7 @@ in {
             panel = withBlueprint;
             inherit (cfg) addons;
           };
-      defaultText = literalExpression "pkgs.pterodactyl-panel (with Blueprint extensions + addons baked in)";
+      defaultText = literalExpression "pkgs.addg.pterodactyl-panel (with Blueprint extensions + addons baked in)";
       description = "The built Pterodactyl panel package served read-only from the store.";
     };
 

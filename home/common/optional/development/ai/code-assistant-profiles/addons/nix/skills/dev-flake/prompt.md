@@ -1,5 +1,5 @@
 ---
-description: Scaffolds and updates Nix flake dev environments — devShells, .envrc, direnv, process-compose services, pre-commit hooks.
+description: Scaffolds and updates Nix flake dev environments — devShells, .envrc, direnv, process-compose services (Postgres, Grafana), pre-commit hooks, and tests as flake checks. Use when creating or changing a project's flake.nix, adding local services or pre-commit hooks, or making tests and type checks run under `nix flake check` for CI.
 argument-hint: "[language] [services...] - e.g. python-uv postgres, java redis kafka"
 allowed-tools:
   - Bash
@@ -112,6 +112,9 @@ project/
 - **All tools via Nix** - no global installs, no wrapper scripts (e.g., use `gradle` not `./gradlew`)
 - **Prefer `env = { }` over `shellHook` exports** - use `mkShell`'s `env` attr for static environment variables (e.g., `JAVA_HOME`, `UV_NO_SYNC`). Reserve `shellHook` for commands that must run at shell entry (e.g., `pre-commit.installationScript`, `unset`, dynamic values like `$(git rev-parse ...)`)
 - Omit `process-compose-flake` and `services-flake` inputs if no local services needed
+- **Tests are flake checks** - CI runs `nix flake check`, so expose test suites as `checks`, never in the package build. Builds run unprivileged in the sandbox, so suites needing a local Postgres (`initdb`) work even where CI jobs run as root
+- **Hook entries use store paths** (`entry = "${pkgs.tool}/bin/tool"`) - `git commit` runs outside the dev shell, where the tool isn't on `PATH`
+- **Enter the shell from its repo** - the shellHook installs pre-commit hooks into `git rev-parse --show-toplevel` of the *current directory*. From elsewhere use `env -C <repo> nix develop <repo>`; `nix develop <repo>` run inside another repo overwrites that repo's hooks
 
 ## Commands
 
@@ -120,6 +123,8 @@ project/
 | `direnv allow`                         | Enable environment (one-time) |
 | `nix develop`                          | Enter dev shell manually      |
 | `nix run .#services`                   | Start local services          |
+| `nix run .#services -- -t=false`       | Start services without the TUI |
+| `nix flake check`                      | Run checks exactly as CI does |
 | `nix flake update`                     | Update all inputs             |
 | `nix flake lock --update-input <name>` | Update single input           |
 
@@ -130,6 +135,10 @@ When the project uses a specific language ecosystem, load the corresponding refe
 - For Python projects using `uv` (`pyproject.toml` + `uv.lock`), see [references/uv2nix.md](references/uv2nix.md)
 - For Rust projects (`Cargo.toml` + `Cargo.lock`) using `crane` + `rust-overlay`, see [references/rust.md](references/rust.md)
 
+## Service References
+
+- For Postgres ownership/roles or a local Grafana (datasources, dashboards), see [references/services.md](references/services.md)
+
 ## Steps
 
 1. If language/services weren't passed as arguments or aren't obvious from the repo (`pyproject.toml`, `build.gradle`, `package.json`, etc.), ask. Otherwise skip to step 2.
@@ -138,5 +147,7 @@ When the project uses a specific language ecosystem, load the corresponding refe
 4. Add language-specific packages to `devShells.default.packages`
 5. Add appropriate pre-commit hooks for the language
 6. Configure services if needed, otherwise remove process-compose inputs
-7. Create `.envrc` with `use flake`
-8. Run `nix flake lock` to generate the lock file
+7. Expose the test suite as a flake check (see the language reference)
+8. Create `.envrc` with `use flake`
+9. Run `nix flake lock` to generate the lock file
+10. Run `nix flake check` and fix until it passes

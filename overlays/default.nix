@@ -1,6 +1,6 @@
 # Orchestration only: auto-import the categorized overlay files and compose
 # them. `common` overlays apply everywhere; overlays under `nixos`/`darwin` are
-# auto-guarded to that platform, mirroring modules/common/{nixos,darwin}.
+# auto-guarded to that platform.
 {inputs, ...}: let
   inherit (inputs.nixpkgs) lib;
 

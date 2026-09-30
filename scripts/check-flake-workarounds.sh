@@ -16,6 +16,11 @@
 # `flake.inputs` with `system` in scope, e.g.
 # `wayscriber.packages.${system}.default`. Same verdict, different lookup.
 #
+# A workaround on one of our own pkgs/ packages (patched via
+# `addg = prev.addg.overrideScope …`) declares `# CHECK-CUSTOM-ATTR: <attrpath>`,
+# built from pkgs/packages.nix over the same plain nixpkgs — i.e. our package
+# with none of our workarounds applied.
+#
 # A workaround tagged `# CHECK-RUNTIME: <note>` fixes runtime behavior, not a
 # build failure — building it proves nothing, so it is NOT built and is always
 # reported as NEEDS MANUAL CHECK with its note.
@@ -84,6 +89,13 @@ expr_file="$TMPDIR/targets.nix"
     if [ -n "$flakeAttr" ]; then
       buildable+=("$name")
       printf '  "%s" = flake.inputs.%s;\n' "$name" "$flakeAttr"
+      continue
+    fi
+    customAttr="$(sed -n 's/^# *CHECK-CUSTOM-ATTR: *//p' "$f" | head -n1)"
+    if [ -n "$customAttr" ]; then
+      buildable+=("$name")
+      # shellcheck disable=SC2016 # ${flake} is Nix interpolation, not shell.
+      printf '  "%s" = (import "${flake}/pkgs/packages.nix" pkgs).%s;\n' "$name" "$customAttr"
       continue
     fi
     attr="$(sed -n 's/^# *CHECK-ATTR: *//p' "$f" | head -n1)"

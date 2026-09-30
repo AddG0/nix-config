@@ -12,6 +12,7 @@
 {
   config,
   pkgs,
+  customPkgs,
   ...
 }: let
   razer-battery-care = config.boot.kernelPackages.callPackage ../../../pkgs/razer-battery-care {};
@@ -56,5 +57,5 @@ in {
   '';
 
   # Reads the EC directly, for when the driver and the desktop disagree.
-  environment.systemPackages = [pkgs.razer-cli];
+  environment.systemPackages = [customPkgs.razer-cli];
 }

@@ -263,6 +263,7 @@
   toClaude = import ./targets/claude-code.nix {
     inherit pkgs;
     lib = libWithCustom;
+    customLib = libWithCustom.custom;
   };
 
   claudeRendered = toClaude {
@@ -345,7 +346,7 @@
       specialArgs.lib = libWithCustom;
       modules = [
         hostStub
-        ./default.nix
+        (lib.modules.importApply ./default.nix {customLib = libWithCustom.custom;})
         {
           _module.args = {inherit pkgs;};
           programs.code-assistant-profiles = {

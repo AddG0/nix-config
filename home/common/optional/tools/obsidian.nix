@@ -2,6 +2,7 @@
   config,
   inputs,
   pkgs,
+  customPkgs,
   ...
 }: {
   programs.obsidian = {
@@ -34,7 +35,7 @@
           ];
         };
 
-        communityPlugins = with pkgs.obsidian-plugins; [
+        communityPlugins = with customPkgs.obsidian-plugins; [
           kanban-bases-view
           self-hosted-livesync
         ];

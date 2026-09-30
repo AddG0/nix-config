@@ -46,13 +46,13 @@ in {
       default = {};
       description = ''
         Blueprint extensions to bake into the panel package at build time
-        (see buildPterodactylPanel in pkgs/pterodactyl-panel). No longer
+        (see buildPterodactylPanel in pkgs/by-name/pterodactyl-panel). No longer
         installed imperatively at runtime — the panel code is read-only.
       '';
     };
   };
 
   # Options only: extensions are baked into the panel package at build time
-  # (see buildPterodactylPanel in pkgs/pterodactyl-panel), so there is nothing
+  # (see buildPterodactylPanel in pkgs/by-name/pterodactyl-panel), so there is nothing
   # to do at runtime — the panel code is read-only.
 }

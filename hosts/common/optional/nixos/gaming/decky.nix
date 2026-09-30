@@ -3,6 +3,7 @@
   config,
   lib,
   pkgs,
+  customPkgs,
   ...
 }: {
   imports = [inputs.jovian.nixosModules.default];
@@ -24,16 +25,16 @@
     };
     # Keys are the store's own folder names, so a UI install wouldn't duplicate.
     plugins = {
-      Deckcord = pkgs.decky.deckcord;
+      Deckcord = customPkgs.decky.deckcord;
       # Bare hostname the LAN's DNS already answers for; set networking.domain
       # to advertise an FQDN instead.
-      Deckify = pkgs.decky.deckify.override {advertisedHost = config.networking.fqdnOrHostName;};
-      decky-steamgriddb = pkgs.decky.steamgriddb;
-      protondb-decky = pkgs.decky.protondb-badges;
-      TabMaster = pkgs.decky.tabmaster;
-      hltb-for-deck = pkgs.decky.hltb;
-      SDH-CssLoader = pkgs.decky.css-loader;
-      DisplaySettings = pkgs.decky.gamescope-display;
+      Deckify = customPkgs.decky.deckify.override {advertisedHost = config.networking.fqdnOrHostName;};
+      decky-steamgriddb = customPkgs.decky.steamgriddb;
+      protondb-decky = customPkgs.decky.protondb-badges;
+      TabMaster = customPkgs.decky.tabmaster;
+      hltb-for-deck = customPkgs.decky.hltb;
+      SDH-CssLoader = customPkgs.decky.css-loader;
+      DisplaySettings = customPkgs.decky.gamescope-display;
     };
   };
 

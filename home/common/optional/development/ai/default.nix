@@ -1,5 +1,6 @@
 {
   pkgs,
+  customPkgs,
   lib,
   ...
 }: {
@@ -21,8 +22,8 @@
     [
       # Development tools
       claude-code-router
-      ollama-zsh-completion
+      customPkgs.ollama-zsh-completion
       repomix
     ]
-    ++ (lib.optionals pkgs.stdenv.hostPlatform.isLinux) [claude-desktop];
+    ++ (lib.optionals pkgs.stdenv.hostPlatform.isLinux) [customPkgs.claude-desktop];
 }

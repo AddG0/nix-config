@@ -4,6 +4,7 @@
   config,
   pkgs,
   self,
+  customPkgs,
   osConfig ? null,
   ...
 }: let
@@ -29,11 +30,10 @@ in {
   programs.nixvim = {
     enable = true;
     imports = lib.custom.scanPaths ./.;
-    # Use the host's (overlaid, allowUnfree) pkgs instead of nixvim's own
-    # instance, so custom packages like kotlin-lsp resolve in the submodule.
+    # Use the host's overlaid, allowUnfree pkgs instead of nixvim's own instance.
     nixpkgs.useGlobalPackages = true;
     _module.args = {
-      inherit self osConfig;
+      inherit self osConfig customPkgs;
       colors = config.lib.stylix.colors.withHashtag;
       muted = config.lib.palette.muted;
       fonts = config.stylix.fonts;

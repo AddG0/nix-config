@@ -1,5 +1,6 @@
 {
   pkgs,
+  customPkgs,
   lib,
   ...
 }: {
@@ -20,5 +21,5 @@
     };
   };
 
-  xdg.configFile."yazi/theme.toml".source = lib.mkDefault "${pkgs.themes.catppuccin.yazi}/mocha.toml";
+  xdg.configFile."yazi/theme.toml".source = lib.mkDefault "${customPkgs.themes.catppuccin.yazi}/mocha.toml";
 }

@@ -22,11 +22,10 @@ in {
       '';
   });
 
-  decky =
-    prev.decky
-    // {
+  addg = prev.addg.overrideScope (_: aprev: {
+    decky = aprev.decky.overrideScope (_: nprev: {
       # Health-checks the debugger and injects nothing at all while it fails.
-      css-loader = prev.decky.css-loader.overrideAttrs (o: {
+      css-loader = nprev.css-loader.overrideAttrs (o: {
         postInstall =
           (o.postInstall or "")
           + ''
@@ -34,5 +33,6 @@ in {
               --replace-fail "http://127.0.0.1:8080" "http://127.0.0.1:${port}"
           '';
       });
-    };
+    });
+  });
 }

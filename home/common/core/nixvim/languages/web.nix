@@ -1,11 +1,15 @@
-{pkgs, ...}: {
+{
+  pkgs,
+  customPkgs,
+  ...
+}: {
   # TypeScript / JavaScript.
   plugins = {
     lsp.servers.html.enable = true;
     lsp.servers.cssls.enable = true;
     lsp.servers.cssmodules_ls = {
       enable = true;
-      package = pkgs.cssmodules-language-server;
+      package = customPkgs.cssmodules-language-server;
     };
 
     lsp.servers.ts_ls = {

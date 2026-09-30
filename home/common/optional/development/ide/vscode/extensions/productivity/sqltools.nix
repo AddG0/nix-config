@@ -1,4 +1,8 @@
-{pkgs, ...}: {
+{
+  pkgs,
+  customPkgs,
+  ...
+}: {
   extensions = [
     pkgs.vscode-marketplace.mtxr.sqltools
     pkgs.vscode-marketplace.mtxr.sqltools-driver-pg
@@ -8,7 +12,7 @@
   ];
 
   # SQLTools resolves sqlite3 from ~/.local/share/vscode-sqltools/node_modules
-  home.file.".local/share/vscode-sqltools/node_modules/sqlite3".source = "${pkgs.node-sqlite3}/lib/node_modules/sqlite3";
+  home.file.".local/share/vscode-sqltools/node_modules/sqlite3".source = "${customPkgs.node-sqlite3}/lib/node_modules/sqlite3";
 
   userSettings = {
     "sqltools.useNodeRuntime" = "${pkgs.nodejs}/bin/node";

@@ -1,6 +1,7 @@
 {
   config,
   pkgs,
+  customPkgs,
   ...
 }: let
   inherit (config.programs.claude-code-profiles) defaultProfile profiles;
@@ -9,7 +10,7 @@
   # place, and its own ~/.claude default is a leftover with a diverged chain.
   claudeCredentials = "${config.home.homeDirectory}/${profiles.${defaultProfile}.profileDir}/.credentials.json";
 in {
-  home.packages = [pkgs.ai-usagebar];
+  home.packages = [customPkgs.ai-usagebar];
 
   xdg.configFile."ai-usagebar/config.toml".source = (pkgs.formats.toml {}).generate "ai-usagebar-config.toml" {
     ui.primary = "anthropic";

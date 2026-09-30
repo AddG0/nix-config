@@ -1,6 +1,7 @@
 {
   lib,
   config,
+  pkgs,
   inputs,
   self,
   isDarwin,
@@ -20,6 +21,9 @@ in {
     ./${platform}
     ../users
   ];
+
+  # Private config only; exported modules/ get theirs through importWithLocal.
+  _module.args.customPkgs = pkgs.addg;
 
   #
   # ========== Core Host Specifications ==========

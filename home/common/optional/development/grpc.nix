@@ -1,4 +1,8 @@
-{pkgs, ...}: {
+{
+  pkgs,
+  customPkgs,
+  ...
+}: {
   home.packages = with pkgs; [
     # Buf - modern protobuf toolchain
     buf # Linting, breaking change detection, and code generation
@@ -17,7 +21,7 @@
 
     # Java gRPC code generation
     protoc-gen-grpc-java
-    protoc-gen-grpc-kotlin
+    customPkgs.protoc-gen-grpc-kotlin
 
     # Additional protoc plugins
     protoc-gen-doc # Documentation generator

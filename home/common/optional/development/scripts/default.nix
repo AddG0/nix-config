@@ -1,4 +1,8 @@
-{pkgs, ...}: let
+{
+  pkgs,
+  customPkgs,
+  ...
+}: let
   # git-aware rsync: excludes .git and respects .gitignore / .git/info/exclude.
   # Pulled out of `scripts` so ghq-sync below can take it as a runtimeInput.
   gsync = pkgs.writeShellApplication {
@@ -32,7 +36,7 @@
     };
     # Run any dev command with OpenTelemetry auto-instrumentation, pointed at the
     # local collector (Node + JVM + Python). See ./otel-dev for the Nix details.
-    otel-dev = pkgs.callPackage ./otel-dev {};
+    otel-dev = pkgs.callPackage ./otel-dev {inherit (customPkgs) opentelemetry-node opentelemetry-javaagent opentelemetry-method-args;};
     inherit gsync;
     # Push the ghq repo you're in to the same path on another computer, via
     # gsync. Lives here (not ghq.nix) so it can depend on the gsync package.

@@ -1,3 +1,7 @@
-{pkgs, ...}: {
-  home.packages = [pkgs.bootdev-cli];
+{
+  pkgs,
+  customPkgs,
+  ...
+}: {
+  home.packages = [customPkgs.bootdev-cli];
 }

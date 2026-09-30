@@ -10,10 +10,14 @@
 #   export CLOUDSDK_CONFIG=$HOME/.config/gcloud-work
 #   export GOOGLE_APPLICATION_CREDENTIALS=$CLOUDSDK_CONFIG/application_default_credentials.json
 #   gcloud auth login && gcloud auth application-default login   # one-time
-{pkgs, ...}: {
+{
+  pkgs,
+  customPkgs,
+  ...
+}: {
   home.packages = with pkgs; [
     google-cloud-sdk
-    gke-gcloud-auth-plugin
+    customPkgs.gke-gcloud-auth-plugin
   ];
 
   # gcloud CLI completions - bash completions are auto-loaded by home-manager

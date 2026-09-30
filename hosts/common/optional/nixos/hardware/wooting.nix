@@ -1,7 +1,11 @@
-{pkgs, ...}: {
-  environment.systemPackages = with pkgs; [
-    wootility
-    wooting-bg-service
+{
+  pkgs,
+  customPkgs,
+  ...
+}: {
+  environment.systemPackages = [
+    pkgs.wootility
+    customPkgs.wooting-bg-service
   ];
 
   hardware.wooting.enable = true;
@@ -15,7 +19,7 @@
     partOf = ["graphical-session.target"];
     wantedBy = ["graphical-session.target"];
     serviceConfig = {
-      ExecStart = "${pkgs.wooting-bg-service}/bin/wooting-bg-service";
+      ExecStart = "${customPkgs.wooting-bg-service}/bin/wooting-bg-service";
       Restart = "on-failure";
       RestartSec = 5;
     };

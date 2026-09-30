@@ -4,11 +4,12 @@
   inputs,
   lib,
   pkgs,
+  customPkgs,
   config,
   ...
 }: let
   # Import shared extension library
-  vscodeLib = import ./lib.nix {inherit lib pkgs config;};
+  vscodeLib = import ./lib.nix {inherit lib pkgs customPkgs config;};
 
   inherit (vscodeLib.defaultProfile) extensions;
 

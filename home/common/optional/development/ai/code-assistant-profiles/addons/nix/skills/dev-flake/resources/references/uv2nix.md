@@ -2,6 +2,8 @@
 
 Use when the project uses `uv` for Python dependency management (has `pyproject.toml` + `uv.lock`).
 
+Contents: [Additional Inputs](#additional-inputs) · [perSystem Pattern](#persystem-pattern) · [Tests as Flake Checks](#tests-as-flake-checks) · [Type Checking with basedpyright](#type-checking-with-basedpyright) · [Editor Interpreter](#editor-interpreter) · [Conventions](#conventions) · [Customization Points](#customization-points)
+
 ## Additional Inputs
 
 Merge these into the base flake template's `inputs`:
@@ -102,6 +104,82 @@ in {
   };
 };
 ```
+
+## Tests as Flake Checks
+
+uv2nix keeps test dependencies out of the build ("tests should instead be implemented as separate derivations"). Attach the suite to the project package as `passthru.tests`, then expose it as a check:
+
+```nix
+pyprojectOverrides = final: prev: {
+  my-package = prev.my-package.overrideAttrs (old: {
+    passthru = old.passthru // {
+      tests = (old.passthru.tests or {}) // {
+        pytest = pkgs.stdenv.mkDerivation {
+          name = "${final.my-package.name}-pytest";
+          inherit (final.my-package) src;
+          nativeBuildInputs = [
+            (final.mkVirtualEnv "project-check-env" workspace.deps.all)
+            pkgs.postgresql # only if tests start their own Postgres
+          ];
+          dontConfigure = true;
+          buildPhase = ''
+            runHook preBuild
+            export HOME=$TMPDIR
+            pytest -q -p no:cacheprovider
+            runHook postBuild
+          '';
+          installPhase = "touch $out";
+        };
+      };
+    };
+  });
+};
+
+# in perSystem's attrset:
+checks = {inherit (pythonSet.my-package.passthru.tests) pytest;};
+```
+
+- Tests that start Postgres with `initdb` run fine here: sandbox builds are unprivileged, while `initdb` refuses to run as root, which is how many CI images run jobs. In a CI template with its own pytest job, disable that job and let `nix flake check` cover tests.
+- Keep test tmp paths short: Postgres unix sockets fail past ~107 bytes. `$TMPDIR` is short in the sandbox; long scratch directories locally are what break it.
+- Results are cached by input hash; tests re-run only when sources or dependencies change.
+
+## Type Checking with basedpyright
+
+A pyright-family hook in `nix flake check` can't see the dev shell's venv. With `venvPath = "."` and `venv = ".venv"` in `[tool.basedpyright]` (so editors work), hand the hook a Nix-built directory that contains `.venv`:
+
+```nix
+pythonCheckEnv = pythonSet.mkVirtualEnv "project-check-env" workspace.deps.all;
+pyrightVenvPath = pkgs.runCommand "project-pyright-venvs" {} ''
+  mkdir $out
+  ln -s ${pythonCheckEnv} $out/.venv
+'';
+
+pre-commit.settings.hooks.basedpyright = {
+  enable = true;
+  name = "basedpyright";
+  entry = "${pkgs.basedpyright}/bin/basedpyright --venvpath ${pyrightVenvPath}";
+  language = "system";
+  types = ["python"];
+  pass_filenames = false;
+};
+```
+
+- `--pythonpath` alone is not enough: basedpyright still exits 3 when the configured `.venv` is missing.
+- Give the check env the same name and deps as the test env so Nix builds it once.
+
+## Editor Interpreter
+
+Editors that don't load direnv need the venv on disk. Link it from the shellHook, and gitignore `.venv`:
+
+```nix
+shellHook = ''
+  export REPO_ROOT=$(git rev-parse --show-toplevel)
+  ln -sfn ${editableEnv} "$REPO_ROOT/.venv"
+  ${config.pre-commit.installationScript}
+'';
+```
+
+The editable install's `.pth` expands `$REPO_ROOT` at runtime, which static analysers can't evaluate, so the editor must open the repo root as its workspace for local imports to resolve.
 
 ## Conventions
 

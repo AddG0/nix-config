@@ -1,11 +1,12 @@
 {
   config,
   pkgs,
+  customPkgs,
   ...
 }: let
   gwadd-script = pkgs.writeShellApplication {
     name = "gwadd";
-    runtimeInputs = with pkgs; [git gwq gawk sesh tmux];
+    runtimeInputs = with pkgs; [git customPkgs.gwq gawk sesh tmux];
     text = builtins.readFile ./scripts/gwadd.sh;
   };
 
@@ -20,7 +21,7 @@
     paths = [gwadd-script gwadd-zsh-completion];
   };
 in {
-  home.packages = [pkgs.gwq gwadd];
+  home.packages = [customPkgs.gwq gwadd];
 
   # Worktrees live next to clones, with `--<branch>` suffix for disambiguation.
   # e.g. ~/Projects/code/.../ai-eng-framework clone →

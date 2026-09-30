@@ -2,11 +2,12 @@
   config,
   lib,
   pkgs,
+  customPkgs,
   ...
 }: let
   t3code-sync-projects = pkgs.writeShellApplication {
     name = "t3code-sync-projects";
-    runtimeInputs = [pkgs.sqlite pkgs.jq pkgs.gwq config.programs.t3code.package];
+    runtimeInputs = [pkgs.sqlite pkgs.jq customPkgs.gwq config.programs.t3code.package];
     text = builtins.readFile ./scripts/sync-projects.sh;
   };
 in {

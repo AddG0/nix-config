@@ -32,9 +32,6 @@ in {
         // {
           prompt.text = lib.replaceStrings ["`scripts/hitl-loop.template.sh`"] ["`\${SKILL_DIR}/scripts/hitl-loop.template.sh`"] diagnosingBugs.prompt.text;
         };
-
-      # Ends by committing and continuing the rebase, so only on request.
-      resolving-merge-conflicts = upstreamSkill "engineering/resolving-merge-conflicts" // {invocation.model = false;};
     };
   };
 }

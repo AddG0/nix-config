@@ -1,6 +1,6 @@
-{...}: {
+{customPkgs, ...}: {lib, ...}: {
   imports = [
-    ./options.nix
+    (lib.modules.importApply ./options.nix {inherit customPkgs;})
     ./config.nix
     ./blueprint.nix
   ];

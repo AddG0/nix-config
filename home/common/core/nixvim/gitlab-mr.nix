@@ -6,11 +6,12 @@
 # PRIVATE-TOKEN header, which GitLab rejects (401) for OAuth tokens.
 {
   pkgs,
+  customPkgs,
   lib,
   ...
 }: {
   extraPlugins = [
-    pkgs.gitlab-nvim
+    customPkgs.gitlab-nvim
     pkgs.vimPlugins.nui-nvim
   ];
 
@@ -18,7 +19,7 @@
   extraConfigLua = ''
     require("gitlab").setup({
       server = {
-        binary = "${lib.getExe pkgs.gitlab-nvim.server}",
+        binary = "${lib.getExe customPkgs.gitlab-nvim.server}",
       },
       -- Anchor comment/edit/reply popups to the bottom so the diff line being
       -- commented on stays visible above them (default 50% covers it).

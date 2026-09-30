@@ -19,6 +19,9 @@ in {
     ./${platform}
   ];
 
+  # Private config only; exported modules/ get theirs through importWithLocal.
+  _module.args.customPkgs = pkgs.addg;
+
   # Seed config.hostSpec from the injected spec at mkDefault priority so a host
   # file can override individual fields via `hostSpec.<field> = ...;`.
   hostSpec = lib.mkDefault hostSpec;

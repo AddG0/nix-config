@@ -47,8 +47,8 @@ export -f log_info log_error log_debug
 export DEBUG_MODE FLAKE_DIR LOG_DIR SYSTEM RED GREEN YELLOW BLUE NC
 
 # Resolve a package's defining .nix file in the working tree, regardless of
-# how it nests under pkgs/ (e.g. themes-catppuccin-hyprland lives at
-# pkgs/themes/catppuccin/hyprland/default.nix). nix-update edits this file, so
+# how it nests under pkgs/by-name/ (e.g. themes-catppuccin-hyprland lives at
+# pkgs/by-name/themes/catppuccin/hyprland/package.nix). nix-update edits this file, so
 # it's what we back up and restore around a failed update. Uses meta.position,
 # which under flakes points into the /nix/store source copy; we map that back
 # to FLAKE_DIR. Echoes the path, or returns non-zero if it can't be resolved.
@@ -67,6 +67,18 @@ resolve_pkg_file() {
   fi
 }
 export -f resolve_pkg_file
+
+# Hash what nix-update may touch: the whole dir for <name>/package.nix, else just the <name>.nix file.
+pkg_snapshot() {
+  local pkg_file="$1" out="$2" target="$1"
+  [[ $(basename "$pkg_file") == package.nix ]] && target="$(dirname "$pkg_file")"
+  if [[ -n $pkg_file && -e $target ]]; then
+    find "$target" -type f -print0 | sort -z | xargs -0 md5sum 2>/dev/null >"$out" || true
+  else
+    : >"$out"
+  fi
+}
+export -f pkg_snapshot
 
 # Extract a "version_before -> version_after" string for a package from its log.
 # Falls back to just the current version, or empty if neither found.
@@ -119,6 +131,7 @@ update_one() {
   if [[ -n $pkg_file && -f $pkg_file ]]; then
     cp -p "$pkg_file" "$backup_file"
   fi
+  pkg_snapshot "$pkg_file" "$LOG_DIR/snapshots/$pkg_name.before"
 
   {
     echo "=== $pkg_name ($version_policy) === $(date '+%Y-%m-%d %H:%M:%S')"
@@ -129,12 +142,7 @@ update_one() {
     fi
   } >"$log_file" 2>&1 && {
     local after_file="$LOG_DIR/snapshots/$pkg_name.after"
-    local pkg_dir="$FLAKE_DIR/pkgs/$pkg_name"
-    if [[ -d $pkg_dir ]]; then
-      find "$pkg_dir" -type f -print0 | sort -z | xargs -0 md5sum 2>/dev/null >"$after_file" || true
-    else
-      : >"$after_file"
-    fi
+    pkg_snapshot "$pkg_file" "$after_file"
     local version_info
     version_info=$(parse_version_change "$log_file")
     if diff -q "$LOG_DIR/snapshots/$pkg_name.before" "$after_file" >/dev/null 2>&1; then
@@ -220,17 +228,6 @@ fi
 }
 
 rm -rf "$LOG_DIR" && mkdir -p "$LOG_DIR/failed" "$LOG_DIR/snapshots"
-
-# Snapshot file hashes before updating so we can detect real changes
-for entry in "${to_update[@]}"; do
-  pkg="${entry%%:*}"
-  pkg_dir="$FLAKE_DIR/pkgs/$pkg"
-  if [[ -d $pkg_dir ]]; then
-    find "$pkg_dir" -type f -print0 | sort -z | xargs -0 md5sum 2>/dev/null >"$LOG_DIR/snapshots/$pkg.before" || true
-  else
-    : >"$LOG_DIR/snapshots/$pkg.before"
-  fi
-done
 
 log_info "Updating ${#to_update[@]} packages with $JOBS parallel jobs..."
 # `|| true`: parallel exits non-zero when any package update fails, which under

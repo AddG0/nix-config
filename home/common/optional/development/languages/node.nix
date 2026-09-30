@@ -1,6 +1,7 @@
 {
   config,
   pkgs,
+  customPkgs,
   inputs,
   lib,
   ...
@@ -11,7 +12,7 @@
     pnpm
     bun
     yarn-berry
-    yarn-berry-completions
+    customPkgs.yarn-berry-completions
     typescript
   ];
 

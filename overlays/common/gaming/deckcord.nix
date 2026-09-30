@@ -5,10 +5,9 @@
 #     QAM panel only points there — a first-login dead end. Add an Open-Discord
 #     button to that panel so the /discord route stays reachable.
 _: _final: prev: {
-  decky =
-    prev.decky
-    // {
-      deckcord = prev.decky.deckcord.overrideAttrs (o: {
+  addg = prev.addg.overrideScope (_: aprev: {
+    decky = aprev.decky.overrideScope (_: nprev: {
+      deckcord = nprev.deckcord.overrideAttrs (o: {
         patches = (o.patches or []) ++ [./retry-init.patch];
         postPatch =
           (o.postPatch or "")
@@ -17,5 +16,6 @@ _: _final: prev: {
               --replace-fail '"from the Steam Menu and login.")' '"from the Steam Menu and login."),window.SP_REACT.createElement("button",{onClick:()=>window.DFL.Router.Navigate("/discord"),style:{marginTop:"10px",padding:"8px",cursor:"pointer"}},"Open Discord to log in")'
           '';
       });
-    };
+    });
+  });
 }

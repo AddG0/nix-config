@@ -1,4 +1,4 @@
-{
+{customLib, ...}: {
   config,
   lib,
   pkgs,
@@ -17,7 +17,7 @@
   };
 
   sharedProfileToClaude = import ../code-assistant-profiles/targets/claude-code.nix {
-    inherit lib pkgs;
+    inherit lib pkgs customLib;
   };
 
   sharedOverlayFor = name:
