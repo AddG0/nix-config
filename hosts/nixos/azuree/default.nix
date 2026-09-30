@@ -61,8 +61,6 @@
     timeout = 3;
   };
 
-  security.firewall.enable = true;
-
   yubikey.enable = true;
 
   boot.initrd = {

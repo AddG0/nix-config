@@ -12,7 +12,7 @@
     };
   };
 
-  security.firewall = {
+  networking.firewall = {
     # 2022 SFTP
     # 25565-25570 Minecraft
     # 24454-24456 Voice Chat

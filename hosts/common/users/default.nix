@@ -64,6 +64,8 @@ in {
     extraSpecialArgs = {
       inherit pkgs inputs hostSpec desktops;
       inherit (inputs) nix-secrets;
+      # Here, not in home/common/core, so minimal hosts (and base's downstream extenders) get it too.
+      customPkgs = pkgs.addg;
     };
     users = lib.mergeAttrsList (map (user: {
         ${user}.imports = lib.flatten [

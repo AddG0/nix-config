@@ -133,6 +133,8 @@
           # primary user; without it primary-only modules vanish standalone.
           (lib.custom.relativeToHome "primary/common/core")
           ./primary/${file}
+          # NixOS/darwin hosts pass this via home-manager.extraSpecialArgs instead.
+          ({pkgs, ...}: {_module.args.customPkgs = pkgs.addg;})
         ];
       };
     })

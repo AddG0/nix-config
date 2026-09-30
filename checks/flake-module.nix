@@ -7,5 +7,6 @@
     ./module-tests.nix # Colocated module tests (modules|home)/**/tests.nix
     ./devshells.nix # Development shell validation
     ./nvim-darwin.nix # Eval-guard: standalone nvim must build on aarch64-darwin
+    ./configurations.nix # Eval-guards: home/darwin configs, base extension, stock-lib importers
   ];
 }

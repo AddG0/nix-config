@@ -6,8 +6,7 @@
 # never built, letting this run in CI / pre-commit on Linux with no Mac.
 #
 # The auto-generated `package-nvim` check (checks/packages.nix) can't cover this:
-# it filters out packages that fail `tryEval`, so a broken darwin build would
-# silently disappear from the checks instead of failing them.
+# it only evaluates packages for the system running the check.
 {self, ...}: {
   perSystem = {pkgs, ...}: {
     checks.nvim-aarch64-darwin-evals = pkgs.runCommand "nvim-aarch64-darwin-evals" {

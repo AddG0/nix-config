@@ -20,7 +20,7 @@ permittedInsecurePackages = [
 ];
 ```
 
-Only tag things the *pin* causes. A workaround for a permanent upstream design
+Only tag things the _pin_ causes. A workaround for a permanent upstream design
 choice isn't going away on a bump, so a marker there is just noise.
 
 ### Checking them

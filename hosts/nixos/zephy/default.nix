@@ -85,7 +85,6 @@
     timeout = 3;
   };
 
-  security.firewall.enable = true;
   security.allow-suspend.enable = true;
 
   yubikey.enable = true;

@@ -1,6 +1,5 @@
 {customLib, ...}: {
   config,
-  inputs,
   lib,
   pkgs,
   ...
@@ -69,6 +68,13 @@ in {
       description = "Automatically rollback to previous generation if rebuild fails";
     };
 
+    flakeLastModified = mkOption {
+      type = types.nullOr types.int;
+      default = null;
+      example = literalExpression "self.lastModified";
+      description = "`lastModified` of the flake this system was built from; required by {option}`nix.git-sync.checkRemoteNewer`.";
+    };
+
     checkRemoteNewer = mkOption {
       type = types.bool;
       default = true;
@@ -76,8 +82,8 @@ in {
         Skip the rebuild when the remote flake is not newer than the
         currently-deployed configuration.
 
-        Compares `inputs.self.lastModified` (baked in at build time) against
-        the remote's `lastModified` from `nix flake metadata --refresh`.
+        Compares {option}`nix.git-sync.flakeLastModified` (baked in at build
+        time) against the remote's `lastModified` from `nix flake metadata --refresh`.
         Runs as a systemd `ExecCondition`, so the unit is marked "skipped"
         (not failed) when no update is needed.
       '';
@@ -120,6 +126,10 @@ in {
   config = mkIf cfg.enable {
     assertions = [
       {
+        assertion = cfg.checkRemoteNewer -> cfg.flakeLastModified != null;
+        message = "nix.git-sync.flakeLastModified must be set (e.g. to self.lastModified) when checkRemoteNewer is enabled";
+      }
+      {
         assertion = cfg.notifications.enable -> cfg.notifications.notifyUser != null;
         message = "nix.git-sync.notifications.notifyUser must be set when notifications are enabled";
       }
@@ -141,8 +151,7 @@ in {
             export GIT_SSH_COMMAND="ssh -i ${cfg.sshKey} -o StrictHostKeyChecking=accept-new"
           ''}
 
-          # Baked in at build time from inputs.self.lastModified
-          current=${toString inputs.self.lastModified}
+          current=${toString cfg.flakeLastModified}
           remote=$(nix flake metadata "${cfg.flakeRef}" --refresh --json | jq '.lastModified')
 
           if [ "$remote" -gt "$current" ]; then

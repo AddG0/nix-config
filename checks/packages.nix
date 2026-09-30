@@ -17,8 +17,7 @@ _: {
         lib.filterAttrs (
           n: v:
             !(builtins.any (blacklist: lib.hasPrefix blacklist n) blacklistPackages)
-            # Only include packages that are available on this platform
-            && (builtins.tryEval v).success
+            # No tryEval: an eval error must fail the check, not drop it; platform filtering happens upstream in pkgs/flake-module.nix.
             && (v.meta.available or true)
             && !(v.meta.broken or false)
         )

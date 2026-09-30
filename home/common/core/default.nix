@@ -15,12 +15,10 @@ in {
   imports = lib.flatten [
     (lib.custom.scanPaths ./.)
     inputs.sops-nix.homeManagerModules.sops
+    inputs.zen-browser.homeModules.beta
     self.homeModules.default
     ./${platform}
   ];
-
-  # Private config only; exported modules/ get theirs through importWithLocal.
-  _module.args.customPkgs = pkgs.addg;
 
   # Seed config.hostSpec from the injected spec at mkDefault priority so a host
   # file can override individual fields via `hostSpec.<field> = ...;`.

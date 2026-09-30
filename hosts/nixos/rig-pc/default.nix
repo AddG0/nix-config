@@ -51,8 +51,6 @@
 
   boot.initrd.systemd.enable = true;
 
-  security.firewall.enable = true;
-
   hostSpec = {
     hostName = "rig-pc";
     hostPlatform = "x86_64-linux";

@@ -1,7 +1,3 @@
-{
-  pkgs,
-  customPkgs,
-  ...
-}: {
+{customPkgs, ...}: {
   home.packages = [customPkgs.bootdev-cli];
 }

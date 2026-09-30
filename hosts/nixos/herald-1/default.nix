@@ -58,8 +58,6 @@
     efi.canTouchEfiVariables = true;
   };
 
-  security.firewall.enable = true;
-
   # Signage Player Configuration
   services.lumenboard-player.instances = {
     tv-1 = {

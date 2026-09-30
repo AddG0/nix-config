@@ -7,9 +7,17 @@
   ];
 
   # Override home configuration for cloud shell using environment variables
-  home = {
-    username = lib.mkForce (builtins.getEnv "USER");
-    homeDirectory = lib.mkForce (builtins.getEnv "HOME");
+  home = let
+    # Empty under pure eval (flake checks); setup-cloud-shell.sh runs --impure.
+    envOr = name: fallback: let
+      v = builtins.getEnv name;
+    in
+      if v == ""
+      then fallback
+      else v;
+  in {
+    username = lib.mkForce (envOr "USER" "cloudshell");
+    homeDirectory = lib.mkForce (envOr "HOME" "/home/cloudshell");
     stateVersion = "24.05";
   };
 

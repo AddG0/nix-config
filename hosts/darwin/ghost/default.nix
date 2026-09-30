@@ -19,13 +19,6 @@
     hostPlatform = "aarch64-darwin";
   };
 
-  security.firewall = {
-    enable = false;
-    allowedTCPPorts = [
-      22
-    ];
-  };
-
   # https://wiki.nixos.org/wiki/FAQ/When_do_I_update_stateVersion
   system.stateVersion = 5;
 }

@@ -2,14 +2,12 @@
 # Spaces are applied via an activation script that may fail if Zen is running.
 # See: https://github.com/0xc000022070/zen-browser-flake#spaces
 {
-  inputs,
   pkgs,
   lib,
   config,
   ...
 }: {
   imports = [
-    inputs.zen-browser.homeModules.beta
     ./tridactyl.nix
   ];
 

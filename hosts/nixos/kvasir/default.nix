@@ -42,8 +42,6 @@
     timeout = lib.mkDefault 3;
   };
 
-  security.firewall.enable = true;
-
   boot.initrd = {
     systemd.enable = true;
   };

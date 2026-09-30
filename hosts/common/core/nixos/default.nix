@@ -14,6 +14,8 @@
 
   networking.hostName = config.hostSpec.hostName;
 
+  nix.git-sync.flakeLastModified = self.lastModified;
+
   system.stateVersion = config.hostSpec.system.stateVersion;
 
   powerManagement.cpuFreqGovernor = lib.mkIf (config.hostSpec.hostType == "desktop") "performance";

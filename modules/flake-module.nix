@@ -21,15 +21,11 @@
     ./common/desktops.nix
     ./common/host-spec.nix
   ];
-  hostsShared = [
-    ./hosts/security
-  ];
 in {
   flake = {
     nixosModules.default = {
       imports =
         common
-        ++ hostsShared
         ++ [
           ./hosts/nixos/decky-plugins.nix
           (importWithLocal ./hosts/nixos/nix/git-sync.nix)
@@ -55,7 +51,6 @@ in {
     darwinModules.default = {
       imports =
         common
-        ++ hostsShared
         ++ [
           ./hosts/darwin/misc/ids.nix
           ./hosts/darwin/services/databases/mysql.nix

@@ -1,8 +1,4 @@
-{
-  pkgs,
-  customPkgs,
-  ...
-}: {
+{customPkgs, ...}: {
   # Claude Code integration
   programs.claude-code-profiles.baseConfig.pluginDirs = [
     "${customPkgs.tmux-plugins.tmux-agent-sidebar}/share/tmux-plugins/tmux-agent-sidebar"

@@ -121,8 +121,6 @@
   # builds to disk-backed /var/tmp so a large one can't exhaust RAM (no swap here)
   systemd.services.nix-daemon.environment.TMPDIR = "/var/tmp";
 
-  security.firewall.enable = true;
-
   services.obsbot-camera = {
     enable = true;
     cameras.obsbot-tiny-2 = {

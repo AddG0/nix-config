@@ -3,11 +3,7 @@
 #  Apache Kafka - Distributed Event Streaming (KRaft mode)
 #
 ###############################################################
-{
-  pkgs,
-  customPkgs,
-  ...
-}: {
+{customPkgs, ...}: {
   services.apache-kafka = {
     enable = true;
     clusterId = "MkU3OEVBNTcwNTJENDM2Qk";

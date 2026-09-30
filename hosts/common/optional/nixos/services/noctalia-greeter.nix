@@ -18,13 +18,14 @@
   lib,
   ...
 }: let
-  cursor = config.stylix.cursor;
+  # null on hosts without the NixOS stylix module; the greeter then keeps its default cursor.
+  cursor = config.stylix.cursor or null;
 in {
   imports = [inputs.noctalia-greeter.nixosModules.default];
 
   services.displayManager.noctalia-greeter = {
     enable = true;
-    settings.cursor = {
+    settings.cursor = lib.mkIf (cursor != null) {
       theme = cursor.name;
       inherit (cursor) size package;
     };

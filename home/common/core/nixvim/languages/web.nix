@@ -1,8 +1,4 @@
-{
-  pkgs,
-  customPkgs,
-  ...
-}: {
+{customPkgs, ...}: {
   # TypeScript / JavaScript.
   plugins = {
     lsp.servers.html.enable = true;

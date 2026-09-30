@@ -106,17 +106,8 @@ in {
             set -g @catppuccin_status_modules_left "session"
             set -g status-left "#{E:@catppuccin_status_session} "
 
-            # Right Status Modules
             set -g status-right-length 100
             set -g status-left-length 100
-            set -g status-right "#{E:@catppuccin_status_application}"
-            set -agF status-right "#{E:@catppuccin_status_cpu}"
-            set -ag status-right "#{E:@catppuccin_status_date_time}"
-            ${
-              if isLaptop
-              then ''set -agF status-right "#{E:@catppuccin_status_battery}"''
-              else ""
-            }
 
             set -g @catppuccin_status_connect_separator "no"
             set -g @catppuccin_window_left_separator ""
@@ -132,7 +123,20 @@ in {
             set -g @catppuccin_date_time_text " %I:%M %p %d/%m/%y "
           '';
         }
-        cpu
+        {
+          plugin = cpu;
+          # -F must run after catppuccin defines its modules, before cpu.tmux interpolates.
+          extraConfig = ''
+            set -g status-right "#{E:@catppuccin_status_application}"
+            set -agF status-right "#{E:@catppuccin_status_cpu}"
+            set -ag status-right "#{E:@catppuccin_status_date_time}"
+            ${
+              if isLaptop
+              then ''set -agF status-right "#{E:@catppuccin_status_battery}"''
+              else ""
+            }
+          '';
+        }
       ]
       ++ (
         if isLaptop

@@ -11,7 +11,6 @@
 # so referencing it now throws at eval time).
 {inputs, ...}: _final: prev:
 prev.lib.optionalAttrs prev.stdenv.hostPlatform.isLinux (let
-  system = prev.stdenv.hostPlatform.system;
   src = inputs.walker.inputs.elephant;
   version = prev.lib.trim (builtins.readFile "${src}/cmd/elephant/version.txt");
   vendorHash = "sha256-5AL1731OKp2AZgknZAvcfyL+TuU3DIPozjSItE5nOM8=";

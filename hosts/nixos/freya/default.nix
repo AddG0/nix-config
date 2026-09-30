@@ -81,8 +81,6 @@
     efi.canTouchEfiVariables = true;
   };
 
-  security.firewall.enable = true;
-
   yubikey = {
     enable = true;
     autoScreenActivate = true;
