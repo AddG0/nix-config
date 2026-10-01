@@ -24,7 +24,6 @@
       settings = {
         # Without this, quitting Zen can wipe zen-live-folders.jsonlz4 on save.
         "zen.window-sync.enabled" = true;
-        "zen.window-sync.sync-only-pinned-tabs" = true;
         # Workspaces
         "zen.workspaces.disabled_for_testing" = false;
         "zen.workspaces.hide-deactivated-workspaces" = false;

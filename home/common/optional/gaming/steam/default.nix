@@ -50,6 +50,47 @@
   # `or false`: hosts without gaming/rocket-league.nix have no such option at all.
   bakkesLauncher = lib.optional (config.programs.bakkesmod.enable or false) config.programs.bakkesmod.launcherPackage;
 
+  # Asks before launching without a physical gamepad; Steam Input's virtual pads live under /devices/virtual.
+  requireController = game:
+    lib.getExe (pkgs.writeShellApplication {
+      name = "require-controller";
+      runtimeInputs = [pkgs.coreutils pkgs.gawk pkgs.zenity];
+      text = ''
+        has_controller() {
+          awk '/^S: Sysfs=/ { virt = ($0 ~ /\/virtual\//) }
+               /^H: Handlers=/ && / js[0-9]+/ && !virt { found = 1 }
+               END { exit !found }' /proc/bus/input/devices
+        }
+
+        if has_controller; then
+          exec "$@"
+        fi
+
+        # Steam's LD_LIBRARY_PATH pins an old libcurl that stops zenity loading, and that failure exits 1 like Cancel.
+        env -u LD_LIBRARY_PATH -u LD_PRELOAD zenity --question --title=${lib.escapeShellArg game} \
+          --text=${lib.escapeShellArg "No controller connected.\nPlug one in to start."} \
+          --ok-label=Start --cancel-label=Cancel &
+        dialog=$!
+
+        while kill -0 "$dialog" 2>/dev/null; do
+          if has_controller; then
+            kill "$dialog" 2>/dev/null || true
+            exec "$@"
+          fi
+          sleep 0.5
+        done
+
+        rc=0
+        wait "$dialog" || rc=$?
+        case $rc in
+          0) exec "$@" ;;
+          1) exit 0 ;;
+          *) echo "require-controller: zenity exited $rc; launching ${game} without asking" >&2
+             exec "$@" ;;
+        esac
+      '';
+    });
+
   # name → Steam appid.
   defaults =
     lib.mapAttrs (_: id: {
@@ -101,7 +142,7 @@
     rocket-league.compatTool = defaultCompatTool;
     # Inert unless Steam's "Anti-Cheat Disabled" launch option is selected — a
     # manual choice; BakkesMod cannot inject into the EAC executable.
-    rocket-league.wrappers = [gamemoderun] ++ bakkesLauncher;
+    rocket-league.wrappers = [(requireController "Rocket League") gamemoderun] ++ bakkesLauncher;
     # I had multiplayer issues with the linux version. So I'm using the windows version.
     portal-2.compatTool = defaultCompatTool;
     # Wouldn't let me install if this wasn't set

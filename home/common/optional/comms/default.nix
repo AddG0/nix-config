@@ -80,7 +80,8 @@
 
   # Slack ships its own webfont and palette; only a user-origin sheet outranks its `!important` rules.
   # Called as `${recolor} (css) => { …apply css… });`.
-  recolor = "(${builtins.readFile ./recolor.js})(${builtins.toJSON (lib.genAttrs (map (n: "base0${n}") ["0" "1" "2" "3" "4" "5" "8" "9" "A" "B" "C" "D" "E"]) (n: c.${n}))},";
+  # The formatter ends recolor.js with `};`, which is a syntax error inside the wrapping parens.
+  recolor = "(${lib.removeSuffix ";" (lib.trim (builtins.readFile ./recolor.js))})(${builtins.toJSON (lib.genAttrs (map (n: "base0${n}") ["0" "1" "2" "3" "4" "5" "8" "9" "A" "B" "C" "D" "E"]) (n: c.${n}))},";
 
   slackThemePreload = pkgs.writeText "slack-stylix-theme.js" ''
 
@@ -96,7 +97,7 @@
   '';
 
   slackFixed = pkgs.slack.overrideAttrs (oldAttrs: {
-    nativeBuildInputs = oldAttrs.nativeBuildInputs ++ [pkgs.asar];
+    nativeBuildInputs = oldAttrs.nativeBuildInputs ++ [pkgs.asar pkgs.nodejs];
     postInstall =
       (oldAttrs.postInstall or "")
       + ''
@@ -105,6 +106,8 @@
 
         asar extract $out/lib/slack/resources/app.asar slack-app
         cat ${slackThemePreload} >> slack-app/dist/preload.bundle.js
+        # A syntax error here only shows at runtime, as a renderer crash loop.
+        node --check slack-app/dist/preload.bundle.js
         asar pack slack-app $out/lib/slack/resources/app.asar --unpack "*.node"
       '';
   });
@@ -258,7 +261,7 @@
       "scrollbar-auto-scrollbar-color-track" = "transparent";
     };
   # Vencord's renderer.js runs in Discord's page, so the recolour rides along at its end.
-  vencordRecolored = pkgs.runCommand "vencord-recolored" {} ''
+  vencordRecolored = pkgs.runCommand "vencord-recolored" {nativeBuildInputs = [pkgs.nodejs];} ''
     cp -r ${pkgs.vencord} $out
     chmod u+w $out/renderer.js
     cat >> $out/renderer.js <<'EOF'
@@ -271,6 +274,7 @@
       ${recolor} (css) => { el.textContent = css; });
     }
     EOF
+    node --check $out/renderer.js
   '';
 in {
   home.packages =
