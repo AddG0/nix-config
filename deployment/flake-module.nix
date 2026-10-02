@@ -9,6 +9,8 @@
   overrideHost = builtins.getEnv "DEPLOY_TARGET_HOST";
 in {
   flake = {
+    colmenaHive = inputs.colmena.lib.makeHive inputs.self.colmena;
+
     # Colmena - remote deployment via SSH
     colmena =
       {

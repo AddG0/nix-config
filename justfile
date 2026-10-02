@@ -1,6 +1,8 @@
 IS_DARWIN := if os() == "macos" { "true" } else { "false" }
 USE_NH_DEFAULT := if os() == "linux" { "true" } else { "false" }
 DEFAULT_USER := "addg"
+# FLAKE-UPDATE: drop the option once colmena skips its asset-flake lock under direct eval (v0.5.0 TODO); on a dirty tree that lock fails and the relock prints every input.
+COLMENA := "colmena --nix-option allow-dirty-locks true"
 
 # default recipe to display help information
 default:
@@ -192,7 +194,7 @@ update *ARGS: && check-markers
 [group('dependencies')]
 [doc("List the `FLAKE-UPDATE:` markers to re-check after an input bump")]
 check-markers:
-  @rg -n 'FLAKE-UPDATE:' -g '!docs/**' -g '!justfile' || echo "no markers left"
+  @rg -n '^\s*# FLAKE-UPDATE:' -g '!docs/**' || echo "no markers left"
 
 [group('validation')]
 [doc("Check which skills a Claude Code profile triggers (headless, costs tokens)")]
@@ -342,10 +344,19 @@ deploy boot="switch" ip="" update-inputs="false" *hostnames:
   @{{ if update-inputs == "true" { "just rebuild-pre" } else { "true" } }}
   DEPLOY_TARGET_NODE="{{ replace_regex(replace_regex(hostnames, IPV4_SUFFIX, ''), '^.* ', '') }}" \
   DEPLOY_TARGET_HOST="{{ if ip != '' { ip } else if hostnames =~ IPV4_SUFFIX { replace_regex(hostnames, '^.* ', '') } else { '' } }}" \
-    colmena apply --impure {{ if hostnames != '' { '--on ' + replace(replace_regex(hostnames, IPV4_SUFFIX, ''), ' ', ',') } else { '' } }} {{boot}}
+    {{COLMENA}} apply --impure {{ if hostnames != '' { '--on ' + replace(replace_regex(hostnames, IPV4_SUFFIX, ''), ' ', ',') } else { '' } }} {{boot}}
 
-# First push fails until the host trusts USER; bootstrap once on the box (via `ssh -A`):
-#   sudo env SSH_AUTH_SOCK="$SSH_AUTH_SOCK" nixos-rebuild switch --flake .#HOST
+[private]
+[script]
+[doc("Make USER a trusted Nix user on HOST until its next activation, so unsigned local builds can be copied in")]
+trust-remote USER HOST:
+  set -euo pipefail
+  trusted=$(nix store info --json --store 'ssh-ng://{{USER}}@{{HOST}}' | jq .trusted)
+  [ "$trusted" = true ] && exit 0
+  echo "{{USER}} is not a trusted Nix user on {{HOST}}; trusting it until the next activation (sudo needed)"
+  # activation re-links /etc/nix/nix.conf, so this copy reverts on its own
+  ssh -t '{{USER}}@{{HOST}}' "sudo sh -c 'cp --remove-destination \$(readlink -f /etc/nix/nix.conf) /etc/nix/nix.conf && echo extra-trusted-users = {{USER}} >> /etc/nix/nix.conf && systemctl restart nix-daemon'"
+
 [group('deployment')]
 [doc("Build locally and push to a remote host with nixos-rebuild, no colmena (IP defaults to HOST, --boot to activate on next boot, -u to refresh personal flake inputs first)")]
 [arg("boot", long, value="boot")]
@@ -353,20 +364,21 @@ deploy boot="switch" ip="" update-inputs="false" *hostnames:
 deploy-remote HOST IP="" USER=DEFAULT_USER boot="switch" update-inputs="false":
   @{{ if HOST == "" { error("HOST parameter is required") } else { "" } }}
   @{{ if update-inputs == "true" { "just rebuild-pre" } else { "true" } }}
+  @just trust-remote {{USER}} {{ if IP != "" { IP } else { HOST } }}
   nixos-rebuild {{boot}} --flake .#{{HOST}} \
     --build-host localhost \
     --target-host {{USER}}@{{ if IP != "" { IP } else { HOST } }} \
-    --elevate sudo
+    --elevate sudo --ask-elevate-password
 
 [group('deployment')]
 [doc("Build configuration without deploying (specify hostnames or builds all)")]
 deploy-build *hostnames:
-  colmena build --impure {{ if hostnames != "" { "--on " + replace(hostnames, " ", ",") } else { "" } }}
+  {{COLMENA}} build --impure {{ if hostnames != "" { "--on " + replace(hostnames, " ", ",") } else { "" } }}
 
 [group('deployment')]
 [doc("Upload keys (specify hostnames or uploads to all)")]
 deploy-keys *hostnames:
-  colmena upload-keys --impure {{ if hostnames != "" { "--on " + replace(hostnames, " ", ",") } else { "" } }}
+  {{COLMENA}} upload-keys --impure {{ if hostnames != "" { "--on " + replace(hostnames, " ", ",") } else { "" } }}
 
 [group('deployment')]
 [doc("List all available colmena hosts")]
@@ -377,7 +389,7 @@ deploy-list:
 [doc("Execute command via colmena (specify hostnames or executes on all)")]
 deploy-exec cmd="" *hostnames:
   @{{ if cmd == "" { error("cmd parameter is required") } else { "" } }}
-  colmena exec --impure {{ if hostnames != "" { "--on " + replace(hostnames, " ", ",") } else { "" } }} -- {{cmd}}
+  {{COLMENA}} exec --impure {{ if hostnames != "" { "--on " + replace(hostnames, " ", ",") } else { "" } }} -- {{cmd}}
 
 
 # Minecraft modpack management (see scripts/modpack.sh)

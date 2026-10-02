@@ -50,19 +50,22 @@
   # `or false`: hosts without gaming/rocket-league.nix have no such option at all.
   bakkesLauncher = lib.optional (config.programs.bakkesmod.enable or false) config.programs.bakkesmod.launcherPackage;
 
-  # Asks before launching without a physical gamepad; Steam Input's virtual pads live under /devices/virtual.
+  # Asks before launching without a physical gamepad; virtual input devices live under /devices/virtual.
   requireController = game:
     lib.getExe (pkgs.writeShellApplication {
       name = "require-controller";
       runtimeInputs = [pkgs.coreutils pkgs.gawk pkgs.zenity];
       text = ''
-        has_controller() {
-          awk '/^S: Sysfs=/ { virt = ($0 ~ /\/virtual\//) }
-               /^H: Handlers=/ && / js[0-9]+/ && !virt { found = 1 }
-               END { exit !found }' /proc/bus/input/devices
+        # Needs Steam Input's pad too: it lands seconds after the physical one, and a running game takes it as a second player.
+        # It is matched by name, since keyd's virtual pointer also has a js node.
+        pads_ready() {
+          awk '/^N: Name=/ { steam = ($0 ~ /X-Box 360 pad/) }
+               /^S: Sysfs=/ { virt = ($0 ~ /\/virtual\//) }
+               /^H: Handlers=/ && / js[0-9]+/ { if (!virt) physical = 1; else if (steam) input = 1 }
+               END { exit !(physical && input) }' /proc/bus/input/devices
         }
 
-        if has_controller; then
+        if pads_ready; then
           exec "$@"
         fi
 
@@ -73,7 +76,7 @@
         dialog=$!
 
         while kill -0 "$dialog" 2>/dev/null; do
-          if has_controller; then
+          if pads_ready; then
             kill "$dialog" 2>/dev/null || true
             exec "$@"
           fi

@@ -23,6 +23,8 @@
       better-kickoff-training
       # Scripted inputs for custom shots and speedruns.
       tas-plugin
+      # Bumps the car mid-air to drill recoveries.
+      air-recovery-bumps
     ];
     config = {
       gui.scale = 1.2;

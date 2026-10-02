@@ -64,6 +64,13 @@
       inputs.nixpkgs.follows = "nixpkgs";
     };
 
+    # makeHive must match the colmena CLI, which comes from nixpkgs.
+    colmena = {
+      url = "github:nix-community/colmena/v0.5.0";
+      inputs.nixpkgs.follows = "nixpkgs";
+      inputs.stable.follows = "nixpkgs-stable";
+    };
+
     # Secrets management. See ./docs/secretsmgmt.md
     sops-nix = {
       url = "github:Mic92/sops-nix";

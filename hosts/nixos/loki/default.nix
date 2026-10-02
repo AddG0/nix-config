@@ -69,6 +69,7 @@
     hostName = "loki";
     hostPlatform = "x86_64-linux";
     colmena.enable = true;
+    hostType = "server";
   };
 
   time.timeZone = "America/Chicago";

@@ -1,7 +1,7 @@
 #############################################################
 #
-#  thor - Server
-#  NixOS running on Intel i9-13900H (20 cores), 32GB RAM
+#  thor - Meigao F8BAC Mini PC
+#  NixOS running on Ryzen AI 9 HX 370, Radeon 890M, 64GB RAM
 #
 ###############################################################
 {
@@ -14,7 +14,8 @@
     (lib.custom.scanPaths ./.)
 
     #################### Hardware ####################
-    inputs.hardware.nixosModules.common-cpu-intel
+    inputs.hardware.nixosModules.common-cpu-amd
+    inputs.hardware.nixosModules.common-gpu-amd
     inputs.hardware.nixosModules.common-pc-ssd
 
     #################### Disk Layout ####################
@@ -32,9 +33,7 @@
 
     (with lib.custom.optional.hosts.nixos; [nix-secrets-deploy-key static-networking])
     (with lib.custom.optional.hosts.nixos.services; [
-      # home-assistant-oci
       kubernetes.clusters.asgard
-      # nginx # nginx
       nomad.clusters.midgard.client
       openssh # allow remote SSH access
     ])
@@ -48,6 +47,7 @@
 
   networking = {
     enableIPv6 = false;
+    interfaces.enp195s0.wakeOnLan.enable = true;
   };
 
   boot.kernelPackages = pkgs.linuxPackages_latest;
@@ -66,6 +66,7 @@
     hostName = "thor";
     hostPlatform = "x86_64-linux";
     colmena.enable = true;
+    hostType = "server";
   };
 
   time.timeZone = "America/Chicago";

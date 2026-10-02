@@ -8,7 +8,14 @@
 
   # Threads spawn the CLI at the repo with no shell between, so chpwd never fires.
   inDirectoryEnv = exe: lib.getExe (config.programs.directoryEnv.wrap exe);
+  runtimeDir = ".t3/runtime/versions/${config.programs.t3code.package.version}";
 in {
+  # The desktop's SSH launch always runs this pinned runtime, else downloads a glibc build NixOS cannot exec.
+  home.file = {
+    "${runtimeDir}/t3".source = lib.getExe' config.programs.t3code.package "t3";
+    "${runtimeDir}/.install-complete".text = config.programs.t3code.package.version;
+  };
+
   imports = [
     ./keybindings.nix
     ./package.nix
