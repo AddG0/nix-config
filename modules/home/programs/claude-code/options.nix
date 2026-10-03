@@ -171,6 +171,17 @@ in {
       '';
     };
 
+    unsetEnv = lib.mkOption {
+      type = lib.types.listOf lib.types.str;
+      default = [];
+      example = ["ANTHROPIC_API_KEY"];
+      description = ''
+        Environment variables the wrapped `claude` removes before starting, for
+        credentials exported elsewhere that would outrank the login Claude Code
+        is configured to use.
+      '';
+    };
+
     defaultProfile = lib.mkOption {
       type = lib.types.str;
       default = "default";

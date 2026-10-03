@@ -19,7 +19,7 @@
     entries = [
       "${pkgs.spotify}/share/applications/spotify.desktop"
       "${pkgs.discord}/share/applications/discord.desktop"
-      "${pkgs._1password-gui}/share/applications/1password.desktop"
+      "${pkgs._1password-gui}/share/applications/com.onepassword.OnePassword.desktop"
     ];
   };
   # Plasma Monitor Configuration:

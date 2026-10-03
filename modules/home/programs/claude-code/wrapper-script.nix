@@ -18,6 +18,7 @@
   wrapperScript = pkgs.writeShellScriptBin "claude" ''
     ${lib.optionalString (pkgs.stdenv.hostPlatform.isLinux && cfg.captureNode != null)
       "export PIPEWIRE_NODE=${lib.escapeShellArg cfg.captureNode}"}
+    ${lib.optionalString (cfg.unsetEnv != []) "unset ${lib.escapeShellArgs cfg.unsetEnv}"}
     PROFILE="${cfg.defaultProfile}"
     ARGS=()
 

@@ -23,6 +23,7 @@
       # plasma6
     ])
     (with lib.custom.optional.home.development; [
+      ai.ai-proxy
       # ai.litellm-proxy
       aws
       bootdev
@@ -155,7 +156,7 @@
     entries = [
       "${pkgs.discord}/share/applications/discord.desktop"
       "${config.programs.zen-browser.package}/share/applications/zen-beta.desktop"
-      "${pkgs._1password-gui}/share/applications/1password.desktop"
+      "${pkgs._1password-gui}/share/applications/com.onepassword.OnePassword.desktop"
       "${config.programs.spicetify.spicedSpotify}/share/applications/spotify.desktop"
     ];
   };

@@ -17,6 +17,7 @@
       # plasma6
     ])
     (with lib.custom.optional.home.development; [
+      ai.ai-proxy
       ai.litellm-proxy
       ai.t3code-server
       aws
@@ -170,10 +171,10 @@
     entries = [
       "${pkgs.discord}/share/applications/discord.desktop"
       "${config.programs.zen-browser.package}/share/applications/zen-beta.desktop"
-      "${pkgs._1password-gui}/share/applications/1password.desktop"
+      "${pkgs._1password-gui}/share/applications/com.onepassword.OnePassword.desktop"
       "${config.programs.spicetify.spicedSpotify}/share/applications/spotify.desktop"
       "${pkgs.steam}/share/applications/steam.desktop"
-      "${pkgs.obsidian}/share/applications/obsidian.desktop"
+      "${pkgs.obsidian}/share/applications/md.obsidian.Obsidian.desktop"
     ];
   };
 
