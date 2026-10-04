@@ -16,7 +16,7 @@ usage() {
   cat <<EOF
 Usage: ai-proxy [command]
 
-  status   who you are logged in as, and whether $AI_PROXY_URL accepts you (the default)
+  status   who you are logged in as, and whether $AI_PROXY_URL and $AI_PROXY_CLAUDE_URL accept you (the default)
   login    sign in through $AI_PROXY_ISSUER in a browser
   logout   end the session and forget it on this machine
   token    print an access token (what Codex and Claude Code run)
@@ -151,8 +151,26 @@ logout() {
   echo "Logged out $account."
 }
 
+# Prints one `proxy` line for a host and fails unless it accepts the token.
+check_proxy() {
+  local url=$1 access=$2 agent=$3 code
+
+  code=$(curl -s -o /dev/null -w '%{http_code}' --max-time 10 -A "$agent" -H "Authorization: Bearer $access" "$url/v1/models") || code=000
+  case "$code" in
+  200) echo "  proxy    $url accepts it" ;;
+  000)
+    echo "  proxy    $url is unreachable; it answers only on the LAN and Tailscale"
+    return 1
+    ;;
+  *)
+    echo "  proxy    $url refused it (HTTP $code)"
+    return 1
+    ;;
+  esac
+}
+
 status() {
-  local access minutes code
+  local access minutes failed=0
 
   if [[ ! -s "$state/refresh_token" ]]; then
     echo "Not logged in. Run: ai-proxy login"
@@ -168,18 +186,10 @@ status() {
   echo "  issuer   $AI_PROXY_ISSUER"
   echo "  token    good for $minutes more minutes, then renewed on its own"
 
-  code=$(curl -s -o /dev/null -w '%{http_code}' --max-time 10 -H "Authorization: Bearer $access" "$AI_PROXY_URL/v1/models") || code=000
-  case "$code" in
-  200) echo "  proxy    $AI_PROXY_URL accepts it" ;;
-  000)
-    echo "  proxy    $AI_PROXY_URL is unreachable; it answers only on the LAN and Tailscale"
-    return 1
-    ;;
-  *)
-    echo "  proxy    $AI_PROXY_URL refused it (HTTP $code)"
-    return 1
-    ;;
-  esac
+  check_proxy "$AI_PROXY_URL" "$access" "ai-proxy-status" || failed=1
+  # The Claude host admits only a claude-cli/ User-Agent (gitops ADR-0010), answering anything else as it would a bad token.
+  check_proxy "$AI_PROXY_CLAUDE_URL" "$access" "claude-cli/ai-proxy-status" || failed=1
+  return "$failed"
 }
 
 # Codex (auth.command) and Claude Code (apiKeyHelper) read stdout as the credential, so nothing else goes there.

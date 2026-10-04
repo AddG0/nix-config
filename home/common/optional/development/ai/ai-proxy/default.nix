@@ -20,6 +20,7 @@
       AI_PROXY_ISSUER = issuer;
       AI_PROXY_CLIENT_ID = clientId;
       AI_PROXY_URL = baseUrl;
+      AI_PROXY_CLAUDE_URL = claudeUrl;
       # The project audience is what the gateway checks, offline_access yields a refresh token, and profile/email name you in `ai-proxy status`.
       AI_PROXY_SCOPE = "openid profile email offline_access urn:zitadel:iam:org:project:id:${projectId}:aud";
     };
@@ -40,6 +41,8 @@ in {
 
   programs.claude-code-profiles.baseConfig.settings = {
     apiKeyHelper = "${lib.getExe ai-proxy} token";
+    # They need a claude.ai login, which apiKeyHelper outranks.
+    disableClaudeAiConnectors = true;
     env.ANTHROPIC_BASE_URL = claudeUrl;
   };
 

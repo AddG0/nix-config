@@ -59,13 +59,13 @@
         # Needs Steam Input's pad too: it lands seconds after the physical one, and a running game takes it as a second player.
         # It is matched by name, since keyd's virtual pointer also has a js node.
         pads_ready() {
-          awk '/^N: Name=/ { steam = ($0 ~ /X-Box 360 pad/) }
+          awk -v need="$1" '/^N: Name=/ { steam = ($0 ~ /X-Box 360 pad/) }
                /^S: Sysfs=/ { virt = ($0 ~ /\/virtual\//) }
                /^H: Handlers=/ && / js[0-9]+/ { if (!virt) physical = 1; else if (steam) input = 1 }
-               END { exit !(physical && input) }' /proc/bus/input/devices
+               END { exit !(physical && (need == "physical" || input)) }' /proc/bus/input/devices
         }
 
-        if pads_ready; then
+        if pads_ready both; then
           exec "$@"
         fi
 
@@ -76,7 +76,9 @@
         dialog=$!
 
         while kill -0 "$dialog" 2>/dev/null; do
-          if pads_ready; then
+          # Steam creates its pad only once the game process exists, so a pad plugged in here never gets one.
+          if pads_ready physical; then
+            sleep 2
             kill "$dialog" 2>/dev/null || true
             exec "$@"
           fi

@@ -1,7 +1,5 @@
 {
-  config,
   pkgs,
-  customPkgs,
   lib,
   ...
 }: let
@@ -29,16 +27,11 @@
       "${base}/translations/en.json".source = translations;
     };
 in {
-  xdg.dataFile =
-    mkPlugin {
-      name = "next-event";
-      substitutions = {
-        noctalia = lib.getExe pkgs.noctalia;
-        jq = lib.getExe pkgs.jq;
-      };
-    }
-    # Needs the `ai-usagebar` CLI from ../../../../../development/ai.
-    // lib.optionalAttrs config.programs.code-assistant-profiles.enable {
-      "noctalia/plugins/ai-usagebar".source = customPkgs.noctalia-plugins.ai-usagebar;
+  xdg.dataFile = mkPlugin {
+    name = "next-event";
+    substitutions = {
+      noctalia = lib.getExe pkgs.noctalia;
+      jq = lib.getExe pkgs.jq;
     };
+  };
 }

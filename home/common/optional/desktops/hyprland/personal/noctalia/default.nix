@@ -6,9 +6,6 @@
 }: let
   isLaptop = config.hostSpec.hostType == "laptop";
 
-  # The capsule shells out to `ai-usagebar`, which the AI tooling module installs.
-  aiUsage = config.programs.code-assistant-profiles.enable;
-
   noctaliaPkg = pkgs.noctalia;
 in {
   # ./plugins installs the bar-widget plugins (mkPlugin per dir); they're enabled + placed below.
@@ -40,46 +37,35 @@ in {
         start = ["search" "clock" "cpu" "ram" "active_window" "media"];
         center = ["workspaces"];
         end =
-          lib.optional aiUsage "ai_usage"
-          ++ ["tray" "calendar" "bluetooth" "input_volume" "notifications" "volume"]
+          ["tray" "calendar" "bluetooth" "input_volume" "notifications" "volume"]
           ++ lib.optionals isLaptop ["power_profile" "battery"]
           ++ ["control-center"];
       };
 
       # Bar-widget plugins (installed via ./plugins/*).
-      plugins.enabled = ["addg/next-event"] ++ lib.optional aiUsage "felipeartur/ai-usagebar";
+      plugins.enabled = ["addg/next-event"];
 
-      widget =
-        {
-          # Search button opens walker instead of noctalia's built-in launcher.
-          search = {
-            type = "custom_button";
-            glyph = "search";
-            tooltip = "Search";
-            actions.left = "exec ${lib.getExe pkgs.walker}";
-          };
-
-          calendar.type = "addg/next-event:agenda";
-
-          # F1-F12 workspaces are labeled by name; the 1-char default renders them all as "F".
-          workspaces.max_label_chars = 3;
-
-          # strftime clock formats.
-          clock = {
-            format = "{:%I:%M %p %a, %b %d}";
-            vertical_format = "{:%I\n%M %p}";
-            tooltip_format = "{:%I:%M %p %a, %b %d}";
-          };
-        }
-        // lib.optionalAttrs aiUsage {
-          # Rides the default `auto` ordering: the 2 plans nearest their limit.
-          ai_usage = {
-            type = "felipeartur/ai-usagebar:bar";
-            visualization = "gauge";
-            provider_limit = 2;
-            extras = "both";
-          };
+      widget = {
+        # Search button opens walker instead of noctalia's built-in launcher.
+        search = {
+          type = "custom_button";
+          glyph = "search";
+          tooltip = "Search";
+          actions.left = "exec ${lib.getExe pkgs.walker}";
         };
+
+        calendar.type = "addg/next-event:agenda";
+
+        # F1-F12 workspaces are labeled by name; the 1-char default renders them all as "F".
+        workspaces.max_label_chars = 3;
+
+        # strftime clock formats.
+        clock = {
+          format = "{:%I:%M %p %a, %b %d}";
+          vertical_format = "{:%I\n%M %p}";
+          tooltip_format = "{:%I:%M %p %a, %b %d}";
+        };
+      };
 
       audio = {
         enable_sounds = true; # master toggle: also un-mutes the notification cue
