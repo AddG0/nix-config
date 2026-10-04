@@ -1,4 +1,4 @@
-# Claude Code and Codex through ai-proxy on asgard (gitops ADR-0008). Pair with the NixOS ai-proxy module, which points Claude Code at the gateway.
+# Claude Code and Codex through ai-proxy on asgard, both signed in by this helper (gitops ADR-0010).
 {
   config,
   lib,
@@ -7,6 +7,7 @@
 }: let
   issuer = "https://auth.${config.hostSpec.domain}";
   baseUrl = "https://ai-proxy.${config.hostSpec.domain}";
+  claudeUrl = "https://ai-proxy-claude.${config.hostSpec.domain}";
 
   # infra-live's `tofu output ai_proxy`; prevent_destroy there keeps both from changing.
   projectId = "393364980939882573";
@@ -34,8 +35,13 @@ in {
 
   home.packages = [ai-proxy];
 
-  # forceLoginMethod refuses to start while it is set, and secrets/ai exports it into zsh for codecompanion.
+  # It would outrank apiKeyHelper, and secrets/ai exports it into zsh for codecompanion.
   programs.claude-code-profiles.unsetEnv = ["ANTHROPIC_API_KEY"];
+
+  programs.claude-code-profiles.baseConfig.settings = {
+    apiKeyHelper = "${lib.getExe ai-proxy} token";
+    env.ANTHROPIC_BASE_URL = claudeUrl;
+  };
 
   programs.codex.settings = {
     model_provider = "ai-proxy";

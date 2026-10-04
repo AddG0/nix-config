@@ -31,10 +31,10 @@ in {
     enableTraditionalAgent = false;
   };
 
-  # Local sessions only, so an SSH'd-in shell keeps its forwarded agent;
+  # An SSH'd-in shell keeps a forwarded agent, and falls back to this one without;
   # inside tmux, ssh.nix owns SSH_AUTH_SOCK.
   programs.zsh.initContent = lib.mkBefore ''
-    if [[ -z "$SSH_CONNECTION" && -z "$TMUX" ]]; then
+    if [[ -z "$TMUX" && ( -z "$SSH_CONNECTION" || -z "$SSH_AUTH_SOCK" ) ]]; then
       export SSH_AUTH_SOCK="${agentPath}"
     fi
   '';

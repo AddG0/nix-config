@@ -19,7 +19,7 @@ Usage: ai-proxy [command]
   status   who you are logged in as, and whether $AI_PROXY_URL accepts you (the default)
   login    sign in through $AI_PROXY_ISSUER in a browser
   logout   end the session and forget it on this machine
-  token    print an access token (what Codex runs)
+  token    print an access token (what Codex and Claude Code run)
 EOF
 }
 
@@ -182,15 +182,16 @@ status() {
   esac
 }
 
-# Codex (auth.command) reads stdout as the credential, so nothing else goes there.
+# Codex (auth.command) and Claude Code (apiKeyHelper) read stdout as the credential, so nothing else goes there.
 token() {
   local token_endpoint code
 
-  # Every Codex run calls this: one refresh at a time keeps a rotated refresh token from being spent twice.
+  # Every Codex run and Claude Code session calls this: one refresh at a time keeps a rotated refresh token from being spent twice.
   exec 9>"$state/lock"
   flock 9
 
-  if [[ -s "$state/token.json" ]] && jq -e --argjson now "$(date +%s)" '.expires_at - 60 > $now' "$state/token.json" >/dev/null; then
+  # Six minutes, as Claude Code and Codex each reuse a token for five before asking again.
+  if [[ -s "$state/token.json" ]] && jq -e --argjson now "$(date +%s)" '.expires_at - 360 > $now' "$state/token.json" >/dev/null; then
     jq -j .access_token "$state/token.json"
     return 0
   fi

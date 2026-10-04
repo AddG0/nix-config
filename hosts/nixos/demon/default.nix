@@ -44,7 +44,6 @@
       # plasma6 # window manager
     ])
     (with lib.custom.optional.hosts.nixos.development; [
-      ai-proxy
       # mysql
       # postgres
       # redis

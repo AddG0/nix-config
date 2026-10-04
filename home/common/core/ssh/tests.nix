@@ -142,7 +142,7 @@ in
   runCommand "tmux-ssh-auth-sock-link-tests" {
     nativeBuildInputs = [coreutils];
     inherit integration ordering;
-    inherit (credentials) resolves offers;
+    inherit (credentials) resolves offers agentChoice;
   } ''
         export TMUX_SSH_LINK_TMUX=${stub}/bin/tmux-stub
         run=${script}/bin/tmux-ssh-auth-sock-link

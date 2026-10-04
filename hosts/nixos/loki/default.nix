@@ -38,6 +38,7 @@
       nginx # nginx
       nomad.clusters.midgard.client
       openssh # allow remote SSH access
+      tailscale
     ])
   ];
 
@@ -45,6 +46,12 @@
     enable = true;
     # We stagger the schedule across thor odin and loki to keep the k3s cluster alive
     schedule = "03:00";
+  };
+
+  services.tailscale = {
+    useRoutingFeatures = "server";
+    # Every *.addg0.com record and the UniFi resolver (.60.1) live on the Servers VLAN.
+    extraSetFlags = ["--advertise-routes=10.61.60.0/24"];
   };
 
   services.homeAssistantOci.autoUpdate.enable = true;

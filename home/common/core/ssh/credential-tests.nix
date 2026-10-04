@@ -263,10 +263,34 @@
             ssh-agent -k >/dev/null 2>&1 || true
             touch $out
     '';
+
+  # Which agent a fresh shell ends up on, run through the hook the module renders.
+  agentChoice =
+    runCommand "ssh-agent-choice-onepassword" {
+      nativeBuildInputs = [coreutils gawk pkgs.zsh];
+      zshrc = pkgs.writeText "zshrc" (hmFor "onePassword").programs.zsh.initContent;
+    } ''
+      onepassword=/home/tester/.1password/agent.sock
+      awk -v want="export SSH_AUTH_SOCK=\"$onepassword\"" \
+        '{ l[NR] = $0 } index($0, want) { n = NR } END { if (n) print l[n-1] "\n" l[n] "\n" l[n+1] }' \
+        "$zshrc" >hook.zsh
+      [ -s hook.zsh ] || { echo "FAIL: no 1Password hook in the rendered zshrc"; exit 1; }
+
+      # env -i, so the build's own environment cannot decide the case.
+      agent() { env -i "$@" ${pkgs.zsh}/bin/zsh -f -c 'source ./hook.zsh; print -r -- "''${SSH_AUTH_SOCK:-none}"'; }
+      expect() { [ "$1" = "$2" ] || { echo "FAIL: $3 got $1, want $2"; exit 1; }; }
+
+      expect "$(agent SSH_AUTH_SOCK=/run/gcr)" "$onepassword" "a local shell"
+      expect "$(agent SSH_CONNECTION=x SSH_AUTH_SOCK=/tmp/fwd)" /tmp/fwd "an SSH session with a forwarded agent"
+      expect "$(agent SSH_CONNECTION=x)" "$onepassword" "an SSH session that forwarded no agent"
+      expect "$(agent TMUX=x SSH_AUTH_SOCK=/tmp/link)" /tmp/link "a tmux pane"
+      touch $out
+    '';
 in
   lib.throwIf (withAgentBlock == null || withoutAgentBlock == null)
   "ssh/credential-tests.nix: need one host with an IdentityAgent block and one without"
   {
     resolves = map resolution [withAgentBlock withoutAgentBlock];
     offers = wireOffers withoutAgentBlock;
+    inherit agentChoice;
   }
