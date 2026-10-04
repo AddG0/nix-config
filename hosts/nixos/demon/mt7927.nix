@@ -25,6 +25,11 @@
 }: let
   kernel = config.boot.kernelPackages.kernel;
 
+  # Clang from the kernel's own nixpkgs — same-version drift breaks objtool.
+  cachyosLlvm =
+    inputs.nix-cachyos-kernel.inputs.nixpkgs.legacyPackages
+    .${pkgs.stdenv.hostPlatform.system}.llvmPackages_21;
+
   # Mainline version whose mt76 source jetm's patches apply onto.
   mt76Kver = "7.2";
   kernelSrc = pkgs.fetchurl {
@@ -83,13 +88,11 @@
     version = "2.14-${kernel.modDirVersion}";
     src = inputs.mt7927-driver;
 
-    # CachyOS kernel is clang-built but moduleBuildDependencies omits the
-    # compiler. Unwrapped clang — the cc-wrapper's flags (--target,
-    # -nostdlibinc) break kbuild, which supplies its own.
+    # Unwrapped clang — cc-wrapper's --target/-nostdlibinc fight kbuild's own.
     nativeBuildInputs =
       kernel.moduleBuildDependencies
       ++ [pkgs.python3]
-      ++ (with pkgs.llvmPackages_21; [clang-unwrapped lld llvm]);
+      ++ (with cachyosLlvm; [clang-unwrapped lld llvm]);
 
     buildPhase = ''
       runHook preBuild
