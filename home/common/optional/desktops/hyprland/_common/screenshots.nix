@@ -23,10 +23,26 @@
 # tricks (drop a `grim` script in front of PATH) don't work; hyprshot
 # always reaches the real grim. Reimplementing the three modes (region,
 # output, window) is shorter than fighting the wrapper.
-{pkgs, ...}: let
+{
+  config,
+  pkgs,
+  ...
+}: let
+  c = config.lib.stylix.colors;
+  # Freeze only $HYPRPICKER_OUTPUT, so the region overlay covers just the monitor under the cursor.
+  # The extra roundtrip delivers wl_output names, which the stock loop runs before.
+  hyprpicker = pkgs.hyprpicker.overrideAttrs (old: {
+    postPatch =
+      (old.postPatch or "")
+      + ''
+        substituteInPlace src/hyprpicker.cpp --replace-fail \
+          'for (auto& m : m_vMonitors) {' \
+          'wl_display_roundtrip(m_pWLDisplay); for (auto& m : m_vMonitors) { if (const char* only = getenv("HYPRPICKER_OUTPUT"); only && m->name != only) continue;'
+      '';
+  });
   screenshot = pkgs.writeShellApplication {
     name = "screenshot";
-    runtimeInputs = with pkgs; [hyprland hyprpicker slurp grim wl-clipboard libnotify jq coreutils imagemagick];
+    runtimeInputs = [hyprpicker] ++ (with pkgs; [hyprland slurp grim wl-clipboard libnotify jq coreutils imagemagick]);
     text = ''
       mode="region"
       while [ $# -gt 0 ]; do
@@ -36,12 +52,28 @@
         esac
       done
 
+      # One hyprctl round-trip; mon is the monitor under the cursor, not the focused one.
+      IFS=$'\t' read -r cx cy hwcursor_was border shadow border_idle shadow_idle anims_was mon < <(
+        hyprctl --batch -j "cursorpos ; getoption cursor:no_hardware_cursors ; getoption general:col.active_border ; getoption decoration:shadow:color ; getoption general:col.inactive_border ; getoption decoration:shadow:color_inactive ; getoption animations:enabled ; monitors" | jq -sr '
+          # getoption prints bare AARRGGBB, which keyword only parses with a 0x prefix.
+          def grad: .custom | split(" ") | map(if endswith("deg") then . else "0x" + . end) | join(" ");
+          def col: "0x" + (.custom | split(" ")[0]);
+          .[0] as $c
+          | (.[7] | map(select($c.x >= .x and $c.x < .x + .width / .scale and $c.y >= .y and $c.y < .y + .height / .scale))[0]
+              // (.[7][] | select(.focused))) as $m
+          | [$c.x, $c.y, .[1].int, (.[2] | grad), (.[3] | col), (.[4] | grad), (.[5] | col), .[6].int, ($m | tojson)] | @tsv'
+      )
+      if [ -z "$mon" ]; then
+        notify-send "Screenshot failed" "No monitor found under the cursor (hyprctl/jq lookup failed)" -t 5000 -a screenshot
+        exit 1
+      fi
+      name=$(jq -r '.name' <<<"$mon")
+
       case "$mode" in
         region) ;;
         output)
           # By output name, not geometry: a hand-built geometry mixes logical
           # position with physical size and breaks on scaled monitors.
-          name=$(hyprctl monitors -j | jq -r '.[] | select(.focused) | .name')
           grim_target=(-o "$name")
           ;;
         window)
@@ -56,27 +88,21 @@
 
       # Set the EXIT trap before mutating anything, so state is restored even
       # on grim failure or Ctrl-C.
-      pos=$(hyprctl cursorpos | tr -d ' ')
-      cx=''${pos%,*}
-      cy=''${pos#*,}
-      border_was=$(hyprctl getoption general:border_size -j | jq -r '.int')
-      hwcursor_was=$(hyprctl getoption cursor:no_hardware_cursors -j | jq -r '.int')
       freeze_pid=""
       restore() {
         if [ -n "$freeze_pid" ]; then kill "$freeze_pid" 2>/dev/null || true; fi
-        hyprctl --batch "keyword cursor:no_hardware_cursors $hwcursor_was ; dispatch movecursor $cx $cy ; keyword general:border_size $border_was" >/dev/null
+        hyprctl --batch "keyword cursor:no_hardware_cursors $hwcursor_was ; dispatch movecursor $cx $cy ; keyword animations:enabled $anims_was ; keyword general:col.active_border $border ; keyword decoration:shadow:color $shadow" >/dev/null
       }
       trap restore EXIT
 
-      # Drop the active-window border so its focus-glow stays out of the shot.
-      hyprctl keyword general:border_size 0 >/dev/null
-
-      # Software-cursor hosts only: flip to hardware cursors so grim excludes
-      # the cursor, nudging 1px to land the switch. HW-cursor hosts skip this;
-      # grim already excludes their cursor. See the header on reshow after.
+      # Draw the focused window as unfocused, so its highlight stays out of the shot
+      # without touching focus; animations off so the border doesn't fade mid-capture. Software-cursor hosts also flip to hardware cursors so
+      # grim excludes the cursor, nudging 1px to land the switch. See the header on reshow after.
+      unfocus="keyword animations:enabled 0 ; keyword general:col.active_border $border_idle ; keyword decoration:shadow:color $shadow_idle"
       if [ "$hwcursor_was" = 1 ]; then
-        hyprctl keyword cursor:no_hardware_cursors 0 >/dev/null
-        hyprctl dispatch movecursor $((cx + 1)) "$cy" >/dev/null
+        hyprctl --batch "$unfocus ; keyword cursor:no_hardware_cursors 0 ; dispatch movecursor $((cx + 1)) $cy" >/dev/null
+      else
+        hyprctl --batch "$unfocus" >/dev/null
       fi
       sleep 0.05
 
@@ -86,32 +112,31 @@
 
       if [ "$mode" = region ]; then
         # Capture before slurp clears hover; never through the freeze, which darkens on HDR outputs.
-        frames=$(mktemp -d)
-        trap 'rm -rf "$frames"; restore' EXIT
-        monitors=$(hyprctl monitors -j)
-        for name in $(jq -r '.[].name' <<<"$monitors"); do
-          grim -t ppm -o "$name" "$frames/$name.ppm" &
-        done
-        wait
-        hyprpicker -r -z >/dev/null 2>&1 &
+        frame=$(mktemp --suffix=.ppm)
+        trap 'rm -f "$frame"; restore' EXIT
+        grim -t ppm -o "$name" "$frame"
+        HYPRPICKER_OUTPUT="$name" hyprpicker -r -z >/dev/null 2>&1 &
         freeze_pid=$!
         # slurp must map after the freeze, or the freeze stacks over its selection box.
         for _ in $(seq 100); do
           hyprctl layers -j | jq -e '[.. | objects | select(.namespace? == "hyprpicker")] | length > 0' >/dev/null && break
           sleep 0.01
         done
-        if ! geometry=$(slurp); then exit 0; fi
-        # Crop the monitor under the region's centre in native pixels; a region spanning monitors is clipped to it.
-        read -r name crop < <(jq -r --arg g "$geometry" '
+        # Transparent background keeps the other outputs untouched, so the box carries its own contrast.
+        if ! geometry=$(slurp -b "#00000000" -c "#${c.base0D}ff" -s "#${c.base0D}33" -w 2); then exit 0; fi
+        # Crop to the frozen monitor in native pixels; a region spilling past it is clipped.
+        crop=$(jq -r --arg g "$geometry" '
           ($g | capture("(?<x>-?[0-9]+),(?<y>-?[0-9]+) (?<w>[0-9]+)x(?<h>[0-9]+)") | map_values(tonumber)) as $r
-          | ($r.x + $r.w / 2) as $cx | ($r.y + $r.h / 2) as $cy
-          | map(. + {lw: (.width / .scale), lh: (.height / .scale)})
-          | map(select($cx >= .x and $cx < .x + .lw and $cy >= .y and $cy < .y + .lh))[0]
           | ([$r.x, .x] | max) as $x0 | ([$r.y, .y] | max) as $y0
-          | ([$r.x + $r.w, .x + .lw] | min) as $x1 | ([$r.y + $r.h, .y + .lh] | min) as $y1
-          | "\(.name) \(($x1 - $x0) * .scale | round)x\(($y1 - $y0) * .scale | round)+\(($x0 - .x) * .scale | round)+\(($y0 - .y) * .scale | round)"
-        ' <<<"$monitors")
-        magick "$frames/$name.ppm" -crop "$crop" +repage "$outfile"
+          | ([$r.x + $r.w, .x + .width / .scale] | min) as $x1 | ([$r.y + $r.h, .y + .height / .scale] | min) as $y1
+          | if $x1 <= $x0 or $y1 <= $y0 then empty
+            else "\(($x1 - $x0) * .scale | round)x\(($y1 - $y0) * .scale | round)+\(($x0 - .x) * .scale | round)+\(($y0 - .y) * .scale | round)" end
+        ' <<<"$mon")
+        if [ -z "$crop" ]; then
+          notify-send "Screenshot skipped" "Selection $geometry is outside $name" -t 5000 -a screenshot
+          exit 0
+        fi
+        magick "$frame" -crop "$crop" +repage "$outfile"
       else
         grim "''${grim_target[@]}" "$outfile"
       fi
@@ -122,12 +147,12 @@
 in {
   wayland.windowManager.hyprland.settings = {
     bind = [
-      # PRINT               Screenshot focused monitor
+      # PRINT               Screenshot monitor under the cursor
       # SUPER+PRINT         Screenshot region
       ",PRINT,exec,${screenshot}/bin/screenshot -m output"
       "SUPER,PRINT,exec,${screenshot}/bin/screenshot -m region"
     ];
-    # The freeze must appear instantly, not fade in over the live screen.
-    layerrule = ["no_anim on, match:namespace hyprpicker"];
+    # Freeze and slurp ("selection") must appear and vanish instantly, not slide over the screen.
+    layerrule = ["no_anim on, match:namespace ^(hyprpicker|selection)$"];
   };
 }
