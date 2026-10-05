@@ -62,6 +62,22 @@ in {
       '';
     };
 
+    rebootIfNeeded = mkOption {
+      type = types.bool;
+      default = false;
+      description = ''
+        Reboot after a successful rebuild only when the kernel, initrd or kernel
+        modules changed — the three things `nixos-rebuild switch` cannot activate
+        under the running system.
+
+        Compares `/run/booted-system` against `/nix/var/nix/profiles/system`, so a
+        nixpkgs bump that leaves the kernel alone does not reboot, and a kernel
+        patch inside an unchanged version string does.
+
+        Mutually exclusive with rebootAfterBuild.
+      '';
+    };
+
     autoRollback = mkOption {
       type = types.bool;
       default = true;
@@ -128,6 +144,11 @@ in {
         assertion = (cfg.interval != null) != (cfg.schedule != null);
         message = "nix.git-sync: exactly one of 'interval' or 'schedule' must be set";
       }
+      {
+        # rebootAfterBuild fires first, so a host setting both silently gets always-reboot.
+        assertion = !(cfg.rebootAfterBuild && cfg.rebootIfNeeded);
+        message = "nix.git-sync: set at most one of 'rebootAfterBuild' or 'rebootIfNeeded'";
+      }
     ];
 
     systemd.services.nix-remote-rebuild = let
@@ -153,6 +174,17 @@ in {
           exit 0
         '';
       };
+      rebootAction =
+        if cfg.notifications.enable
+        then ''
+          log "Scheduling reboot in 2 minutes..."
+          notify -u critical "NixOS Remote Rebuild" "Configuration updated. Rebooting in 2 minutes. Run 'sudo shutdown -c' to cancel."
+          shutdown --reboot +2 "NixOS remote rebuild complete. Rebooting in 2 minutes. Run 'sudo shutdown -c' to cancel."
+        ''
+        else ''
+          log "Rebooting now..."
+          systemctl reboot
+        '';
       rebuild-script = pkgs.writeShellApplication {
         name = "nix-remote-rebuild";
         runtimeInputs = with pkgs;
@@ -238,18 +270,21 @@ in {
             ${cfg.postRebuildHook}
           ''}
 
-            ${optionalString cfg.rebootAfterBuild (
-            if cfg.notifications.enable
-            then ''
-              log "Scheduling reboot in 2 minutes..."
-              notify -u critical "NixOS Remote Rebuild" "Configuration updated. Rebooting in 2 minutes. Run 'sudo shutdown -c' to cancel."
-              shutdown --reboot +2 "NixOS remote rebuild complete. Rebooting in 2 minutes. Run 'sudo shutdown -c' to cancel."
-            ''
-            else ''
-              log "Rebooting now..."
-              systemctl reboot
-            ''
-          )}
+            ${optionalString cfg.rebootAfterBuild rebootAction}
+
+            ${optionalString cfg.rebootIfNeeded ''
+            # switch activates everything but these three under the running kernel.
+            needs_reboot=0
+            for f in kernel initrd kernel-modules; do
+              [ "$(readlink -f "/run/booted-system/$f")" = "$(readlink -f "/nix/var/nix/profiles/system/$f")" ] || needs_reboot=1
+            done
+            if [ "$needs_reboot" = 1 ]; then
+              log "Kernel, initrd or modules changed."
+            ${rebootAction}
+            else
+              log "Userspace-only update; no reboot needed."
+            fi
+          ''}
           else
             REBUILD_EXIT="''${PIPESTATUS[0]}"
             log "ERROR: Rebuild failed (exit code $REBUILD_EXIT)!"
