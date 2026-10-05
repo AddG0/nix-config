@@ -1,6 +1,7 @@
 {
   config,
   lib,
+  pkgs,
   ...
 }: let
   claudeProfiles = config.programs.claude-code-profiles;
@@ -8,6 +9,10 @@
 
   # Threads spawn the CLI at the repo with no shell between, so chpwd never fires.
   inDirectoryEnv = exe: lib.getExe (config.programs.directoryEnv.wrap exe);
+  codexForT3 = pkgs.writeShellScriptBin "codex" ''
+    export XDG_CONFIG_HOME=${lib.escapeShellArg config.xdg.configHome}
+    exec ${inDirectoryEnv (lib.getExe' config.programs.codex.package "codex")} "$@"
+  '';
   runtimeDir = ".t3/runtime/versions/${config.programs.t3code.package.version}";
 in {
   # The desktop's SSH launch always runs this pinned runtime, else downloads a glibc build NixOS cannot exec.
@@ -44,7 +49,7 @@ in {
       providerInstances = {
         codex = {
           driver = "codex";
-          config.binaryPath = inDirectoryEnv (lib.getExe' config.programs.codex.package "codex");
+          config.binaryPath = lib.getExe codexForT3;
         };
         claudeAgent = {
           driver = "claudeAgent";

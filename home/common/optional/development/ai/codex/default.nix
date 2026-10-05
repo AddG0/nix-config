@@ -15,6 +15,7 @@ in {
     mutableConfig.enable = true;
     settings =
       {
+        approval_policy = "never";
         check_for_update_on_startup = false;
         tui = {
           theme = "catppuccin-mocha";

@@ -5,6 +5,7 @@
 #
 ###############################################################
 {
+  config,
   inputs,
   lib,
   pkgs,
@@ -96,6 +97,23 @@
   networking = {
     networkmanager.enable = true;
     interfaces.enp12s0.wakeOnLan.enable = true;
+    # asgard's ai-proxy reaches Ollama from the node IPs, as k3s masquerades pod egress.
+    firewall.extraCommands = lib.concatMapStrings (ip: ''
+      iptables -A nixos-fw -p tcp -s ${ip} --dport ${toString config.services.ollama.port} -j nixos-fw-accept
+    '') ["10.61.60.10" "10.61.60.11" "10.61.60.12"];
+  };
+
+  # The desktop holds ~11 GiB of the 5090, so models stay under ~19 GB with a q8 KV cache.
+  services.ollama = {
+    host = "0.0.0.0";
+    loadModels = ["qwen3.8:27b" "gemma4:31b" "gemma4:26b-a4b"];
+    environmentVariables = {
+      OLLAMA_FLASH_ATTENTION = "1";
+      OLLAMA_KV_CACHE_TYPE = "q8_0";
+      # Each parallel slot reserves its own full-context KV cache.
+      OLLAMA_NUM_PARALLEL = "1";
+      OLLAMA_MAX_LOADED_MODELS = "1";
+    };
   };
 
   # Press 'w' at boot menu to jump to Windows

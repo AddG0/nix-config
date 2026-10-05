@@ -26,6 +26,8 @@
     };
     text = builtins.readFile ./ai-proxy.sh;
   };
+
+  opencodeProvider = "ai-proxy";
 in {
   assertions = [
     {
@@ -58,5 +60,21 @@ in {
         refresh_interval_ms = 300000;
       };
     };
+  };
+
+  # Only the general host: the Claude one admits nothing but Claude Code (gitops ADR-0010).
+  programs.opencode.settings.provider.${opencodeProvider} = {
+    npm = "@ai-sdk/openai";
+    name = "AI Proxy";
+    options = {
+      baseURL = "${baseUrl}/v1";
+      # The SDK refuses to send without a key; the plugin's Authorization header replaces it.
+      apiKey = "ai-proxy";
+    };
+  };
+
+  xdg.configFile."opencode/plugin/ai-proxy.js".source = pkgs.replaceVars ./opencode-plugin.js {
+    helper = lib.getExe ai-proxy;
+    provider = opencodeProvider;
   };
 }
