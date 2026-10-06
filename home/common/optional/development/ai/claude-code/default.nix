@@ -185,7 +185,7 @@ in {
     };
 
     profiles = {
-      default.include = [addons.design-notes addons.code-comments];
+      default.include = [addons.design-notes addons.code-comments addons.blind-choices];
 
       grafana = {
         description = "Default with Grafana";

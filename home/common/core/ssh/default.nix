@@ -8,6 +8,15 @@
 
   sshAuthSockLink = "${pkgs.callPackage ./agent-link.nix {}}/bin/tmux-ssh-auth-sock-link";
 in {
+  options.programs.ssh.defaultAgent = lib.mkOption {
+    type = lib.types.nullOr lib.types.str;
+    default = null;
+    description = ''
+      Agent socket for apps that start with no SSH_AUTH_SOCK of their own.
+      Opt-in per app, so the path is not advertised to the whole session.
+    '';
+  };
+
   options.programs.ssh.enableTraditionalAgent = lib.mkOption {
     type = lib.types.bool;
     default = true;

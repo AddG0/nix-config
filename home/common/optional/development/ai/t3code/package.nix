@@ -55,10 +55,30 @@
     # Pinned to avoid a Rust rebuild for an identical binary.
     t3code-resource-monitor = pkgs.t3code.resourceMonitor;
   };
+  # Started from the desktop or systemd, t3code has no shell to pick an agent;
+  # --set-default leaves a forwarded one from the desktop's SSH launch alone.
+  # makeOverridable keeps .override working for the theme module.
+  withDefaultAgent = pkg: let
+    agent = config.programs.ssh.defaultAgent;
+  in
+    if agent == null
+    then pkg
+    else
+      lib.makeOverridable (args:
+        (pkg.override args).overrideAttrs (old: {
+          postBuild =
+            (old.postBuild or "")
+            + ''
+              for program in "$out/bin"/*; do
+                wrapProgram "$program" --set-default SSH_AUTH_SOCK ${lib.escapeShellArg agent}
+              done
+            '';
+        })) {};
 in {
   # The theme module owns basePackage, so disabling it drops these too.
-  programs.t3code.theme.basePackage =
+  programs.t3code.theme.basePackage = withDefaultAgent (
     if nvimPickerSupported
     then withNvim
-    else withScopedGlab;
+    else withScopedGlab
+  );
 }

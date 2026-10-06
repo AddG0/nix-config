@@ -81,6 +81,7 @@ in {
         sqry
         archify
         i-have-adhd
+        blind-choices
         code-assistant-configurator
         handoff
         work

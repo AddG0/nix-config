@@ -19,6 +19,8 @@
 
   # Credential store (replaces kwallet for non-Plasma sessions)
   services.gnome.gnome-keyring.enable = true;
+  # The keyring drags gcr's agent in, which set-environments over 1Password for non-shell apps.
+  services.gnome.gcr-ssh-agent.enable = false;
   security.pam.services.greetd.enableGnomeKeyring = lib.mkIf config.services.greetd.enable true;
   # Have hyprlock release the keyring on unlock, mirroring greetd at login.
   # Without this the keyring stays locked across screen lock cycles and any

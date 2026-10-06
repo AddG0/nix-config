@@ -286,11 +286,19 @@
       expect "$(agent TMUX=x SSH_AUTH_SOCK=/tmp/link)" /tmp/link "a tmux pane"
       touch $out
     '';
+
+  # Apps outside a shell (t3code) get their agent from this, not the zsh hook.
+  sessionAgent = let
+    got = (hmFor "onePassword").programs.ssh.defaultAgent;
+  in
+    lib.throwIf (got != "/home/tester/.1password/agent.sock")
+    "ssh/credential-tests.nix: defaultAgent is ${toString got}, want 1Password"
+    (runCommand "ssh-default-agent-onepassword" {} "touch $out");
 in
   lib.throwIf (withAgentBlock == null || withoutAgentBlock == null)
   "ssh/credential-tests.nix: need one host with an IdentityAgent block and one without"
   {
     resolves = map resolution [withAgentBlock withoutAgentBlock];
     offers = wireOffers withoutAgentBlock;
-    inherit agentChoice;
+    inherit agentChoice sessionAgent;
   }
