@@ -1,13 +1,24 @@
 {
+  inputs,
   lib,
   config,
+  pkgs,
   ...
-}: {
+}: let
+  # Same nixpkgs the hyprland-hy3 overlay's Hyprland is built from.
+  hyprlandPkgs = inputs.hy3.inputs.hyprland.inputs.nixpkgs.legacyPackages.${pkgs.stdenv.hostPlatform.system};
+in {
   imports = lib.custom.scanPaths ./.;
 
   programs.hyprland = {
     enable = true;
     withUWSM = true;
+  };
+
+  # Hyprland loads /run/opengl-driver Mesa into its own glibc; a newer system Mesa aborts it at startup.
+  hardware.graphics = {
+    package = hyprlandPkgs.mesa;
+    package32 = hyprlandPkgs.pkgsi686Linux.mesa;
   };
 
   services.greetd.desktops.hyprland = "uwsm start hyprland-uwsm.desktop";

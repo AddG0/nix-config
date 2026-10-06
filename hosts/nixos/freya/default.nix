@@ -164,15 +164,6 @@
 
   services.libinput.mouse.accelSpeed = lib.mkForce "0.6";
 
-  # More aggressive palm rejection for built-in touchpad —
-  # lower values = lighter touches rejected as palms
-  environment.etc."libinput/local-overrides.quirks".text = ''
-    [Touchpad Palm Threshold Override]
-    MatchUdevType=touchpad
-    AttrPalmSizeThreshold=70
-    AttrPalmPressureThreshold=100
-  '';
-
   # Tuning for 24 GiB VRAM (RTX 5090 Laptop). The 65k context default in the
   # shared ollama module pushes qwen3.5:27b past VRAM (KV cache alone ~7.7 GiB),
   # causing Ollama to evict and reload the model whenever GPU pressure shifts.
