@@ -21,12 +21,13 @@ in {
 
     rules."quality-standards".content.source = ./rules/quality-standards.md;
 
-    commands."review-branch".content.source = ./commands/review-branch/prompt.md;
-
     skills = {
+      "review-branch".prompt.source = ./skills/review-branch/prompt.md;
       "review-local-changes" = fromClaudeSkillFile "${cek}/plugins/review/skills/review-local-changes/SKILL.md";
       # Posts inline comments on the PR.
       "review-pr" = fromClaudeSkillFile "${cek}/plugins/review/skills/review-pr/SKILL.md" // {invocation.model = false;};
+      # Model-invocable: glab-permissions.nix asks before every note write.
+      "gitlab-mr".prompt.source = ./skills/gitlab-mr/prompt.md;
     };
   };
 }

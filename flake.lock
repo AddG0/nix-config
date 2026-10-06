@@ -47,11 +47,11 @@
         "shq-env": "shq-env"
       },
       "locked": {
-        "lastModified": 1789177300,
-        "narHash": "sha256-QGJBsX8V4HcGv1iljPBH82f+fsBSkIuippJDpNClFP4=",
+        "lastModified": 1791320548,
+        "narHash": "sha256-c9IYJwoL1589Ggpc0hQ7KTLsbAJHbngkV4Tz3k6q2/M=",
         "ref": "refs/heads/main",
-        "rev": "e637bfc5dd707d78afde8cd39f28c99d1c42c5a5",
-        "revCount": 191,
+        "rev": "40badfd11924de17e364b9118ff74d3186992066",
+        "revCount": 192,
         "type": "git",
         "url": "ssh://git@github.com/addg0/ai-toolkit.git"
       },

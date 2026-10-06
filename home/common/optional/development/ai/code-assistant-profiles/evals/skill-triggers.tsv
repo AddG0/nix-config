@@ -23,3 +23,10 @@ code-assistant-configurator	My review skill never triggers. Improve its descript
 !code-assistant-configurator	Explain the difference between a skill and a subagent in two sentences.
 interview	I want to add team workspaces to the app but haven't worked out the requirements yet.
 !interview	Grill me on this plan to move our queue from Redis to Postgres.
+gitlab-mr	Post these review findings as inline comments on the merge request for this branch.
+!gitlab-mr	Review this GitHub pull request for bugs.
+review-branch	Review this branch against develop.
+!review-branch	Review my uncommitted changes before I commit.
+write-for-people	Draft a Slack message to the team explaining why the deploy is delayed.
+!write-for-people	Add a doc comment to this function.
+write-for-people	Write a review note for the null check bug on line 42 of rates.ts.

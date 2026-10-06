@@ -7,6 +7,7 @@
       "Bash(glab mr view:*)"
       "Bash(glab mr list:*)"
       "Bash(glab mr diff:*)"
+      "Bash(glab mr note list:*)"
       "Bash(glab issue view:*)"
       "Bash(glab issue list:*)"
       "Bash(glab ci view:*)"

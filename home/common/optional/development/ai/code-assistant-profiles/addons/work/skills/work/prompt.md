@@ -33,6 +33,7 @@ Ask at most one question, and only when the situation genuinely matches two rows
 | Uncommitted changes to check | `/review-local-changes` | `/commit` |
 | Branch ready for review | `/review-branch` | `/commit`, push |
 | GitHub PR to review | `/review-pr` | — |
+| GitLab MR to read or comment on | `/gitlab-mr` | `/review-branch` first if it needs a review |
 | Release notes | `/changelog-generator` | — |
 | Stale local branches | `/clean_gone` | — |
 | Session ending or context is full | `/handoff` | start fresh with the handoff file |

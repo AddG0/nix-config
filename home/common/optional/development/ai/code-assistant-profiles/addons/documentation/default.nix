@@ -14,6 +14,10 @@ in {
     skills = {
       "update-docs" = fromClaudeSkillFile "${cek}/plugins/docs/skills/update-docs/SKILL.md";
       "write-concisely" = fromClaudeSkillFile "${cek}/plugins/docs/skills/write-concisely/SKILL.md";
+      "write-for-people" = {
+        prompt.source = ./skills/write-for-people/prompt.md;
+        resourcesRoot = ./skills/write-for-people/resources;
+      };
       "changelog-generator".prompt.source = ./skills/changelog-generator/prompt.md;
       "information-architecture" = fromClaudeSkillDir {
         inherit pkgs;

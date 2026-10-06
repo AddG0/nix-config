@@ -1,5 +1,6 @@
 ---
-description: Comprehensive branch review using specialized agents
+name: review-branch
+description: "Reviews a branch against its base with parallel specialist agents, scores the findings, and reports them with a spec-fidelity verdict."
 argument-hint: "[source-branch] [target-branch] [review-aspects]"
 ---
 
@@ -131,3 +132,5 @@ Based on changes summary from phase 1 and their complexity, determine which revi
 Present findings ordered by severity, with file references and concise reasoning. Keep summaries brief and prioritize concrete issues over general commentary.
 
 Report spec-reviewer's verdict in its own **Spec fidelity** section, unscored and unmerged: whether the change does what was asked is a separate question from whether it is well written.
+
+If the source branch has an open GitLab MR, end by asking once whether to add the findings to it, then follow the `gitlab-mr` skill for the ones the user picks.
