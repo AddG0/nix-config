@@ -1,0 +1,10 @@
+// Prints every project's main runtime classpath so codeq can hand it to SpotBugs.
+allprojects {
+    tasks.register("codeqPrintClasspath") {
+        doLast {
+            def sourceSets = project.extensions.findByName("sourceSets")
+            def main = sourceSets?.findByName("main")
+            main?.runtimeClasspath?.files?.each { println "CODEQ_CP:" + it }
+        }
+    }
+}

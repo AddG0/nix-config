@@ -1,0 +1,17 @@
+<?xml version="1.0"?>
+<ruleset name="codeq-design" xmlns="http://pmd.sourceforge.net/ruleset/2.0.0"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://pmd.sourceforge.net/ruleset/2.0.0 https://pmd.sourceforge.io/ruleset_2_0_0.xsd">
+  <description>Complexity and class-design metrics at PMD's default thresholds.</description>
+  <rule ref="category/java/design.xml/CyclomaticComplexity"/>
+  <rule ref="category/java/design.xml/CognitiveComplexity"/>
+  <rule ref="category/java/design.xml/NPathComplexity"/>
+  <rule ref="category/java/design.xml/NcssCount"/>
+  <rule ref="category/java/design.xml/GodClass"/>
+  <rule ref="category/java/design.xml/CouplingBetweenObjects"/>
+  <rule ref="category/java/design.xml/DataClass"/>
+  <rule ref="category/java/design.xml/TooManyMethods"/>
+  <rule ref="category/java/design.xml/ExcessiveImports"/>
+  <rule ref="category/java/design.xml/ExcessiveParameterList"/>
+  <rule ref="category/java/design.xml/ExcessivePublicCount"/>
+</ruleset>

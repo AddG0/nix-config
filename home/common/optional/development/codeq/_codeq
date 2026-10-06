@@ -1,0 +1,39 @@
+#compdef codeq
+
+_codeq() {
+  local -a commands
+  commands=(
+    'loc:lines of code, comments, blanks per language (tokei)'
+    'complexity:cyclomatic complexity per function (lizard)'
+    'dup:copy-pasted blocks (pmd cpd)'
+    'cycles:call and import cycles (sqry)'
+    'overview:hubs, hotspots, unused public API (sqry)'
+    'coupling:Martin package metrics + graph, JVM (jdeps)'
+    'design:PMD design rules + CK class metrics, JVM'
+    'bugs:bug patterns in bytecode, JVM (spotbugs)'
+    'coverage:line/branch/method coverage, JVM or Go'
+    'all:every command that applies -> REPORT.md'
+    'help:list commands and what applies here'
+  )
+
+  _arguments -C \
+    '-o[output directory]:directory:_files -/' \
+    '--tests[include test sources]' \
+    '1: :->command' \
+    '*:: :->args'
+
+  case $state in
+  command) _describe -t commands 'codeq command' commands ;;
+  args)
+    case $words[1] in
+    complexity) _message 'CCN warning threshold (default 10)' ;;
+    dup) _message 'minimum duplicate size in tokens (default 75)' ;;
+    coupling) _message 'root package prefix (default: auto-detected)' ;;
+    coverage) _arguments '--no-run[summarise existing reports without running tests]' ;;
+    loc) _files ;;
+    esac
+    ;;
+  esac
+}
+
+_codeq "$@"
