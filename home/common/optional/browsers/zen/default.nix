@@ -311,4 +311,9 @@
   wayland.windowManager.hyprland.settings.windowrule = lib.mkBefore [
     "tag +browser, match:class ^(zen|zen-alpha|zen-beta)$"
   ];
+
+  # setAsDefaultBrowser only writes xdg.mimeApps; macOS needs LaunchServices. No-op (no prompt) when already default.
+  home.activation.zenDefaultBrowser = lib.mkIf pkgs.stdenv.hostPlatform.isDarwin (lib.hm.dag.entryAfter ["writeBoundary"] ''
+    run ${lib.getExe pkgs.defaultbrowser} zen
+  '');
 }

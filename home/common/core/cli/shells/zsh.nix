@@ -88,12 +88,6 @@ in {
           fi
       }
 
-      # Check if kiro-cli is installed and disable autosuggestions if it is
-      if [[ -f "''${HOME}/Library/Application Support/kiro-cli/shell/zshrc.post.zsh" ]]; then
-        ZSH_AUTOSUGGEST_DISABLE="true"
-        source "''${HOME}/Library/Application Support/kiro-cli/shell/zshrc.post.zsh"
-      fi
-
       # Load gdcloud completion for current session
       if command -v gdcloud >/dev/null 2>&1; then
         source <(gdcloud completion zsh)

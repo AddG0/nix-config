@@ -1,5 +1,5 @@
 IS_DARWIN := if os() == "macos" { "true" } else { "false" }
-USE_NH_DEFAULT := if os() == "linux" { "true" } else { "false" }
+USE_NH_DEFAULT := "true"
 DEFAULT_USER := "addg"
 # FLAKE-UPDATE: drop the option once colmena skips its asset-flake lock under direct eval (v0.5.0 TODO); on a dirty tree that lock fails and the relock prints every input.
 COLMENA := "colmena --nix-option allow-dirty-locks true"

@@ -24,7 +24,6 @@
     ])
     (with lib.custom.optional.home.development; [
       ai.ai-proxy
-      # ai.litellm-proxy
       aws
       bootdev
       gcloud

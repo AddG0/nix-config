@@ -18,7 +18,6 @@
     ])
     (with lib.custom.optional.home.development; [
       ai.ai-proxy
-      ai.litellm-proxy
       ai.t3code-server
       aws
       bootdev

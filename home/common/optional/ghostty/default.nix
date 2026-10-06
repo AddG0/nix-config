@@ -11,6 +11,9 @@
     settings = {
       window-padding-color = "background";
 
+      # Nix owns the version; macOS-only key, ignored elsewhere.
+      auto-update = "off";
+
       # Snaps fg to black/white below the ratio, so keep it just under
       # catppuccin's dimmest text (1.80:1) or comments blow out to white.
       # 1.7 still catches pre-commit's bg-only green/red (1.03, 1.60).

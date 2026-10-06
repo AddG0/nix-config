@@ -10,7 +10,6 @@
       # hyprland.sunshine
     ])
     (with lib.custom.optional.home.development; [
-      ai.litellm-proxy
       aws
       gcloud
       grpc

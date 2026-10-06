@@ -145,7 +145,6 @@ in {
         "cleanshot" # screenshot tool
         # "imageoptim" # strip metadata from images
         # "parallels" # Get version 19 from here: https://www.parallels.com/products/desktop/download/
-        "kiro-cli"
         "flux-app" # blue light filter
 
         # Fonts for sketchybar

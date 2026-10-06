@@ -71,7 +71,7 @@
       # customize macOS
       NSGlobalDomain = {
         # `defaults read NSGlobalDomain "xxx"`
-        "com.apple.swipescrolldirection" = false; # enable natural scrolling(default to true)
+        "com.apple.swipescrolldirection" = true; # enable natural scrolling(default to true)
         "com.apple.sound.beep.feedback" = 0; # disable beep sound when pressing volume up/down key
 
         # Appearance

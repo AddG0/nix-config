@@ -83,6 +83,10 @@ rebuild_darwin() {
 
   log_info "====== REBUILD ======"
   if command_exists nh && [ "${USE_NH:-true}" = "true" ]; then
+    if [ "${MODE}" != "switch" ]; then
+      log_error "nh darwin only supports switch, not '${MODE}'; rerun with use-nh=false"
+      return 1
+    fi
     log_debug "Using nh darwin command for rebuild (host: ${HOST})"
     nh darwin ${MODE} . --hostname "${HOST}" --impure -- $TRACE_FLAG ${EXTRA_NIX_ARGS[@]+"${EXTRA_NIX_ARGS[@]}"}
   elif command_exists darwin-rebuild; then

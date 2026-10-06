@@ -10,6 +10,11 @@
       server-mode # headless: no sleep, SSH, auto-restart
       tailscale # mesh VPN for secure remote access
     ])
+    # ../../common/optional/darwin/applications/1password.nix
+    (with lib.custom.optional.hosts.darwin.applications; [
+      onepassword
+      vpn
+    ])
   ];
 
   time.timeZone = "America/Chicago";
