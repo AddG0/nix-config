@@ -32,6 +32,7 @@
     require("codesnap").setup({
       show_workspace = false,
       snapshot_config = {
+        window = { margin = { x = 24, y = 24 } },
         watermark = { content = "" },
         code_config = {
           font_family = "${fonts.monospace.name}",
@@ -54,7 +55,29 @@
     {
       mode = "x";
       key = "<leader>cy";
-      action = "<cmd>CodeSnap<cr>";
+      # :CodeSnap's arboard copy dies with nvim and on any clipboard reader's EPIPE.
+      action =
+        if pkgs.stdenv.hostPlatform.isLinux
+        then {
+          __raw = ''
+            function()
+              -- get_config reads the '< '> marks, which are only set on leaving visual mode.
+              vim.cmd("normal! \27")
+              local png = vim.fn.tempname() .. ".png"
+              require("codesnap.module").load_generator().save(png, require("codesnap.config").get_config())
+              -- detach so wl-copy's server outlives nvim; no pipes, or wait() blocks until it exits.
+              local res = vim.system({ "wl-copy", "--type", "image/png" }, {
+                stdin = vim.fn.readblob(png), detach = true, stdout = false, stderr = false,
+              }):wait()
+              os.remove(png)
+              if res.code ~= 0 then
+                return vim.notify("codesnap: wl-copy exited " .. res.code, vim.log.levels.ERROR)
+              end
+              vim.notify("Code screenshot copied to clipboard")
+            end
+          '';
+        }
+        else "<cmd>CodeSnap<cr>";
       options.desc = "Code screenshot → clipboard";
     }
     {

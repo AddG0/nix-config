@@ -7,6 +7,8 @@
 {
   inputs,
   config,
+  options,
+  lib,
   pkgs,
   ...
 }: let
@@ -19,9 +21,13 @@
 in {
   imports = [inputs.walker.homeManagerModules.default];
 
-  # Patched in overlays/nixos/input-packages/elephant.nix to stop showing raw
-  # Exec paths in search results.
-  programs.elephant.package = pkgs.elephant-with-providers;
+  programs.elephant = {
+    # Patched in overlays/nixos/input-packages/elephant.nix to stop showing raw
+    # Exec paths in search results.
+    package = pkgs.elephant-with-providers;
+    # Clipboard history writes every copy to ~/.cache/elephant unfiltered.
+    providers = lib.remove "clipboard" options.programs.elephant.providers.default;
+  };
 
   programs.walker = {
     enable = true;
