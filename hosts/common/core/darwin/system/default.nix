@@ -71,7 +71,7 @@
       # customize macOS
       NSGlobalDomain = {
         # `defaults read NSGlobalDomain "xxx"`
-        "com.apple.swipescrolldirection" = true; # enable natural scrolling(default to true)
+        "com.apple.swipescrolldirection" = false; # enable natural scrolling (default to true)
         "com.apple.sound.beep.feedback" = 0; # disable beep sound when pressing volume up/down key
 
         # Appearance
@@ -132,11 +132,6 @@
           HideDesktop = 0; # Do not hide items on desktop & stage manager
           StageManagerHideWidgets = 0;
           StandardHideWidgets = 0;
-        };
-        "com.apple.screensaver" = {
-          # Require password immediately after sleep or screen saver begins
-          askForPassword = 1;
-          askForPasswordDelay = 0;
         };
         "com.apple.screencapture" = {
           location = "~/Desktop";
