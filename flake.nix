@@ -259,6 +259,11 @@
       inputs.flake-parts.follows = "flake-parts";
     };
 
+    apple-fonts = {
+      url = "github:Lyndeno/apple-fonts.nix";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
+
     # Add base16.nix, base16 schemes and
     # zathura and vim templates to the flake inputs.
     base16.url = "github:SenchoPens/base16.nix";

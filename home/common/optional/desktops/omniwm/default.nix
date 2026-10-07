@@ -41,7 +41,7 @@
       "consumeWindowIntoColumn" = "Option+V";
       "expelWindowFromColumn" = "Option+Shift+V";
       "toggleSplit" = "Option+S";
-      "toggleColumnTabbed" = "Option+G";
+      "toggleColumnTabbed" = "Option+Shift+G";
       "focusWindowDownOrTop" = "Option+Quote";
       "focusWindowUpOrBottom" = "Option+Shift+Quote";
 
@@ -99,6 +99,11 @@ in {
         size = 8.0;
         outer = lib.genAttrs ["top" "bottom" "left" "right"] (_: 8.0);
         fullscreenUsesOuterGaps = true;
+      };
+      workspaceBar = {
+        notchMode = "splitActiveLeft";
+        hideEmptyWorkspaces = true;
+        deduplicateAppIcons = true;
       };
       borders = {
         width = 2.0;

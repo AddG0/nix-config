@@ -3,8 +3,34 @@
   inputs,
   lib,
   config,
+  customPkgs,
   ...
-}: {
+}: let
+  inherit (pkgs.stdenv.hostPlatform) isDarwin;
+  cursor = config.stylix.cursor;
+  appleFonts = inputs.apple-fonts.packages.${pkgs.stdenv.hostPlatform.system};
+
+  # clickgen, which renders XCursor themes, is broken on darwin; the theme is
+  # platform-independent data, so take the cached Linux build of the same package.
+  linuxCursorPackage =
+    inputs.nixpkgs.legacyPackages."${pkgs.stdenv.hostPlatform.parsed.cpu.name}-linux".${lib.getName cursor.package};
+
+  cape = pkgs.runCommand "${cursor.name}.cape" {} ''
+    ${lib.getExe customPkgs.xcursor-to-cape} --size ${toString cursor.size} \
+      ${linuxCursorPackage}/share/icons/${cursor.name} $out
+  '';
+
+  capeAgentLabel = "local.stylix-cursor";
+  capeAgent = pkgs.writeText "${capeAgentLabel}.plist" (lib.generators.toPlist {escape = true;} {
+    Label = capeAgentLabel;
+    ProgramArguments = [(lib.getExe customPkgs.mousecape) "apply" "${cape}" "--suppress-copyright"];
+    RunAtLoad = true;
+    LimitLoadToSessionType = "Aqua";
+    # mousecloak exits 0 even when the apply fails; its output is the only record.
+    StandardOutPath = "${config.home.homeDirectory}/Library/Logs/${capeAgentLabel}.log";
+    StandardErrorPath = "${config.home.homeDirectory}/Library/Logs/${capeAgentLabel}.log";
+  });
+in {
   # FLAKE-UPDATE: drop once stylix sets home.pointerCursor.enable itself.
   # stylix supplies pointerCursor.{name,package,size} but not `enable` (now
   # required by home-manager). Gate on stylix.enable too, or hosts that disable
@@ -13,6 +39,22 @@
     config.stylix.enable
     && config.stylix.cursor != null
     && pkgs.stdenv.hostPlatform.isLinux;
+
+  # macOS has no cursor themes; mousecloak registers the stylix cursor as a cape
+  # for the login session, so the agent re-applies it at every GUI login.
+  # Installed by hand, not launchd.agents: a gui-domain bootstrap fails headless.
+  home.activation.stylixCursor =
+    lib.mkIf (isDarwin && config.stylix.enable && cursor != null)
+    (lib.hm.dag.entryAfter ["linkGeneration"] ''
+      agent="$HOME/Library/LaunchAgents/${capeAgentLabel}.plist"
+      run install -Dm444 -T ${capeAgent} "$agent"
+      if /bin/launchctl print "gui/$UID" >/dev/null 2>&1; then
+        if /bin/launchctl print "gui/$UID/${capeAgentLabel}" >/dev/null 2>&1; then
+          run /bin/launchctl bootout --wait "gui/$UID/${capeAgentLabel}"
+        fi
+        run /bin/launchctl bootstrap "gui/$UID" "$agent"
+      fi
+    '');
 
   # Material Design 3 theme. Stylix is the top-level theming engine — all visual
   # values (colors, fonts, opacities, cursor) live here so every stylix-aware
@@ -35,19 +77,38 @@
       name = "Bibata-Modern-Classic";
       size = 24;
     };
+    # macOS pins its UI to San Francisco, so darwin apps follow it instead.
     fonts = {
-      sansSerif = {
-        package = pkgs.lexend;
-        name = "Lexend";
-      };
-      serif = {
-        package = pkgs.lexend;
-        name = "Lexend";
-      };
-      monospace = {
-        package = pkgs.nerd-fonts.roboto-mono;
-        name = "RobotoMono Nerd Font";
-      };
+      sansSerif =
+        if isDarwin
+        then {
+          package = appleFonts.sf-pro;
+          name = "SF Pro";
+        }
+        else {
+          package = pkgs.lexend;
+          name = "Lexend";
+        };
+      serif =
+        if isDarwin
+        then {
+          package = appleFonts.ny;
+          name = "New York";
+        }
+        else {
+          package = pkgs.lexend;
+          name = "Lexend";
+        };
+      monospace =
+        if isDarwin
+        then {
+          package = appleFonts.sf-mono-nerd;
+          name = "SFMono Nerd Font";
+        }
+        else {
+          package = pkgs.nerd-fonts.roboto-mono;
+          name = "RobotoMono Nerd Font";
+        };
       emoji = {
         package = pkgs.noto-fonts-color-emoji;
         name = "Noto Color Emoji";
