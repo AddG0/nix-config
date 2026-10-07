@@ -4,7 +4,6 @@
     lib.custom.suites.ai.home
 
     (with lib.custom.optional.home; [browsers comms ghostty helper-scripts])
-    (with lib.custom.optional.home.desktops; [omniwm])
 
     (with lib.custom.optional.home.development; [
       ai.ai-proxy

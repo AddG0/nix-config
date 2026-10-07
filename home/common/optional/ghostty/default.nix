@@ -9,6 +9,9 @@
       else pkgs.ghostty;
 
     settings = {
+      # Ghostty only blurs on macOS and KDE; Hyprland does its own.
+      background-blur = true;
+
       window-padding-color = "background";
 
       # Nix owns the version; macOS-only key, ignored elsewhere.

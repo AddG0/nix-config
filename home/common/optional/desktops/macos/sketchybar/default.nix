@@ -1,4 +1,10 @@
-{pkgs, ...}: {
+{
+  lib,
+  pkgs,
+  ...
+}: {
+  assertions = [(lib.hm.assertions.assertPlatform "desktops.macos.sketchybar" pkgs lib.platforms.darwin)];
+
   programs.sketchybar = {
     enable = true;
     configType = "lua";
@@ -8,7 +14,6 @@
     };
     extraPackages = with pkgs; [
       jq
-      aerospace
       nowplaying-cli
     ];
     extraLuaPackages = ps:

@@ -8,6 +8,7 @@
 }: let
   inherit (pkgs.stdenv.hostPlatform) isDarwin;
   cursor = config.stylix.cursor;
+  useCape = isDarwin && config.stylix.enable && cursor != null;
   appleFonts = inputs.apple-fonts.packages.${pkgs.stdenv.hostPlatform.system};
 
   # clickgen, which renders XCursor themes, is broken on darwin; the theme is
@@ -20,10 +21,11 @@
       ${linuxCursorPackage}/share/icons/${cursor.name} $out
   '';
 
+  capeFile = "stylix-cursor/cursor.cape";
   capeAgentLabel = "local.stylix-cursor";
   capeAgent = pkgs.writeText "${capeAgentLabel}.plist" (lib.generators.toPlist {escape = true;} {
     Label = capeAgentLabel;
-    ProgramArguments = [(lib.getExe customPkgs.mousecape) "apply" "${cape}" "--suppress-copyright"];
+    ProgramArguments = ["${config.home.profileDirectory}/bin/mousecloak" "apply" "${config.xdg.dataHome}/${capeFile}" "--suppress-copyright"];
     RunAtLoad = true;
     LimitLoadToSessionType = "Aqua";
     # mousecloak exits 0 even when the apply fails; its output is the only record.
@@ -41,20 +43,17 @@ in {
     && pkgs.stdenv.hostPlatform.isLinux;
 
   # macOS has no cursor themes; mousecloak registers the stylix cursor as a cape
-  # for the login session, so the agent re-applies it at every GUI login.
-  # Installed by hand, not launchd.agents: a gui-domain bootstrap fails headless.
+  # for the login session, so the agent re-applies it at every GUI login. The
+  # plist names only stable profile paths, so a new cape restarts it in place.
+  home.packages = lib.mkIf useCape [customPkgs.mousecape];
+  xdg.dataFile = lib.mkIf useCape {${capeFile}.source = cape;};
   home.activation.stylixCursor =
-    lib.mkIf (isDarwin && config.stylix.enable && cursor != null)
-    (lib.hm.dag.entryAfter ["linkGeneration"] ''
-      agent="$HOME/Library/LaunchAgents/${capeAgentLabel}.plist"
-      run install -Dm444 -T ${capeAgent} "$agent"
-      if /bin/launchctl print "gui/$UID" >/dev/null 2>&1; then
-        if /bin/launchctl print "gui/$UID/${capeAgentLabel}" >/dev/null 2>&1; then
-          run /bin/launchctl bootout --wait "gui/$UID/${capeAgentLabel}"
-        fi
-        run /bin/launchctl bootstrap "gui/$UID" "$agent"
-      fi
-    '');
+    lib.mkIf useCape
+    (lib.hm.dag.entryAfter ["linkGeneration"] (lib.custom.darwinGuiAgentActivation {
+      label = capeAgentLabel;
+      plist = capeAgent;
+      rerunOnSwitch = true;
+    }));
 
   # Material Design 3 theme. Stylix is the top-level theming engine — all visual
   # values (colors, fonts, opacities, cursor) live here so every stylix-aware
@@ -67,7 +66,7 @@ in {
   #     `mantle`, *darker* than base00, so it is never a container tone.
   #   - The cursor stays Bibata: material-cursors is XCursor-only, so it loses
   #     hyprcursor rendering.
-  #   - Opacity is 1.0 everywhere; M3 conveys depth with elevation, not alpha.
+  #   - Opacity is 1.0 except the terminal; M3 conveys depth with elevation, not alpha.
   stylix = {
     enable = true;
     image = "${pkgs.kdePackages.plasma-workspace-wallpapers}/share/wallpapers/Nexus/contents/images_dark/5120x2880.png";
@@ -122,7 +121,8 @@ in {
     };
     opacity = {
       applications = 1.0;
-      terminal = 1.0;
+      # Ghostty applies this to default-bg cells only: a shell goes glassy, nvim stays solid.
+      terminal = 0.9;
       desktop = 1.0;
       popups = 1.0;
     };

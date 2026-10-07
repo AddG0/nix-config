@@ -61,6 +61,36 @@ in {
       home-manager.users.${config.hostSpec.primaryUsername}.imports = suite.home;
     });
 
+  # home-manager activation text (uses its `run`) that installs a darwin
+  # LaunchAgent by hand (a launchd.agents gui-domain bootstrap fails headless).
+  # It reloads only when the plist changed: each re-registration raises macOS's
+  # "Background Items Added" alert.
+  darwinGuiAgentActivation = {
+    label,
+    plist,
+    rerunOnSwitch ? false,
+  }: ''
+    (
+      dst="$HOME/Library/LaunchAgents/${label}.plist"
+      changed=
+      if ! cmp -s ${plist} "$dst"; then
+        run install -Dm444 -T ${plist} "$dst"
+        changed=1
+      fi
+      if /bin/launchctl print "gui/$UID" >/dev/null 2>&1; then
+        loaded=
+        if /bin/launchctl print "gui/$UID/${label}" >/dev/null 2>&1; then loaded=1; fi
+        if [ -n "$changed" ] || [ -z "$loaded" ]; then
+          if [ -n "$loaded" ]; then run /bin/launchctl bootout --wait "gui/$UID/${label}"; fi
+          run /bin/launchctl bootstrap "gui/$UID" "$dst"
+        ${lib.optionalString rerunOnSwitch ''
+      else
+        run /bin/launchctl kickstart -k "gui/$UID/${label}"''}
+        fi
+      fi
+    )
+  '';
+
   # genK3sAgentModule = import ./genK3sAgentModule.nix;
   # genK3sServerModule = import ./genK3sServerModule.nix;
 

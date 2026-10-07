@@ -76,7 +76,7 @@
   duplicateChords = lib.unique (lib.filter (c: lib.count (x: x == c) chords > 1) chords);
 in {
   assertions = [
-    (lib.hm.assertions.assertPlatform "desktops.omniwm" pkgs lib.platforms.darwin)
+    (lib.hm.assertions.assertPlatform "desktops.macos.omniwm" pkgs lib.platforms.darwin)
     {
       assertion = unknownIDs == [];
       message = "omniwm: hotkey ids not in settings-defaults.toml: ${lib.concatStringsSep ", " unknownIDs}";
