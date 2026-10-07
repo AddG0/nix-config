@@ -21,6 +21,7 @@
     ${lib.optionalString (cfg.unsetEnv != []) "unset ${lib.escapeShellArgs cfg.unsetEnv}"}
     PROFILE="${cfg.defaultProfile}"
     ARGS=()
+    SESSION_ARGS=()
 
     while [[ $# -gt 0 ]]; do
       case "$1" in
@@ -74,7 +75,13 @@
       PLUGIN_ARGS+=(--plugin-dir "$PROFILE_DIR/plugins/lsp")
     fi
 
-    exec ${cfg.package}/bin/claude "''${MCP_ARGS[@]}" "''${PLUGIN_ARGS[@]}" "''${ARGS[@]}"
+    ${lib.optionalString (cfg.conditionalSettings != null) ''
+      if [[ ''${#ARGS[@]} -ne 1 || ''${ARGS[0]} != --version ]] && ${cfg.conditionalSettings.command}; then
+        SESSION_ARGS+=(--settings ${lib.escapeShellArg cfg.conditionalSettings.file})
+      fi
+    ''}
+
+    exec ${cfg.package}/bin/claude "''${SESSION_ARGS[@]}" "''${MCP_ARGS[@]}" "''${PLUGIN_ARGS[@]}" "''${ARGS[@]}"
   '';
 in {
   inherit pluginDirsCase wrapperScript;

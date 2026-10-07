@@ -20,6 +20,7 @@ Usage: ai-proxy [command]
   login    sign in through $AI_PROXY_ISSUER in a browser
   logout   end the session and forget it on this machine
   token    print an access token (what Codex and Claude Code run)
+  ready    exit successfully when the named proxy is ready (general or claude)
 EOF
 }
 
@@ -30,7 +31,7 @@ describe() {
 # Endpoints come from the issuer's discovery document, so nothing here depends on which OIDC server it is.
 endpoint() {
   local url="$AI_PROXY_ISSUER/.well-known/openid-configuration" value
-  value=$(curl -fsS --max-time 20 "$url" | jq -er --arg key "$1" '.[$key] // empty') || fail "cannot read $1 from $url"
+  value=$(curl -fsS --max-time "${AI_PROXY_TIMEOUT:-20}" "$url" | jq -er --arg key "$1" '.[$key] // empty') || fail "cannot read $1 from $url"
   echo "$value"
 }
 
@@ -38,7 +39,7 @@ endpoint() {
 post() {
   local url=$1
   shift
-  curl -sS --max-time 20 -o "$body" -w '%{http_code}' "$url" -d "client_id=$AI_PROXY_CLIENT_ID" "$@" ||
+  curl -sS --max-time "${AI_PROXY_TIMEOUT:-20}" -o "$body" -w '%{http_code}' "$url" -d "client_id=$AI_PROXY_CLIENT_ID" "$@" ||
     fail "cannot reach $url"
 }
 
@@ -169,6 +170,26 @@ check_proxy() {
   esac
 }
 
+ready() {
+  local url agent access code
+
+  case "${1:-}" in
+  general)
+    url=$AI_PROXY_URL
+    agent=ai-proxy-ready
+    ;;
+  claude)
+    url=$AI_PROXY_CLAUDE_URL
+    agent=claude-cli/ai-proxy-ready
+    ;;
+  *) fail "ready expects general or claude" ;;
+  esac
+
+  access=$(AI_PROXY_TIMEOUT=2 token 2 2>/dev/null) || return 1
+  code=$(curl -s -o /dev/null -w '%{http_code}' --connect-timeout 2 --max-time 2 -A "$agent" -H "Authorization: Bearer $access" "$url/v1/models") || return 1
+  [[ $code == 200 ]]
+}
+
 status() {
   local access minutes failed=0
 
@@ -194,11 +215,15 @@ status() {
 
 # Codex (auth.command) and Claude Code (apiKeyHelper) read stdout as the credential, so nothing else goes there.
 token() {
-  local token_endpoint code
+  local lock_wait=${1:-} token_endpoint code
 
   # Every Codex run and Claude Code session calls this: one refresh at a time keeps a rotated refresh token from being spent twice.
   exec 9>"$state/lock"
-  flock 9
+  if [[ -n $lock_wait ]]; then
+    flock -w "$lock_wait" 9 || return 1
+  else
+    flock 9
+  fi
 
   # Six minutes, as Claude Code and Codex each reuse a token for five before asking again.
   if [[ -s "$state/token.json" ]] && jq -e --argjson now "$(date +%s)" '.expires_at - 360 > $now' "$state/token.json" >/dev/null; then
@@ -221,6 +246,7 @@ status) status ;;
 login) login ;;
 logout) logout ;;
 token) token ;;
+ready) ready "${2:-}" ;;
 help | -h | --help) usage ;;
 *)
   usage >&2

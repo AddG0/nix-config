@@ -182,6 +182,23 @@ in {
       '';
     };
 
+    conditionalSettings = lib.mkOption {
+      type = lib.types.nullOr (lib.types.submodule {
+        options = {
+          command = lib.mkOption {
+            type = lib.types.str;
+            description = "Shell command that exits successfully when the session settings should apply.";
+          };
+          file = lib.mkOption {
+            type = lib.types.path;
+            description = "Settings JSON passed through --settings when the command succeeds.";
+          };
+        };
+      });
+      default = null;
+      description = "Settings applied to a session only when a readiness command succeeds.";
+    };
+
     defaultProfile = lib.mkOption {
       type = lib.types.str;
       default = "default";

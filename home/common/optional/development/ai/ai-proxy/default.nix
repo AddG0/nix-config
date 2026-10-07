@@ -27,6 +27,18 @@
     text = builtins.readFile ./ai-proxy.sh;
   };
 
+  codex = import ./codex-wrapper.nix {
+    inherit pkgs;
+    aiProxy = ai-proxy;
+    inherit (pkgs) codex;
+  };
+
+  claudeProxySettings = (pkgs.formats.json {}).generate "claude-ai-proxy-settings.json" {
+    apiKeyHelper = "${lib.getExe ai-proxy} token";
+    disableClaudeAiConnectors = true;
+    env.ANTHROPIC_BASE_URL = claudeUrl;
+  };
+
   opencodeProvider = "ai-proxy";
 in {
   assertions = [
@@ -41,16 +53,14 @@ in {
   # It would outrank apiKeyHelper, and secrets/ai exports it into zsh for codecompanion.
   programs.claude-code-profiles.unsetEnv = ["ANTHROPIC_API_KEY"];
 
-  programs.claude-code-profiles.baseConfig.settings = {
-    apiKeyHelper = "${lib.getExe ai-proxy} token";
-    # They need a claude.ai login, which apiKeyHelper outranks.
-    disableClaudeAiConnectors = true;
-    env.ANTHROPIC_BASE_URL = claudeUrl;
+  programs.claude-code-profiles.conditionalSettings = {
+    command = "${lib.getExe ai-proxy} ready claude";
+    file = claudeProxySettings;
   };
 
-  programs.codex.settings = {
-    model_provider = "ai-proxy";
-    model_providers.ai-proxy = {
+  programs.codex = {
+    package = codex;
+    settings.model_providers.ai-proxy = {
       name = "ai-proxy";
       base_url = "${baseUrl}/v1";
       wire_api = "responses";

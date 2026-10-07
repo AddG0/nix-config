@@ -1,4 +1,5 @@
-_: {
+{pkgs, ...}: {
+  environment.systemPackages = [pkgs.bluetui];
   hardware.bluetooth.enable = true;
   hardware.bluetooth.powerOnBoot = true;
   hardware.bluetooth.settings = {
