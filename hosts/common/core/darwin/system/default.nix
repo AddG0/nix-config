@@ -32,6 +32,16 @@
   system = {
     # activationScripts are executed every time you boot the system or run `nixos-rebuild` / `darwin-rebuild`.
     activationScripts = {
+      # Lock on display sleep; macOS ignores `defaults` for this since Ventura, but System Events can set it.
+      postActivation.text = ''
+        if ! sudo -u ${config.system.primaryUser} /usr/sbin/sysadminctl -screenLock status 2>&1 | grep -q 'delay is immediate'; then
+          echo "setting screen lock to immediate..."
+          launchctl asuser "$(id -u ${config.system.primaryUser})" sudo -u ${config.system.primaryUser} /usr/bin/osascript \
+            -e 'tell application "System Events" to set require password to wake of security preferences to true' \
+            || echo "warning: failed to set screen lock to immediate for ${config.system.primaryUser}" >&2
+        fi
+      '';
+
       applyUserSettings = {
         enable = true;
         text = ''

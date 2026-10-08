@@ -133,6 +133,7 @@ in {
         # Electron apps managed via cask for stable /Applications path —
         # avoids SMAppService re-registration popups on nix store path changes
         "slack"
+        "discord"
         "postman"
 
         "aws-vpn-client"

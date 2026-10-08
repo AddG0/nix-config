@@ -276,17 +276,16 @@
     EOF
     node --check $out/renderer.js
   '';
+
+  discord = pkgs.discord.override {
+    withVencord = true;
+    vencord = vencordRecolored;
+  };
 in {
   home.packages =
-    [
-      (pkgs.discord.override {
-        withVencord = true;
-        vencord = vencordRecolored;
-      })
-    ]
-    # On Darwin, Slack is managed via homebrew cask for stable path (avoids
-    # SMAppService re-registration popups on every nix store path change)
-    ++ lib.optional pkgs.stdenv.hostPlatform.isLinux slackFixed;
+    # On Darwin, Discord and Slack are homebrew casks: Discord's updater forces host updates
+    # that can't replace a nix bundle, and Slack needs a stable path for SMAppService.
+    lib.optionals pkgs.stdenv.hostPlatform.isLinux [discord slackFixed];
 
   # Stylix's Vencord theme reads fonts from an unset `--font`; its own selectors must be matched to override it.
   xdg.configFile."Vencord/settings/quickCss.css".text = ''

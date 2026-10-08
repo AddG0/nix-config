@@ -61,7 +61,8 @@ in {
 
         # Focusing the sidebar pane would rename the window to its binary; keep
         # its current name instead, else tmux's stock default.
-        set -g automatic-rename-format '#{?#{==:#{@pane_role},sidebar},#{window_name},#{?pane_in_mode,[tmux],#{pane_current_command}}#{?pane_dead,[dead],}}'
+        # macOS tmux names panes by the executable file, so strip Nix's .<name>-wrapped.
+        set -g automatic-rename-format '#{?#{==:#{@pane_role},sidebar},#{window_name},#{?pane_in_mode,[tmux],#{s/^\.(.+)-wrapped$/\1/:pane_current_command}}#{?pane_dead,[dead],}}'
       '';
     }
   ];

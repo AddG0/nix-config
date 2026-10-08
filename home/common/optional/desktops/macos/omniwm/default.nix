@@ -32,7 +32,8 @@
       "setWindowSecondarySpan.decrease10Percent" = "Control+Option+Shift+K";
       "setContainerPrimarySpan.increase10Percent" = "Control+Option+Shift+L";
 
-      "toggleFullscreen" = "Option+F";
+      # Option+F belongs to skhd, which hides what sits behind the fullscreen window.
+      "toggleFullscreen" = "Unassigned";
       "toggleNativeFullscreen" = "Option+Shift+F";
       "toggleFocusedWindowFloating" = "Option+B";
       "closeFocusedWindow" = "Option+Shift+Q";
@@ -70,10 +71,39 @@
 
   hotkeys = map (h: h // lib.optionalAttrs (binds ? ${h.id}) {binding = binds.${h.id};}) defaults.hotkeys;
 
+  # Mirrors demon's Hyprland `workspace N silent` window rules.
+  workspaceFor = {
+    "app.zen-browser.zen" = "2";
+    "com.tinyspeck.slackmacgap" = "3";
+    "com.hnc.Discord" = "3";
+  };
+  appRules =
+    map (r: r // lib.optionalAttrs (workspaceFor ? ${r.bundleId}) {assignToWorkspace = workspaceFor.${r.bundleId};}) defaults.appRules
+    ++ lib.mapAttrsToList (bundleId: ws: {
+      inherit bundleId;
+      assignToWorkspace = ws;
+    }) (removeAttrs workspaceFor (map (r: r.bundleId) defaults.appRules));
+
   knownIDs = map (h: h.id) defaults.hotkeys;
   unknownIDs = lib.subtractLists knownIDs (lib.attrNames binds);
   chords = lib.filter (b: b != "Unassigned") (map (h: h.binding) hotkeys);
   duplicateChords = lib.unique (lib.filter (c: lib.count (x: x == c) chords > 1) chords);
+
+  toggleFullscreen = pkgs.callPackage ./fullscreen-hide/package.nix {};
+  skhdrc = pkgs.writeText "skhdrc" ''
+    alt - f : ${lib.getExe toggleFullscreen}
+  '';
+  skhdLabel = "local.skhd";
+  skhdAgent = pkgs.writeText "${skhdLabel}.plist" (lib.generators.toPlist {escape = true;} {
+    Label = skhdLabel;
+    ProgramArguments = [(lib.getExe pkgs.skhd) "-c" "${skhdrc}"];
+    RunAtLoad = true;
+    KeepAlive = true;
+    ProcessType = "Interactive";
+    LimitLoadToSessionType = "Aqua";
+    StandardOutPath = "${config.home.homeDirectory}/Library/Logs/${skhdLabel}.log";
+    StandardErrorPath = "${config.home.homeDirectory}/Library/Logs/${skhdLabel}.log";
+  });
 in {
   assertions = [
     (lib.hm.assertions.assertPlatform "desktops.macos.omniwm" pkgs lib.platforms.darwin)
@@ -86,6 +116,11 @@ in {
       message = "omniwm: chords bound to more than one action: ${lib.concatStringsSep ", " duplicateChords}";
     }
   ];
+
+  home.activation.skhd = lib.hm.dag.entryAfter ["linkGeneration"] (lib.custom.darwinGuiAgentActivation {
+    label = skhdLabel;
+    plist = skhdAgent;
+  });
 
   programs.omniwm = {
     enable = true;
@@ -116,7 +151,7 @@ in {
           direction = "topLeftToBottomRight";
         };
       };
-      inherit hotkeys;
+      inherit appRules hotkeys;
     };
   };
 }

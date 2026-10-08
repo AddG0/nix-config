@@ -26,7 +26,7 @@
       "${pkgs.postman}/Applications/Postman.app"
       "${pkgs.ghostty-bin}/Applications/Ghostty.app"
       "${pkgs.slack}/Applications/Slack.app"
-      "${pkgs.discord}/Applications/Discord.app"
+      "/Applications/Discord.app"
       "${pkgs.lens}/Applications/Lens.app"
       "${config.hostSpec.home}/Applications/Home Manager Apps/Spotify.app"
       "${pkgs.notion-app}/Applications/Notion.app"
