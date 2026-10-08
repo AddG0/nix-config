@@ -1,0 +1,24 @@
+diff --git a/net/netns/netns_darwin.go b/net/netns/netns_darwin.go
+index 844128d..e9451c7 100644
+--- a/net/netns/netns_darwin.go
++++ b/net/netns/netns_darwin.go
+@@ -263,11 +263,19 @@ func interfaceIndexFor(addr netip.Addr, canRecurse bool) (int, error) {
+ 			if canRecurse {
+ 				return interfaceIndexFor(netip.AddrFrom4(addr.IP), false)
+ 			}
++			// Point-to-point tunnels chain gateway IPs that never end in a link address.
++			if rm.Index > 0 {
++				return rm.Index, nil
++			}
+ 		case *route.Inet6Addr:
+ 			// As above.
+ 			if canRecurse {
+ 				return interfaceIndexFor(netip.AddrFrom16(addr.IP), false)
+ 			}
++			// Point-to-point tunnels chain gateway IPs that never end in a link address.
++			if rm.Index > 0 {
++				return rm.Index, nil
++			}
+ 		default:
+ 			// Unknown type; skip it
+ 			continue

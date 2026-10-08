@@ -10,13 +10,14 @@
 
   # Merged into config.json, which Sol also writes its own state to. Any key here also marks onboarding done.
   settings = {
-    globalShortcut = "command";
+    globalShortcut = "option";
     launchAtLogin = false;
   };
 
   agent = pkgs.writeText "${label}.plist" (lib.generators.toPlist {escape = true;} {
     Label = label;
-    ProgramArguments = ["/usr/bin/open" "-a" "${config.home.homeDirectory}/${config.targets.darwin.copyApps.directory}/Sol.app"];
+    # Reopening a running Sol pops its panel; -j would avoid that but stops the hotkey registering.
+    ProgramArguments = ["/bin/sh" "-c" "/usr/bin/pgrep -xq sol || exec /usr/bin/open -g -a ${lib.escapeShellArg "${config.home.homeDirectory}/${config.targets.darwin.copyApps.directory}/Sol.app"}"];
     RunAtLoad = true;
     LimitLoadToSessionType = "Aqua";
   });

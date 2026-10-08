@@ -1,3 +1,3 @@
 {optional, ...}: {
-  macos.home = with optional.home.desktops.macos; [omniwm sol wallpaper-cycle];
+  macos.home = with optional.home.desktops.macos; [omniwm skhd sol wallpaper-cycle];
 }

@@ -90,20 +90,6 @@
   duplicateChords = lib.unique (lib.filter (c: lib.count (x: x == c) chords > 1) chords);
 
   toggleFullscreen = pkgs.callPackage ./fullscreen-hide/package.nix {};
-  skhdrc = pkgs.writeText "skhdrc" ''
-    alt - f : ${lib.getExe toggleFullscreen}
-  '';
-  skhdLabel = "local.skhd";
-  skhdAgent = pkgs.writeText "${skhdLabel}.plist" (lib.generators.toPlist {escape = true;} {
-    Label = skhdLabel;
-    ProgramArguments = [(lib.getExe pkgs.skhd) "-c" "${skhdrc}"];
-    RunAtLoad = true;
-    KeepAlive = true;
-    ProcessType = "Interactive";
-    LimitLoadToSessionType = "Aqua";
-    StandardOutPath = "${config.home.homeDirectory}/Library/Logs/${skhdLabel}.log";
-    StandardErrorPath = "${config.home.homeDirectory}/Library/Logs/${skhdLabel}.log";
-  });
 in {
   assertions = [
     (lib.hm.assertions.assertPlatform "desktops.macos.omniwm" pkgs lib.platforms.darwin)
@@ -117,10 +103,9 @@ in {
     }
   ];
 
-  home.activation.skhd = lib.hm.dag.entryAfter ["linkGeneration"] (lib.custom.darwinGuiAgentActivation {
-    label = skhdLabel;
-    plist = skhdAgent;
-  });
+  services.skhd.config = ''
+    alt - f : ${lib.getExe toggleFullscreen}
+  '';
 
   programs.omniwm = {
     enable = true;
