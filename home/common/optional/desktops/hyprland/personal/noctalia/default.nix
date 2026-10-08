@@ -8,7 +8,7 @@
 
   noctaliaPkg = pkgs.noctalia;
 in {
-  # ./plugins installs the bar-widget plugins (mkPlugin per dir); they're enabled + placed below.
+  # Each plugin module installs, enables and places itself; drop it from ./plugins to remove it.
   imports = [./plugins];
 
   programs.noctalia = {
@@ -42,9 +42,6 @@ in {
           ++ ["control-center"];
       };
 
-      # Bar-widget plugins (installed via ./plugins/*).
-      plugins.enabled = ["addg/next-event"];
-
       widget = {
         # Search button opens walker instead of noctalia's built-in launcher.
         search = {
@@ -53,8 +50,6 @@ in {
           tooltip = "Search";
           actions.left = "exec ${lib.getExe pkgs.walker}";
         };
-
-        calendar.type = "addg/next-event:agenda";
 
         # F1-F12 workspaces are labeled by name; the 1-char default renders them all as "F".
         workspaces.max_label_chars = 3;
@@ -118,6 +113,11 @@ in {
   wayland.windowManager.hyprland.settings.bind = [
     "SUPER,c,exec,${lib.getExe noctaliaPkg} msg panel-toggle control-center calendar"
     "SUPER,n,exec,${lib.getExe noctaliaPkg} msg panel-toggle control-center notifications"
+  ];
+
+  # Noctalia animates its own panels; Hyprland's layersIn slide would fly them in from the edge.
+  wayland.windowManager.hyprland.settings.layerrule = [
+    "no_anim on, match:namespace ^noctalia-(attached-panel|panel)$"
   ];
 
   # Override the module's Restart=on-failure: always also recovers from a clean

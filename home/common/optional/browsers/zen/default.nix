@@ -6,7 +6,9 @@
   lib,
   config,
   ...
-}: {
+}: let
+  inherit (config.stylix.fonts) monospace sansSerif;
+in {
   imports = [
     ./tridactyl.nix
   ];
@@ -42,6 +44,18 @@
         "accessibility.browsewithcaret" = false;
         "accessibility.warn_on_browsewithcaret" = false;
       };
+
+      userContent = ''
+        @-moz-document url-prefix("http") {
+          body, button, input, select, textarea {
+            font-family: "${sansSerif.name}" !important;
+          }
+
+          code, kbd, pre, samp {
+            font-family: "${monospace.name}" !important;
+          }
+        }
+      '';
 
       mods = [
         "253a3a74-0cc4-47b7-8b82-996a64f030d5" # Floating History

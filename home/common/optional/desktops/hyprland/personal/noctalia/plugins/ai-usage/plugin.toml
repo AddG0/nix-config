@@ -1,0 +1,26 @@
+id = "addg/ai-usage"
+name = "AI Usage"
+version = "1.0.0"
+plugin_api = 32
+author = "addg"
+license = "MIT"
+icon = "brain"
+description = "Shows each AI proxy account's limits (Claude, Codex) against the expected pace."
+tags = ["ai", "usage", "bar"]
+
+[[service]]
+id = "poller"
+entry = "service.luau"
+
+[[widget]]
+id = "limits"
+entry = "widget.luau"
+
+[[panel]]
+id = "details"
+entry = "panel.luau"
+width = 560
+height = 460
+placement = "attached"
+position = "auto"
+open_near_click = true
