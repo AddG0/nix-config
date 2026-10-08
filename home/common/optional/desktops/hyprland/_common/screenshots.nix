@@ -29,20 +29,9 @@
   ...
 }: let
   c = config.lib.stylix.colors;
-  # Freeze only $HYPRPICKER_OUTPUT, so the region overlay covers just the monitor under the cursor.
-  # The extra roundtrip delivers wl_output names, which the stock loop runs before.
-  hyprpicker = pkgs.hyprpicker.overrideAttrs (old: {
-    postPatch =
-      (old.postPatch or "")
-      + ''
-        substituteInPlace src/hyprpicker.cpp --replace-fail \
-          'for (auto& m : m_vMonitors) {' \
-          'wl_display_roundtrip(m_pWLDisplay); for (auto& m : m_vMonitors) { if (const char* only = getenv("HYPRPICKER_OUTPUT"); only && m->name != only) continue;'
-      '';
-  });
   screenshot = pkgs.writeShellApplication {
     name = "screenshot";
-    runtimeInputs = [hyprpicker] ++ (with pkgs; [hyprland slurp grim wl-clipboard libnotify jq coreutils imagemagick]);
+    runtimeInputs = with pkgs; [hyprland hyprpicker slurp grim wl-clipboard libnotify jq coreutils imagemagick];
     text = ''
       mode="region"
       while [ $# -gt 0 ]; do
@@ -111,31 +100,28 @@
       outfile="$outdir/$(date +%Y-%m-%d_%H-%M-%S).png"
 
       if [ "$mode" = region ]; then
+        layout=$(hyprctl monitors -j | jq -c 'map({x, y})')
+        # Native for the monitor under the cursor; selections elsewhere get resampled.
+        scale=$(jq -r '.scale' <<<"$mon")
         # Capture before slurp clears hover; never through the freeze, which darkens on HDR outputs.
         frame=$(mktemp --suffix=.ppm)
         trap 'rm -f "$frame"; restore' EXIT
-        grim -t ppm -o "$name" "$frame"
-        HYPRPICKER_OUTPUT="$name" hyprpicker -r -z >/dev/null 2>&1 &
+        grim -t ppm -s "$scale" "$frame"
+        hyprpicker -r -z >/dev/null 2>&1 &
         freeze_pid=$!
         # slurp must map after the freeze, or the freeze stacks over its selection box.
         for _ in $(seq 100); do
-          hyprctl layers -j | jq -e '[.. | objects | select(.namespace? == "hyprpicker")] | length > 0' >/dev/null && break
+          hyprctl layers -j | jq -e --argjson n "$(jq length <<<"$layout")" '[.. | objects | select(.namespace? == "hyprpicker")] | length >= $n' >/dev/null && break
           sleep 0.01
         done
-        # Transparent background keeps the other outputs untouched, so the box carries its own contrast.
-        if ! geometry=$(slurp -b "#00000000" -c "#${c.base0D}ff" -s "#${c.base0D}33" -w 2); then exit 0; fi
-        # Crop to the frozen monitor in native pixels; a region spilling past it is clipped.
-        crop=$(jq -r --arg g "$geometry" '
+        # Dim everything but the selection, which stays clear so it reads as a window into the frozen frame.
+        if ! geometry=$(slurp -b "#${c.base00}99" -c "#${c.base0D}ff" -s "#00000000" -w 2); then exit 0; fi
+        # grim's image starts at the layout's top-left corner.
+        crop=$(jq -r --arg g "$geometry" --argjson s "$scale" '
           ($g | capture("(?<x>-?[0-9]+),(?<y>-?[0-9]+) (?<w>[0-9]+)x(?<h>[0-9]+)") | map_values(tonumber)) as $r
-          | ([$r.x, .x] | max) as $x0 | ([$r.y, .y] | max) as $y0
-          | ([$r.x + $r.w, .x + .width / .scale] | min) as $x1 | ([$r.y + $r.h, .y + .height / .scale] | min) as $y1
-          | if $x1 <= $x0 or $y1 <= $y0 then empty
-            else "\(($x1 - $x0) * .scale | round)x\(($y1 - $y0) * .scale | round)+\(($x0 - .x) * .scale | round)+\(($y0 - .y) * .scale | round)" end
-        ' <<<"$mon")
-        if [ -z "$crop" ]; then
-          notify-send "Screenshot skipped" "Selection $geometry is outside $name" -t 5000 -a screenshot
-          exit 0
-        fi
+          | (map(.x) | min) as $ox | (map(.y) | min) as $oy
+          | "\($r.w * $s | round)x\($r.h * $s | round)+\(($r.x - $ox) * $s | round)+\(($r.y - $oy) * $s | round)"
+        ' <<<"$layout")
         magick "$frame" -crop "$crop" +repage "$outfile"
       else
         grim "''${grim_target[@]}" "$outfile"

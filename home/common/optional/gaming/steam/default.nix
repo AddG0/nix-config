@@ -78,7 +78,7 @@
         while kill -0 "$dialog" 2>/dev/null; do
           # Steam creates its pad only once the game process exists, so a pad plugged in here never gets one.
           if pads_ready physical; then
-            sleep 2
+            sleep 5
             kill "$dialog" 2>/dev/null || true
             exec "$@"
           fi

@@ -93,7 +93,13 @@ in {
           plugin = catppuccin;
           extraConfig = ''
             set -g @catppuccin_flavour 'mocha'
-            set -g @catppuccin_window_status_style "rounded"
+            # "rounded" reverses its caps onto opaque @thm_mantle, boxing them on a transparent bar.
+            set -g @catppuccin_window_status_style "custom"
+            set -g @catppuccin_window_left_separator "#[fg=#{E:@catppuccin_window_text_color},bg=default]"
+            set -g @catppuccin_window_middle_separator " "
+            set -g @catppuccin_window_right_separator "#[fg=#{E:@catppuccin_window_number_color},bg=default]"
+            set -g @catppuccin_window_current_left_separator "#[fg=#{E:@catppuccin_window_current_text_color},bg=default]"
+            set -g @catppuccin_window_current_right_separator "#[fg=#{E:@catppuccin_window_current_number_color},bg=default]"
 
             # Fix to show the window name by default; ring a bell glyph while a
             # background window has a pending bell (cleared on focus by tmux).
@@ -110,9 +116,6 @@ in {
             set -g status-left-length 100
 
             set -g @catppuccin_status_connect_separator "no"
-            set -g @catppuccin_window_left_separator ""
-            # set -g @catppuccin_window_right_separator " "
-            set -g @catppuccin_window_middle_separator " █"
             set -g @catppuccin_status_left_separator  " "
             set -g @catppuccin_status_right_separator ""
             # set -g @catppuccin_status_right_separator_inverse "no"
@@ -164,9 +167,9 @@ in {
       # Stylix's tmux target is sourced after catppuccin and overwrites these.
       set -g pane-active-border-style 'fg=magenta,bg=default'
       set -g pane-border-style 'fg=brightblack,bg=default'
-      # fill clears the rest of the line; without it the value abuts the window list.
-      set -gF message-style "fg=#{@thm_fg},bg=default,underscore,us=#{@thm_mauve},fill=#{@thm_bg}"
-      set -gF message-command-style "fg=#{@thm_fg},bg=default,underscore,us=#{@thm_peach},bold,fill=#{@thm_bg}"
+      # fill clears the window list under the prompt (terminal keeps it see-through); width leaves status-right drawn.
+      set -gF message-style "fg=#{@thm_fg},bg=default,underscore,us=#{@thm_mauve},fill=terminal,width=60%"
+      set -gF message-command-style "fg=#{@thm_fg},bg=default,underscore,us=#{@thm_peach},bold,fill=terminal,width=60%"
 
       # command-prompt splits -p on commas, so these can't be inlined there.
       set -gF @prompt_rename_window "#[fg=#{@thm_mauve},bg=default,nounderscore]#[fg=#{@thm_crust},bg=#{@thm_mauve},bold,nounderscore]  rename window #[fg=#{@thm_mauve},bg=default,nobold,nounderscore] "
@@ -191,6 +194,10 @@ in {
 
       set -g status-bg default
       set -g status-style bg=default
+      # Stylix's opaque base bg here fills in around the window pills' rounded caps.
+      set -g window-status-style default
+      set -g window-status-current-style default
+      set -g window-status-activity-style default
 
       # Advertise truecolor support to programs running inside tmux (e.g. process-compose)
       set -ag terminal-features ",*:RGB"
