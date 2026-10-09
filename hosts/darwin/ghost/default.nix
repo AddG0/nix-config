@@ -14,6 +14,7 @@
     ])
     # ../../common/optional/darwin/applications/1password.nix
     (with lib.custom.optional.hosts.darwin.applications; [
+      keepingyouawake
       onepassword
       vpn
     ])

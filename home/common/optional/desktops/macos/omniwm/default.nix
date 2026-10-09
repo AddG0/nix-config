@@ -42,7 +42,7 @@
       "consumeWindowIntoColumn" = "Option+V";
       "expelWindowFromColumn" = "Option+Shift+V";
       "toggleSplit" = "Option+S";
-      "toggleColumnTabbed" = "Option+Shift+G";
+      "toggleColumnTabbed" = "Option+G";
       "focusWindowDownOrTop" = "Option+Quote";
       "focusWindowUpOrBottom" = "Option+Shift+Quote";
 
