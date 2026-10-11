@@ -25,7 +25,8 @@ byKey($resets) as $resetAt
     label: $m.limit,
     seconds: $seconds,
     percent: (num * 100),
-    resetAt: $resetAt[key($m)],
+    # An idle window has no reset yet; it would end a full window after first use.
+    resetAt: ($resetAt[key($m)] // (now + $seconds)),
     status: $statusOf[key($m)]
   }] as $limits
 | [results($modelUsage)[] | .metric as $m | {

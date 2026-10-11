@@ -197,7 +197,10 @@ local function windowCard(provider, window)
     for _, limit in ipairs(account.limits) do
       if limit.label == window.label then
         table.insert(rows, limitRow(shortName(account.account), limit, accountStatus(account, limit)))
-        table.insert(limits, limit)
+        -- An unavailable account's capacity isn't usable, so it stays out of the pool.
+        if account.available then
+          table.insert(limits, limit)
+        end
       end
     end
   end

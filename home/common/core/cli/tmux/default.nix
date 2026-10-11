@@ -198,6 +198,7 @@ in {
       set -g window-status-style default
       set -g window-status-current-style default
       set -g window-status-activity-style default
+      set -g window-status-bell-style default
 
       # Advertise truecolor support to programs running inside tmux (e.g. process-compose)
       set -ag terminal-features ",*:RGB"

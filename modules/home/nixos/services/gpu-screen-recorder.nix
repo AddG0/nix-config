@@ -29,6 +29,13 @@
 #   Run `save-gsr-replay` or bind it to a hotkey to save the replay buffer.
 #   `postSaveScript` hooks an executable to run on each saved file.
 #
+# LIFECYCLE (see docs/adr/0004-gsr-lifecycle-in-systemd.md):
+#   GSR is the unit's main process; systemd restarts it and SIGKILLs a hung
+#   stop. With matchMonitorName, ExecCondition skips starts while the monitor
+#   is disconnected and, on Hyprland, gsr-monitor-gate starts/stops the unit
+#   on monitor events. In portal mode, gsr-health.timer restarts GSR when its
+#   video stream has no pipewire link.
+#
 # AFTER REBUILDS:
 #   xdph reads `~/.config/hypr/xdph.conf` only at startup. Since the smart
 #   picker's nix store path changes on every rebuild, restart xdph for the
@@ -155,26 +162,25 @@
   #   stdout: `[SELECTION]<r?>/screen:<connector>\n`
   smartPickerScript = pkgs.writeShellApplication {
     name = "gsr-smart-picker";
-    runtimeInputs = with pkgs; [findMonitorScript procps coreutils xdg-desktop-portal-hyprland];
+    runtimeInputs = with pkgs; [findMonitorScript videoStreamScript procps coreutils xdg-desktop-portal-hyprland];
     text = ''
       allow_token=""
       for arg in "$@"; do
         [ "$arg" = "--allow-token" ] && allow_token="r"
       done
 
-      # Decide if this picker invocation is for GSR's screencast request:
-      # GSR is running AND its process is young (started within 30s). Covers
-      # fresh boot, gsr-repick-monitor, and systemd retries after monitor
-      # disable/disconnect. Older GSR processes are in steady-state streaming,
-      # so any picker invocation then must be for some other client (Slack
-      # screen-share, browser, OBS) and gets the real interactive picker.
+      # This invocation is GSR's if GSR is running without a linked video
+      # stream: a streaming GSR has one, and GSR re-opening its session (at
+      # start, or its own restart after the monitor turns off) does not. Any
+      # other client (Slack, browser, OBS) gets the real interactive picker.
       #
       # Use `pidof` (matches binary name) rather than `pgrep -x` (matches only
       # the 15-char kernel COMM, which truncates "gpu-screen-recorder").
       gsr_is_requesting=no
-      if gsr_pid=$(pidof gpu-screen-recorder 2>/dev/null); then
-        gsr_age=$(ps -o etimes= -p "$gsr_pid" 2>/dev/null | tr -d ' ' || echo 0)
-        [ "''${gsr_age:-0}" -lt 30 ] && gsr_is_requesting=yes
+      if gsr_pid=$(pidof -s gpu-screen-recorder); then
+        case $(gsr-video-stream "$gsr_pid" || echo unknown) in
+          unlinked | no-video-node) gsr_is_requesting=yes ;;
+        esac
       fi
 
       if [ "$gsr_is_requesting" = "yes" ]; then
@@ -188,8 +194,8 @@
           exit 0
         fi
         # Configured monitor isn't connected. Don't spawn an interactive
-        # dialog — just fail so xdph rejects the session, GSR exits, and
-        # systemd retries. When the monitor returns, the retry auto-picks.
+        # dialog — just fail so xdph rejects the session and GSR exits;
+        # ExecCondition and the monitor gate hold it until the monitor returns.
         echo "gsr-smart-picker: configured monitor not connected — failing without selection" >&2
         exit 1
       fi
@@ -252,137 +258,125 @@
 
   audioArgs = lib.concatMapStringsSep " " (device: "-a '${device}'") cfg.audioDevices;
 
-  # Long-running supervisor:
-  #
-  #   loop:
-  #     1. Wait until the configured monitor is both physically connected
-  #        (kernel `/sys/class/drm/.../status`) AND active in the wayland
-  #        compositor (wlr-randr). Idle on `udevadm monitor` for DRM events,
-  #        with periodic wlr-randr checks to catch compositor-level changes
-  #        (e.g. user-disable) that don't fire kernel events.
-  #     2. Start GSR via coproc so we have its PID for kill().
-  #     3. Watchdog polls wlr-randr every 10s. If the monitor disappears
-  #        from compositor outputs (compositor-disable, unplug, etc.), kill
-  #        GSR — otherwise screencopy keeps delivering stale buffers from
-  #        the old session and GSR doesn't notice.
-  #     4. Stream GSR output; kill on a dead-capture signature (boot-race
-  #        format negotiation, or a mid-session stream disconnect).
-  #     5. If GSR exited within 10s, sleep before respawn (avoid hot loop
-  #        on a compositor that re-disables the output immediately).
-  #
-  # Compositor coverage: works on any wlroots-based compositor (Hyprland,
-  # Sway, niri, river, …) via wlr-output-management protocol. KDE Plasma
-  # and GNOME use different protocols; for those, only the DRM-level checks
-  # apply (physical unplug works; compositor-level disable won't be caught).
-  #
-  # systemd Restart=on-failure stays as a safety net for genuine crashes.
+  # GSR's portal video node carries no process id, only its pipewire client's id.
+  videoLinkedFilter = pkgs.writeText "gsr-video-linked.jq" ''
+    (map(select(.type == "PipeWire:Interface:Client" and .info.props["application.process.id"] == $pid) | .id)) as $clients
+    | (map(select(.type == "PipeWire:Interface:Node" and .info.props["media.class"] == "Stream/Input/Video"
+                  and (.info.props["client.id"] as $c | $clients | index($c)))) | map(.id)) as $nodes
+    | if ($nodes | length) == 0 then "no-video-node"
+      elif any(.[]; .type == "PipeWire:Interface:Link" and (.info["input-node-id"] as $i | $nodes | index($i))) then "linked"
+      else "unlinked" end
+  '';
+
+  # Prints linked / unlinked / no-video-node for a GSR pid; exits non-zero if pipewire can't be queried.
+  videoStreamScript = pkgs.writeShellApplication {
+    name = "gsr-video-stream";
+    runtimeInputs = with pkgs; [pipewire jq];
+    text = ''
+      dump=$(pw-dump) || { echo "gsr-video-stream: pw-dump failed" >&2; exit 1; }
+      jq -r --argjson pid "$1" -f ${videoLinkedFilter} <<<"$dump"
+    '';
+  };
+
+  # Resolves the capture target and execs GSR, so GSR is the unit's main
+  # process and systemd owns restarts and stop escalation.
   startScript = pkgs.writeShellApplication {
     name = "start-gsr-replay";
-    runtimeInputs = with pkgs; [gpu-screen-recorder findMonitorScript systemd coreutils wlr-randr gawk];
+    runtimeInputs = with pkgs; [gpu-screen-recorder findMonitorScript coreutils];
     text = ''
       mkdir -p "${cfg.outputDirectory}"
 
       ${resolveDisplay}
 
-      # If matchMonitorName is set, resolve it to a DRM connector and find
-      # its sysfs status file. The supervisor only does presence checks
-      # with a known connector — otherwise GSR runs unsupervised.
-      status_file=""
-      ${lib.optionalString (cfg.matchMonitorName != null) ''
-        expected=$(gsr-find-monitor ${lib.escapeShellArg cfg.matchMonitorName} || true)
-        if [ -n "$expected" ]; then
-          for f in /sys/class/drm/card*-"$expected"/status; do
-            [ -f "$f" ] && status_file="$f" && break
-          done
+      exec gpu-screen-recorder \
+        -w "$DISPLAY_NAME" \
+        -f ${toString cfg.fps} \
+        ${audioArgs} \
+        -c ${cfg.container} \
+        -fm vfr \
+        -k ${cfg.codec} \
+        -q ${cfg.quality} \
+        -r ${toString (cfg.replayDuration + cfg.postRecordSeconds)} \
+        ${lib.optionalString usePortal "-restore-portal-session yes"} \
+        ${lib.optionalString (cfg.postSaveScript != null) "-sc ${lib.getExe cfg.postSaveScript}"} \
+        -o "${cfg.outputDirectory}"
+    '';
+  };
+
+  # ExecCondition: skip (not fail) the start while the configured monitor is disconnected.
+  monitorPresentScript = pkgs.writeShellApplication {
+    name = "gsr-monitor-present";
+    runtimeInputs = [findMonitorScript];
+    text = ''
+      [ -n "$(gsr-find-monitor ${lib.escapeShellArg cfg.matchMonitorName})" ]
+    '';
+  };
+
+  # Starts the recorder when the configured monitor joins Hyprland and stops it
+  # when it leaves — before GSR's own paused-capture restart can reach the picker.
+  monitorGateScript = pkgs.writeShellApplication {
+    name = "gsr-monitor-gate";
+    runtimeInputs = with pkgs; [socat jq systemd];
+    text = ''
+      hypr="$XDG_RUNTIME_DIR/hypr/$HYPRLAND_INSTANCE_SIGNATURE"
+      unit=gpu-screen-recorder-replay.service
+
+      reconcile() {
+        local monitors active
+        if ! monitors=$(printf 'j/monitors' | socat - UNIX-CONNECT:"$hypr/.socket.sock"); then
+          echo "gsr-monitor-gate: could not query Hyprland at $hypr/.socket.sock — leaving $unit as is" >&2
+          return 0
         fi
-      ''}
-
-      drm_connected() {
-        [ -z "$status_file" ] && return 0
-        [ "$(cat "$status_file" 2>/dev/null)" = "connected" ]
-      }
-
-      compositor_has_output() {
-        [ -z "''${expected:-}" ] && return 0
-        # wlr-randr lists disabled outputs too (just marked "Enabled: no"),
-        # so we need to verify the connector's block contains "Enabled: yes".
-        wlr-randr 2>/dev/null | awk -v conn="$expected" '
-          $1 == conn { inblock = 1; next }
-          inblock && /^[^ ]/ { inblock = 0 }
-          inblock && /Enabled: yes/ { found = 1 }
-          END { exit !found }
-        '
-      }
-
-      monitor_ready() {
-        drm_connected && compositor_has_output
-      }
-
-      # Block until either the next DRM uevent or a 10s tick. The DRM event
-      # covers physical (un)plug; the periodic tick covers compositor-level
-      # state changes that don't fire kernel events.
-      wait_for_monitor_change() {
-        timeout 10 udevadm monitor --kernel --subsystem-match=drm 2>/dev/null \
-          | head -n 1 >/dev/null || true
-      }
-
-      while true; do
-        while ! monitor_ready; do
-          echo "start-gsr-replay: waiting for '$expected' (drm+wayland) to be ready" >&2
-          wait_for_monitor_change
-        done
-
-        gsr_started_at=$(date +%s)
-
-        coproc GSR { exec gpu-screen-recorder \
-          -w "$DISPLAY_NAME" \
-          -f ${toString cfg.fps} \
-          ${audioArgs} \
-          -c ${cfg.container} \
-          -fm vfr \
-          -k ${cfg.codec} \
-          -q ${cfg.quality} \
-          -r ${toString (cfg.replayDuration + cfg.postRecordSeconds)} \
-          ${lib.optionalString usePortal "-restore-portal-session yes"} \
-          ${lib.optionalString (cfg.postSaveScript != null) "-sc ${lib.getExe cfg.postSaveScript}"} \
-          -o "${cfg.outputDirectory}" 2>&1; }
-
-        # Watchdog: kill GSR if the monitor leaves the compositor's output
-        # list (xdph keeps delivering stale buffers otherwise — GSR has no
-        # way to know).
-        (
-          while sleep 10; do
-            compositor_has_output || {
-              echo "gsr: '$expected' no longer in compositor outputs — killing GSR" >&2
-              kill "$GSR_PID" 2>/dev/null || true
-              exit 0
-            }
-          done
-        ) &
-        watchdog_pid=$!
-
-        while IFS= read -r line <&"''${GSR[0]}"; do
-          printf '%s\n' "$line"
-          case $line in
-            # GSR won't exit or recover on a dead capture — mid-session it keeps
-            # encoding the last frame, so replays silently become frozen screenshots.
-            *"no more input formats"* | *'new state: "unconnected"'*)
-              echo "gsr: pipewire capture died — killing GSR" >&2
-              kill "$GSR_PID" 2>/dev/null || true
-              break
-              ;;
-          esac
-        done
-        wait "$GSR_PID" 2>/dev/null || true
-        kill "$watchdog_pid" 2>/dev/null || true
-        wait "$watchdog_pid" 2>/dev/null || true
-
-        runtime=$(( $(date +%s) - gsr_started_at ))
-        if [ "$runtime" -lt 10 ]; then
-          echo "start-gsr-replay: GSR exited after $runtime s; backing off 10s" >&2
-          sleep 10
+        if ! active=$(jq -r --arg m ${lib.escapeShellArg (lib.toLower cfg.matchMonitorName)} \
+          'any(.[]; .description | ascii_downcase | contains($m))' <<<"$monitors"); then
+          echo "gsr-monitor-gate: unreadable monitor list from Hyprland — leaving $unit as is" >&2
+          return 0
         fi
+        if [ "$active" = true ]; then
+          systemctl --user --no-block start "$unit"
+        else
+          echo "gsr-monitor-gate: '${cfg.matchMonitorName}' is not active — stopping $unit"
+          systemctl --user --no-block stop "$unit"
+        fi
+      }
+
+      reconcile
+      socat -U - UNIX-CONNECT:"$hypr/.socket2.sock" | while IFS= read -r event; do
+        case $event in
+          monitoradded'>>'* | monitorremoved'>>'*) reconcile ;;
+        esac
       done
+    '';
+  };
+
+  # Restarts the recorder when its portal video stream has no pipewire link:
+  # GSR stays up encoding the last frame after a stream error.
+  healthScript = pkgs.writeShellApplication {
+    name = "gsr-health";
+    runtimeInputs = with pkgs; [videoStreamScript systemd coreutils];
+    text = ''
+      unit=gpu-screen-recorder-replay.service
+
+      dead() {
+        local state
+        state=$(gsr-video-stream "$1") || {
+          echo "gsr-health: could not read GSR $1 stream state — skipping this check" >&2
+          return 1
+        }
+        [ "$state" != linked ]
+      }
+
+      pid=$(systemctl --user show -p MainPID --value "$unit")
+      [ "$pid" -gt 0 ] || exit 0
+      dead "$pid" || exit 0
+
+      # Second strike: GSR's own paused-capture restart briefly drops the link.
+      sleep 10
+      [ "$(systemctl --user show -p MainPID --value "$unit")" = "$pid" ] || exit 0
+      dead "$pid" || exit 0
+
+      echo "gsr-health: GSR $pid video stream has no pipewire link — restarting $unit"
+      systemctl --user restart "$unit"
     '';
   };
 in {
@@ -547,16 +541,50 @@ in {
 
       Service = {
         Type = "simple";
+        ExecCondition = lib.mkIf (cfg.matchMonitorName != null) (lib.getExe monitorPresentScript);
         ExecStartPre = lib.getExe waitForPortalScript;
         ExecStart = lib.getExe startScript;
-        # The supervisor loop in start-gsr-replay handles monitor disappear
-        # and respawns GSR internally. on-failure is a safety net for the
-        # unlikely case the supervisor itself dies.
-        Restart = "on-failure";
+        Restart = "always";
         RestartSec = "5s";
+        # GSR ignores SIGTERM while blocked on a portal response (dbus.c has no timeout).
+        TimeoutStopSec = "5s";
       };
 
       Install.WantedBy = ["graphical-session.target"];
+    };
+
+    # Hyprland-only: other compositors get no live monitor gating, just ExecCondition at start.
+    systemd.user.services.gsr-monitor-gate = lib.mkIf (cfg.matchMonitorName != null) {
+      Unit = {
+        Description = "Start/stop GPU Screen Recorder with its monitor";
+        After = ["graphical-session.target"];
+        PartOf = ["graphical-session.target"];
+        ConditionEnvironment = "HYPRLAND_INSTANCE_SIGNATURE";
+      };
+      Service = {
+        ExecStart = lib.getExe monitorGateScript;
+        Restart = "on-failure";
+        RestartSec = "5s";
+      };
+      Install.WantedBy = ["graphical-session.target"];
+    };
+
+    # Portal capture only: a direct (KMS) capture has no pipewire video stream to check.
+    systemd.user.services.gsr-health = lib.mkIf usePortal {
+      Unit.Description = "Restart GPU Screen Recorder if its video stream is dead";
+      Service = {
+        Type = "oneshot";
+        ExecStart = lib.getExe healthScript;
+      };
+    };
+
+    systemd.user.timers.gsr-health = lib.mkIf usePortal {
+      Unit.Description = "Check the GPU Screen Recorder video stream";
+      Timer = {
+        OnActiveSec = "30s";
+        OnUnitActiveSec = "30s";
+      };
+      Install.WantedBy = ["timers.target"];
     };
 
     # Point xdph at the smart picker so GSR's fresh portal sessions get
@@ -580,7 +608,7 @@ in {
       ++ lib.optional (usePortal && !enableAutoPicker) repickMonitorScript;
 
     # Invalidate the cached portal token when matchMonitorName changes.
-    # Without this, the supervisor would keep restoring the previous
+    # Without this, GSR would keep restoring the previous
     # monitor's portal session even after a rebuild. A sentinel file
     # records the last-applied value so we only act on actual changes.
     home.activation = lib.mkIf enableAutoPicker {

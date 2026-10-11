@@ -3,6 +3,7 @@
 import json
 import subprocess
 import sys
+import time
 import unittest
 from pathlib import Path
 
@@ -87,6 +88,14 @@ class ReportTest(unittest.TestCase):
         extra["resets"]["data"]["result"].append({"metric": m("claude", "three@x", limit="5h"), "value": [0, "1500"]})
         claude = report(extra)["providers"][0]
         self.assertEqual([a["account"] for a in claude["accounts"]], ["one@x", "three@x", "two@x"])
+
+    def test_gives_an_idle_window_without_a_reset_a_full_window_from_now(self):
+        idle = {k: {"data": {"result": list(v["data"]["result"])}} for k, v in RESPONSES.items()}
+        idle["usage"]["data"]["result"].append({"metric": m("claude", "three@x", limit="5h"), "value": [0, "0"]})
+        before = time.time()
+        three = self.account(report(idle)["providers"][0], "three@x")
+        self.assertGreaterEqual(three["limits"][0]["resetAt"], before + 18000)
+        self.assertLess(three["limits"][0]["resetAt"], time.time() + 18000 + 1)
 
     def test_takes_the_active_status_per_limit(self):
         two = self.account(self.claude, "two@x")

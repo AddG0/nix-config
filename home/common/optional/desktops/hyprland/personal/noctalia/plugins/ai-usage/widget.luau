@@ -1,4 +1,7 @@
--- Compact combined view: Claude's usage above its expected pace, with points ahead of that pace.
+-- Compact combined view: each provider's usage above its expected pace, with points ahead of that pace.
+
+-- Same glyphs as the panel; Tabler has no Claude logo.
+local PROVIDER_GLYPHS = { claude = "sparkles", codex = "brand-openai" }
 
 -- Points ahead of pace that read as burning too fast; same as the panel.
 local AHEAD_WARNING = 15
@@ -6,20 +9,16 @@ local AHEAD_WARNING = 15
 local report = noctalia.state.get("aiUsage")
 local errorMessage = noctalia.state.get("aiUsageError")
 
--- Claude's limit averaged across its accounts; capacity returns at the soonest reset.
-local function window(label)
+-- A provider's limit averaged across its available accounts; capacity returns at the soonest reset.
+local function window(provider, label)
   local used, expected, count, resetAt = 0, 0, 0, math.huge
-  for _, provider in ipairs(report and report.providers or {}) do
-    if provider.id == "claude" then
-      for _, account in ipairs(provider.accounts) do
-        for _, limit in ipairs(account.limits) do
-          if limit.label == label then
-            used += limit.percent
-            expected += math.max(0, math.min(100, (1 - (limit.resetAt - os.time()) / limit.seconds) * 100))
-            count += 1
-            resetAt = math.min(resetAt, limit.resetAt)
-          end
-        end
+  for _, account in ipairs(provider.accounts) do
+    for _, limit in ipairs(account.limits) do
+      if account.available and limit.label == label then
+        used += limit.percent
+        expected += math.max(0, math.min(100, (1 - (limit.resetAt - os.time()) / limit.seconds) * 100))
+        count += 1
+        resetAt = math.min(resetAt, limit.resetAt)
       end
     end
   end
@@ -67,26 +66,36 @@ local function summary(item)
   return string.format("%d%% used · %d%% expected · capacity returns in %s", rounded(item.percent), rounded(item.expected), countdown(item.resetAt))
 end
 
+local WINDOWS = { { "5h", "5 hour average" } }
+
 local function render()
-  local short, weekly = window("5h"), window("7d")
-  -- Hidden without fresh data: a stale or empty widget gives nothing to act on.
-  if errorMessage or not short or not weekly then
+  -- Hidden only when the query failed: there is nothing to report at all.
+  if errorMessage or not report then
     barWidget.setVisible(false)
     return
   end
 
+  local row, tooltip = {}, {}
+  for _, provider in ipairs(report.providers) do
+    table.insert(row, ui.glyph({ name = PROVIDER_GLYPHS[provider.id] or "robot", size = 14, color = "on_surface" }))
+    local shown = false
+    for _, w in ipairs(WINDOWS) do
+      local item = window(provider, w[1])
+      if item then
+        shown = true
+        table.insert(row, gauge(item))
+        table.insert(row, ui.label({ text = w[1] .. " " .. ahead(item), fontSize = 11, fontWeight = "semibold", color = color(item) }))
+        table.insert(tooltip, { key = provider.name .. " " .. w[2], value = summary(item) })
+      end
+    end
+    if not shown then
+      table.insert(row, ui.label({ text = "unavailable", fontSize = 11, fontWeight = "semibold", color = "error" }))
+      table.insert(tooltip, { key = provider.name, value = "No account is available" })
+    end
+  end
   barWidget.setVisible(true)
-  barWidget.render(ui.row({ gap = 5, align = "center" }, {
-    ui.glyph({ name = "brain", size = 14, color = "on_surface" }),
-    gauge(short),
-    ui.label({ text = "5h " .. ahead(short), fontSize = 11, fontWeight = "semibold", color = color(short) }),
-    gauge(weekly),
-    ui.label({ text = "7d " .. ahead(weekly), fontSize = 11, fontWeight = "semibold", color = color(weekly) }),
-  }))
-  barWidget.setTooltip({
-    { key = "5 hour average", value = summary(short) },
-    { key = "7 day average", value = summary(weekly) },
-  })
+  barWidget.render(ui.row({ gap = 5, align = "center" }, row))
+  barWidget.setTooltip(tooltip)
 end
 
 noctalia.state.watch("aiUsage", function(value)

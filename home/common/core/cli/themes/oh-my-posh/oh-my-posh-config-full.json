@@ -23,11 +23,12 @@
         {
           "background": "#89B4FA",
           "foreground": "#ffffff",
+          "leading_diamond": "",
           "powerline_symbol": "",
           "properties": {
             "style": "folder"
           },
-          "style": "powerline",
+          "style": "diamond",
           "template": "  {{ .Path }} ",
           "type": "path"
         },
@@ -53,7 +54,7 @@
           "background": "#2e9599",
           "background_templates": ["{{ if gt .Code 0 }}#f1184c{{ end }}"],
           "foreground": "#ffffff",
-          "leading_diamond": "<transparent,background></>",
+          "leading_diamond": "",
           "properties": {
             "always_enabled": true
           },
@@ -78,7 +79,7 @@
           },
           "leading_powerline_symbol": "",
           "style": "powerline",
-          "template": " {{ if .Error }}{{ .Error }}{{ else }}{{ if .Venv }}{{ .Venv }} {{ end }}{{ end }}<transparent,background></>",
+          "template": " {{ if .Error }}{{ .Error }}{{ else }}{{ if .Venv }}{{ .Venv }} {{ end }}{{ end }}<background,transparent></>",
           "type": "python"
         },
         {
@@ -99,7 +100,7 @@
           },
           "overflow": "hide",
           "style": "plain",
-          "template": "<background,transparent></> {{ if and (not .Error) (or (ne .Percentage 100) (eq .State.String \"Discharging\")) }}{{ .Icon }}{{ .Percentage }}{{ end }}{{ .Error }} <transparent,background></>",
+          "template": "<background,transparent></> {{ if and (not .Error) (or (ne .Percentage 100) (eq .State.String \"Discharging\")) }}{{ .Icon }}{{ .Percentage }}{{ end }}{{ .Error }} <background,transparent></>",
           "type": "battery"
         },
         {

@@ -2,7 +2,6 @@
   inputs,
   config,
   lib,
-  pkgs,
   ...
 }: {
   imports = [
@@ -29,8 +28,6 @@
     # Allow NVIDIA GPU to fully power down at runtime when idle.
     # Requires modesetting (already set via nvidia-drm.modeset=1).
     powerManagement.finegrained = true;
-    # FLAKE-UPDATE: drop once NVIDIA/open-gpu-kernel-modules#1226/#1335 are fixed; notifier path hangs hibernate entry on hybrid laptops.
-    powerManagement.kernelSuspendNotifier = false;
 
     prime = {
       offload = {
@@ -41,19 +38,6 @@
       nvidiaBusId = "PCI:1:0:0";
     };
   };
-
-  # nixpkgs omits NVIDIA's suspend-then-hibernate unit and system-sleep hook; lid close uses it.
-  systemd.services.nvidia-suspend-then-hibernate = {
-    description = "NVIDIA system suspend-then-hibernate actions";
-    path = [pkgs.kbd];
-    serviceConfig.Type = "oneshot";
-    serviceConfig.ExecStart = "${config.hardware.nvidia.package.out}/bin/nvidia-sleep.sh suspend";
-    before = ["systemd-suspend-then-hibernate.service"];
-    requiredBy = ["systemd-suspend-then-hibernate.service"];
-  };
-  systemd.services.nvidia-resume.after = ["systemd-suspend-then-hibernate.service"];
-  systemd.services.nvidia-resume.requiredBy = ["systemd-suspend-then-hibernate.service"];
-  environment.etc."systemd/system-sleep/nvidia".source = "${config.hardware.nvidia.package.out}/lib/systemd/system-sleep/nvidia";
 
   # Offload-mode host: apps default to the iGPU, so let GPU-heavy apps opt into the dGPU.
   hostSpec.gpu.offload = "nvidia";

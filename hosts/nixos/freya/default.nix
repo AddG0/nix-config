@@ -153,11 +153,11 @@
   hardware.nvidia.moduleParams.nvidia.NVreg_EnableS0ixPowerManagement = 1;
 
   # s2idle costs 1.3 W (~72h); hand off to hibernate once actually discharging.
-  services.logind.settings.Login.HandleLidSwitch = "suspend-then-hibernate";
-  systemd.sleep.settings.Sleep = {
-    HibernateDelaySec = "45min";
-    HibernateOnACPower = false;
-  };
+  # services.logind.settings.Login.HandleLidSwitch = "suspend-then-hibernate";
+  # systemd.sleep.settings.Sleep = {
+  #   HibernateDelaySec = "45min";
+  #   HibernateOnACPower = false;
+  # };
 
   # Battery status reporting for desktop widgets
   services.upower.enable = true;
