@@ -27,10 +27,10 @@
       "move.up" = "Option+Shift+K";
       "move.right" = "Option+Shift+L";
 
-      "setContainerPrimarySpan.decrease10Percent" = "Control+Option+Shift+H";
-      "setWindowSecondarySpan.increase10Percent" = "Control+Option+Shift+J";
-      "setWindowSecondarySpan.decrease10Percent" = "Control+Option+Shift+K";
-      "setContainerPrimarySpan.increase10Percent" = "Control+Option+Shift+L";
+      "setContainerPrimarySpan.decrease10Percent" = "Control+Command+Shift+H";
+      "setWindowSecondarySpan.increase10Percent" = "Control+Command+Shift+J";
+      "setWindowSecondarySpan.decrease10Percent" = "Control+Command+Shift+K";
+      "setContainerPrimarySpan.increase10Percent" = "Control+Command+Shift+L";
 
       # Option+F belongs to skhd, which hides what sits behind the fullscreen window.
       "toggleFullscreen" = "Unassigned";
@@ -113,6 +113,11 @@ in {
       general = {
         updateChecksEnabled = false;
         ipcEnabled = true;
+      };
+      # Hyprland follow_mouse = 1; the warp keeps keyboard focus moves from snapping back to the cursor.
+      focus = {
+        followsMouse = true;
+        moveMouseToFocusedWindow = true;
       };
       # Hyprland gaps_in 4 pads each window side, so 8 between windows; gaps_out 8.
       gaps = {

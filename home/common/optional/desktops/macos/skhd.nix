@@ -24,6 +24,8 @@ in {
   services.skhd = {
     enable = true;
     config = ''
+      # Locks at once: the screen-lock delay is immediate.
+      alt - escape : /usr/bin/pmset displaysleepnow
       alt - return : /usr/bin/osascript -e 'tell application "Ghostty"' -e 'new window' -e 'activate' -e 'end tell'
     '';
   };

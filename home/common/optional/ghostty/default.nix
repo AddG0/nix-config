@@ -1,4 +1,8 @@
-{pkgs, ...}: {
+{
+  lib,
+  pkgs,
+  ...
+}: {
   # stylix's ghostty target writes theme/font/opacity into these same settings.
   programs.ghostty = {
     enable = true;
@@ -26,12 +30,20 @@
       font-feature = ["calt" "liga" "ss01" "ss02" "ss03" "ss04" "ss05" "ss06" "ss07" "ss08" "ss09"];
 
       # Free ctrl+shift+arrow for tmux
-      keybind = [
-        "ctrl+shift+arrow_left=unbind"
-        "ctrl+shift+arrow_right=unbind"
-        "ctrl+shift+arrow_up=unbind"
-        "ctrl+shift+arrow_down=unbind"
-      ];
+      keybind =
+        [
+          "ctrl+shift+arrow_left=unbind"
+          "ctrl+shift+arrow_right=unbind"
+          "ctrl+shift+arrow_up=unbind"
+          "ctrl+shift+arrow_down=unbind"
+        ]
+        # Command sits in the Linux Alt position; zsh's ghq, gwq and sesh pickers are Alt-G/W/S (ESC g/w/s).
+        ++ lib.optionals pkgs.stdenv.hostPlatform.isDarwin ["super+g=esc:g" "super+w=esc:w" "super+s=esc:s"];
     };
   };
+
+  # The macOS app only rereads its config on SIGUSR2.
+  xdg.configFile."ghostty/config".onChange = lib.mkIf pkgs.stdenv.hostPlatform.isDarwin ''
+    if /usr/bin/pgrep -xq ghostty; then run /usr/bin/pkill -USR2 -x ghostty; fi
+  '';
 }

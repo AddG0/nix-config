@@ -8,6 +8,11 @@
   ...
 }: let
   inherit (config.stylix.fonts) monospace sansSerif;
+  # The key in Linux's Alt position; on macOS that's Command, while Option is OmniWM's Super.
+  altPosition =
+    if pkgs.stdenv.hostPlatform.isDarwin
+    then "meta"
+    else "alt";
 in {
   imports = [
     ./tridactyl.nix
@@ -261,63 +266,76 @@ in {
       };
 
       keyboardShortcutsVersion = 20;
-      keyboardShortcuts = [
-        {
-          id = "key_quitApplication";
-          disabled = true;
-        }
-        # Free up Ctrl+Shift+Tab for MRU tab switching
-        {
-          id = "key_showAllTabs";
-          disabled = true;
-        }
-        {
-          id = "zen-compact-mode-toggle";
-          key = "m";
-          modifiers.control = true;
-          modifiers.shift = true;
-        }
-        {
-          id = "zen-copy-url";
-          key = "c";
-          modifiers.control = true;
-          modifiers.shift = true;
-        }
-        # Workspace prev/next (Alt+,/.)
-        {
-          id = "zen-workspace-backward";
-          key = ",";
-          modifiers.alt = true;
-        }
-        {
-          id = "zen-workspace-forward";
-          key = ".";
-          modifiers.alt = true;
-        }
-        # Prefer Tridactyl's vim binds over Zen's: free Ctrl+D/U (half page)
-        # and Ctrl+F/B (full page) for scrolling. Native find moves to
-        # Ctrl+Shift+F; view-source and bookmarks-sidebar shortcuts dropped.
-        {
-          id = "addBookmarkAsKb";
-          disabled = true;
-        }
-        {
-          id = "key_viewSource";
-          disabled = true;
-        }
-        {
-          id = "key_find";
-          key = "f";
-          modifiers = {
-            accel = true;
-            shift = true;
-          };
-        }
-        {
-          id = "viewBookmarksSidebarKb";
-          disabled = true;
-        }
-      ];
+      keyboardShortcuts =
+        [
+          {
+            id = "key_quitApplication";
+            disabled = true;
+          }
+          # Free up Ctrl+Shift+Tab for MRU tab switching
+          {
+            id = "key_showAllTabs";
+            disabled = true;
+          }
+          {
+            id = "zen-compact-mode-toggle";
+            key = "m";
+            modifiers.control = true;
+            modifiers.shift = true;
+          }
+          {
+            id = "zen-copy-url";
+            key = "c";
+            # accel, not control: Karabiner turns Ctrl+Shift+C into Cmd+Shift+C on macOS.
+            modifiers.accel = true;
+            modifiers.shift = true;
+          }
+          # Workspace prev/next (Alt+,/.)
+          {
+            id = "zen-workspace-backward";
+            key = ",";
+            modifiers.${altPosition} = true;
+          }
+          {
+            id = "zen-workspace-forward";
+            key = ".";
+            modifiers.${altPosition} = true;
+          }
+          # Prefer Tridactyl's vim binds over Zen's: free Ctrl+D/U (half page)
+          # and Ctrl+F/B (full page) for scrolling. Native find moves to
+          # Ctrl+Shift+F; view-source and bookmarks-sidebar shortcuts dropped.
+          {
+            id = "addBookmarkAsKb";
+            disabled = true;
+          }
+          {
+            id = "key_viewSource";
+            disabled = true;
+          }
+          {
+            id = "key_find";
+            key = "f";
+            modifiers = {
+              accel = true;
+              shift = true;
+            };
+          }
+          {
+            id = "viewBookmarksSidebarKb";
+            disabled = true;
+          }
+        ]
+        # Settings and stop-loading hold Cmd+,/. on macOS, which the workspace binds above take.
+        ++ lib.optionals pkgs.stdenv.hostPlatform.isDarwin [
+          {
+            id = "key_preferencesCmdMac";
+            disabled = true;
+          }
+          {
+            id = "key_stop_mac";
+            disabled = true;
+          }
+        ];
     };
   };
 
@@ -325,6 +343,31 @@ in {
   wayland.windowManager.hyprland.settings.windowrule = lib.mkBefore [
     "tag +browser, match:class ^(zen|zen-alpha|zen-beta)$"
   ];
+
+  # 1Password claims Cmd+. (workspace forward) on macOS; back to Ctrl+. as on Linux. Extension "Ctrl" is Command here, "MacCtrl" is Control.
+  home.activation.zenOnePasswordShortcut = lib.mkIf pkgs.stdenv.hostPlatform.isDarwin (lib.hm.dag.entryAfter ["writeBoundary"] (let
+    profileDir = "${config.programs.zen-browser.profilesPath}/${config.programs.zen-browser.profiles.default.path}";
+    settings = "${profileDir}/extension-settings.json";
+  in ''
+    (
+      id=${lib.escapeShellArg pkgs.firefox-addons.onepassword-password-manager.addonId}
+      if /usr/bin/pgrep -xq zen; then echo "zen: quit Zen and switch again, or it keeps 1Password on Cmd+." >&2; fi
+      installDate=$(${lib.getExe pkgs.jq} --arg id "$id" '[.addons[]? | select(.id == $id) | .installDate][0] // 0' ${lib.escapeShellArg "${profileDir}/extensions.json"} 2>/dev/null || echo 0)
+      current='{"version":3}'
+      if [ -s ${lib.escapeShellArg settings} ]; then current=$(cat ${lib.escapeShellArg settings}); fi
+      merged=$(${lib.getExe pkgs.jq} -c --arg id "$id" --argjson date "$installDate" '
+        .commands._execute_browser_action.precedenceList =
+          ([.commands._execute_browser_action.precedenceList[]? | select(.id != $id)]
+           + [{id: $id, installDate: $date, value: {shortcut: "MacCtrl+Period"}, enabled: true}])
+      ' <<<"$current") && [ -n "$merged" ] || { echo "zen: invalid JSON in ${settings}" >&2; exit 1; }
+      if [ "$merged" != "$(${lib.getExe pkgs.jq} -c . <<<"$current")" ]; then
+        tmp=$(mktemp)
+        printf '%s\n' "$merged" >"$tmp"
+        run install -Dm600 -T "$tmp" ${lib.escapeShellArg settings}
+        rm -f "$tmp"
+      fi
+    )
+  ''));
 
   # setAsDefaultBrowser only writes xdg.mimeApps; macOS needs LaunchServices. No-op (no prompt) when already default.
   home.activation.zenDefaultBrowser = lib.mkIf pkgs.stdenv.hostPlatform.isDarwin (lib.hm.dag.entryAfter ["writeBoundary"] ''
