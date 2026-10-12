@@ -1,5 +1,8 @@
 {pkgs, ...}: let
   hyprctl = "${pkgs.hyprland}/bin/hyprctl";
+  nightGamma = 70;
+  nightStart = 21;
+  nightEnd = 7;
   gammaScript = pkgs.writeShellScript "hypr-gamma" ''
     set -eu
 
@@ -17,8 +20,16 @@
       down)    next=$((current - 5)) ;;
       reset)   next=100 ;;
       restore) next="$current" ;;
+      schedule)
+        hour=$(date +%-H)
+        if [ "$hour" -ge ${toString nightStart} ] || [ "$hour" -lt ${toString nightEnd} ]; then
+          next=${toString nightGamma}
+        else
+          next=100
+        fi
+        ;;
       *)
-        echo "usage: hypr-gamma {up|down|reset|restore}" >&2
+        echo "usage: hypr-gamma {up|down|reset|restore|schedule}" >&2
         exit 2
         ;;
     esac
@@ -26,12 +37,17 @@
     if [ "$next" -lt 0 ];   then next=0;   fi
     if [ "$next" -gt 100 ]; then next=100; fi
 
-    # Restore runs at session start; hyprsunset's IPC may not be ready yet, so retry.
-    if [ "''${1}" = "restore" ]; then
+    # Restore and a missed-schedule catch-up run at session start; hyprsunset's IPC may not be ready yet, so retry.
+    if [ "''${1}" = "restore" ] || [ "''${1}" = "schedule" ]; then
+      applied=0
       for _ in 1 2 3 4 5; do
-        ${hyprctl} hyprsunset gamma "$next" >/dev/null 2>&1 && break
+        ${hyprctl} hyprsunset gamma "$next" >/dev/null 2>&1 && { applied=1; break; }
         sleep 1
       done
+      if [ "$applied" -ne 1 ]; then
+        echo "hypr-gamma: hyprsunset IPC unreachable after 5 tries; gamma $next not applied" >&2
+        exit 1
+      fi
     else
       ${hyprctl} hyprsunset gamma "$next" >/dev/null
     fi
@@ -53,4 +69,28 @@ in {
     binde = ,XF86MonBrightnessDown,exec,${gammaScript} down
     bind = SUPERSHIFT,backslash,exec,${gammaScript} reset
   '';
+
+  systemd.user.services.hypr-gamma-schedule = {
+    Unit = {
+      Description = "Dim the screen at night via hyprsunset gamma";
+      After = ["graphical-session.target"];
+      PartOf = ["graphical-session.target"];
+    };
+    Service = {
+      Type = "oneshot";
+      ExecStart = "${gammaScript} schedule";
+    };
+  };
+
+  systemd.user.timers.hypr-gamma-schedule = {
+    Unit = {
+      Description = "Night dimming schedule";
+      PartOf = ["graphical-session.target"];
+    };
+    Timer = {
+      OnCalendar = ["*-*-* ${toString nightStart}:00:00" "*-*-* ${toString nightEnd}:00:00"];
+      Persistent = true;
+    };
+    Install.WantedBy = ["graphical-session.target"];
+  };
 }

@@ -99,6 +99,21 @@ rebuild hostname="" boot="switch" test="false" show-trace="false" fast="false" v
   fi
   USE_NH={{use-nh}} scripts/rebuild.sh {{ if show-trace == "true" { "-t" } else { "" } }} {{ if verbose == "true" { "-v" } else { "" } }} -m {{ if test == "test" { "test" } else { boot } }} "{{hostname}}" {{ if fast == "true" { "--fast" } else { "" } }} {{nix_args}}
 
+[script]
+[group('system')]
+[doc("Build the system configuration without activating it; same flags as rebuild minus --boot/--test")]
+[arg("show-trace", long, value="true")]
+[arg("fast", long, value="true")]
+[arg("verbose", long, value="true")]
+[arg("use-nh", long="no-nh", value="false")]
+[arg("update-inputs", short="u", long="update-inputs", value="true")]
+build hostname="" show-trace="false" fast="false" verbose="false" use-nh=USE_NH_DEFAULT update-inputs="false" *nix_args="": pre
+  set -euo pipefail
+  if [ "{{update-inputs}}" = "true" ]; then
+    just rebuild-pre
+  fi
+  USE_NH={{use-nh}} scripts/rebuild.sh {{ if show-trace == "true" { "-t" } else { "" } }} {{ if verbose == "true" { "-v" } else { "" } }} -m build "{{hostname}}" {{ if fast == "true" { "--fast" } else { "" } }} {{nix_args}}
+
 alias hm := home
 
 [group('system')]

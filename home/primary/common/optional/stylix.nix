@@ -121,7 +121,7 @@ in {
     };
     opacity = {
       applications = 1.0;
-      # Ghostty applies this to default-bg cells only: a shell goes glassy, nvim stays solid.
+      # Ghostty applies this to default-bg cells only, hence nvim's transparentBackground below.
       terminal = 0.9;
       desktop = 1.0;
       popups = 1.0;
@@ -135,6 +135,11 @@ in {
       light = "Papirus-Light";
     };
 
+    targets.nixvim.transparentBackground = {
+      main = true;
+      signColumn = true;
+      numberLine = true;
+    };
     # Stylix recolors adw-gtk3 but leaves its shapes alone. Layering the M3
     # shape scale on top keeps stylix the single colour source — a Material GTK
     # theme like orchis would pin the palette to that theme instead.

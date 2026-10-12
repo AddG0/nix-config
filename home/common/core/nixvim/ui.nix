@@ -116,6 +116,9 @@ in {
     LineNr.fg = muted.ui;
     SignColumn.fg = muted.ui;
     CursorLineNr.fg = muted.text;
+    # stylix's transparentBackground clears only Normal; unfocused windows and snacks floats link these.
+    NormalNC.bg = "none";
+    NormalFloat.bg = "none";
   };
 
   # Gives Snacks.explorer a `trash` command so deleting files there is

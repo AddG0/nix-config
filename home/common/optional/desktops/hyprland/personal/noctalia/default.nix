@@ -54,6 +54,15 @@ in {
         # F1-F12 workspaces are labeled by name; the 1-char default renders them all as "F".
         workspaces.max_label_chars = 3;
 
+        tray.drawer = true;
+
+        # Seeded instance; restate type/device since this table replaces the seed.
+        input_volume = {
+          type = "volume";
+          device = "input";
+          show_label = false;
+        };
+
         # strftime clock formats.
         clock = {
           format = "{:%I:%M %p %a, %b %d}";
@@ -89,7 +98,7 @@ in {
       nightlight = {
         enabled = true;
         temperature_day = 6000;
-        temperature_night = 4500;
+        temperature_night = 3400;
       };
 
       # Native CalDAV/Google calendar (no evolution-data-server). Accounts are

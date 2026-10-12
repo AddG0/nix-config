@@ -9,7 +9,7 @@ source "$(dirname "${BASH_SOURCE[0]}")/helpers.sh"
 #  -h             Display this help message.
 #  -t             Enable trace mode (adds --show-trace flag).
 #  -v             Enable verbose/debug output.
-#  -m mode        Rebuild mode: switch (default), boot, or test.
+#  -m mode        Rebuild mode: switch (default), boot, test, or build.
 #  host           Host name; if not provided, defaults to the output of hostname.
 #  nix args...    Any positional args after the host are forwarded verbatim to
 #                 nixos-rebuild/nh (e.g. --option substitute false, --fast).
@@ -41,8 +41,8 @@ done
 shift $((OPTIND - 1))
 
 # Validate mode
-if [[ $MODE != "switch" && $MODE != "boot" && $MODE != "test" ]]; then
-  log_error "Invalid mode: $MODE (must be 'switch', 'boot', or 'test')"
+if [[ $MODE != "switch" && $MODE != "boot" && $MODE != "test" && $MODE != "build" ]]; then
+  log_error "Invalid mode: $MODE (must be 'switch', 'boot', 'test', or 'build')"
   exit 1
 fi
 
@@ -60,6 +60,9 @@ if [ "${TRACE}" = "true" ]; then
   switch_args+="--show-trace "
 fi
 switch_args+="--impure --flake .#${HOST} ${MODE}"
+
+SUDO="sudo"
+[ "${MODE}" = "build" ] && SUDO=""
 
 # OS-specific rebuild function for Darwin
 rebuild_darwin() {
@@ -83,16 +86,16 @@ rebuild_darwin() {
 
   log_info "====== REBUILD ======"
   if command_exists nh && [ "${USE_NH:-true}" = "true" ]; then
-    if [ "${MODE}" != "switch" ]; then
-      log_error "nh darwin only supports switch, not '${MODE}'; rerun with use-nh=false"
+    if [ "${MODE}" != "switch" ] && [ "${MODE}" != "build" ]; then
+      log_error "nh darwin only supports switch and build, not '${MODE}'; rerun with use-nh=false"
       return 1
     fi
     log_debug "Using nh darwin command for rebuild (host: ${HOST})"
     nh darwin ${MODE} . --hostname "${HOST}" --impure -- $TRACE_FLAG ${EXTRA_NIX_ARGS[@]+"${EXTRA_NIX_ARGS[@]}"}
   elif command_exists darwin-rebuild; then
     log_debug "Using darwin-rebuild with arguments: ${switch_args}"
-    # Run darwin-rebuild with sudo as required by the new activation model
-    sudo darwin-rebuild ${switch_args} ${EXTRA_NIX_ARGS[@]+"${EXTRA_NIX_ARGS[@]}"}
+    # Activation needs sudo; a plain build must not, or ./result ends up root-owned.
+    $SUDO darwin-rebuild ${switch_args} ${EXTRA_NIX_ARGS[@]+"${EXTRA_NIX_ARGS[@]}"}
   else
     log_debug "darwin-rebuild not found; using 'nix run nix-darwin'"
     # Back up stock macOS shell files so first activation won't refuse to clobber them.
@@ -120,7 +123,7 @@ rebuild_linux() {
     nh os ${MODE} . --hostname "${HOST}" --impure -- $TRACE_FLAG ${EXTRA_NIX_ARGS[@]+"${EXTRA_NIX_ARGS[@]}"}
   else
     log_debug "Using sudo nixos-rebuild with arguments: ${switch_args}"
-    sudo nixos-rebuild ${switch_args} ${EXTRA_NIX_ARGS[@]+"${EXTRA_NIX_ARGS[@]}"}
+    $SUDO nixos-rebuild ${switch_args} ${EXTRA_NIX_ARGS[@]+"${EXTRA_NIX_ARGS[@]}"}
   fi
 }
 

@@ -2,7 +2,7 @@
 #
 # Design pillars:
 #   1. Depth from tonal elevation + shadow; blur is reserved for the terminal.
-#   2. Circular corners — rounding_power 2.0; M3 never draws a superellipse.
+#   2. Circular corners — rounding_power 2.0, edged by a 1px translucent hairline.
 #   3. State is carried by the primary accent, not a neutral tint.
 #   4. Enter decelerates, exit accelerates. The asymmetry is the spec.
 #
@@ -32,27 +32,21 @@
   # Stylix-driven desktop text size — same value the bar and notifications use,
   # so hy3 tab labels match the rest of the system chrome.
   desktopFontSize = config.stylix.fonts.sizes.desktop;
-  # M3 "large" step, shared by window decoration, hy3 tabs and the noctalia bar.
-  windowRounding = 16;
+  windowRounding = 20;
   # Deciseconds (Hyprland's unit), a step under M3's 200/300/400 scale: the
   # spec targets touch, where longer reads as considered rather than as lag.
   short = 1; # 100ms
   medium = 2; # 200ms
   long = 3; # 300ms
-  # Reused as the noctalia bar margin so bar and window edges align.
   edgeGap = 8;
 in {
   wayland.windowManager.hyprland.settings = {
     general = {
-      # A hairline is a weak focus cue at gaps_in 4, and Hyprland stair-steps
-      # a 1px arc on a 16px radius.
-      border_size = 2;
+      border_size = 1;
       gaps_in = lib.mkForce 4;
       gaps_out = lib.mkForce edgeGap;
-      "col.active_border" = lib.mkForce "rgba(${primary}ff)";
-      # outline, not outline-variant: base03 is 1.80:1 against base00 and
-      # effectively invisible; base04 is 2.46:1.
-      "col.inactive_border" = lib.mkForce "rgba(${outline}ff)";
+      "col.active_border" = lib.mkForce "rgba(${primary}66)";
+      "col.inactive_border" = lib.mkForce "rgba(${onSurface}1a)";
     };
 
     decoration = {
@@ -102,11 +96,10 @@ in {
     # `hyprctl getoption plugin:hy3:tabs:col.active.border` — `set: true` means
     # it bound.
     plugin.hy3.tabs = {
-      # radius == height/2 gives M3 "full" shape; reusing windowRounding keeps
-      # tab and window corners on one knob.
+      # radius == height/2 gives M3 "full" shape.
       height = 32;
       padding = 6;
-      radius = windowRounding;
+      radius = 16;
       border_width = 1;
       render_text = true;
       text_center = true;
@@ -245,15 +238,19 @@ in {
     shell.shadow.direction = "down";
 
     bar.main = {
-      margin_ends = edgeGap; # Align bar ends with window outer gap.
-      margin_edge = edgeGap; # Match so top spacing equals the sides.
+      margin_ends = 180; # Floating island rather than edge-to-edge.
+      margin_edge = 0; # Touching the top edge makes noctalia flare concave corners into it.
       radius = windowRounding; # Same source of truth as windows + tabs.
+      thickness = 40;
       capsule = true; # M3 pill-shaped widget containers.
+      capsule_fill = "surface_variant"; # Distinct from the bar so groups read as islands.
+      capsule_opacity = 0.6;
       border_width = 0; # Elevation does the framing, not a border.
-      # stylix routes opacity.desktop to the dock and never sets bar opacity.
-      background_opacity = config.stylix.opacity.desktop;
+      # Glass to match the terminal; noctalia blurs via ext-background-effect.
+      background_opacity = 0.7;
+      compositor_blur = true;
       widget_spacing = 6;
-      padding = 4;
+      padding = 8;
       shadow = true;
     };
   };
