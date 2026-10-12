@@ -122,6 +122,9 @@ local function paceBar(actual, expect, color)
 end
 
 local function accountStatus(account, limit)
+  if account.paused then
+    return { "Paused", "secondary" }
+  end
   return not account.available and { "Unavailable", "error" } or STATUS_CHIPS[limit.status or ""]
 end
 
@@ -197,8 +200,8 @@ local function windowCard(provider, window)
     for _, limit in ipairs(account.limits) do
       if limit.label == window.label then
         table.insert(rows, limitRow(shortName(account.account), limit, accountStatus(account, limit)))
-        -- An unavailable account's capacity isn't usable, so it stays out of the pool.
-        if account.available then
+        -- A paused account resumes within the week, so its capacity only counts toward weekly windows.
+        if account.available or (account.paused and limit.seconds >= 7 * 24 * 3600) then
           table.insert(limits, limit)
         end
       end

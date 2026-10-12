@@ -40,6 +40,7 @@ RESPONSES = {
     "overUsed": vector((m("claude", "one@x"), 249.76)),
     "overLimit": vector((m("claude", "one@x"), 0)),
     "available": vector((m("claude", "one@x"), 1), (m("claude", "two@x"), 0), (m("codex", "me@x"), 1)),
+    "paused": vector((m("claude", "one@x"), 0), (m("claude", "two@x"), 1), (m("codex", "me@x"), 0)),
     "modelUsage": vector((m("claude", "one@x", model="Fable", limit="7d"), 0.05)),
     "modelResets": vector((m("claude", "one@x", model="Fable", limit="7d"), 9000)),
 }
@@ -108,6 +109,14 @@ class ReportTest(unittest.TestCase):
         self.assertIsNone(two["overage"])
         self.assertTrue(one["available"])
         self.assertFalse(two["available"])
+
+    def test_marks_an_account_the_pacer_paused(self):
+        self.assertTrue(self.account(self.claude, "two@x")["paused"])
+        self.assertFalse(self.account(self.claude, "one@x")["paused"])
+
+    def test_treats_a_missing_paused_series_as_not_paused(self):
+        older = dict(RESPONSES, paused=vector())
+        self.assertFalse(self.account(report(older)["providers"][0], "two@x")["paused"])
 
     def test_attaches_model_quotas_to_their_account(self):
         one = self.account(self.claude, "one@x")

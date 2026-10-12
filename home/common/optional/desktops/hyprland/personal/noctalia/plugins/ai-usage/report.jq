@@ -1,5 +1,5 @@
 # Builds the AI Usage report from Prometheus instant-query responses ($usage, $resets, $status,
-# $overUsed, $overLimit, $available, $modelUsage, $modelResets), per provider and account.
+# $overUsed, $overLimit, $available, $paused, $modelUsage, $modelResets), per provider and account.
 
 def results($r): $r.data.result // [];
 def num: .value[1] | tonumber;
@@ -19,6 +19,7 @@ byKey($resets) as $resetAt
 | byAccount($overUsed) as $overUsedOf
 | byAccount($overLimit) as $overLimitOf
 | byAccount($available) as $availableOf
+| byAccount($paused) as $pausedOf
 | [results($usage)[] | .metric as $m | ($m.limit | windowSeconds) as $seconds | select($seconds != null) | {
     provider: $m.provider,
     account: $m.account,
@@ -43,6 +44,7 @@ byKey($resets) as $resetAt
     accounts: (group_by(.account) | map(.[0].account as $a | ($p + "|" + $a) as $pa | {
       account: $a,
       available: (($availableOf[$pa] // 1) == 1),
+      paused: (($pausedOf[$pa] // 0) == 1),
       limits: (sort_by(.seconds) | map({label, seconds, percent, resetAt, status})),
       overage: (if $overUsedOf[$pa] == null then null else {
         used: $overUsedOf[$pa],

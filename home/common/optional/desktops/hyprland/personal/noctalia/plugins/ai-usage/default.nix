@@ -27,6 +27,7 @@
       over_used=$(query 'ai_proxy_overage_used_dollars')
       over_limit=$(query 'ai_proxy_overage_limit_dollars')
       available=$(query 'ai_proxy_account_available')
+      paused=$(query 'ai_proxy_account_paused')
       model_usage=$(query 'ai_proxy_model_quota_utilization_ratio')
       model_resets=$(query 'ai_proxy_model_quota_resets_at_timestamp_seconds')
 
@@ -37,6 +38,7 @@
         --argjson overUsed "$over_used" \
         --argjson overLimit "$over_limit" \
         --argjson available "$available" \
+        --argjson paused "$paused" \
         --argjson modelUsage "$model_usage" \
         --argjson modelResets "$model_resets" \
         -f ${./report.jq}

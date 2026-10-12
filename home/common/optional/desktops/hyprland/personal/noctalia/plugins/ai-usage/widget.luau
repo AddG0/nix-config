@@ -9,12 +9,16 @@ local AHEAD_WARNING = 15
 local report = noctalia.state.get("aiUsage")
 local errorMessage = noctalia.state.get("aiUsageError")
 
--- A provider's limit averaged across its available accounts; capacity returns at the soonest reset.
+-- The pacer resumes a paused account within the week, so it only counts toward weekly windows.
+local PAUSE_SECONDS = 7 * 24 * 3600
+
+-- A provider's limit averaged across the accounts that can use it; capacity returns at the soonest reset.
 local function window(provider, label)
   local used, expected, count, resetAt = 0, 0, 0, math.huge
   for _, account in ipairs(provider.accounts) do
     for _, limit in ipairs(account.limits) do
-      if account.available and limit.label == label then
+      local pooled = account.available or (account.paused and limit.seconds >= PAUSE_SECONDS)
+      if pooled and limit.label == label then
         used += limit.percent
         expected += math.max(0, math.min(100, (1 - (limit.resetAt - os.time()) / limit.seconds) * 100))
         count += 1
