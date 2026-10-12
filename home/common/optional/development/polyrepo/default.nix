@@ -10,6 +10,7 @@
   #   sesh     tmux session picker over multiple sources (Prefix+T)
   #   scratch  throwaway git-init'd projects under ghq's tree (Alt-G picks)
   #   glmr     glmr:// URI handler → open a GitLab MR for review in nvim
+  #   drydock  TUI dashboard of dirty/unpushed/behind state across every clone
   imports = [
     ./ghq.nix
     ./gwq.nix
@@ -18,6 +19,7 @@
     ./sesh.nix
     ./dev-stacks.nix
     ./glmr.nix
+    ./drydock.nix
   ];
 
   options.polyrepo = {

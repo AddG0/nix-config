@@ -9,83 +9,87 @@
   # Re-asserted on every rebuild, so Dolphin can't persist GUI reordering of the
   # Places sidebar. No plasma-manager option for it yet
   # (nix-community/plasma-manager#330), hence the hand-built XBEL.
-  places = [
-    {
-      title = "Home";
-      href = "file://${home}";
-      icon = "user-home";
-      system = true;
-    }
-    {
-      title = "Desktop";
-      href = "file://${home}/Desktop";
-      icon = "user-desktop";
-    }
-    {
-      title = "Documents";
-      href = "file://${home}/Documents";
-      icon = "folder-documents";
-    }
-    {
-      title = "Downloads";
-      href = "file://${home}/Downloads";
-      icon = "folder-download";
-    }
-    {
-      title = "Music";
-      href = "file://${home}/Music";
-      icon = "folder-music";
-    }
-    {
-      title = "Pictures";
-      href = "file://${home}/Pictures";
-      icon = "folder-pictures";
-    }
-    {
-      title = "Videos";
-      href = "file://${home}/Videos";
-      icon = "folder-videos";
-    }
-    {
-      title = "Templates";
-      href = "file://${home}/Templates";
-      icon = "folder-templates";
-    }
-    {
-      title = "Public";
-      href = "file://${home}/Public";
-      icon = "folder-public";
-    }
-    {
-      title = "Projects";
-      href = "file://${home}/Projects";
-      icon = "folder-development";
-    }
-    {
-      title = "Network";
-      href = "remote:/";
-      icon = "folder-network";
-      system = true;
-    }
-    {
-      title = "Trash";
-      href = "trash:/";
-      icon = "user-trash";
-      system = true;
-    }
-    {
-      title = "Recent Files";
-      href = "recentlyused:/files";
-      icon = "document-open-recent";
-      system = true;
-    }
-    {
-      title = "Recent Locations";
-      href = "recentlyused:/locations";
-      icon = "folder-open-recent";
-      system = true;
-    }
-  ];
+  places =
+    [
+      {
+        title = "Home";
+        href = "file://${home}";
+        icon = "user-home";
+        system = true;
+      }
+      {
+        title = "Desktop";
+        href = "file://${home}/Desktop";
+        icon = "user-desktop";
+      }
+      {
+        title = "Documents";
+        href = "file://${home}/Documents";
+        icon = "folder-documents";
+      }
+      {
+        title = "Downloads";
+        href = "file://${home}/Downloads";
+        icon = "folder-download";
+      }
+      {
+        title = "Music";
+        href = "file://${home}/Music";
+        icon = "folder-music";
+      }
+      {
+        title = "Pictures";
+        href = "file://${home}/Pictures";
+        icon = "folder-pictures";
+      }
+      {
+        title = "Videos";
+        href = "file://${home}/Videos";
+        icon = "folder-videos";
+      }
+      {
+        title = "Templates";
+        href = "file://${home}/Templates";
+        icon = "folder-templates";
+      }
+      {
+        title = "Public";
+        href = "file://${home}/Public";
+        icon = "folder-public";
+      }
+      {
+        title = "Projects";
+        href = "file://${home}/Projects";
+        icon = "folder-development";
+      }
+    ]
+    ++ config.dolphin.extraPlaces
+    ++ [
+      {
+        title = "Network";
+        href = "remote:/";
+        icon = "folder-network";
+        system = true;
+      }
+      {
+        title = "Trash";
+        href = "trash:/";
+        icon = "user-trash";
+        system = true;
+      }
+      {
+        title = "Recent Files";
+        href = "recentlyused:/files";
+        icon = "document-open-recent";
+        system = true;
+      }
+      {
+        title = "Recent Locations";
+        href = "recentlyused:/locations";
+        icon = "folder-open-recent";
+        system = true;
+      }
+    ];
 
   mkBookmark = i: p: ''
     <bookmark href="${p.href}">
@@ -166,43 +170,51 @@
     '';
   };
 in {
-  # 1) Make Dolphin your default file manager
-  xdg.mimeApps = {
-    defaultApplications = {
-      "inode/directory" = "org.kde.dolphin.desktop";
-      "application/zip" = "org.kde.ark.desktop";
-      "application/x-tar" = "org.kde.ark.desktop";
-      "application/x-bzip-compressed-tar" = "org.kde.ark.desktop";
-      "application/x-gzip" = "org.kde.ark.desktop";
-      "application/x-xz" = "org.kde.ark.desktop";
-      "application/x-7z-compressed" = "org.kde.ark.desktop";
-      "application/x-rar" = "org.kde.ark.desktop";
-    };
+  options.dolphin.extraPlaces = lib.mkOption {
+    type = lib.types.listOf lib.types.attrs;
+    default = [];
+    description = "Places sidebar entries ({title, href, icon}) inserted before Network.";
   };
 
-  # 2) Fix for empty "Open With" menu under Hyprland
-  xdg.configFile."menus/applications.menu".source = "${pkgs.kdePackages.plasma-workspace}/etc/xdg/menus/plasma-applications.menu";
+  config = {
+    # 1) Make Dolphin your default file manager
+    xdg.mimeApps = {
+      defaultApplications = {
+        "inode/directory" = "org.kde.dolphin.desktop";
+        "application/zip" = "org.kde.ark.desktop";
+        "application/x-tar" = "org.kde.ark.desktop";
+        "application/x-bzip-compressed-tar" = "org.kde.ark.desktop";
+        "application/x-gzip" = "org.kde.ark.desktop";
+        "application/x-xz" = "org.kde.ark.desktop";
+        "application/x-7z-compressed" = "org.kde.ark.desktop";
+        "application/x-rar" = "org.kde.ark.desktop";
+      };
+    };
 
-  # 3) Drop in our "Extract Here" service menu
-  xdg.configFile."kservices5/ServiceMenus/extracthere.desktop".text = extractHereDesktop;
+    # 2) Fix for empty "Open With" menu under Hyprland
+    xdg.configFile."menus/applications.menu".source = "${pkgs.kdePackages.plasma-workspace}/etc/xdg/menus/plasma-applications.menu";
 
-  xdg.configFile."kdeglobals".text = ''
-    [Icons]
-    Theme=${config.stylix.icons.dark}
-  '';
+    # 3) Drop in our "Extract Here" service menu
+    xdg.configFile."kservices5/ServiceMenus/extracthere.desktop".text = extractHereDesktop;
 
-  xdg.configFile."dolphinrc".text = ''
-    [UiSettings]
-    ColorScheme=*
+    xdg.configFile."kdeglobals".text = ''
+      [Icons]
+      Theme=${config.stylix.icons.dark}
+    '';
 
-    [PreviewSettings]
-    Plugins=appimagethumbnail,audiothumbnail,blenderthumbnail,comicbookthumbnail,cursorthumbnail,djvuthumbnail,ebookthumbnail,exrthumbnail,directorythumbnail,fontthumbnail,imagethumbnail,jpegthumbnail,kraorathumbnail,windowsexethumbnail,windowsimagethumbnail,mobithumbnail,opendocumentthumbnail,gsthumbnail,rawthumbnail,svgthumbnail,ffmpegthumbs
-    EnableRemoteFolderThumbnail=true
-    MaximumSize=21474836480
-    MaximumRemoteSize=21474836480
-  '';
+    xdg.configFile."dolphinrc".text = ''
+      [UiSettings]
+      ColorScheme=*
 
-  xdg.dataFile."user-places.xbel".text = userPlacesXbel;
+      [PreviewSettings]
+      Plugins=appimagethumbnail,audiothumbnail,blenderthumbnail,comicbookthumbnail,cursorthumbnail,djvuthumbnail,ebookthumbnail,exrthumbnail,directorythumbnail,fontthumbnail,imagethumbnail,jpegthumbnail,kraorathumbnail,windowsexethumbnail,windowsimagethumbnail,mobithumbnail,opendocumentthumbnail,gsthumbnail,rawthumbnail,svgthumbnail,ffmpegthumbs
+      EnableRemoteFolderThumbnail=true
+      MaximumSize=21474836480
+      MaximumRemoteSize=21474836480
+    '';
 
-  home.packages = [wrappedDolphin];
+    xdg.dataFile."user-places.xbel".text = userPlacesXbel;
+
+    home.packages = [wrappedDolphin];
+  };
 }

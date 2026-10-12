@@ -67,6 +67,8 @@ in {
     enableZshIntegration = true;
     package = claudeWrapped;
     defaultProfile = "default";
+    # Long sessions leak to 7G+ each; see anthropics/claude-code#4953.
+    memoryLimit.max = "6G";
 
     baseConfig = {
       # Rewrite #!/bin/bash shebangs; NixOS doesn't ship /bin/bash.

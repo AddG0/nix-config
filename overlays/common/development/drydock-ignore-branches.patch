@@ -1,0 +1,202 @@
+diff --git a/crates/drydock/src/column.rs b/crates/drydock/src/column.rs
+index ea86697..fa44618 100644
+--- a/crates/drydock/src/column.rs
++++ b/crates/drydock/src/column.rs
+@@ -514,6 +514,7 @@ mod tests {
+             committed_at: 1_000,
+             sha: "abc1234".into(),
+             subject: "s".into(),
++            ignored: false,
+         }
+     }
+
+diff --git a/crates/drydock/src/config.rs b/crates/drydock/src/config.rs
+index d19f784..6ce996a 100644
+--- a/crates/drydock/src/config.rs
++++ b/crates/drydock/src/config.rs
+@@ -123,6 +123,9 @@ pub struct StatusConfig {
+     /// an expiry a repo you edited but never staged reads as clean forever.
+     /// `0` rescans on every sweep; empty trusts the key indefinitely.
+     pub max_age: String,
++    /// Branch globs that never count as unpushed or behind, e.g. a `nightly`
++    /// that CI deletes and rebuilds, leaving every local copy diverged.
++    pub ignore_branches: Vec<String>,
+ }
+
+ impl Default for StatusConfig {
+@@ -132,6 +135,7 @@ impl Default for StatusConfig {
+             concurrency: None,
+             max_files: 200,
+             max_age: "1h".into(),
++            ignore_branches: Vec::new(),
+         }
+     }
+ }
+diff --git a/crates/drydock/src/filter.rs b/crates/drydock/src/filter.rs
+index 2ca24dc..8999777 100644
+--- a/crates/drydock/src/filter.rs
++++ b/crates/drydock/src/filter.rs
+@@ -541,6 +541,7 @@ mod tests {
+                 committed_at: 1_000,
+                 sha: "abc1234".into(),
+                 subject: "work".into(),
++                ignored: false,
+             }],
+             last_commit: None,
+             tags_orphaned: false,
+diff --git a/crates/drydock/src/git.rs b/crates/drydock/src/git.rs
+index f65a58c..764923a 100644
+--- a/crates/drydock/src/git.rs
++++ b/crates/drydock/src/git.rs
+@@ -255,6 +255,7 @@ pub async fn probe_refs(root: &Path, cfg: &Config) -> Result<RefsInfo> {
+     )
+     .await?;
+
++    let ignored_branches = compile_branch_globs(&cfg.status.ignore_branches);
+     let mut branches: Vec<BranchInfo> = Vec::new();
+     let mut tags: Vec<TagInfo> = Vec::new();
+     for line in raw.lines() {
+@@ -274,6 +275,7 @@ pub async fn probe_refs(root: &Path, cfg: &Config) -> Result<RefsInfo> {
+                 committed_at: fields[3].parse().unwrap_or(0),
+                 sha: fields[5].to_string(),
+                 subject: fields[6].to_string(),
++                ignored: ignored_branches.is_match(name),
+             });
+         } else if let Some(name) = refname.strip_prefix("refs/tags/") {
+             tags.push(TagInfo {
+@@ -549,6 +551,24 @@ async fn describe_since_tag(
+
+ /// Compile the release tag glob. `None` means "match everything", so an
+ /// unparseable pattern degrades to no filtering rather than to no tags.
++fn compile_branch_globs(patterns: &[String]) -> globset::GlobSet {
++    let mut builder = globset::GlobSetBuilder::new();
++    for pattern in patterns {
++        match globset::Glob::new(pattern) {
++            Ok(glob) => {
++                builder.add(glob);
++            }
++            Err(err) => {
++                tracing::warn!(%pattern, %err, "ignoring invalid status.ignore_branches entry");
++            }
++        }
++    }
++    builder.build().unwrap_or_else(|err| {
++        tracing::warn!(%err, "status.ignore_branches failed to compile; ignoring none");
++        globset::GlobSet::empty()
++    })
++}
++
+ fn compile_tag_pattern(pattern: &str) -> Option<globset::GlobMatcher> {
+     if pattern.is_empty() || pattern == "*" {
+         return None;
+@@ -1048,6 +1068,40 @@ mod tests {
+         );
+     }
+
++    // CI deletes and rebuilds `nightly`, so a local copy always looks ahead.
++    #[tokio::test]
++    async fn ignored_branches_stay_listed_but_never_count_as_unpushed() {
++        let dir = tempfile::tempdir().unwrap();
++        let upstream = dir.path().join("upstream.git");
++        let work = dir.path().join("work");
++        std::fs::create_dir_all(&work).unwrap();
++        git(dir.path(), &["init", "-q", "--bare", "upstream.git"]);
++        git(&work, &["init", "-q", "-b", "main", "."]);
++        git(&work, &["remote", "add", "origin", upstream.to_str().unwrap()]);
++        git(&work, &["commit", "-qm", "init", "--allow-empty"]);
++        for branch in ["nightly", "feature"] {
++            git(&work, &["branch", branch]);
++            git(&work, &["push", "-q", "-u", "origin", branch]);
++            git(&work, &["checkout", "-q", branch]);
++            git(&work, &["commit", "-qm", "local only", "--allow-empty"]);
++        }
++        git(&work, &["checkout", "-q", "nightly"]);
++
++        let mut cfg = Config::default();
++        cfg.status.ignore_branches = vec!["nightly".into()];
++        let refs = probe_refs(&work, &cfg).await.unwrap();
++
++        let nightly = refs.branches.iter().find(|b| b.name == "nightly").unwrap();
++        assert!(nightly.ignored, "nightly matches the glob");
++        assert_eq!(nightly.ahead, 1, "the branch itself still reports the truth");
++        assert_eq!(refs.unpushed(), 1, "only feature's commit counts");
++
++        let mut repo = RepoStatus::new(work.clone(), "g".into(), "r".into());
++        repo.refs = Some(refs);
++        assert_eq!(repo.branch_unpushed(), 0, "checked out but ignored");
++        assert!(repo.other_branches_unpushed(), "feature still flags the repo");
++    }
++
+     #[test]
+     fn track_parsing() {
+         assert_eq!(parse_track(""), (0, 0, false));
+diff --git a/crates/drydock/src/model.rs b/crates/drydock/src/model.rs
+index 688e22e..4c5869e 100644
+--- a/crates/drydock/src/model.rs
++++ b/crates/drydock/src/model.rs
+@@ -78,6 +78,9 @@ pub struct BranchInfo {
+     pub committed_at: i64,
+     pub sha: String,
+     pub subject: String,
++    /// Matches `status.ignore_branches`: still listed, never counted.
++    #[serde(default)]
++    pub ignored: bool,
+ }
+
+ #[derive(Clone, Debug, Serialize, Deserialize)]
+@@ -146,13 +149,13 @@ pub struct RefsInfo {
+ impl RefsInfo {
+     /// Total commits sitting on local branches that their upstreams don't have.
+     pub fn unpushed(&self) -> u32 {
+-        self.branches.iter().map(|b| b.ahead).sum()
++        self.branches.iter().filter(|b| !b.ignored).map(|b| b.ahead).sum()
+     }
+
+     /// Total commits upstreams have that we don't. Only as fresh as the last
+     /// fetch.
+     pub fn unpulled(&self) -> u32 {
+-        self.branches.iter().map(|b| b.behind).sum()
++        self.branches.iter().filter(|b| !b.ignored).map(|b| b.behind).sum()
+     }
+
+     pub fn current_branch(&self) -> Option<&BranchInfo> {
+@@ -618,6 +621,7 @@ impl RepoStatus {
+         self.refs
+             .as_ref()
+             .and_then(|r| r.current_branch())
++            .filter(|b| !b.ignored)
+             .map(|b| b.ahead)
+             .unwrap_or(0)
+     }
+@@ -629,6 +633,7 @@ impl RepoStatus {
+         self.refs
+             .as_ref()
+             .and_then(|r| r.current_branch())
++            .filter(|b| !b.ignored)
+             .map(|b| b.behind)
+             .unwrap_or(0)
+     }
+diff --git a/crates/drydock/src/report.rs b/crates/drydock/src/report.rs
+index 9192ff7..cbf980a 100644
+--- a/crates/drydock/src/report.rs
++++ b/crates/drydock/src/report.rs
+@@ -734,6 +734,7 @@ mod tests {
+             committed_at: 1_000,
+             sha: "abc1234".into(),
+             subject: "s".into(),
++            ignored: false,
+         }
+     }
+ }
+diff --git a/crates/drydock/src/tui/mod.rs b/crates/drydock/src/tui/mod.rs
+index 76b4713..e5d70f5 100644
+--- a/crates/drydock/src/tui/mod.rs
++++ b/crates/drydock/src/tui/mod.rs
+@@ -1861,6 +1861,7 @@ mod tests {
+                 committed_at: 1_000,
+                 sha: "abc1234".into(),
+                 subject: "Update the changelog".into(),
++                ignored: false,
+             }],
+             last_commit: None,
+             stashes: 0,

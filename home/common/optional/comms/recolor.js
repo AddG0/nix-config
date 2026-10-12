@@ -91,16 +91,17 @@
   const probe = document.createElement("div");
   probe.hidden = true;
   const fills = new Map();
-  // Accent a rule paints solid behind its text, with var()s resolved against the live document.
-  const accentFill = (raw) => {
+  // Accent a rule paints solid behind its text; var() fills re-resolve each render, as the theme can load after them.
+  const accentFill = (raw, live) => {
     if (!raw || /gradient|url\(/i.test(raw)) return null;
-    if (fills.has(raw)) return fills.get(raw);
+    const cache = /var\(/i.test(raw) ? live : fills;
+    if (cache.has(raw)) return cache.get(raw);
     probe.style.backgroundColor = "";
     probe.style.backgroundColor = raw;
     const rgba = parse(getComputedStyle(probe).backgroundColor);
     const m = rgba && rgba[3] >= 0.9 ? map(rgba) : null;
     const hit = m && m.startsWith("#") ? m.slice(0, 7) : null;
-    fills.set(raw, hit);
+    cache.set(raw, hit);
     return hit;
   };
   const PROPS = [
@@ -156,7 +157,7 @@
     return out;
   };
   const done = new WeakSet();
-  const chunks = [];
+  const entries = [];
   const mirror = (rules, wrap) => {
     for (const r of rules) {
       if (r.conditionText !== undefined && r.cssRules) {
@@ -183,23 +184,35 @@
           (!p.startsWith("--") || /var\(/.test(raw) ? raw : null);
         if (out) decls.push(`${p}: ${out} !important;`);
       }
-      const fill = accentFill(
-        (
-          r.style.getPropertyValue("background-color") ||
-          r.style.getPropertyValue("background")
-        ).trim(),
-      );
       const fg = r.style.getPropertyValue("color").trim();
       const hidden = fg && !/var\(/.test(fg) && (parse(fg)?.[3] ?? 1) < 0.5;
-      if (fill && !hidden) {
-        const i = decls.findIndex((d) => d.startsWith("color:"));
-        if (i >= 0) decls.splice(i, 1);
-        decls.push(`color: ${onFill(fill)} !important;`);
-      }
-      if (!decls.length) continue;
-      const rule = `${r.selectorText} { ${decls.join(" ")} }`;
-      chunks.push(wrap ? `${wrap} { ${rule} }` : rule);
+      const fill = hidden
+        ? ""
+        : (
+            r.style.getPropertyValue("background-color") ||
+            r.style.getPropertyValue("background")
+          ).trim();
+      if (decls.length || fill)
+        entries.push({ selector: r.selectorText, wrap, decls, fill });
     }
+  };
+  const render = () => {
+    const live = new Map();
+    return entries
+      .map(({ selector, wrap, decls, fill }) => {
+        const hit = accentFill(fill, live);
+        const out = hit
+          ? [
+              ...decls.filter((d) => !d.startsWith("color:")),
+              `color: ${onFill(hit)} !important;`,
+            ]
+          : decls;
+        if (!out.length) return null;
+        const rule = `${selector} { ${out.join(" ")} }`;
+        return wrap ? `${wrap} { ${rule} }` : rule;
+      })
+      .filter(Boolean)
+      .join("\n");
   };
   const scan = () => {
     let added = false;
@@ -215,7 +228,7 @@
       mirror(rules, null);
       added = true;
     }
-    if (added) apply(chunks.join("\n"));
+    if (added) apply(render());
   };
   const start = () => {
     document.body.append(probe);

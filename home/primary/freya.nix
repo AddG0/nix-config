@@ -64,7 +64,13 @@
     (with lib.custom.optional.primary.secrets; [onepassword-ssh])
   ];
 
-  home.file."Videos/Movies".source = config.lib.file.mkOutOfStoreSymlink "/mnt/videos";
+  dolphin.extraPlaces = [
+    {
+      title = "NAS Videos";
+      href = "smb://10.61.60.49/videos";
+      icon = "folder-videos";
+    }
+  ];
 
   # The bar defaults to always-on and space-reserving, which is what we want
   # on external (non-OLED) monitors. OLED panels override it to auto-hide,

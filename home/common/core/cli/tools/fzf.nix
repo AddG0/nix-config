@@ -13,19 +13,22 @@ in {
     # Let Atuin own Ctrl-R in zsh; fzf keeps its other widgets.
     historyWidget.zsh.command = "";
     # Colors derived from the active stylix base16 scheme so they track theme.
-    colors = lib.mkDefault {
-      "bg" = c.base00;
-      "bg+" = c.base01;
-      "fg" = c.base05;
-      "fg+" = c.base05;
-      "hl" = c.base08;
-      "hl+" = c.base08;
-      "header" = c.base08;
-      "info" = c.base0E;
-      "prompt" = c.base0E;
-      "pointer" = c.base06;
-      "marker" = c.base06;
-      "spinner" = c.base06;
-    };
+    colors = lib.mkMerge [
+      # -1 = terminal default, so ghostty's translucency shows through; beats stylix's solid base00.
+      {"bg" = lib.mkForce "-1";}
+      (lib.mkDefault {
+        "bg+" = c.base01;
+        "fg" = c.base05;
+        "fg+" = c.base05;
+        "hl" = c.base08;
+        "hl+" = c.base08;
+        "header" = c.base08;
+        "info" = c.base0E;
+        "prompt" = c.base0E;
+        "pointer" = c.base06;
+        "marker" = c.base06;
+        "spinner" = c.base06;
+      })
+    ];
   };
 }

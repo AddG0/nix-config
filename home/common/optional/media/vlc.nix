@@ -3,6 +3,11 @@
     vlc
   ];
 
+  # VLC's smb:// is SMBv1-only (libdsm); without the claim KIO hands it a kio-fuse path.
+  xdg.dataFile."applications/vlc.desktop".source = pkgs.runCommand "vlc.desktop" {} ''
+    sed '/^X-KDE-Protocols=/s/,smb//' ${pkgs.vlc}/share/applications/vlc.desktop > $out
+  '';
+
   xdg.mimeApps = {
     defaultApplications = {
       "video/x-msvideo" = ["vlc.desktop"];

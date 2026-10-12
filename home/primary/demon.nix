@@ -89,6 +89,14 @@
 
   home.file."Videos/Movies".source = config.lib.file.mkOutOfStoreSymlink "/mnt/videos";
 
+  dolphin.extraPlaces = [
+    {
+      title = "NAS Videos";
+      href = "smb://10.61.60.49/videos";
+      icon = "folder-videos";
+    }
+  ];
+
   services.gpu-screen-recorder = {
     # Portal mode captures via xdg-desktop-portal, converting HDR to SDR.
     # Direct capture with bitdepth 10 + HDR produces oversaturated colors.

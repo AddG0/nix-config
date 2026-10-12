@@ -81,7 +81,18 @@
       fi
     ''}
 
-    exec ${cfg.package}/bin/claude "''${SESSION_ARGS[@]}" "''${MCP_ARGS[@]}" "''${PLUGIN_ARGS[@]}" "''${ARGS[@]}"
+    SCOPE=()
+    ${lib.optionalString (pkgs.stdenv.hostPlatform.isLinux && cfg.memoryLimit != null) ''
+      if [[ -S "''${XDG_RUNTIME_DIR:-/run/user/$UID}/bus" ]]; then
+        SCOPE=(${pkgs.systemd}/bin/systemd-run --user --scope --quiet --collect
+          ${lib.optionalString (cfg.memoryLimit.high != null) "-p MemoryHigh=${cfg.memoryLimit.high}"}
+          -p MemoryMax=${cfg.memoryLimit.max}
+          -p MemorySwapMax=${cfg.memoryLimit.swapMax}
+          --)
+      fi
+    ''}
+
+    exec "''${SCOPE[@]}" ${cfg.package}/bin/claude "''${SESSION_ARGS[@]}" "''${MCP_ARGS[@]}" "''${PLUGIN_ARGS[@]}" "''${ARGS[@]}"
   '';
 in {
   inherit pluginDirsCase wrapperScript;

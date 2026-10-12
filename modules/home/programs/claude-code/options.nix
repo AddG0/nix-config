@@ -199,6 +199,40 @@ in {
       description = "Settings applied to a session only when a readiness command succeeds.";
     };
 
+    memoryLimit = lib.mkOption {
+      type = lib.types.nullOr (lib.types.submodule {
+        options = {
+          high = lib.mkOption {
+            type = lib.types.nullOr lib.types.str;
+            default = null;
+            example = "4G";
+            description = ''
+              MemoryHigh: the session is throttled above this. A leak then stalls
+              the session here rather than reaching {option}`max` and being killed.
+            '';
+          };
+          max = lib.mkOption {
+            type = lib.types.str;
+            example = "6G";
+            description = "MemoryMax: the session is OOM-killed above this.";
+          };
+          swapMax = lib.mkOption {
+            type = lib.types.str;
+            default = "1G";
+            description = "MemorySwapMax: swap the session may use before it is OOM-killed.";
+          };
+        };
+      });
+      default = null;
+      description = ''
+        Run each `claude` session in its own transient systemd user scope with
+        these cgroup memory limits, so a leaking session is killed on its own
+        instead of driving the whole machine into swap. MCP servers and other
+        children share the session's budget. Ignored where no user systemd bus
+        is reachable. null runs sessions unconfined.
+      '';
+    };
+
     defaultProfile = lib.mkOption {
       type = lib.types.str;
       default = "default";

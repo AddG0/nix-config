@@ -23,7 +23,6 @@
     ./razer-battery-care.nix
     ./audio.nix
     # ./ai.nix
-    ./media.nix
 
     (lib.custom.useSuite lib.custom.suites.hyprland)
     (lib.custom.useSuite lib.custom.suites.docker)
