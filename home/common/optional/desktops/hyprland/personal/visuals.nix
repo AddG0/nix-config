@@ -1,7 +1,7 @@
 # Hyprland visual config — Material Design 3.
 #
 # Design pillars:
-#   1. Depth from tonal elevation + shadow, never translucency or blur.
+#   1. Depth from tonal elevation + shadow; blur is reserved for the terminal.
 #   2. Circular corners — rounding_power 2.0; M3 never draws a superellipse.
 #   3. State is carried by the primary accent, not a neutral tint.
 #   4. Enter decelerates, exit accelerates. The asymmetry is the spec.
@@ -77,8 +77,17 @@ in {
       # M3 scrim behind a modal surface is 32% black.
       dim_special = 0.32;
 
-      # Also makes any `blur on` layerrule a no-op, hence none are declared.
-      blur.enabled = false;
+      # Only translucent windows blur, and stylix leaves just the terminal under 1.0.
+      blur = {
+        enabled = true;
+        size = 10;
+        passes = 4;
+        noise = 0.02;
+        contrast = 0.9;
+        brightness = 0.8;
+        vibrancy = 0.15;
+        popups = false;
+      };
     };
 
     # hy3 tab-group styling (Super+G toggles a tabbed group), shaped as an M3

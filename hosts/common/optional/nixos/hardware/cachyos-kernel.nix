@@ -26,6 +26,12 @@
 }: {
   boot.kernelPackages = lib.mkDefault pkgs.cachyosKernels.linuxPackages-cachyos-bore;
 
+  # Prebuilt kernels for overlays.pinned; a personal attic server, trusted on purpose.
+  nix.settings = {
+    substituters = ["https://attic.xuyh0120.win/lantian"];
+    trusted-public-keys = ["lantian:EeAUQ+W+6r7EtwnmYjeVwx5kOGEBpjlBfPlzGlTNvHc="];
+  };
+
   # BORE isn't topology- or LLC-aware (hybrid P/E, dual-CCD V-cache); scx_lavd
   # keeps latency-critical game threads on the fast cores.
   #

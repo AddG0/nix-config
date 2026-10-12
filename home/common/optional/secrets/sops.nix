@@ -18,8 +18,9 @@
 
     secrets."github/token".sopsFile = "${inputs.nix-secrets}/global/api-keys/development.yaml";
 
-    templates."nix-access-tokens.conf".content = ''
-      access-tokens = github.com=${config.sops.placeholder."github/token"}
+    # A token in access-tokens shows up in `nix config show`; netrc keeps it to a path.
+    templates."nix-netrc".content = ''
+      machine api.github.com login x-access-token password ${config.sops.placeholder."github/token"}
     '';
   };
 
@@ -39,9 +40,8 @@
     ''
   ));
 
-  # interactive `nix` runs as this user; pull the token in via the sops-rendered fragment
   nix.extraOptions = ''
-    !include ${config.sops.templates."nix-access-tokens.conf".path}
+    netrc-file = ${config.sops.templates."nix-netrc".path}
   '';
 
   home.packages = with pkgs; [

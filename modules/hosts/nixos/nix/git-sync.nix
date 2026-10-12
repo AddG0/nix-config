@@ -112,6 +112,17 @@ in {
       description = "Shell commands to run after successful rebuild";
     };
 
+    allowedSigners = mkOption {
+      type = types.listOf types.str;
+      default = [];
+      description = ''
+        SSH public keys allowed to sign the deployed commit. When non-empty, the
+        rebuild refuses any locked revision not signed by one of them, so pushing
+        to the remote alone is not enough to get root on the host.
+      '';
+      example = ["ssh-ed25519 AAAA..."];
+    };
+
     sshKey = mkOption {
       type = types.nullOr types.path;
       default = null;
@@ -154,6 +165,9 @@ in {
     systemd.services.nix-remote-rebuild = let
       flake = "${cfg.flakeRef}#${config.networking.hostName}";
       lastBuiltFile = "/var/lib/nix-remote-rebuild/last-built-narhash";
+      allowedSignersFile = pkgs.writeText "git-sync-allowed-signers" (
+        concatMapStrings (key: "git-sync namespaces=\"git\" ${key}\n") cfg.allowedSigners
+      );
       check-newer-script = pkgs.writeShellApplication {
         name = "nix-remote-rebuild-check-newer";
         runtimeInputs = with pkgs; [nix jq coreutils git openssh];
@@ -251,6 +265,32 @@ in {
           METADATA=$(nix flake metadata "${cfg.flakeRef}" --refresh --json)
           LOCKED_URL=$(jq -r '.url' <<<"$METADATA")
           LOCKED_NARHASH=$(jq -r '.locked.narHash' <<<"$METADATA")
+
+          ${optionalString (cfg.allowedSigners != []) ''
+            LOCKED_REV=$(jq -r '.locked.rev // empty' <<<"$METADATA")
+            case "$(jq -r '.locked.type' <<<"$METADATA")" in
+              github) GIT_URL="https://github.com/$(jq -r '.locked.owner + "/" + .locked.repo' <<<"$METADATA").git" ;;
+              git) GIT_URL=$(jq -r '.locked.url' <<<"$METADATA") ;;
+              *) GIT_URL="" ;;
+            esac
+            if [ -z "$LOCKED_REV" ] || [ -z "$GIT_URL" ]; then
+              log "ERROR: cannot verify the signature of $LOCKED_URL (no git revision); refusing to rebuild."
+              notify -u critical "NixOS Remote Rebuild" "Refused unverifiable flake $LOCKED_URL"
+              exit 1
+            fi
+
+            VERIFY_DIR=$(mktemp -d)
+            git -C "$VERIFY_DIR" init -q
+            if ! git -C "$VERIFY_DIR" fetch -q --depth=1 "$GIT_URL" "$LOCKED_REV" ||
+              ! git -C "$VERIFY_DIR" -c gpg.ssh.allowedSignersFile=${allowedSignersFile} verify-commit "$LOCKED_REV"; then
+              rm -rf "$VERIFY_DIR"
+              log "ERROR: $LOCKED_REV from $GIT_URL is not signed by an allowed key; refusing to rebuild."
+              notify -u critical "NixOS Remote Rebuild" "Refused unsigned commit $LOCKED_REV"
+              exit 1
+            fi
+            rm -rf "$VERIFY_DIR"
+            log "Verified signature on $LOCKED_REV."
+          ''}
 
           log "Rebuilding from $LOCKED_URL#${config.networking.hostName}..."
           notify -u normal "NixOS Remote Rebuild" "Rebuilding from ${flake}..."

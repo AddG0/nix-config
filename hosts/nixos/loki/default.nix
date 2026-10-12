@@ -36,7 +36,6 @@
       kubernetes.clusters.asgard
       # n8n # n8n
       nginx # nginx
-      nomad.clusters.midgard.client
       openssh # allow remote SSH access
       tailscale
     ])

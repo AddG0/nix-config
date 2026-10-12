@@ -36,7 +36,6 @@
       # home-assistant-oci
       kubernetes.clusters.asgard
       # nginx # nginx
-      nomad.clusters.midgard.server
       openssh # allow remote SSH access
       tailscale
     ])

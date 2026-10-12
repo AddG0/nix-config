@@ -30,8 +30,8 @@
   # already on PATH should keep winning.
   fileManagerEntry = "  { id: \"file-manager\", label: \"File Manager\", commands: null, launchStyle: \"direct-path\" },";
 
-  lucideImport = "import { ChevronDownIcon, FolderClosedIcon } from \"lucide-react\";";
-  lucideImportWithTerminal = "import { ChevronDownIcon, FolderClosedIcon, TerminalIcon } from \"lucide-react\";";
+  lucideImport = "import { ChevronDownIcon, FolderClosedIcon, SquareArrowOutUpRightIcon } from \"lucide-react\";";
+  lucideImportWithTerminal = "import { ChevronDownIcon, FolderClosedIcon, SquareArrowOutUpRightIcon, TerminalIcon } from \"lucide-react\";";
 
   # Labels come from the contracts EDITORS list since 0.0.38, so the picker entry
   # needs none of its own.

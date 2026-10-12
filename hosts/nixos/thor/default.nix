@@ -34,7 +34,6 @@
     (with lib.custom.optional.hosts.nixos; [nix-secrets-deploy-key static-networking])
     (with lib.custom.optional.hosts.nixos.services; [
       kubernetes.clusters.asgard
-      nomad.clusters.midgard.client
       openssh # allow remote SSH access
     ])
   ];

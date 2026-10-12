@@ -23,6 +23,8 @@ prev.lib.optionalAttrs (prev ? wayscriber-unwrapped) {
         "canvas_export::pdf::tests::pdf_export_honours_the_text_halo_setting"
         "canvas_export::pdf::tests::rendered_pdf_reports_exact_page_count_and_ordered_sizes"
         "canvas_export::pdf::tests::worker_exports_three_page_pdf_from_unicode_metadata"
+        "canvas_export::board_grid_tests::board_grid_pdf_stays_vector_without_erasers_and_leaves_margins_plain"
+        "canvas_export::cache_tests::pdf_pages_keep_distinct_blurred_backdrops_when_rasterized"
         "capture::portal::transport_tests::portal_transport_bus_disconnect_is_a_terminal_failure"
         "capture::portal::transport_tests::portal_transport_cancellation_remains_distinct_from_failure"
         "capture::portal::transport_tests::portal_transport_compatibility_path_installs_a_new_subscription"

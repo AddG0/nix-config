@@ -27,7 +27,6 @@
       ide.vscode-server
       jprofiler
       jupyter-notebook
-      nomad
       postman
       terraform
       tilt

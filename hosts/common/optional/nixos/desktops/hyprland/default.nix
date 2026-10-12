@@ -21,6 +21,12 @@ in {
     package32 = hyprlandPkgs.pkgsi686Linux.mesa;
   };
 
+  # Hyprland comes from upstream's flake (via hy3), which this cache builds.
+  nix.settings = {
+    substituters = ["https://hyprland.cachix.org"];
+    trusted-public-keys = ["hyprland.cachix.org-1:a7pgxzMz7+chwVL3/pzj6jIBMioiJM7ypFP8PwtkuGc="];
+  };
+
   services.greetd.desktops.hyprland = "uwsm start hyprland-uwsm.desktop";
 
   services.dbus.enable = true;
