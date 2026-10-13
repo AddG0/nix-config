@@ -2,8 +2,22 @@
   cfg,
   lib,
 }: let
+  # Lists append rather than replace: hooks and permissions come from several addons at once.
+  deepMerge = a: b:
+    if lib.isAttrs a && lib.isAttrs b
+    then
+      a
+      // lib.mapAttrs (k: v:
+        if a ? ${k}
+        then deepMerge a.${k} v
+        else v)
+      b
+    else if lib.isList a && lib.isList b
+    then lib.unique (a ++ b)
+    else b;
+
   recursiveMerge = field: base: overlay:
-    lib.recursiveUpdate (base.${field} or {}) (overlay.${field} or {});
+    deepMerge (base.${field} or {}) (overlay.${field} or {});
 
   shallowMerge = field: base: overlay:
     (base.${field} or {}) // (overlay.${field} or {});

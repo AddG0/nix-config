@@ -1,6 +1,6 @@
 ---
 name: code-assistant-configurator
-description: Design, review, generate, and improve coding-assistant configurations and agent systems. Use when the user asks to create or change code-assistant rules, project instructions, Agent Skills, Claude Code skills or subagents, AGENTS.md-style guidance, commands, hooks, permissions, MCP/tool integrations, memory/state, verification loops, evals, or portable multi-platform agent configs for Claude Code, OpenAI/ChatGPT/Codex or Agents SDK, Cursor, GitHub Copilot, Gemini CLI, Windsurf, Cline/Roo Code, Aider, or similar coding assistants. Also use to audit an existing configuration for triggering, context, security, reliability, or maintainability problems.
+description: "Designs, reviews and improves coding-assistant config: rules, CLAUDE.md, skills, subagents, hooks, permissions, MCP and evals. Use when creating or changing assistant config, or when it mis-triggers."
 ---
 
 # Code Assistant Configurator

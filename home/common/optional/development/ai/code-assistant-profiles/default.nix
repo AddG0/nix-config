@@ -69,12 +69,10 @@ in {
         nix
         context7
         code-review
-        code-comments
-        commit-commands
+        code-standards
         documentation
         architecture
         design-notes
-        ponytail
         tmux-dev
         jira
         crash-capture
@@ -84,14 +82,15 @@ in {
         blind-choices
         code-assistant-configurator
         handoff
-        work
         mattpocock-skills
       ];
 
-      skills."frontend-design" = lib.custom.ai.fromClaudeSkillDir {
-        inherit pkgs;
-        source = "${inputs.claude-code}/plugins/frontend-design/skills/frontend-design";
-      };
+      skills."frontend-design" =
+        lib.custom.ai.fromClaudeSkillDir {
+          inherit pkgs;
+          source = "${inputs.claude-code}/plugins/frontend-design/skills/frontend-design";
+        }
+        // {description = "Guides distinctive visual design when building or reshaping UI: aesthetic direction, typography, and choices that avoid templated defaults. Use when designing how a page, component or app looks.";};
 
       commands = {
         "fix-tests".content.source = ./commands/fix-tests.md;
@@ -104,13 +103,6 @@ in {
       };
 
       rules = {
-        nix.content.text = ''
-          Nix conventions:
-          - Flakes only — no `nix-env`, `nix-channel`, or `nix-shell`
-          - For ad-hoc tooling, use `nix shell` or `nix run`
-          - Minimal function signatures — only params actually used
-        '';
-
         investigation.content.text = ''
           Read-only diagnostics — `git log`/`diff`, `kubectl get`/`describe`/`logs`, `curl`, `nix eval` — are never risky, so run them without asking. When a check surfaces a problem, chase it to root cause instead of reporting status and asking whether to look into it. "Check it" means check and diagnose; asking twice means go deeper, not print the same output again.
 
@@ -120,7 +112,7 @@ in {
         repos.content.text = ''
           Repo layout — resolve paths yourself instead of asking where a repo is.
 
-          - ghq root is `~/Projects/code`; clones sit at `<host>/<owner…>/<repo>`, with GitLab subgroups fully nested (`gitlab.com/ShipperHQ/shipperhq-ai/Apps/NewDashboard`).
+          - ghq root is `~/Projects/code`; clones sit at `<host>/<owner…>/<repo>`, with GitLab subgroups fully nested (`gitlab.com/<group>/<subgroup…>/<repo>`).
           - `ghq list <substring>` finds a repo among ~360 clones; `-p` prints absolute paths, `-e` matches exactly. `ghq get <url|owner/repo>` clones a missing one.
           - Work clones sit under `gitlab.com/ShipperHQ/…`, but their stored remote is `git@gitlab-work:…` — an ssh alias, not a resolvable hostname. Derive web and clone URLs from the ghq path, or map the alias back to `gitlab.com`; `insteadOf` rewrites only at transport time, so the alias stays in `.git/config`.
           - Worktrees are siblings of their clone with a `--<branch>` suffix and show up in `ghq list`; `gwq list` shows only worktrees.

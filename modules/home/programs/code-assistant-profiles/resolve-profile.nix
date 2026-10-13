@@ -127,7 +127,11 @@
         else parsed.attrs.name or null;
       invocation = {
         user = skill.invocation.user && (fmInvocation.user or "true") != "false";
-        model = skill.invocation.model && (fmInvocation.model or "true") != "false";
+        model =
+          skill.invocation.model
+          && (fmInvocation.model or "true") != "false"
+          # Claude Code's own spelling, which vendored skills use.
+          && (parsed.attrs."disable-model-invocation" or "false") != "true";
       };
     };
   };

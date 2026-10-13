@@ -62,6 +62,13 @@
     model = parsed.attrs.model or null;
     version = parsed.attrs.version or null;
     prompt.text = parsed.body;
+    # Only declared keys, so a skill that says nothing keeps the option defaults.
+    invocation = let
+      fm = parsed.attrs.invocation or {};
+      manual = (parsed.attrs."disable-model-invocation" or "false") == "true";
+    in
+      lib.optionalAttrs (fm ? user) {user = fm.user != "false";}
+      // lib.optionalAttrs (fm ? model || manual) {model = !manual && (fm.model or "true") != "false";};
   };
 
   fromClaudeSkillDir = {

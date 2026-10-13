@@ -8,11 +8,9 @@ decision-matrix	Compare Postgres, SQLite and DuckDB against weighted criteria an
 archify	Draw an architecture diagram of our request flow.
 code-assistant-configurator	Audit my CLAUDE.md and skills for descriptions that mis-trigger.
 review-local-changes	Review my uncommitted changes before I commit them.
-!commit	Commit these changes.
 !review-pr	Is PR 42 ready to merge?
 none	What does git rebase --onto do?
 none	Explain what a monad is in two sentences.
-!software-architecture	Record why we chose Postgres over DuckDB as an ADR.
 diagnosing-bugs	The export endpoint started returning 500s after yesterday's deploy. Debug it.
 !diagnosing-bugs	Add a CSV export button to the reports page.
 grilling	Grill me on this plan to move our queue from Redis to Postgres.
@@ -29,4 +27,24 @@ review-branch	Review this branch against develop.
 !review-branch	Review my uncommitted changes before I commit.
 write-for-people	Draft a Slack message to the team explaining why the deploy is delayed.
 !write-for-people	Add a doc comment to this function.
-write-for-people	Write a review note for the null check bug on line 42 of rates.ts.
+write-for-people	Write a review note for the null check bug on line 42 of parser.ts.
+# domain-language-steward: positives need naming judgment; negatives give the name or are not about naming.
+domain-language-steward	We need this code to be self-documenting, and improve its connascence.
+domain-language-steward	store.delete(owner(), UUID.fromString(req.getId())); does this self-document?
+domain-language-steward	What's a better name for this class? It both validates input and caches results.
+domain-language-steward	The code says customer, client and account for the same thing. Clean up the domain language.
+!domain-language-steward	Rename the function getData to fetchData everywhere.
+!domain-language-steward	That edit left a five-line comment above the loop. Trim it to one line.
+!domain-language-steward	Why do we run three cron jobs that do the same thing?
+domain-language-steward	This function is hard to follow; the names do not say what it does.
+domain-language-steward	We're designing scheduled exports. Before we build anything, what should we call its concepts and operations?
+!domain-language-steward	This 400-line factory builds one object. Simplify it.
+# One positive per skill whose description was shortened without any case to catch a regression.
+security-threat-model	Threat-model the login and password-reset flow for a web app.
+information-architecture	The docs site is hard to navigate. Reorganize its sections and navigation so people can find things.
+frontend-design	Design a landing page for a note-taking app that does not look like a generic template.
+# codebase-design: positive is its own ground; the domain-language-steward positives above double as its overlap guard.
+codebase-design	This module's interface leaks its storage details to every caller. Where should the seam go?
+# architecture-standards: was preload-only; now reachable from the main thread.
+architecture-standards	I'm designing a new notifications module. How should it be structured and where should its boundaries be?
+!architecture-standards	What does this regex match?

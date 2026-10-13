@@ -2,7 +2,7 @@ Durable engineering documentation lives under `docs/`, at two scopes. Read what 
 
 Project scope — describes the repo, independent of any current task:
 
-- `docs/adr/` — architecture decision records, MADR 3.0, the dominant artifact. Check existing files for the numbering sequence and which naming form that repo uses (`0001-slug.md` or `ADR-001-slug.md`).
+- `docs/adr/` — architecture decision records, the dominant artifact: MADR 3.0 in a repo without any, otherwise the section form its existing ADRs use. Check existing files for the numbering sequence and which naming form that repo uses (`0001-slug.md` or `ADR-001-slug.md`).
 - `docs/steering/` — `product.md`, `tech.md`, `structure.md`. Read these before design or architecture work when they exist; `/steering-setup` creates them.
 
 An ADR records **why**: the decision, and the alternatives rejected with the reason each lost. Write it when the decision settles — just before building — not as upfront planning. What is being built and how it will be verified lives in the JIRA ticket the branch is named for, so do not restate the ticket as a requirements document in the repo.

@@ -53,6 +53,8 @@ Never put a question to the user that the Phase 0 research answers — tech stac
 
 ## Output
 
+Before writing it, settle the domain terms with the `domain-language-steward` skill (design vocabulary mode), and use them consistently in the summary.
+
 Synthesize everything (your research + user answers) into a structured document:
 
 ```markdown

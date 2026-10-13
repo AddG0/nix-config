@@ -47,11 +47,11 @@
         "shq-env": "shq-env"
       },
       "locked": {
-        "lastModified": 1791320548,
-        "narHash": "sha256-c9IYJwoL1589Ggpc0hQ7KTLsbAJHbngkV4Tz3k6q2/M=",
+        "lastModified": 1791853074,
+        "narHash": "sha256-nGqsAQvNzlsWCH9gTkhu+XowtfZ5KkNhnVnCLXA+liE=",
         "ref": "refs/heads/main",
-        "rev": "40badfd11924de17e364b9118ff74d3186992066",
-        "revCount": 192,
+        "rev": "6304759fe35878d611ecda6abc23df29666447d8",
+        "revCount": 193,
         "type": "git",
         "url": "ssh://git@github.com/addg0/ai-toolkit.git"
       },
@@ -2524,11 +2524,11 @@
         "pre-commit-hooks": "pre-commit-hooks_3"
       },
       "locked": {
-        "lastModified": 1791827894,
-        "narHash": "sha256-lgaBM3s4e80G77NaLp9niWYSwB0oE/H2CBdmfi5bLqw=",
+        "lastModified": 1791911681,
+        "narHash": "sha256-mALd5hEUShosVRD6bRQwGYn7cNeTLPEeiwhfpL/XxOw=",
         "ref": "main",
-        "rev": "95241f87831897ee6facf3750244044c514f919d",
-        "revCount": 367,
+        "rev": "4c9c4a92c9acef3cdf7e854e15bde11112f84bdb",
+        "revCount": 368,
         "type": "git",
         "url": "ssh://git@github.com/addg0/nix-secrets.git"
       },
@@ -3098,22 +3098,6 @@
         "url": "ssh://git@gitlab.com/ShipperHQ/shipperhq-ai/Infrastructure/platform/nix.git"
       }
     },
-    "ponytail": {
-      "flake": false,
-      "locked": {
-        "lastModified": 1791605992,
-        "narHash": "sha256-S2gHV4/c8XPDqpf0jS8Q5r22//6skZjITf2T9CVhVRE=",
-        "owner": "DietrichGebert",
-        "repo": "ponytail",
-        "rev": "9b58c1ffb790c075ca32e70a89cf1d80588f4abf",
-        "type": "github"
-      },
-      "original": {
-        "owner": "DietrichGebert",
-        "repo": "ponytail",
-        "type": "github"
-      }
-    },
     "pre-commit": {
       "inputs": {
         "flake-compat": "flake-compat_9",
@@ -3315,7 +3299,6 @@
         "nur": "nur",
         "nur-ataraxiasjel": "nur-ataraxiasjel",
         "plasma-manager": "plasma-manager",
-        "ponytail": "ponytail",
         "pre-commit-hooks": "pre-commit-hooks_4",
         "pterodactyl-addons": "pterodactyl-addons",
         "queued-build-hook": "queued-build-hook",

@@ -122,6 +122,9 @@ local function paceBar(actual, expect, color)
 end
 
 local function accountStatus(account, limit)
+  if account.draining then
+    return { "Draining", "primary" }
+  end
   if account.paused then
     return { "Paused", "secondary" }
   end

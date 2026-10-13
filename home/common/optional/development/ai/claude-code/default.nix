@@ -138,6 +138,14 @@ in {
       };
 
       settings = {
+        # Manual skills are hidden from Claude, so nothing would ever suggest them; list them for the user.
+        companyAnnouncements = let
+          manual = lib.filterAttrs (_: s: !s.invocation.model) config.programs.code-assistant-profiles.resolved.default.skills;
+          width = lib.foldl lib.max 0 (map lib.stringLength (lib.attrNames manual));
+          summary = d: lib.head (lib.splitString ". " d);
+          line = name: s: "  /${name}${lib.fixedWidthString (width - lib.stringLength name) " " ""}  ${summary s.description}";
+        in ["Manual skills (Claude won't suggest these):\n${lib.concatStringsSep "\n" (lib.mapAttrsToList line manual)}"];
+
         env = {
           DISABLE_ERROR_REPORTING = "1";
           DISABLE_BUG_COMMAND = "1";
@@ -187,10 +195,11 @@ in {
     };
 
     profiles = {
-      default.include = [addons.design-notes addons.code-comments addons.blind-choices];
+      default.include = [addons.design-notes addons.code-standards addons.blind-choices];
 
       grafana = {
         description = "Default with Grafana";
+        extends = "default";
         settings.permissions.allow = [
           # Search
           "mcp__mcp-grafana__search_dashboards"
@@ -252,6 +261,7 @@ in {
 
       playwright = {
         description = "Default with Playwright browser automation";
+        extends = "default";
         settings.permissions.allow = [
           "mcp__playwright__browser_navigate"
           "mcp__playwright__browser_go_back"
@@ -275,6 +285,7 @@ in {
 
       google-workspace = {
         description = "Default with Google Workspace (Gmail, Sheets, Drive, Calendar, Docs)";
+        extends = "default";
         settings.permissions.allow = [
           # Gmail
           "mcp__google-workspace__gmail_search"

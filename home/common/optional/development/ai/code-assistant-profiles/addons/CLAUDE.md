@@ -198,9 +198,3 @@ flow. Commands have no `invocation` option — make them skills to gate them.
 through headless `claude -p` and checks which skill fires first. Add a positive
 and a negative case when you add or reword a model-invoked skill. It runs against
 the *installed* profile, so rebuild first.
-
-## The `/work` router
-
-`addons/work/` lists every flow. Adding, renaming, or removing a user-facing
-skill means updating its table; the build fails if the table names a skill the
-default profile lacks.

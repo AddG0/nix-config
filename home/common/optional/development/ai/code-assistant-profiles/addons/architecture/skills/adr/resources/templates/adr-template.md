@@ -1,44 +1,40 @@
-# ADR-{NUMBER}: {TITLE}
+---
+status: proposed
+date: {YYYY-MM-DD}
+---
 
-## Status
-{Proposed | Accepted | Deprecated | Superseded by ADR-XXX}
+# {Short title: the problem and the chosen solution}
 
-## Date
-{YYYY-MM-DD}
+## Context and Problem Statement
 
-## Context
-What is the issue that we're seeing that is motivating this decision or change?
+{What problem or question motivates this decision, in two or three sentences.}
 
-## Decision
-What is the change that we're proposing and/or doing?
+## Decision Drivers
 
-## Consequences
+- {Force or concern that shapes the choice}
 
-### Positive
-- {Benefit 1}
+## Considered Options
 
-### Negative
-- {Tradeoff 1}
+1. {Option}
+2. {Option}
 
-### Neutral
-- {Side effect 1}
+## Decision Outcome
 
-## Options Considered
+Chosen option: {option}, because {justification}.
 
-### Option 1: {Name} (chosen)
-- **Pros**: ...
-- **Cons**: ...
+### Consequences
 
-### Option 2: {Name}
-- **Pros**: ...
-- **Cons**: ...
+- Good, because {benefit}
+- Bad, because {drawback}
 
-### Option 3: {Name}
-- **Pros**: ...
-- **Cons**: ...
+## Pros and Cons of the Options
 
-## Related Decisions
-- ADR-XXX: {Related decision}
+### 1. {Option}
 
-## References
-- {Link to relevant documentation, spec, or discussion}
+- Good, because {argument}
+- Bad, because {argument}
+
+### 2. {Option}
+
+- Good, because {argument}
+- Bad, because {argument}

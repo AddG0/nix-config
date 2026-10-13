@@ -19,7 +19,7 @@ in {
       "spec-reviewer".prompt.source = ./agents/spec-reviewer.md;
     };
 
-    rules."quality-standards".content.source = ./rules/quality-standards.md;
+    rules.review.content.source = ./rules/review.md;
 
     skills = {
       "review-branch".prompt.source = ./skills/review-branch/prompt.md;

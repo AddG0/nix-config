@@ -5,6 +5,7 @@
     ./pre-commit-checks.nix # Pre-commit hooks and legacy checks
     ./packages.nix # Package build validation
     ./module-tests.nix # Colocated module tests (modules|home)/**/tests.nix
+    ./lib-tests.nix # Colocated lib tests lib/**/tests.nix
     ./devshells.nix # Development shell validation
     ./nvim-darwin.nix # Eval-guard: standalone nvim must build on aarch64-darwin
     ./configurations.nix # Eval-guards: home/darwin configs, base extension, stock-lib importers

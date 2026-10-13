@@ -10,5 +10,7 @@ _: {
     };
 
     agents."nix-builder".prompt.source = ./agents/nix-builder.md;
+
+    rules.nix.content.source = ./rules/nix.md;
   };
 }

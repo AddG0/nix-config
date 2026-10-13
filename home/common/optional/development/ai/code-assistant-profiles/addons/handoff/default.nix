@@ -4,5 +4,7 @@ _: {
       prompt.source = ./skills/handoff/prompt.md;
       invocation.model = false;
     };
+
+    rules.context.content.source = ./rules/context.md;
   };
 }

@@ -41,6 +41,7 @@ in {
     skills.archify =
       skill
       // {
+        description = "Draws architecture, workflow, sequence, data-flow and state diagrams as interactive HTML from a description, Mermaid, or the code. Use to diagram a system or process; not for numeric charts.";
         prompt.text = retarget skill.prompt.text;
       };
   };

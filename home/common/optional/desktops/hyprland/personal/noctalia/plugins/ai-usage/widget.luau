@@ -82,6 +82,16 @@ local function render()
   local row, tooltip = {}, {}
   for _, provider in ipairs(report.providers) do
     table.insert(row, ui.glyph({ name = PROVIDER_GLYPHS[provider.id] or "robot", size = 14, color = "on_surface" }))
+    local draining = {}
+    for _, account in ipairs(provider.accounts) do
+      if account.draining then
+        table.insert(draining, (account.account:match("^[^@]+") or account.account))
+      end
+    end
+    if #draining > 0 then
+      table.insert(row, ui.glyph({ name = "flame", size = 12, color = "primary" }))
+      table.insert(tooltip, { key = provider.name .. " draining", value = table.concat(draining, ", ") })
+    end
     local shown = false
     for _, w in ipairs(WINDOWS) do
       local item = window(provider, w[1])

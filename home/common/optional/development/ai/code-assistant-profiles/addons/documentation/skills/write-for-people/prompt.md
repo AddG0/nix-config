@@ -97,7 +97,7 @@ What you need, from whom, by when, and what you've tried.
 
 The question or answer goes in the first message. A bare "hi" or "got a sec?" makes the reader wait for a question they could already be answering; a greeting on the same line is fine. One message per topic, not a burst of fragments; extra detail goes in the thread. When someone asks for something, reply with a time or a result, not "will do".
 - AI: "Hi! Hope you're doing well. I wanted to reach out regarding the deployment pipeline. Do you have a moment?"
-- Human: "Hey, is the prod deploy still frozen? I've got a one-line fix for the rates timeout (ENG26-1940) ready to go."
+- Human: "Hey, is the prod deploy still frozen? I've got a one-line fix for the timeout ready to go."
 
 ### Email
 

@@ -41,6 +41,7 @@ RESPONSES = {
     "overLimit": vector((m("claude", "one@x"), 0)),
     "available": vector((m("claude", "one@x"), 1), (m("claude", "two@x"), 0), (m("codex", "me@x"), 1)),
     "paused": vector((m("claude", "one@x"), 0), (m("claude", "two@x"), 1), (m("codex", "me@x"), 0)),
+    "priority": vector((m("claude", "one@x"), 1), (m("claude", "two@x"), 0), (m("codex", "me@x"), -1)),
     "modelUsage": vector((m("claude", "one@x", model="Fable", limit="7d"), 0.05)),
     "modelResets": vector((m("claude", "one@x", model="Fable", limit="7d"), 9000)),
 }
@@ -113,6 +114,17 @@ class ReportTest(unittest.TestCase):
     def test_marks_an_account_the_pacer_paused(self):
         self.assertTrue(self.account(self.claude, "two@x")["paused"])
         self.assertFalse(self.account(self.claude, "one@x")["paused"])
+
+    def test_marks_an_account_set_to_drain(self):
+        self.assertTrue(self.account(self.claude, "one@x")["draining"])
+        self.assertFalse(self.account(self.claude, "two@x")["draining"])
+
+    def test_does_not_count_a_backup_tier_as_draining(self):
+        self.assertFalse(self.account(self.codex, "me@x")["draining"])
+
+    def test_treats_a_missing_priority_series_as_not_draining(self):
+        older = dict(RESPONSES, priority=vector())
+        self.assertFalse(self.account(report(older)["providers"][0], "one@x")["draining"])
 
     def test_treats_a_missing_paused_series_as_not_paused(self):
         older = dict(RESPONSES, paused=vector())

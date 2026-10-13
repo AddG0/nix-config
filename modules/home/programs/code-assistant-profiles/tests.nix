@@ -209,6 +209,30 @@
     source = fixtureFile;
   };
 
+  # Every option field present, as the module hands a skill over.
+  skillEntity = attrs:
+    {
+      name = "s";
+      description = null;
+      whenToUse = null;
+      argumentHint = null;
+      context = null;
+      reasoningEffort = null;
+      agent = null;
+      version = null;
+      model = null;
+      allowedTools = [];
+      paths = [];
+      invocation = {
+        user = true;
+        model = true;
+      };
+      prompt = emptySpec;
+    }
+    // attrs;
+
+  modelInvocable = text: (normalize {skills.demo = skillEntity {prompt = spec text;};}).skills.demo.invocation.model;
+
   normalizedRule =
     (normalize {
       rules.demo =
@@ -389,6 +413,9 @@
     ["agents" "commands" "rules" "skills" "mcpServers" "lspServers"];
 in
   pkgs.runCommand "code-assistant-profiles-test" {} ''
+    ${expect "nested invocation frontmatter makes a skill manual-only" (modelInvocable "---\ndescription: d\ninvocation:\n  model: false\n---\n\nBody.") false}
+    ${expect "disable-model-invocation frontmatter makes a skill manual-only" (modelInvocable "---\ndescription: d\ndisable-model-invocation: true\n---\n\nBody.") false}
+    ${expect "a skill declaring nothing stays model-invocable" (modelInvocable "---\ndescription: d\n---\n\nBody.") true}
     ${expect "source dir with SKILL.md is rejected at eval" (failures ./test-fixtures/reserved) [
       "profile 'p' skill 'demo' resourcesRoot must not contain SKILL.md; SKILL.md is generated from skill metadata and prompt"
     ]}

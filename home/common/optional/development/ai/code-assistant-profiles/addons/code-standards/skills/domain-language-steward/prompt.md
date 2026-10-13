@@ -1,6 +1,6 @@
 ---
 name: domain-language-steward
-description: "Review and improve software names, domain vocabulary, comments, documentation, abstractions, semantic surfaces, and code placement without cosmetic over-refactoring. Use when naming or renaming variables, functions, types, modules, services, commands, events, errors, APIs, metrics, or tests; reviewing comments, doc comments, TODO/FIXME notes, examples, or architectural explanations; auditing a diff or codebase for unclear or inconsistent terminology; deciding whether logic should stay, be extracted, moved, split, merged, or modeled as a domain concept; establishing bounded-context vocabulary; or planning and implementing behavior-preserving semantic refactors. Apply across programming languages and frameworks."
+description: "Reviews naming, domain language, self-documenting code and connascence, and where logic belongs. Use when naming concepts in a design or plan, questioning a name, or when code does not read clearly."
 ---
 
 # Domain Language Steward
@@ -26,6 +26,7 @@ Treat “domain” broadly. It can be a business domain such as shipping or bill
 
 Infer the smallest useful mode from the request:
 
+- **Design vocabulary**: Before code exists, name what a spec, plan or design introduces: one canonical term per concept per bounded context, names for its contexts, modules, operations (by intent), events and errors, the synonyms to reject, and any clash with terms the codebase or its ADRs already fix. The document is the evidence; read code only for the vocabulary it already settles.
 - **Single-name review**: Evaluate one identifier and propose a name only when justified.
 - **Comment and documentation review**: Evaluate whether explanations are accurate, useful, current, and correctly placed.
 - **Vocabulary audit**: Find synonyms, overloaded terms, boundary-language leakage, and missing domain concepts.

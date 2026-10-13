@@ -50,6 +50,7 @@ Judge against the Google design-doc convention, not against a fixed section list
 
 - Are goals stated, and are **non-goals** explicit? Non-goals are the things that could reasonably have been in scope and were deliberately excluded — their absence is the most common weakness.
 - Is the boundary clear: what this design owns versus what it leaves to existing components?
+- Is each concept named once, in the domain's words, and consistently with terms the codebase already uses? A design that calls one thing by two names ships both.
 - Is detail proportionate? Data models, API contracts, and error handling belong here only where the design actually turns on them. A document that specifies every field but never states its boundary is worse than the reverse.
 
 ### 4. Alternatives and Risk (weight: 20%)

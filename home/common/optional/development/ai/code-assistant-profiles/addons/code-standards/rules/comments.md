@@ -29,5 +29,4 @@ surrounding change may have left stale.
 Prefer a better name or an extracted function over explaining *what*, without
 inventing `longCamelCaseNamesThatAreReallyComments`. Doc comments: public and
 non-trivial only, first sentence the summary, never restating the type system.
-Tests name the behavior (`rejects login when password is expired`, not `testLogin`).
 File headers: a one-line purpose, never `@author`, date, or revision history.

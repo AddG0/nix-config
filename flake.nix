@@ -276,11 +276,6 @@
       flake = false;
     };
 
-    ponytail = {
-      url = "github:DietrichGebert/ponytail";
-      flake = false;
-    };
-
     archify = {
       url = "github:tt-a1i/archify";
       flake = false;

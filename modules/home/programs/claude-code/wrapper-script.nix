@@ -22,6 +22,7 @@
     PROFILE="${cfg.defaultProfile}"
     ARGS=()
     SESSION_ARGS=()
+    CALLER_SETTINGS=()
 
     while [[ $# -gt 0 ]]; do
       case "$1" in
@@ -43,6 +44,10 @@
           done
           exit 0
           ;;
+        ${lib.optionalString (cfg.conditionalSettings != null) ''
+      --settings) CALLER_SETTINGS+=("$2"); shift 2 ;;
+      --settings=*) CALLER_SETTINGS+=("''${1#--settings=}"); shift ;;
+    ''}
         *) ARGS+=("$1"); shift ;;
       esac
     done
@@ -76,8 +81,19 @@
     fi
 
     ${lib.optionalString (cfg.conditionalSettings != null) ''
+      # Claude keeps only the last --settings, so a caller's (the Agent SDK passes one) would drop ours.
       if [[ ''${#ARGS[@]} -ne 1 || ''${ARGS[0]} != --version ]] && ${cfg.conditionalSettings.command}; then
-        SESSION_ARGS+=(--settings ${lib.escapeShellArg cfg.conditionalSettings.file})
+        MERGED=$(set -o pipefail; for s in ${lib.escapeShellArg cfg.conditionalSettings.file} "''${CALLER_SETTINGS[@]}"; do
+          if [[ $s == "{"* ]]; then printf '%s\n' "$s"; else cat -- "$s" || exit 1; fi
+        done | ${lib.getExe pkgs.jq} -cs 'reduce .[] as $s ({}; . * $s)') || {
+          echo "claude wrapper: cannot merge --settings ''${CALLER_SETTINGS[*]} into ${cfg.conditionalSettings.file}" >&2
+          exit 1
+        }
+        SESSION_ARGS+=(--settings "$MERGED")
+      else
+        for s in "''${CALLER_SETTINGS[@]}"; do
+          SESSION_ARGS+=(--settings "$s")
+        done
       fi
     ''}
 

@@ -8,7 +8,7 @@
     text = builtins.readFile ./hooks/comment-block.sh;
   };
 in {
-  programs.claude-code-profiles.addons.code-comments = {
+  programs.claude-code-profiles.addons.code-standards = {
     # Edit only: a new file's header is the noisiest false positive and the
     # rarest real offender.
     settings.hooks.PostToolUse = [

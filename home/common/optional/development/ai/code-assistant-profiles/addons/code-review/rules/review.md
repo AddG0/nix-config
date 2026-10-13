@@ -1,0 +1,2 @@
+- Use the shortcut-hunter agent before calling a change done — it fails on stubs, TODOs, and swallowed errors.
+- Use the silent-failure-hunter agent periodically on modified files, especially after large changes.

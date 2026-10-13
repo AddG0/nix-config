@@ -1,5 +1,5 @@
 ---
-description: Scaffolds and updates Nix flake dev environments — devShells, .envrc, direnv, process-compose services (Postgres, Grafana), pre-commit hooks, and tests as flake checks. Use when creating or changing a project's flake.nix, adding local services or pre-commit hooks, or making tests and type checks run under `nix flake check` for CI.
+description: "Scaffolds and updates Nix flake dev environments: devShells, direnv, local services, pre-commit hooks and flake checks. Use when creating or changing a project flake.nix or its dev shell."
 argument-hint: "[language] [services...] - e.g. python-uv postgres, java redis kafka"
 allowed-tools:
   - Bash
