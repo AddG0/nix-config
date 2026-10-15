@@ -2,6 +2,8 @@
 
 local QUERY_COMMAND = "@usageQuery@"
 local REFRESH_MS = 5 * 60 * 1000
+-- A boot-time miss (secret not decrypted, network down) shouldn't wait a full refresh.
+local RETRY_MS = 15 * 1000
 
 local inFlight = false
 local report = noctalia.state.get("aiUsage")
@@ -36,6 +38,7 @@ end
 local function fail(message)
   noctalia.log("ai-usage: " .. message)
   noctalia.state.set("aiUsageError", message)
+  noctalia.setUpdateInterval(RETRY_MS)
 end
 
 local function refresh()
@@ -58,6 +61,7 @@ local function refresh()
     report = nextReport
     noctalia.state.set("aiUsage", report)
     noctalia.state.set("aiUsageError", nil)
+    noctalia.setUpdateInterval(REFRESH_MS)
   end, 30000)
 
   if not started then

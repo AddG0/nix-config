@@ -28,7 +28,7 @@ local function document()
 end
 
 local function load(doc, outcome)
-  local state = {}
+  local state, intervals = {}, {}
   local noctalia = {
     state = {
       get = function(key) return state[key] end,
@@ -44,16 +44,17 @@ local function load(doc, outcome)
     end,
     log = function() end,
     json = { decode = function() return doc end },
-    setUpdateInterval = function() end,
+    setUpdateInterval = function(ms) table.insert(intervals, ms) end,
   }
   local env = setmetatable({ noctalia = noctalia }, { __index = _G })
   local chunk = assert(loadstring(SERVICE_SRC))
   setfenv(chunk, env)
   chunk()
-  return state, env._internals
+  return state, env._internals, intervals
 end
 
-local state, internals = load(document())
+local state, internals, intervals = load(document())
+assert(intervals[#intervals] == 5 * 60 * 1000, "polls at the full refresh interval after a good report")
 assert(#state.aiUsage.providers == 2, "publishes every provider")
 assert(#state.aiUsage.providers[1].accounts == 2, "keeps each Claude account")
 assert(state.aiUsage.providers[2].accounts[1].limits[1].percent == 34, "keeps per-account limits")
@@ -82,6 +83,10 @@ local exited = load(document(), { exitCode = 22, stdout = "", stderr = "curl: (2
 assert(exited.aiUsageError == "AI usage query exited 22: curl: (22) 401", "reports the exit code and first stderr line")
 assert(exited.aiUsage == nil, "publishes nothing from a failed query")
 
-local unstarted = load(document(), "unstarted")
+local _, _, retryIntervals = load(document(), { exitCode = 1, stdout = "", stderr = "cat: grafana-token: No such file or directory" })
+assert(retryIntervals[#retryIntervals] == 15 * 1000, "retries within seconds when the token is not yet decrypted")
+
+local unstarted, _, unstartedIntervals = load(document(), "unstarted")
+assert(unstartedIntervals[#unstartedIntervals] == 15 * 1000, "retries soon when the query could not start")
 assert(string.find(unstarted.aiUsageError, "Could not start", 1, true), "reports a query that never started")
 print("ai-usage service tests passed")

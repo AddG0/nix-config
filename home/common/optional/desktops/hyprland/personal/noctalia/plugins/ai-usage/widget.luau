@@ -73,8 +73,8 @@ end
 local WINDOWS = { { "5h", "5 hour average" } }
 
 local function render()
-  -- Hidden only when the query failed: there is nothing to report at all.
-  if errorMessage or not report then
+  -- Hidden only before the first reading; a failed refresh keeps the last one.
+  if not report then
     barWidget.setVisible(false)
     return
   end
@@ -106,6 +106,9 @@ local function render()
       table.insert(row, ui.label({ text = "unavailable", fontSize = 11, fontWeight = "semibold", color = "error" }))
       table.insert(tooltip, { key = provider.name, value = "No account is available" })
     end
+  end
+  if errorMessage then
+    table.insert(tooltip, { key = "Refresh failed", value = errorMessage })
   end
   barWidget.setVisible(true)
   barWidget.render(ui.row({ gap = 5, align = "center" }, row))

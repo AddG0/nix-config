@@ -92,8 +92,6 @@
 
   programs.coolercontrol.enable = true;
 
-  programs.kdeconnect.enable = true;
-
   networking = {
     networkmanager.enable = true;
     interfaces.enp12s0.wakeOnLan.enable = true;
