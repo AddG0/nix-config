@@ -8,7 +8,7 @@
 }:
 stdenv.mkDerivation {
   pname = "openhands";
-  version = "1.20.0";
+  version = "1.27.1";
 
   # No source needed, we're just creating a wrapper
   dontUnpack = true;

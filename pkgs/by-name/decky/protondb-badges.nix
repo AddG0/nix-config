@@ -1,8 +1,8 @@
 {mkStorePlugin}:
 mkStorePlugin {
   pname = "protondb-decky";
-  version = "1.2.0";
-  hash = "54fadb8faec26bb8667a6fd7c61167bc4e5584414f142ae455c74a381ee23891";
+  version = "1.3.4";
+  hash = "90a3453ac02709cad64096e7539fd8141fa56f99ae3441fc24a4990dc9684358";
   storeName = "ProtonDB Badges";
   meta.description = "Tappable ProtonDB compatibility badges on game pages";
 }

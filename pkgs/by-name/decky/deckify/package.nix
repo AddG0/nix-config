@@ -8,7 +8,7 @@
   # match the dashboard exactly. Null falls back to detecting the LAN address.
   advertisedHost ? null,
 }: let
-  version = "0.1.4";
+  version = "0.2.1";
 in
   stdenvNoCC.mkDerivation {
     pname = "deckify";
@@ -16,7 +16,7 @@ in
 
     src = fetchzip {
       url = "https://github.com/adv-inn/Deckify/releases/download/v${version}/Deckify.tar.gz";
-      hash = "sha256-FGsqlue4khAi9tF9lQyicEAEeGhknpbaLCArapBWG+Q=";
+      hash = "sha256-aVGIwThlbZyqMbABKuT3ERNES+at54J3ELFMaS16nc4=";
     };
 
     dontConfigure = true;
@@ -41,7 +41,7 @@ in
       # A modal closes with B. The browser-opening APIs — OpenInSystemBrowser,
       # NavigateToExternalWeb — leave nothing dismissable over a running game.
       substituteInPlace "$out/dist/index.js" \
-        --replace-fail 'window.SteamClient?.System?.OpenInSystemBrowser?.(res.url);' 'DFL.showModal(window.SP_REACT.createElement(DFL.ModalRoot, null, window.SP_REACT.createElement("iframe", { src: res.url, style: { width: "100%", height: "70vh", border: "none" } })));'
+        --replace-fail 'DFL.Navigation.NavigateToExternalWeb(res.url);' 'DFL.showModal(window.SP_REACT.createElement(DFL.ModalRoot, null, window.SP_REACT.createElement("iframe", { src: res.url, style: { width: "100%", height: "70vh", border: "none" } })));'
       ${lib.optionalString (advertisedHost != null) ''
         substituteInPlace "$out/main.py" \
           --replace-fail '_ADVERTISED_HOST = ""' '_ADVERTISED_HOST = "${advertisedHost}"'

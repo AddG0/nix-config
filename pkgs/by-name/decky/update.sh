@@ -9,7 +9,7 @@ set -euo pipefail
 
 store_name="$1"
 pname="$2"
-default_nix="$(git rev-parse --show-toplevel)/pkgs/decky/default.nix"
+FLAKE_ROOT=$(git rev-parse --show-toplevel)
 
 data="$(curl -sSfL https://plugins.deckbrew.xyz/plugins)"
 version="$(jq -r --arg n "$store_name" '.[] | select(.name == $n) | .versions[0].name' <<<"$data")"
@@ -20,14 +20,20 @@ if [[ -z $version || $version == null || -z $hash || $hash == null ]]; then
   exit 1
 fi
 
+# Find the .nix file containing this pname
+target_nix=$(grep -l "pname = \"$pname\"" "$FLAKE_ROOT/pkgs/by-name/decky/"*.nix || true)
+if [[ -z $target_nix ]]; then
+  echo "no .nix file found for pname '$pname'" >&2
+  exit 1
+fi
+
 # Rewrite only the version/hash lines inside this plugin's mkStorePlugin block
-# (located by its unique pname).
 awk -v p="$pname" -v v="$version" -v h="$hash" '
   index($0, "pname = \"" p "\";") { blk = 1 }
   blk && /version = "/ { sub(/version = "[^"]*"/, "version = \"" v "\"") }
   blk && /hash = "/ { sub(/hash = "[^"]*"/, "hash = \"" h "\""); blk = 0 }
   { print }
-' "$default_nix" >"$default_nix.new"
-mv "$default_nix.new" "$default_nix"
+' "$target_nix" >"$target_nix.new"
+mv "$target_nix.new" "$target_nix"
 
 echo "$pname -> $version"

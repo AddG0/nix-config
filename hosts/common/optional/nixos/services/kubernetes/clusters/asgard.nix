@@ -30,6 +30,7 @@
       odin = "server";
       loki = "server";
       thor = "server";
+      kvasir = "agent";
     };
     initNode = "odin";
   };

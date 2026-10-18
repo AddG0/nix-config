@@ -1,3 +1,4 @@
+# Desktop Steam inherits Gaming Mode's -steamdeck; greyed-out Friends/Chat = oobe_stage_2_completed unset.
 {pkgs, ...}: {
   programs.steam = {
     enable = true;

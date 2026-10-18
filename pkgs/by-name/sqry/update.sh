@@ -8,7 +8,7 @@
 set -euo pipefail
 
 FLAKE_ROOT=$(git rev-parse --show-toplevel)
-DEFAULT_NIX="$FLAKE_ROOT/pkgs/sqry/default.nix"
+DEFAULT_NIX="$FLAKE_ROOT/pkgs/by-name/sqry/package.nix"
 REPO="verivus-oss/sqry"
 BASE="https://github.com/$REPO/releases/download"
 

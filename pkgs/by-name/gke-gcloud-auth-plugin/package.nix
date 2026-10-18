@@ -1,13 +1,13 @@
 {pkgs}:
 pkgs.buildGoModule rec {
   pname = "gke-gcloud-auth-plugin";
-  version = "36.4.7";
+  version = "37.1.5";
 
   src = pkgs.fetchFromGitHub {
     owner = "kubernetes";
     repo = "cloud-provider-gcp";
     rev = "v${version}";
-    sha256 = "sha256-9owcHHq7U9SBK0Le1asSQKl+Gj9vLJ6tPamheBHHQEM=";
+    sha256 = "sha256-lUvcQEwJmqKjGOQcGQYuAyxT5qO6haBBz4oN1oBBN28=";
   };
 
   modRoot = "./cmd/gke-gcloud-auth-plugin";

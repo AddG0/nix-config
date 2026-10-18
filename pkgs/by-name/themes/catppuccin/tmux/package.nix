@@ -5,13 +5,13 @@
 }:
 stdenv.mkDerivation rec {
   pname = "catppuccin-tmux";
-  version = "2.3.0";
+  version = "2.3.2";
 
   src = fetchFromGitHub {
     owner = "catppuccin";
     repo = "tmux";
     rev = "v${version}";
-    sha256 = "sha256-3CJRQCgS8NAN7vOLBjNGiHbGXTIrIyY/FLmfZrXcEYc=";
+    sha256 = "sha256-BIuMmx+UQR3pX692yRYQprpnSYxnusmydHUOVSnbTIU=";
   };
 
   installPhase = ''

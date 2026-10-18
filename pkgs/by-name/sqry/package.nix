@@ -13,12 +13,12 @@ stdenvNoCC.mkDerivation (finalAttrs: let
 
   hashes = {
     x86_64 = {
-      sqry = "sha256-s7m8m3NzVckt9ahZ8aHpF3as6MUERoBGUTIw40a+J98=";
-      sqry-mcp = "sha256-1EatFfxSrLt8fp++YLah1BBNoHx0B17qWZoNivT++ww=";
+      sqry = "sha256-XszKFLDuGUoM/cptYVxfltCoG8hZ3BJmiIljsmFH5us=";
+      sqry-mcp = "sha256-th4a9MSYGyA93XHg7of/b1b01QzofUcmL9eFhwT00ZQ=";
     };
     arm64 = {
-      sqry = "sha256-cGN4ZBZhzthiKYoHa2xY1xXJNFG7TZ3jNuIvjkqXBfs=";
-      sqry-mcp = "sha256-jwciMvREEW8lHtsOAMSthmVyXB0AE0GbTY6+mGj3UYs=";
+      sqry = "sha256-RZV8qaZ61uTb26DnvKswxAYOnycv8L2d9mqboNBoUlY=";
+      sqry-mcp = "sha256-Gxs//xTwMfbl0naOp+Mw6S/gyKSYzeQ3ZsTP3dj13hc=";
     };
   };
 
@@ -29,7 +29,7 @@ stdenvNoCC.mkDerivation (finalAttrs: let
     };
 in {
   pname = "sqry";
-  version = "31.0.0";
+  version = "33.0.1";
 
   dontUnpack = true;
 

@@ -114,6 +114,15 @@
     };
   };
 
+  # Gemma 4 loops without a repeat penalty, and /v1 clients cannot send one.
+  systemd.services.ollama-model-loader.script = lib.mkAfter ''
+    ${config.services.ollama.package}/bin/ollama create gemma4:31b-rp -f ${pkgs.writeText "gemma4-31b-rp.Modelfile" ''
+      FROM gemma4:31b
+      PARAMETER repeat_penalty 1.1
+      PARAMETER repeat_last_n 256
+    ''}
+  '';
+
   # Press 'w' at boot menu to jump to Windows
   boot.loader = {
     systemd-boot = {

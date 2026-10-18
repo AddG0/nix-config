@@ -35,4 +35,6 @@ stdenvNoCC.mkDerivation {
     mainProgram = "xcursor-to-cape";
     platforms = lib.platforms.all;
   };
+
+  passthru.nixUpdate.version = "skip";
 }

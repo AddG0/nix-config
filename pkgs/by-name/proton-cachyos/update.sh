@@ -5,7 +5,7 @@
 set -euo pipefail
 
 FLAKE_ROOT=$(git rev-parse --show-toplevel)
-DEFAULT_NIX="$FLAKE_ROOT/pkgs/proton-cachyos/default.nix"
+DEFAULT_NIX="$FLAKE_ROOT/pkgs/by-name/proton-cachyos/package.nix"
 MIRROR="https://mirror.cachyos.org/repo/x86_64/cachyos"
 
 latest=$(

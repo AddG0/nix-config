@@ -32,14 +32,14 @@
   libxcb,
 }: let
   pname = "claude-desktop";
-  version = "2.2553.1";
-  wrapperVersion = "3.2.4";
+  version = "2.42304.0";
+  wrapperVersion = "3.3.11";
   # Upstream rebranded the packaged binary/dirs/desktop to this in wrapper 3.x.
   debName = "claude-desktop-unofficial";
 
   src = fetchurl {
     url = "https://github.com/aaddrick/claude-desktop-debian/releases/download/v${wrapperVersion}%2Bclaude${version}/claude-desktop-unofficial_${version}-${wrapperVersion}_amd64.deb";
-    hash = "sha256-GRlPmFjVsb3A/a1TdBlnsVqBfI/0VNffI69L7tuGA9I=";
+    hash = "sha256-vDZqIEmGHt2VlF3SrLHO+Uu7tJj/FF0XYBjfpC2Df2U=";
   };
 
   unwrapped = stdenvNoCC.mkDerivation {

@@ -5,7 +5,7 @@
 set -euo pipefail
 
 FLAKE_ROOT=$(git rev-parse --show-toplevel)
-DEFAULT_NIX="$FLAKE_ROOT/pkgs/claude-desktop/default.nix"
+DEFAULT_NIX="$FLAKE_ROOT/pkgs/by-name/claude-desktop/package.nix"
 
 tag=$(curl -sfL "https://api.github.com/repos/aaddrick/claude-desktop-debian/releases/latest" |
   jq -r '.tag_name')

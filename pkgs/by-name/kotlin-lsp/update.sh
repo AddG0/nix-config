@@ -10,7 +10,7 @@
 set -euo pipefail
 
 FLAKE_ROOT=$(git rev-parse --show-toplevel)
-DEFAULT_NIX="$FLAKE_ROOT/pkgs/kotlin-lsp/default.nix"
+DEFAULT_NIX="$FLAKE_ROOT/pkgs/by-name/kotlin-lsp/package.nix"
 CDN="https://download-cdn.jetbrains.com/language-server/kotlin-server"
 
 tags=$(
@@ -35,8 +35,8 @@ for v in $tags; do
 done
 
 if [[ -z $new_version ]]; then
-  echo "kotlin-lsp: no tag has published CDN artifacts for both architectures" >&2
-  exit 1
+  echo "kotlin-lsp: no tag has published CDN artifacts for both architectures"
+  exit 0
 fi
 
 cur_version=$(sed -nE 's/^  version = "([^"]+)";/\1/p' "$DEFAULT_NIX")

@@ -8,11 +8,11 @@
 }:
 stdenvNoCC.mkDerivation rec {
   pname = "spotbugs";
-  version = "4.10.4";
+  version = "4.10.5";
 
   src = fetchurl {
     url = "https://github.com/spotbugs/spotbugs/releases/download/${version}/spotbugs-${version}.tgz";
-    hash = "sha256-crwNTt1obkYsD3H0KgSbJ79NpnCHl/97K1bdICcUtOU=";
+    hash = "sha256-zOMkSQDMIVzNn1qNsp7ZRo/EeCT69mL0+tAFND2WAH4=";
   };
 
   nativeBuildInputs = [makeWrapper];

@@ -19,8 +19,9 @@
 
     #################### Misc Inputs ####################
 
-    (with lib.custom.optional.hosts.nixos; [nix-secrets-deploy-key])
+    (with lib.custom.optional.hosts.nixos; [nix-secrets-deploy-key static-networking])
     (with lib.custom.optional.hosts.nixos.services; [
+      kubernetes.clusters.asgard
       openssh # allow remote SSH access
     ])
   ];
@@ -31,7 +32,6 @@
   };
 
   networking = {
-    networkmanager.enable = true;
     enableIPv6 = false;
     interfaces.eno1.wakeOnLan.enable = true;
   };

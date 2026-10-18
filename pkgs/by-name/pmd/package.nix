@@ -27,6 +27,8 @@ stdenvNoCC.mkDerivation rec {
     runHook postInstall
   '';
 
+  passthru.updateScript = ["nix-update" "--flake" "pmd" "--version-regex" "pmd_releases/(\\d+\\.\\d+\\.\\d+)$"];
+
   meta = {
     description = "Extensible multilanguage static code analyzer, with CPD duplicate detection";
     homepage = "https://pmd.github.io";
