@@ -14,6 +14,7 @@
       inherit lib pcfg;
       inherit (pkgs) writeShellApplication;
       package = stub;
+      audioTools = [pactlStub pkgs.jq];
       player = "spotify";
     };
 
@@ -74,6 +75,20 @@
     exit 0
   '';
 
+  # Stand-in for pactl: $LOCAL=1 reports an uncorked spotify stream on this host;
+  # anything else reports it corked, as on a Connect client mirroring another device.
+  # The first $CORK reads report corked anyway, as Spotify does across a track change.
+  pactlStub = pkgs.writeShellScriptBin "pactl" ''
+    corked=true
+    if [ "''${LOCAL:-1}" = 1 ]; then corked=false; fi
+    cork=$(cat "$CORK" 2>/dev/null || echo 0)
+    if [ "$cork" -gt 0 ]; then
+      echo "$((cork - 1))" >"$CORK"
+      corked=true
+    fi
+    echo '[{"index":1,"corked":'"$corked"',"properties":{"application.name":"spotify"}}]'
+  '';
+
   # Skip trigger: two back-to-back DJ X segments then a real song, each its own
   # --follow event (distinct trackid) as real playerctl emits them. The first
   # event must skip THROUGH both segments to the song in one reaction (the poll
@@ -126,9 +141,9 @@
 in
   pkgs.runCommand "playerctl-rules-test" {} ''
     # Mutable stub state, shared by every case; each test resets what it needs.
-    export POS="$PWD/pos" SPOS="$PWD/spos" LAG="$PWD/lag" DROP="$PWD/drop"
+    export POS="$PWD/pos" SPOS="$PWD/spos" LAG="$PWD/lag" DROP="$PWD/drop" CORK="$PWD/cork"
     export ACTIONS="$PWD/actions" LAGSTEPS=0
-    reset() { : >"$ACTIONS"; echo 0 >"$POS"; echo 0 >"$SPOS"; echo 0 >"$LAG"; echo 0 >"$DROP"; }
+    reset() { : >"$ACTIONS"; echo 0 >"$POS"; echo 0 >"$SPOS"; echo 0 >"$LAG"; echo 0 >"$DROP"; echo 0 >"$CORK"; }
 
     # --- skip: must skip THROUGH both back-to-back DJ X intros to the song ---
     export FOLLOW_FIXTURE=${skipFollow} STATES=${skipStates}
@@ -180,6 +195,30 @@ in
     fi
     export LAGSTEPS=0
 
-    echo "playerctl-rules: skip + retry + mute + lag behaviour OK"
+    # --- remote: DJ X mirrored from another Connect device; this host must not skip ---
+    export FOLLOW_FIXTURE=${skipFollow} STATES=${skipStates} LOCAL=0
+    reset
+    ${lib.getExe skipScript}
+    skips=$(grep -cx next "$ACTIONS" || true)
+    if [ "$skips" != 0 ]; then
+      echo "FAIL remote: expected 0 'next' when audio is not playing here, got $skips" >&2
+      cat "$ACTIONS" >&2
+      exit 1
+    fi
+    export LOCAL=1
+
+    # --- cork: local stream briefly corked as DJ X starts; must still skip ---
+    export FOLLOW_FIXTURE=${retryFollow} STATES=${retryStates}
+    reset
+    echo 3 >"$CORK"
+    ${lib.getExe skipScript}
+    skips=$(grep -cx next "$ACTIONS" || true)
+    if [ "$skips" != 1 ]; then
+      echo "FAIL cork: expected 1 'next' when the local stream uncorks after the track change, got $skips" >&2
+      cat "$ACTIONS" >&2
+      exit 1
+    fi
+
+    echo "playerctl-rules: skip + retry + mute + lag + remote + cork behaviour OK"
     touch "$out"
   ''

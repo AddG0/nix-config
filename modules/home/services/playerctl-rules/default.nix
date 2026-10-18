@@ -16,6 +16,7 @@
       inherit lib player pcfg;
       inherit (pkgs) writeShellApplication;
       inherit (cfg) package debug;
+      audioTools = [pkgs.pulseaudio pkgs.jq];
     };
 in {
   options.services.playerctlRules = {

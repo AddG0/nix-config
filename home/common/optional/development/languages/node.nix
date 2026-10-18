@@ -36,8 +36,7 @@
   '';
 
   # bun reads $XDG_CONFIG_HOME/.npmrc only — no ~/.npmrc or NPM_CONFIG_USERCONFIG fallback.
-  # Leading slash in the key is upstream's removePrefix quirk, not a typo.
-  xdg.configFile.".npmrc".source = config.home.file."/.config/npm/npmrc".source;
+  xdg.configFile.".npmrc".source = config.home.file."${config.xdg.configHome}/npm/npmrc".source;
 
   # Berry-mode yarn aliases (mirrors oh-my-zsh's yarn plugin, berry=yes). The omz
   # yarn plugin is intentionally omitted: its bundled `_yarn` is yarn-v1-shaped

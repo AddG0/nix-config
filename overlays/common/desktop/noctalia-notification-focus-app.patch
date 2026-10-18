@@ -9,12 +9,12 @@
 +      // nix-config: focus the originating app via the wlr foreign-toplevel
 +      // protocol (same path as the dock), so the click jumps to the app
 +      // regardless of xdg-activation / Hyprland focus_on_activate.
-+      if (m_notifications != nullptr && m_wayland != nullptr) {
++      if (m_notifications != nullptr && m_platform != nullptr) {
 +        for (const auto& n : m_notifications->all()) {
 +          if (n.id == id) {
 +            const std::string appId = n.desktopEntry.value_or(n.appName);
 +            if (!appId.empty()) {
-+              m_wayland->activateToplevelForAppId(appId);
++              m_platform->activateToplevelForAppId(appId);
 +            }
 +            break;
 +          }

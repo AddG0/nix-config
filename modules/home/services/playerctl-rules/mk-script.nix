@@ -1,16 +1,32 @@
 # Builds the watcher script for a single player. Pure (no module/config
 # dependency) so it can be exercised directly from tests.nix with a stub
-# playerctl. `package` only seeds the script's PATH via runtimeInputs.
+# playerctl. `package` and `audioTools` (pactl + jq) only seed the script's PATH.
 {
   lib,
   writeShellApplication,
   package,
+  audioTools,
   player,
   pcfg,
   debug ? false,
 }: let
   pc = "playerctl --player=${player}";
   isMute = pcfg.action == "mute";
+
+  # Connect mirrors the active device's track into every client's MPRIS; act only where audio plays.
+  # Polled ~1s: Spotify corks its stream for ~270ms on each track change, after MPRIS already updated.
+  localGate = ''
+    playing_here() {
+      local i
+      for ((i = 1; i <= 10; i++)); do
+        pactl -f json list sink-inputs | jq -e --arg p "$PLAYER" \
+          'any(.[]; .corked == false and (.properties["application.name"] // "" | ascii_downcase) == $p)' >/dev/null \
+          && return 0
+        sleep 0.1
+      done
+      return 1
+    }
+  '';
 
   # A stderr line (visible in the service journal), compiled out unless debug.
   dbg = msg: lib.optionalString debug ''echo "playerctl-rule-dbg[$PLAYER]: ${msg}" >&2'';
@@ -120,7 +136,7 @@
 in
   writeShellApplication {
     name = "playerctl-rule-${player}";
-    runtimeInputs = [package];
+    runtimeInputs = [package] ++ audioTools;
     text = ''
       shopt -s nocasematch
       patterns=(${lib.concatMapStringsSep " " lib.escapeShellArg pcfg.patterns})
@@ -133,13 +149,13 @@ in
         done
         return 1
       }
-      ${prelude}${lib.optionalString isSkip "declare -A skipped=()"}
+      ${localGate}${prelude}${lib.optionalString isSkip "declare -A skipped=()"}
       ${dbg "started; patterns=[\${patterns[*]}] action=${pcfg.action} format=[${followFmt}]"}
       # $line = the matched metadata (trackid stripped); $want = whether it matches.
       while IFS= read -r raw; do
         line=''${raw%%$'\t'*}
         want=false
-        if matches "$line"; then want=true; fi
+        if matches "$line" && playing_here; then want=true; fi
         ${dbg "event: raw=[$raw] line=[$line] want=$want"}
         ${react}
       done < <(${pc} --follow --format ${lib.escapeShellArg followFmt} metadata)
