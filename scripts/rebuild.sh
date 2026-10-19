@@ -118,12 +118,15 @@ max-jobs = auto" nix run nix-darwin -- ${switch_args} ${EXTRA_NIX_ARGS[@]+"${EXT
 rebuild_linux() {
   log_info "Starting Linux rebuild"
   log_info "====== REBUILD ======"
+  local notify_sudo
+  notify_sudo="$(realpath "$(dirname "${BASH_SOURCE[0]}")")/sudo-notify/sudo"
+  export SUDO_NOTIFY_HOST="${HOST}"
   if command_exists nh && [ "${USE_NH:-true}" = "true" ]; then
     log_debug "Using nh command for rebuild (host: ${HOST})"
-    nh os ${MODE} . --hostname "${HOST}" --impure -- $TRACE_FLAG ${EXTRA_NIX_ARGS[@]+"${EXTRA_NIX_ARGS[@]}"}
+    nh os ${MODE} . --hostname "${HOST}" -e "${notify_sudo}" --impure -- $TRACE_FLAG ${EXTRA_NIX_ARGS[@]+"${EXTRA_NIX_ARGS[@]}"}
   else
     log_debug "Using sudo nixos-rebuild with arguments: ${switch_args}"
-    $SUDO nixos-rebuild ${switch_args} ${EXTRA_NIX_ARGS[@]+"${EXTRA_NIX_ARGS[@]}"}
+    ${SUDO:+"${notify_sudo}"} nixos-rebuild ${switch_args} ${EXTRA_NIX_ARGS[@]+"${EXTRA_NIX_ARGS[@]}"}
   fi
 }
 

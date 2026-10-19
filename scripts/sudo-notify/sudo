@@ -1,0 +1,22 @@
+#!/usr/bin/env bash
+# sudo that pings the desktop if its password prompt sits unanswered; named `sudo` so nh keeps its sudo flags.
+real_sudo=/run/wrappers/bin/sudo
+
+# sudo forks the command only once authenticated, so a childless sudo is still prompting.
+prompting() {
+  local pid
+  pid=$(pgrep -P "$$" | grep -vx "$timer") && ! pgrep -P "$pid" >/dev/null
+}
+
+if ! "$real_sudo" -n true 2>/dev/null && command -v notify-send >/dev/null; then
+  (
+    timer=$BASHPID
+    sleep "${SUDO_NOTIFY_AFTER:-10}"
+    prompting || exit 0
+    id=$(notify-send -p -u critical -a nix-config "nix-config · ${SUDO_NOTIFY_HOST:-$(hostname)}" "Waiting for your sudo password to activate the new config")
+    while prompting; do sleep 1; done
+    busctl --user call org.freedesktop.Notifications /org/freedesktop/Notifications \
+      org.freedesktop.Notifications CloseNotification u "$id" >/dev/null
+  ) </dev/null >/dev/null 2>&1 &
+fi
+"$real_sudo" "$@"
