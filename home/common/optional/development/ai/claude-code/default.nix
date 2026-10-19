@@ -11,7 +11,7 @@
   # them. A hook sees the whole string.
   askBeforeGitPush = pkgs.writeShellScript "claude-ask-before-git-push" ''
     cmd=$(${pkgs.jq}/bin/jq -r '.tool_input.command // ""')
-    if printf '%s' "$cmd" | ${pkgs.gnugrep}/bin/grep -qE '\bgit\b.*\bpush\b'; then
+    if printf '%s' "$cmd" | ${pkgs.gnugrep}/bin/grep -qE '\bgit\b[^;&|]*\bpush\b'; then
       echo '{"hookSpecificOutput":{"hookEventName":"PreToolUse","permissionDecision":"ask","permissionDecisionReason":"git push"}}'
     fi
   '';
