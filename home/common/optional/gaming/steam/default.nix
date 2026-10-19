@@ -170,7 +170,8 @@
     forza-horizon-5.wrappers = [gamemoderun] ++ gamescope;
     forza-horizon-6.wrappers = [gamemoderun] ++ gamescope;
 
-    overwatch.wrappers = mouseDpi 1800 ++ [gamemoderun];
+    # Wine's Wayland driver carries HDR to Hyprland, so it can direct-scanout on the HDR output.
+    overwatch.wrappers = mouseDpi 1800 ++ [gamemoderun "env" "PROTON_ENABLE_WAYLAND=1" "DXVK_HDR=1"];
 
     # 2000 DPI + in-game sens 2 reproduces the Aim Lab cm/360 (0.52% off).
     cyberpunk-2077.wrappers = mouseDpi 2000 ++ [gamemoderun];

@@ -38,7 +38,14 @@
           "ctrl+shift+arrow_down=unbind"
         ]
         # Command sits in the Linux Alt position; zsh's ghq, gwq and sesh pickers are Alt-G/W/S (ESC g/w/s).
-        ++ lib.optionals pkgs.stdenv.hostPlatform.isDarwin ["super+g=esc:g" "super+w=esc:w" "super+s=esc:s"];
+        ++ lib.optionals pkgs.stdenv.hostPlatform.isDarwin ["super+g=esc:g" "super+w=esc:w" "super+s=esc:s"]
+        # Linux Ghostty's default font-size keys; macOS only binds them on Command.
+        ++ lib.optionals pkgs.stdenv.hostPlatform.isDarwin [
+          "ctrl+==increase_font_size:1"
+          "ctrl++=increase_font_size:1"
+          "ctrl+-=decrease_font_size:1"
+          "ctrl+0=reset_font_size"
+        ];
     };
   };
 

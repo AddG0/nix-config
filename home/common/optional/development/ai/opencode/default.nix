@@ -2,8 +2,17 @@
   config,
   lib,
   pkgs,
+  osConfig ? null,
   ...
 }: let
+  ollamaContext = host:
+    lib.attrByPath ["services" "ollama" "environmentVariables" "OLLAMA_CONTEXT_LENGTH"] null (
+      if host == null
+      then {}
+      else host
+    );
+  # Ollama's own default when no host sets one.
+  contextLength = lib.toInt (lib.findFirst (v: v != null) "4096" [(ollamaContext config) (ollamaContext osConfig)]);
   telemetryEnabled = config.hostSpec.telemetry.enabled && config.hostSpec.telemetry.opencode.enabled;
   opencodeWrapped = pkgs.symlinkJoin {
     name = "opencode-wrapped";
@@ -19,7 +28,9 @@ in {
   stylix.targets.opencode.enable = lib.mkDefault false;
 
   # Auto-populate the Ollama model picker from the live `ollama list`.
-  xdg.configFile."opencode/plugin/ollama-autodiscover.js".source = ./plugins/ollama-autodiscover.js;
+  xdg.configFile."opencode/plugin/ollama-autodiscover.js".source = pkgs.replaceVars ./plugins/ollama-autodiscover.js {
+    contextLength = toString contextLength;
+  };
 
   programs.code-assistant-profiles.targets.opencode.enable = true;
 

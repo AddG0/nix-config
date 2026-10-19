@@ -1,8 +1,8 @@
 // Populate provider.ollama.models from the live `ollama list` (GET /api/tags)
 // so opencode's model picker always reflects what Ollama actually has pulled,
 // without hardcoding model tags in config. Declared models are preserved.
-// Keep context equal to the server's OLLAMA_CONTEXT_LENGTH, or opencode never compacts before the window fills.
-const LIMIT = { context: 65536, output: 8192 };
+// Read from the host's OLLAMA_CONTEXT_LENGTH at build time; a larger value means opencode never compacts before the window fills.
+const LIMIT = { context: @contextLength@, output: 8192 };
 
 export const OllamaAutodiscover = async () => ({
   config: async (config) => {

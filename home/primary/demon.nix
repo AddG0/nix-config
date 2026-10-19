@@ -98,10 +98,10 @@
   ];
 
   services.gpu-screen-recorder = {
-    # Portal mode captures via xdg-desktop-portal, converting HDR to SDR.
-    # Direct capture with bitdepth 10 + HDR produces oversaturated colors.
-    display = "portal";
+    # KMS capture, not portal: any Hyprland screencopy blocks direct scanout.
+    # Needs an HDR codec, or the 10-bit HDR framebuffer comes out oversaturated.
     matchMonitorName = "LG ULTRAGEAR";
+    codec = "hevc_hdr";
     # DaVinci Resolve doesn't accept MKV.
     container = "mp4";
   };
@@ -204,6 +204,7 @@
       refreshRate = 240;
       x = 3840;
       y = 0;
+      vrr = "fullscreen-only";
       primary = true;
       bitdepth = 10;
       hdr = true;

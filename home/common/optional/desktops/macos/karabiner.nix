@@ -15,6 +15,9 @@
   # Upstream assumes a PC keyboard (Alt = Option, Win = Command); here Option is Super and Command sits where Alt does.
   drop =
     [
+      # F1/F3 are brightness-down and Mission Control here; the rules matched them before the media mapping.
+      "F1"
+      "F3"
       "Insert (Ctrl)"
       "Insert (Shift)"
       "Space (Ctrl)"
@@ -57,6 +60,8 @@
       ];
     })
     pcKeyboards;
+  # nix-darwin's remapCapsLockToEscape is a hidutil mapping, which Karabiner's grab bypasses.
+  capsToEscape = swap "caps_lock" "escape";
 
   rules = pkgs.runCommand "karabiner-linux-rules.json" {nativeBuildInputs = [pkgs.jq];} ''
     jq --argjson drop ${lib.escapeShellArg (builtins.toJSON drop)} \
@@ -82,17 +87,27 @@
 in {
   assertions = [(lib.hm.assertions.assertPlatform "desktops.macos.karabiner" pkgs lib.platforms.darwin)];
 
+  # Mission Control's Ctrl(+Shift)+arrow Space switching eats word jumps before terminals see them.
+  home.activation.freeCtrlArrowHotkeys = lib.hm.dag.entryAfter ["writeBoundary"] ''
+    for id in 79 80 81 82; do
+      run /usr/bin/defaults write com.apple.symbolichotkeys AppleSymbolicHotKeys -dict-add "$id" '<dict><key>enabled</key><false/></dict>'
+    done
+    run /System/Library/PrivateFrameworks/SystemAdministration.framework/Resources/activateSettings -u
+  '';
+
   # Not a symlink: Karabiner writes its own settings into the same file, so only the rule list is replaced.
   home.activation.karabinerRules = lib.hm.dag.entryAfter ["writeBoundary"] ''
     (
       current='{}'
       if [ -s ${lib.escapeShellArg configFile} ]; then current=$(cat ${lib.escapeShellArg configFile}); fi
-      merged=$(${lib.getExe pkgs.jq} -S --slurpfile r ${rules} --argjson devs ${lib.escapeShellArg (builtins.toJSON devices)} '
+      merged=$(${lib.getExe pkgs.jq} -S --slurpfile r ${rules} --argjson devs ${lib.escapeShellArg (builtins.toJSON devices)} \
+        --argjson caps ${lib.escapeShellArg (builtins.toJSON capsToEscape)} '
         def id: .identifiers | {is_keyboard, vendor_id, product_id};
         if (.profiles // []) == [] then .profiles = [{name: "Default profile", selected: true}] else . end
         | if any(.profiles[]; .selected) then . else .profiles[0].selected = true end
         | (.profiles[] | select(.selected) | .complex_modifications.rules) = $r[0]
-        | (.profiles[] | select(.selected) | .devices) |= ([.[]? | select(id as $i | $devs | map(id) | index($i) | not)] + $devs)
+        | (.profiles[] | select(.selected) | .simple_modifications) |= ([.[]? | select(.from.key_code != "caps_lock")] + [$caps])
+        | (.profiles[] | select(.selected) | .devices) |=([.[]? | select(id as $i | $devs | map(id) | index($i) | not)] + $devs)
       ' <<<"$current") && [ -n "$merged" ] || { echo "karabiner: invalid JSON in ${configFile}" >&2; exit 1; }
       if [ "$merged" != "$(${lib.getExe pkgs.jq} -S . <<<"$current")" ]; then
         tmp=$(mktemp)

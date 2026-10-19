@@ -33,7 +33,15 @@
     "tag +game, match:class ^(steam_app_\\d+)$"
     # Gamescoped ones don't: they map on gamescope's Xwayland, not Hyprland's.
     "tag +game, match:class ^(gamescope)$"
+    # render.direct_scanout = 2 only scans out windows of content type game.
+    "content game, match:tag game"
   ];
+
+  wayland.windowManager.hyprland.settings.render = {
+    direct_scanout = 2;
+    # Default 3 ignores CM for scanout, so SDR games on an HDR output go oversaturated.
+    non_shader_cm = 2;
+  };
 
   # Disable the desktop entry for Protontricks since steam gives me that option anyway
   #
