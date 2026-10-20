@@ -182,6 +182,16 @@ in {
       '';
     };
 
+    extraPath = lib.mkOption {
+      type = lib.types.listOf lib.types.package;
+      default = [];
+      description = ''
+        Packages whose `bin` the wrapped `claude` puts ahead of the inherited
+        PATH, so they shadow same-named commands for Claude and everything it
+        spawns, without touching the user's own shell.
+      '';
+    };
+
     conditionalSettings = lib.mkOption {
       type = lib.types.nullOr (lib.types.submodule {
         options = {

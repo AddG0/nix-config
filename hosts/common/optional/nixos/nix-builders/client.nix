@@ -39,13 +39,15 @@
         echo "$best"
       }
 
+      declare -A ipv4=(${lib.concatStrings (lib.mapAttrsToList (name: _: "[${name}]=${hostsAddr.${name}.ipv4} ") remoteBuilders)})
+
       tmp=$(mktemp "$out.XXXXXX")
       trap 'rm -f "$tmp"' EXIT
       summary="builders:"
       while read -r uri rest; do
         [[ -z $uri || $uri == \#* ]] && continue
         addr=''${uri#*@}
-        if ! us=$(rtt_us "$addr"); then
+        if ! us=$(rtt_us "''${ipv4[$addr]:-$addr}"); then
           summary+=" $addr unreachable"
         elif (( us > ${toString cfg.maxLatencyMs} * 1000 )); then
           summary+=" $addr $((us / 1000))ms dropped"
@@ -96,11 +98,18 @@ in {
       })
       remoteBuilders;
 
+    # Builders go by name in logs and nom, but MagicDNS resolves names to the tailnet.
+    programs.ssh.extraConfig = lib.concatStrings (lib.mapAttrsToList (name: _: ''
+        Match originalhost ${name} user builder
+          HostName ${hostsAddr.${name}.ipv4}
+      '')
+      remoteBuilders);
+
     nix = {
       distributedBuilds = true;
       buildMachines =
         lib.mapAttrsToList (name: builder: {
-          hostName = hostsAddr.${name}.ipv4;
+          hostName = name;
           inherit (builder) system maxJobs speedFactor supportedFeatures;
           protocol = "ssh-ng";
           sshUser = "builder";

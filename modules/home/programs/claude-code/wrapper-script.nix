@@ -19,6 +19,7 @@
     ${lib.optionalString (pkgs.stdenv.hostPlatform.isLinux && cfg.captureNode != null)
       "export PIPEWIRE_NODE=${lib.escapeShellArg cfg.captureNode}"}
     ${lib.optionalString (cfg.unsetEnv != []) "unset ${lib.escapeShellArgs cfg.unsetEnv}"}
+    ${lib.optionalString (cfg.extraPath != []) "export PATH=${lib.makeBinPath cfg.extraPath}:$PATH"}
     PROFILE="${cfg.defaultProfile}"
     ARGS=()
     SESSION_ARGS=()

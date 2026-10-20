@@ -7,14 +7,6 @@
   ...
 }: let
   jsonFormat = pkgs.formats.json {};
-  # Permission rules match on command prefix, so `cd x && git push` slips past
-  # them. A hook sees the whole string.
-  askBeforeGitPush = pkgs.writeShellScript "claude-ask-before-git-push" ''
-    cmd=$(${pkgs.jq}/bin/jq -r '.tool_input.command // ""')
-    if printf '%s' "$cmd" | ${pkgs.gnugrep}/bin/grep -qE '\bgit\b[^;&|]*\bpush\b'; then
-      echo '{"hookSpecificOutput":{"hookEventName":"PreToolUse","permissionDecision":"ask","permissionDecisionReason":"git push"}}'
-    fi
-  '';
   claudeWrapped = pkgs.symlinkJoin {
     name = "claude-code-wrapped";
     paths = [pkgs.unstable.claude-code];
@@ -43,6 +35,7 @@
 in {
   imports = [
     inputs.ai-toolkit.homeModules.default
+    ./git-push-guard
     ./glab-permissions.nix
   ];
 
@@ -156,7 +149,7 @@ in {
         skipAutoPermissionPrompt = true;
         permissions = {
           allow = ["Bash(git diff:*)" "Bash(nix build:*)" "Bash(nix flake:*)" "Edit" "mcp__context7__resolve-library-id" "mcp__context7__query-docs"];
-          ask = ["Bash(git push:*)" "Bash(kubectl get secret:*)"];
+          ask = ["Bash(kubectl get secret:*)"];
           defaultMode = "auto";
           deny = [
             "Read(./.env)"
@@ -164,17 +157,6 @@ in {
             "Read(**/terraform.tfvars)"
           ];
         };
-        hooks.PreToolUse = [
-          {
-            matcher = "Bash";
-            hooks = [
-              {
-                type = "command";
-                command = "${askBeforeGitPush}";
-              }
-            ];
-          }
-        ];
         statusLine = {
           command = "${pkgs.nodejs}/bin/node ${customPkgs.claude-hud}/share/claude-code/plugins/claude-hud/dist/index.js";
           padding = 0;

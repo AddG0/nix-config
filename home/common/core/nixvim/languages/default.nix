@@ -3,6 +3,7 @@ _: {
     ./crystal.nix
     ./docker.nix
     ./go.nix
+    ./gotmpl.nix
     ./helm.nix
     ./java.nix
     ./json.nix

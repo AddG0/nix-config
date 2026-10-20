@@ -18,6 +18,7 @@
       cfg = {
         captureNode = null;
         unsetEnv = [];
+        extraPath = [];
         defaultProfile = "default";
         profiles.default = {};
         package = fakeClaude;
@@ -25,6 +26,22 @@
           command = lib.getExe (pkgs.writeShellScriptBin "proxy-ready" command);
           file = proxySettings;
         };
+      };
+    }).wrapperScript;
+  shadowedTool = pkgs.writeShellScriptBin "shadowed-tool" "";
+  pathWrapper =
+    (import ./wrapper-script.nix {
+      baseDir = ".config/claude-code/profiles";
+      inherit lib pkgs;
+      resolvedProfiles.default = {};
+      cfg = {
+        captureNode = null;
+        unsetEnv = [];
+        extraPath = [shadowedTool];
+        defaultProfile = "default";
+        profiles.default = {};
+        package = pkgs.writeShellScriptBin "claude" "command -v shadowed-tool";
+        conditionalSettings = null;
       };
     }).wrapperScript;
   inherit
@@ -98,6 +115,9 @@ in
       cat unreachable >&2
       exit 1
     fi
+
+    ${pathWrapper}/bin/claude >shadowed
+    grep -qxF '${shadowedTool}/bin/shadowed-tool' shadowed
 
     timeout 4s ${wrapper "sleep 6"}/bin/claude --version >version
     grep -qxF -- '--version' version
