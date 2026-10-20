@@ -30,7 +30,7 @@
 
     #################### Misc Inputs ####################
 
-    (with lib.custom.optional.hosts.nixos; [nix-secrets-deploy-key static-networking])
+    (with lib.custom.optional.hosts.nixos; [nix-builders.builder nix-secrets-deploy-key static-networking])
     (with lib.custom.optional.hosts.nixos.services; [
       home-assistant-oci
       kubernetes.clusters.asgard

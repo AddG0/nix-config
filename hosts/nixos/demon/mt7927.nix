@@ -91,7 +91,7 @@
     # Unwrapped clang — cc-wrapper's --target/-nostdlibinc fight kbuild's own.
     nativeBuildInputs =
       kernel.moduleBuildDependencies
-      ++ [pkgs.python3]
+      ++ [pkgs.python3 pkgs.kmodigest]
       ++ (with cachyosLlvm; [clang-unwrapped lld llvm]);
 
     buildPhase = ''
@@ -124,6 +124,8 @@
       inst=$out/lib/modules/${kernel.modDirVersion}/updates
       install -dm755 "$inst"
       find _build -name '*.ko' -exec install -m644 {} "$inst/" \;
+      # aggregateModules needs each module's .ko.cer, which only Kbuild's modules_install would sign out.
+      find "$inst" -name '*.ko' -exec kmodigest {} \;
 
       fw=$out/lib/firmware/mediatek/mt7927
       install -dm755 "$fw"

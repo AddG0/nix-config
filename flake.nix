@@ -182,6 +182,8 @@
     # CachyOS kernel - optimized for desktop performance
     nix-cachyos-kernel = {
       url = "github:xddxdd/nix-cachyos-kernel/release";
+      # Its own older nixpkgs builds a module tree without the modules.cer ours requires.
+      inputs.nixpkgs.follows = "nixpkgs";
     };
 
     #################### Desktop Environments ####################

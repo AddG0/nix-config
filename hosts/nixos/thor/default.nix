@@ -31,7 +31,7 @@
 
     #################### Misc Inputs ####################
 
-    (with lib.custom.optional.hosts.nixos; [nix-secrets-deploy-key static-networking])
+    (with lib.custom.optional.hosts.nixos; [nix-builders.builder nix-secrets-deploy-key static-networking])
     (with lib.custom.optional.hosts.nixos.services; [
       kubernetes.clusters.asgard
       openssh # allow remote SSH access

@@ -26,14 +26,7 @@ in {
       # Increase concurrent downloads from binary caches
       max-substitution-jobs = 128; # Default is 16
 
-      # Conditional max-jobs based on whether remote builders are enabled
-      # max-jobs controls LOCAL builds only. Setting to 0 forces all builds to remote builders.
-      # If no remote builders available: use "auto" for local builds
-      max-jobs = lib.mkDefault (
-        if config.nix.remoteBuilder.enableClient && config.nix.remoteBuilder.totalRemoteJobs > 0
-        then config.nix.remoteBuilder.totalRemoteJobs
-        else "auto"
-      );
+      max-jobs = lib.mkDefault "auto";
       cores = 0; # Let each build use all available cores on the builder (auto-detect)
 
       trusted-users = [config.hostSpec.primaryUsername];

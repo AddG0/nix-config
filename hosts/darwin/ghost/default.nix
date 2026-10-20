@@ -8,6 +8,7 @@
   imports = lib.flatten [
     (lib.custom.useSuite lib.custom.suites.macos)
 
+    (with lib.custom.optional.hosts.darwin; [nix-builders.builder])
     (with lib.custom.optional.hosts.darwin.services; [
       server-mode # headless: no sleep, SSH, auto-restart
       tailscale # mesh VPN for secure remote access

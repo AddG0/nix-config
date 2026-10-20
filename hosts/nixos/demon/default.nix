@@ -35,6 +35,7 @@
     (with lib.custom.optional.hosts; [nix-cache])
     (with lib.custom.optional.hosts.nixos; [
       audio # base pipewire + AirPods A2DP handling; ./audio layers demon-specific routing on top
+      nix-builders.client
       obs # obs
       onepassword
       # plymouth # fancy boot screen
@@ -77,8 +78,6 @@
   nix.git-sync = {
     enable = true;
   };
-
-  # nix.remoteBuilder.enableClient = true;
 
   programs.gpu-screen-recorder.enable = true;
 
