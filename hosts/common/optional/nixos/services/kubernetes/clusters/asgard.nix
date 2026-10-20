@@ -13,15 +13,27 @@
   # Each node gets a /24 of this.
   podCidr = "10.42.0.0/16";
 
-  scrapePorts = [10250 9100];
+  nodeSources = lib.mapAttrsToList (node: _role: "${hostsAddr.${node}.ipv4}/32") cluster.nodes;
 
-  # Same-node scrapes arrive from the pod CIDR; cross-node ones are masqueraded
+  # Same-node traffic arrives from the pod CIDR; cross-node traffic is masqueraded
   # to the sending node's address.
-  scrapeSources = [podCidr] ++ lib.mapAttrsToList (node: _role: "${hostsAddr.${node}.ipv4}/32") cluster.nodes;
+  clusterSources = [podCidr] ++ nodeSources;
 
-  scrapeRules = lib.concatMap (port:
-    map (src: "nixos-fw -p tcp --dport ${toString port} -s ${src} -j nixos-fw-accept") scrapeSources)
-  scrapePorts;
+  allow = proto: port: map (src: "nixos-fw -p ${proto} --dport ${toString port} -s ${src} -j nixos-fw-accept");
+
+  firewallRules = lib.flatten (
+    [
+      (map (port: allow "tcp" port clusterSources) [10250 9100]) # kubelet, node-exporter
+      (allow "udp" 51820 nodeSources) # flannel WireGuard
+      (map (proto: allow proto 7946 nodeSources) ["tcp" "udp"]) # MetalLB memberlist
+    ]
+    ++ lib.optionals isServer [
+      (allow "tcp" 6443 clusterSources)
+      # Clients outside the cluster reach the API only through the VIP.
+      "nixos-fw -p tcp --dport 6443 -d ${cluster.vip}/32 -j nixos-fw-accept"
+      (map (port: allow "tcp" port nodeSources) [2379 2380]) # etcd client, peer
+    ]
+  );
 
   cluster = {
     vip = ipv4;
@@ -32,31 +44,18 @@
       thor = "server";
       kvasir = "agent";
     };
-    initNode = "odin";
   };
 
   currentNode = config.hostSpec.hostName;
   nodeRole = cluster.nodes.${currentNode};
   isServer = nodeRole == "server";
-  isInitNode = currentNode == cluster.initNode;
 in {
   # ==========================================================================
-  # Firewall - open k3s ports
+  # Firewall - k3s ports, open to cluster sources only
   # ==========================================================================
   networking.firewall = {
-    allowedTCPPorts =
-      lib.optionals isServer [
-        6443 # k3s API server
-        2379 # etcd client
-        2380 # etcd peer
-      ]
-      ++ [7946]; # MetalLB memberlist
-    allowedUDPPorts = [8472 7946]; # flannel VXLAN, MetalLB memberlist
-
-    # Kubelet (10250) and node-exporter (9100, hostNetwork). Scraped from inside
-    # the cluster only, never opened to the LAN.
-    extraCommands = lib.concatMapStringsSep "\n" (rule: "iptables -A ${rule}") scrapeRules;
-    extraStopCommands = lib.concatMapStringsSep "\n" (rule: "iptables -D ${rule} || true") scrapeRules;
+    extraCommands = lib.concatMapStringsSep "\n" (rule: "iptables -A ${rule}") firewallRules;
+    extraStopCommands = lib.concatMapStringsSep "\n" (rule: "iptables -D ${rule} || true") firewallRules;
   };
 
   # ==========================================================================
@@ -81,9 +80,8 @@ in {
   services.k3s = {
     enable = true;
     role = nodeRole;
-    # Only ever one node: a second bootstraps its own cluster, and so does moving it.
-    clusterInit = isInitNode;
-    serverAddr = lib.mkIf (!isInitNode) cluster.masterAddr;
+    # Every node joins via the VIP, so a wiped server rejoins instead of founding a new cluster.
+    serverAddr = cluster.masterAddr;
     tokenFile =
       if isServer
       then config.sops.secrets.k3sServerToken.path
@@ -103,9 +101,15 @@ in {
         # so a server rebooting while it holds the VIP advertises 10.61.60.2 for
         # etcd peering and never rejoins -- "not a member of the etcd cluster".
         "--node-ip=${hostsAddr.${currentNode}.ipv4}"
+        # kube-proxy DNATs NodePorts before nixos-fw sees them; MetalLB IPs have their own rules.
+        "--kube-proxy-arg=nodeport-addresses=127.0.0.0/8"
       ]
       ++ lib.optionals isServer [
         "--tls-san=${cluster.vip}"
+        # Agents read the backend from the server; every server must carry the same value.
+        "--flannel-backend=wireguard-native"
+        # Run `k3s secrets-encrypt enable` before first deploying this, or each server generates its own key.
+        "--secrets-encryption"
         "--disable=traefik"
         "--disable=servicelb"
         "--disable=metrics-server"
