@@ -351,15 +351,30 @@ alias d := deploy
 IPV4_SUFFIX := ' [0-9]+(\.[0-9]+){3}$'
 
 [group('deployment')]
-[doc("Deploy using colmena (specify hostnames or deploys to all, use --boot to activate on next boot, -u to refresh personal flake inputs first). Follow a host with an IP to override its target address, e.g. `just deploy kvasir 10.61.30.143`; use --ip for a DNS name.")]
+[doc("Deploy using colmena (specify hostnames or deploys to all, use --boot to activate on next boot, -u to refresh personal flake inputs first, -r to deploy one host at a time in the given order and stop at the first failure). Follow a host with an IP to override its target address, e.g. `just deploy kvasir 10.61.30.143`; use --ip for a DNS name.")]
 [arg("boot", long, value="boot")]
 [arg("ip", long)]
 [arg("update-inputs", short="u", long="update-inputs", value="true")]
-deploy boot="switch" ip="" update-inputs="false" *hostnames:
+[arg("rolling", short="r", long="rolling", value="true")]
+deploy boot="switch" ip="" update-inputs="false" rolling="false" *hostnames:
   @{{ if update-inputs == "true" { "just rebuild-pre" } else { "true" } }}
   DEPLOY_TARGET_NODE="{{ replace_regex(replace_regex(hostnames, IPV4_SUFFIX, ''), '^.* ', '') }}" \
   DEPLOY_TARGET_HOST="{{ if ip != '' { ip } else if hostnames =~ IPV4_SUFFIX { replace_regex(hostnames, '^.* ', '') } else { '' } }}" \
-    {{COLMENA}} apply --impure {{ if hostnames != '' { '--on ' + replace(replace_regex(hostnames, IPV4_SUFFIX, ''), ' ', ',') } else { '' } }} {{boot}}
+    {{ if rolling == "true" { "just deploy-rolling " + boot + " " + replace_regex(hostnames, IPV4_SUFFIX, '') } else { COLMENA + " apply --impure " + (if hostnames != '' { '--on ' + replace(replace_regex(hostnames, IPV4_SUFFIX, ''), ' ', ',') } else { '' }) + " " + boot } }}
+
+[private]
+[script]
+[doc("Build every host first, then activate them one at a time; each switch waits for its units to start, so a failure stops the rollout")]
+deploy-rolling boot *hostnames:
+  hosts="{{hostnames}}"
+  # Captured before tr: sh has no pipefail, so a failing deploy-list would leave an empty list.
+  [ -n "$hosts" ] || { all=$(just deploy-list); hosts=$(echo "$all" | tr '\n' ' '); }
+  [ -n "$hosts" ] || { echo "rolling deploy: no hosts to deploy" >&2; exit 1; }
+  {{COLMENA}} apply --impure --on "$(echo $hosts | tr ' ' ',')" build
+  for host in $hosts; do
+    echo "==> $host ({{boot}})"
+    {{COLMENA}} apply --impure --on "$host" {{boot}} || { echo "rolling deploy stopped: $host failed; not started: ${hosts#*$host}" >&2; exit 1; }
+  done
 
 [private]
 [script]

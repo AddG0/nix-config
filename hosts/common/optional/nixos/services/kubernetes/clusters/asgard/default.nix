@@ -50,6 +50,8 @@
   nodeRole = cluster.nodes.${currentNode};
   isServer = nodeRole == "server";
 in {
+  imports = [./audit.nix];
+
   # ==========================================================================
   # Firewall - k3s ports, open to cluster sources only
   # ==========================================================================
@@ -96,7 +98,8 @@ in {
       interface = "";
     };
 
-    extraFlags = toString ([
+    extraFlags =
+      [
         # Pinned: k3s otherwise autodetects the kube-vip VIP off the shared NIC,
         # so a server rebooting while it holds the VIP advertises 10.61.60.2 for
         # etcd peering and never rejoins -- "not a member of the etcd cluster".
@@ -117,7 +120,7 @@ in {
         "--disable-network-policy"
         "--disable-helm-controller"
         "--etcd-expose-metrics=true"
-      ]);
+      ];
   };
 
   # The module ships TimeoutStartSec=0, so a wedged start never fails and
