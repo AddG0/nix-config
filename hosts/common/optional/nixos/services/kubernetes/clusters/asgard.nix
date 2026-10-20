@@ -62,9 +62,17 @@ in {
   # ==========================================================================
   # Secrets
   # ==========================================================================
-  sops.secrets.k3sMainToken = {
-    sopsFile = "${nix-secrets}/services/kubernetes/asgard.yaml";
-    key = "token";
+  # The server token is cluster-admin and decrypts the etcd bootstrap data, so agents never hold it.
+  sops.secrets = {
+    k3sServerToken = lib.mkIf isServer {
+      sopsFile = "${nix-secrets}/services/kubernetes/asgard-server.yaml";
+      key = "token";
+    };
+    # Full K10<ca-hash> form: agents pin the cluster CA instead of trusting whatever answers.
+    k3sAgentToken = {
+      sopsFile = "${nix-secrets}/services/kubernetes/asgard-agent.yaml";
+      key = "token";
+    };
   };
 
   # ==========================================================================
@@ -76,7 +84,11 @@ in {
     # Only ever one node: a second bootstraps its own cluster, and so does moving it.
     clusterInit = isInitNode;
     serverAddr = lib.mkIf (!isInitNode) cluster.masterAddr;
-    tokenFile = config.sops.secrets.k3sMainToken.path;
+    tokenFile =
+      if isServer
+      then config.sops.secrets.k3sServerToken.path
+      else config.sops.secrets.k3sAgentToken.path;
+    agentTokenFile = lib.mkIf isServer config.sops.secrets.k3sAgentToken.path;
 
     addons.kube-vip = lib.mkIf isServer {
       enable = true;
