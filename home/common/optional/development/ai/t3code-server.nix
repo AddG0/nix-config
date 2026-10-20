@@ -2,11 +2,9 @@
 # readiness waits on the initial provider probes, and codex and opencode each
 # take 1.5-2.5s of that.
 #
-# The desktop app has no attach mode — it forks its own backend — so a host
-# running both ends up with two servers over one ~/.t3/userdata: state.sqlite is
-# WAL and safe, but server-runtime.json holds a single record, so `t3 pair`
-# discovery follows whichever started last. The app is pinned off this port in
-# overlays/common/development/t3code/desktop-port.nix.
+# The desktop app has no attach mode — it forks its own backend — and since
+# 0.1.0 only one server may own ~/.t3/userdata, so whichever starts second
+# fails. Hence the assertion: a host gets this unit or the desktop app.
 #
 # Don't run `t3 service install` either; its unit self-updates from npm.
 #
@@ -41,6 +39,13 @@ in {
   };
 
   config = {
+    assertions = [
+      {
+        assertion = !config.programs.t3code.desktop.enable;
+        message = "services.t3codeServer and the t3code desktop app both run a server over ~/.t3/userdata, and t3code lets only one own it. Set programs.t3code.desktop.enable = false, or drop ai.t3code-server.";
+      }
+    ];
+
     systemd.user.services.t3code = {
       Unit = {
         Description = "T3 Code server";

@@ -4,6 +4,7 @@
   lib,
   stdenv,
   kernel,
+  kmodigest,
 }:
 stdenv.mkDerivation {
   pname = "razer-battery-care";
@@ -11,7 +12,7 @@ stdenv.mkDerivation {
 
   src = ./.;
 
-  nativeBuildInputs = kernel.moduleBuildDependencies;
+  nativeBuildInputs = kernel.moduleBuildDependencies ++ [kmodigest];
 
   # Not kernel.makeFlags: that carries O= and --eval=undefine, for building the
   # kernel itself.
@@ -23,8 +24,10 @@ stdenv.mkDerivation {
 
   installPhase = ''
     runHook preInstall
-    install -Dm444 razer_battery_care.ko \
+    install -Dm644 razer_battery_care.ko \
       -t "$out/lib/modules/${kernel.modDirVersion}/kernel/drivers/hid"
+    # aggregateModules reads each module's .ko.cer, which only modules_install writes.
+    kmodigest "$out/lib/modules/${kernel.modDirVersion}/kernel/drivers/hid/razer_battery_care.ko"
     runHook postInstall
   '';
 

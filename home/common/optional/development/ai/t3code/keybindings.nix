@@ -43,11 +43,12 @@ _: {
       command = "rightPanel.toggle";
     }
 
-    # <leader>ff and <leader><space> Snacks.picker.files
+    # <leader>ff and <leader><space> Snacks.picker.files. The `when` matches the
+    # chat.find default's, so this rule replaces it instead of losing to it.
     {
       key = "mod+f";
       command = "filePicker.toggle";
-      when = "!terminalFocus";
+      when = "!terminalFocus && !previewFocus";
     }
 
     # <leader>/ and <leader>sg Snacks.picker.grep

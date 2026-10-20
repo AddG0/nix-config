@@ -35,8 +35,8 @@ in {
       # Otherwise the browser opens at ~/, a long walk to a nested subgroup.
       addProjectBaseDirectory = config.polyrepo.ghqRoot;
 
-      # Already upstream's default; pinned so a flip there cannot quietly start
-      # creating worktrees. New threads only — the composer still picks per thread.
+      # Upstream's null defers to a repo's t3.json, which can start creating
+      # worktrees. New threads only — the composer still picks per thread.
       defaultThreadEnvMode = "local";
 
       # Any binaryPath containing a separator makes t3code treat the CLI as

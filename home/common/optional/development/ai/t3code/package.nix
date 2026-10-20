@@ -74,11 +74,31 @@
               done
             '';
         })) {};
-in {
-  # The theme module owns basePackage, so disabling it drops these too.
-  programs.t3code.theme.basePackage = withDefaultAgent (
+
+  withoutDesktop = pkg:
+    lib.makeOverridable (args:
+      (pkg.override args).overrideAttrs (old: {
+        postBuild =
+          (old.postBuild or "")
+          + ''
+            rm -rf "$out/bin/t3code-desktop" "$out/share/applications" "$out/Applications"
+          '';
+        meta = old.meta // {mainProgram = "t3";};
+      })) {};
+
+  desktopPackage = withDefaultAgent (
     if nvimPickerSupported
     then withNvim
     else withScopedGlab
   );
+in {
+  options.programs.t3code.desktop.enable =
+    lib.mkEnableOption "the t3code desktop app, which runs its own server over ~/.t3/userdata"
+    // {default = true;};
+
+  # The theme module owns basePackage, so disabling it drops these too.
+  config.programs.t3code.theme.basePackage =
+    if config.programs.t3code.desktop.enable
+    then desktopPackage
+    else withoutDesktop desktopPackage;
 }

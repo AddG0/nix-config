@@ -5,12 +5,13 @@
 # always got a generated branch off origin/HEAD.
 #
 # Settling a thread that is the last one in its worktree now offers to remove
-# the worktree, which upstream only does when a thread is deleted.
+# the worktree; upstream's settled-days cleanup skips worktrees outside the
+# managed folder, which is where worktree-paths.nix puts them.
 #
 # Drop once t3code ships a worktree picker of its own.
 #
 # Patched in `unwrapped`: see README.md. A `.patch` rather than
-# substituteInPlace anchors — six files, ~40 hunks — and `patches` still fails
+# substituteInPlace anchors — 14 files, ~80 hunks — and `patches` still fails
 # the build on a bump that moves the code, which is the point of the anchors.
 _: _final: prev: {
   t3code = prev.t3code.override {

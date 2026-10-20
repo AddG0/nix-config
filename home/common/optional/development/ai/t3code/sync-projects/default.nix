@@ -18,7 +18,7 @@ in {
       Description = "Register ghq clones as t3code projects";
       # First run of the script wants the state db; before t3code has ever
       # started there is nothing to sync into, so skip instead of failing.
-      ConditionPathExists = "%h/.t3/userdata/state.sqlite";
+      ConditionPathExists = "%h/.t3/userdata/statev2.sqlite";
     };
     Service = {
       Type = "oneshot";

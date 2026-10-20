@@ -7,7 +7,6 @@
 
     (with lib.custom.optional.home.development; [
       ai.ai-proxy
-      ai.t3code-server
       aws
       gcloud
       grpc

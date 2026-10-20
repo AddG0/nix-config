@@ -1,17 +1,17 @@
-# Review diff preview/contents only allow cwds under the server's launch cwd or
-# ~/.t3/worktrees, so a sibling worktree (`<clone>--<branch>`, see
-# worktree-paths.nix) is rejected whenever the launch cwd doesn't contain it.
-# Also allow anything under the ghq root, resolved the way ghq itself does
-# ($GHQ_ROOT, then `git config ghq.root`); unresolvable falls back to upstream
-# behavior. A raw execFileSync instead of the codebase's ProcessRunner keeps the
-# patch out of ReviewService's Effect dependency wiring. Drop once t3code lets
-# the worktree location (and with it this allowlist) be configured.
+# Review diff preview/contents only allow cwds under the server's launch cwd, the
+# managed worktree folders, or a registered project, so a sibling worktree
+# (`<clone>--<branch>`, see worktree-paths.nix) is rejected whenever the launch
+# cwd doesn't contain it; the desktop backend's is the Nix store. Also allow
+# anything under the ghq root, resolved the way ghq itself does ($GHQ_ROOT, then
+# `git config ghq.root`); unresolvable falls back to upstream behavior. A raw
+# execFileSync instead of the codebase's ProcessRunner keeps the patch out of
+# ReviewService's Effect dependency wiring. Drop with worktree-paths.nix.
 #
-# Patched in `unwrapped`: see desktop-port.nix.
+# Patched in `unwrapped`: see README.md.
 _: _final: prev: let
   inherit (prev.lib) escapeShellArg;
 
-  ghqRootHelperAnchor = "export const make = Effect.gen(function* () {";
+  ghqRootHelperAnchor = "/** @public Service construction is part of the canonical Effect module API. */\nexport const make = Effect.gen(function* () {";
   ghqRootHelperPatch = builtins.concatStringsSep "\n" [
     "let cachedGhqRoot: string | null | undefined;"
     ""
@@ -39,30 +39,26 @@ _: _final: prev: let
     ghqRootHelperAnchor
   ];
 
+  # A ghq root that cannot be resolved grants nothing, like upstream's managed roots.
   ghqRootCheckAnchor = builtins.concatStringsSep "\n" [
-    "    const [candidate, workspaceRoot, worktreesRoot] = yield* Effect.all(["
-    "      canonicalizePath(cwd),"
-    "      canonicalizePath(config.cwd),"
-    "      canonicalizePath(config.worktreesDir),"
-    "    ]);"
-    ""
-    "    if (isWithinRoot(candidate, workspaceRoot) || isWithinRoot(candidate, worktreesRoot)) {"
+    "    if ("
+    "      isWithinRoot(candidate, workspaceRoot) ||"
+    "      worktreesRoots.some((root) => isWithinRoot(candidate, root))"
+    "    ) {"
     "      return;"
     "    }"
   ];
   ghqRootCheckPatch = builtins.concatStringsSep "\n" [
-    "    const ghqRoot = resolveGhqRoot();"
-    "    const [candidate, workspaceRoot, worktreesRoot, ghqRootCanonical] = yield* Effect.all(["
-    "      canonicalizePath(cwd),"
-    "      canonicalizePath(config.cwd),"
-    "      canonicalizePath(config.worktreesDir),"
-    "      ghqRoot === null ? Effect.succeed(null) : canonicalizePath(ghqRoot),"
-    "    ]);"
+    "    const ghqRootPath = resolveGhqRoot();"
+    "    const ghqRoot ="
+    "      ghqRootPath === null"
+    "        ? null"
+    "        : yield* canonicalizePath(ghqRootPath).pipe(Effect.orElseSucceed(() => null));"
     ""
     "    if ("
     "      isWithinRoot(candidate, workspaceRoot) ||"
-    "      isWithinRoot(candidate, worktreesRoot) ||"
-    "      (ghqRootCanonical !== null && isWithinRoot(candidate, ghqRootCanonical))"
+    "      worktreesRoots.some((root) => isWithinRoot(candidate, root)) ||"
+    "      (ghqRoot !== null && isWithinRoot(candidate, ghqRoot))"
     "    ) {"
     "      return;"
     "    }"

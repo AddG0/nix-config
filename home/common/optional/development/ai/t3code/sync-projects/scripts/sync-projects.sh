@@ -3,12 +3,12 @@
 # fresh clone shows up without the manual "Add Project" file-picker walk, and
 # removes any registered project whose path is gone (rename, gwq worktree
 # promotion, deleted clone). Skips gwq's own worktrees. New paths are filtered
-# out before calling t3 and added in parallel — each `t3 project add` costs
-# ~0.5s of process-spawn overhead regardless of outcome, so that's what
-# dominates a few-hundred-repo sync.
+# out before calling t3 — each `t3 project add` costs ~0.5s of process-spawn
+# overhead regardless of outcome. Serial: with no server up, each add takes the
+# data dir's lock without waiting, so parallel adds fail.
 set -euo pipefail
 
-state_db="${T3CODE_STATE_DB:-$HOME/.t3/userdata/state.sqlite}"
+state_db="${T3CODE_STATE_DB:-$HOME/.t3/userdata/statev2.sqlite}"
 
 if [ ! -f "$state_db" ]; then
   echo "t3code-sync-projects: no state db at $state_db — start t3code once first" >&2
@@ -20,7 +20,7 @@ known=$(sqlite3 "$state_db" \
 
 gwq list -g --json | jq -r '.[] | select(.is_main) | .path' |
   grep -vFxf <(printf '%s\n' "$known") |
-  xargs -P "$(nproc)" -I{} t3 project add {}
+  xargs -I{} t3 project add {}
 
 printf '%s\n' "$known" | while IFS= read -r workspace_root; do
   [ -z "$workspace_root" ] && continue

@@ -1,9 +1,9 @@
 # t3code shows an "update available" banner when a provider CLI (codex,
 # claude-code, opencode) is behind the latest npm release. We pin those CLIs by
 # path (home .../development/ai/t3code), so the banner is noise with no
-# actionable update and t3code has no setting to hide it. Forcing packageName to
-# null skips the npm version fetch, so the advisory stays "unknown" and the
-# banner never renders. Drop once t3code gains a toggle.
+# actionable update. Forcing packageName to null skips the npm version fetch, so
+# the advisory stays "unknown" and the banner never renders. Upstream's
+# enableProviderUpdateChecks toggle would also stop model-catalog fetches.
 #
 # Patched in `unwrapped`: see README.md.
 _: _final: prev: let
@@ -17,7 +17,7 @@ in {
       postPatch =
         (old.postPatch or "")
         + ''
-          substituteInPlace apps/server/src/provider/providerMaintenance.ts \
+          substituteInPlace packages/provider-core/src/server/maintenanceResolver.ts \
             --replace-fail ${escapeShellArg versionFetchAnchor} ${escapeShellArg versionFetchPatch}
         '';
     });

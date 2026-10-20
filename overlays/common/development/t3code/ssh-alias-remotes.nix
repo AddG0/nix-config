@@ -62,20 +62,24 @@ _: _final: prev: let
   ];
 
   identityRemoteAnchor = builtins.concatStringsSep "\n" [
-    "  const remote = pickPrimaryRemote(parseRemoteFetchUrls(remoteResult.value.stdout));"
-    "  return remote ? buildRepositoryIdentity({ ...remote, rootPath: cacheKey }) : null;"
+    "  const remote = pickPrimaryRemote(remotes);"
+    "  return remote"
+    "    ? buildRepositoryIdentity({ ...remote, originUrl: remotes.get(\"origin\"), rootPath: cacheKey })"
+    "    : null;"
   ];
   identityRemotePatch = builtins.concatStringsSep "\n" [
-    "  const remote = pickPrimaryRemote(parseRemoteFetchUrls(remoteResult.value.stdout));"
+    "  const remote = pickPrimaryRemote(remotes);"
     "  if (remote === null) return null;"
     "  const remoteUrl = yield* canonicalizeRemoteHost(remote.remoteUrl);"
-    "  return buildRepositoryIdentity({ ...remote, remoteUrl, rootPath: cacheKey });"
+    "  const origin = remotes.get(\"origin\");"
+    "  const originUrl = origin === undefined ? undefined : yield* canonicalizeRemoteHost(origin);"
+    "  return buildRepositoryIdentity({ ...remote, remoteUrl, originUrl, rootPath: cacheKey });"
   ];
 
-  driverImportAnchor = "import * as NodeCrypto from \"node:crypto\";";
+  driverImportAnchor = "import * as NodeBuffer from \"node:buffer\";";
   driverImportPatch = builtins.concatStringsSep "\n" [
-    "import * as NodeChildProcess from \"node:child_process\";"
     driverImportAnchor
+    "import * as NodeChildProcess from \"node:child_process\";"
   ];
 
   driverHelperAnchor = "export interface ExecuteGitInput {";

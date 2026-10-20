@@ -40,7 +40,7 @@ in
   pkgs.runCommand "t3code-sync-projects-test" {} ''
     export PATH="${stubPath}"
     export T3_LOG="$PWD/t3.log"
-    export T3CODE_STATE_DB="$PWD/state.sqlite"
+    export T3CODE_STATE_DB="$PWD/statev2.sqlite"
     export TEST_BASE="$PWD/repos"
     export HOME="$PWD/home"
     touch "$T3_LOG" "$T3CODE_STATE_DB"

@@ -68,6 +68,11 @@ in {
       codeBackground = c.base01;
       codeForeground = c.base05;
 
+      searchMatchBackground = c.base0A;
+      searchMatchForeground = c.base00;
+      searchMatchActiveBackground = c.base09;
+      searchMatchActiveForeground = c.base00;
+
       sidebar = c.base01;
       sidebarForeground = c.base05;
       sidebarMutedForeground = c.base04;
