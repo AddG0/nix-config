@@ -27,7 +27,10 @@
 #
 # SAVING REPLAYS:
 #   Run `save-gsr-replay` or bind it to a hotkey to save the replay buffer.
-#   `postSaveScript` hooks an executable to run on each saved file.
+#   `postSaveScript` hooks an executable to run on each saved file; it may move
+#   the clip and prints the clip's final path. HDR10 clips (from an HDR codec)
+#   are then handled per `hdrClips`: converted to SDR by default, since
+#   Discord, phones and most browsers show HDR10 washed out.
 #
 # LIFECYCLE (see docs/adr/0004-gsr-lifecycle-in-systemd.md):
 #   GSR is the unit's main process; systemd restarts it and SIGKILLs a hung
@@ -280,6 +283,45 @@
 
   # Resolves the capture target and execs GSR, so GSR is the unit's main
   # process and systemd owns restarts and stop escalation.
+  # Runs on every save: the user's postSaveScript (which may move the clip),
+  # then the HDR10 handling chosen by hdrClips, on the clip's final path.
+  postSavePipeline = pkgs.writeShellApplication {
+    name = "gsr-post-save";
+    # ffmpeg-full: the plain build lacks the libplacebo GPU tone-mapper.
+    runtimeInputs = with pkgs; [coreutils ffmpeg-full];
+    text = ''
+      clip="''${1:?usage: gsr-post-save <filepath> [type]}"
+
+      ${lib.optionalString (cfg.postSaveScript != null) ''
+        if moved=$(${lib.getExe cfg.postSaveScript} "$@"); then
+          [ -z "$moved" ] || clip=''${moved##*$'\n'}
+        else
+          echo "gsr-post-save: postSaveScript failed for $clip" >&2
+        fi
+      ''}
+      ${lib.optionalString (cfg.hdrClips != "hdr") ''
+        [ -f "$clip" ] || exit 0
+        [ "$(ffprobe -v error -select_streams v:0 -show_entries stream=color_transfer \
+          -of default=nw=1:nk=1 "$clip")" = smpte2084 ] || exit 0
+
+        # The original is touched only once the SDR copy is fully written.
+        sdr="''${clip%.*}.sdr-tmp.''${clip##*.}"
+        if ffmpeg -hide_banner -loglevel error -y -i "$clip" -map 0 \
+          -vf "libplacebo=tonemapping=bt.2390:colorspace=bt709:color_primaries=bt709:color_trc=bt709:range=tv:format=yuv420p" \
+          -c:v h264_nvenc -preset p5 -cq 19 -c:a copy \
+          -color_primaries bt709 -color_trc bt709 -colorspace bt709 -movflags +faststart "$sdr"; then
+          ${lib.optionalString (cfg.hdrClips == "both") ''mv -- "$clip" "''${clip%.*}.hdr.''${clip##*.}"''}
+          mv -f -- "$sdr" "$clip"
+          echo "gsr-post-save: converted to SDR: $clip"
+        else
+          rm -f -- "$sdr"
+          echo "gsr-post-save: SDR conversion failed, kept the HDR10 original: $clip" >&2
+        fi
+      ''}
+    '';
+  };
+  runsPostSave = cfg.postSaveScript != null || cfg.hdrClips != "hdr";
+
   startScript = pkgs.writeShellApplication {
     name = "start-gsr-replay";
     runtimeInputs = with pkgs; [gpu-screen-recorder findMonitorScript coreutils];
@@ -298,7 +340,7 @@
         -q ${cfg.quality} \
         -r ${toString (cfg.replayDuration + cfg.postRecordSeconds)} \
         ${lib.optionalString usePortal "-restore-portal-session yes"} \
-        ${lib.optionalString (cfg.postSaveScript != null) "-sc ${lib.getExe cfg.postSaveScript}"} \
+        ${lib.optionalString runsPostSave "-sc ${lib.getExe postSavePipeline}"} \
         -o "${cfg.outputDirectory}"
     '';
   };
@@ -493,9 +535,23 @@ in {
       default = null;
       example = lib.literalExpression ''pkgs.writeShellApplication { name = "my-hook"; text = "..."; }'';
       description = ''
-        Executable run after every save, wired to gpu-screen-recorder's `-sc`
-        hook. GSR invokes it asynchronously with two arguments: the saved
-        filepath and the save type (`regular`, `replay`, or `screenshot`).
+        Executable run after every save, from gpu-screen-recorder's `-sc` hook,
+        which GSR invokes asynchronously. Arguments: the saved filepath and the
+        save type (`regular`, `replay`, or `screenshot`). It may move the clip;
+        if it does, it prints the new path as its last stdout line (log to
+        stderr). `hdrClips` handling then runs on that path.
+      '';
+    };
+
+    hdrClips = lib.mkOption {
+      type = lib.types.enum ["sdr" "both" "hdr"];
+      default = "sdr";
+      description = ''
+        What to keep of a clip recorded as HDR10 (an HDR `codec`). `sdr`
+        converts it to SDR (BT.709, NVENC H.264) and drops the original, since
+        most players and sites show HDR10 washed out; `both` keeps the original
+        too, as `<name>.hdr.<ext>`; `hdr` keeps it as recorded. SDR clips are
+        left alone.
       '';
     };
 

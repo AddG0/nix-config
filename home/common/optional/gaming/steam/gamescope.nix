@@ -10,7 +10,7 @@
   pkgs,
 }: extraArgs:
 lib.singleton (lib.getExe (pkgs.writeShellApplication {
-  name = "gamescope-output";
+  name = "gamescope-game";
   runtimeInputs = [pkgs.gamescope];
   # GAME_OUTPUT_* arrive from game-output's environment.
   excludeShellChecks = ["SC2153"];

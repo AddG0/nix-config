@@ -1,5 +1,5 @@
 # Steam wrapper inside game-output: what a game needs on an HDR output.
-# Unset on SDR outputs, where games may switch to HDR anyway.
+# Leaves DXVK_HDR unset on SDR outputs, where a game told HDR is on may switch to it.
 {
   lib,
   pkgs,

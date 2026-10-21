@@ -170,6 +170,7 @@
     forza-horizon-6.wrappers = [gamemoderun] ++ gamescope;
 
     # Overwatch's own HDR is scRGB, which Hyprland oversaturates; forced composition makes gamescope emit PQ.
+    # Forced composition: gamescope emits PQ instead of passing Overwatch's scRGB HDR through, which Hyprland oversaturates.
     overwatch.wrappers = mouseDpi 1800 ++ [gamemoderun] ++ mkGamescope ["--force-composition"];
 
     # 2000 DPI + in-game sens 2 reproduces the Aim Lab cm/360 (0.52% off).
