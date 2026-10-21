@@ -61,42 +61,47 @@ in {
         ];
     };
 
-    homeModules.default = {
-      imports =
-        common
-        ++ [
-          ./home/copyq.nix
-          ./home/directory-env
-          ./home/direnv/1password-direnv
-          ./home/direnv/lastpass-direnv
-          ./home/direnv/sops-direnv
-          (importWithLocal ./home/fusion360.nix)
-          ./home/gradle
-          ./home/jetbrains
-          ./home/lnav.nix
-          ./home/monitors.nix
-          (importWithLocal ./home/nixos/rlbot.nix)
-          ./home/nixos/services/gpu-screen-recorder.nix
-          ./home/nixos/services/hass-agent.nix
-          ./home/prismlauncher
-          (importWithLocal ./home/programs/claude-code)
-          (importWithLocal ./home/programs/code-assistant-profiles)
-          ./home/programs/codex
-          ./home/programs/t3code-theme
-          ./home/services/playerctl-rules
-          ./home/services/rclone-mount.nix
-        ];
-    };
+    homeModules = {
+      default = {
+        imports =
+          common
+          ++ [
+            ./home/copyq.nix
+            ./home/directory-env
+            ./home/direnv/1password-direnv
+            ./home/direnv/lastpass-direnv
+            ./home/direnv/sops-direnv
+            (importWithLocal ./home/fusion360.nix)
+            ./home/gradle
+            ./home/jetbrains
+            ./home/lnav.nix
+            ./home/monitors.nix
+            (importWithLocal ./home/nixos/rlbot.nix)
+            ./home/nixos/services/gpu-screen-recorder.nix
+            ./home/nixos/services/hass-agent.nix
+            ./home/prismlauncher
+            self.homeModules.claude-code
+            self.homeModules.code-assistant-profiles
+            ./home/programs/codex
+            ./home/programs/t3code-theme
+            ./home/services/playerctl-rules
+            ./home/services/rclone-mount.nix
+          ];
+      };
 
-    homeModules.plasma6 = {
-      imports = [
-        (importWithLocal ./home/nixos/desktops/plasma6/kwin.nix)
-        ./home/nixos/desktops/plasma6/workspace/cursors.nix
-        ./home/nixos/desktops/plasma6/workspace/icons.nix
-        (importWithLocal ./home/nixos/desktops/plasma6/workspace/splash-screens.nix)
-        (importWithLocal ./home/nixos/desktops/plasma6/workspace/themes/sweet.nix)
-        ./home/nixos/desktops/plasma6/workspace/themes/whitesur.nix
-      ];
+      claude-code = importWithLocal ./home/programs/claude-code;
+      code-assistant-profiles = importWithLocal ./home/programs/code-assistant-profiles;
+
+      plasma6 = {
+        imports = [
+          (importWithLocal ./home/nixos/desktops/plasma6/kwin.nix)
+          ./home/nixos/desktops/plasma6/workspace/cursors.nix
+          ./home/nixos/desktops/plasma6/workspace/icons.nix
+          (importWithLocal ./home/nixos/desktops/plasma6/workspace/splash-screens.nix)
+          (importWithLocal ./home/nixos/desktops/plasma6/workspace/themes/sweet.nix)
+          ./home/nixos/desktops/plasma6/workspace/themes/whitesur.nix
+        ];
+      };
     };
   };
 }
