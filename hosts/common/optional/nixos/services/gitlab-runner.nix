@@ -15,19 +15,10 @@
 #   - Kaniko is auto-detected and skips the nix setup entirely
 {
   config,
-  # inputs,
   lib,
   pkgs,
   ...
 }: {
-  # TODO: Wire up sops-nix for proper secret management
-  # sops.secrets."gitlab-runner-token" = {
-  #   sopsFile = "${inputs.nix-secrets}/users/${config.hostSpec.primaryUsername}/gitlab/runner-token.env.enc";
-  #   format = "binary";
-  #   owner = "gitlab-runner";
-  #   mode = "0400";
-  # };
-
   # Required for Docker networking between containers
   boot.kernel.sysctl."net.ipv4.ip_forward" = true;
   virtualisation.docker.enable = true;
@@ -58,15 +49,8 @@
       # recommended range (2–4) for a single-runner setup.
       requestConcurrency = 4;
 
-      # Token file should contain:
-      #   CI_SERVER_URL=https://gitlab.com
-      #   CI_SERVER_TOKEN=glrt-xxxxxxxxxxxxxxxxxxxx
-      #
-      # Create runner in GitLab UI: Settings > CI/CD > Runners > New project runner
-      # The token file must be created manually at this path (persists across reboots).
-      # When sops-nix is wired up, switch to the commented line below.
-      # authenticationTokenConfigFile = config.sops.secrets."gitlab-runner-token".path;
-      authenticationTokenConfigFile = "/etc/gitlab-runner/token-env";
+      # A hand-placed token unless the host wires one from sops.
+      authenticationTokenConfigFile = lib.mkDefault "/etc/gitlab-runner/token-env";
 
       # Alpine is used as a minimal base
       dockerImage = "alpine:latest";

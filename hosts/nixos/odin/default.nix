@@ -5,6 +5,7 @@
 #
 ###############################################################
 {
+  config,
   inputs,
   lib,
   pkgs,
@@ -53,6 +54,14 @@
     # Every *.addg0.com record and the UniFi resolver (.60.1) live on the Servers VLAN.
     extraSetFlags = ["--advertise-routes=10.61.60.0/24"];
   };
+
+  # Root-owned: the runner is a DynamicUser, and its configure step reads this as root (`!` ExecStartPre).
+  sops.secrets."gitlab-runner-token" = {
+    sopsFile = "${inputs.nix-secrets}/services/gitlab-runner/token.env.enc";
+    format = "binary";
+    restartUnits = ["gitlab-runner.service"];
+  };
+  services.gitlab-runner.services.nix.authenticationTokenConfigFile = config.sops.secrets."gitlab-runner-token".path;
 
   networking = {
     enableIPv6 = false;

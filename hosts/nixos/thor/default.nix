@@ -5,6 +5,7 @@
 #
 ###############################################################
 {
+  config,
   inputs,
   lib,
   pkgs,
@@ -33,6 +34,7 @@
 
     (with lib.custom.optional.hosts.nixos; [nix-builders.builder nix-secrets-deploy-key static-networking])
     (with lib.custom.optional.hosts.nixos.services; [
+      gitlab-runner
       kubernetes.clusters.asgard
       openssh # allow remote SSH access
     ])
@@ -44,6 +46,14 @@
     schedule = "03:40";
     rebootIfNeeded = true;
   };
+
+  # Root-owned: the runner is a DynamicUser, and its configure step reads this as root (`!` ExecStartPre).
+  sops.secrets."gitlab-runner-token" = {
+    sopsFile = "${inputs.nix-secrets}/services/gitlab-runner/token.env.enc";
+    format = "binary";
+    restartUnits = ["gitlab-runner.service"];
+  };
+  services.gitlab-runner.services.nix.authenticationTokenConfigFile = config.sops.secrets."gitlab-runner-token".path;
 
   networking = {
     enableIPv6 = false;
