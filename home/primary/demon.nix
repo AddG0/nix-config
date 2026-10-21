@@ -203,7 +203,6 @@
       refreshRate = 240;
       x = 3840;
       y = 0;
-      vrr = "fullscreen-only";
       primary = true;
       bitdepth = 10;
       hdr = true;

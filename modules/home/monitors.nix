@@ -65,8 +65,8 @@
               default = null;
             };
             vrr = lib.mkOption {
-              type = lib.types.enum ["off" "on" "fullscreen-only"];
-              description = "Variable Refresh Rate (Adaptive Sync / FreeSync).";
+              type = lib.types.enum ["off" "on" "fullscreen-only" "fullscreen-game"];
+              description = "Variable Refresh Rate (Adaptive Sync / FreeSync). `fullscreen-game` limits it to fullscreen windows whose content type is game or video.";
               default = "off";
             };
             bitdepth = lib.mkOption {

@@ -14,5 +14,6 @@
     "off" = 0;
     "on" = 1;
     "fullscreen-only" = 2;
+    "fullscreen-game" = 3;
   };
 }

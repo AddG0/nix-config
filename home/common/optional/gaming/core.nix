@@ -34,7 +34,8 @@
     # Gamescoped ones don't: they map on gamescope's Xwayland, not Hyprland's.
     "tag +game, match:class ^(gamescope)$"
     # render.direct_scanout = 2 only scans out windows of content type game.
-    "content game, match:tag game"
+    # Not gamescope: Hyprland scanning out its buffer directly shows garbage.
+    "content game, match:tag game, match:class negative:^(gamescope)$"
   ];
 
   wayland.windowManager.hyprland.settings.render = {

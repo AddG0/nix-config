@@ -36,14 +36,13 @@
 
   # hyprctl of the running compositor — reused from its closure, no second copy.
   hyprctl = lib.getExe' config.wayland.windowManager.hyprland.package "hyprctl";
-  isLaptop = config.hostSpec.hostType == "laptop";
-  hdrArgs = lib.optionals (primaryMonitor.hdr or false) ["--hdr-enabled"];
-
-  mkGamescope = import ./gamescope.nix {
-    inherit lib pkgs hyprctl isLaptop primaryMonitor hdrArgs;
-    monitors = config.display.monitors;
+  gameOutput = import ./game-output.nix {
+    inherit lib pkgs hyprctl primaryMonitor;
+    inherit (config.display) monitors;
   };
-  gamescope = mkGamescope {};
+  hdrEnv = import ./hdr-env.nix {inherit lib pkgs;};
+  mkGamescope = import ./gamescope.nix {inherit lib pkgs;};
+  gamescope = mkGamescope [];
 
   mouseDpi = import ./mouse-dpi.nix {inherit lib pkgs razerEnabled;};
 
@@ -170,8 +169,8 @@
     forza-horizon-5.wrappers = [gamemoderun] ++ gamescope;
     forza-horizon-6.wrappers = [gamemoderun] ++ gamescope;
 
-    # gamescope converts Overwatch's scRGB HDR to PQ; Hyprland oversaturates scRGB and won't scan it out.
-    overwatch.wrappers = mouseDpi 1800 ++ [gamemoderun] ++ gamescope;
+    # Overwatch's own HDR is scRGB, which Hyprland oversaturates; forced composition makes gamescope emit PQ.
+    overwatch.wrappers = mouseDpi 1800 ++ [gamemoderun] ++ mkGamescope ["--force-composition"];
 
     # 2000 DPI + in-game sens 2 reproduces the Aim Lab cm/360 (0.52% off).
     cyberpunk-2077.wrappers = mouseDpi 2000 ++ [gamemoderun];
@@ -199,7 +198,7 @@ in {
       lib.nameValuePair (toString app.id) (
         lib.recursiveUpdate app {
           inherit name;
-          wrappers = (app.wrappers or []) ++ gpuOffload;
+          wrappers = [gameOutput hdrEnv] ++ (app.wrappers or []) ++ gpuOffload;
         }
       ))
     (lib.recursiveUpdate defaults overrides);
