@@ -83,7 +83,7 @@ in {
     };
   };
 
-  xdg.configFile."opencode/plugin/ai-proxy.js".source = pkgs.replaceVars ./opencode-plugin.js {
+  xdg.configFile."opencode/plugins/ai-proxy.js".source = pkgs.replaceVars ./opencode-plugin.js {
     helper = lib.getExe ai-proxy;
     provider = opencodeProvider;
   };

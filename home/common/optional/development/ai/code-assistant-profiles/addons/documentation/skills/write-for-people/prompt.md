@@ -1,6 +1,6 @@
 ---
 name: write-for-people
-description: "Drafts text other people read, like MR notes, tickets, chat and email, in a plain human voice. Use before writing anything posted outside this chat."
+description: "Sets the voice for words another person reads: ticket and MR comments and descriptions, review notes, chat messages, email. Use whenever you are about to write text that leaves this chat, whatever the request is about. Load it alongside the skill or CLI that posts the text: that one decides where it goes, this one how it reads."
 ---
 
 # Writing for people

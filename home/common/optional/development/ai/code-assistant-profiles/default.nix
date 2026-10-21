@@ -53,7 +53,7 @@ in {
         java = {
           command = lib.getExe jdtlsForClaude;
           extensionToLanguage = {".java" = "java";};
-          startupTimeout = 120000;
+          extra.claude-code.startupTimeout = 120000;
         };
       };
 
@@ -83,6 +83,7 @@ in {
         code-assistant-configurator
         handoff
         mattpocock-skills
+        teach
       ];
 
       skills."frontend-design" =

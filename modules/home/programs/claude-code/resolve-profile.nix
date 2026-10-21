@@ -2,7 +2,7 @@
   cfg,
   lib,
 }: let
-  # Lists append rather than replace: hooks and permissions come from several addons at once.
+  # Lists append rather than replace: settings hooks and permissions come from several addons at once.
   deepMerge = a: b:
     if lib.isAttrs a && lib.isAttrs b
     then
@@ -40,7 +40,7 @@
     lspServers = shallowMerge "lspServers";
     agents = shallowMerge "agents";
     commands = shallowMerge "commands";
-    hooks = shallowMerge "hooks";
+    hookScripts = shallowMerge "hookScripts";
     skills = shallowMerge "skills";
     rules = shallowMerge "rules";
     outputStyles = shallowMerge "outputStyles";

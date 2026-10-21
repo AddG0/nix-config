@@ -1,9 +1,15 @@
 {
+  claudeSettingsHooks,
   lib,
   pkgs,
   resolvedProfiles,
 }: let
   jsonFormat = pkgs.formats.json {};
+
+  renderSettings = settings: let
+    hooks = claudeSettingsHooks.render (settings.hooks or {});
+  in
+    removeAttrs settings ["hooks"] // lib.optionalAttrs (hooks != {}) {inherit hooks;};
 
   mkFileEntry = content:
     if lib.isPath content || lib.isDerivation content
@@ -13,10 +19,11 @@
   mkProfileFiles = name: profile: let
     inherit (profile) profileDir;
     finalConfig = resolvedProfiles.${name};
+    settings = renderSettings finalConfig.settings;
   in
-    lib.optionalAttrs (finalConfig.settings != {}) {
+    lib.optionalAttrs (settings != {}) {
       "${profileDir}/settings.json".source = jsonFormat.generate "claude-settings.json" (
-        finalConfig.settings // {"$schema" = "https://json.schemastore.org/claude-code-settings.json";}
+        settings // {"$schema" = "https://json.schemastore.org/claude-code-settings.json";}
       );
     }
     // lib.optionalAttrs (finalConfig.memory.text != null) {
@@ -33,6 +40,11 @@
     // lib.optionalAttrs (finalConfig.lspServers != {}) {
       "${profileDir}/plugins/lsp/.lsp.json".source =
         jsonFormat.generate "claude-lsp.json" finalConfig.lspServers;
+      # Optional for --plugin-dir, but `claude plugin validate` rejects a plugin without one.
+      "${profileDir}/plugins/lsp/.claude-plugin/plugin.json".source = jsonFormat.generate "claude-lsp-plugin.json" {
+        name = "lsp";
+        description = "Language servers declared in Nix.";
+      };
     }
     // lib.mapAttrs' (
       agentName: content:
@@ -45,13 +57,13 @@
     )
     finalConfig.commands
     // lib.mapAttrs' (
-      hookName: content:
-        lib.nameValuePair "${profileDir}/hooks/${hookName}" {
+      scriptName: content:
+        lib.nameValuePair "${profileDir}/hooks/${scriptName}" {
           text = content;
           executable = true;
         }
     )
-    finalConfig.hooks
+    finalConfig.hookScripts
     // lib.mapAttrs' (
       skillName: content: let
         isDir =
@@ -86,5 +98,5 @@
     )
     finalConfig.extraFiles;
 in {
-  inherit mkFileEntry mkProfileFiles;
+  inherit mkFileEntry mkProfileFiles renderSettings;
 }

@@ -38,6 +38,21 @@
     then lib.removeSuffix "'" (lib.removePrefix "'" value)
     else value;
 
+  # Splits on commas outside quotes; an item opening a quote must close it.
+  splitFlowItems = text: let
+    item = builtins.match "[[:space:]]*('([^']|'')*'|\"([^\"\\\\]|\\\\.)*\"|[^,'\"[:space:]][^,]*)?[[:space:]]*(,(.*))?" text;
+  in
+    if item == null
+    then throw "frontmatter: unmatched quote or text after a quoted item in flow list '${text}'"
+    else let
+      first =
+        if builtins.elemAt item 0 == null
+        then ""
+        else lib.strings.trim (builtins.elemAt item 0);
+      rest = builtins.elemAt item 4;
+    in
+      [first] ++ lib.optionals (builtins.elemAt item 3 != null) (splitFlowItems rest);
+
   normalizeStringList = value:
     if value == null || value == ""
     then []
@@ -50,7 +65,9 @@
         then lib.removeSuffix "]" (lib.removePrefix "[" trimmed)
         else trimmed;
     in
-      map (item: stripQuotes (lib.strings.trim item)) (lib.splitString "," unwrapped);
+      if lib.strings.trim unwrapped == ""
+      then []
+      else map stripQuotes (splitFlowItems unwrapped);
 
   # `desc` names the origin in errors; inline text has none, which is how it
   # avoids readInput's path heuristic.
@@ -148,7 +165,30 @@
         blockScalar = null;
       };
 
-  parse = text: let
+  # YAML's plain-scalar types for the values a frontmatter author writes; a quoted value stays a string.
+  typedScalar = value: let
+    trimmed = lib.strings.trim value;
+    quoted = (lib.hasPrefix "\"" trimmed && lib.hasSuffix "\"" trimmed) || (lib.hasPrefix "'" trimmed && lib.hasSuffix "'" trimmed);
+    flowItems = lib.strings.trim (lib.removeSuffix "]" (lib.removePrefix "[" trimmed));
+  in
+    if quoted && lib.stringLength trimmed >= 2
+    then stripQuotes trimmed
+    else if trimmed == "true"
+    then true
+    else if trimmed == "false"
+    then false
+    else if trimmed == "null" || trimmed == "~"
+    then null
+    else if builtins.match "-?[0-9]+" trimmed != null
+    then lib.toInt trimmed
+    else if lib.hasPrefix "[" trimmed && lib.hasSuffix "]" trimmed
+    then
+      if flowItems == ""
+      then []
+      else map typedScalar (splitFlowItems flowItems)
+    else trimmed;
+
+  parseWith = scalar: text: let
     lines = lib.splitString "\n" text;
     step = state: line: let
       indentMatch = builtins.match ''([[:space:]]*)(.*)'' line;
@@ -232,7 +272,7 @@
           then enterBlock key trimmedValue
           else if builtins.match ''[>|][-+0-9].*'' trimmedValue != null
           then throw "frontmatter.parse: YAML chomping/indent indicators in '${key}: ${trimmedValue}' are not supported; use plain '>' or '|', or inline the value"
-          else setScalar key (stripQuotes rawValue)
+          else setScalar key (scalar rawValue)
         else state // {pending = null;}
       else if state.pending == null
       then state
@@ -244,7 +284,7 @@
           then existing
           else [];
       in
-        appendNested (existingList ++ [(stripQuotes (builtins.elemAt listMatch 0))])
+        appendNested (existingList ++ [(scalar (builtins.elemAt listMatch 0))])
       else if keyMatch != null
       then let
         nestedKey = builtins.elemAt keyMatch 0;
@@ -255,7 +295,7 @@
           then existing
           else {};
       in
-        appendNested (existingMap // {${nestedKey} = stripQuotes rawValue;})
+        appendNested (existingMap // {${nestedKey} = scalar rawValue;})
       else state;
 
     finalState =
@@ -267,6 +307,8 @@
       lines;
   in
     (flushBlockScalar finalState).attrs;
+
+  parse = parseWith stripQuotes;
 
   dropWhile = pred: list:
     if list == []
@@ -303,23 +345,24 @@
 
   indent = level: lib.concatStrings (builtins.genList (_: "  ") level);
 
+  # A bare `*` key would parse as a YAML alias.
+  renderKey = name:
+    if builtins.match "[A-Za-z0-9_][A-Za-z0-9_./-]*" name != null
+    then name
+    else yamlQuote name;
+
+  # The first field shares the dash's line, so a nested value stays nested.
   renderListItem = level: value:
     if lib.isAttrs value
     then let
-      names = builtins.attrNames value;
-      first = builtins.head names;
-      rest = builtins.tail names;
+      lines = renderAttrs (level + 1) value;
     in
-      ["${indent level}- ${first}: ${renderValueInline value.${first}}"]
-      ++ lib.concatMap (name: renderField (level + 1) name value.${name}) rest
+      if lines == []
+      then ["${indent level}- {}"]
+      else ["${indent level}- ${lib.removePrefix (indent (level + 1)) (lib.head lines)}"] ++ lib.tail lines
     else if lib.isList value
     then ["${indent level}- ${renderScalar (lib.concatStringsSep ", " (map toString value))}"]
     else ["${indent level}- ${renderScalar value}"];
-
-  renderValueInline = value:
-    if lib.isAttrs value || lib.isList value
-    then yamlQuote (builtins.toJSON value)
-    else renderScalar value;
 
   renderField = level: name: value:
     if value == null
@@ -328,13 +371,13 @@
     then
       if value == []
       then []
-      else ["${indent level}${name}:"] ++ lib.concatMap (item: renderListItem (level + 1) item) value
+      else ["${indent level}${renderKey name}:"] ++ lib.concatMap (item: renderListItem (level + 1) item) value
     else if lib.isAttrs value
     then
       if value == {}
       then []
-      else ["${indent level}${name}:"] ++ renderAttrs (level + 1) value
-    else ["${indent level}${name}: ${renderScalar value}"];
+      else ["${indent level}${renderKey name}:"] ++ renderAttrs (level + 1) value
+    else ["${indent level}${renderKey name}: ${renderScalar value}"];
 
   renderAttrs = level: attrs:
     lib.concatMap (name: renderField level name attrs.${name}) (builtins.attrNames attrs);
@@ -344,6 +387,7 @@
   in {
     inherit (document) body;
     attrs = parse document.frontmatter;
+    typedAttrs = parseWith typedScalar document.frontmatter;
   };
 
   # `fromFile` reads a leading "/" as a path and throws, so a body opening with
@@ -353,6 +397,7 @@
   in {
     inherit (document) body;
     attrs = parse document.frontmatter;
+    typedAttrs = parseWith typedScalar document.frontmatter;
   };
 
   toFile = {

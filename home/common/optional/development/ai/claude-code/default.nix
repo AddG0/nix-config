@@ -143,7 +143,10 @@ in {
           CLAUDE_CODE_DISABLE_FEEDBACK_SURVEY = "1";
           CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS = "1";
         };
-        includeCoAuthoredBy = false;
+        attribution = {
+          commit = "";
+          pr = "";
+        };
         # Auto-mode opt-in. The dialog writes this to settings.json on "Yes",
         # but that's a read-only Nix symlink, so set it declaratively instead.
         skipAutoPermissionPrompt = true;

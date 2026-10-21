@@ -6,38 +6,31 @@
 }: let
   baseDir = ".config/claude-code/profiles";
   cfg = config.programs.claude-code-profiles;
-  codingCfg = config.programs.code-assistant-profiles;
+
+  claudeSettingsHooks = import ./settings-hooks.nix {
+    inherit lib;
+    inherit (customLib) mkHookSchema;
+  };
 
   optionsModule = import ./options.nix {
-    inherit baseDir lib pkgs;
+    inherit baseDir claudeSettingsHooks lib pkgs;
   };
 
   resolveProfileModule = import ./resolve-profile.nix {
     inherit cfg lib;
   };
 
-  sharedProfileToClaude = import ../code-assistant-profiles/targets/claude-code.nix {
-    inherit lib pkgs customLib;
-  };
-
-  sharedOverlayFor = name:
-    if !(codingCfg.enable && codingCfg.targets.claude-code.enable)
-    then {}
-    else if codingCfg.resolved ? ${name}
-    then sharedProfileToClaude codingCfg.resolved.${name}
-    else {};
-
   resolvedProfiles =
     lib.mapAttrs (
       name: profile:
         resolveProfileModule.mergeConfigs
-        (sharedOverlayFor name)
+        (cfg.profileDefaults.${name} or {})
         (resolveProfileModule.mergeWithBase name profile)
     )
     cfg.profiles;
 
   profileFilesModule = import ./profile-files.nix {
-    inherit lib pkgs resolvedProfiles;
+    inherit claudeSettingsHooks lib pkgs resolvedProfiles;
   };
 
   wrapperScriptModule = import ./wrapper-script.nix {
@@ -47,18 +40,21 @@
   zshCompletionModule = import ./zsh-completion.nix {
     inherit cfg lib pkgs;
   };
+
+  settingsHookAssertions = lib.unique (lib.concatLists (lib.mapAttrsToList (
+      name: resolved:
+        map (problem: "programs.claude-code-profiles profile '${name}' settings.hooks: ${problem}")
+        (claudeSettingsHooks.problems "settings" (resolved.settings.hooks or {}))
+    )
+    resolvedProfiles));
 in {
   inherit (optionsModule) options;
 
-  config = lib.mkMerge [
-    (lib.mkIf (codingCfg.enable && codingCfg.targets.claude-code.enable) {
-      programs.claude-code-profiles.enable = lib.mkDefault true;
-    })
+  config = lib.mkIf cfg.enable {
+    programs.claude-code-profiles.resolved = resolvedProfiles;
 
-    (lib.mkIf cfg.enable {
-      programs.claude-code-profiles.resolved = resolvedProfiles;
-
-      assertions = [
+    assertions =
+      [
         {
           assertion = cfg.profiles != {};
           message = "At least one profile must be defined in programs.claude-code-profiles.profiles";
@@ -67,15 +63,19 @@ in {
           assertion = cfg.profiles ? ${cfg.defaultProfile};
           message = "Default profile '${cfg.defaultProfile}' must exist in programs.claude-code-profiles.profiles";
         }
-      ];
+      ]
+      ++ map (message: {
+        assertion = false;
+        inherit message;
+      })
+      settingsHookAssertions;
 
-      programs.claude-code-profiles.wrapperPackage = wrapperScriptModule.wrapperScript;
+    programs.claude-code-profiles.wrapperPackage = wrapperScriptModule.wrapperScript;
 
-      home.packages = [wrapperScriptModule.wrapperScript] ++ lib.optional cfg.enableZshIntegration zshCompletionModule.zshCompletion;
+    home.packages = [wrapperScriptModule.wrapperScript] ++ lib.optional cfg.enableZshIntegration zshCompletionModule.zshCompletion;
 
-      home.file = lib.foldl' (
-        acc: name: acc // profileFilesModule.mkProfileFiles name cfg.profiles.${name}
-      ) {} (lib.attrNames cfg.profiles);
-    })
-  ];
+    home.file = lib.foldl' (
+      acc: name: acc // profileFilesModule.mkProfileFiles name cfg.profiles.${name}
+    ) {} (lib.attrNames cfg.profiles);
+  };
 }

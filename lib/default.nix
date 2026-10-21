@@ -95,6 +95,7 @@ in {
   # genK3sServerModule = import ./genK3sServerModule.nix;
 
   inherit frontmatter;
+  mkHookSchema = import ./hook-schema.nix {inherit lib;};
   colors = import ./colors.nix {inherit lib;};
   inherit (import ./eqFilterGraph.nix {inherit lib;}) eqShapes mkEqFilterGraph;
   ai = import ./ai {

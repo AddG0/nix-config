@@ -1,15 +1,9 @@
-# `agent-run` — launch whichever coding agent is default, with an optional
-# prompt and skill, without the caller naming the agent.
-#
-# Execs in the current terminal and never spawns one: a caller that wants a
-# window wraps this (`ghostty -e agent-run …`), which keeps a Linux terminal out
-# of a module darwin hosts also evaluate.
+# `agent-run`: launch the default coding agent in the current terminal, with an optional prompt and skill.
 {
   lib,
   pkgs,
 }: let
-  # Flags as of codex-cli 0.147.0 and opencode 1.18.16; they move between
-  # versions. promptFlag = null means the prompt is a positional after `--`.
+  # Flags as of codex-cli 0.147.0 and opencode 1.18.16; promptFlag = null passes the prompt after `--`.
   specs = {
     claude-code = {
       binary = "claude";
@@ -40,8 +34,7 @@ in {
   }: let
     unspecified = lib.subtractLists (lib.attrNames specs) agents;
 
-    # Throw rather than drop it: a silent omission would leave an enabled target
-    # reporting itself as "not enabled".
+    # Throw: dropping it would leave an enabled target reporting itself as "not enabled".
     known =
       lib.throwIf (unspecified != [])
       "code-assistant-profiles/launcher.nix has no invocation spec for: ${lib.concatStringsSep ", " unspecified}"
@@ -66,8 +59,7 @@ in {
     pkgs.writeShellScriptBin "agent-run" ''
       set -euo pipefail
 
-      # `claude` here is the profile wrapper, not the upstream binary. Prepending
-      # the profile keeps this working from a systemd user unit's bare PATH.
+      # The profile's `claude` is the wrapper, and prepending it survives a systemd unit's bare PATH.
       PATH=${lib.escapeShellArg profileBinDir}:"$PATH"
 
       AGENTS=${lib.escapeShellArg (lib.concatStringsSep " " known)}

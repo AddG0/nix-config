@@ -1,14 +1,18 @@
-# Blocks `git push` from Claude unless ALLOW_GIT_PUSH is set, and makes setting it need approval.
+# Blocks `git push` from Claude unless ALLOW_GIT_PUSH=1, and makes setting it need approval.
 {
+  config,
   lib,
   pkgs,
   ...
 }: {
   programs.claude-code-profiles = {
+    # An override inherited from the launching shell would let every push past the shim unasked.
+    unsetEnv = ["ALLOW_GIT_PUSH"];
     extraPath = [
       (pkgs.writeShellApplication {
         name = "git";
-        text = builtins.readFile ./git-shim.sh;
+        # A fixed real git, not a PATH lookup: two shim builds on PATH would hand off to each other forever.
+        text = "realGit=${lib.getExe config.programs.git.package}\n" + builtins.readFile ./git-shim.sh;
       })
     ];
     baseConfig.settings.hooks.PreToolUse = [

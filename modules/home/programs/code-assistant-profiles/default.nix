@@ -7,12 +7,12 @@
   cfg = config.programs.code-assistant-profiles;
   inherit (customLib) frontmatter;
 
-  typesModule = import ./types.nix {
+  profileSchema = import ./options/profile.nix {
     inherit lib;
   };
 
-  optionsModule = import ./options.nix {
-    inherit lib typesModule;
+  optionsModule = import ./options {
+    inherit lib profileSchema;
   };
 
   resolveProfileModule = import ./resolve-profile.nix {
@@ -23,24 +23,68 @@
     inherit lib;
   };
 
+  budgetsModule = import ./budgets.nix {
+    inherit lib;
+  };
+
   launcherModule = import ./launcher.nix {
     inherit lib pkgs;
   };
 
+  # Untyped until `resolved` takes it, so validation can name a bad value before the type throws on it.
+  merged = lib.mapAttrs resolveProfileModule.mergeWithBase cfg.profiles;
+
   enabledAgents = lib.filter (name: cfg.targets.${name}.enable) launcherModule.targetNames;
 
-  # mergeConfigs projects onto the strategy keys, so a shared-profile field with
-  # no strategy resolves to its type default no matter what a profile sets.
+  # mergeConfigs projects onto the strategy keys, so a field with no strategy resolves to its default.
   unmergedFields =
     lib.subtractLists resolveProfileModule.mergeStrategyNames
-    (lib.attrNames typesModule.sharedProfileOptions);
+    (lib.attrNames profileSchema.profileContentOptions);
+
+  # opencode renders only the default profile; Codex layers every other one over it.
+  inlinedFor = name: cfg.targets.codex.enable || (cfg.targets.opencode.enable && name == cfg.defaultProfile);
 
   budgetFor = name: profile:
-    validationModule.budgetMessages "profile '${name}'" cfg.budgets profile;
+    budgetsModule.budgetMessages "profile '${name}'" cfg.budgets profile
+    ++ lib.optionals (inlinedFor name)
+    (budgetsModule.inlinedBudgetMessages "profile '${name}'" cfg.budgets profile);
+
+  failure = message: {
+    assertion = false;
+    inherit message;
+  };
+
+  fieldTypeProblems = lib.mapAttrs (name: validationModule.fieldTypeProblems "profile '${name}'") merged;
+
+  # Checked on their own, so an entry nothing includes is still typed and an error names where it was declared.
+  layerTypeProblems =
+    validationModule.fieldTypeProblems "baseConfig" cfg.baseConfig
+    ++ lib.concatLists (lib.mapAttrsToList (name: validationModule.fieldTypeProblems "addon '${name}'") cfg.addons);
 
   budgetComplaints =
     lib.optionals (cfg.budgets.enforce != "off")
     (lib.flatten (lib.mapAttrsToList budgetFor cfg.resolved));
+
+  # A field one enabled target reads is not lost, so only what every one of them drops is reported.
+  unreadFields = name: let
+    reports = map (target: cfg.droppedFields.${target}.${name}) enabledAgents;
+    droppedByAll = kind: entry: field: lib.all (report: lib.elem field (report.${kind}.${entry} or [])) reports;
+  in
+    lib.optionals (reports != []) (lib.concatLists (lib.mapAttrsToList (kind: entries:
+      lib.concatLists (lib.mapAttrsToList (entry: fields:
+        map (field: "${kind}.${entry}.${field}") (lib.filter (droppedByAll kind entry) fields))
+      entries))
+    (lib.head reports)));
+
+  # Profiles inherit entries, so those with the same unread fields share one warning.
+  unreadWarnings = let
+    unread = lib.filter (entry: entry.fields != []) (lib.mapAttrsToList (name: _: {
+      inherit name;
+      fields = unreadFields name;
+    }) (lib.filterAttrs (_: problems: problems == []) fieldTypeProblems));
+    groups = lib.groupBy (entry: lib.concatStringsSep ", " entry.fields) unread;
+  in
+    lib.mapAttrsToList (fields: entries: "programs.code-assistant-profiles.profiles ${lib.concatMapStringsSep ", " (entry: "\"${entry.name}\"") entries}: no enabled target (${lib.concatStringsSep ", " enabledAgents}) reads these set fields, so they have no effect: ${fields}") groups;
 
   launcher =
     if enabledAgents == []
@@ -51,31 +95,29 @@
         inherit (cfg) defaultAgent;
         profileBinDir = "${config.home.profileDirectory}/bin";
 
-        # Default profile only: it is the one every target renders, so a name
-        # resolved here exists whichever agent runs.
+        # Default profile only: every target renders it, so the name exists whichever agent runs.
         skillNames =
           if cfg.resolved ? ${cfg.defaultProfile}
-          then lib.attrNames (cfg.resolved.${cfg.defaultProfile}.skills or {})
+          then lib.attrNames cfg.resolved.${cfg.defaultProfile}.skills
           else [];
       };
 in {
-  # targets/claude-code.nix is absent on purpose: modules/home/programs/claude-code
-  # imports it, owning the option tree it feeds. These two adapt an upstream
-  # home-manager module instead, so they self-register.
   imports = [
-    (lib.modules.importApply ./targets/opencode.nix {inherit customLib;})
-    (lib.modules.importApply ./targets/codex.nix {inherit customLib;})
+    (lib.modules.importApply ./targets/claude-code {inherit customLib;})
+    (lib.modules.importApply ./targets/codex {inherit customLib;})
+    (lib.modules.importApply ./targets/opencode {inherit customLib;})
   ];
 
   inherit (optionsModule) options;
 
   config = lib.mkIf cfg.enable {
-    programs.code-assistant-profiles.resolved = lib.mapAttrs resolveProfileModule.mergeWithBase cfg.profiles;
+    programs.code-assistant-profiles.resolved = merged;
     programs.code-assistant-profiles.launcher = launcher;
+    programs.code-assistant-profiles.fieldTypeProblems = fieldTypeProblems;
 
     home.packages = lib.optional (launcher != null) launcher;
 
-    warnings = lib.optionals (cfg.budgets.enforce == "warn") budgetComplaints;
+    warnings = lib.optionals (cfg.budgets.enforce == "warn") budgetComplaints ++ unreadWarnings;
 
     assertions =
       [
@@ -96,18 +138,16 @@ in {
           message = "programs.code-assistant-profiles.defaultAgent is '${toString cfg.defaultAgent}', so programs.code-assistant-profiles.targets.${toString cfg.defaultAgent}.enable must be true";
         }
       ]
-      ++ lib.optionals (cfg.budgets.enforce == "error")
-      (map (message: {
-          assertion = false;
-          inherit message;
-        })
-        budgetComplaints)
+      ++ lib.optionals (cfg.budgets.enforce == "error") (map failure budgetComplaints)
       ++ lib.flatten (lib.mapAttrsToList validationModule.collisionAssertions cfg.profiles)
-      ++ validationModule.validateSharedConfig "baseConfig" (resolveProfileModule.normalizeSharedConfig cfg.baseConfig)
+      # Reading a badly typed field of `resolved` throws, which would hide the named message.
       ++ lib.flatten (lib.mapAttrsToList (
-          name: profile:
-            validationModule.validateSharedConfig "profile '${name}'" (resolveProfileModule.normalizeSharedConfig profile)
+          name: problems:
+            if problems == []
+            then validationModule.validateSharedConfig "profile '${name}'" cfg.resolved.${name}
+            else map failure problems
         )
-        cfg.profiles);
+        fieldTypeProblems)
+      ++ map failure layerTypeProblems;
   };
 }

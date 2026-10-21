@@ -1,4 +1,4 @@
-# Sits ahead of git on claude's PATH; blocks `push` unless ALLOW_GIT_PUSH is set.
+# Sits ahead of git on claude's PATH; blocks `push` unless ALLOW_GIT_PUSH=1.
 args=("$@")
 i=0
 while ((i < ${#args[@]})); do
@@ -8,19 +8,9 @@ while ((i < ${#args[@]})); do
   *) break ;;
   esac
 done
-if [[ ${args[i]-} == push && -z ${ALLOW_GIT_PUSH-} ]]; then
+if [[ ${args[i]-} == push && ${ALLOW_GIT_PUSH-} != 1 ]]; then
   echo "git push blocked: rerun as ALLOW_GIT_PUSH=1 git $*" >&2
   exit 1
 fi
 
-self=${0%/*}
-IFS=: read -ra dirs <<<"$PATH"
-rest=
-for d in "${dirs[@]}"; do
-  [[ $d == "$self" ]] || rest+=${rest:+:}$d
-done
-real=$(PATH=$rest command -v git) || {
-  echo "git-push-guard: no git on PATH besides $self" >&2
-  exit 127
-}
-exec "$real" "$@"
+exec "$realGit" "$@"

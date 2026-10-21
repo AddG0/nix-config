@@ -1,6 +1,6 @@
 {
   lib,
-  typesModule,
+  profileSchema,
 }: {
   options.programs.code-assistant-profiles = {
     enable = lib.mkEnableOption "shared profile-based configuration for coding tools";
@@ -12,9 +12,9 @@
     };
 
     baseConfig = lib.mkOption {
-      type = lib.types.submodule {options = typesModule.sharedProfileOptions;};
+      type = lib.types.submodule {options = profileSchema.declaredProfileOptions;};
       default = {};
-      description = "Base shared configuration merged into all profiles by future adapters.";
+      description = "Shared configuration merged beneath every profile. It takes a profile's entry kinds, each entry following its file in options/ (for example options/skill.nix).";
     };
 
     defaultAgent = lib.mkOption {
@@ -137,20 +137,27 @@
     };
 
     addons = lib.mkOption {
-      type = lib.types.attrsOf (lib.types.submodule {options = typesModule.sharedProfileOptions;});
+      type = lib.types.attrsOf (lib.types.submodule {options = profileSchema.declaredProfileOptions;});
       default = {};
-      description = "Named, reusable shared-profile content blocks that profiles can include via the `include` option.";
+      description = "Named, reusable shared-profile content blocks that profiles can include via the `include` option. Each addon takes a profile's entry kinds, each entry following its file in options/ (for example options/skill.nix).";
     };
 
     profiles = lib.mkOption {
-      type = lib.types.attrsOf typesModule.profileType;
+      type = lib.types.attrsOf profileSchema.profileType;
       default = {};
       description = ''
-        Named shared profile definitions for coding tools.
+        Named shared profile definitions for coding tools. Each profile follows
+        options/profile.nix, and each entry its kind's file there (for example
+        options/skill.nix).
 
-        Only `defaultProfile` reaches the codex and opencode targets, which render
-        a single profile each. Claude Code renders every profile, so extra profiles
-        here are Claude-Code-only.
+        Claude Code renders every profile. opencode renders only `defaultProfile`.
+        Codex renders `defaultProfile` as its base config and every other profile
+        as {file}`CODEX_HOME/<name>.config.toml`, selected with
+        `codex --profile <name>`. That file holds only what differs from the
+        default: changed MCP servers, `enabled = false` for default servers the
+        profile lacks, and extra instructions and rules as `developer_instructions`.
+        Skills, agents, commands and hooks stay the default profile's, and a rule
+        the profile drops still loads from AGENTS.md.
       '';
     };
 
@@ -158,19 +165,33 @@
       type = lib.types.submodule {
         options = {
           claude-code.enable = lib.mkEnableOption "rendering shared profiles for Claude Code (drives programs.claude-code-profiles.enable)";
-          opencode.enable = lib.mkEnableOption "rendering shared profiles for opencode (drives programs.opencode.enable)";
           codex.enable = lib.mkEnableOption "rendering shared profiles for OpenAI Codex CLI (drives programs.codex.enable)";
+          opencode.enable = lib.mkEnableOption "rendering shared profiles for opencode (drives programs.opencode.enable)";
         };
       };
       default = {};
-      description = "Per-tool rendering target toggles. Enable each target to flow shared profiles into the corresponding tool module.";
+      description = "Per-tool rendering targets. Enable each to flow shared profiles into the corresponding tool module; each target declares its own options here too.";
     };
 
     resolved = lib.mkOption {
-      type = lib.types.attrsOf typesModule.resolvedProfileType;
+      type = lib.types.attrsOf profileSchema.resolvedProfileType;
       readOnly = true;
       internal = true;
       description = "Fully resolved profile configs after applying baseConfig and extends.";
+    };
+
+    droppedFields = lib.mkOption {
+      type = lib.types.attrsOf (lib.types.attrsOf (lib.types.attrsOf (lib.types.attrsOf (lib.types.listOf lib.types.str))));
+      default = {};
+      internal = true;
+      description = "Per enabled target and profile, `<kind>.<entry>` to the fields that entry sets but the target cannot express. A field every enabled target drops is named in a warning.";
+    };
+
+    fieldTypeProblems = lib.mkOption {
+      type = lib.types.attrsOf (lib.types.listOf lib.types.str);
+      readOnly = true;
+      internal = true;
+      description = "Per profile, the fields of the merged profile that fail their option type. Reading such a field of `resolved` throws, so a check over `resolved` runs only when the list is empty.";
     };
   };
 }

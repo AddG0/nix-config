@@ -11,8 +11,8 @@ in {
   programs.codex = {
     enable = true;
 
-    # Codex writes project trust into config.toml; keep it writable.
-    mutableConfig.enable = true;
+    # Codex writes project trust into config.toml (and <profile>.config.toml); keep them writable.
+    mutableSettings = true;
     settings =
       {
         approval_policy = "never";

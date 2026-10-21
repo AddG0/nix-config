@@ -1,8 +1,4 @@
-# checks/module-tests.nix - Auto-discover colocated module tests
-#
-# Any `tests.nix` placed next to a module is picked up here and exposed as a
-# `nix flake check` check named `module-test-<dir>`. Each tests.nix is a
-# function `{pkgs, lib, self, ...}: <derivation>`.
+# Exposes every tests.nix and tests/default.nix under modules/ and home/, each `{pkgs, lib, self, ...}: <derivation>`, as check module-test-<module dir>.
 {self, ...}: {
   perSystem = {
     pkgs,
@@ -12,24 +8,25 @@
     checks = let
       testFiles = lib.concatMap (
         root:
-          builtins.filter (p: baseNameOf p == "tests.nix")
+          builtins.filter isTestEntry
           (lib.filesystem.listFilesRecursive root)
       ) [../modules ../home];
 
-      named =
-        map (
-          p:
-            lib.nameValuePair
-            "module-test-${baseNameOf (dirOf p)}"
-            (import p {inherit pkgs lib self;})
-        )
-        testFiles;
+      isSuite = p: baseNameOf p == "default.nix" && baseNameOf (dirOf p) == "tests";
+      isTestEntry = p: baseNameOf p == "tests.nix" || isSuite p;
+      moduleDir = p:
+        if isSuite p
+        then dirOf (dirOf p)
+        else dirOf p;
+      checkName = p: "module-test-${lib.replaceStrings ["/"] ["-"] (lib.removePrefix "./" (lib.path.removePrefix ../. (moduleDir p)))}";
+
+      named = map (p: lib.nameValuePair (checkName p) (import p {inherit pkgs lib self;})) testFiles;
 
       names = map (x: x.name) named;
     in
-      # listToAttrs would silently keep only the last of a duplicate pair.
+      # `/` → `-` can still merge two paths (`a-b/c`, `a/b-c`), and listToAttrs would keep only the last.
       lib.throwIf (lib.length names != lib.length (lib.unique names))
-      "checks/module-tests.nix: two tests.nix files share a directory name: ${lib.concatStringsSep ", " names}"
+      "checks/module-tests.nix: two test entries map to the same check name: ${lib.concatStringsSep ", " names}"
       (lib.listToAttrs named);
   };
 }

@@ -15,8 +15,7 @@
     body = "";
   };
 
-  # Empty parses to nothing rather than throwing: this runs while the assertion
-  # list is built, so a throw would pre-empt validation.nix's named message.
+  # Empty parses to nothing: a throw here would pre-empt validation.nix's named message.
   parseContentSource = spec:
     if (spec.source or null) != null
     then frontmatter.fromFile spec.source
@@ -24,9 +23,7 @@
     then frontmatter.fromText spec.text
     else emptyDocument;
 
-  normalizeContentSpec = spec: let
-    parsed = parseContentSource spec;
-  in
+  normalizeContentSpec = spec: parsed:
     if parsed.attrs == {}
     then spec
     else {
@@ -34,32 +31,44 @@
       source = null;
     };
 
+  # Frontmatter keys no field lifts (`derivedFields` names theirs) still reach Claude, typed as YAML reads them.
   mkNormalizer = {
     contentField,
     scalarFields,
     listFields ? {},
-    extra ? (_: _: {}),
-  }: entity: let
-    parsed = parseContentSource entity.${contentField};
+    derivedFields ? {},
+    passthrough ? true,
+  }: entry: let
+    parsed = parseContentSource entry.${contentField};
+    liftedKeys = lib.attrValues scalarFields ++ lib.attrValues listFields ++ lib.concatMap (field: field.keys) (lib.attrValues derivedFields);
+    claudeOnly = lib.optionalAttrs passthrough (removeAttrs (parsed.typedAttrs or {}) (["name"] ++ liftedKeys));
     scalar =
       lib.mapAttrs (
-        optName: fmKey: valueOr entity.${optName} (parsed.attrs.${fmKey} or null)
+        optName: fmKey: valueOr (entry.${optName} or null) (parsed.attrs.${fmKey} or null)
       )
       scalarFields;
     list =
       lib.mapAttrs (
         optName: fmKey:
-          if entity.${optName} != []
-          then entity.${optName}
+          if (entry.${optName} or []) != []
+          then entry.${optName}
           else normalizeStringList (parsed.attrs.${fmKey} or null)
       )
       listFields;
   in
-    entity
+    entry
     // scalar
     // list
-    // {${contentField} = normalizeContentSpec entity.${contentField};}
-    // (extra entity parsed);
+    // {
+      ${contentField} =
+        if entry ? ${contentField}
+        then normalizeContentSpec entry.${contentField} parsed
+        else {};
+    }
+    // lib.optionalAttrs (claudeOnly != {}) {
+      extra = (entry.extra or {}) // {claude-code = lib.recursiveUpdate claudeOnly (entry.extra.claude-code or {});};
+    }
+    // lib.mapAttrs (_: field: field.lift entry parsed) derivedFields;
 
   normalizeAgent = mkNormalizer {
     contentField = "prompt";
@@ -75,15 +84,17 @@
       disallowedTools = "disallowedTools";
       skills = "skills";
     };
-    extra = agent: parsed: let
-      rawMaxTurns = parsed.attrs.maxTurns or null;
-    in {
-      maxTurns =
-        if agent.maxTurns != null
+    derivedFields.maxTurns = {
+      keys = ["maxTurns"];
+      # A non-numeric value stays a string, so validation names it instead of toInt throwing.
+      lift = agent: parsed: let
+        raw = parsed.attrs.maxTurns or null;
+      in
+        if (agent.maxTurns or null) != null
         then agent.maxTurns
-        else if rawMaxTurns == null
-        then null
-        else lib.toInt rawMaxTurns;
+        else if raw == null || builtins.match "[0-9]+" raw == null
+        then raw
+        else lib.toInt raw;
     };
   };
 
@@ -92,12 +103,15 @@
     scalarFields = {
       description = "description";
       argumentHint = "argument-hint";
+      model = "model";
+      agent = "agent";
     };
     listFields.allowedTools = "allowed-tools";
   };
 
   normalizeRule = mkNormalizer {
     contentField = "content";
+    passthrough = false;
     scalarFields.description = "description";
     listFields.paths = "paths";
   };
@@ -113,25 +127,43 @@
       agent = "agent";
       version = "version";
       model = "model";
+      license = "license";
+      compatibility = "compatibility";
     };
     listFields = {
       allowedTools = "allowed-tools";
       paths = "paths";
     };
-    extra = skill: parsed: let
-      fmInvocation = parsed.attrs.invocation or {};
-    in {
-      name =
-        if skill.name != null && skill.name != ""
-        then skill.name
-        else parsed.attrs.name or null;
+    derivedFields = {
+      name = {
+        keys = ["name"];
+        lift = skill: parsed:
+          if (skill.name or null) != null && skill.name != ""
+          then skill.name
+          else parsed.attrs.name or null;
+      };
       invocation = {
-        user = skill.invocation.user && (fmInvocation.user or "true") != "false";
-        model =
-          skill.invocation.model
-          && (fmInvocation.model or "true") != "false"
-          # Claude Code's own spelling, which vendored skills use.
-          && (parsed.attrs."disable-model-invocation" or "false") != "true";
+        # disable-model-invocation is Claude Code's own spelling, which vendored skills use.
+        keys = ["invocation" "disable-model-invocation"];
+        lift = skill: parsed: let
+          fmInvocation = parsed.attrs.invocation or {};
+          invocation = skill.invocation or {};
+        in {
+          user = (invocation.user or true) && (fmInvocation.user or "true") != "false";
+          model =
+            (invocation.model or true)
+            && (fmInvocation.model or "true") != "false"
+            && (parsed.attrs."disable-model-invocation" or "false") != "true";
+        };
+      };
+      metadata = {
+        keys = ["metadata"];
+        lift = skill: parsed: let
+          fmMetadata = parsed.attrs.metadata or {};
+        in
+          if lib.isAttrs fmMetadata
+          then fmMetadata // (skill.metadata or {})
+          else fmMetadata;
       };
     };
   };
@@ -141,41 +173,54 @@
     // {
       agents = lib.mapAttrs (_: normalizeAgent) (sharedConfig.agents or {});
       commands = lib.mapAttrs (_: normalizeCommand) (sharedConfig.commands or {});
-      skills = lib.mapAttrs (_: normalizeSkill) (sharedConfig.skills or {});
+      # The name goes in first, as the type default would, so a frontmatter `name` never renames the skill.
+      skills = lib.mapAttrs (name: skill: normalizeSkill ({inherit name;} // skill)) (sharedConfig.skills or {});
       rules = lib.mapAttrs (_: normalizeRule) (sharedConfig.rules or {});
     };
 
+  # A content block is replaced whole: a child's `text` must not sit beside its parent's `source`.
   recursiveMerge = field: base: overlay:
-    lib.recursiveUpdate (base.${field} or {}) (overlay.${field} or {});
+    lib.recursiveUpdateUntil (path: lhs: rhs: !(lib.isAttrs lhs && lib.isAttrs rhs) || (lib.length path == 2 && lib.elem (lib.last path) ["prompt" "content"]))
+    (base.${field} or {}) (overlay.${field} or {});
 
   shallowMerge = field: base: overlay:
     (base.${field} or {}) // (overlay.${field} or {});
 
+  instructionsSpecOf = c: {
+    text = c.instructions.text or null;
+    source = c.instructions.source or null;
+  };
+
+  isEmptySpec = spec: spec.text == null && spec.source == null;
+
+  readSpec = spec:
+    if spec.text != null
+    then spec.text
+    else builtins.readFile spec.source;
+
+  # A merged layer carries its sections; a declared one is a single section, or none.
+  sectionsOf = c:
+    c.instructionSections or (let
+      spec = instructionsSpecOf c;
+    in
+      lib.optional (!isEmptySpec spec) (readSpec spec));
+
   mergeStrategies = {
     description = base: overlay: overlay.description or base.description or "";
-    # Never both at once: claude-code projects them onto one home.file entry,
-    # which home-manager rejects. A lone source stays a source so it stays a link.
+    # Never both at once (one home.file entry for claude-code); a lone source stays a link.
     instructions = base: overlay: let
-      specOf = c: {
-        text = c.instructions.text or null;
-        source = c.instructions.source or null;
-      };
-      b = specOf base;
-      o = specOf overlay;
-      isEmpty = spec: spec.text == null && spec.source == null;
-      read = spec:
-        if spec.text != null
-        then spec.text
-        else builtins.readFile spec.source;
+      b = instructionsSpecOf base;
+      o = instructionsSpecOf overlay;
     in
-      if isEmpty b
+      if isEmptySpec b
       then o
-      else if isEmpty o
+      else if isEmptySpec o
       then b
       else {
-        text = lib.concatStringsSep "\n\n" [(read b) (read o)];
+        text = lib.concatStringsSep "\n\n" [(readSpec b) (readSpec o)];
         source = null;
       };
+    instructionSections = base: overlay: sectionsOf base ++ sectionsOf overlay;
     mcpServers = recursiveMerge "mcpServers";
     lspServers = recursiveMerge "lspServers";
     agents = recursiveMerge "agents";
@@ -216,7 +261,6 @@
 in {
   inherit mergeConfigs mergeWithBase normalizeSharedConfig resolveProfile;
 
-  # Exported so default.nix can assert every shared-profile field has a strategy;
-  # mergeConfigs maps over these keys, so an unlisted field is silently dropped.
+  # mergeConfigs drops an unlisted field, so default.nix asserts every field has a strategy.
   mergeStrategyNames = lib.attrNames mergeStrategies;
 }

@@ -1,13 +1,40 @@
 {
   baseDir,
+  claudeSettingsHooks,
   lib,
   pkgs,
 }: let
   jsonFormat = pkgs.formats.json {};
 
+  # Submodules have no `warnings` option, so the old path is accepted silently.
+  renamedHookScripts = lib.mkRenamedOptionModule ["hooks"] ["hookScripts"];
+
   configOptions = {
     settings = lib.mkOption {
-      inherit (jsonFormat) type;
+      type = lib.types.submodule {
+        freeformType = jsonFormat.type;
+        options.hooks = lib.mkOption {
+          type = claudeSettingsHooks.hooksType;
+          default = {};
+          example = lib.literalExpression ''
+            {
+              PreToolUse = [
+                {
+                  matcher = "Bash";
+                  hooks = [
+                    {
+                      type = "command";
+                      command = "''${pkgs.jq}/bin/jq -e .tool_input";
+                      "if" = "Bash(git *)";
+                    }
+                  ];
+                }
+              ];
+            }
+          '';
+          description = "Settings hook events, each a list of matcher groups. Lists from every source (baseConfig, addons, extends, the profile) are concatenated; a handler's fields are checked against its `type` and event. These apply per profile, unlike Codex hooks and opencode plugins, which every profile of their tool shares.";
+        };
+      };
       default = {};
       description = "Claude Code settings (theme, permissions, environment variables, etc.).";
     };
@@ -50,10 +77,10 @@
       description = "Custom slash commands (inline text or path to file).";
     };
 
-    hooks = lib.mkOption {
+    hookScripts = lib.mkOption {
       type = lib.types.attrsOf lib.types.lines;
       default = {};
-      description = "Shell scripts triggered on Claude Code events.";
+      description = "Executable scripts written to the profile directory's `hooks/`, for settings hooks to run.";
     };
 
     skills = lib.mkOption {
@@ -108,6 +135,7 @@
   };
 
   profileModule = {name, ...}: {
+    imports = [renamedHookScripts];
     options =
       configOptions
       // {
@@ -216,13 +244,19 @@ in {
     };
 
     baseConfig = lib.mkOption {
-      type = lib.types.submodule {options = configOptions;};
+      type = lib.types.submodule {
+        imports = [renamedHookScripts];
+        options = configOptions;
+      };
       default = {};
       description = "Base configuration merged into all profiles.";
     };
 
     addons = lib.mkOption {
-      type = lib.types.attrsOf (lib.types.submodule {options = configOptions;});
+      type = lib.types.attrsOf (lib.types.submodule {
+        imports = [renamedHookScripts];
+        options = configOptions;
+      });
       default = {};
       description = "Named, reusable claude-code config blocks that profiles can include via the `include` option.";
     };
@@ -234,6 +268,13 @@ in {
     };
 
     enableZshIntegration = lib.mkEnableOption "Zsh completions for Claude Code" // {default = false;};
+
+    profileDefaults = lib.mkOption {
+      type = lib.types.attrsOf lib.types.attrs;
+      default = {};
+      internal = true;
+      description = "Per-profile config in the resolved shape, layered beneath baseConfig, extends and the profile itself. A name with no matching profile is ignored.";
+    };
 
     resolved = lib.mkOption {
       type = lib.types.attrsOf lib.types.attrs;

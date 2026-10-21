@@ -28,7 +28,7 @@ in {
   stylix.targets.opencode.enable = lib.mkDefault false;
 
   # Auto-populate the Ollama model picker from the live `ollama list`.
-  xdg.configFile."opencode/plugin/ollama-autodiscover.js".source = pkgs.replaceVars ./plugins/ollama-autodiscover.js {
+  xdg.configFile."opencode/plugins/ollama-autodiscover.js".source = pkgs.replaceVars ./plugins/ollama-autodiscover.js {
     contextLength = toString contextLength;
   };
 
