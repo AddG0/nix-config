@@ -169,9 +169,8 @@
     forza-horizon-5.wrappers = [gamemoderun] ++ gamescope;
     forza-horizon-6.wrappers = [gamemoderun] ++ gamescope;
 
-    # Overwatch's own HDR is scRGB, which Hyprland oversaturates; forced composition makes gamescope emit PQ.
-    # Forced composition: gamescope emits PQ instead of passing Overwatch's scRGB HDR through, which Hyprland oversaturates.
-    overwatch.wrappers = mouseDpi 1800 ++ [gamemoderun] ++ mkGamescope ["--force-composition"];
+    # Wine's Wayland driver: an XWayland window can't carry HDR.
+    overwatch.wrappers = mouseDpi 1800 ++ [gamemoderun "env" "PROTON_ENABLE_WAYLAND=1"];
 
     # 2000 DPI + in-game sens 2 reproduces the Aim Lab cm/360 (0.52% off).
     cyberpunk-2077.wrappers = mouseDpi 2000 ++ [gamemoderun];
@@ -199,7 +198,7 @@ in {
       lib.nameValuePair (toString app.id) (
         lib.recursiveUpdate app {
           inherit name;
-          wrappers = [gameOutput hdrEnv] ++ (app.wrappers or []) ++ gpuOffload;
+          wrappers = [gameOutput] ++ (app.wrappers or []) ++ [hdrEnv] ++ gpuOffload;
         }
       ))
     (lib.recursiveUpdate defaults overrides);

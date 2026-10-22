@@ -42,6 +42,10 @@
     direct_scanout = 2;
     # Default 3 ignores CM for scanout, so SDR games on an HDR output go oversaturated.
     non_shader_cm = 2;
+    # Otherwise mode 2 gives non-"none" fullscreen windows an identity CTM and skips shader CM, oversaturating SDR games.
+    non_shader_cm_interop = 1;
+    # Auto HDR drops the HDR metadata for SDR fullscreen windows but keeps PQ-encoding them, washing them out.
+    cm_auto_hdr = 0;
   };
 
   # Disable the desktop entry for Protontricks since steam gives me that option anyway

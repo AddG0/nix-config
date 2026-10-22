@@ -4,24 +4,9 @@
   config,
   ...
 }: let
-  hyprLib = import ./lib.nix;
-  transformToHyprland = hyprLib.transformMap;
-  vrrToHyprland = hyprLib.vrrMap;
-
   # ---------- recover-mode baked layout (declared, not runtime) ----------
   # Only `recover` reads these — everyday list/disable/enable/toggle use
   # `hyprctl` so freshly hot-plugged monitors work without a rebuild.
-  monitorSpec = m: "${toString m.width}x${toString m.height}@${toString m.refreshRate}.0,${toString m.x}x${toString m.y},${toString m.scale},transform,${toString transformToHyprland.${m.transform}},vrr,${toString vrrToHyprland.${m.vrr}}${
-    lib.optionalString (m.bitdepth != 8) ",bitdepth,${toString m.bitdepth}"
-  }${
-    lib.optionalString m.hdr ",cm,hdr"
-  }";
-
-  restoreMonitors =
-    lib.concatMapStringsSep "\n          "
-    (m: ''hyprctl keyword monitor ${lib.escapeShellArg "${m.output},${monitorSpec m}"}'')
-    config.display.monitors;
-
   # Parse "1, monitor:DP-3, default:true" → { ws = "1"; mon = "DP-3"; }
   wsRules = let
     rules = config.wayland.windowManager.hyprland.settings.workspace or [];
@@ -187,8 +172,8 @@
       do_recover() {
         ${
         if hasDeclaredMonitors
-        then ''          # Re-apply every declared monitor with its baked spec.
-                  ${restoreMonitors}
+        then ''          # Reload drops runtime monitor keywords and re-applies the declared monitorv2 rules.
+                  hyprctl reload
                   sleep 2
 
                   # Move configured workspaces back to their assigned monitors.

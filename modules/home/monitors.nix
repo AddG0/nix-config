@@ -79,6 +79,77 @@
               description = "Enable HDR color management.";
               default = false;
             };
+            sdrMaxLuminance = lib.mkOption {
+              type = lib.types.nullOr lib.types.ints.positive;
+              description = "Nits SDR white is shown at on an HDR output; null keeps Hyprland's 80.";
+              default = null;
+            };
+            sdrMinLuminance = lib.mkOption {
+              type = lib.types.nullOr (lib.types.numbers.between 0 10);
+              description = "Nits SDR black is shown at on an HDR output; null keeps Hyprland's 0.2.";
+              default = null;
+            };
+            sdrBrightness = lib.mkOption {
+              type = lib.types.nullOr lib.types.float;
+              description = "Multiplier on SDR content's encoded output on an HDR output; prefer sdrMaxLuminance.";
+              default = null;
+            };
+            sdrSaturation = lib.mkOption {
+              type = lib.types.nullOr lib.types.float;
+              description = "Saturation multiplier for SDR content on an HDR output.";
+              default = null;
+            };
+            sdrEotf = lib.mkOption {
+              type = lib.types.nullOr (lib.types.enum ["default" "auto" "srgb" "gamma22" "gamma22force"]);
+              description = "Transfer function SDR content is decoded with; null follows render.cm_sdr_eotf.";
+              default = null;
+            };
+            supportsWideColor = lib.mkOption {
+              type = lib.types.nullOr lib.types.bool;
+              description = "Override the EDID's wide-color support; null trusts the EDID.";
+              default = null;
+            };
+            supportsHdr = lib.mkOption {
+              type = lib.types.nullOr lib.types.bool;
+              description = "Override the EDID's HDR support; null trusts the EDID.";
+              default = null;
+            };
+            minLuminance = lib.mkOption {
+              type = lib.types.nullOr (lib.types.numbers.between 0 10);
+              description = "Panel black in nits; null uses the EDID.";
+              default = null;
+            };
+            maxLuminance = lib.mkOption {
+              type = lib.types.nullOr lib.types.ints.positive;
+              description = "Panel peak in nits; null uses the EDID.";
+              default = null;
+            };
+            maxAvgLuminance = lib.mkOption {
+              type = lib.types.nullOr lib.types.ints.positive;
+              description = "Panel full-frame average peak in nits; null uses the EDID.";
+              default = null;
+            };
+            icc = lib.mkOption {
+              type = lib.types.nullOr lib.types.path;
+              description = "ICC profile applied to this output.";
+              default = null;
+            };
+            mirror = lib.mkOption {
+              type = lib.types.nullOr lib.types.str;
+              description = "Output name to mirror instead of extending the layout.";
+              default = null;
+            };
+            reserved = lib.mkOption {
+              type = lib.types.nullOr (lib.types.submodule {
+                options = lib.genAttrs ["top" "bottom" "left" "right"] (_:
+                  lib.mkOption {
+                    type = lib.types.ints.unsigned;
+                    default = 0;
+                  });
+              });
+              description = "Pixels kept clear of tiled windows on each edge.";
+              default = null;
+            };
             oled = lib.mkOption {
               type = lib.types.bool;
               description = "Whether this monitor is OLED (used for burn-in protection automation).";

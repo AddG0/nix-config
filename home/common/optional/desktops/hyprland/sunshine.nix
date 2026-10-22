@@ -1,34 +1,18 @@
 # Hyprland-specific Sunshine integration: virtual monitor management + Noctalia notification redirection.
 # Scripts are placed in ~/.config/sunshine/ and executed by the NixOS Sunshine service via global_prep_cmd.
-# Monitor layout is baked at build time from config.display.monitors — no runtime state needed.
+# Monitor names are baked at build time from config.display.monitors; restoring reloads the declared layout.
 {
   config,
   lib,
   pkgs,
   ...
 }: let
-  hyprLib = import ./common/lib.nix;
-  transformToHyprland = hyprLib.transformMap;
-  vrrToHyprland = hyprLib.vrrMap;
-
   monitorNames = map (m: m.output) config.display.monitors;
   primaryNames = map (m: m.output) (builtins.filter (m: m.primary) config.display.monitors);
 
   disableMonitors = lib.concatMapStringsSep "\n" (name: ''
     hyprctl keyword monitor "${name},disable"'')
   monitorNames;
-
-  restoreMonitors = lib.concatMapStringsSep "\n" (m: ''
-    hyprctl keyword monitor "${m.output},${toString m.width}x${toString m.height}@${toString m.refreshRate}.0,${toString m.x}x${toString m.y},1,transform,${toString transformToHyprland.${m.transform}},vrr,${toString vrrToHyprland.${m.vrr}}${
-      if m.bitdepth != 8
-      then ",bitdepth,${toString m.bitdepth}"
-      else ""
-    }${
-      if m.hdr
-      then ",cm,hdr"
-      else ""
-    }"'')
-  config.display.monitors;
 
   primaryMon = builtins.head primaryNames;
 
@@ -125,8 +109,8 @@
     text = ''
       ${detectHyprSig}
 
-      # Restore physical monitors
-      ${restoreMonitors}
+      # Reload drops the disable keywords and re-applies the declared monitorv2 rules.
+      hyprctl reload
       sleep 2
 
       # Move configured workspaces back to their monitors

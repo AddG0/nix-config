@@ -21,8 +21,6 @@ lib.singleton (lib.getExe (pkgs.writeShellApplication {
 
     hdr_arg=()
     [ "$GAME_OUTPUT_HDR" = 1 ] && hdr_arg=(--hdr-enabled)
-    # gamescope overwrites DXVK_HDR for the game before Hyprland's HDR info reaches it.
-    [ -z "''${DXVK_HDR:-}" ] || set -- env DXVK_HDR="$DXVK_HDR" "$@"
 
     exec gamescope -W "$GAME_OUTPUT_W" -H "$GAME_OUTPUT_H" \
       -w "$GAME_OUTPUT_W" -h "$GAME_OUTPUT_H" -r "$GAME_OUTPUT_R" -f \

@@ -6,9 +6,7 @@
 }: let
   package = pkgs.hyprland;
 
-  hyprLib = import ./lib.nix;
-  transformToHyprland = hyprLib.transformMap;
-  vrrToHyprland = hyprLib.vrrMap;
+  hyprLib = import ./lib.nix {inherit lib;};
   primaryMonitor = lib.findFirst (m: m.primary) null config.display.monitors;
 in {
   wayland.windowManager.hyprland = {
@@ -38,24 +36,9 @@ in {
       ];
 
       # ========== Monitor ==========
-      monitor =
-        (map (
-            m: "${m.output},${
-              if m.enabled
-              then "${toString m.width}x${toString m.height}@${toString m.refreshRate}.0,${toString m.x}x${toString m.y},${toString m.scale},transform,${toString transformToHyprland.${m.transform}},vrr,${toString vrrToHyprland.${m.vrr}}${
-                if m.bitdepth != 8
-                then ",bitdepth,${toString m.bitdepth}"
-                else ""
-              }${
-                if m.hdr
-                then ",cm,hdr"
-                else ""
-              }"
-              else "disable"
-            }"
-          )
-          config.display.monitors)
-        ++ (lib.optional config.display.defaultMonitor.enable ",preferred,auto,1");
+      # A monitor line for the same output would replace its monitorv2 rule.
+      monitorv2 = map hyprLib.monitorv2 config.display.monitors;
+      monitor = lib.optional config.display.defaultMonitor.enable ",preferred,auto,1";
 
       # ========== Layout ==========
       general = {

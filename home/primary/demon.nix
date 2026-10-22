@@ -206,6 +206,8 @@
       primary = true;
       bitdepth = 10;
       hdr = true;
+      # BT.2408 reference white; Hyprland's 80 makes SDR games dim next to HDR.
+      sdrMaxLuminance = 203;
     }
     {
       output = "HDMI-A-1";
