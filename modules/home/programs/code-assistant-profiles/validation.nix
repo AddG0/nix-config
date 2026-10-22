@@ -61,29 +61,89 @@
     then "[${toString step}]"
     else ".${step}");
 
-  # Walks a value down its option type, so a nested field or a list element is named too, not just the entry.
+  # Stops at derivations and module internals, which a type check never needs and which can be huge or cyclic.
+  forced = value:
+    if lib.isDerivation value
+    then true
+    else if lib.isAttrs value
+    then lib.all forced (lib.attrValues (removeAttrs value ["_module"]))
+    else if lib.isList value
+    then lib.all forced value
+    else true;
+
+  # The module system's own verdict: one option of `type`, defined as `value`, evaluated all the way down.
+  accepts = type: value:
+    (builtins.tryEval (forced
+      (lib.evalModules {
+        modules = [
+          {
+            options.value = lib.mkOption {inherit type;};
+            config.value = value;
+          }
+        ];
+      })
+      .config
+      .value))
+    .success;
+
+  # Names what an option set rejects in `value`, key by key: nested option groups, declared options, then the freeform type.
+  optionSetProblems = options: freeformType: path: value:
+    lib.concatLists (lib.mapAttrsToList (key: field: let
+      at = path ++ [key];
+    in
+      if lib.isOption (options.${key} or null)
+      then typeProblems options.${key}.type at field
+      else if options ? ${key} && lib.isAttrs options.${key} && lib.isAttrs field
+      then optionSetProblems options.${key} null at field
+      else if freeformType != null
+      then typeProblems (freeformType.nestedTypes.elemType or freeformType) at field
+      else ["sets `${lib.removePrefix "." (showPath at)}`, which is not an option"])
+    value);
+
+  submoduleProblems = type: path: value: let
+    # Unknown keys are reported below, by name, rather than thrown.
+    evaluated = lib.evalModules {
+      modules =
+        type.getSubModules
+        ++ [
+          {
+            _module.check = false;
+            _module.args.name = lib.mkDefault (
+              if path != [] && lib.isString (lib.last path)
+              then lib.last path
+              else "<name>"
+            );
+          }
+          {config = value;}
+        ];
+    };
+  in
+    optionSetProblems (removeAttrs evaluated.options ["_module"]) evaluated._module.freeformType path value;
+
+  # Checks a value against any option type through the module system, then walks into submodules and containers only to name the failing field or element.
   typeProblems = type: path: value: let
     mismatch = "${lib.removePrefix "." (showPath path)} is ${lib.generators.toPretty {} value}, which is not ${type.description}";
     inner = type.nestedTypes.elemType or null;
+    containers = ["submodule" "listOf" "nonEmptyListOf" "attrsOf" "lazyAttrsOf"];
+    located =
+      if type.name == "submodule" && lib.isAttrs value && !lib.isDerivation value
+      then submoduleProblems type path value
+      else if inner == null
+      then []
+      # A scalar inside nullOr keeps the outer description, which names null as allowed.
+      else if type.name == "nullOr" && value != null && lib.elem inner.name containers
+      then typeProblems inner path value
+      else if lib.elem type.name ["listOf" "nonEmptyListOf"] && lib.isList value
+      then lib.concatLists (lib.imap0 (index: typeProblems inner (path ++ [index])) value)
+      else if lib.elem type.name ["attrsOf" "lazyAttrsOf"] && lib.isAttrs value
+      then lib.concatLists (lib.mapAttrsToList (key: typeProblems inner (path ++ [key])) value)
+      else [];
   in
-    if !(type.check value)
-    then [mismatch]
-    else if type.name == "submodule" && lib.isAttrs value
-    then let
-      options = type.getSubOptions [];
-    in
-      lib.concatLists (lib.mapAttrsToList (key: field:
-        if options ? ${key} && lib.isOption options.${key}
-        then typeProblems options.${key}.type (path ++ [key]) field
-        else ["sets `${lib.removePrefix "." (showPath (path ++ [key]))}`, which is not an option"])
-      value)
-    else if type.name == "nullOr" && value != null
-    then typeProblems inner path value
-    else if type.name == "listOf"
-    then lib.concatLists (lib.imap0 (index: typeProblems inner (path ++ [index])) value)
-    else if type.name == "attrsOf"
-    then lib.concatLists (lib.mapAttrsToList (key: typeProblems inner (path ++ [key])) value)
-    else [];
+    if accepts type value
+    then []
+    else if located != []
+    then located
+    else [mismatch];
 
   # Checks every entry of an untyped layer (a merged profile, an addon, baseConfig) against its option type, naming the entry.
   fieldTypeProblems = scope: sharedConfig:
@@ -162,5 +222,5 @@
         sharedConfig.lspServers)
     ];
 in {
-  inherit collisionAssertions fieldTypeProblems includeCollisions validateSharedConfig;
+  inherit collisionAssertions fieldTypeProblems includeCollisions typeProblems validateSharedConfig;
 }

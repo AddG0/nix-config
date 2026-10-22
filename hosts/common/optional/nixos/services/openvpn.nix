@@ -27,6 +27,8 @@
     config = ''
       config ${config.sops.secrets."openvpn-home-config".path}
       auth-user-pass ${config.sops.secrets."openvpn-home-auth".path}
+      # default backoff grows to 300s, leaving the VPN idle long after the network returns
+      connect-retry 5 30
       script-security 2
       up ${pkgs.writeShellScript "vpn-up" ''
         ${pkgs.systemd}/bin/resolvectl dns tun0 10.61.1.1

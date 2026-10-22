@@ -2,6 +2,7 @@
   claudeSettingsHooks,
   lib,
   pkgs,
+  pluginCheck,
   resolvedProfiles,
 }: let
   jsonFormat = pkgs.formats.json {};
@@ -15,6 +16,21 @@
     if lib.isPath content || lib.isDerivation content
     then {source = content;}
     else {text = content;};
+
+  # The manifest's build validates the whole plugin, so a plugin Claude Code rejects never links.
+  lspManifest = name: servers: let
+    manifest = jsonFormat.generate "claude-lsp-plugin.json" {
+      name = "lsp";
+      description = "Language servers declared in Nix.";
+    };
+  in
+    pkgs.runCommand "claude-lsp-plugin-${name}.json" {} ''
+      mkdir -p plugin/.claude-plugin
+      cp ${jsonFormat.generate "claude-lsp.json" servers} plugin/.lsp.json
+      cp ${manifest} plugin/.claude-plugin/plugin.json
+      ${pluginCheck.validate "plugin"}
+      cp ${manifest} "$out"
+    '';
 
   mkProfileFiles = name: profile: let
     inherit (profile) profileDir;
@@ -41,10 +57,7 @@
       "${profileDir}/plugins/lsp/.lsp.json".source =
         jsonFormat.generate "claude-lsp.json" finalConfig.lspServers;
       # Optional for --plugin-dir, but `claude plugin validate` rejects a plugin without one.
-      "${profileDir}/plugins/lsp/.claude-plugin/plugin.json".source = jsonFormat.generate "claude-lsp-plugin.json" {
-        name = "lsp";
-        description = "Language servers declared in Nix.";
-      };
+      "${profileDir}/plugins/lsp/.claude-plugin/plugin.json".source = lspManifest name finalConfig.lspServers;
     }
     // lib.mapAttrs' (
       agentName: content:

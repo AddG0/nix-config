@@ -119,6 +119,12 @@
       inputs.nixpkgs.follows = "nixpkgs";
     };
 
+    nix-unit = {
+      url = "github:nix-community/nix-unit/b3d16367c54621fd073aa8c1dd510042f771f624";
+      inputs.nixpkgs.follows = "nixpkgs";
+      inputs.treefmt-nix.follows = "treefmt-nix";
+    };
+
     nur = {
       url = "github:nix-community/NUR";
       inputs.nixpkgs.follows = "nixpkgs";

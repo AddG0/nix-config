@@ -36,6 +36,12 @@
           '';
         };
 
+        checkConfig = lib.mkOption {
+          type = lib.types.bool;
+          default = true;
+          description = "Whether each agent role's TOML is loaded by {option}`programs.codex.package` while it builds, so a role Codex cannot read fails the build. Turn off where that package cannot run on the build platform.";
+        };
+
         writtenSkillNames = lib.mkOption {
           type = lib.types.listOf lib.types.str;
           default = [];

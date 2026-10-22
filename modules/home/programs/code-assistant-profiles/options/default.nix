@@ -17,6 +17,12 @@
       description = "Shared configuration merged beneath every profile. It takes a profile's entry kinds, each entry following its file in options/ (for example options/skill.nix).";
     };
 
+    checkConfig = lib.mkOption {
+      type = lib.types.bool;
+      default = true;
+      description = "Whether this home's build runs each enabled tool's own validator over the assistant files the home writes (through {option}`home.checks`), so a config a tool rejects fails `home-manager switch`. Turn off where those tools cannot run on the build platform.";
+    };
+
     defaultAgent = lib.mkOption {
       type = lib.types.nullOr (lib.types.enum ["claude-code" "codex" "opencode"]);
       default = null;
@@ -185,6 +191,13 @@
       default = {};
       internal = true;
       description = "Per enabled target and profile, `<kind>.<entry>` to the fields that entry sets but the target cannot express. A field every enabled target drops is named in a warning.";
+    };
+
+    validators = lib.mkOption {
+      type = lib.types.attrsOf (import ./validator.nix {inherit lib;});
+      default = {};
+      internal = true;
+      description = "Per target, its tool's own validator over the files this home writes, run by the home's build when {option}`checkConfig` is on.";
     };
 
     fieldTypeProblems = lib.mkOption {

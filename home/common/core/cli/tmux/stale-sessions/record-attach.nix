@@ -1,4 +1,4 @@
-# The state directory and key encoding must match ./prune.nix; ./tests.nix
+# The state directory and key encoding must match ./prune.nix; ./tests/script.nix
 # round-trips the two to catch drift.
 {
   writeShellApplication,

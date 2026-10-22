@@ -31,7 +31,7 @@ in
       model = lib.mkOption {
         type = lib.types.nullOr lib.types.str;
         default = null;
-        description = "Model to run the command with. opencode takes only a `provider/model` value and drops a bare alias.";
+        description = "Model to run the command with. Each target keeps only a model it routes (models.nix: Claude aliases and claude-* ids for claude-code, bare OpenAI ids for codex, `provider/model` for opencode) and reports the rest as dropped.";
       };
 
       agent = lib.mkOption {

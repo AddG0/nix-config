@@ -11,10 +11,6 @@
 
   profileKey = name: "${configDir}/${name}.config.toml";
 in {
-  imports = [
-    (lib.mkRenamedOptionModule ["programs" "codex" "mutableConfig" "enable"] ["programs" "codex" "mutableSettings"])
-  ];
-
   # Under `codex --profile <name>` Codex persists state (project trust, model prompts) into <name>.config.toml, not config.toml.
   config = lib.mkIf (codex.enable && codex.mutableSettings) {
     home.file = lib.mapAttrs' (name: _: lib.nameValuePair (profileKey name) {enable = false;}) codex.profiles;

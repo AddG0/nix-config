@@ -31,19 +31,23 @@
     inherit (rendered) rules agents skills commands mcpServers lspServers;
   };
 in {
-  config = lib.mkIf (codingCfg.enable && codingCfg.targets.claude-code.enable) {
-    programs.claude-code-profiles = {
-      enable = lib.mkDefault true;
-      profileDefaults = lib.mapAttrs (_: profileDefaults) codingCfg.resolved;
-    };
+  config = lib.mkMerge [
+    {programs.code-assistant-profiles.validators.claude-code = import ./validator.nix {inherit config lib;};}
 
-    programs.code-assistant-profiles.droppedFields.claude-code = lib.mapAttrs (_: profile: (render profile).dropped) checkable;
+    (lib.mkIf (codingCfg.enable && codingCfg.targets.claude-code.enable) {
+      programs.claude-code-profiles = {
+        enable = lib.mkDefault true;
+        profileDefaults = lib.mapAttrs (_: profileDefaults) codingCfg.resolved;
+      };
 
-    assertions = lib.concatLists (lib.mapAttrsToList (name: profile:
-      map (message: {
-        assertion = false;
-        inherit message;
-      }) (validation.frontmatterHookProblems "profile '${name}'" profile))
-    checkable);
-  };
+      programs.code-assistant-profiles.droppedFields.claude-code = lib.mapAttrs (_: profile: (render profile).dropped) checkable;
+
+      assertions = lib.concatLists (lib.mapAttrsToList (name: profile:
+        map (message: {
+          assertion = false;
+          inherit message;
+        }) (validation.frontmatterHookProblems "profile '${name}'" profile))
+      checkable);
+    })
+  ];
 }

@@ -1,7 +1,7 @@
 {lib, ...}: let
   frontmatter = import ./frontmatter.nix {inherit lib;};
 
-  # by-name for modules: a .nix file or a dir with default.nix is a leaf (its path); any other dir is a namespace; `_*` is private.
+  # by-name for modules: a .nix file or a dir with default.nix is a leaf (its path); any other dir is a namespace; `_*` and tests/ are private.
   moduleTree = dir:
     lib.mapAttrs' (name: type: let
       path = dir + "/${name}";
@@ -13,7 +13,7 @@
       ))
     (lib.filterAttrs (name: type:
       !(lib.hasPrefix "_" name)
-      && (type == "directory" || (lib.hasSuffix ".nix" name && name != "default.nix" && name != "tests.nix")))
+      && ((type == "directory" && name != "tests") || (lib.hasSuffix ".nix" name && name != "default.nix")))
     (builtins.readDir dir));
 
   trees = {

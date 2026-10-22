@@ -792,3 +792,115 @@ Supersedes the `types.nix` mentions above.
 - 2026-10-21: the push-guard shim runs `programs.git.package` directly instead of finding git on PATH. Two shim builds on PATH (a claude started inside an older session's shell) handed an approved push back and forth forever; a marker-based skip could not fix shims already deployed. The regression test puts an old-style PATH-lookup shim on PATH in both orders.
 
 - 2026-10-21: Claude's settings-file hooks are **settings hooks**, matching Claude Code's docs, which now keep "hook" for a mod's handler. `claude-code/hooks.nix` is `settings-hooks.nix`, imported as `claudeSettingsHooks`; the `hooks` option that writes scripts to a profile's `hooks/` is `hookScripts`, with `mkRenamedOptionModule` from `hooks` in `baseConfig`, `addons` and `profiles` (silent: submodules have no `warnings`). Unchanged: `settings.hooks` (settings.json's key), Codex hooks, `mkHookSchema`, opencode. Supersedes the `hooks.nix` and `claudeHooks` mentions above.
+
+### Hack audit fixes, 2026-10-21
+
+Each fix has a regression test that failed before it.
+
+- Codex: every profile's agents, skills and commands go to the global dirs (Codex 0.163 has no per-profile agent or skill dir; `<name>.config.toml` only layers config). Two profiles defining one entry name differently fail an assertion naming both. `writtenSkillNames` is the union. Supersedes the render-contract deviation "returns only MCP servers and instructions, the rest `{}`" for what reaches `home.file`; the profile file itself is unchanged.
+- Push guard: the hook matches `Bash|Monitor|PowerShell`, every Claude tool that runs a shell command. The shim skips `--attr-source <tree>` and resolves aliases through git's own config with the preceding `-c`/`-C`, blocking an alias that expands to `push` or a `!` alias naming push; an alias shadowing a git command passes, as git ignores it.
+- `lib/frontmatter.nix` throws `frontmatter: <file>:<line>: <reason>` on YAML it cannot read (nesting past one level, lists of maps, continuation lines, flow maps, anchors, tags) instead of misreading it; reads CRLF, drops ` #` comments, unescapes `''` and `\"`. Tests in `lib/tests.nix` (check `lib-test-lib`). Every frontmatter `.md` under `home/`, `modules/` and `lib/` parses, bar an ADR template that is copied, never parsed.
+- Models: `models.nix` `targetForModel` is the one classification (Claude aliases incl. `default`/`best`/`inherit` and `claude-*`, bare OpenAI ids, `provider/model`). Each target keeps only its own and reports the rest in `dropped`; Claude no longer passes `gpt-5` through. Supersedes "Codex's Claude-model pattern" in the render contract.
+- claude-code: an assertion for a profile whose merged `memory` has both `text` and `source`.
+- Tests: shared-model areas come from `readDir`; the one-way import check runs `nix-instantiate --parse` and reads path literals (with glued strings and interpolations) recursively, so comments and strings never count; a probe tree proves each rule fires. Each target's `validator.nix` is held to the render rule too.
+- `validation.typeProblems` checks through `lib.evalModules` and walks only to name the failing field, so freeform submodules, `either`, `lazyAttrsOf` and every other type work. Messages unchanged.
+- Manual-skill announcements are per profile through `profileDefaults` (not inherited, so a child lists its skills once), from `claude-code/manual-skills.nix`; the summary is the first sentence past abbreviations, or the whole description, or just the name.
+- `codex-home.nix` has upstream's `isTomlConfig` again; a test compares it with upstream `programs.codex`'s `home.file` keys for both XDG settings and both config formats.
+- `FLAKE-UPDATE` markers on the launcher flags and opencode's unknown-key behaviour; the launcher test greps each installed tool's `--help` for every flag word it passes.
+- Scaffolding (`libWithCustom`, `hostStub`, `fakeClaude`) lives in `checks/module-test-support.nix`, imported through `self`; the dead `programs.code-assistant-profiles` stub is gone. The option-docs test already failed when entry docs go flat (checked by removing `getSubOptions`).
+
+## Addendum 2026-10-21: assistant config checks
+
+`assistant-config-<host>` runs each tool's own validator over the files that
+host's home config writes, so a config a tool would reject fails
+`nix flake check`. Run one with
+`nix build .#checks.x86_64-linux.assistant-config-demon`. Why host configs are
+evaluated inside checks: ADR 0006.
+
+### Step 0: which validators run in the build sandbox
+
+No network, `HOME` an empty temp dir, Claude Code 2.1.303, codex-cli 0.163.0,
+opencode 1.19.0.
+
+| Tool        | Validator                                        | Offline result                                                                                                                                                                                                                                                                                        |
+| ----------- | ------------------------------------------------ | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Claude Code | `claude plugin validate <dir>`                   | Works. On a profile dir it checks skills, agents and commands; on `plugins/lsp` and each `pluginDirs` entry, the manifest. Frontmatter YAML errors are only warnings.                                                                                                                                 |
+| Claude Code | `claude doctor` with `CLAUDE_CONFIG_DIR`         | Works; reports `Invalid settings` with field paths, but exits 0, so the check greps the section. `plugin validate settings.json` treats it as a plugin manifest: unusable. The SchemaStore schema was not needed.                                                                                     |
+| Codex       | `codex mcp list`, `codex --profile <p> mcp list` | Works; strict serde load of `config.toml` and the profile file (type errors fail). Accepts unknown enum strings and unknown profiles.                                                                                                                                                                 |
+| Codex       | `codex doctor --json`                            | Exits 1 offline (auth, network), but its `config.load` row lists startup warnings, which include malformed `agents/*.toml`.                                                                                                                                                                           |
+| Codex       | `hooks.json`                                     | Not read by any offline command, even when it is not JSON. Workaround: its `hooks` go into a scratch `config.toml` as `[hooks]` (same `HookEventsToml` type, `hook_config.rs`) and `mcp list` loads that; top-level keys checked against `HooksFile`'s `deny_unknown_fields`.                         |
+| opencode    | `opencode debug config`, `debug skill`           | Works, but 71 s per call: the plugin-dependency npm install retries without network. `npm_config_fetch_retries=0` brings it to ~1 s; `OPENCODE_DISABLE_MODELS_FETCH`, `_DEFAULT_PLUGINS`, `_LSP_DOWNLOAD`, `_CLAUDE_CODE`, `_SHARE` set too. Validates `opencode.json` and `agents/*.md` frontmatter. |
+
+### Design
+
+- `modules/home/programs/assistant-config-check/check.nix`:
+  `{pkgs, lib}: {name, homes}: derivation`, `homes` mapping user to evaluated
+  home config. It takes the enabled `home.file` entries under each enabled
+  tool's dirs (Claude profile dirs, `CODEX_HOME` and `~/.agents`,
+  `$XDG_CONFIG_HOME/opencode`), links them into a fake `$HOME`, and runs the
+  validators with the packages the host installs. Every failure is reported
+  as `<host>: <tool>: <file>: \`<command>\` rejected it:` plus the tool's
+  output; the output lists every validator run.
+- `checks/assistant-configs.nix`: one check per NixOS, darwin or standalone
+  home config of the current system with a user enabling any of the three
+  tools. `programs.codex.mutableSettings` is forced off through
+  `extendModules`, because under it `config.toml` reaches `$HOME` only at
+  activation.
+- Only the selected files are built, never `activationPackage`. Build time
+  per host: demon 7.1 s, freya 5.8 s, zephy 5.9 s; evaluation adds about 20 s.
+- `tests.nix` beside it: a clean fixture must pass and run every validator;
+  seven fixtures must fail once each, naming tool, file and error: a plugin
+  dir whose manifest lacks `name`, `permissions.defaultMode = "bogus"`, a
+  command hook without `command`, a `hooks.json` with an extra key, a Codex
+  profile with `mcp_servers = "none"`, an unparsable `agents/broken.toml`,
+  and an opencode agent with `color: red`.
+- Evaluation throws if an enabled tool selects no file, so a layout change
+  cannot pass on an empty `$HOME`.
+
+### Limits
+
+- Claude `.mcp.json` and hook scripts are not validated: no offline command
+  reads them without starting servers.
+- `claude plugin validate` passes skills, agents and commands with only
+  warnings (bad frontmatter YAML, no description); the check fails on errors
+  only, since real hosts carry warnings (the LSP plugin has no `version`).
+- `claude doctor`'s `Invalid settings` heading is matched as text; the
+  settings fixture fails the test if Claude renames it, but only for the
+  Claude version the module tests use (pkgs.claude-code, 2.1.301), not each
+  host's.
+- Codex accepts unknown enum values, and its profile files are checked only
+  as far as `--profile <p> mcp list` loads them.
+- What each tool ignores (unknown keys) still passes, and runtime failures
+  (an MCP server that does not start) are out of reach.
+- ghost evaluates only on aarch64-darwin: its home config already needs a
+  darwin build during evaluation (obsidian-kanban-bases-view), as
+  `darwin-ghost-evals` does.
+
+- 2026-10-21: the validators live with their targets. Each `targets/<tool>/validator.nix` registers the tool's validator as `programs.code-assistant-profiles.validators.<tool>` (`option`, `enable`, `package`, `configDirs`, `extraDirs`, `setup`, `script`; schema in `options/validator.nix`), and `run-validators.nix` builds the fake `$HOME` and runs every enabled one, reading them from the host's home config rather than importing targets. `checks/assistant-configs.nix` only enumerates hosts. Each tool's bad-config fixtures moved to its `targets/<tool>/tests.nix`; the clean fixture is `tests/run-validators.nix`, which builds its home from `self.homeModules.default` so the shared tests import no tool module. `tests/default.nix` now takes every area file in `tests/`. Supersedes the `assistant-config-check/` paths above.
+- 2026-10-21: Codex honours a profile's own entries per profile ("A: per profile"), superseding the "Codex: every profile's agents, skills and commands go to the global dirs" note above. The second profile's own `investigate` and `architecture-standards` failed demon, freya and zephy on it.
+  - Skills and commands: a non-default profile's copy that differs from the default's goes to `~/.agents/skills/<name>--<profile>/`, its SKILL.md still `name: <name>`. `config.toml` disables every such copy by absolute SKILL.md path (`[[skills.config]]`); `<profile>.config.toml` disables the inherited copy and enables its own, both explicitly, since Codex applies the rules in layer order.
+  - Agents: Codex 0.163 merges `[agents.<role>]` across config layers, the higher layer winning (`agent-roles/src/loader.rs`), so a profile file can repoint a role. A replaced role's default copy moves to `$CODEX_HOME/agent-variants/<name>.toml` and is declared in `config.toml`; the profile's copy is `agent-variants/<name>--<profile>.toml`, declared in its profile file. Both stay out of `agents/`: every user layer rescans that dir, and a declared role beside a scanned one of the same name is a "duplicate agent role" startup warning. `config_file` is relative, resolved against `CODEX_HOME`.
+  - Remaining assertions: an entry the default lacks that two non-default profiles define differently (no default copy to replace, so the global slot that the default and every other profile read has two claimants; an entry only one profile defines stays global, as before), and a `<name>--<profile>` that another entry is already named.
+  - Codex skips a symlinked SKILL.md (`local_file_system.rs` walk drops file symlinks; only directory links are followed), so every inline skill and every command was invisible to Codex. Each skill is now a linked directory (`mkSkillDir` takes a null `resourcesRoot`); tests read the built files.
+  - Verified with codex-cli 0.163.0 on demon's rendered files (paths moved to a temp HOME): plain `codex` lists the personal `architecture-standards` and injects the personal `$investigate`; `--profile` with the second profile gets only that profile's copies of both; no duplicate-name warning. Agent roles checked the same way through a mock Responses server: `[agents.reviewer]` in the profile file swapped the role's description, other roles unchanged.
+
+### Tests by kind, 2026-10-21
+
+ADR 0007 is in place. Supersedes the `module-test-*`, `lib-test-*`, `assistant-config-<host>`, `tests.nix`, `tests/default.nix`, `checks/module-test-support.nix` and `import-rules.py` mentions above.
+
+- Layout: `checks/discovery.nix` names every `tests/<kind>.nix` under `modules/`, `home/`, `lib/` and `checks/` as `<kind>:[home:|lib:|checks:]<area>[:<sub>]` (`unit:code-assistant-profiles:codex`, `script:home:ssh`, `unit:lib:frontmatter`); a stray `.nix` file or a `tests.nix` throws, and two tests with one name throw. `checks/tests/unit.nix` (`unit:checks`) tests those rules on an in-memory tree. Discovery reads the flake source, so a new test file must be tracked (`git add -N` is enough) before it runs.
+- Unit suites run through nix-unit, negatives assert their message with `expectedError.msg`. A files test whose values need the flake (Home Manager, `self.homeModules`) checks them with `harness.values`, nix-unit-shaped cases run through `lib.runTests` at evaluation; rendered files are asserted with `harness.files` (by `home.file` name) and `harness.paths` (by store path): `exists`, `missing`, `content`, `contains`, `lacks`, `jq`, `toml`.
+- Dependency rules (`unit:code-assistant-profiles:structure`) read option provenance: no shared-model file declares a target's option and a target declares only its own; only a tool's own target defines `programs.codex`, `programs.opencode` or `programs.claude-code-profiles`; each target registers only its own validator; no `render.nix` takes `config`; the claude-code module evaluates without code-assistant-profiles.
+- Single-artefact validation moved into the derivation that builds it, behind `checkConfig` (default true): `programs.claude-code-profiles.checkConfig` runs `claude plugin validate` on the generated LSP plugin (in its manifest's build) and on every store path in `pluginDirs` (Prismantis included; the wrapper loads the checked copy); `programs.code-assistant-profiles.targets.codex.checkConfig` loads each agent role's TOML with `codex doctor --json`. `host:<host>` (`checks/hosts.nix`) keeps the whole-tree validators: profile-dir `plugin validate`, `claude doctor`, `codex mcp list`/`--profile`/`doctor`, `opencode debug config`/`skill`.
+- `host:<host>` names come from the output kind (NixOS hosts under Linux systems, darwin hosts under darwin, every standalone home), never from evaluating a host: reading even a host's platform forced its module check, so one broken host failed every check. A host with no assistant user runs no validator; a standalone home of another platform writes a note pointing at its own system's check.
+- `files:home:claude-code` renders the Prismantis settings and fails when they leave `pluginConfigs."prismantis@inline".options`.
+- Test profiles and fixture strings use neutral names (`alt`, `other`).
+
+### Hardening, 2026-10-21
+
+- Whole-tree validators moved from `checks/hosts.nix` (deleted) into each home's build: `code-assistant-profiles` adds `run-validators.nix` to `home.checks` behind `programs.code-assistant-profiles.checkConfig` (ADR 0007 addendum). A home with no assistant adds nothing. Codex's `mutableSettings` is neutralised for the check through the validator's `staticConfig` and `extendModules`. A run where no validator ran fails. `checks/` imports nothing from the module (`unit:code-assistant-profiles:structure`). Supersedes the `host:<host>` notes above.
+- `claude doctor` detection now runs a canary per claude: a known-bad settings.json must land under `Invalid settings`, so a reworded doctor fails the home's build on that claude, not only the module tests' version.
+- Discovery throws on symlinks in tests dirs, a `tests` symlink, `.nix` files in tests subdirectories (subdirectories hold data only, `lib/tests/` included), and tests dirs with no suite; unit suites with no `test*` attribute fail. This surfaced `polyrepo/scripts/tests/`, a shell test that never ran: it now runs as `script:home:scripts`.
+- A model no target routes gets its own warning naming profiles, entry and model. `checkConfig` with a null package throws for Codex agent roles and Claude plugin dirs. Codex reads `programs.codex.package` without a fallback. Every frontmatter `.md` under `home/`, `modules/`, `lib/` parses (`unit:lib:frontmatter-files`), the ADR template excepted.
+
+- 2026-10-22: dropped the `programs.codex.mutableConfig.enable` rename alias and its two tests. Nothing in this repo or the ai-toolkit input set the old name, and nixpkgs traces the rename on every evaluation that does, so the alias test was the only source of that warning in `nix flake check`.

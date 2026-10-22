@@ -1,4 +1,4 @@
-# The codeq script with every analyser on its PATH; shared by default.nix and tests.nix.
+# The codeq script with every analyser on its PATH; shared by default.nix and tests/script.nix.
 {
   lib,
   stdenv,

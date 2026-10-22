@@ -37,6 +37,8 @@ in {
     inputs.ai-toolkit.homeModules.default
     ./git-push-guard
     ./glab-permissions.nix
+    ./manual-skills.nix
+    ./prismantis.nix
   ];
 
   programs.git.ignores =
@@ -129,14 +131,6 @@ in {
       };
 
       settings = {
-        # Manual skills are hidden from Claude, so nothing would ever suggest them; list them for the user.
-        companyAnnouncements = let
-          manual = lib.filterAttrs (_: s: !s.invocation.model) config.programs.code-assistant-profiles.resolved.default.skills;
-          width = lib.foldl lib.max 0 (map lib.stringLength (lib.attrNames manual));
-          summary = d: lib.head (lib.splitString ". " d);
-          line = name: s: "  /${name}${lib.fixedWidthString (width - lib.stringLength name) " " ""}  ${summary s.description}";
-        in ["Manual skills (Claude won't suggest these):\n${lib.concatStringsSep "\n" (lib.mapAttrsToList line manual)}"];
-
         env = {
           DISABLE_ERROR_REPORTING = "1";
           DISABLE_BUG_COMMAND = "1";

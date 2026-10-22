@@ -20,7 +20,7 @@ pre:
 [private]
 [doc("Display platform-specific warning for Darwin systems")]
 check-pre:
-  if {{IS_DARWIN}}; then \
+  @if {{IS_DARWIN}}; then \
     echo "$(tput setaf 3)Warning: On Darwin systems, only Darwin-specific configurations can be validated. Linux-specific packages and configurations will error out.$(tput sgr0)"; \
   fi
 

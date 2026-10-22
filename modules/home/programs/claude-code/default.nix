@@ -29,12 +29,14 @@
     )
     cfg.profiles;
 
+  pluginCheck = import ./plugin-check.nix {inherit cfg lib pkgs;};
+
   profileFilesModule = import ./profile-files.nix {
-    inherit claudeSettingsHooks lib pkgs resolvedProfiles;
+    inherit claudeSettingsHooks lib pkgs pluginCheck resolvedProfiles;
   };
 
   wrapperScriptModule = import ./wrapper-script.nix {
-    inherit baseDir cfg lib pkgs resolvedProfiles;
+    inherit baseDir cfg lib pkgs pluginCheck resolvedProfiles;
   };
 
   zshCompletionModule = import ./zsh-completion.nix {
@@ -64,6 +66,11 @@ in {
           message = "Default profile '${cfg.defaultProfile}' must exist in programs.claude-code-profiles.profiles";
         }
       ]
+      ++ lib.mapAttrsToList (name: resolved: {
+        assertion = !(resolved.memory.text != null && resolved.memory.source != null);
+        message = "programs.claude-code-profiles profile '${name}' memory cannot define both text and source; CLAUDE.md would get both";
+      })
+      resolvedProfiles
       ++ map (message: {
         assertion = false;
         inherit message;

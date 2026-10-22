@@ -6,8 +6,6 @@ pname="$1"
 repo="$2"
 package_nix="$3"
 
-flakedir=$(git rev-parse --show-toplevel)
-
 # Get latest release tag from GitHub API
 latest_version=$(curl -sSfL "https://api.github.com/repos/${repo}/releases/latest" | jq -r '.tag_name')
 # Remove 'v' prefix if present

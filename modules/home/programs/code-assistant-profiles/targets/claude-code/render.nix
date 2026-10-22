@@ -12,6 +12,13 @@
   # Claude Code names low/medium/high/xhigh/max; Codex's minimal and ultra have no Claude name.
   effortNames = ["low" "medium" "high" "xhigh" "max"];
 
+  inherit (import ../../models.nix {inherit lib;}) targetForModel;
+
+  claudeModel = model:
+    if targetForModel model == "claude-code"
+    then model
+    else null;
+
   claudeEffort = effort:
     if lib.elem effort effortNames
     then effort
@@ -24,7 +31,7 @@
       tools = always;
       disallowedTools = always;
       skills = always;
-      model = always;
+      model = model: claudeModel model != null;
       color = always;
       reasoningEffort = effort: claudeEffort effort != null;
       maxTurns = always;
@@ -34,7 +41,7 @@
       description = always;
       argumentHint = always;
       allowedTools = always;
-      model = always;
+      model = model: claudeModel model != null;
       agent = always;
       subtask = always;
       content = always;
@@ -51,7 +58,7 @@
       invocation = always;
       paths = always;
       allowedTools = always;
-      model = always;
+      model = model: claudeModel model != null;
       license = always;
       compatibility = always;
       metadata = always;
@@ -130,7 +137,7 @@
         tools = nonEmptyList agent.tools;
         disallowedTools = nonEmptyList agent.disallowedTools;
         skills = nonEmptyList agent.skills;
-        inherit (agent) model;
+        model = claudeModel agent.model;
         inherit (agent) color;
         effort = claudeEffort agent.reasoningEffort;
         inherit (agent) maxTurns;
@@ -153,7 +160,7 @@
         "disable-model-invocation" = !skill.invocation.model;
         paths = nonEmptyList skill.paths;
         "allowed-tools" = nonEmptyList skill.allowedTools;
-        inherit (skill) model;
+        model = claudeModel skill.model;
         inherit (skill) license;
         inherit (skill) compatibility;
         metadata =
@@ -180,7 +187,7 @@
         inherit (command) description;
         "argument-hint" = command.argumentHint;
         "allowed-tools" = nonEmptyList command.allowedTools;
-        inherit (command) model;
+        model = claudeModel command.model;
         inherit (command) agent;
         context =
           if command.subtask == true

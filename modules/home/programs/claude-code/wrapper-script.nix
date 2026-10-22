@@ -3,12 +3,13 @@
   cfg,
   lib,
   pkgs,
+  pluginCheck,
   resolvedProfiles,
 }: let
   pluginDirsCase = lib.concatStringsSep "\n" (lib.mapAttrsToList (
       name: _profile: let
         resolved = resolvedProfiles.${name};
-        dirs = resolved.pluginDirs or [];
+        dirs = map pluginCheck.pluginDir (resolved.pluginDirs or []);
       in
         lib.optionalString (dirs != []) ''
           ${name}) ${lib.concatMapStringsSep " " (d: ''PLUGIN_ARGS+=(--plugin-dir "${d}")'') dirs} ;;''

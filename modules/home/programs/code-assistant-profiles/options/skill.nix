@@ -114,7 +114,7 @@ in
       model = lib.mkOption {
         type = lib.types.nullOr lib.types.str;
         default = null;
-        description = "Preferred model for tools that support per-skill model selection.";
+        description = "Preferred model for tools that support per-skill model selection. Each target keeps only a model it routes (models.nix: Claude aliases and claude-* ids for claude-code, bare OpenAI ids for codex, `provider/model` for opencode) and reports the rest as dropped.";
       };
 
       extra = extraOption ["claude-code" "codex" "opencode"] {};

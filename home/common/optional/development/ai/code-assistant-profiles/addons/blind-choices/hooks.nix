@@ -1,4 +1,4 @@
-# Wraps hooks/<name>.sh; shared by claude-code.nix and tests.nix.
+# Wraps hooks/<name>.sh; shared by claude-code.nix and tests/script.nix.
 {pkgs}: name:
 pkgs.writeShellApplication {
   name = "blind-choices-${name}";

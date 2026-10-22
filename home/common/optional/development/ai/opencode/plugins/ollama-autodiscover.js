@@ -2,7 +2,7 @@
 // so opencode's model picker always reflects what Ollama actually has pulled,
 // without hardcoding model tags in config. Declared models are preserved.
 // Read from the host's OLLAMA_CONTEXT_LENGTH at build time; a larger value means opencode never compacts before the window fills.
-const LIMIT = { context: @contextLength@, output: 8192 };
+const LIMIT = { context: Number("@contextLength@"), output: 8192 };
 
 export const OllamaAutodiscover = async () => ({
   config: async (config) => {

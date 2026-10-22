@@ -1,4 +1,4 @@
-# tmux hooks that drive ./agent-link.nix. Shared so ./tests.nix exercises the
+# tmux hooks that drive ./agent-link.nix. Shared so ./tests/script.nix exercises the
 # same wiring the module installs, rather than a copy that can drift.
 #
 # `-a` is load-bearing: the core tmux module also registers client-attached, and

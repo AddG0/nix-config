@@ -3,7 +3,8 @@
   lib,
   pkgs,
 }: let
-  # Flags as of codex-cli 0.147.0 and opencode 1.18.16; promptFlag = null passes the prompt after `--`.
+  # FLAKE-UPDATE: flags as of codex-cli 0.163.0 and opencode 1.19.0; after a bump, fix any tests/script.nix finds missing from a tool's --help.
+  # promptFlag = null passes the prompt after `--`.
   specs = {
     claude-code = {
       binary = "claude";
@@ -24,6 +25,7 @@
     };
   };
 in {
+  inherit specs;
   targetNames = lib.attrNames specs;
 
   mkLauncher = {

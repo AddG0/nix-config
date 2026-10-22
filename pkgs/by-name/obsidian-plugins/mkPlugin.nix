@@ -1,5 +1,5 @@
-# Plugins are published as three loose release assets, never an archive, and
-# home-manager reads manifest.json from $out's root to derive the plugin id.
+# Plugins are published as three loose release assets, never an archive. `manifestId` spares
+# home-manager reading manifest.json at eval time, which forces a build for the target platform.
 {
   lib,
   stdenvNoCC,
@@ -12,6 +12,7 @@
   version,
   repo,
   hashes,
+  manifestId,
   meta,
   postInstall ? "",
   passthru ? {},
@@ -28,10 +29,12 @@ in
     passthru =
       passthru
       // {
+        inherit manifestId;
         updateScript = [(lib.getExe updateScript) pname repo (./package.nix)];
       };
 
     dontUnpack = true;
+    nativeBuildInputs = [jq];
 
     installPhase = ''
       runHook preInstall
@@ -44,6 +47,11 @@ in
         )
         hashes)}
       chmod -R u+w $out
+      id=$(jq -r .id $out/manifest.json)
+      if [ "$id" != ${lib.escapeShellArg manifestId} ]; then
+        echo "${pname}: manifestId is ${lib.escapeShellArg manifestId} but manifest.json says $id" >&2
+        exit 1
+      fi
       runHook postInstall
     '';
   }

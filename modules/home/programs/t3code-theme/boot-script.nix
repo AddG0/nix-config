@@ -1,5 +1,5 @@
 # The theme-install script the client loads before the app mounts. Split out from
-# default.nix so tests.nix can build it against a fixture palette.
+# default.nix so tests/script.nix can build it against a fixture palette.
 {
   pkgs,
   theme,

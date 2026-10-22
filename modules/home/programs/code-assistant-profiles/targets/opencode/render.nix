@@ -48,9 +48,11 @@
     doom_loop = "ask";
   };
 
+  inherit (import ../../models.nix {inherit lib;}) targetForModel;
+
   # opencode reads a bare alias like `sonnet` as a provider name; dropping it inherits the session model.
   opencodeModel = model:
-    if model != null && lib.hasInfix "/" model
+    if targetForModel model == "opencode"
     then model
     else null;
 
@@ -155,7 +157,7 @@
     then null
     else permission;
 
-  # Unknown agent keys become provider options in 1.19.0, which is where reasoningEffort belongs.
+  # FLAKE-UPDATE: unknown agent keys become provider options in opencode 1.19.0 (`v1/config/agent.ts`), which is where reasoningEffort belongs; after a bump, check it still does or map reasoningEffort explicitly.
   renderAgent = name: agent:
     frontmatter.toFile {
       attrs = withExtra agent {

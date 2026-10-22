@@ -1,3 +1,4 @@
+# shellcheck shell=bash
 # The override is the only way past git-push-guard, so it's what needs a human.
 ask() {
   jq -nc --arg r "$1" '{hookSpecificOutput: {hookEventName: "PreToolUse", permissionDecision: "ask", permissionDecisionReason: $r}}'

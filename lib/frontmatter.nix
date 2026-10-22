@@ -31,12 +31,56 @@
       before = [(builtins.head list)] ++ next.before;
     };
 
-  stripQuotes = value:
-    if lib.hasPrefix "\"" value && lib.hasSuffix "\"" value
-    then lib.removeSuffix "\"" (lib.removePrefix "\"" value)
-    else if lib.hasPrefix "'" value && lib.hasSuffix "'" value
-    then lib.removeSuffix "'" (lib.removePrefix "'" value)
-    else value;
+  unescapeDoubleQuoted = fail: inner:
+    lib.concatMapStrings (part:
+      if lib.isList part
+      then
+        {
+          "\\" = "\\";
+          "\"" = "\"";
+          "/" = "/";
+          n = "\n";
+          t = "\t";
+        }
+        .${
+          lib.head part
+        }
+        or (fail "unsupported escape `\\${lib.head part}` in a double-quoted scalar")
+      else part)
+    (builtins.split "\\\\(.)" inner);
+
+  # One scalar as YAML reads it on its line: quotes undone, a trailing ` #` comment dropped. Returns {quoted | flow | plain}.
+  readScalar = fail: raw: let
+    text = lib.strings.trim raw;
+    single = builtins.match "'(([^']|'')*)'([[:space:]]+#.*)?" text;
+    double = builtins.match "\"(([^\"\\\\]|\\\\.)*)\"([[:space:]]+#.*)?" text;
+    flow = builtins.match "(\\[('([^']|'')*'|\"([^\"\\\\]|\\\\.)*\"|[^]'\"])*])([[:space:]]+#.*)?" text;
+    plain =
+      if lib.hasPrefix "#" text
+      then ""
+      else lib.strings.trim (lib.head (builtins.split "[[:space:]]#" text));
+  in
+    if lib.hasPrefix "'" text
+    then
+      if single == null
+      then fail "unterminated single quote, or text after the closing quote"
+      else {quoted = lib.replaceStrings ["''"] ["'"] (lib.head single);}
+    else if lib.hasPrefix "\"" text
+    then
+      if double == null
+      then fail "unterminated double quote, or text after the closing quote"
+      else {quoted = unescapeDoubleQuoted fail (lib.head double);}
+    else if lib.hasPrefix "[" text
+    then
+      if flow != null
+      then {flow = lib.head flow;}
+      # Claude Code's documented `argument-hint: [pr-number] [priority]` form, which it reads as a string.
+      else if builtins.match "(\\[[^]'\"]*][[:space:]]*)+(#.*)?" text != null
+      then {inherit plain;}
+      else fail "unterminated flow list, or text after its closing `]`"
+    else if builtins.match "[{&!%@`].*|[?:-]([[:space:]].*)?" plain != null
+    then fail "`${plain}` needs YAML this parser does not read (a flow map, anchor, tag, directive or block indicator)"
+    else {inherit plain;};
 
   # Splits on commas outside quotes; an item opening a quote must close it.
   splitFlowItems = text: let
@@ -53,6 +97,35 @@
     in
       [first] ++ lib.optionals (builtins.elemAt item 3 != null) (splitFlowItems rest);
 
+  scalarString = scalar: scalar.quoted or scalar.flow or scalar.plain;
+
+  # YAML's plain-scalar types for the values a frontmatter author writes; a quoted value stays a string.
+  typedPlain = plain:
+    if plain == "true"
+    then true
+    else if plain == "false"
+    then false
+    else if plain == "null" || plain == "~"
+    then null
+    else if builtins.match "-?[0-9]+" plain != null
+    then lib.toInt plain
+    else plain;
+
+  flowItems = fail: flow: let
+    inner = lib.strings.trim (lib.removeSuffix "]" (lib.removePrefix "[" flow));
+  in
+    if inner == ""
+    then []
+    else map (item: typedScalar fail (readScalar fail item)) (splitFlowItems inner);
+
+  typedScalar = fail: scalar:
+    scalar.quoted
+    or (
+      if scalar ? flow
+      then flowItems fail scalar.flow
+      else typedPlain scalar.plain
+    );
+
   normalizeStringList = value:
     if value == null || value == ""
     then []
@@ -64,15 +137,16 @@
         if lib.hasPrefix "[" trimmed && lib.hasSuffix "]" trimmed
         then lib.removeSuffix "]" (lib.removePrefix "[" trimmed)
         else trimmed;
+      fail = reason: throw "frontmatter.normalizeStringList: ${reason} in '${value}'";
     in
       if lib.strings.trim unwrapped == ""
       then []
-      else map stripQuotes (splitFlowItems unwrapped);
+      else map (item: scalarString (readScalar fail item)) (splitFlowItems unwrapped);
 
   # `desc` names the origin in errors; inline text has none, which is how it
   # avoids readInput's path heuristic.
   splitDocument = desc: text: let
-    lines = lib.splitString "\n" text;
+    lines = lib.splitString "\n" (lib.replaceStrings ["\r\n"] ["\n"] text);
     inputDesc =
       if desc == ""
       then ""
@@ -84,13 +158,15 @@
     in
       if split.found
       then {
+        inherit desc;
         frontmatter = lib.concatStringsSep "\n" split.before;
         body = lib.concatStringsSep "\n" split.after;
       }
       else throw "frontmatter.parseDocument: opened with '---' but no closing '---' fence found${inputDesc}"
     else {
+      inherit desc;
       frontmatter = "";
-      body = text;
+      body = lib.concatStringsSep "\n" lines;
     };
 
   describeInput = input:
@@ -165,48 +241,36 @@
         blockScalar = null;
       };
 
-  # YAML's plain-scalar types for the values a frontmatter author writes; a quoted value stays a string.
-  typedScalar = value: let
-    trimmed = lib.strings.trim value;
-    quoted = (lib.hasPrefix "\"" trimmed && lib.hasSuffix "\"" trimmed) || (lib.hasPrefix "'" trimmed && lib.hasSuffix "'" trimmed);
-    flowItems = lib.strings.trim (lib.removeSuffix "]" (lib.removePrefix "[" trimmed));
-  in
-    if quoted && lib.stringLength trimmed >= 2
-    then stripQuotes trimmed
-    else if trimmed == "true"
-    then true
-    else if trimmed == "false"
-    then false
-    else if trimmed == "null" || trimmed == "~"
-    then null
-    else if builtins.match "-?[0-9]+" trimmed != null
-    then lib.toInt trimmed
-    else if lib.hasPrefix "[" trimmed && lib.hasSuffix "]" trimmed
-    then
-      if flowItems == ""
-      then []
-      else map typedScalar (splitFlowItems flowItems)
-    else trimmed;
-
-  parseWith = scalar: text: let
+  # Reads top-level keys holding a scalar, a block scalar, or one level of list items or `key: scalar` pairs; throws, naming the line, on anything deeper.
+  parseWith = typed: desc: text: let
     lines = lib.splitString "\n" text;
-    step = state: line: let
+    keyPattern = "([A-Za-z0-9_-]+):([[:space:]]+(.*))?";
+    step = state: entry: let
+      inherit (entry) line;
+      where =
+        if desc == ""
+        then "line ${toString entry.number} of inline frontmatter"
+        else "${desc}:${toString entry.number}";
+      fail = reason: throw "frontmatter: ${where}: ${reason}";
+      convert = scalar:
+        if typed
+        then typedScalar fail scalar
+        else scalarString scalar;
       indentMatch = builtins.match ''([[:space:]]*)(.*)'' line;
-      indent =
-        if indentMatch == null
-        then 0
-        else lib.stringLength (builtins.elemAt indentMatch 0);
-      content =
-        if indentMatch == null
-        then line
-        else builtins.elemAt indentMatch 1;
-      keyMatch = builtins.match ''([A-Za-z0-9_-]+):[[:space:]]*(.*)'' content;
-      listMatch = builtins.match ''-[[:space:]]+(.*)'' content;
+      indent = lib.stringLength (builtins.elemAt indentMatch 0);
+      content = builtins.elemAt indentMatch 1;
+      keyMatch = builtins.match keyPattern content;
+      valueOf = match:
+        if builtins.elemAt match 2 == null
+        then ""
+        else builtins.elemAt match 2;
+      listMatch = builtins.match ''-([[:space:]]+(.*))?'' content;
       setPending = key: value:
         state
         // {
           attrs = state.attrs // {${key} = value;};
           pending = key;
+          nestedIndent = null;
         };
       setScalar = key: value:
         state
@@ -224,11 +288,14 @@
             lines = [];
           };
         };
-      appendNested = list:
+      setNested = value:
         state
         // {
-          attrs = state.attrs // {${state.pending} = list;};
+          attrs = state.attrs // {${state.pending} = value;};
+          nestedIndent = indent;
         };
+      existing = state.attrs.${state.pending};
+      blockStyle = scalar: lib.elem (scalar.plain or null) [">" "|"];
     in
       if state.blockScalar != null
       then
@@ -238,6 +305,8 @@
           // {
             blockScalar = state.blockScalar // {lines = state.blockScalar.lines ++ [""];};
           }
+        else if indent == 0 || (state.blockScalar.indent != null && indent < state.blockScalar.indent)
+        then step (flushBlockScalar state) entry
         else if state.blockScalar.indent == null
         then
           state
@@ -249,66 +318,87 @@
                 lines = state.blockScalar.lines ++ [line];
               };
           }
-        else if indent < state.blockScalar.indent
-        then step (flushBlockScalar state) line
         else
           state
           // {
             blockScalar = state.blockScalar // {lines = state.blockScalar.lines ++ [line];};
           }
-      else if content == ""
+      else if content == "" || lib.hasPrefix "#" content
       then state
       else if indent == 0
       then
-        if keyMatch != null
-        then let
+        if keyMatch == null
+        then fail "expected `key: value` at the top level, got `${content}`"
+        else let
           key = builtins.elemAt keyMatch 0;
-          rawValue = builtins.elemAt keyMatch 1;
-          trimmedValue = lib.strings.trim rawValue;
+          scalar = readScalar fail (valueOf keyMatch);
         in
-          if rawValue == ""
+          if scalar.plain or null == ""
           then setPending key null
-          else if trimmedValue == ">" || trimmedValue == "|"
-          then enterBlock key trimmedValue
-          else if builtins.match ''[>|][-+0-9].*'' trimmedValue != null
-          then throw "frontmatter.parse: YAML chomping/indent indicators in '${key}: ${trimmedValue}' are not supported; use plain '>' or '|', or inline the value"
-          else setScalar key (scalar rawValue)
-        else state // {pending = null;}
+          else if blockStyle scalar
+          then enterBlock key scalar.plain
+          else if builtins.match ''[>|][-+0-9].*'' (scalar.plain or "") != null
+          then fail "YAML chomping/indent indicators in '${key}: ${scalar.plain}' are not supported; use plain '>' or '|', or inline the value"
+          else setScalar key (convert scalar)
       else if state.pending == null
-      then state
+      then fail "an indented line continues nothing: only a `key:` with no value on its line opens a list or map, and a multi-line plain scalar is not read"
+      else if state.nestedIndent != null && indent != state.nestedIndent
+      then fail "`${state.pending}` nests deeper than one level or is indented unevenly; only one level of list items or `key: value` pairs is read"
       else if listMatch != null
       then let
-        existing = state.attrs.${state.pending};
-        existingList =
-          if lib.isList existing
-          then existing
-          else [];
+        item = builtins.elemAt listMatch 1;
+        scalar = readScalar fail item;
       in
-        appendNested (existingList ++ [(scalar (builtins.elemAt listMatch 0))])
+        if item == null || lib.strings.trim item == ""
+        then fail "an empty list item under `${state.pending}`"
+        else if builtins.match keyPattern item != null
+        then fail "a list of maps under `${state.pending}` is not read"
+        else if lib.isAttrs existing
+        then fail "`${state.pending}` mixes list items with `key: value` pairs"
+        else if blockStyle scalar
+        then fail "a block scalar inside the list under `${state.pending}` is not read"
+        else
+          setNested ((
+              if lib.isList existing
+              then existing
+              else []
+            )
+            ++ [(convert scalar)])
       else if keyMatch != null
       then let
         nestedKey = builtins.elemAt keyMatch 0;
-        rawValue = builtins.elemAt keyMatch 1;
-        existing = state.attrs.${state.pending};
-        existingMap =
-          if lib.isAttrs existing
-          then existing
-          else {};
+        scalar = readScalar fail (valueOf keyMatch);
       in
-        appendNested (existingMap // {${nestedKey} = scalar rawValue;})
-      else state;
+        if lib.isList existing
+        then fail "`${state.pending}` mixes list items with `key: value` pairs"
+        else if scalar.plain or null == "" || blockStyle scalar
+        then fail "`${state.pending}.${nestedKey}` opens a nested map, list or block scalar; only one level of nesting is read"
+        else
+          setNested ((
+              if lib.isAttrs existing
+              then existing
+              else {}
+            )
+            // {${nestedKey} = convert scalar;})
+      else fail "expected `- item` or `key: value` under `${state.pending}`, got `${content}`";
 
     finalState =
       lib.foldl step {
         attrs = {};
         pending = null;
+        nestedIndent = null;
         blockScalar = null;
       }
-      lines;
+      (lib.imap0 (index: line: {
+          inherit line;
+          # Frontmatter opens on the file's second line, after the `---` fence.
+          number = index + 2;
+        })
+        lines);
   in
     (flushBlockScalar finalState).attrs;
 
-  parse = parseWith stripQuotes;
+  parse = parseWith false;
 
   dropWhile = pred: list:
     if list == []
@@ -386,8 +476,8 @@
     document = parseDocument input;
   in {
     inherit (document) body;
-    attrs = parse document.frontmatter;
-    typedAttrs = parseWith typedScalar document.frontmatter;
+    attrs = parse document.desc document.frontmatter;
+    typedAttrs = parseWith true document.desc document.frontmatter;
   };
 
   # `fromFile` reads a leading "/" as a path and throws, so a body opening with
@@ -396,8 +486,8 @@
     document = splitDocument "" text;
   in {
     inherit (document) body;
-    attrs = parse document.frontmatter;
-    typedAttrs = parseWith typedScalar document.frontmatter;
+    attrs = parse "" document.frontmatter;
+    typedAttrs = parseWith true "" document.frontmatter;
   };
 
   toFile = {

@@ -9,6 +9,7 @@ mkPlugin {
   # replicates between matching majors only.
   version = "0.25.65";
   repo = "vrtmrz/obsidian-livesync";
+  manifestId = "obsidian-livesync";
 
   hashes = {
     "main.js" = "sha256-XOd8mcXoKQhlIEeX7YpES8joLDwx3TPbdYHUEBtX/xY=";

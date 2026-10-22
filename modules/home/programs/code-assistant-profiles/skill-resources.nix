@@ -22,7 +22,7 @@ in {
 
   inspectableAtEval = root: !(builtins.hasContext (builtins.toString root));
 
-  # A skill directory: the resources, then the generated SKILL.md, then `extraCommands` for files only one tool writes.
+  # A skill directory: the resources if any, then the generated SKILL.md, then `extraCommands` for files only one tool writes.
   mkSkillDir = {
     pkgs,
     tool,
@@ -33,8 +33,12 @@ in {
   }:
     pkgs.runCommand "${tool}-skill-${lib.strings.sanitizeDerivationName name}" {} (''
         mkdir -p "$out"
+      ''
+      + lib.optionalString (resourcesRoot != null) ''
         cp -R "${resourcesRoot}/." "$out/"
         ${rejectReserved tool name}
+      ''
+      + ''
         cp ${pkgs.writeText "SKILL.md" "${skillMd}\n"} "$out/SKILL.md"
       ''
       + extraCommands);

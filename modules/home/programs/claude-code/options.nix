@@ -175,6 +175,12 @@ in {
 
     package = lib.mkPackageOption pkgs "claude-code" {nullable = true;};
 
+    checkConfig = lib.mkOption {
+      type = lib.types.bool;
+      default = true;
+      description = "Whether {option}`package` runs `claude plugin validate` on each plugin directory a profile loads (the generated LSP plugin and every store path in `pluginDirs`) while it builds. Turn off where that package cannot run on the build platform.";
+    };
+
     wrapperPackage = lib.mkOption {
       type = lib.types.nullOr lib.types.package;
       readOnly = true;

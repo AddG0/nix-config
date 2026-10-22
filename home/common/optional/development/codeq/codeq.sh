@@ -1,3 +1,4 @@
+# shellcheck shell=bash
 # codeq: one entry point for code-quality metrics. Language-neutral commands run
 # on any repo; JVM/Go commands detect the project and say plainly when they don't
 # apply. Every command prints to stdout and keeps a copy under $CODEQ_OUT.

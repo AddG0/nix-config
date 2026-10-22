@@ -1,6 +1,7 @@
 # A resolved shared profile, rendered into Codex's artefacts; with `base`, only what a profile file layers over it.
 {
   base ? null,
+  checkAgent,
   codexHooks,
   customLib,
   hooks,
@@ -12,13 +13,13 @@
   skillResources = import ../../skill-resources.nix {inherit lib;};
   inherit (import ../../content.nix {inherit lib;}) always droppedFields inlineRule inlinedSections readContent skillDescription withExtraFor;
 
-  # Codex serves no Claude model, and an agent file cannot switch model_provider, so `provider/model` is dropped too.
-  claudeModelPattern = "(inherit|sonnet|opus|haiku|fable|opusplan|claude-.*)(\\[.*])?";
+  inherit (import ../../models.nix {inherit lib;}) targetForModel;
 
+  # An agent file cannot switch model_provider, so only a bare OpenAI model routes.
   codexModel = model:
-    if model == null || lib.hasInfix "/" model || builtins.match claudeModelPattern model != null
-    then null
-    else model;
+    if targetForModel model == "codex"
+    then model
+    else null;
 
   # Codex reads only name, description and metadata.short-description from SKILL.md; the rest lives in agents/openai.yaml.
   skillMetadataKeys = ["short-description"];
@@ -124,13 +125,8 @@
       '';
     };
 
-  # Files under the skills root: one link per skill with resources, never the root itself, which other tools write into.
-  renderSkill = name: skill:
-    if skill.resourcesRoot != null
-    then {${name}.source = skillDirectory name skill;}
-    else
-      {"${name}/SKILL.md".text = skillText name skill;}
-      // lib.optionalAttrs (skillPolicyText skill != null) {"${name}/agents/openai.yaml".text = skillPolicyText skill;};
+  # One linked directory per skill, never the root, which other tools write into: Codex skips a symlinked SKILL.md.
+  renderSkill = dir: skill: {${dir}.source = skillDirectory dir skill;};
 
   # Commands surface as user-invocable skills since ~/.codex/prompts/ is deprecated.
   commandSkill = name: command: {
@@ -144,13 +140,13 @@
   };
 
   renderAgent = name: agent:
-    tomlFormat.generate "codex-agent-${lib.strings.sanitizeDerivationName name}.toml" (withExtra agent (lib.filterAttrs (_: value: value != null) {
+    checkAgent name (tomlFormat.generate "codex-agent-${lib.strings.sanitizeDerivationName name}.toml" (withExtra agent (lib.filterAttrs (_: value: value != null) {
       inherit name;
       description = fallbackString agent.description name;
       developer_instructions = readContent agent.prompt;
       model = codexModel agent.model;
       model_reasoning_effort = agent.reasoningEffort;
-    }));
+    })));
 
   renderOauth = oauth:
     lib.filterAttrs (_: value: value != null) {
@@ -204,7 +200,8 @@
       // lib.mapAttrs (_: _: {enabled = false;}) (removeAttrs baseServers (lib.attrNames servers));
 
   # Precedence on a name clash: the skill, then the command.
-  renderCommands = profile: lib.concatMapAttrs (name: command: renderSkill name (commandSkill name command)) (removeAttrs profile.commands (lib.attrNames profile.skills));
+  commandSkills = profile: lib.mapAttrs commandSkill (removeAttrs profile.commands (lib.attrNames profile.skills));
+  renderCommands = profile: lib.concatMapAttrs renderSkill (commandSkills profile);
   renderSkills = profile: lib.concatMapAttrs renderSkill profile.skills;
   renderAgents = profile: lib.mapAttrs' (name: agent: lib.nameValuePair "${name}.toml" {source = renderAgent name agent;}) profile.agents;
 
@@ -221,6 +218,8 @@ in
     agents = globalOnly (renderAgents profile);
     skills = globalOnly (renderSkills profile);
     commands = globalOnly (renderCommands profile);
+    # A skill or command's files in another directory, keeping its name: how a profile's own copy sits beside the default's.
+    skillIn = dir: name: renderSkill dir (commandSkills profile // profile.skills).${name};
     mcpServers = renderMcpServers profile;
     lspServers = {};
     hooks = globalOnly (codexHooks.render hooks);

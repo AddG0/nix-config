@@ -1,3 +1,4 @@
+# shellcheck shell=bash
 # Signs in to the OIDC issuer for ai-proxy with a device code (RFC 8628) and hands out the JWT its gateway accepts.
 
 umask 077

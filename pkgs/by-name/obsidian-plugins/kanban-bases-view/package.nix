@@ -6,6 +6,7 @@ mkPlugin {
   pname = "obsidian-kanban-bases-view";
   version = "0.10.4";
   repo = "xiwcx/obsidian-bases-kanban";
+  manifestId = "kanban-bases-view";
 
   hashes = {
     "main.js" = "sha256-b3gqbpBsIeMK/vH9288B0DGZIJTIQRSNvPazkpwEs64=";

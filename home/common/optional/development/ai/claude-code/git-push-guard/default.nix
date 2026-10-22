@@ -17,7 +17,8 @@
     ];
     baseConfig.settings.hooks.PreToolUse = [
       {
-        matcher = "Bash";
+        # Every tool that runs a shell command; Monitor shares Bash's environment and permission rules.
+        matcher = "Bash|Monitor|PowerShell";
         hooks = [
           {
             type = "command";
