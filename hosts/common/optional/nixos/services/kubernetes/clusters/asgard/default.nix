@@ -98,6 +98,12 @@ in {
       interface = "";
     };
 
+    # k3s's bundled CoreDNS spreads without nodeTaintsPolicy, so a lost node strands a replica Pending.
+    addons.coredns = lib.mkIf isServer {
+      enable = true;
+      nodeHosts = lib.mapAttrs (node: _role: hostsAddr.${node}.ipv4) cluster.nodes;
+    };
+
     extraFlags =
       [
         # Pinned: k3s otherwise autodetects the kube-vip VIP off the shared NIC,

@@ -37,6 +37,7 @@ in {
           ./hosts/nixos/services/greetd.nix
           (importWithLocal ./hosts/nixos/services/ip-timezone.nix)
           ./hosts/nixos/services/jellyfin.nix
+          (importWithLocal ./hosts/nixos/services/k3s/coredns.nix)
           ./hosts/nixos/services/k3s/kube-vip.nix
           ./hosts/nixos/services/obsbot-camera.nix
           ./hosts/nixos/services/power-state-manager
