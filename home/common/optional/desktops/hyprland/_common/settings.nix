@@ -17,6 +17,8 @@ in {
     # whole config — including the hy3 binds — is written in hyprlang, so
     # pin the backend to hyprlang to keep writing hyprland.conf.
     configType = "hyprlang";
+    # Portals come from the system; HM's would point NIX_XDG_DESKTOP_PORTAL_DIR at a dir holding only xdph.
+    portalPackage = null;
     settings = {
       env = [
         "NIXOS_OZONE_WL,1"

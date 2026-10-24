@@ -8,17 +8,14 @@
   brightnessctl = "${pkgs.brightnessctl}/bin/brightnessctl";
 
   # SUPER+SHIFT+R reload pipeline. `hyprctl reload` re-reads hyprland.conf,
-  # then anything other modules have registered in `reload.commands.<name>`
-  # runs (used for restarting services that don't re-evaluate on hyprctl
-  # reload — e.g. wpaperd from wallpaper.nix). Commands fire in attrset
-  # key order; treat them as independent.
+  # then `desktop.session.reload.commands` runs.
   reloadScript = pkgs.writeShellApplication {
     name = "hypr-reload";
     runtimeInputs = with pkgs; [hyprland];
     text = ''
       hyprctl reload
       ${lib.concatStringsSep "\n" (
-        lib.attrValues config.wayland.windowManager.hyprland.reload.commands
+        lib.attrValues config.desktop.session.reload.commands
       )}
     '';
   };
@@ -60,19 +57,6 @@
     fi
   '';
 in {
-  options.wayland.windowManager.hyprland.reload.commands = lib.mkOption {
-    type = lib.types.attrsOf lib.types.lines;
-    default = {};
-    example = lib.literalExpression ''
-      { wpaperd = "systemctl --user try-restart wpaperd.service"; }
-    '';
-    description = ''
-      Shell commands to run after `hyprctl reload` when SUPER+SHIFT+R is
-      pressed. Keyed by short name (so contributors can be identified and
-      individually overridden). Each entry runs as plain shell text.
-    '';
-  };
-
   config.wayland.windowManager.hyprland.settings = {
     # ── Mouse Binds ──
     # SUPER+LMB            Drag to move window

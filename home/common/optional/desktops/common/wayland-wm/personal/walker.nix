@@ -273,15 +273,5 @@ in {
     };
   };
 
-  wayland.windowManager.hyprland.settings = {
-    # SUPER+space — same bind anyrun owned.
-    bind = ["SUPER,space,exec,walker"];
-
-    # Scale up in place rather than slide from an edge. Only the style can be
-    # overridden per-layer — timing/curve still come from the global layersIn.
-    layerrule = ["animation popin 88%, match:namespace walker"];
-  };
-
-  # Bundled into SUPER+SHIFT+R via the reload pipeline in binds.nix.
-  wayland.windowManager.hyprland.reload.commands.elephant = "systemctl --user try-restart elephant.service";
+  desktop.session.reload.commands.elephant = "systemctl --user try-restart elephant.service";
 }

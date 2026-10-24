@@ -1,8 +1,8 @@
-# Personal-flavor PiP styling overrides. The mechanics (toggle script,
-# suppress_event for autoplay-next, no_initial_focus) live in common/pip.nix —
-# this file only tunes the visual placement and sizing to match the theme
-# defined in ./visuals.nix.
-_: {
+# Hyprland with the personal session kit (Noctalia, walker).
+{
+  imports = [./_common ../common/wayland-wm/personal];
+
+  # PiP placement for the personal theme; the mechanics live in _common/pip.nix.
   modules.hyprland.pip = {
     # Keep the common default 960x540 — 480x270 was too small for actually
     # watching video alongside other work.

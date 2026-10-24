@@ -1,25 +1,34 @@
-{pkgs, ...}: {
+{
+  config,
+  lib,
+  pkgs,
+  ...
+}: {
   imports = [
+    ../../common
+    ../../common/wayland-wm
     ./settings.nix
     ./binds.nix
     ./screenshots.nix
-    ./hyprlock.nix
-    ./hypridle.nix
-    ./oled-care
     ./plugins
-    ./apps
+    ./nwg-displays.nix
     ./pip.nix
     ./btop.nix
-    ./crash-capture.nix
     ./monitor-control.nix
     ./recovery.nix
-    ./wallpaper.nix
   ];
 
   # wayland session entry for greetd
   home.file.".wayland-session" = {
     source = "${pkgs.hyprland}/bin/Hyprland";
     executable = true;
+  };
+
+  desktop.session.dpms.Hyprland = let
+    hyprctl = lib.getExe' config.wayland.windowManager.hyprland.package "hyprctl";
+  in {
+    off = "${hyprctl} dispatch dpms off";
+    on = "${hyprctl} dispatch dpms on";
   };
 
   services.hyprpolkitagent.enable = true;

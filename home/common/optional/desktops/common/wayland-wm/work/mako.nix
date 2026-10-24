@@ -1,4 +1,4 @@
-{pkgs, ...}: {
+{
   services.mako = {
     enable = true;
     settings = {
@@ -17,9 +17,5 @@
         default-timeout = 8000;
       };
     };
-  };
-
-  wayland.windowManager.hyprland.settings = {
-    exec-once = ["${pkgs.mako}/bin/mako"];
   };
 }

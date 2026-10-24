@@ -81,9 +81,6 @@ in {
     "Print".action.screenshot = {};
     "Shift+Print".action.screenshot-window = {};
 
-    # Lock & power
-    "Mod+Escape".action.spawn = ["${pkgs.swaylock}/bin/swaylock"];
-
     # Session
     "Mod+Shift+E".action.quit = {};
 

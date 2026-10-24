@@ -1,4 +1,9 @@
-{pkgs, ...}: {
+{
+  config,
+  lib,
+  pkgs,
+  ...
+}: {
   services.hypridle = {
     enable = true;
     settings.general = {
@@ -8,7 +13,7 @@
       # password. Lets `loginctl unlock-session` actually dismiss the lock.
       unlock_cmd = "${pkgs.procps}/bin/pkill -USR1 hyprlock";
       before_sleep_cmd = "loginctl lock-session";
-      after_sleep_cmd = "hyprctl dispatch dpms on";
+      after_sleep_cmd = "${lib.getExe config.desktop.session.dpmsCommand} on";
       # Hold systemd-logind's sleep inhibitor until the lock-screen client
       # signals `hyprland-lock-notify-v1` (i.e. hyprlock's surface is
       # actually mapped). Default mode 2 ("auto") releases the inhibitor

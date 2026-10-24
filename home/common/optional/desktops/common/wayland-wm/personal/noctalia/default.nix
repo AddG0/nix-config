@@ -118,17 +118,6 @@ in {
     };
   };
 
-  # SUPER+C / SUPER+N open the calendar and notifications control-center tabs.
-  wayland.windowManager.hyprland.settings.bind = [
-    "SUPER,c,exec,${lib.getExe noctaliaPkg} msg panel-toggle control-center calendar"
-    "SUPER,n,exec,${lib.getExe noctaliaPkg} msg panel-toggle control-center notifications"
-  ];
-
-  # Noctalia animates its own panels; Hyprland's layersIn slide would fly them in from the edge.
-  wayland.windowManager.hyprland.settings.layerrule = [
-    "no_anim on, match:namespace ^noctalia-(attached-panel|panel)$"
-  ];
-
   # Override the module's Restart=on-failure: always also recovers from a clean
   # exit, e.g. a session-teardown that drops only noctalia.
   systemd.user.services.noctalia.Service = {

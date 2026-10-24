@@ -7,7 +7,7 @@
 #   4. Enter decelerates, exit accelerates. The asymmetry is the spec.
 #
 # mkForce calls below override two upstream sources:
-#   - settings.nix in ../_common sets gaps_in / gaps_out to 5/10
+#   - hyprland/_common/settings.nix sets gaps_in / gaps_out to 5/10
 #   - stylix's hyprland target auto-themes col.active_border,
 #     col.inactive_border, decoration.shadow.color, and background_color
 #     from base16; the roles we want don't match its base0D/base03/base00 picks.
@@ -40,7 +40,7 @@
   long = 3; # 300ms
   edgeGap = 8;
 in {
-  wayland.windowManager.hyprland.settings = {
+  wayland.windowManager.hyprland.settings = lib.mkIf config.wayland.windowManager.hyprland.enable {
     general = {
       border_size = 1;
       gaps_in = lib.mkForce 4;

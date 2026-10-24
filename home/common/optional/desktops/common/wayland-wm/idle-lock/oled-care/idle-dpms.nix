@@ -5,6 +5,7 @@
   ...
 }: let
   cfg = config.services.oledCare.idleDpms;
+  dpms = lib.getExe config.desktop.session.dpmsCommand;
 
   no-sleep-bin = pkgs.writeShellApplication {
     name = "no-sleep";
@@ -218,8 +219,8 @@ in {
       }
       {
         timeout = 240;
-        on-timeout = "hyprctl dispatch dpms off";
-        on-resume = "hyprctl dispatch dpms on";
+        on-timeout = "${dpms} off";
+        on-resume = "${dpms} on";
       }
     ];
   };

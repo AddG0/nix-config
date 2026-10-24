@@ -29,6 +29,7 @@
     ./openrgb-schedule.nix
 
     (lib.custom.useSuite lib.custom.suites.hyprland)
+    (lib.custom.useSuite lib.custom.suites.niri)
     (lib.custom.useSuite lib.custom.suites.docker)
     (lib.custom.useSuite lib.custom.suites.awsvpnclient)
     (lib.custom.useSuite lib.custom.suites.gaming)

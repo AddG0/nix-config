@@ -246,7 +246,16 @@
     '';
   };
 in {
+  imports = [./_hyprland.nix ./_niri.nix];
+
   options.wallpapers = {
+    picker = lib.mkOption {
+      type = lib.types.package;
+      readOnly = true;
+      internal = true;
+      description = "Launcher for the wallpaper picker, for compositor binds.";
+    };
+
     defaultSeed.enable = lib.mkOption {
       type = lib.types.bool;
       default = config.wallpapers.images.default or {} == {};
@@ -280,19 +289,7 @@ in {
 
   config = {
     services.wpaperd.enable = true;
-
-    # SUPER+W → visual picker (Quickshell). One thumbnail click sets that
-    # wallpaper on the targeted monitor via wpaperctl and exits.
-    # Deliberately *not* SUPER+SHIFT+W: that sits next to SUPER+SHIFT+E
-    # (exit hyprland), and a finger-slip there is unrecoverable.
-    wayland.windowManager.hyprland.settings.bind = ["SUPER,w,exec,${lib.getExe pickerLauncher}"];
-
-    # Float + center the picker on the focused monitor.
-    wayland.windowManager.hyprland.settings.windowrule = [
-      "float on, match:title ^(Wallpaper picker)$"
-      "size 1600 900, match:title ^(Wallpaper picker)$"
-      "center 1, match:title ^(Wallpaper picker)$"
-    ];
+    wallpapers.picker = pickerLauncher;
 
     # Stylix's hyprpaper target sets services.hyprpaper.enable = true at the
     # same priority; without mkForce this is a conflict, not an override.
@@ -303,9 +300,8 @@ in {
     # the X-Restart-Triggers reload; here systemd guarantees ordering.
     systemd.user.services.wpaperd.Service.ExecStartPre = "${lib.getExe prepPkg}";
 
-    # Hook into the SUPER+SHIFT+R reload pipeline (see binds.nix) so manual
-    # reload also re-seeds the default and refreshes any rotated caches.
-    wayland.windowManager.hyprland.reload.commands.wpaperd = "systemctl --user try-restart wpaperd.service";
+    # A manual reload also re-seeds the default and refreshes any rotated caches.
+    desktop.session.reload.commands.wpaperd = "systemctl --user try-restart wpaperd.service";
 
     services.wpaperd.settings =
       monitorSettings

@@ -57,6 +57,8 @@ in {
     systemd.user.services.oled-wear-tracker = {
       Unit = {
         Description = "OLED active-emission wear tracker";
+        # Reads DPMS state from hyprctl; other compositors have no reader yet.
+        ConditionEnvironment = "HYPRLAND_INSTANCE_SIGNATURE";
         After = ["graphical-session.target"];
         PartOf = ["graphical-session.target"];
       };

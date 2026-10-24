@@ -9,7 +9,6 @@ _: {
 
   # Unlock login, lockscreen, and sudo with fingerprint
   security.pam.services.login.fprintAuth = true;
-  security.pam.services.swaylock.fprintAuth = true;
   security.pam.services.sudo.fprintAuth = true;
   security.pam.services.greetd.fprintAuth = true;
   # hyprlock doesn't ship a PAM file (unlike swaylock), so NixOS won't

@@ -1,6 +1,6 @@
 {
-  inputs,
   config,
+  lib,
   pkgs,
   ...
 }: let
@@ -25,8 +25,18 @@
   };
 in {
   imports = [
+    ../common
+    ../common/wayland-wm
+    ../common/wayland-wm/personal
     ./binds.nix
   ];
+
+  desktop.session.dpms.niri = let
+    niri = lib.getExe config.programs.niri.package;
+  in {
+    off = "${niri} msg action power-off-monitors";
+    on = "${niri} msg action power-on-monitors";
+  };
 
   #
   # ========== Niri compositor ==========
@@ -37,7 +47,7 @@ in {
     #
     outputs = builtins.listToAttrs (
       map (m: {
-        inherit (m) name;
+        name = m.output;
         value =
           if !m.enabled
           then {enable = false;}
@@ -79,8 +89,7 @@ in {
     # Ask apps to omit client-side title bars
     prefer-no-csd = true;
 
-    # Use niri-flake's unstable build for fixes beyond 0.8 (e.g. Steam spawn issue)
-    xwayland-satellite.path = "${inputs.niri.packages.${pkgs.stdenv.hostPlatform.system}.xwayland-satellite-unstable}/bin/xwayland-satellite";
+    xwayland-satellite.path = lib.getExe pkgs.xwayland-satellite;
 
     #
     # ---- Environment ----
@@ -116,14 +125,6 @@ in {
     };
 
     #
-    # ---- Startup ----
-    #
-    spawn-at-startup = [
-      {argv = ["noctalia"];}
-      {argv = ["${pkgs.swayidle}/bin/swayidle" "-w"];}
-    ];
-
-    #
     # ---- Window rules ----
     #
     # Rounded corners for Noctalia
@@ -140,34 +141,5 @@ in {
         clip-to-geometry = true;
       }
     ];
-  };
-
-  #
-  # ========== Noctalia shell ==========
-  #
-  programs.noctalia = {
-    enable = true;
-    package = pkgs.noctalia;
-    settings = {
-      # input_volume is the built-in mic volume widget instance.
-      bar.main = {
-        position = "top";
-        end = ["tray" "input_volume" "notifications" "volume" "control-center"];
-      };
-      # 12-hour clock.
-      shell = {
-        time_format = "{:%I:%M %p}";
-        avatar_path = "/var/lib/AccountsService/icons/${config.home.username}";
-      };
-      theme = {
-        source = "builtin";
-        builtin = "Catppuccin";
-      };
-      weather = {
-        enabled = true;
-        unit = "imperial"; # metric = °C, imperial = °F
-      };
-      wallpaper.default.path = "${pkgs.kdePackages.plasma-workspace-wallpapers}/share/wallpapers/Nexus/contents/images_dark/5120x2880.png";
-    };
   };
 }

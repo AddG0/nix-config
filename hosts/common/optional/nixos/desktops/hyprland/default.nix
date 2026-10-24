@@ -15,6 +15,9 @@ in {
     withUWSM = true;
   };
 
+  # nixpkgs sets this with mkDefault, so another desktop's plain definition would drop Hyprland's portals.conf.
+  xdg.portal.configPackages = [config.programs.hyprland.package];
+
   # Hyprland loads /run/opengl-driver Mesa into its own glibc; a newer system Mesa aborts it at startup.
   hardware.graphics = {
     package = hyprlandPkgs.mesa;
