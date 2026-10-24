@@ -58,4 +58,14 @@
       inherit (m) output;
       disabled = true;
     };
+
+  # The legacy monitor line in sRGB; it has no keys for monitorv2's luminance overrides or reserved area.
+  sdrMonitorRule = m: let
+    v2 = monitorv2 m;
+  in
+    "${m.output},${v2.mode},${v2.position},${v2.scale},transform,${toString v2.transform},vrr,${toString v2.vrr}"
+    + lib.optionalString (m.bitdepth != 8) ",bitdepth,${toString m.bitdepth}"
+    + lib.optionalString (m.mirror != null) ",mirror,${m.mirror}"
+    + lib.optionalString (m.icc != null) ",icc,${toString m.icc}"
+    + ",cm,srgb";
 }

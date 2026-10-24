@@ -1,4 +1,4 @@
-# display.monitors entries rendered as Hyprland monitorv2 blocks.
+# display.monitors entries rendered as Hyprland monitorv2 blocks and as the sRGB monitor line the SDR game switch applies.
 {
   harness,
   lib,
@@ -16,14 +16,17 @@
     primary = true;
   };
 
-  render = monitor:
-    hyprLib.monitorv2 (builtins.head
-      (harness.eval [
-        (harness.root + "/modules/home/monitors.nix")
-        {display.monitors = [monitor];}
-      ])
-      .display
-      .monitors);
+  declared = monitor:
+    builtins.head
+    (harness.eval [
+      (harness.root + "/modules/home/monitors.nix")
+      {display.monitors = [monitor];}
+    ])
+    .display
+    .monitors;
+
+  render = monitor: hyprLib.monitorv2 (declared monitor);
+  sdrLine = monitor: hyprLib.sdrMonitorRule (declared monitor);
 in {
   "test a plain monitor renders only mode, position, scale, transform and vrr" = {
     expr = render base;
@@ -108,5 +111,25 @@ in {
       output = "DP-3";
       disabled = true;
     };
+  };
+
+  "test the sRGB line keeps an HDR monitor's mode, position and bit depth so switching needs no modeset" = {
+    expr = sdrLine (base
+      // {
+        bitdepth = 10;
+        hdr = true;
+        sdrMaxLuminance = 203;
+      });
+    expected = "DP-3,3840x2160@240.0,3840x0,1.000000,transform,0,vrr,0,bitdepth,10,cm,srgb";
+  };
+
+  "test the sRGB line carries transform, vrr and mirror" = {
+    expr = sdrLine (base
+      // {
+        transform = "270";
+        vrr = "fullscreen-game";
+        mirror = "DP-2";
+      });
+    expected = "DP-3,3840x2160@240.0,3840x0,1.000000,transform,3,vrr,3,mirror,DP-2,cm,srgb";
   };
 }

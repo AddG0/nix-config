@@ -1,9 +1,10 @@
 {
   pkgs,
   customPkgs,
-  lib,
   ...
 }: {
+  imports = [./_hyprland.nix];
+
   home.packages = with pkgs; [
     mangohud
   ];
@@ -13,40 +14,6 @@
   xdg.dataFile."Steam/compatibilitytools.d/GE-Proton".source =
     pkgs.proton-ge-bin.steamcompattool;
   xdg.dataFile."Steam/compatibilitytools.d/proton-cachyos-native".source = "${customPkgs.proton-cachyos}/share/steam/compatibilitytools.d/proton-cachyos-native";
-
-  # Forza Horizon's XWayland fullscreen-on-map path crashes Hyprland 0.54.3
-  # inside CCompositor::setWindowFullscreenInternal (null deref on the
-  # surface-recycling that happens during X11 Activate). Suppress the
-  # fullscreen request — the game still renders fine windowed-borderless.
-  # mkBefore so `tag +game` sorts ahead of the tag:game consumers in other
-  # modules (e.g. the opacity rule in visuals) — Hyprland applies rules in order.
-  wayland.windowManager.hyprland.settings.windowrule = lib.mkBefore [
-    "suppress_event fullscreen, match:title ^(Forza Horizon \\d+)$"
-    "suppress_event fullscreen, match:class ^(steam_app_2483190)$"
-    # Scrap Mechanic maps its X11 window as a dialog, so Hyprland auto-floats it tiny.
-    "float off, match:class ^(steam_app_387990)$"
-    # gamescope's render loop runs off Wayland frame callbacks, which Hyprland
-    # stops sending to windows on an inactive workspace — so the game freezes on
-    # return until a resize kicks it.
-    "render_unfocused on, match:class ^(gamescope)$"
-    # Steam games (Proton or native) map as XWayland class steam_app_<id>.
-    "tag +game, match:class ^(steam_app_\\d+)$"
-    # Gamescoped ones don't: they map on gamescope's Xwayland, not Hyprland's.
-    "tag +game, match:class ^(gamescope)$"
-    # render.direct_scanout = 2 only scans out windows of content type game.
-    # Not gamescope: Hyprland scanning out its buffer directly shows garbage.
-    "content game, match:tag game, match:class negative:^(gamescope)$"
-  ];
-
-  wayland.windowManager.hyprland.settings.render = {
-    direct_scanout = 2;
-    # Default 3 ignores CM for scanout, so SDR games on an HDR output go oversaturated.
-    non_shader_cm = 2;
-    # Otherwise mode 2 gives non-"none" fullscreen windows an identity CTM and skips shader CM, oversaturating SDR games.
-    non_shader_cm_interop = 1;
-    # Auto HDR drops the HDR metadata for SDR fullscreen windows but keeps PQ-encoding them, washing them out.
-    cm_auto_hdr = 0;
-  };
 
   # Disable the desktop entry for Protontricks since steam gives me that option anyway
   #

@@ -49,143 +49,34 @@
   # `or false`: hosts without gaming/rocket-league.nix have no such option at all.
   bakkesLauncher = lib.optional (config.programs.bakkesmod.enable or false) config.programs.bakkesmod.launcherPackage;
 
-  # Asks before launching without a physical gamepad; virtual input devices live under /devices/virtual.
-  requireController = game:
-    lib.getExe (pkgs.writeShellApplication {
-      name = "require-controller";
-      runtimeInputs = [pkgs.coreutils pkgs.gawk pkgs.zenity];
-      text = ''
-        # Needs Steam Input's pad too: it lands seconds after the physical one, and a running game takes it as a second player.
-        # It is matched by name, since keyd's virtual pointer also has a js node.
-        pads_ready() {
-          awk -v need="$1" '/^N: Name=/ { steam = ($0 ~ /X-Box 360 pad/) }
-               /^S: Sysfs=/ { virt = ($0 ~ /\/virtual\//) }
-               /^H: Handlers=/ && / js[0-9]+/ { if (!virt) physical = 1; else if (steam) input = 1 }
-               END { exit !(physical && (need == "physical" || input)) }' /proc/bus/input/devices
-        }
+  requireController = import ./require-controller.nix {inherit lib pkgs;};
 
-        if pads_ready both; then
-          exec "$@"
-        fi
-
-        # Steam's LD_LIBRARY_PATH pins an old libcurl that stops zenity loading, and that failure exits 1 like Cancel.
-        env -u LD_LIBRARY_PATH -u LD_PRELOAD zenity --question --title=${lib.escapeShellArg game} \
-          --text=${lib.escapeShellArg "No controller connected.\nPlug one in to start."} \
-          --ok-label=Start --cancel-label=Cancel &
-        dialog=$!
-
-        while kill -0 "$dialog" 2>/dev/null; do
-          # Steam creates its pad only once the game process exists, so a pad plugged in here never gets one.
-          if pads_ready physical; then
-            sleep 5
-            kill "$dialog" 2>/dev/null || true
-            exec "$@"
-          fi
-          sleep 0.5
-        done
-
-        rc=0
-        wait "$dialog" || rc=$?
-        case $rc in
-          0) exec "$@" ;;
-          1) exit 0 ;;
-          *) echo "require-controller: zenity exited $rc; launching ${game} without asking" >&2
-             exec "$@" ;;
-        esac
-      '';
-    });
-
-  # name → Steam appid.
-  defaults =
-    lib.mapAttrs (_: id: {
-      inherit id;
-      wrappers = [gamemoderun];
-    }) {
-      rocket-league = 252950;
-      satisfactory = 526870;
-      ark-survival-ascended = 2399830;
-      conan-exiles = 440900;
-      repo = 3241660;
-      lethal-company = 1966720;
-      subnautica-2 = 1962700;
-      phasmophobia = 739630;
-      overwatch = 2357570;
-      horizon-zero-dawn = 2561580; # Remastered. Use 1151640 for original Complete Edition.
-      avatar-frontiers-of-pandora = 2840770;
-      escape-simulator = 1435790;
-      escape-simulator-2 = 2879840;
-      forza-horizon-4 = 1293830;
-      forza-horizon-5 = 1551360;
-      forza-horizon-6 = 2483190;
-      tmodloader = 1281930;
-      terraria = 105600;
-      terratech = 285920;
-      subnautica = 264710;
-      subnautica-below-zero = 848450;
-      scrap-mechanic = 387990;
-      bloons-td-6 = 960090;
-      split-fiction = 2001120;
-      schedule-1 = 3164500;
-      marvel-rivals = 2767030;
-      ultrakill = 1229490;
-      trackmania = 2225070;
-      it-takes-two = 1426210;
-      aimlabs = 714010;
-      portal-2 = 620;
-      fps-chess = 2021910;
-      cyberpunk-2077 = 1091500;
-      valheim = 892970;
-
-      # VR
-      bigscreen-beyond-utility = 2467050;
-    };
-
-  # Per-game overrides merged over defaults.
-  overrides = {
-    # Rocket League has a linux build, but it's not maintained so we need to use the windows version
-    rocket-league.compatTool = defaultCompatTool;
-    # Inert unless Steam's "Anti-Cheat Disabled" launch option is selected — a
-    # manual choice; BakkesMod cannot inject into the EAC executable.
-    rocket-league.wrappers = [(requireController "Rocket League") gamemoderun] ++ bakkesLauncher;
-    # I had multiplayer issues with the linux version. So I'm using the windows version.
-    portal-2.compatTool = defaultCompatTool;
-    # Wouldn't let me install if this wasn't set
-    conan-exiles.compatTool = defaultCompatTool;
-    # Was not opening with linux version
-    aimlabs.compatTool = defaultCompatTool;
-
-    # Gamescope wrap: HZD's native fullscreen on Linux/Proton is broken
-    # (wrong resolution, multi-monitor misbehavior, alt-tab loss).
-    # Gamescope forces a sane fullscreen surface and fixes it.
-    horizon-zero-dawn.wrappers = [gamemoderun] ++ gamescope;
-
-    aimlabs.wrappers = mouseDpi 1600 ++ [gamemoderun];
-
-    # Had some issues with resolution not being correct or having an option to make it correct
-    portal-2.wrappers = [gamemoderun] ++ gamescope;
-
-    # Wrap in gaemscope to fix weird fullscreen behavior
-    forza-horizon-4.wrappers = [gamemoderun] ++ gamescope;
-    forza-horizon-5.wrappers = [gamemoderun] ++ gamescope;
-    forza-horizon-6.wrappers = [gamemoderun] ++ gamescope;
-
-    # Wine's Wayland driver: an XWayland window can't carry HDR.
-    overwatch.wrappers = mouseDpi 1800 ++ [gamemoderun "env" "PROTON_ENABLE_WAYLAND=1"];
-
-    # 2000 DPI + in-game sens 2 reproduces the Aim Lab cm/360 (0.52% off).
-    cyberpunk-2077.wrappers = mouseDpi 2000 ++ [gamemoderun];
-
-    # Bigscreen Beyond Utility — Windows-only app for adjusting the
-    # headset's fan, brightness, refresh rate, and LED color.
-    # Intentionally minimal: PROTON_ENABLE_HIDRAW is documented but
-    # appears to make things worse on Proton 10.x / Experimental
-    # (BeyondHID logs "parent not found" with it set). The first
-    # successful detection at 14:06 happened with no override at all.
-    # https://github.com/ValveSoftware/Proton/issues/8672
-  };
+  ids = import ./ids.nix;
+  settings = import ./games.nix {inherit defaultCompatTool gamemoderun gamescope mouseDpi requireController bakkesLauncher;};
+  unknownSlugs = lib.attrNames (removeAttrs settings (lib.attrNames ids));
+  games =
+    if unknownSlugs != []
+    then throw "steam/games.nix: no app ID in steam/ids.nix for ${lib.concatStringsSep ", " unknownSlugs}"
+    else lib.recursiveUpdate (lib.mapAttrs (_: id: {inherit id;}) ids) settings;
 in {
   imports = [
     inputs.steam-config-nix.homeModules.default
+    ./hyprland.nix
+    {
+      options.programs.steam.config.apps = lib.mkOption {
+        type = lib.types.attrsOf (lib.types.submoduleWith {
+          modules = [
+            {
+              options.keepHdr = lib.mkOption {
+                type = lib.types.bool;
+                default = false;
+                description = "Keep an HDR monitor in HDR while this SDR game is fullscreen, instead of a desktop switching it to SDR.";
+              };
+            }
+          ];
+        });
+      };
+    }
   ];
 
   programs.steam.config = {
@@ -193,15 +84,15 @@ in {
     onSteamRunning = "close";
     inherit defaultCompatTool;
     # steam-config-nix keys apps by app ID; the slug lives on as `name` (desktop
-    # entry / systemd target), so the tables above stay readable.
+    # entry / systemd target), so ids.nix and games.nix stay readable.
     apps = lib.mapAttrs' (name: app:
       lib.nameValuePair (toString app.id) (
         lib.recursiveUpdate app {
           inherit name;
-          wrappers = [gameOutput] ++ (app.wrappers or []) ++ [hdrEnv] ++ gpuOffload;
+          wrappers = [gameOutput] ++ (app.wrappers or [gamemoderun]) ++ [hdrEnv] ++ gpuOffload;
         }
       ))
-    (lib.recursiveUpdate defaults overrides);
+    games;
   };
 
   # Enable multi-threaded Vulkan shader compilation for Steam
@@ -219,22 +110,4 @@ in {
   # Decky Loader injects its UI via Steam's CEF debugger (port 8080); this
   # marker enables it. Requires a full Steam restart after first creation.
   home.file.".local/share/Steam/.cef-enable-remote-debugging".text = "";
-
-  wayland.windowManager.hyprland.settings.windowrule =
-    [
-      # Steam maps this dialog as a normal window, so it tiles full-height.
-      "float on, match:class ^([Ss]team)$, match:title ^(Authorize Device)$"
-      "center 1, match:class ^([Ss]team)$, match:title ^(Authorize Device)$"
-      "float on, match:title ^(ProtonFixes)$"
-      # Terraria's blank launcher helper.
-      "workspace special silent, match:class ^(steam_app_252950)$, match:title ^$"
-      "workspace special silent, match:title (Lethal Company.*\\.exe)"
-    ]
-    # Steam toasts ignore the X11 primary; pin them to the primary's corner.
-    # Without "silent" the toast mapping there drags the cursor along with it.
-    ++ lib.optionals (primaryMonitor != null) [
-      "float on, match:title ^(notificationtoasts.*)$"
-      "monitor ${primaryMonitor.output} silent, match:title ^(notificationtoasts.*)$"
-      "move 100%-w-20 100%-h-20, match:title ^(notificationtoasts.*)$"
-    ];
 }

@@ -88,14 +88,6 @@ in {
         leechblock-ng # Block time-wasting sites (youtube, reddit, etc) with time limits
         steam-database # SteamDB (steamdb.info) price/data overlay on Steam store
         youtube-auto-hd-fps # Force highest available quality on every YouTube video
-        (buildFirefoxXpiAddon {
-          pname = "jetbrains-toolbox";
-          version = "3.0.0";
-          addonId = "{bf9e77ee-c405-4dd7-9bed-2f55e448d19a}";
-          url = "https://addons.mozilla.org/firefox/downloads/file/4565022/jetbrains_toolbox-3.0.0.xpi";
-          sha256 = "sha256-G6prYKGXideIBlhB/I+Nsx409XPAmFSBdCoiE247eO0=";
-          meta = {};
-        })
       ];
 
       search = import ./search-config.nix {inherit pkgs;};
