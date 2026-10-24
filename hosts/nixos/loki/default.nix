@@ -68,10 +68,6 @@
     timeout = 3;
   };
 
-  boot.initrd = {
-    systemd.enable = true;
-  };
-
   hostSpec = {
     hostName = "loki";
     hostPlatform = "x86_64-linux";

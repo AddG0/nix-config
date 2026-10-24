@@ -68,10 +68,6 @@
     timeout = 3;
   };
 
-  boot.initrd = {
-    systemd.enable = true;
-  };
-
   hostSpec = {
     hostName = "thor";
     hostPlatform = "x86_64-linux";

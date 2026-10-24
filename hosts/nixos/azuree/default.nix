@@ -65,10 +65,6 @@
 
   yubikey.enable = true;
 
-  boot.initrd = {
-    systemd.enable = true;
-  };
-
   hostSpec = {
     hostName = "azuree";
     hostPlatform = "x86_64-linux";

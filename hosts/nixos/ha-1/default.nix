@@ -47,10 +47,6 @@
     timeout = 3;
   };
 
-  boot.initrd = {
-    systemd.enable = true;
-  };
-
   hostSpec = {
     hostName = "ha-1";
     hostType = "server";

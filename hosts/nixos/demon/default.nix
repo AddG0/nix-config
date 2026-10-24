@@ -175,10 +175,6 @@
 
   services.greetd.autoLogin.enable = true;
 
-  boot.initrd = {
-    systemd.enable = true;
-  };
-
   hostSpec = {
     hostName = "demon";
     hostPlatform = "x86_64-linux";

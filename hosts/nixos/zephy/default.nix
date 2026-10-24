@@ -91,10 +91,6 @@
 
   yubikey.enable = true;
 
-  boot.initrd = {
-    systemd.enable = true;
-  };
-
   hostSpec = {
     hostName = "zephy";
     hostPlatform = "x86_64-linux";

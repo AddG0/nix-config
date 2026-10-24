@@ -129,10 +129,6 @@
   #   script = ''chmod 644 /var/run/lightdm/root/:0 || true'';
   # };
 
-  boot.initrd = {
-    systemd.enable = true;
-  };
-
   hostSpec = {
     hostName = "herald-1";
     hostPlatform = "x86_64-linux";

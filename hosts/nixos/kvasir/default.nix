@@ -42,10 +42,6 @@
     timeout = lib.mkDefault 3;
   };
 
-  boot.initrd = {
-    systemd.enable = true;
-  };
-
   hostSpec = {
     hostName = "kvasir";
     hostPlatform = "x86_64-linux";

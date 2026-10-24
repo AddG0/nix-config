@@ -117,10 +117,6 @@
     done
   '';
 
-  boot.initrd = {
-    systemd.enable = true;
-  };
-
   hostSpec = {
     hostName = "freya";
     hostPlatform = "x86_64-linux";

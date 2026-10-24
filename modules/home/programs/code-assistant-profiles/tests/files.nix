@@ -67,7 +67,7 @@ in
       "codex: .config/codex/alt.config.toml: codex --profile alt"
       "codex: .config/codex: codex doctor"
       "opencode: .config/opencode: opencode debug config"
-      "opencode: .config/opencode/skills: opencode debug skill"
+      "opencode: .config/opencode/skills: opencode-skill-check"
     ]}; do
       if ! grep -qF -- "fixture-clean: $want" ${clean}; then
         echo "FAIL: the clean check never ran: $want" >&2

@@ -53,10 +53,6 @@
     timeout = 3;
   };
 
-  boot.initrd = {
-    systemd.enable = true;
-  };
-
   hostSpec = {
     hostName = "uk-box";
     hostType = "server";
