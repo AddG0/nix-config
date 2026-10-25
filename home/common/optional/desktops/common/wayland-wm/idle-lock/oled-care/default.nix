@@ -10,6 +10,7 @@ in {
     ./idle-dpms.nix
     ./wallpaper-guard.nix
     ./wear-tracker.nix
+    ./_hyprland.nix
   ];
 
   # Each submodule gates itself on the relevant `services.oledCare.*.enable`

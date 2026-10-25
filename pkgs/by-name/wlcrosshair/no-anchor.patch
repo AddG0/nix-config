@@ -1,0 +1,17 @@
+--- a/internal/wl/layer.c	2026-10-24 22:12:02.742223712 -0500
++++ b/internal/wl/layer.c	2026-10-24 22:12:02.751606157 -0500
+@@ -235,11 +235,9 @@
+   zwlr_layer_surface_v1_set_exclusive_zone(layer_surface, -1);
+   zwlr_layer_surface_v1_set_keyboard_interactivity(layer_surface, 0);
+   zwlr_layer_surface_v1_set_size(layer_surface, surf_w, surf_h);
+-  zwlr_layer_surface_v1_set_anchor(layer_surface,
+-    ZWLR_LAYER_SURFACE_V1_ANCHOR_TOP |
+-    ZWLR_LAYER_SURFACE_V1_ANCHOR_BOTTOM |
+-    ZWLR_LAYER_SURFACE_V1_ANCHOR_LEFT |
+-    ZWLR_LAYER_SURFACE_V1_ANCHOR_RIGHT);
++  // Unanchored: compositors centre the surface at the requested size instead of
++  // configuring it to the whole output, which the blit would stretch to.
++  zwlr_layer_surface_v1_set_anchor(layer_surface, 0);
+
+   wl_surface_commit(surface);
+ }

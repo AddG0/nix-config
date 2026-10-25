@@ -6,7 +6,6 @@
 lib.mkIf config.wayland.windowManager.hyprland.enable {
   wayland.windowManager.hyprland = {
     settings.bind = [
-      # SUPER+space — same bind anyrun owned.
       "SUPER,space,exec,walker"
       # SUPER+C / SUPER+N open the calendar and notifications control-center tabs.
       "SUPER,c,exec,${lib.getExe config.programs.noctalia.package} msg panel-toggle control-center calendar"

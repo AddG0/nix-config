@@ -3,7 +3,14 @@
   customPkgs,
   ...
 }: {
-  imports = [./_hyprland.nix];
+  imports = [
+    ./_hyprland.nix
+    ./_window-classes.nix
+  ];
+
+  # Steam games (Proton or native) map as steam_app_<id>; gamescoped ones as gamescope,
+  # since they run on gamescope's own Xwayland.
+  gaming.windowClasses = ["^(steam_app_[0-9]+)$" "^(gamescope)$"];
 
   home.packages = with pkgs; [
     mangohud

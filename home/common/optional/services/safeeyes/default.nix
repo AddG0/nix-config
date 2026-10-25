@@ -81,6 +81,7 @@ in {
     ./obsbot-guard.nix
     ./game-guard.nix
     ./hyprland-game-guard.nix
+    ./niri-game-guard.nix
     ./screenshare-guard.nix
     ./media-guard.nix
   ];

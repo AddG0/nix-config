@@ -11,6 +11,9 @@ lib.mkIf config.wayland.windowManager.hyprland.enable {
     # (exit hyprland), and a finger-slip there is unrecoverable.
     settings.bind = ["SUPER,w,exec,${lib.getExe config.wallpapers.picker}"];
 
+    # Hyprland #9408: its texture expansion draws wpaperd wrong on rotated outputs.
+    settings.render.expand_undersized_textures = false;
+
     # Float + center the picker on the focused monitor.
     settings.windowrule = [
       "float on, match:title ^(Wallpaper picker)$"

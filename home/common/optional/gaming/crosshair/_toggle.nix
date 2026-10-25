@@ -1,8 +1,10 @@
+# `wlcrosshair-toggle-here`: show the crosshair on the focused monitor, or quit it.
+# focusedOutput: shell that prints the focused monitor's connector name; each compositor supplies its own.
 {
   lib,
   pkgs,
   customPkgs,
-  ...
+  focusedOutput,
 }: let
   # Cyan plus with a 2-pixel black outline, no centre dot. 64x64 PNG.
   # Arms 4 thick, 10 long, 6-pixel gap from centre on each side.
@@ -38,13 +40,13 @@
 
   image = "${crosshair}";
 
-  # SUPER+SHIFT+C: show the crosshair on the monitor of the active workspace.
+  # Show the crosshair on the focused monitor.
   # - No config change → quit the daemon (next press starts it again).
   # - Config change (monitor / image path / size) → rewrite config, reload
   #   (rebinds the layer surface and reloads image), force visible.
   toggle = pkgs.writeShellApplication {
     name = "wlcrosshair-toggle-here";
-    runtimeInputs = with pkgs; [customPkgs.wlcrosshair hyprland jq coreutils procps util-linux];
+    runtimeInputs = with pkgs; [customPkgs.wlcrosshair coreutils procps util-linux];
     text = ''
       config_dir="''${XDG_CONFIG_HOME:-$HOME/.config}/wlcrosshair"
       config="$config_dir/config.toml"
@@ -54,10 +56,7 @@
 
       mkdir -p "$config_dir"
 
-      mon=$(hyprctl activeworkspace -j | jq -r '.monitor // empty')
-      if [ -z "$mon" ]; then
-        mon=$(hyprctl monitors -j | jq -r '.[] | select(.focused) | .name')
-      fi
+      mon=$(${focusedOutput})
       if [ -z "$mon" ]; then
         echo "wlcrosshair-toggle-here: could not determine active monitor" >&2
         exit 1
@@ -103,18 +102,5 @@
       fi
     '';
   };
-in {
-  wayland.windowManager.hyprland.settings = {
-    bind = [
-      "SUPERSHIFT,c,exec,${toggle}/bin/wlcrosshair-toggle-here"
-    ];
-    # - blur off: avoid Hyprland blurring the layer (see-through smear).
-    # - animation none: each reload destroys/recreates the surface; without
-    #   this, Hyprland slides it in from the screen edge on every monitor
-    #   switch.
-    layerrule = [
-      "blur off, match:namespace wlcrosshair"
-      "animation none, match:namespace wlcrosshair"
-    ];
-  };
-}
+in
+  toggle

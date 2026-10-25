@@ -28,7 +28,6 @@
   baseDir = "${homeDir}/Pictures/Wallpapers";
   defaultFolderName = "default";
   defaultDir = "${baseDir}/${defaultFolderName}";
-  rotatedCache = "${homeDir}/.cache/wpaperd-rotated";
   thumbsCache = "${homeDir}/.cache/wallpaper-picker/thumbs";
 
   oledOutputs = map (m: m.output) (lib.filter (m: m.oled) config.display.monitors);
@@ -37,25 +36,6 @@
     inherit (m) name;
     value = m;
   }) (lib.filter (m: m.enabled && !m.oled) config.display.monitors));
-
-  # Hyprland #9408: wpaperd renders incorrectly on transformed outputs and
-  # upstream closed the bug as not-planned. Source images get pre-rotated
-  # into a cache directory before wpaperd reads them. Angle map is
-  # empirical — fix the entry that looks wrong for your transform.
-  rotationCompensation = {
-    "normal" = 0;
-    "90" = 270;
-    "180" = 180;
-    "270" = 180;
-    "flipped" = 0;
-    "flipped-90" = 270;
-    "flipped-180" = 0;
-    "flipped-270" = 90;
-  };
-
-  needsRotation = m: (rotationCompensation.${m.transform} or 0) != 0;
-
-  rotatedMonitors = lib.filter (m: m.enabled && !m.oled && needsRotation m) config.display.monitors;
 
   # Folders known declaratively via wallpapers.images — these are
   # authoritative on the first build (before home.file activation has
@@ -86,13 +66,7 @@
     then monitorByFriendlyName.${folder}.output
     else folder;
 
-  pathForFolder = folder: let
-    output = folderToOutput folder;
-    monitor = lib.findFirst (m: m.output == output) null config.display.monitors;
-  in
-    if monitor != null && needsRotation monitor
-    then "${rotatedCache}/${folder}"
-    else "${baseDir}/${folder}";
+  pathForFolder = folder: "${baseDir}/${folder}";
 
   folderEntries = lib.concatMap (folder: let
     output = folderToOutput folder;
@@ -138,33 +112,6 @@
     fi
   '';
 
-  rotateScriptText =
-    lib.concatMapStringsSep "\n" (m: let
-      src = "${baseDir}/${m.name}";
-      dst = "${rotatedCache}/${m.name}";
-      angle = toString rotationCompensation.${m.transform};
-    in ''
-      if [ -d ${lib.escapeShellArg src} ]; then
-        mkdir -p ${lib.escapeShellArg dst}
-        for f in ${lib.escapeShellArg dst}/*; do
-          [ -e "$f" ] || continue
-          base=$(basename "$f")
-          if [ ! -e ${lib.escapeShellArg src}/"$base" ]; then
-            rm -f "$f"
-          fi
-        done
-        for f in ${lib.escapeShellArg src}/*; do
-          [ -f "$f" ] || continue
-          base=$(basename "$f")
-          out=${lib.escapeShellArg dst}/"$base"
-          if [ ! -e "$out" ] || [ "$f" -nt "$out" ]; then
-            magick "$f" -rotate ${angle} "$out"
-          fi
-        done
-      fi
-    '')
-    rotatedMonitors;
-
   # Resize each source image to a small JPG/PNG thumb the picker can load
   # quickly. Filename + extension preserved so the picker's click handler
   # can build the apply-path against the original folder unchanged.
@@ -200,13 +147,12 @@
   prepPkg = pkgs.writeShellApplication {
     name = "wpaperd-prepare";
     runtimeInputs = with pkgs; [imagemagick coreutils];
-    text = lib.concatStringsSep "\n" [seedScriptText rotateScriptText thumbScriptText];
+    text = lib.concatStringsSep "\n" [seedScriptText thumbScriptText];
   };
 
   # Output -> { display, apply } per monitor. The picker reads thumbnails
   # from `display` (small pre-generated cache for fast loads) and passes
-  # `apply` to wpaperctl on click (the real wallpaper, possibly the
-  # rotated cache for transformed outputs).
+  # `apply` to wpaperctl on click (the real wallpaper).
   pickerFolderMap = builtins.listToAttrs (map (folder: {
       name = folderToOutput folder;
       value = {
@@ -218,7 +164,7 @@
 
   # The picker's fallback when an output isn't in pickerFolderMap (e.g. a
   # laptop's transient HDMI display). Thumbs path for display, source for
-  # apply — default folder is never rotated.
+  # apply.
   pickerDefaults = {
     display = "${thumbsCache}/${defaultFolderName}";
     apply = "${baseDir}/${defaultFolderName}";
@@ -294,13 +240,15 @@ in {
     # Stylix's hyprpaper target sets services.hyprpaper.enable = true at the
     # same priority; without mkForce this is a conflict, not an override.
     stylix.targets.hyprpaper.enable = lib.mkForce false;
+    # Stylix's Hyprland target turns hyprpaper on too, which drew a second wallpaper under wpaperd.
+    stylix.targets.hyprland.hyprpaper.enable = false;
 
-    # ExecStartPre handles both the default-folder seed and the rotated
-    # cache. Doing this in HM activation would race wpaperd's restart on
-    # the X-Restart-Triggers reload; here systemd guarantees ordering.
+    # ExecStartPre handles the default-folder seed and the picker thumbnails.
+    # Doing this in HM activation would race wpaperd's restart on the
+    # X-Restart-Triggers reload; here systemd guarantees ordering.
     systemd.user.services.wpaperd.Service.ExecStartPre = "${lib.getExe prepPkg}";
 
-    # A manual reload also re-seeds the default and refreshes any rotated caches.
+    # A manual reload also re-seeds the default and refreshes the thumbnails.
     desktop.session.reload.commands.wpaperd = "systemctl --user try-restart wpaperd.service";
 
     services.wpaperd.settings =

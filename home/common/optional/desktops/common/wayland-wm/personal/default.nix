@@ -8,7 +8,6 @@
   imports = [
     ./visuals.nix
     ./noctalia
-    # ./anyrun.nix
     ./walker.nix
     ./hyprlock.nix
     ./wallpaper-defaults.nix

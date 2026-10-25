@@ -4,8 +4,9 @@
   pkgs,
   ...
 }:
-lib.mkIf config.wayland.windowManager.hyprland.enable (
-  (import ./mk-guard.nix {inherit lib pkgs;}).mkGuard {
+lib.mkIf config.wayland.windowManager.hyprland.enable (lib.mkMerge [
+  {systemd.user.services.safeeyes-hyprland-game-guard = config.lib.hyprland.startWithHyprland;}
+  ((import ./mk-guard.nix {inherit lib pkgs;}).mkGuard {
     name = "hyprland-game";
     description = "Disable Safe Eyes while a window tagged `game` is open";
     runtimeInputs = [config.wayland.windowManager.hyprland.package pkgs.jq pkgs.socat];
@@ -32,5 +33,5 @@ lib.mkIf config.wayland.windowManager.hyprland.enable (
         UNIX-CONNECT:"$XDG_RUNTIME_DIR/hypr/$HYPRLAND_INSTANCE_SIGNATURE/.socket2.sock" - \
         | grep --line-buffered -E '^(openwindow|closewindow)>>' || true)
     '';
-  }
-)
+  })
+])

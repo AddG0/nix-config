@@ -1,4 +1,5 @@
 {
+  config,
   lib,
   pkgs,
   customPkgs,
@@ -13,15 +14,6 @@
     self.homeModules.plasma6
   ];
 
-  # Autostart applications
-  xdg.autostart = {
-    enable = true;
-    entries = [
-      "${pkgs.spotify}/share/applications/spotify.desktop"
-      "${pkgs.discord}/share/applications/discord.desktop"
-      "${pkgs._1password-gui}/share/applications/com.onepassword.OnePassword.desktop"
-    ];
-  };
   # Plasma Monitor Configuration:
   # - Use `kscreen-doctor -o` to list monitors
   # - Set primary monitor: `kscreen-doctor output.3.primary` (replace 3 with output number)
@@ -72,8 +64,11 @@
 
       wallpaper = "${pkgs.kdePackages.plasma-workspace-wallpapers}/share/wallpapers/Nexus/contents/images_dark/5120x2880.png";
 
-      # Icon theme
-      iconTheme = "Papirus-Dark";
+      # kdeglobals is shared with any other desktop on the host, so follow stylix where it themes them.
+      iconTheme =
+        if config.stylix.enable
+        then config.stylix.icons.dark
+        else "Papirus-Dark";
 
       # Cursor theme
       cursor = {

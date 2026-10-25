@@ -1,31 +1,12 @@
-{pkgs, ...}: let
-  muteSound = pkgs.fetchurl {
-    url = "https://www.myinstants.com/media/sounds/discordmute_IZNcLx2.mp3";
-    sha256 = "4c73fcd425d8dddfef0d2ad970f2fd414be7eb1d190f49b7098e8d638f438039";
-  };
-  unmuteSound = pkgs.fetchurl {
-    url = "https://www.myinstants.com/media/sounds/discord-unmute-sound.mp3";
-    sha256 = "b7f6ec23ccabb8183ee2e8073fd4213cffa2241a312bdb1105ee9f0b2cca5576";
-  };
-  mic-toggle = pkgs.writeShellScriptBin "niri-mic-toggle" ''
-    MUTED=$(${pkgs.wireplumber}/bin/wpctl get-volume @DEFAULT_AUDIO_SOURCE@ | ${pkgs.gnugrep}/bin/grep -o 'MUTED' || echo "")
-    noctalia msg mic-mute
-    if [ -z "$MUTED" ]; then
-      ${pkgs.pipewire}/bin/pw-play --volume=0.2 ${muteSound} &
-    else
-      ${pkgs.pipewire}/bin/pw-play --volume=0.2 ${unmuteSound} &
-    fi
-  '';
-in {
+{pkgs, ...}: {
   programs.niri.settings.binds = {
     # Terminal
     "Mod+Return".action.spawn = "ghostty";
 
-    # App launcher (Noctalia)
-    "Mod+D".action.spawn = ["noctalia" "msg" "panel-toggle" "launcher"];
+    # Close window (Hyprland's key)
+    "Mod+Shift+Q".action.close-window = {};
 
-    # Close window
-    "Mod+Q".action.close-window = {};
+    "Mod+B".action.toggle-window-floating = {};
 
     # Navigation
     "Mod+Left".action.focus-column-left = {};
@@ -53,6 +34,11 @@ in {
     "Mod+R".action.switch-preset-column-width = {};
     "Mod+Minus".action.set-column-width = "-10%";
     "Mod+Equal".action.set-column-width = "+10%";
+    # Hyprland's resize keys, in logical pixels.
+    "Ctrl+Shift+Alt+H".action.set-column-width = "-15";
+    "Ctrl+Shift+Alt+L".action.set-column-width = "+15";
+    "Ctrl+Shift+Alt+K".action.set-window-height = "-15";
+    "Ctrl+Shift+Alt+J".action.set-window-height = "+15";
 
     # Overview
     "Mod+O".action.toggle-overview = {};
@@ -63,57 +49,60 @@ in {
     "Mod+3".action.focus-workspace = 3;
     "Mod+4".action.focus-workspace = 4;
     "Mod+5".action.focus-workspace = 5;
+    "Mod+6".action.focus-workspace = 6;
+    "Mod+7".action.focus-workspace = 7;
+    "Mod+8".action.focus-workspace = 8;
+    "Mod+9".action.focus-workspace = 9;
+    "Mod+0".action.focus-workspace = 10;
     "Mod+Shift+1".action.move-column-to-workspace = 1;
     "Mod+Shift+2".action.move-column-to-workspace = 2;
     "Mod+Shift+3".action.move-column-to-workspace = 3;
     "Mod+Shift+4".action.move-column-to-workspace = 4;
     "Mod+Shift+5".action.move-column-to-workspace = 5;
+    "Mod+Shift+6".action.move-column-to-workspace = 6;
+    "Mod+Shift+7".action.move-column-to-workspace = 7;
+    "Mod+Shift+8".action.move-column-to-workspace = 8;
+    "Mod+Shift+9".action.move-column-to-workspace = 9;
+    "Mod+Shift+0".action.move-column-to-workspace = 10;
 
     # Scroll through workspaces
     "Mod+Page_Down".action.focus-workspace-down = {};
     "Mod+Page_Up".action.focus-workspace-up = {};
 
-    # Move column to monitor
+    # Monitors
+    "Mod+Comma".action.focus-monitor-left = {};
+    "Mod+Period".action.focus-monitor-right = {};
+    "Mod+Ctrl+Left".action.move-workspace-to-monitor-left = {};
+    "Mod+Ctrl+Right".action.move-workspace-to-monitor-right = {};
+    "Mod+Ctrl+Up".action.move-workspace-to-monitor-up = {};
+    "Mod+Ctrl+Down".action.move-workspace-to-monitor-down = {};
+    "Mod+Ctrl+H".action.move-workspace-to-monitor-left = {};
+    "Mod+Ctrl+L".action.move-workspace-to-monitor-right = {};
+    "Mod+Ctrl+K".action.move-workspace-to-monitor-up = {};
+    "Mod+Ctrl+J".action.move-workspace-to-monitor-down = {};
     "Mod+Shift+Ctrl+Left".action.move-column-to-monitor-left = {};
     "Mod+Shift+Ctrl+Right".action.move-column-to-monitor-right = {};
 
     # Screenshot
-    "Print".action.screenshot = {};
+    # Hyprland's layout: Print saves the whole monitor at once, Mod+Print picks a region.
+    "Print".action.screenshot-screen = {};
+    "Mod+Print".action.screenshot = {};
     "Shift+Print".action.screenshot-window = {};
 
-    # Session
-    "Mod+Shift+E".action.quit = {};
+    # Session: Hyprland's four-modifier chord, so a slip can't reach it.
+    "Mod+Ctrl+Shift+Alt+Delete".action.quit = {};
 
-    # Audio (via Noctalia OSD)
-    "XF86AudioRaiseVolume".action.spawn = ["noctalia" "msg" "volume-up"];
-    "XF86AudioLowerVolume".action.spawn = ["noctalia" "msg" "volume-down"];
-    "XF86AudioMute".action.spawn = ["noctalia" "msg" "volume-mute"];
-
-    # Mic (via Noctalia OSD)
-    "XF86AudioMicMute".action.spawn = ["noctalia" "msg" "mic-mute"];
-
-    # Media (via Noctalia)
-    "XF86AudioPlay".action.spawn = ["noctalia" "msg" "media" "toggle"];
-    "XF86AudioPause".action.spawn = ["noctalia" "msg" "media" "toggle"];
-    "XF86AudioNext".action.spawn = ["noctalia" "msg" "media" "next"];
-    "XF86AudioPrev".action.spawn = ["noctalia" "msg" "media" "previous"];
-    "XF86AudioStop".action.spawn = ["noctalia" "msg" "media" "stop"];
-
-    # Brightness (via Noctalia OSD)
-    "XF86MonBrightnessUp".action.spawn = ["noctalia" "msg" "brightness-up"];
-    "XF86MonBrightnessDown".action.spawn = ["noctalia" "msg" "brightness-down"];
-
-    # Mic toggle (Discord mute/unmute sounds + noctalia OSD)
-    "Mod+M".action.spawn = "${mic-toggle}/bin/niri-mic-toggle";
+    # Apps
+    "Ctrl+Alt+F".action.spawn = "dolphin";
+    "Ctrl+Alt+V".action.spawn-sh = "ghostty -e $EDITOR";
 
     # GPU Screen Recorder replay
     "Mod+X".action.spawn = "save-gsr-replay";
     "Mod+F10".action.spawn = ["systemctl" "--user" "stop" "gpu-screen-recorder-replay.service"];
     "Mod+F11".action.spawn = ["systemctl" "--user" "start" "gpu-screen-recorder-replay.service"];
 
-    # Consume (eat the key without action)
+    # Take the focused window into the column on its left, or back out of it.
     "Mod+T".action.consume-or-expel-window-left = {};
-    "Mod+Shift+T".action.consume-or-expel-window-right = {};
 
     # Screen annotation. NOT `pkill -SIGUSR1 wayscriber` — that also kills the
     # process-broker child (same proc name, no SIGUSR1 handler), breaking toggles.

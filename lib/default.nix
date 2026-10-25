@@ -16,11 +16,17 @@
       && ((type == "directory" && name != "tests") || (lib.hasSuffix ".nix" name && name != "default.nix")))
     (builtins.readDir dir));
 
-  trees = {
-    hosts = ../hosts/common/optional;
-    home = ../home/common/optional;
-    primary = ../home/primary/common/optional;
-  };
+  # Every home/<user>/common/optional besides home/common is that user's tree, found by its folder.
+  userTrees = lib.mapAttrs (name: _: ../home + "/${name}/common/optional") (lib.filterAttrs (name: type:
+    type == "directory" && name != "common" && builtins.pathExists (../home + "/${name}/common/optional"))
+  (builtins.readDir ../home));
+
+  trees =
+    {
+      hosts = ../hosts/common/optional;
+      home = ../home/common/optional;
+    }
+    // userTrees;
 
   optional = lib.mapAttrs (_: moduleTree) trees;
 
@@ -38,27 +44,62 @@
     acc
     // lib.mapAttrs (name: halves: let
       prev = acc.${name} or {};
-      dup = builtins.attrNames (builtins.intersectAttrs prev halves);
+      prevUsers = prev.users or {};
+      users = halves.users or {};
+      dup =
+        builtins.attrNames (builtins.intersectAttrs (removeAttrs prev ["users"]) (removeAttrs halves ["users"]))
+        ++ map (user: "users.${user}") (builtins.attrNames (builtins.intersectAttrs prevUsers users));
     in
-      if dup == []
-      then prev // halves
-      else throw "suite ${name}: ${lib.concatStringsSep ", " dup} defined in more than one _suites.nix")
+      if dup != []
+      then throw "suite ${name}: ${lib.concatStringsSep ", " dup} defined in more than one _suites.nix"
+      else prev // halves // lib.optionalAttrs (prevUsers != {} || users != {}) {users = prevUsers // users;})
     file;
 
-  suites = lib.fix (self:
-    builtins.foldl' mergeSuites {} (map (f:
-      import f {
-        inherit optional;
-        suites = self;
-      }) (lib.concatMap suiteFiles (lib.attrValues trees))));
-in {
-  inherit optional suites;
+  # Trees shared by every host and user; any other tree holds one user's modules.
+  sharedTrees = ["hosts" "home"];
 
-  # A host import for a suite: its nixos half, plus its home half for the primary user.
+  # A user tree's `home` halves are that user's alone, so they land under `users.<tree>`.
+  halvesFrom = tree: file:
+    if builtins.elem tree sharedTrees
+    then file
+    else
+      lib.mapAttrs (name: halves:
+        lib.throwIf (builtins.attrNames halves != ["home"])
+        "suite ${name}: user tree ${tree} declares only `home` halves, got ${lib.concatStringsSep ", " (builtins.attrNames halves)}"
+        {users.${tree} = halves.home;})
+      file;
+
+  # decls: one `{tree; declare}` per `_suites.nix`, `declare` being the imported file.
+  suitesFromDeclarations = optional: decls:
+    lib.fix (self:
+      builtins.foldl' mergeSuites {} (map (d:
+        halvesFrom d.tree (d.declare {
+          inherit optional;
+          suites = self;
+        }))
+      decls));
+
+  suites = suitesFromDeclarations optional (lib.concatLists (lib.mapAttrsToList (tree: dir:
+    map (f: {
+      inherit tree;
+      declare = import f;
+    }) (suiteFiles dir))
+  trees));
+in {
+  inherit optional suites suitesFromDeclarations;
+
+  # A host import for a suite: its nixos half, its home half for the primary user, and each user
+  # tree's half for that user. `primary` names a role (hostSpec.primaryUsername); any other tree
+  # names a user, and is skipped on hosts without that user so it can't conjure a home for one.
   useSuite = suite:
     (suite.nixos or [])
-    ++ lib.optional (suite ? home) ({config, ...}: {
-      home-manager.users.${config.hostSpec.primaryUsername}.imports = suite.home;
+    ++ lib.optional (suite ? home || suite ? users) ({config, ...}: let
+      primary = config.hostSpec.primaryUsername;
+      others = lib.filterAttrs (tree: _: tree != "primary" && config.users.users ? ${tree}) (suite.users or {});
+      # A tree named after the primary user adds to that user's imports rather than replacing them.
+      byUser = lib.zipAttrs ([{${primary} = (suite.home or []) ++ (suite.users.primary or []);}] ++ lib.mapAttrsToList (tree: modules: {${tree} = modules;}) others);
+    in {
+      home-manager.users = lib.mapAttrs (_: lists: {imports = lib.concatLists lists;}) byUser;
     });
 
   # home-manager activation text (uses its `run`) that installs a darwin

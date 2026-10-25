@@ -2,6 +2,7 @@
   pkgs,
   config,
   lib,
+  osConfig ? null,
   ...
 }: let
   home = config.home.homeDirectory;
@@ -197,10 +198,13 @@ in {
     # 3) Drop in our "Extract Here" service menu
     xdg.configFile."kservices5/ServiceMenus/extracthere.desktop".text = extractHereDesktop;
 
-    xdg.configFile."kdeglobals".text = ''
-      [Icons]
-      Theme=${config.stylix.icons.dark}
-    '';
+    # Plasma owns kdeglobals where it is installed, and its icon theme follows stylix there.
+    xdg.configFile."kdeglobals" = lib.mkIf (!(osConfig.services.desktopManager.plasma6.enable or false)) {
+      text = ''
+        [Icons]
+        Theme=${config.stylix.icons.dark}
+      '';
+    };
 
     xdg.configFile."dolphinrc".text = ''
       [UiSettings]

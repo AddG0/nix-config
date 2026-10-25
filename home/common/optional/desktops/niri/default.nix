@@ -29,7 +29,10 @@ in {
     ../common/wayland-wm
     ../common/wayland-wm/personal
     ./binds.nix
+    ./btop.nix
   ];
+
+  systemd.user.targets.bare-compositor-session.Install.WantedBy = ["niri.service"];
 
   desktop.session.dpms.niri = let
     niri = lib.getExe config.programs.niri.package;
@@ -52,9 +55,11 @@ in {
           if !m.enabled
           then {enable = false;}
           else {
+            # niri matches refresh to the millihertz (144 misses a 143.997 mode), so let it take
+            # the highest rate at this size; pin `mode.refresh` from `niri msg outputs` to go lower.
             mode = {
               inherit (m) width height;
-              refresh = m.refreshRate * 1.0;
+              refresh = null;
             };
             inherit (m) scale;
             transform = transformToNiri.${m.transform};
@@ -77,6 +82,13 @@ in {
 
     input.mouse = {
       accel-profile = "flat"; # no acceleration
+    };
+
+    # Like Hyprland's follow_mouse = 1. 0% never scrolls the view, so brushing a column
+    # half off-screen doesn't slide the whole strip under the cursor.
+    input.focus-follows-mouse = {
+      enable = true;
+      max-scroll-amount = "0%";
     };
 
     input.touchpad = {

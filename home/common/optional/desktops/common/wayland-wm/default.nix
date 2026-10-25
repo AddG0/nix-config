@@ -4,7 +4,9 @@
   lib,
   pkgs,
   ...
-}: {
+}: let
+  target = "bare-compositor-session.target";
+in {
   imports = [
     ./crash-capture.nix
     # Writes kdeglobals and dolphinrc read-only, so it would fight Plasma over them.
@@ -54,8 +56,26 @@
     };
   };
 
-  config.desktop.session.dpmsCommand = import ./_session-dpms.nix {
-    inherit lib pkgs;
-    commands = config.desktop.session.dpms;
+  config = {
+    desktop.session.dpmsCommand = import ./_session-dpms.nix {
+      inherit lib pkgs;
+      commands = config.desktop.session.dpms;
+    };
+
+    # Started by each bare compositor's own unit, so a Plasma login never runs these services.
+    systemd.user.targets.bare-compositor-session.Unit = {
+      Description = "Bare-compositor session: services Hyprland and niri share";
+      PartOf = ["graphical-session.target"];
+      After = ["graphical-session.target"];
+    };
+
+    # Home Manager's Wayland services (hypridle, wpaperd, Noctalia, swayosd…) bind to this.
+    wayland.systemd.target = target;
+
+    # For modules that hard-code graphical-session.target and offer no option (walker, elephant).
+    lib.waylandWm.startWithSession = {
+      Install.WantedBy = lib.mkForce [target];
+      Unit.PartOf = lib.mkForce [target];
+    };
   };
 }

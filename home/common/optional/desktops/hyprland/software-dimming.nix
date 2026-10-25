@@ -1,4 +1,8 @@
-{pkgs, ...}: let
+{
+  config,
+  pkgs,
+  ...
+}: let
   hyprctl = "${pkgs.hyprland}/bin/hyprctl";
   nightGamma = 70;
   nightStart = 21;
@@ -70,11 +74,13 @@ in {
     bind = SUPERSHIFT,backslash,exec,${gammaScript} reset
   '';
 
+  services.hyprsunset.systemdTarget = config.lib.hyprland.sessionUnit;
+
   systemd.user.services.hypr-gamma-schedule = {
     Unit = {
       Description = "Dim the screen at night via hyprsunset gamma";
       After = ["graphical-session.target"];
-      PartOf = ["graphical-session.target"];
+      PartOf = [config.lib.hyprland.sessionUnit];
     };
     Service = {
       Type = "oneshot";
@@ -85,12 +91,12 @@ in {
   systemd.user.timers.hypr-gamma-schedule = {
     Unit = {
       Description = "Night dimming schedule";
-      PartOf = ["graphical-session.target"];
+      PartOf = [config.lib.hyprland.sessionUnit];
     };
     Timer = {
       OnCalendar = ["*-*-* ${toString nightStart}:00:00" "*-*-* ${toString nightEnd}:00:00"];
       Persistent = true;
     };
-    Install.WantedBy = ["graphical-session.target"];
+    Install.WantedBy = [config.lib.hyprland.sessionUnit];
   };
 }

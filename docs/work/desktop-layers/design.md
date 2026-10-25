@@ -203,3 +203,40 @@ Phases 1–6 are in the config. The live niri test (phase 6) is still to be done
 
 - niri's config is validated only at build time (`niri validate`), so the new adapters haven't been through it yet.
 - The ai-usage check is now named `script:home:wayland-wm:ai-usage`.
+
+## Addendum: Plasma on the same host (2026-10-24)
+
+demon now imports the hyprland, niri and plasma6 suites. Every kit service was `WantedBy=graphical-session.target`, which Plasma starts too, so a Plasma login also ran Noctalia, wpaperd, hypridle/hyprlock, a second polkit agent and the Hyprland gamma tools.
+
+### Decision: a kit target each bare compositor starts
+
+- `bare-compositor-session.target` lives in `common/wayland-wm/` and is `PartOf`/`After=graphical-session.target`.
+- Kit services are `WantedBy`/`PartOf` it. The kit sets Home Manager's `wayland.systemd.target` to it, which hypridle, wpaperd, Noctalia and swayosd read; our own units use the same option. Only modules that hard-code `graphical-session.target` with no option (walker, elephant, hyprpolkitagent) are overridden, through `config.lib.waylandWm.startWithSession` and `config.lib.hyprland.startWithHyprland`.
+- Each compositor pulls it in from its own unit: niri from `niri.service`, Hyprland from UWSM's `wayland-wm@hyprland\x2duwsm.desktop.service`. Plasma never does.
+- Compositor-only units start with their compositor's unit instead of a condition. Hyprland's (hyprpolkitagent, hyprsunset, hypr-gamma-schedule, sdr-game-mode, the OLED wear tracker, the Safe Eyes Hyprland guard) use `config.lib.hyprland.sessionUnit`; the Safe Eyes niri guard uses `niri.service`. No `ConditionEnvironment` is left.
+- Services may order `After=` the target: systemd skips a target's implicit ordering after a unit that is already ordered after it.
+
+### Vocabulary
+
+- **Kit**: the folder `common/wayland-wm/`, the shared layer for bare compositors (Hyprland, niri).
+- **Bare-compositor session**: the kit's running half, the `bare-compositor-session.target`. The name avoids UWSM's `wayland-wm@`/`wayland-session@` units.
+- `desktop.session.*` (dpms, reload commands) is declared by the kit, so it exists only on hosts that import it, despite the general-sounding namespace.
+
+### Alternatives rejected
+
+- **Bind each service to every compositor's unit:** every kit service would list every compositor, and adding a compositor would touch them all.
+- **`ConditionEnvironment` on `XDG_CURRENT_DESKTOP`:** two lines on every kit service, edited for each new compositor, and skipped units show as failed conditions.
+- **Start from the compositor config (`exec-once`/`spawn-at-startup`):** loses systemd restarts, logs and `PartOf` teardown.
+- **NixOS specialisations:** the desktop would be picked at boot instead of at the greeter.
+
+### Other fixes for one host running several desktops
+
+- The Plasma module enables SDDM only without greetd. zephy had both login managers enabled; it now uses greetd, which it imports explicitly.
+- Plasma's `portals.conf` is added at normal priority, the same `mkDefault` problem as Hyprland's.
+- `dolphin.nix` leaves `kdeglobals` to Plasma where Plasma is installed.
+- Stylix's Hyprland target was starting hyprpaper alongside wpaperd. It is now off.
+
+### Open
+
+- greetd's PAM starts KWallet on every login, not only Plasma's, so KWallet and gnome-keyring can both claim `org.freedesktop.secrets`. Check in a live session.
+- Stylix's KDE/Qt targets stay on, as on azuree. Check that Plasma looks right on demon.

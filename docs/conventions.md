@@ -67,7 +67,11 @@ just groups them, and `_` hides a file. `just optional` lists everything.
 
 A suite is a set of modules taken together, declared in `_suites.nix` in the
 folder holding them; anything there it doesn't list is an add-on. Hosts import a
-suite with `lib.custom.useSuite`, which brings its home half along.
+suite with `lib.custom.useSuite`, which brings its home half along. Every
+`home/<user>/common/optional` besides `home/common` is a user tree, found by its
+folder; a `_suites.nix` there adds that user's half to the same suite. `primary` goes
+to the host's primary user, any other tree to the user it is named after, on hosts
+that have that user.
 
 Order imports external, then host-local, then ours: suites, the root block, then
 one `with` block per namespace.

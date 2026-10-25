@@ -19,6 +19,10 @@ buildGoModule rec {
 
   vendorHash = "sha256-CVycV7wxo7nOHm7qjZKfJrIkNcIApUNzN1mSIIwQN0g=";
 
+  # Anchored to all four edges, niri configures the surface to the whole output and the image
+  # is stretched to fill it.
+  patches = [./no-anchor.patch];
+
   nativeBuildInputs = [pkg-config];
   buildInputs = [wayland libpng];
 

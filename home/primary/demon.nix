@@ -13,7 +13,6 @@
       hyprland.nvidia
       hyprland.software-dimming
       # hyprland.sunshine
-      hyprland.wlcrosshair
       # plasma6
     ])
     (with lib.custom.optional.home.development; [
@@ -35,6 +34,7 @@
     ])
     (with lib.custom.optional.home.gaming; [
       bigscreen-beyond
+      crosshair
       heroic
       minecraft
       nitrox
@@ -106,45 +106,6 @@
   };
 
   #
-  # ========== Workspaces & App Placement ==========
-  #
-  # programs.niri.settings = {
-  #   workspaces = {
-  #     "01-browser" = {
-  #       name = "browser";
-  #       open-on-output = "DP-1";
-  #     };
-  #     "02-dev" = {
-  #       name = "dev";
-  #       open-on-output = "DP-3";
-  #     };
-  #     "03-chat" = {
-  #       name = "chat";
-  #       open-on-output = "HDMI-A-1";
-  #     };
-  #   };
-
-  #   window-rules = [
-  #     {
-  #       matches = [{app-id = "^zen(-beta)?$";}];
-  #       open-on-workspace = "browser";
-  #     }
-  #     {
-  #       matches = [{app-id = "^code(-url-handler)?$";}];
-  #       open-on-workspace = "dev";
-  #     }
-  #     {
-  #       matches = [{app-id = "^Slack$";}];
-  #       open-on-workspace = "chat";
-  #     }
-  #     {
-  #       matches = [{app-id = "^discord$";}];
-  #       open-on-workspace = "chat";
-  #     }
-  #   ];
-  # };
-
-  #
   # ========== Host-specific Monitor Spec ==========
   #
   #  ------   ------
@@ -161,27 +122,37 @@
       "2, monitor:DP-2, default:true"
       "3, monitor:HDMI-A-1, default:true"
     ];
-    windowrule = [
-      "workspace 3 silent, match:class ^(slack)$"
-      "workspace 3 silent, match:title .*([Dd]iscord|[Ll]egcord).*"
-      "workspace 2 silent, match:class ^(zen(-beta)?)$"
-      "workspace 6 silent, match:class ^([Ss]team)$"
-      # Updater dialog maps with an empty class, so the rule above misses it.
-      "workspace 6 silent, match:class ^$, match:title ^Steam$"
-    ];
   };
 
-  xdg.autostart = {
-    enable = true;
-    entries = [
-      "${pkgs.discord}/share/applications/discord.desktop"
-      "${config.programs.zen-browser.package}/share/applications/zen-beta.desktop"
-      "${pkgs._1password-gui}/share/applications/com.onepassword.OnePassword.desktop"
-      "${config.programs.spicetify.spicedSpotify}/share/applications/spotify.desktop"
-      "${pkgs.steam}/share/applications/steam.desktop"
-      "${pkgs.obsidian}/share/applications/md.obsidian.Obsidian.desktop"
-    ];
+  # niri's workspaces are per monitor, so Hyprland's pinned numbers become named ones a
+  # monitor owns; Mod+N reaches them from anywhere. The other numbers stay per-monitor.
+  programs.niri.settings = let
+    pinned = {
+      "1" = "DP-3";
+      "6" = "DP-3";
+      "2" = "DP-2";
+      "3" = "HDMI-A-1";
+    };
+  in {
+    workspaces = lib.mapAttrs' (name: output:
+      lib.nameValuePair "0${name}" {
+        inherit name;
+        open-on-output = output;
+      })
+    pinned;
+    binds = lib.mkMerge (lib.mapAttrsToList (name: _: {
+        "Mod+${name}".action = lib.mkForce {focus-workspace = name;};
+        "Mod+Shift+${name}".action = lib.mkForce {move-column-to-workspace = name;};
+      })
+      pinned);
   };
+
+  # On top of the shared list in primary/common/optional/desktops/autostart.nix.
+  xdg.autostart.entries = [
+    "${config.programs.zen-browser.package}/share/applications/zen-beta.desktop"
+    "${pkgs.steam}/share/applications/steam.desktop"
+    "${pkgs.obsidian}/share/applications/md.obsidian.Obsidian.desktop"
+  ];
 
   display.monitors = [
     {

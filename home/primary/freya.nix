@@ -19,7 +19,6 @@
     (with lib.custom.optional.home.desktops; [
       hyprland.nvidia
       hyprland.software-dimming
-      hyprland.wlcrosshair
       # plasma6
     ])
     (with lib.custom.optional.home.development; [
@@ -38,7 +37,7 @@
       virtualization.lens
       virtualization.nixos-shell
     ])
-    (with lib.custom.optional.home.gaming; [heroic minecraft nitrox r2modman rocket-league])
+    (with lib.custom.optional.home.gaming; [crosshair heroic minecraft nitrox r2modman rocket-league])
     (with lib.custom.optional.home.media; [
       core
       davinci-resolve
@@ -85,45 +84,6 @@
   }) (builtins.filter (m: m.oled or false) config.display.monitors));
 
   #
-  # ========== Workspaces & App Placement ==========
-  #
-  # programs.niri.settings = {
-  #   workspaces = {
-  #     "01-browser" = {
-  #       name = "browser";
-  #       open-on-output = "DP-1";
-  #     };
-  #     "02-dev" = {
-  #       name = "dev";
-  #       open-on-output = "DP-3";
-  #     };
-  #     "03-chat" = {
-  #       name = "chat";
-  #       open-on-output = "DP-2";
-  #     };
-  #   };
-
-  #   window-rules = [
-  #     {
-  #       matches = [{app-id = "^zen(-beta)?$";}];
-  #       open-on-workspace = "browser";
-  #     }
-  #     {
-  #       matches = [{app-id = "^code(-url-handler)?$";}];
-  #       open-on-workspace = "dev";
-  #     }
-  #     {
-  #       matches = [{app-id = "^Slack$";}];
-  #       open-on-workspace = "chat";
-  #     }
-  #     {
-  #       matches = [{app-id = "^discord$";}];
-  #       open-on-workspace = "chat";
-  #     }
-  #   ];
-  # };
-
-  #
   # ========== Host-specific Monitor Spec ==========
   #
   # --------
@@ -134,14 +94,6 @@
   display.defaultMonitor.enable = false;
 
   wayland.windowManager.hyprland.settings = {
-    windowrule = [
-      "workspace 3 silent, match:class ^(slack)$"
-      "workspace 3 silent, match:title .*([Dd]iscord|[Ll]egcord).*"
-      "workspace 2 silent, match:class ^(zen(-beta)?)$"
-      "workspace 6 silent, match:class ^([Ss]team)$"
-      # Updater dialog maps with an empty class, so the rule above misses it.
-      "workspace 6 silent, match:class ^$, match:title ^Steam$"
-    ];
     # Razer Blade 16 macro keys (remapped in hosts/nixos/freya). xkb's us
     # layout does not produce the F13/F14/F15 keysyms for those kernel
     # keycodes — it emits XF86Tools/XF86Launch5/XF86Launch6 instead.
@@ -155,15 +107,10 @@
     ];
   };
 
-  xdg.autostart = {
-    enable = true;
-    entries = [
-      "${pkgs.discord}/share/applications/discord.desktop"
-      "${config.programs.zen-browser.package}/share/applications/zen-beta.desktop"
-      "${pkgs._1password-gui}/share/applications/com.onepassword.OnePassword.desktop"
-      "${config.programs.spicetify.spicedSpotify}/share/applications/spotify.desktop"
-    ];
-  };
+  # On top of the shared list in primary/common/optional/desktops/autostart.nix.
+  xdg.autostart.entries = [
+    "${config.programs.zen-browser.package}/share/applications/zen-beta.desktop"
+  ];
 
   display.monitors = [
     {

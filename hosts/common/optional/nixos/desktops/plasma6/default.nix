@@ -7,13 +7,17 @@
   services = {
     desktopManager.plasma6.enable = true;
 
-    displayManager.sddm.enable = true;
+    # A host running other desktops too keeps greetd, which offers Plasma as one of its sessions.
+    displayManager.sddm.enable = !config.services.greetd.enable;
 
     displayManager.sddm.wayland.enable = true;
     # xserver.enable = true;
   };
 
   services.greetd.desktops.plasma = "startplasma-wayland";
+
+  # nixpkgs sets this with mkDefault, so another desktop's plain definition would drop Plasma's portals.conf.
+  xdg.portal.configPackages = [pkgs.kdePackages.plasma-workspace];
 
   security.pam.services = {
     sddm.kwallet.enable = lib.mkIf config.services.displayManager.sddm.enable true;

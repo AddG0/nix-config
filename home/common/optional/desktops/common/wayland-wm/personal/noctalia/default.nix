@@ -51,8 +51,11 @@ in {
           actions.left = "exec ${lib.getExe pkgs.walker}";
         };
 
-        # F1-F12 workspaces are labeled by name; the 1-char default renders them all as "F".
-        workspaces.max_label_chars = 3;
+        # Label by name, so niri's named workspaces read "1"/"2"/…; 3 chars fit Hyprland's "F1"-"F12".
+        workspaces = {
+          label_source = "name";
+          max_label_chars = 3;
+        };
 
         tray.drawer = true;
 
@@ -139,7 +142,7 @@ in {
   systemd.user.paths.noctalia-tz-watch = {
     Unit = {
       Description = "Watch TZ-change marker to restart noctalia";
-      PartOf = ["graphical-session.target"];
+      PartOf = [config.wayland.systemd.target];
     };
     Path = {
       PathChanged = "%t/tz-changed";
@@ -147,14 +150,14 @@ in {
     };
     # default.target is also reached at boot on lingering hosts, where there is
     # no noctalia to restart.
-    Install.WantedBy = ["graphical-session.target"];
+    Install.WantedBy = [config.wayland.systemd.target];
   };
 
   systemd.user.services.noctalia-tz-restart = {
     Unit = {
       Description = "Respawn noctalia after timezone change";
       After = ["graphical-session.target"];
-      PartOf = ["graphical-session.target"];
+      PartOf = [config.wayland.systemd.target];
     };
     Service = {
       Type = "oneshot";
@@ -166,7 +169,7 @@ in {
         ${pkgs.systemd}/bin/systemctl --user set-environment TZ="$TZ"
 
         # try-restart only restarts if already running; the initial launch is
-        # owned by graphical-session.target, and at boot this marker often fires
+        # owned by bare-compositor-session.target, and at boot this marker often fires
         # before the session is up, so try-restart no-ops instead of racing it.
         ${pkgs.systemd}/bin/systemctl --user try-restart noctalia.service || true
       '';

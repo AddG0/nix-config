@@ -167,13 +167,13 @@ in
         Description = "Announce process crashes and offer an AI diagnosis";
         # Needs the session bus to notify, and a compositor to open a terminal on.
         After = ["graphical-session.target"];
-        PartOf = ["graphical-session.target"];
+        PartOf = [config.wayland.systemd.target];
       };
       Service = {
         ExecStart = lib.getExe watcher;
         Restart = "always";
         RestartSec = 5;
       };
-      Install.WantedBy = ["graphical-session.target"];
+      Install.WantedBy = [config.wayland.systemd.target];
     };
   }

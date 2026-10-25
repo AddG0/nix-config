@@ -12,6 +12,8 @@
   # Offload to the dGPU only on hybrid hosts
   useDiscreteGpu = config.hostSpec.gpu.offload != null;
 in {
+  imports = [../_window-classes.nix];
+
   programs.prismlauncher = {
     enable = true;
     onPrismRunning = "close";
@@ -58,8 +60,5 @@ in {
   };
 
   # Prism instances map as XWayland class "Minecraft* <version>" (* = modded).
-  # mkBefore so the tag precedes the tag:game consumers in other modules.
-  wayland.windowManager.hyprland.settings.windowrule = lib.mkBefore [
-    "tag +game, match:class ^(Minecraft\\*? .*)$"
-  ];
+  gaming.windowClasses = ["^(Minecraft\\*? .*)$"];
 }

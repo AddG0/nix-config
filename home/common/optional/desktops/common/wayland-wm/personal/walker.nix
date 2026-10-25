@@ -1,6 +1,5 @@
 # Walker — Wayland GTK4 launcher. Replaces anyrun (slow upstream, brittle
-# plugin API). Walker's daemon model + provider system is the closest match
-# to anyrun's shape, and the GTK4 CSS port from anyrun.nix is direct.
+# plugin API); its daemon model + provider system is the closest match.
 #
 # Layout intent: an M3 search view — opaque surface-container, elevation-3
 # shadow, primary state layers on rows.
@@ -21,6 +20,11 @@
 in {
   imports = [inputs.walker.homeManagerModules.default];
 
+  systemd.user.services = {
+    walker = config.lib.waylandWm.startWithSession;
+    elephant = config.lib.waylandWm.startWithSession;
+  };
+
   programs.elephant = {
     # Patched in overlays/nixos/input-packages/elephant.nix to stop showing raw
     # Exec paths in search results.
@@ -32,7 +36,7 @@ in {
   programs.walker = {
     enable = true;
     # HM module manages a systemd --user service for the daemon, so first
-    # keystroke is instant. Replaces the hand-rolled anyrun-daemon unit.
+    # keystroke is instant.
     runAsService = true;
 
     config = {

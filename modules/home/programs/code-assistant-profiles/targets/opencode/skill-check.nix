@@ -32,7 +32,7 @@ pkgs.writeShellApplication {
         cat "$log" >&2
         exit 1
       fi
-      # A file, not a pipe: `opencode api` cuts its reply short at a 4 KiB boundary when piped.
+      # FLAKE-UPDATE: pipe straight to jq again once `opencode api` stops cutting piped replies at a 4 KiB boundary (opencode 2.1.1).
       "$opencode" api --server "http://127.0.0.1:$port" skill.list >"$reply" 2>/dev/null || continue
       listed=$(jq -r '.data[].path' "$reply" 2>/dev/null) || continue
       listed=$(xargs -r realpath -q <<<"$listed" 2>/dev/null || true)

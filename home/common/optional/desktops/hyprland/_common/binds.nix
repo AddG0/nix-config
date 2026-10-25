@@ -91,7 +91,7 @@ in {
       # Quick launch
       "SUPER,Return,exec,$term"
       "CTRL_ALT,v,exec,$term $EDITOR"
-      "CTRL_ALT,f,exec,thunar"
+      "CTRL_ALT,f,exec,dolphin"
 
       # Mic toggle (sound cue handled by mic-mute-sound.nix daemon)
       "SUPER,m,exec,${wpctl} set-mute @DEFAULT_AUDIO_SOURCE@ toggle"
