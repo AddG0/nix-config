@@ -92,7 +92,6 @@ in {
     expr = invocationProfile.programs.opencode.settings.permission.skill;
     expected = {
       commit = "deny";
-      manual = "deny";
     };
   };
   "test opencode hides nothing when every Codex skill is also its own" = {
@@ -275,7 +274,7 @@ in {
     expr = lspRendered.dropped;
     expected = {};
   };
-  "test opencode hides a manual-only skill and the Codex skill names it does not define" = {
+  "test opencode hides the Codex skill names it does not define but leaves a manual-only skill allowed" = {
     expr =
       (renderOpencodeWith {codexSkillNames = ["commit" "s"];} (typed {
         skills.s.prompt = spec "s";
@@ -286,7 +285,6 @@ in {
       })).skills.permission;
     expected = {
       commit = "deny";
-      m = "deny";
     };
   };
 }

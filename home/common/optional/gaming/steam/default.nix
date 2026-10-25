@@ -40,7 +40,6 @@
     inherit lib pkgs hyprctl primaryMonitor;
     inherit (config.display) monitors;
   };
-  hdrEnv = import ./hdr-env.nix {inherit lib pkgs;};
   mkGamescope = import ./gamescope.nix {inherit lib pkgs;};
   gamescope = mkGamescope [];
 
@@ -89,7 +88,7 @@ in {
       lib.nameValuePair (toString app.id) (
         lib.recursiveUpdate app {
           inherit name;
-          wrappers = [gameOutput] ++ (app.wrappers or [gamemoderun]) ++ [hdrEnv] ++ gpuOffload;
+          wrappers = [gameOutput] ++ (app.wrappers or [gamemoderun]) ++ gpuOffload;
         }
       ))
     games;

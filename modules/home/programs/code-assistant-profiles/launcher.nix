@@ -3,7 +3,7 @@
   lib,
   pkgs,
 }: let
-  # FLAKE-UPDATE: flags as of codex-cli 0.163.0 and opencode 1.19.0; after a bump, fix any tests/script.nix finds missing from a tool's --help.
+  # FLAKE-UPDATE: flags as of codex-cli 0.163.0 and opencode 2.1.1; after a bump, fix any tests/script.nix finds missing from a tool's --help.
   # promptFlag = null passes the prompt after `--`.
   specs = {
     claude-code = {

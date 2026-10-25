@@ -33,14 +33,8 @@
     StandardErrorPath = "${config.home.homeDirectory}/Library/Logs/${capeAgentLabel}.log";
   });
 in {
-  # FLAKE-UPDATE: drop once stylix sets home.pointerCursor.enable itself.
-  # stylix supplies pointerCursor.{name,package,size} but not `enable` (now
-  # required by home-manager). Gate on stylix.enable too, or hosts that disable
-  # stylix (e.g. plasma) enable a nameless cursor and eval fails.
-  home.pointerCursor.enable =
-    config.stylix.enable
-    && config.stylix.cursor != null
-    && pkgs.stdenv.hostPlatform.isLinux;
+  # FLAKE-UPDATE: drop once stylix's x11/gtk targets skip darwin; their pointerCursor sub-options make home-manager enable a nameless cursor.
+  home.pointerCursor.enable = lib.mkIf isDarwin false;
 
   # macOS has no cursor themes; mousecloak registers the stylix cursor as a cape
   # for the login session, so the agent re-applies it at every GUI login. The

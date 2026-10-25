@@ -12,7 +12,7 @@
     blue = channel "b";
     alpha = 1.0;
   };
-  # OmniWM 0.7.5's own encoder output: it rejects a file missing any section or hotkey id.
+  # OmniWM's own encoder output, from 0.7.5; regenerate it before binding an action added since.
   defaults = lib.importTOML ./settings-defaults.toml;
 
   # Hyprland SUPER is Option: the key in the Windows/Super position on a Mac keyboard.

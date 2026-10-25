@@ -1,6 +1,6 @@
 # Outermost Steam wrapper: resolves the output a game will land on once, at
 # launch, and exports GAME_OUTPUT_{W,H,R,HDR} for the wrappers inside it
-# (hdr-env, gamescope). GAME_OUTPUT_OVERRIDE=<connector> skips detection.
+# (gamescope). GAME_OUTPUT_OVERRIDE=<connector> skips detection.
 {
   lib,
   pkgs,

@@ -221,12 +221,11 @@
     else skillText name skill;
 
   # opencode also scans ~/.agents/skills, where Codex writes commands as skills.
-  # FLAKE-UPDATE: drop the manual-only half once the opencode CLI reads `opencode/autoinvoke` (1.19.0 reads it only in the v2 core).
+  # Manual-only skills stay allowed: `opencode/autoinvoke` hides them, and `deny` would block manual use too.
   hiddenSkills = skills: let
     names = lib.mapAttrsToList (_: skill: skill.name) skills;
-    manualOnly = lib.mapAttrsToList (_: skill: skill.name) (lib.filterAttrs (_: skill: !skill.invocation.model) skills);
   in
-    lib.genAttrs (lib.unique (lib.subtractLists names codexSkillNames ++ manualOnly)) (_: "deny");
+    lib.genAttrs (lib.subtractLists names codexSkillNames) (_: "deny");
 
   renderOauth = oauth:
     lib.filterAttrs (_: value: value != null) {
