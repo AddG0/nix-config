@@ -68,6 +68,7 @@
       bluetooth
       clamav
       earlyoom
+      gpu-worker
       greetd
       lact # GPU overclocking/monitoring
       noctalia-greeter
