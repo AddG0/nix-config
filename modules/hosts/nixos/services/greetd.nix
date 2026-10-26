@@ -13,7 +13,7 @@
     desktops = lib.mkOption {
       type = lib.types.attrsOf lib.types.str;
       default = {};
-      example = {hyprland = "uwsm start hyprland-uwsm.desktop";};
+      example = {hyprland = "uwsm start hyprland.desktop";};
       description = "Launch command per installed desktop, keyed by name. Set by the desktop modules.";
     };
 

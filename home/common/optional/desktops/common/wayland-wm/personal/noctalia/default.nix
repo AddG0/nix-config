@@ -55,6 +55,8 @@ in {
         workspaces = {
           label_source = "name";
           max_label_chars = 3;
+          # niri's trailing empty workspace is unnamed, so its positional label mimics a real one.
+          hide_when_empty = true;
         };
 
         tray.drawer = true;

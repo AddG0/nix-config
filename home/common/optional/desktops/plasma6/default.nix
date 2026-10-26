@@ -21,6 +21,24 @@
   # Symlink timezone-hover plasmoid to XDG data directory so Plasma can find it
   xdg.dataFile."plasma/plasmoids/com.github.timezonehover".source = "${customPkgs.timezone-hover}/share/plasma/plasmoids/com.github.timezonehover";
 
+  # FLAKE-UPDATE: drop once startkde/plasma-shutdown/shutdown.cpp stops graphical-session.target in a mode other than "fail".
+  # A D-Bus-activated portal (Requisite=graphical-session.target) cancels that stop, so UWSM then refuses to start.
+  xdg.configFile."plasma-workspace/shutdown/stop-graphical-session.sh" = {
+    executable = true;
+    text = ''
+      #!/bin/sh
+      exec ${lib.getExe' pkgs.systemd "systemctl"} --user stop --job-mode=replace-irreversibly --no-block graphical-session.target
+    '';
+  };
+
+  # Stylix's qt target exports qtct+kvantum to every session, and plasmashell's QML can't load kvantum.
+  xdg.configFile."plasma-workspace/env/qt-theme.sh" = lib.mkIf config.qt.enable {
+    text = ''
+      export QT_QPA_PLATFORMTHEME=kde
+      export QT_STYLE_OVERRIDE=
+    '';
+  };
+
   programs.plasma = {
     enable = true;
 
@@ -375,6 +393,9 @@
     configFile = {
       # Start with empty session (don't restore previous apps)
       ksmserverrc.General.loginMode = "emptySession";
+
+      # gtkconfig replaces stylix's gtk-2.0/gtkrc symlink at each login, then Home Manager activation fails on the backup.
+      kded6rc.Module-gtkconfig.autoload = false;
 
       klaunchrc.FeedbackStyle = {
         BusyCursor = false;

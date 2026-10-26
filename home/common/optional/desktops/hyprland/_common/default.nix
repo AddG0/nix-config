@@ -32,8 +32,8 @@
   };
 
   lib.hyprland = let
-    # UWSM's unit for the `uwsm start hyprland-uwsm.desktop` session in nixos/desktops/hyprland.
-    sessionUnit = "wayland-wm@hyprland\\x2duwsm.desktop.service";
+    # UWSM names it after the desktop ID; greetd and the hyprland-uwsm.desktop entry both start hyprland.desktop.
+    sessionUnit = "wayland-wm@hyprland.desktop.service";
   in {
     inherit sessionUnit;
     # Re-binds a unit to Hyprland alone, e.g. hyprpolkitagent: HM puts it on the kit target, and niri brings its own agent.

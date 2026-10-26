@@ -155,7 +155,8 @@
 
   wrappedDolphin = pkgs.symlinkJoin {
     name = "dolphin-wrapped";
-    paths = [pkgs.kdePackages.dolphin] ++ dolphinDeps;
+    # Joined, plasma-desktop's share/plasma becomes file symlinks KPackage rejects, crashing plasmashell.
+    paths = [pkgs.kdePackages.dolphin] ++ lib.remove pkgs.kdePackages.plasma-desktop dolphinDeps;
     buildInputs = [pkgs.makeWrapper];
     postBuild = let
       qtPluginPaths = builtins.concatStringsSep ":" (map (p: "${p}/lib/qt-6/plugins") dolphinDeps);
@@ -164,6 +165,7 @@
     in ''
       for exe in $out/bin/dolphin; do
         wrapProgram "$exe" \
+          --prefix PATH : "${pkgs.kdePackages.plasma-desktop}/bin" \
           --prefix QT_PLUGIN_PATH : "${qtPluginPaths}" \
           --prefix XDG_DATA_DIRS : "${iconThemePkg}/share:${dataDirs}" \
           --prefix LD_LIBRARY_PATH : "${pkgs.pipewire}/lib"

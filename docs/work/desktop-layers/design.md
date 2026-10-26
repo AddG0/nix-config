@@ -212,7 +212,7 @@ demon now imports the hyprland, niri and plasma6 suites. Every kit service was `
 
 - `bare-compositor-session.target` lives in `common/wayland-wm/` and is `PartOf`/`After=graphical-session.target`.
 - Kit services are `WantedBy`/`PartOf` it. The kit sets Home Manager's `wayland.systemd.target` to it, which hypridle, wpaperd, Noctalia and swayosd read; our own units use the same option. Only modules that hard-code `graphical-session.target` with no option (walker, elephant, hyprpolkitagent) are overridden, through `config.lib.waylandWm.startWithSession` and `config.lib.hyprland.startWithHyprland`.
-- Each compositor pulls it in from its own unit: niri from `niri.service`, Hyprland from UWSM's `wayland-wm@hyprland\x2duwsm.desktop.service`. Plasma never does.
+- Each compositor pulls it in from its own unit: niri from `niri.service`, Hyprland from UWSM's `wayland-wm@hyprland.desktop.service`. Plasma never does.
 - Compositor-only units start with their compositor's unit instead of a condition. Hyprland's (hyprpolkitagent, hyprsunset, hypr-gamma-schedule, sdr-game-mode, the OLED wear tracker, the Safe Eyes Hyprland guard) use `config.lib.hyprland.sessionUnit`; the Safe Eyes niri guard uses `niri.service`. No `ConditionEnvironment` is left.
 - Services may order `After=` the target: systemd skips a target's implicit ordering after a unit that is already ordered after it.
 
