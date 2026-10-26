@@ -402,6 +402,11 @@ in {
       executable = true;
     }) ["b" "a" "o"];
   };
+  testSettingsFileResolvesInsideItsOwnStoreDirectoryNotTheStoreRoot = {
+    expr = dirOf (toString (evalClaude [{programs.claude-code-profiles.profiles.default.settings.theme = "dark";}]).home.file.".config/claude-code/profiles/default/settings.json".source) == builtins.storeDir;
+    expected = false;
+  };
+
   testAProfileWithoutSettingsWritesNoSettingsFile = {
     expr = (evalClaude [{programs.claude-code-profiles.profiles.default = {};}]).home.file ? ".config/claude-code/profiles/default/settings.json";
     expected = false;

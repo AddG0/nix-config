@@ -12,6 +12,13 @@
   in
     removeAttrs settings ["hooks"] // lib.optionalAttrs (hooks != {}) {inherit hooks;};
 
+  # Claude watches the directory a symlinked settings file resolves into; a top-level store file makes that all of /nix/store.
+  settingsFile = settings: let
+    json = jsonFormat.generate "claude-settings.json" (
+      settings // {"$schema" = "https://json.schemastore.org/claude-code-settings.json";}
+    );
+  in "${pkgs.runCommand "claude-settings" {} "mkdir $out && cp ${json} $out/settings.json"}/settings.json";
+
   mkFileEntry = content:
     if lib.isPath content || lib.isDerivation content
     then {source = content;}
@@ -38,9 +45,7 @@
     settings = renderSettings finalConfig.settings;
   in
     lib.optionalAttrs (settings != {}) {
-      "${profileDir}/settings.json".source = jsonFormat.generate "claude-settings.json" (
-        settings // {"$schema" = "https://json.schemastore.org/claude-code-settings.json";}
-      );
+      "${profileDir}/settings.json".source = settingsFile settings;
     }
     // lib.optionalAttrs (finalConfig.memory.text != null) {
       "${profileDir}/CLAUDE.md".text = finalConfig.memory.text;
