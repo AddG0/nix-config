@@ -37,6 +37,7 @@
     (with lib.custom.optional.hosts; [nix-cache])
     (with lib.custom.optional.hosts.nixos; [
       audio # base pipewire + AirPods A2DP handling; ./audio layers demon-specific routing on top
+      determinate
       nix-builders.client
       obs # obs
       onepassword

@@ -27,6 +27,9 @@
       url = "github:zhaofengli-wip/nix-homebrew";
     };
 
+    # No nixpkgs follow: Determinate caches its Nix only against its own pinned nixpkgs.
+    determinate.url = "https://flakehub.com/f/DeterminateSystems/determinate/*";
+
     #################### Utilities ####################
 
     # Declarative partitioning and formatting

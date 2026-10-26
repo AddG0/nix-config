@@ -31,6 +31,7 @@
     (with lib.custom.optional.hosts; [nix-cache])
     (with lib.custom.optional.hosts.nixos; [
       audio # pipewire and cli controls
+      determinate
       obs # obs
       # nix-builders.client
       onepassword
