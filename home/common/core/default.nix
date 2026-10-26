@@ -105,6 +105,9 @@ in {
     home-manager.enable = true; # Let home-manager manage itself
   };
 
+  # Its man page documents every home-manager option, which costs a noticeable share of host eval time.
+  manual.manpages.enable = false;
+
   # Nicely reload system units when changing configs
   systemd.user.startServices = "sd-switch";
 }

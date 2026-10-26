@@ -29,6 +29,8 @@ in {
   # they need (the standalone build passes its own equivalents).
   programs.nixvim = {
     enable = true;
+    # Its man page documents every nixvim option, which costs a large share of host eval time.
+    enableMan = false;
     imports = lib.custom.scanPaths ./.;
     # Use the host's overlaid, allowUnfree pkgs instead of nixvim's own instance.
     nixpkgs.useGlobalPackages = true;
