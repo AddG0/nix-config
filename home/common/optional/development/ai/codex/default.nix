@@ -12,7 +12,7 @@ in {
     enable = true;
 
     # Codex writes project trust into config.toml (and <profile>.config.toml); keep them writable.
-    mutableSettings = true;
+    writableConfig = true;
     settings =
       {
         approval_policy = "never";

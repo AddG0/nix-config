@@ -1,6 +1,5 @@
 {customLib, ...}: {
   config,
-  extendModules,
   lib,
   pkgs,
   ...
@@ -110,11 +109,6 @@
     lib.optionals (enabledAgents != []) (lib.mapAttrsToList (key: entries: "programs.code-assistant-profiles.profiles ${lib.concatMapStringsSep ", " (entry: "\"${entry.name}\"") entries}: ${key} names a model no target routes (models.nix: Claude aliases and claude-* ids for claude-code, bare OpenAI ids for codex, provider/model ids for opencode), so every target drops it") (lib.groupBy (entry: entry.key) found));
 
   enabledValidators = lib.filter (validator: validator.enable) (lib.attrValues cfg.validators);
-  staticConfig = lib.foldl' lib.recursiveUpdate {} (map (validator: validator.staticConfig) enabledValidators);
-  checkedHome =
-    if staticConfig == {}
-    then config
-    else (extendModules {modules = [staticConfig];}).config;
 
   launcher =
     if enabledAgents == []
@@ -145,7 +139,7 @@ in {
       home.checks = lib.mkIf (cfg.checkConfig && enabledValidators != []) [
         (runValidators {
           name = config.home.username;
-          homes.${config.home.username} = checkedHome;
+          homes.${config.home.username} = config;
         })
       ];
     }

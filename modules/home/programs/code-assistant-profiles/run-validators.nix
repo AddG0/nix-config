@@ -26,7 +26,8 @@
 
     enabled = lib.filter (validator: validator.enable) (validatorsOf hm);
     toolDirs = lib.concatMap (validator: validator.configDirs ++ validator.extraDirs) enabled;
-    files = lib.filter (file: file.enable && under toolDirs file.target) (lib.attrValues hm.home.file);
+    mergedFiles = lib.concatMap (validator: validator.mergedFiles) enabled;
+    files = lib.filter (file: (file.enable || lib.elem (rel file.target) mergedFiles) && under toolDirs file.target) (lib.attrValues hm.home.file);
 
     # A layout change that selects nothing would otherwise pass on an empty $HOME.
     emptyTools = lib.filter (validator: !(lib.any (file: under validator.configDirs file.target) files)) enabled;

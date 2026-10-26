@@ -12,8 +12,7 @@ in {
   configDirs = [codexHome];
   # Codex reads skills from ~/.agents/skills.
   extraDirs = [".agents"];
-  # mutableSettings merges config.toml at activation, leaving it out of home.file.
-  staticConfig = lib.optionalAttrs codex.mutableSettings {programs.codex.mutableSettings = lib.mkForce false;};
+  mergedFiles = lib.optionals codex.writableConfig (map (file: "${codexHome}/${file}") (["config.toml"] ++ map (profile: "${profile}.config.toml") (lib.attrNames codex.profiles)));
 
   setup = ''
     export PATH=${lib.makeBinPath [pkgs.jq pkgs.jaq]}:$PATH

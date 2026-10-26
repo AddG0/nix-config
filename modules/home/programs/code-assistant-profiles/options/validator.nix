@@ -29,10 +29,10 @@ lib.types.submodule {
       description = "Further dirs relative to $HOME whose files the tool reads, linked into the fake $HOME too.";
     };
 
-    staticConfig = lib.mkOption {
-      type = lib.types.attrs;
-      default = {};
-      description = "Definitions that put the tool's activation-time files into home.file, applied through extendModules for the check only.";
+    mergedFiles = lib.mkOption {
+      type = lib.types.listOf lib.types.str;
+      default = [];
+      description = "Files relative to $HOME that activation merges, so their home.file entries are disabled; the check links their declared source anyway.";
     };
 
     setup = lib.mkOption {

@@ -54,7 +54,7 @@
   };
 
   configured = evalHome {
-    mutableSettings = true;
+    writableConfig = true;
     settings = declared;
     profiles.alt.model_reasoning_effort = "high";
   };
@@ -64,10 +64,16 @@
     profiles.alt.model_reasoning_effort = "high";
   };
 
+  bothMutable = evalHome {
+    writableConfig = true;
+    mutableSettings = true;
+    settings = declared;
+  };
+
   configKey = "/.config/codex/config.toml";
   profileKey = "/.config/codex/alt.config.toml";
-  baseMerge = configured.home.activation.codexMutableSettings;
-  profileMerge = configured.home.activation."codexMutableProfile-alt";
+  baseMerge = configured.home.activation.codexWritableConfig;
+  profileMerge = configured.home.activation."codexWritableProfile-alt";
 
   # What Codex itself writes once a directory is trusted.
   runtimeState = pkgs.writeText "runtime.toml" ''
@@ -81,6 +87,9 @@
 
     [tui.model_availability_nux]
     "gpt-5.5" = 4
+
+    [mcp_servers.demo]
+    url = "http://stale.invalid"
   '';
 
   script = name: entry:
@@ -107,8 +116,20 @@ in
   pkgs.runCommand "codex-mutable-settings-test" {nativeBuildInputs = [pkgs.gnused];} ''
     ${harness.values {
       "test config.toml is merged at activation, not linked" = {
-        expr = configured.home.file ? ${configKey};
+        expr = configured.home.file.${configKey}.enable;
         expected = false;
+      };
+      "test the config.toml merge reads the source home.file declares" = {
+        expr = lib.hasInfix (toString configured.home.file.${configKey}.source) baseMerge.data;
+        expected = true;
+      };
+      "test writableConfig with upstream mutableSettings fails an assertion" = {
+        expr = lib.any (a: !a.assertion && lib.hasInfix "writableConfig or mutableSettings, not both" a.message) bothMutable.assertions;
+        expected = true;
+      };
+      "test an immutable config keeps config.toml linked" = {
+        expr = immutable.home.file.${configKey}.enable;
+        expected = true;
       };
       "test a profile file is merged at activation, not linked" = {
         expr = configured.home.file.${profileKey}.enable;
@@ -127,7 +148,7 @@ in
         expected = true;
       };
       "test an immutable config adds no profile merge" = {
-        expr = immutable.home.activation ? "codexMutableProfile-alt";
+        expr = immutable.home.activation ? "codexWritableProfile-alt";
         expected = false;
       };
       "test our CODEX_HOME matches upstream programs.codex's home.file keys for every XDG preference and config format" = {
@@ -184,6 +205,9 @@ in
       fail "a declared list was not carried over" merged.txt
     grep -qxF 'mcp_servers|demo|command=/bin/demo' merged.txt ||
       fail "a declared table was not carried over" merged.txt
+    if grep -qF 'http://stale.invalid' "$target"; then
+      fail "a runtime HTTP key survived beside the declared stdio command" "$target"
+    fi
     [ "$(stat -c%a "$target")" = "600" ] || fail "the merge changed an existing file's mode"
 
     cp "$target" once.toml

@@ -28,7 +28,7 @@
         }
         // {
           extraDirs = [];
-          staticConfig = {};
+          mergedFiles = [];
         };
       home = {
         homeDirectory = "/home/t";
