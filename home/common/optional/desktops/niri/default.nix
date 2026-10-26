@@ -101,6 +101,8 @@ in {
     # Ask apps to omit client-side title bars
     prefer-no-csd = true;
 
+    hotkey-overlay.skip-at-startup = true;
+
     xwayland-satellite.path = lib.getExe pkgs.xwayland-satellite;
 
     #

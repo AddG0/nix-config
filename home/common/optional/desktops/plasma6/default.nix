@@ -1,5 +1,4 @@
 {
-  config,
   lib,
   pkgs,
   customPkgs,
@@ -12,6 +11,7 @@
   imports = [
     inputs.plasma-manager.homeModules.plasma-manager
     self.homeModules.plasma6
+    ./stylix.nix
   ];
 
   # Plasma Monitor Configuration:
@@ -31,45 +31,8 @@
     '';
   };
 
-  # Stylix's qt target exports qtct+kvantum to every session, and plasmashell's QML can't load kvantum.
-  xdg.configFile."plasma-workspace/env/qt-theme.sh" = lib.mkIf config.qt.enable {
-    text = ''
-      export QT_QPA_PLATFORMTHEME=kde
-      export QT_STYLE_OVERRIDE=
-    '';
-  };
-
   programs.plasma = {
     enable = true;
-
-    # Global fonts
-    fonts = {
-      general = {
-        family = "Segoe UI Variable";
-        pointSize = 10;
-      };
-      fixedWidth = {
-        family = "JetBrains Mono";
-        pointSize = 10;
-      };
-      small = {
-        family = "Segoe UI Variable";
-        pointSize = 8;
-      };
-      toolbar = {
-        family = "Segoe UI Variable";
-        pointSize = 10;
-      };
-      menu = {
-        family = "Segoe UI Variable";
-        pointSize = 10;
-      };
-      windowTitle = {
-        family = "Segoe UI Variable";
-        pointSize = 10;
-        weight = "demiBold";
-      };
-    };
 
     # Workspace configuration
     workspace = {
@@ -78,20 +41,6 @@
 
       splashScreen = {
         theme = "Noir-Splash-6";
-      };
-
-      wallpaper = "${pkgs.kdePackages.plasma-workspace-wallpapers}/share/wallpapers/Nexus/contents/images_dark/5120x2880.png";
-
-      # kdeglobals is shared with any other desktop on the host, so follow stylix where it themes them.
-      iconTheme =
-        if config.stylix.enable
-        then config.stylix.icons.dark
-        else "Papirus-Dark";
-
-      # Cursor theme
-      cursor = {
-        theme = "Vimix-cursors";
-        size = 24;
       };
 
       # themes.whitesur = {
@@ -393,9 +342,6 @@
     configFile = {
       # Start with empty session (don't restore previous apps)
       ksmserverrc.General.loginMode = "emptySession";
-
-      # gtkconfig replaces stylix's gtk-2.0/gtkrc symlink at each login, then Home Manager activation fails on the backup.
-      kded6rc.Module-gtkconfig.autoload = false;
 
       klaunchrc.FeedbackStyle = {
         BusyCursor = false;

@@ -5,7 +5,8 @@
   ...
 }:
 with lib; let
-  cfg = config.programs.plasma.workspace.cursor;
+  # null when nothing sets a cursor, leaving Plasma's default.
+  theme = config.programs.plasma.workspace.cursor.theme or null;
 
   # Map of cursor theme names to their packages
   cursorThemePackages = {
@@ -18,10 +19,10 @@ with lib; let
   };
 
   # Get the package for the configured cursor theme
-  selectedCursorPackage = cursorThemePackages.${cfg.theme} or null;
+  selectedCursorPackage = cursorThemePackages.${theme} or null;
 in {
-  config = mkIf (config.programs.plasma.enable && cfg.theme != null && selectedCursorPackage != null) {
+  config = mkIf (config.programs.plasma.enable && theme != null && selectedCursorPackage != null) {
     # Symlink to XDG location
-    xdg.dataFile."icons/${cfg.theme}".source = "${selectedCursorPackage}/share/icons/${cfg.theme}";
+    xdg.dataFile."icons/${theme}".source = "${selectedCursorPackage}/share/icons/${theme}";
   };
 }
