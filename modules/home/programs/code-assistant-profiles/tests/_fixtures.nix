@@ -174,8 +174,6 @@
       {
         programs.code-assistant-profiles = {
           enable = true;
-          # The stub codex has no package to load agent roles with; tests that check roles turn this back on.
-          targets.codex.checkConfig = lib.mkDefault false;
           targets.codex.enable = true;
           targets.opencode.enable = true;
         };

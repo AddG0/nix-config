@@ -6,10 +6,9 @@
   self,
   ...
 }: let
-  inherit (import ./_cases.nix {inherit harness lib pkgs;}) checkAgent bundledWithEof codexAgentFile codexBundledManual codexFile codexSkillsConfig homeSkillFile optionalRendered ownVersions skillFile spec toCodex;
+  inherit (import ./_cases.nix {inherit harness lib pkgs;}) bundledWithEof codexAgentFile codexBundledManual codexFile codexSkillsConfig homeSkillFile optionalRendered ownVersions skillFile spec toCodex;
   inherit (import ../../../tests/_validators.nix {inherit lib pkgs self;}) validatorRejection;
   inherit (harness) paths;
-  brokenAgentBuild = pkgs.testers.testBuildFailure (checkAgent "broken" (pkgs.writeText "broken.toml" "name = ["));
 
   rejectedByValidator = {
     codex-hook = {
@@ -96,6 +95,5 @@ in
     ${paths.lacks "codex keeps a profile's own skill's name in its SKILL.md" (homeSkillFile ownVersions "investigate--alt") ["personal way"]}
     ${paths.contains "codex keeps a profile's own command's name in its SKILL.md" (homeSkillFile ownVersions "review--alt") ["name: 'review'" "review the alt way"]}
     ${paths.lacks "codex keeps a profile's own command's name in its SKILL.md" (homeSkillFile ownVersions "review--alt") ["personal way"]}
-    ${paths.contains "an agent role Codex cannot read fails its TOML's build, naming the role" "${brokenAgentBuild}/testBuildFailure.log" ["codex agent broken: `codex doctor --json` rejected agents/broken.toml" "broken.toml"]}
     ${lib.concatStrings (lib.mapAttrsToList validatorRejection rejectedByValidator)}
   ''

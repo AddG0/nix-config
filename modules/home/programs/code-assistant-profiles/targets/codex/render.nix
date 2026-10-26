@@ -1,7 +1,6 @@
 # A resolved shared profile, rendered into Codex's artefacts; with `base`, only what a profile file layers over it.
 {
   base ? null,
-  checkAgent,
   codexHooks,
   customLib,
   hooks,
@@ -140,13 +139,13 @@
   };
 
   renderAgent = name: agent:
-    checkAgent name (tomlFormat.generate "codex-agent-${lib.strings.sanitizeDerivationName name}.toml" (withExtra agent (lib.filterAttrs (_: value: value != null) {
+    tomlFormat.generate "codex-agent-${lib.strings.sanitizeDerivationName name}.toml" (withExtra agent (lib.filterAttrs (_: value: value != null) {
       inherit name;
       description = fallbackString agent.description name;
       developer_instructions = readContent agent.prompt;
       model = codexModel agent.model;
       model_reasoning_effort = agent.reasoningEffort;
-    })));
+    }));
 
   renderOauth = oauth:
     lib.filterAttrs (_: value: value != null) {

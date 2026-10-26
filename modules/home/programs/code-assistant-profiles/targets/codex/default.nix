@@ -16,14 +16,9 @@
   codexHomeRelative = lib.removePrefix "/" (import ../../../codex/codex-home.nix {inherit config lib;});
   skillsDir = "${config.home.homeDirectory}/${skillsRelative}";
 
-  checkAgent = import ./agent-check.nix {inherit lib pkgs;} {
-    enable = codingCfg.targets.codex.checkConfig;
-    inherit (config.programs.codex) package;
-  };
-
   renderOver = base:
     import ./render.nix {
-      inherit base checkAgent codexHooks customLib lib pkgs;
+      inherit base codexHooks customLib lib pkgs;
       inherit skillsDir;
       inherit (codingCfg.targets.codex) hooks;
     };
@@ -140,7 +135,7 @@ in {
   # Not under the mkIf: its condition reads `targets`, which this definition is part of.
   config = lib.mkMerge [
     {
-      programs.code-assistant-profiles.validators.codex = import ./validator.nix {
+      programs.code-assistant-profiles.validators.codex = import ./validator {
         inherit config lib pkgs;
         codexHome = codexHomeRelative;
       };

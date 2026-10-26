@@ -6,13 +6,8 @@
 }: let
   inherit (import ../../../tests/_fixtures.nix {inherit harness lib pkgs;}) codexHookTargets codexHooked evalCodingConfig evalProfiles evalTargets failedOf fixtureBody fixtureFile forced invocationConfig invocationProfile libWithCustom manyLines needleProblems noNeedleProblems optionalFieldsConfig spec typed;
 
-  checkAgent = import ../agent-check.nix {inherit lib pkgs;} {
-    enable = true;
-    package = pkgs.codex;
-  };
-
   renderCodex = import ../render.nix {
-    inherit checkAgent pkgs;
+    inherit pkgs;
     lib = libWithCustom;
     customLib = libWithCustom.custom;
     codexHooks = import ../hooks.nix {
@@ -242,5 +237,5 @@
     };
   };
 in {
-  inherit checkAgent bundledWithEof clashingEntries homeSkillFile ownVersions ownVersionsProfile skillFile takenVariantName variantSkill codexAgentFile codexAgents codexAgentsConfig codexBundledManual codexEvents codexFile codexHookConfig codexHookTargets codexHooked codexMcp codexProfiles codexSkills codexSkillsConfig disabledWithHooks disabledWithoutHooks evalCodingConfig evalProfiles evalTargets failedOf fixtureBody fixtureFile forced invocationConfig invocationProfile invocationRendered libWithCustom manyLines multiParent needleProblems noNeedleProblems optionalFieldsConfig optionalRendered ownEntries renderCodex sameAsDefault scopedProfileOverBudget spec toCodex typed;
+  inherit bundledWithEof clashingEntries homeSkillFile ownVersions ownVersionsProfile skillFile takenVariantName variantSkill codexAgentFile codexAgents codexAgentsConfig codexBundledManual codexEvents codexFile codexHookConfig codexHookTargets codexHooked codexMcp codexProfiles codexSkills codexSkillsConfig disabledWithHooks disabledWithoutHooks evalCodingConfig evalProfiles evalTargets failedOf fixtureBody fixtureFile forced invocationConfig invocationProfile invocationRendered libWithCustom manyLines multiParent needleProblems noNeedleProblems optionalFieldsConfig optionalRendered ownEntries renderCodex sameAsDefault scopedProfileOverBudget spec toCodex typed;
 }

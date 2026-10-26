@@ -6,54 +6,7 @@
   ...
 }: let
   inherit (import ./_cases.nix {inherit harness lib pkgs;}) ownVersions ownVersionsProfile takenVariantName variantSkill clashingEntries codexAgents codexAgentsConfig codexEvents evalCodingConfig codexHookConfig codexHookTargets codexHooked codexMcp codexProfiles codexSkills disabledWithHooks disabledWithoutHooks evalProfiles failedOf fixtureBody fixtureFile forced invocationProfile multiParent ownEntries sameAsDefault scopedProfileOverBudget spec toCodex;
-  agentCheck = import ../agent-check.nix {inherit lib pkgs;};
-  roleFile = pkgs.writeText "r.toml" "name = \"r\"";
 in {
-  "test checkConfig with a null codex package fails evaluation, naming the role and the fix" = {
-    expr = forced (agentCheck {
-        enable = true;
-        package = null;
-      } "r"
-      roleFile);
-    expectedError.type = "ThrownError";
-    expectedError.msg = "codex agent r: .*checkConfig is on but programs\\.codex\\.package is null.*set programs\\.codex\\.package, or checkConfig = false";
-  };
-  "test checkConfig off writes a role unchecked, even without a codex package" = {
-    expr =
-      (agentCheck {
-          enable = false;
-          package = null;
-        } "r"
-        roleFile).outPath;
-    expected = roleFile.outPath;
-  };
-  "test the codex target loads each agent role with programs.codex.package" = {
-    expr =
-      (evalCodingConfig {
-        programs.codex.package = pkgs.codex;
-        programs.code-assistant-profiles.targets.codex.checkConfig = true;
-        programs.code-assistant-profiles.profiles.default = codexAgentsConfig;
-      })
-      .home
-      .file
-      .".config/codex/agents/reviewer.toml"
-      .source
-      .name;
-    expected = "codex-agent-reviewer.toml";
-  };
-  "test the codex target with a null programs.codex.package refuses to write an agent role unchecked" = {
-    expr = forced "${(evalCodingConfig {
-        programs.codex.package = null;
-        programs.code-assistant-profiles.targets.codex.checkConfig = true;
-        programs.code-assistant-profiles.profiles.default = codexAgentsConfig;
-      })
-      .home
-      .file
-      .".config/codex/agents/reviewer.toml"
-      .source}";
-    expectedError.type = "ThrownError";
-    expectedError.msg = "codex agent reviewer: .*programs\\.codex\\.package is null";
-  };
   "test codex writes an inline skill under ~/.agents/skills" = {
     expr = codexSkills.home.file ? ".agents/skills/inline";
     expected = true;

@@ -145,12 +145,13 @@ in {
   };
   "test each target registers only its own validator" = {
     expr = validatorRegistrations;
-    expected = lib.genAttrs (lib.filter (name: builtins.pathExists (../targets + "/${name}/validator.nix")) targetNames) (name: [[name]]);
+    # A validator is validator.nix, or validator/ once it has checks of its own.
+    expected = lib.genAttrs (lib.filter (name: lib.any (file: builtins.pathExists (../targets + "/${name}/${file}")) ["validator.nix" "validator/default.nix"]) targetNames) (name: [[name]]);
   };
   "test the registration check attributes a validator to the target whose file registers it" = {
     expr = registrationsOf [
       {
-        file = "${targetsDir}/codex/validator.nix";
+        file = "${targetsDir}/codex/validator/default.nix";
         value = {opencode = {};};
       }
       {
