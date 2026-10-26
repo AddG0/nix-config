@@ -16,6 +16,4 @@ _: {
       {id = "alageihdeogmjlkgifaeefodfbdbljjf";} # Youtube Auto Quality
     ];
   };
-
-  nixpkgs.config.chromium.enableWideVine = true;
 }

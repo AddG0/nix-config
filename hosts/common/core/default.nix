@@ -86,6 +86,7 @@ in {
   '';
 
   home-manager = {
+    useGlobalPkgs = true;
     extraSpecialArgs = {
       inherit inputs self;
     };
