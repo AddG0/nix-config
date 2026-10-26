@@ -17,7 +17,8 @@
   niri-flake.cache.enable = false;
 
   # niri-flake writes config.kdl whenever settings exist; tie it to the system enable, as Hyprland's is.
+  # Nulling `config` skips the KDL render too, which forcing the file's enable off still evaluates.
   home-manager.sharedModules = [
-    {xdg.configFile.niri-config.enable = lib.mkIf (!config.programs.niri.enable) (lib.mkForce false);}
+    {programs.niri.config = lib.mkIf (!config.programs.niri.enable) (lib.mkForce null);}
   ];
 }
