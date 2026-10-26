@@ -92,13 +92,37 @@
     else withScopedGlab
   );
 in {
-  options.programs.t3code.desktop.enable =
-    lib.mkEnableOption "the t3code desktop app, which runs its own server over ~/.t3/userdata"
-    // {default = true;};
+  options.programs.t3code.desktop = {
+    enable =
+      lib.mkEnableOption "the t3code desktop app"
+      // {default = true;};
 
-  # The theme module owns basePackage, so disabling it drops these too.
-  config.programs.t3code.theme.basePackage =
-    if config.programs.t3code.desktop.enable
-    then desktopPackage
-    else withoutDesktop desktopPackage;
+    localEnvironment =
+      lib.mkEnableOption "the desktop app's own server over ~/.t3/userdata; turn off when another server owns it"
+      // {default = true;};
+  };
+
+  config = {
+    # The theme module owns basePackage, so disabling it drops these too.
+    programs.t3code.theme.basePackage =
+      if config.programs.t3code.desktop.enable
+      then desktopPackage
+      else withoutDesktop desktopPackage;
+
+    # Merged, not linked: the app rewrites this file with its window bounds.
+    home.activation.t3codeDesktopSettings = lib.mkIf config.programs.t3code.desktop.enable (
+      lib.hm.dag.entryAfter ["linkGeneration"] (
+        lib.hm.generators.mkImpureConfigMerger {
+          inherit pkgs;
+          format = "json";
+          empty = "{}";
+          jqOperation = "$dynamic * $static";
+          path = "${config.home.homeDirectory}/.t3/userdata/desktop-settings.json";
+          staticSettings = (pkgs.formats.json {}).generate "t3code-desktop-settings" {
+            localEnvironmentEnabled = config.programs.t3code.desktop.localEnvironment;
+          };
+        }
+      )
+    );
+  };
 }

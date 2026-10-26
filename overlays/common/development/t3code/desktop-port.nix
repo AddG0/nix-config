@@ -2,7 +2,7 @@
 _: _final: prev: let
   # The app forks its own backend instead of attaching to a running one, so it
   # needs a port of its own; 3773 stays with the server unit (home
-  # .../development/ai/t3code/server.nix).
+  # .../development/ai/t3code-server.nix).
   desktopPort = 3774;
 in {
   t3code = prev.t3code.override {

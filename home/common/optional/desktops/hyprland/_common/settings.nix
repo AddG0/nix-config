@@ -38,7 +38,7 @@ in {
       ];
 
       # ========== Monitor ==========
-      # A monitor line for the same output would replace its monitorv2 rule.
+      # monitorv2 applies after every monitor line, so a monitor line for a declared output is ignored.
       monitorv2 = map hyprLib.monitorv2 config.display.monitors;
       monitor = lib.optional config.display.defaultMonitor.enable ",preferred,auto,1";
 

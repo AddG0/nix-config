@@ -2,9 +2,8 @@
 # readiness waits on the initial provider probes, and codex and opencode each
 # take 1.5-2.5s of that.
 #
-# The desktop app has no attach mode — it forks its own backend — and since
-# 0.1.0 only one server may own ~/.t3/userdata, so whichever starts second
-# fails. Hence the assertion: a host gets this unit or the desktop app.
+# Only one server may own ~/.t3/userdata, so the desktop app's own backend is
+# switched off and the app pairs with this unit (`t3 pair`) instead.
 #
 # Don't run `t3 service install` either; its unit self-updates from npm.
 #
@@ -39,12 +38,7 @@ in {
   };
 
   config = {
-    assertions = [
-      {
-        assertion = !config.programs.t3code.desktop.enable;
-        message = "services.t3codeServer and the t3code desktop app both run a server over ~/.t3/userdata, and t3code lets only one own it. Set programs.t3code.desktop.enable = false, or drop ai.t3code-server.";
-      }
-    ];
+    programs.t3code.desktop.localEnvironment = false;
 
     systemd.user.services.t3code = {
       Unit = {

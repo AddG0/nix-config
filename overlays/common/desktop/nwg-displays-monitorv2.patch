@@ -1,0 +1,81 @@
+diff --git a/nwg_displays/monitorv2.py b/nwg_displays/monitorv2.py
+new file mode 100644
+index 0000000..3e8d961
+--- /dev/null
++++ b/nwg_displays/monitorv2.py
+@@ -0,0 +1,21 @@
++def monitorv2_blocks(lines):
++    """Rewrite monitor= lines as Hyprland monitorv2 blocks, which merge with declared blocks for the same output."""
++    out = []
++    for line in lines:
++        if not line.startswith("monitor="):
++            out.append(line)
++            continue
++        args = [a.strip() for a in line[len("monitor="):].split(",")]
++        out.append("monitorv2 {")
++        out.append(f"  output = {args[0]}")
++        if args[1] in ("disable", "disabled"):
++            out.append("  disabled = 1")
++        elif args[1] == "transform":
++            out.append(f"  transform = {args[2]}")
++        else:
++            if len(args) < 4 or len(args) % 2:
++                raise ValueError(f"monitor line has no value for its last key: {line}")
++            out.extend(["  disabled = 0", f"  mode = {args[1]}", f"  position = {args[2]}", f"  scale = {args[3]}"])
++            out.extend(f"  {k} = {v}" for k, v in zip(args[4::2], args[5::2]))
++        out.append("}")
++    return out
+diff --git a/nwg_displays/settings_applier/settings_applier.py b/nwg_displays/settings_applier/settings_applier.py
+index 18ec684..5868efd 100644
+--- a/nwg_displays/settings_applier/settings_applier.py
++++ b/nwg_displays/settings_applier/settings_applier.py
+@@ -15,6 +15,7 @@ from nwg_displays.tools import (
+     load_json,
+     save_json,
+ )
++from nwg_displays.monitorv2 import monitorv2_blocks
+ from nwg_displays.wallpaper_manager import WallpaperManager
+ from nwg_displays.tools import get_config
+
+@@ -145,7 +146,7 @@ class SettingsApplier:
+             else "~/.config/hypr/monitors.lua"
+         )
+
+-        lines_conf = [header] + [ln.replace("#", "##") for ln in lines_conf]
++        lines_conf = [header] + monitorv2_blocks([ln.replace("#", "##") for ln in lines_conf])
+
+         save_list_to_text_file(lines_conf, outputs_path)
+         save_list_to_text_file(lines_lua, outputs_path_lua)
+@@ -533,7 +534,7 @@ class SettingsApplier:
+         if os.path.isfile(outputs_path_lua):
+             backup_lua = load_text_file(outputs_path_lua).splitlines()
+
+-        lines_conf = [header] + [ln.replace("#", "##") for ln in lines_conf]
++        lines_conf = [header] + monitorv2_blocks([ln.replace("#", "##") for ln in lines_conf])
+
+         save_list_to_text_file(lines_conf, outputs_path)
+         save_list_to_text_file(lines_lua, outputs_path_lua)
+diff --git a/nwg_displays/tools.py b/nwg_displays/tools.py
+index 2a4630a..a76fda8 100644
+--- a/nwg_displays/tools.py
++++ b/nwg_displays/tools.py
+@@ -274,12 +274,13 @@ def list_outputs():
+         hypr_config_dir = os.path.join(get_config_home(), "hypr")
+         monitors_file = os.path.join(hypr_config_dir, "monitors.conf")
+         if os.path.isfile(monitors_file):
+-            lines = load_text_file(monitors_file).splitlines()
+-            for line in lines:
+-                if line and not line.startswith("#"):  # skip comments
+-                    if "mirror" in line:
+-                        settings = line.split("=")[1].split(",")
+-                        mirrors[settings[0].strip()] = settings[-1].strip()
++            output = None
++            for line in load_text_file(monitors_file).splitlines():
++                key, _, value = (part.strip() for part in line.partition("="))
++                if key == "output":
++                    output = value
++                elif key == "mirror" and output:
++                    mirrors[output] = value
+
+         # 2. This won't work w/ Hyprland <= 0.36.0
+         output = hyprctl("j/monitors all")
