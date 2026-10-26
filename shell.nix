@@ -19,18 +19,21 @@
     shellHook = checks.pre-commit-check.shellHook or "";
     buildInputs = checks.pre-commit-check.enabledPackages or [];
 
-    nativeBuildInputs = builtins.attrValues {
-      inherit
-        (pkgs)
-        home-manager
-        git
-        just
-        tmux
-        age
-        ssh-to-age
-        colmena
-        sops
-        ;
-    };
+    nativeBuildInputs =
+      builtins.attrValues {
+        inherit
+          (pkgs)
+          home-manager
+          git
+          just
+          tmux
+          age
+          ssh-to-age
+          colmena
+          sops
+          ;
+      }
+      # notify-send for scripts/sudo-notify, which only runs on NixOS.
+      ++ pkgs.lib.optional pkgs.stdenv.isLinux pkgs.libnotify;
   };
 }
