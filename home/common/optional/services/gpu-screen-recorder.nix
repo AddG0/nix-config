@@ -4,8 +4,8 @@
 # `matchMonitorName`. HDR monitors record direct (KMS) with an HDR codec; the
 # module converts those clips to SDR (see its `hdrClips`).
 {
-  pkgs,
   lib,
+  pkgs,
   ...
 }: let
   # GSR matches pipewire node.name exactly; VLC's embeds its version, minus nixpkgs' -N suffix.
@@ -57,6 +57,8 @@
       echo "$dir/$(basename "$file")"
     '';
   };
+
+  replayUnit = "gpu-screen-recorder-replay.service";
 in {
   services.gpu-screen-recorder = {
     enable = true;
@@ -64,5 +66,30 @@ in {
     postSaveScript = clipSavedScript;
     # Keep as one -a: separate flags make separate tracks, and players play only the first.
     audioDevices = ["app-inverse:spotify|app-inverse:${vlcAudioName}|default_input"];
+  };
+
+  wayland.windowManager.hyprland.settings.bind = ["SUPER,x,exec,save-gsr-replay"];
+  programs.niri.settings.binds = {
+    "Mod+X".action.spawn = "save-gsr-replay";
+    "Mod+F10".action.spawn = ["systemctl" "--user" "stop" replayUnit];
+    "Mod+F11".action.spawn = ["systemctl" "--user" "start" replayUnit];
+  };
+
+  programs.plasma.hotkeys.commands = {
+    "save-replay" = {
+      name = "Save Replay (Last 60s)";
+      key = "Meta+X";
+      command = "save-gsr-replay";
+    };
+    "stop-replay-buffer" = {
+      name = "Stop GPU Screen Recorder Replay Buffer";
+      key = "Meta+F10";
+      command = "systemctl --user stop ${replayUnit}";
+    };
+    "start-replay-buffer" = {
+      name = "Start GPU Screen Recorder Replay Buffer";
+      key = "Meta+F11";
+      command = "systemctl --user start ${replayUnit}";
+    };
   };
 }

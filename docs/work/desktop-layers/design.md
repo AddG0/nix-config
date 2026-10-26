@@ -240,3 +240,30 @@ demon now imports the hyprland, niri and plasma6 suites. Every kit service was `
 
 - greetd's PAM starts KWallet on every login, not only Plasma's, so KWallet and gnome-keyring can both claim `org.freedesktop.secrets`. Check in a live session.
 - Stylix's KDE/Qt targets stay on, as on azuree. Check that Plasma looks right on demon.
+
+## Addendum: features own their adapters (2026-10-26)
+
+The move map put the personal flavour's compositor lines in `personal/_hyprland.nix` and `personal/_niri.nix`. Those two files mixed Noctalia's and walker's binds and layer rules, so removing either meant editing shared files. Each feature now carries its own: `walker.nix` inline, and `personal/noctalia/_{hyprland,niri}.nix` beside Noctalia's module. Removing a feature is deleting its file or folder and its line in `personal/default.nix`.
+
+Still outside `noctalia/`: the bar's shape in `visuals.nix` (shares the window corner radius), freya's M4 `power-cycle` bind and OLED bar auto-hide in `home/primary/freya.nix`, and the Sunshine drop-in in `hyprland/sunshine.nix`.
+
+The same applies outside the kit (`dolphin.nix`, `tools/wayscriber.nix`, `services/gpu-screen-recorder.nix`). A feature keeps its compositor settings inline under `lib.mkMerge`; a folder with `_hyprland.nix` and `_niri.nix` siblings is only for one already split into a folder, as `noctalia/` is for its plugins. Hyprland settings are not gated, since Home Manager renders them only where Hyprland is enabled; niri binds and Plasma hotkeys are gated on `options.programs ? niri` / `? plasma`, whose options exist only where those modules are imported. Their binds had been in every compositor's binds file, so hosts without the feature got dead keys (freya's SUPER+X ran the absent `save-gsr-replay`).
+
+## Addendum: niri-flake and plasma-manager on every host (2026-10-26)
+
+Supersedes the `options.programs ? niri` / `? plasma` gating above. Feature modules set `programs.niri.settings.*` and `programs.plasma.*` with no gate, like Hyprland settings.
+
+- **niri-flake** is imported for every NixOS host in `hosts/common/core/nixos/niri.nix`; the niri host module only enables it and pins `pkgs.niri`. Its home module has no enable switch and writes `config.kdl` (validated by building it with niri) whenever settings exist, so the core module forces `xdg.configFile.niri-config` off where `programs.niri.enable` is false. Its binary cache is off everywhere: it serves only niri-flake's builds, and we run nixpkgs' niri.
+- **plasma-manager** is a home-manager shared module for every NixOS user in `hosts/common/core/nixos/plasma-manager.nix`. Its file writer and hotkeys are gated on `programs.plasma.enable`, so it is inert elsewhere.
+- **safeeyes' niri game guard** used the options' existence to mean "this host runs niri"; it now reads `osConfig.programs.niri.enable`.
+
+### Alternatives rejected
+
+- **Import niri-flake's home module globally, keep its NixOS module on niri hosts:** that NixOS module adds the same anonymous home module through `sharedModules`, and a second import fails with "option already declared".
+- **nixpkgs' NixOS niri module plus a global niri-flake home module:** loses niri-flake's polkit agent, which niri sessions rely on, and its `defaultSession = mkDefault "niri"` collides with Plasma's on demon.
+- **Drop niri-flake for Home Manager's `wayland.windowManager.niri`:** loses typed settings and the stylix niri target, and means rewriting the niri config into untyped KDL attrs.
+- **Pass-through options (`desktop.binds.{niri,plasma}`):** a second name for each real option, untyped until it reaches the consumer.
+
+### Open
+
+- Eval time on hosts without niri or Plasma, which now load both option trees. Compare `time nix eval …freya…toplevel.drvPath` against the commit before.

@@ -1,10 +1,4 @@
-{
-  config,
-  lib,
-  pkgs,
-  ...
-}:
-lib.mkIf config.wayland.windowManager.hyprland.enable {
+{pkgs, ...}: {
   wayland.windowManager.hyprland.settings = {
     exec-once = [
       "waybar"

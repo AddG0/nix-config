@@ -2,14 +2,12 @@
   lib,
   pkgs,
   customPkgs,
-  inputs,
   self,
   ...
 }: {
   assertions = [(lib.hm.assertions.assertPlatform "home.desktops.plasma6" pkgs lib.platforms.linux)];
 
   imports = [
-    inputs.plasma-manager.homeModules.plasma-manager
     self.homeModules.plasma6
     ./stylix.nix
   ];
@@ -55,24 +53,6 @@
       name = "Launch Ghostty";
       key = "Meta+Alt+K";
       command = "ghostty";
-    };
-
-    hotkeys.commands."save-replay" = {
-      name = "Save Replay (Last 60s)";
-      key = "Meta+X";
-      command = "save-gsr-replay";
-    };
-
-    hotkeys.commands."stop-replay-buffer" = {
-      name = "Stop GPU Screen Recorder Replay Buffer";
-      key = "Meta+F10";
-      command = "systemctl --user stop gpu-screen-recorder-replay.service";
-    };
-
-    hotkeys.commands."start-replay-buffer" = {
-      name = "Start GPU Screen Recorder Replay Buffer";
-      key = "Meta+F11";
-      command = "systemctl --user start gpu-screen-recorder-replay.service";
     };
 
     hotkeys.commands."mic-toggle" = {

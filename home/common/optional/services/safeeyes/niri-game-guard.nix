@@ -1,13 +1,14 @@
-# niri's options exist only on hosts whose NixOS config enables it, hence the `options` check.
 {
   config,
   lib,
   options,
+  osConfig ? null,
   pkgs,
   ...
 }: {
   # gaming.windowClasses defines what a game is; a host without the gaming modules has nothing to guard.
-  config = lib.optionalAttrs (options.programs ? niri && options ? gaming) (lib.mkMerge [
+  # niri's options exist on every NixOS host, so ask the system whether it runs niri.
+  config = lib.optionalAttrs (options ? gaming) (lib.mkIf (osConfig.programs.niri.enable or false) (lib.mkMerge [
     # mk-guard binds to graphical-session.target, which every desktop starts.
     {
       systemd.user.services.safeeyes-niri-game-guard = {
@@ -37,5 +38,5 @@
           | grep --line-buffered -E '^\{"Window(OpenedOrChanged|Closed|sChanged)"' || true)
       '';
     })
-  ]);
+  ]));
 }

@@ -11,7 +11,5 @@
     ./walker.nix
     ./hyprlock.nix
     ./wallpaper-defaults.nix
-    ./_hyprland.nix
-    ./_niri.nix
   ];
 }

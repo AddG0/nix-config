@@ -2,8 +2,7 @@
   config,
   lib,
   ...
-}:
-lib.mkIf config.wayland.windowManager.hyprland.enable {
+}: {
   wayland.windowManager.hyprland = {
     # SUPER+W → visual picker (Quickshell). One thumbnail click sets that
     # wallpaper on the targeted monitor via wpaperctl and exits.

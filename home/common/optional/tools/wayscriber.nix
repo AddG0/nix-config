@@ -1,9 +1,13 @@
-{pkgs, ...}: {
+{
+  lib,
+  pkgs,
+  ...
+}: let
+  # NOT `pkill -SIGUSR1 wayscriber`: that also kills the same-named process-broker child.
+  toggle = ["${pkgs.wayscriber}/bin/wayscriber" "--daemon-toggle"];
+in {
   # Native Wayland screen annotation tool (replaces gromit-mpx on Wayland)
-  # Toggle with: wayscriber --daemon-toggle (NOT `pkill -SIGUSR1 wayscriber`,
-  # which also kills the same-named process-broker child and breaks toggles).
   # F1 = help | Escape = exit overlay | Ctrl+Z = undo | Ctrl+Y = redo
-
   # Run as a background daemon
   systemd.user.services.wayscriber = {
     Unit = {
@@ -27,4 +31,7 @@
     save_directory = "~/Pictures/Screenshots"
     filename_template = "%Y-%m-%d_%H-%M-%S"
   '';
+
+  wayland.windowManager.hyprland.settings.bind = ["SUPER,a,exec,${lib.concatStringsSep " " toggle}"];
+  programs.niri.settings.binds."Mod+A".action.spawn = toggle;
 }

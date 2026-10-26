@@ -1,9 +1,4 @@
-{
-  config,
-  lib,
-  ...
-}:
-lib.mkIf config.wayland.windowManager.hyprland.enable {
+_: {
   wayland.windowManager.hyprland.settings.bind = [
     "SUPER,escape,exec,pidof hyprlock || hyprlock"
   ];

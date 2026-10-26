@@ -278,4 +278,14 @@ in {
   };
 
   desktop.session.reload.commands.elephant = "systemctl --user try-restart elephant.service";
+
+  wayland.windowManager.hyprland = {
+    settings.bind = ["SUPER,space,exec,walker"];
+
+    # Scale up in place rather than slide from an edge. Only the style can be
+    # overridden per-layer — timing/curve still come from the global layersIn.
+    settings.layerrule = ["animation popin 88%, match:namespace walker"];
+  };
+
+  programs.niri.settings.binds."Mod+Space".action.spawn = "walker";
 }

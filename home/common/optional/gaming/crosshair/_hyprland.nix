@@ -21,17 +21,16 @@
     inherit lib pkgs customPkgs;
     focusedOutput = lib.getExe focusedOutput;
   };
-in
-  lib.mkIf config.wayland.windowManager.hyprland.enable {
-    wayland.windowManager.hyprland.settings = {
-      bind = ["SUPERSHIFT,c,exec,${lib.getExe toggle}"];
-      # - blur off: avoid Hyprland blurring the layer (see-through smear).
-      # - animation none: each reload destroys/recreates the surface; without
-      #   this, Hyprland slides it in from the screen edge on every monitor
-      #   switch.
-      layerrule = [
-        "blur off, match:namespace wlcrosshair"
-        "animation none, match:namespace wlcrosshair"
-      ];
-    };
-  }
+in {
+  wayland.windowManager.hyprland.settings = {
+    bind = ["SUPERSHIFT,c,exec,${lib.getExe toggle}"];
+    # - blur off: avoid Hyprland blurring the layer (see-through smear).
+    # - animation none: each reload destroys/recreates the surface; without
+    #   this, Hyprland slides it in from the screen edge on every monitor
+    #   switch.
+    layerrule = [
+      "blur off, match:namespace wlcrosshair"
+      "animation none, match:namespace wlcrosshair"
+    ];
+  };
+}

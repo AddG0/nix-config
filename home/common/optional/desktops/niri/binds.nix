@@ -1,4 +1,4 @@
-{pkgs, ...}: {
+_: {
   programs.niri.settings.binds = {
     # Terminal
     "Mod+Return".action.spawn = "ghostty";
@@ -93,19 +93,9 @@
     "Mod+Ctrl+Shift+Alt+Delete".action.quit = {};
 
     # Apps
-    "Ctrl+Alt+F".action.spawn = "dolphin";
     "Ctrl+Alt+V".action.spawn-sh = "ghostty -e $EDITOR";
-
-    # GPU Screen Recorder replay
-    "Mod+X".action.spawn = "save-gsr-replay";
-    "Mod+F10".action.spawn = ["systemctl" "--user" "stop" "gpu-screen-recorder-replay.service"];
-    "Mod+F11".action.spawn = ["systemctl" "--user" "start" "gpu-screen-recorder-replay.service"];
 
     # Take the focused window into the column on its left, or back out of it.
     "Mod+T".action.consume-or-expel-window-left = {};
-
-    # Screen annotation. NOT `pkill -SIGUSR1 wayscriber` — that also kills the
-    # process-broker child (same proc name, no SIGUSR1 handler), breaking toggles.
-    "Mod+A".action.spawn = ["${pkgs.wayscriber}/bin/wayscriber" "--daemon-toggle"];
   };
 }

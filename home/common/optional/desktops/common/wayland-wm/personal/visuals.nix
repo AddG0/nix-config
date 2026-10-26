@@ -40,7 +40,7 @@
   long = 3; # 300ms
   edgeGap = 8;
 in {
-  wayland.windowManager.hyprland.settings = lib.mkIf config.wayland.windowManager.hyprland.enable {
+  wayland.windowManager.hyprland.settings = {
     general = {
       border_size = 1;
       gaps_in = lib.mkForce 4;

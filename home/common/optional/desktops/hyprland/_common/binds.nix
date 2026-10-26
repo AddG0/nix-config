@@ -91,7 +91,6 @@ in {
       # Quick launch
       "SUPER,Return,exec,$term"
       "CTRL_ALT,v,exec,$term $EDITOR"
-      "CTRL_ALT,f,exec,dolphin"
 
       # Mic toggle (sound cue handled by mic-mute-sound.nix daemon)
       "SUPER,m,exec,${wpctl} set-mute @DEFAULT_AUDIO_SOURCE@ toggle"
@@ -162,10 +161,6 @@ in {
       "SUPERCTRLSHIFTALT,delete,exit,"
       "SUPERSHIFT,r,exec,${lib.getExe reloadScript}"
 
-      # Screen annotation. NOT `pkill -SIGUSR1 wayscriber` — that also kills the
-      # process-broker child (same proc name, no SIGUSR1 handler), breaking toggles.
-      "SUPER,a,exec,${pkgs.wayscriber}/bin/wayscriber --daemon-toggle"
-
       # ── Monitor Focus ──
       # SUPER+,/.            Focus monitor left/right
       "SUPER,comma,focusmonitor,l"
@@ -175,10 +170,6 @@ in {
       # Screenshot binds live in ./screenshots.nix, alongside a direct
       # slurp+grim pipeline that hides the SW cursor and active border
       # around the capture.
-
-      # ── GPU Screen Recorder ──
-      # SUPER+X              Save replay (last 60s)
-      "SUPER,x,exec,save-gsr-replay"
     ];
   };
 }

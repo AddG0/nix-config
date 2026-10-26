@@ -222,5 +222,8 @@ in {
     xdg.dataFile."user-places.xbel".text = userPlacesXbel;
 
     home.packages = [wrappedDolphin];
+
+    wayland.windowManager.hyprland.settings.bind = ["CTRL_ALT,f,exec,dolphin"];
+    programs.niri.settings.binds."Ctrl+Alt+F".action.spawn = "dolphin";
   };
 }

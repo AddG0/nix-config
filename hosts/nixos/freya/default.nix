@@ -32,6 +32,7 @@
     (with lib.custom.optional.hosts.nixos; [
       audio # pipewire and cli controls
       obs # obs
+      # nix-builders.client
       onepassword
       plymouth # fancy boot screen
       # secureboot
