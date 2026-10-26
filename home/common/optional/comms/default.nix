@@ -68,6 +68,9 @@
     "dt_color-theme-surf-inv-ter" = "${c.base02}80";
     "dt_color-theme-otl-pry" = c.base02;
     "dt_color-theme-otl-inv-pry" = c.base02;
+    # Boot skeleton tokens, set inline from the workspace's cached theme before the client loads.
+    "dt_color-plt-bootPrimary-5" = rgb "base00";
+    "dt_color-plt-bootHighlight1-0" = rgb "base01";
   };
 
   slackCss = ''
@@ -76,6 +79,8 @@
     * {
     ${lib.concatStrings (lib.mapAttrsToList (k: v: "  --${k}: ${v} !important;\n") slackColors)}}
     .p-theme_background { background: ${c.base00} !important; }
+    /* The boot skeleton's sidebar is an inline literal, which recolor.js never sees. */
+    .p-client_container_placeholder--sidebar { background-color: ${c.base01} !important; }
   '';
 
   # Slack ships its own webfont and palette; only a user-origin sheet outranks its `!important` rules.
