@@ -26,7 +26,7 @@ in {
   imports = [./options.nix];
 
   config = lib.mkMerge [
-    {programs.code-assistant-profiles.validators.opencode = import ./validator.nix {inherit config lib pkgs;};}
+    {programs.code-assistant-profiles.validators.opencode = import ./validator {inherit config lib pkgs;};}
 
     (lib.mkIf (codingCfg.enable && codingCfg.targets.opencode.enable) {
       programs.code-assistant-profiles.droppedFields.opencode = lib.mapAttrs (_: profile: (render profile).dropped) checkable;

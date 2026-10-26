@@ -1,4 +1,4 @@
-# opencode's own validators: `debug config` on the config dir, then its server's skill loading.
+# opencode's own loaders: its server's config and agent loading, then its skill loading.
 {
   config,
   lib,
@@ -24,7 +24,7 @@ in {
 
   script = package: ''
     before=$failed
-    validate opencode ${lib.escapeShellArg opencodeDir} ${package}/bin/opencode debug config
+    validate opencode ${lib.escapeShellArg opencodeDir} ${lib.getExe (import ./config-check.nix {inherit pkgs;})} ${package}/bin/opencode "$XDG_CONFIG_HOME/opencode"
     # Skill loading reads the same config first, so it would only repeat a config error.
     if [[ $failed -eq $before ]]; then
       validate opencode ${lib.escapeShellArg "${opencodeDir}/skills"} ${lib.getExe (import ./skill-check.nix {inherit pkgs;})} ${package}/bin/opencode "$XDG_CONFIG_HOME/opencode/skills"

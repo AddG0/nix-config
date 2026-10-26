@@ -39,7 +39,6 @@ in {
     package = opencodeWrapped;
     tui.theme = lib.mkDefault "catppuccin";
     settings.autoupdate = false;
-    settings.experimental.openTelemetry = telemetryEnabled;
     settings.provider.ollama = {
       # Models are discovered at runtime by the ollama-autodiscover plugin.
       npm = "@ai-sdk/openai-compatible";

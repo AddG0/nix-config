@@ -10,7 +10,11 @@
   rejectedByValidator = {
     opencode-colour = {
       module = {programs.opencode.agents.painter = "---\ndescription: Paints\ncolor: red\n---\nPaint.\n";};
-      expected = ["fixture-opencode-colour: opencode: .config/opencode: `opencode debug config`" ''got "red" color''];
+      expected = ["fixture-opencode-colour: opencode: .config/opencode: `opencode-config-check" "opencode dropped these agent files" "  painter"];
+    };
+    opencode-setting = {
+      module = {programs.opencode.settings.model = 5;};
+      expected = ["fixture-opencode-setting: opencode: .config/opencode: `opencode-config-check" "opencode reported these configuration problems:" "opencode.json $.model: skipped malformed recognized value"];
     };
     opencode-skill-yaml = {
       module = {programs.opencode.skills.broken = "---\nname: [unclosed\ndescription: Broken\n---\nBody.\n";};

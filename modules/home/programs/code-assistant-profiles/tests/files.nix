@@ -66,7 +66,7 @@ in
       "codex: .config/codex/config.toml: codex mcp list"
       "codex: .config/codex/alt.config.toml: codex --profile alt"
       "codex: .config/codex: codex doctor"
-      "opencode: .config/opencode: opencode debug config"
+      "opencode: .config/opencode: opencode-config-check"
       "opencode: .config/opencode/skills: opencode-skill-check"
     ]}; do
       if ! grep -qF -- "fixture-clean: $want" ${clean}; then
