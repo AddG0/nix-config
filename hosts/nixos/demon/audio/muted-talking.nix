@@ -55,14 +55,11 @@
     done
   '';
 in {
-  # ============================================================================
   # Muted-Talking Monitor
-  # ============================================================================
   # Alerts you when you try to speak while your microphone is muted.
   # Start manually with: muted-talking-enable
   # Stop with: muted-talking-disable
   # Check status: muted-talking-status
-  # ============================================================================
 
   environment.systemPackages = [
     mutedTalkingMonitor

@@ -105,9 +105,7 @@
     container = "mp4";
   };
 
-  #
-  # ========== Host-specific Monitor Spec ==========
-  #
+  # Host-specific Monitor Spec
   #  ------   ------
   # | DP-2 | | DP-3 | ----
   # | ASUS | |  LG  | |HDMI-A-1|

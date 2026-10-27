@@ -1,13 +1,10 @@
 _: {
-  # ============================================================================
   # Core Audio Configuration (demon-specific layer)
-  # ============================================================================
   # Base PipeWire/WirePlumber enablement, quality defaults, and the AirPods
   # A2DP-forcing WirePlumber hook come from the shared
   # common/optional/nixos/audio.nix (imported by this host). This file only adds
   # demon-only tweaks: real-time priority for the @audio group and the Hugo TT2
   # high-fidelity / suspend-resilience settings.
-  # ============================================================================
 
   # Grant audio group real-time priority and unlimited memory lock for low-latency audio
   security.pam.loginLimits = [

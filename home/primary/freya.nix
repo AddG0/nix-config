@@ -83,9 +83,7 @@
     };
   }) (builtins.filter (m: m.oled or false) config.display.monitors));
 
-  #
-  # ========== Host-specific Monitor Spec ==========
-  #
+  # Host-specific Monitor Spec
   # --------
   # | eDP-1 |
   # | 2560x1600@240Hz |

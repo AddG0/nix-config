@@ -41,9 +41,7 @@ in {
     on = "${niri} msg action power-on-monitors";
   };
 
-  #
-  # ========== Niri compositor ==========
-  #
+  # Niri compositor
   programs.niri.settings = {
     #
     # ---- Outputs (from config.display.monitors) ----

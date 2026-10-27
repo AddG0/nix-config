@@ -25,9 +25,7 @@ in {
   # Private config only; exported modules/ get theirs through importWithLocal.
   _module.args.customPkgs = pkgs.addg;
 
-  #
-  # ========== Core Host Specifications ==========
-  #
+  # Core Host Specifications
   hostSpec = {
     primaryUsername = lib.mkDefault "addg";
     handle = lib.mkDefault "addg";

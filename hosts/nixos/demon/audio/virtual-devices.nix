@@ -60,9 +60,7 @@
     ];
   };
 in {
-  # ============================================================================
   # Virtual Audio Devices
-  # ============================================================================
   # Creates the audio routing pipeline:
   #   Physical Mic → Noise Gate → Main Input Mixer
   #   Soundboard → Main Input Mixer
@@ -76,7 +74,6 @@ in {
   # A node feeding both the mixer and the DAC merges them into one driver group,
   # making the Scarlett follow the DAC clock — safe only while both are pinned to
   # the same rate (core.nix). Anything heard *and* sent to Discord plays two streams.
-  # ============================================================================
 
   services.pipewire = {
     extraConfig.pipewire = {

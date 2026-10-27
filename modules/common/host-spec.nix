@@ -6,9 +6,7 @@
   ...
 }: {
   options.hostSpec = {
-    # ============================================================================
     # User Information
-    # ============================================================================
     primaryUsername = lib.mkOption {
       type = lib.types.str;
       description = "The primary administrative username of the host";
@@ -46,9 +44,7 @@
       description = "The github email of the user";
     };
 
-    # ============================================================================
     # Host Information
-    # ============================================================================
     hostName = lib.mkOption {
       type = lib.types.str;
       description = "The hostname of the host";
@@ -83,9 +79,7 @@
       default = "/persist";
     };
 
-    # ============================================================================
     # Host Type and Characteristics
-    # ============================================================================
     hostType = lib.mkOption {
       type = lib.types.enum ["server" "desktop" "laptop"];
       default = "desktop";
@@ -110,9 +104,7 @@
       description = "Used to indicate a host that uses work resources";
     };
 
-    # ============================================================================
     # Graphics
-    # ============================================================================
     gpu = {
       offload = lib.mkOption {
         type = lib.types.nullOr (lib.types.enum ["nvidia" "amd"]);
@@ -126,9 +118,7 @@
       };
     };
 
-    # ============================================================================
     # Work Configuration
-    # ============================================================================
     # FIXME: Set an assert to make sure this is set if isWork is true
     work = lib.mkOption {
       default = {};
@@ -136,18 +126,14 @@
       description = "An attribute set of work-related information if isWork is true";
     };
 
-    # ============================================================================
     # Networking Configuration
-    # ============================================================================
     networking = lib.mkOption {
       default = {};
       type = lib.types.attrsOf lib.types.anything;
       description = "An attribute set of networking information";
     };
 
-    # ============================================================================
     # Deployment Configuration
-    # ============================================================================
     colmena = {
       enable = lib.mkOption {
         type = lib.types.bool;
@@ -162,9 +148,7 @@
       };
     };
 
-    # ============================================================================
     # Platform-specific Configuration
-    # ============================================================================
     # Sometimes we can't use pkgs.stdenv.hostPlatform.isLinux due to infinite recursion
     isDarwin = lib.mkOption {
       type = lib.types.bool;
@@ -186,26 +170,20 @@
       };
     };
 
-    # ============================================================================
     # Security and Secrets
-    # ============================================================================
     disableSops = lib.mkOption {
       type = lib.types.bool;
       default = false;
       description = "Used to disable sops for the host";
     };
 
-    # ============================================================================
     # System Configuration
-    # ============================================================================
     system.stateVersion = lib.mkOption {
       type = lib.types.str;
       description = "The state version of the host";
     };
 
-    # ============================================================================
     # Telemetry Configuration
-    # ============================================================================
     telemetry = {
       enabled = lib.mkOption {
         type = lib.types.bool;

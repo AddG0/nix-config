@@ -84,9 +84,7 @@
       command_not_found: { null }
     })
 
-    # ============================================================================
     # Custom Commands
-    # ============================================================================
 
     # Quick directory navigation with ls
     def --env cdl [path?: string] {
@@ -111,9 +109,7 @@
       print $"Backup created: ($file).backup_($timestamp)"
     }
 
-    # ============================================================================
     # Optional: Load community completions from Nix store
-    # ============================================================================
     # Uncomment the completions you want to use:
     #
     # source ${pkgs.nu_scripts}/share/nu_scripts/custom-completions/git/git-completions.nu

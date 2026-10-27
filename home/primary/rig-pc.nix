@@ -3,9 +3,7 @@
     (with lib.custom.optional.home.gaming; [minecraft])
   ];
 
-  #
-  # ========== Host-specific Monitor Spec ==========
-  #
+  # Host-specific Monitor Spec
   # MSI MPG 491C OLED, native mode. Only reaches the per-game gamescope wrapper —
   # the session picks the EDID's preferred timing (3840x1080@60) unless told otherwise.
   display.monitors = [

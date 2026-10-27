@@ -52,17 +52,13 @@
 in {
   imports = [./audit.nix];
 
-  # ==========================================================================
   # Firewall - k3s ports, open to cluster sources only
-  # ==========================================================================
   networking.firewall = {
     extraCommands = lib.concatMapStringsSep "\n" (rule: "iptables -A ${rule}") firewallRules;
     extraStopCommands = lib.concatMapStringsSep "\n" (rule: "iptables -D ${rule} || true") firewallRules;
   };
 
-  # ==========================================================================
   # Secrets
-  # ==========================================================================
   # The server token is cluster-admin and decrypts the etcd bootstrap data, so agents never hold it.
   sops.secrets = {
     k3sServerToken = lib.mkIf isServer {
@@ -76,9 +72,7 @@ in {
     };
   };
 
-  # ==========================================================================
   # k3s configuration
-  # ==========================================================================
   services.k3s = {
     enable = true;
     role = nodeRole;
@@ -123,7 +117,6 @@ in {
         "--disable=servicelb"
         "--disable=metrics-server"
         "--disable=local-storage"
-        "--disable-network-policy"
         "--disable-helm-controller"
         "--etcd-expose-metrics=true"
       ];
@@ -143,9 +136,25 @@ in {
     }
   ];
 
-  # ==========================================================================
+  # NetworkPolicy drop log
+  # kube-router sends each packet a NetworkPolicy drops to NFLOG group 100; Alloy ships the journal to Loki.
+  services.ulogd = {
+    enable = true;
+    settings = {
+      global = {
+        logfile = "stdout";
+        stack = ["log1:NFLOG,base1:BASE,ifi1:IFINDEX,ip2str1:IP2STR,print1:PRINTPKT,sys1:SYSLOG"];
+      };
+      log1.group = 100;
+      # ulogd refuses to start a plugin that has settings but no section, even at their defaults.
+      sys1 = {
+        facility = "LOG_LOCAL0";
+        level = "LOG_NOTICE";
+      };
+    };
+  };
+
   # Longhorn dependencies
-  # ==========================================================================
   environment.systemPackages = [pkgs.nfs-utils];
   services.openiscsi = {
     enable = true;

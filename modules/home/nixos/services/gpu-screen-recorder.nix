@@ -1,6 +1,4 @@
-# =============================================================================
 # GPU Screen Recorder - Replay Buffer Service
-# =============================================================================
 #
 # Runs gpu-screen-recorder as a systemd user service with an always-on replay
 # buffer. Saves the last N seconds of gameplay when triggered.
@@ -47,8 +45,6 @@
 #   Changes to matchMonitorName itself are handled automatically by a
 #   home-manager activation hook: it clears the cached portal token and
 #   restarts the replay service when the configured monitor changes.
-#
-# =============================================================================
 {
   config,
   lib,

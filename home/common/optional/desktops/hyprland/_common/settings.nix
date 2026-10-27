@@ -37,18 +37,18 @@ in {
         "TZDIR,/etc/zoneinfo"
       ];
 
-      # ========== Monitor ==========
+      # Monitor
       # monitorv2 applies after every monitor line, so a monitor line for a declared output is ignored.
       monitorv2 = map hyprLib.monitorv2 config.display.monitors;
       monitor = lib.optional config.display.defaultMonitor.enable ",preferred,auto,1";
 
-      # ========== Layout ==========
+      # Layout
       general = {
         gaps_in = 5;
         gaps_out = 10;
       };
 
-      # ========== Misc ==========
+      # Misc
       misc = {
         disable_hyprland_logo = true;
         disable_splash_rendering = true;
@@ -56,7 +56,7 @@ in {
 
       debug.disable_logs = false;
 
-      # ========== Input ==========
+      # Input
       input = {
         kb_layout = "us";
         kb_options = "caps:escape";
@@ -73,11 +73,11 @@ in {
         tablet.output = "current";
       };
 
-      # ========== Variables ==========
+      # Variables
       "$term" = "ghostty";
       "$browser" = "firefox";
 
-      # ========== Window Rules ==========
+      # Window Rules
       windowrule = [
         "float on, match:class ^(foot-float)$"
         "float on, match:class ^(yad|nm-connection-editor|pavucontrol)$"
@@ -106,7 +106,7 @@ in {
         "center 1, match:class ^(Spotify|spotify)$"
       ];
 
-      # ========== Exec Once ==========
+      # Exec Once
       # Set the X11 primary monitor so the Steam overlay picks the right
       # output/scale.
       exec-once =
