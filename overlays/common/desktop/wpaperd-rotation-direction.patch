@@ -1,0 +1,24 @@
+--- a/daemon/src/render/renderer.rs
++++ b/daemon/src/render/renderer.rs
+@@ -463,8 +463,8 @@
+         }
+         Transform::_90 => {
+             [
+-                0.0, -1.0,
+-                1.0, 0.0,
++                0.0, 1.0,
++                -1.0, 0.0,
+             ]
+         }
+         Transform::_180 => {
+@@ -475,8 +475,8 @@
+         }
+         Transform::_270 => {
+             [
+-                0.0, 1.0,
+-                -1.0, 0.0,
++                0.0, -1.0,
++                1.0, 0.0,
+             ]
+         }
+         Transform::Flipped => {
