@@ -18,6 +18,9 @@
   withInstructions,
   ...
 }: let
+  # A merged profile carries every entry kind, and the per-entry check reads each.
+  withAllKinds = raw: lib.genAttrs ["agents" "commands" "skills" "rules" "mcpServers" "lspServers"] (_: {}) // raw;
+
   derivationRootWithSkillMd = pkgs.linkFarm "reserved-resources" [
     {
       name = "SKILL.md";
@@ -247,6 +250,25 @@ in {
       "addon 'unused' MCP server 'm' sets `tolTimeout`, which is not an option"
       "addon 'unused' skill 's' reasoningEffort is \"huge\", which is not null or one of \"minimal\", \"low\", \"medium\", \"high\", \"xhigh\", \"max\", \"ultra\""
     ];
+  };
+  "test a profile whose typed entries all load reports no type problems" = {
+    expr = let
+      raw = withAllKinds {agents.a.prompt.text = "a";};
+    in
+      validation.profileTypeProblems "profile 'p'" (typed raw) raw;
+    expected = [];
+  };
+  "test a profile whose typed entry throws names that entry as the per-entry check does" = {
+    expr = let
+      raw = withAllKinds {
+        agents.a = {
+          prompt.text = "a";
+          maxTurns = "many";
+        };
+      };
+    in
+      validation.profileTypeProblems "profile 'p'" (typed raw) raw;
+    expected = ["profile 'p' agent 'a' maxTurns is \"many\", which is not null or signed integer"];
   };
   "test a badly typed profile field is an assertion under each target alone, for the default and any other profile" = {
     expr = lib.genAttrs targetNames (target:

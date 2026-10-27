@@ -58,7 +58,7 @@
     inherit message;
   };
 
-  fieldTypeProblems = lib.mapAttrs (name: validationModule.fieldTypeProblems "profile '${name}'") merged;
+  fieldTypeProblems = lib.mapAttrs (name: validationModule.profileTypeProblems "profile '${name}'" cfg.resolved.${name}) merged;
 
   # Checked on their own, so an entry nothing includes is still typed and an error names where it was declared.
   layerTypeProblems =

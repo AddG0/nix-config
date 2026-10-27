@@ -153,6 +153,12 @@
       sharedConfig.${kind}))
     entryLabels);
 
+  # The typed profile (`resolved`) already holds each entry's verdict, so only one whose entries throw is checked entry by entry to name them.
+  profileTypeProblems = scope: typed: merged:
+    if (builtins.tryEval (lib.all (kind: forced typed.${kind}) (lib.attrNames entryLabels))).success
+    then []
+    else fieldTypeProblems scope merged;
+
   validateSharedConfig = scope: sharedConfig:
     lib.flatten [
       (instructionsAssertions scope sharedConfig)
@@ -222,5 +228,5 @@
         sharedConfig.lspServers)
     ];
 in {
-  inherit collisionAssertions fieldTypeProblems includeCollisions typeProblems validateSharedConfig;
+  inherit collisionAssertions fieldTypeProblems includeCollisions profileTypeProblems typeProblems validateSharedConfig;
 }
