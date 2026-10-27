@@ -51,17 +51,19 @@
     ;
 
   monitorsJson = cm: ''
-    [{"name":"DP-3","activeWorkspace":{"id":6},"colorManagementPreset":"${cm}","disabled":false},
-     {"name":"HDMI-A-1","activeWorkspace":{"id":3},"colorManagementPreset":"srgb","disabled":false}]
+    [{"id":2,"name":"DP-3","activeWorkspace":{"id":6},"colorManagementPreset":"${cm}","disabled":false},
+     {"id":0,"name":"HDMI-A-1","activeWorkspace":{"id":3},"colorManagementPreset":"srgb","disabled":false}]
   '';
   game = {
     tags ? ''["game*"]'',
     fullscreen ? 2,
     xwayland ? true,
     workspace ? 6,
-  }: ''{"fullscreen":${toString fullscreen},"workspace":{"id":${toString workspace}},"xwayland":${lib.boolToString xwayland},"tags":${tags}}'';
+    class ? "steam_app_620",
+    pid ? "1",
+  }: ''{"address":"0xgame","class":"${class}","pid":${pid},"monitor":2,"fullscreen":${toString fullscreen},"workspace":{"id":${toString workspace}},"xwayland":${lib.boolToString xwayland},"tags":${tags}}'';
 in
-  pkgs.runCommand "sdr-game-mode-test" {nativeBuildInputs = [pkgs.coreutils pkgs.gnugrep];} ''
+  pkgs.runCommand "sdr-game-mode-test" {nativeBuildInputs = [pkgs.coreutils pkgs.gnugrep pkgs.socat];} ''
     set -euo pipefail
     export HYPRLAND_INSTANCE_SIGNATURE=test
 
@@ -75,6 +77,18 @@ in
       : > "$FIXTURE/commands.log"
       # No event socket in the sandbox, so the listener ends right after the first reconcile.
       ${lib.getExe switch} > "$FIXTURE/out.log" 2>&1 || true
+    }
+    # after_event <name> <event> <monitors.json> <clients.json>: Hyprland's state once the first reconcile has run.
+    after_event() {
+      mkdir -p "$1/run/hypr/test"
+      printf '%s' "$3" > "$1/monitors.after"
+      printf '%s' "$4" > "$1/clients.after"
+      # socat strips quotes from SYSTEM, so an echoed `>>` would become a redirect.
+      printf '%s\n' "$2" > "$1/event"
+      socat UNIX-LISTEN:"$1/run/hypr/test/.socket2.sock" SYSTEM:"cp $1/monitors.after $1/monitors.json; cp $1/clients.after $1/clients.json; cat $1/event" &
+      for _ in $(seq 100); do [ -S "$1/run/hypr/test/.socket2.sock" ] && return 0; sleep 0.05; done
+      echo "FAIL $1: the fake event socket never appeared" >&2
+      exit 1
     }
     expect_commands() {
       local got
@@ -104,6 +118,27 @@ in
     scenario wayland '${monitorsJson "hdr"}' '[${game {xwayland = false;}}]'
     expect_commands ""
 
+    # Stand-ins for gamescope: the daemon reads HDR off its command line.
+    sleep 60 & sdr_gamescope=$!
+    bash -c 'sleep 60; :' gamescope --hdr-enabled & hdr_gamescope=$!
+
+    echo "switches to sRGB for a game in a gamescope started without HDR"
+    scenario gamescope-sdr '${monitorsJson "hdr"}' '[${game {
+      xwayland = false;
+      class = "gamescope";
+      pid = "'\"$sdr_gamescope\"'";
+    }}]'
+    expect_commands "keyword monitor $sdr_rule"
+
+    echo "leaves the monitor in HDR for a game in a gamescope started with HDR"
+    scenario gamescope-hdr '${monitorsJson "hdr"}' '[${game {
+      xwayland = false;
+      class = "gamescope";
+      pid = "'\"$hdr_gamescope\"'";
+    }}]'
+    expect_commands ""
+    kill "$sdr_gamescope" "$hdr_gamescope"
+
     echo "leaves the monitor in HDR for a maximized game"
     scenario maximized '${monitorsJson "hdr"}' '[${game {fullscreen = 1;}}]'
     expect_commands ""
@@ -117,13 +152,33 @@ in
     expect_commands "dispatch moveworkspacetomonitor special:special HDMI-A-1
     keyword monitor $sdr_rule"
 
+    echo "keeps the monitor in sRGB when a notification takes the game out of fullscreen"
+    after_event unfullscreened 'fullscreen>>0' '${monitorsJson "srgb"}' '[${game {fullscreen = 0;}}]'
+    scenario unfullscreened '${monitorsJson "hdr"}' '[${game {}}]'
+    expect_commands "keyword monitor $sdr_rule
+    reload"
+
+    echo "restores HDR once the game that switched the monitor closes"
+    after_event closed 'closewindow>>0xgame' '${monitorsJson "srgb"}' '[]'
+    scenario closed '${monitorsJson "hdr"}' '[${game {}}]'
+    expect_commands "keyword monitor $sdr_rule
+    reload
+    reload"
+
+    echo "restores HDR once the game that switched the monitor moves to another monitor"
+    after_event moved 'movewindowv2>>0xgame,3,3' '${monitorsJson "srgb"}' '[{"address":"0xgame","monitor":0,"fullscreen":0,"workspace":{"id":3},"xwayland":true,"tags":["game*"]}]'
+    scenario moved '${monitorsJson "hdr"}' '[${game {}}]'
+    expect_commands "keyword monitor $sdr_rule
+    reload
+    reload"
+
     echo "reloads to restore HDR once no SDR game is fullscreen"
     scenario restore '${monitorsJson "srgb"}' '[]'
     expect_commands "reload
     reload"
 
     echo "never touches a monitor not declared HDR"
-    scenario sdr-monitor '[{"name":"HDMI-A-1","activeWorkspace":{"id":6},"colorManagementPreset":"srgb","disabled":false}]' '[${game {}}]'
+    scenario sdr-monitor '[{"id":0,"name":"HDMI-A-1","activeWorkspace":{"id":6},"colorManagementPreset":"srgb","disabled":false}]' '[${game {}}]'
     expect_commands ""
 
     echo "reports a rejected switch instead of claiming it switched"

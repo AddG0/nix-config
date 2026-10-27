@@ -3,6 +3,7 @@
   defaultCompatTool,
   gamemoderun,
   gamescope,
+  gamescopeHdr,
   mouseDpi,
   requireController,
   bakkesLauncher,
@@ -28,11 +29,13 @@
 
   # Had some issues with resolution not being correct or having an option to make it correct
   portal-2.wrappers = [gamemoderun] ++ gamescope;
+  # 32-bit D3D9: DXVK's 100 MB texture-mapping budget remaps textures on the main thread mid-game.
+  portal-2.env.DXVK_CONFIG = "d3d9.textureMemory = 0";
 
   # Wrap in gaemscope to fix weird fullscreen behavior
-  forza-horizon-4.wrappers = [gamemoderun] ++ gamescope;
-  forza-horizon-5.wrappers = [gamemoderun] ++ gamescope;
-  forza-horizon-6.wrappers = [gamemoderun] ++ gamescope;
+  forza-horizon-4.wrappers = [gamemoderun] ++ gamescopeHdr;
+  forza-horizon-5.wrappers = [gamemoderun] ++ gamescopeHdr;
+  forza-horizon-6.wrappers = [gamemoderun] ++ gamescopeHdr;
 
   # Wine's Wayland driver: an XWayland window can't carry HDR.
   overwatch.wrappers = mouseDpi 1800 ++ [gamemoderun "env" "PROTON_ENABLE_WAYLAND=1"];

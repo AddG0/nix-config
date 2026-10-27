@@ -1,6 +1,6 @@
 # Builds a gamescope prefix for Steam's wrappers, sized from the output
 # game-output resolved; it is not re-checked mid-game. Opt in per-game:
-# wrappers = [gamemoderun] ++ gamescope;
+# wrappers = [gamemoderun] ++ gamescope;  (gamescopeHdr for games that output HDR)
 # Skip for: anti-cheat (EAC), games needing the Steam overlay,
 # PROTON_ENABLE_WAYLAND=1 titles, and games you want to tile freely.
 # Nested Wayland backend on purpose: SDL freezes-until-resize on Hyprland+NVIDIA
@@ -8,7 +8,7 @@
 {
   lib,
   pkgs,
-}: extraArgs:
+}: {hdr}: extraArgs:
 lib.singleton (lib.getExe (pkgs.writeShellApplication {
   name = "gamescope-game";
   runtimeInputs = [pkgs.gamescope];
@@ -20,7 +20,7 @@ lib.singleton (lib.getExe (pkgs.writeShellApplication {
     [ -n "''${GAME_OUTPUT_W:-}" ] || exec "$@"
 
     hdr_arg=()
-    [ "$GAME_OUTPUT_HDR" = 1 ] && hdr_arg=(--hdr-enabled)
+    ${lib.optionalString hdr ''[ "$GAME_OUTPUT_HDR" = 1 ] && hdr_arg=(--hdr-enabled)''}
 
     exec gamescope -W "$GAME_OUTPUT_W" -H "$GAME_OUTPUT_H" \
       -w "$GAME_OUTPUT_W" -h "$GAME_OUTPUT_H" -r "$GAME_OUTPUT_R" -f \

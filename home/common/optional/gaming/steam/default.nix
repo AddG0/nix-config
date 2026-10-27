@@ -41,7 +41,8 @@
     inherit (config.display) monitors;
   };
   mkGamescope = import ./gamescope.nix {inherit lib pkgs;};
-  gamescope = mkGamescope [];
+  gamescope = mkGamescope {hdr = false;} [];
+  gamescopeHdr = mkGamescope {hdr = true;} [];
 
   mouseDpi = import ./mouse-dpi.nix {inherit lib pkgs razerEnabled;};
 
@@ -51,7 +52,7 @@
   requireController = import ./require-controller.nix {inherit lib pkgs;};
 
   ids = import ./ids.nix;
-  settings = import ./games.nix {inherit defaultCompatTool gamemoderun gamescope mouseDpi requireController bakkesLauncher;};
+  settings = import ./games.nix {inherit defaultCompatTool gamemoderun gamescope gamescopeHdr mouseDpi requireController bakkesLauncher;};
   unknownSlugs = lib.attrNames (removeAttrs settings (lib.attrNames ids));
   games =
     if unknownSlugs != []
