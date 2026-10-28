@@ -289,10 +289,14 @@
     '';
 
   # Apps outside a shell (t3code) get their agent from this, not the zsh hook.
-  sessionAgent = harness.check "ssh-default-agent-onepassword" (harness.values {
-    "test apps outside a shell get 1Password as their default agent" = {
+  sessionAgent = harness.check "ssh-default-agent" (harness.values {
+    "test apps outside a shell follow the tmux-attached client's agent" = {
+      expr = (hmFor "standard").programs.ssh.defaultAgent;
+      expected = "/home/tester/.ssh/ssh_auth_sock";
+    };
+    "test apps outside a shell keep the tmux link when 1Password serves the keys" = {
       expr = (hmFor "onePassword").programs.ssh.defaultAgent;
-      expected = "/home/tester/.1password/agent.sock";
+      expected = "/home/tester/.ssh/ssh_auth_sock";
     };
   });
 in

@@ -10,7 +10,9 @@
 in {
   options.programs.ssh.defaultAgent = lib.mkOption {
     type = lib.types.nullOr lib.types.str;
-    default = null;
+    # The tmux link, so a remote session signs with the forwarded agent, not this host's locked vault.
+    default = "${config.home.homeDirectory}/.ssh/ssh_auth_sock";
+    defaultText = lib.literalExpression ''"''${config.home.homeDirectory}/.ssh/ssh_auth_sock"'';
     description = ''
       Agent socket for apps that start with no SSH_AUTH_SOCK of their own.
       Opt-in per app, so the path is not advertised to the whole session.

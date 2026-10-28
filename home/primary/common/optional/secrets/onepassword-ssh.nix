@@ -29,7 +29,6 @@ in {
     };
 
     enableTraditionalAgent = false;
-    defaultAgent = agentPath;
   };
 
   # An SSH'd-in shell keeps a forwarded agent, and falls back to this one without;
