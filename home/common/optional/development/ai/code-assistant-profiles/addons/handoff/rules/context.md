@@ -1,1 +1,0 @@
-When a task changes phase or topic, say which applies, first match wins: same task with a small context, continue; a new or unrelated task, suggest `/clear`; the same task with a heavy context the next step barely needs, suggest `/handoff` and a fresh session; a self-contained investigation, hand it to a subagent instead of doing it inline; otherwise suggest `/compact`.
