@@ -89,14 +89,20 @@ in {
       default = true;
       description = ''
         Skip the rebuild when the remote flake is unchanged since the last
-        successful rebuild.
+        successful rebuild, or when the running system is ahead of it.
 
         Compares the remote's `locked.narHash` from `nix flake metadata --refresh`
-        against the one recorded after the last successful rebuild, so no build-time
-        revision needs passing in and whichever flake imports this module works.
-        A host with no recorded rebuild (e.g. freshly booted from an image) rebuilds once.
-        Runs as a systemd `ExecCondition`, so the unit is marked "skipped"
-        (not failed) when no update is needed.
+        against the one recorded after the last successful rebuild. A hand deploy
+        never updates that record, so the running system's
+        `system.configurationRevision` is also checked: the rebuild is skipped
+        unless the remote's history contains that commit and moves past it. A
+        deploy from an unpushed commit, or uncommitted work on top of the remote's
+        tip, stays until the remote catches up; uncommitted work on an older base
+        is replaced once the remote moves on.
+        A host with no recorded rebuild or revision (e.g. freshly booted from an
+        image) rebuilds once. Runs as a systemd `ExecCondition`, so the unit is
+        marked "skipped" (not failed) when no update is needed, and failed when
+        the remote's history cannot be fetched.
       '';
     };
 
@@ -178,13 +184,41 @@ in {
             export GIT_SSH_COMMAND="ssh -i ${cfg.sshKey} -o StrictHostKeyChecking=accept-new"
           ''}
 
-          remote=$(nix flake metadata "${cfg.flakeRef}" --refresh --json | jq -r '.locked.narHash')
+          metadata=$(nix flake metadata "${cfg.flakeRef}" --refresh --json)
+          remote=$(jq -r '.locked.narHash' <<<"$metadata")
+          remote_rev=$(jq -r '.locked.rev // empty' <<<"$metadata")
 
           if [ -f "${lastBuiltFile}" ] && [ "$(cat "${lastBuiltFile}")" = "$remote" ]; then
             echo "Remote flake unchanged since last rebuild ($remote); skipping."
             exit 1
           fi
-          echo "Remote flake changed or never built here ($remote); proceeding with rebuild."
+
+          # Exits 1 for a system built without a revision: then only the narHash above decides.
+          running=$(/run/current-system/sw/bin/nixos-version --configuration-revision 2>/dev/null) || running=""
+          base=''${running%-dirty}
+          if [ -n "$base" ] && [ -n "$remote_rev" ]; then
+            if [ "$base" = "$remote_rev" ]; then
+              echo "Running $running, built from the remote's current commit; skipping."
+              exit 1
+            fi
+            case "$(jq -r '.locked.type' <<<"$metadata")" in
+              github) git_url="https://github.com/$(jq -r '.locked.owner + "/" + .locked.repo' <<<"$metadata").git" ;;
+              *) git_url=$(jq -r '.locked.url // empty' <<<"$metadata") ;;
+            esac
+            history=$(mktemp -d)
+            trap 'rm -rf "$history"' EXIT
+            git -C "$history" init -q
+            # 255 fails the unit: a history it cannot read must not pass for "behind".
+            git -C "$history" fetch -q --filter=blob:none "$git_url" "$remote_rev" || {
+              echo "Cannot fetch $remote_rev from $git_url to compare with running $running."
+              exit 255
+            }
+            if ! git -C "$history" merge-base --is-ancestor "$base" "$remote_rev" 2>/dev/null; then
+              echo "Running $running is not in the remote's history (a hand deploy from an unpushed commit); skipping."
+              exit 1
+            fi
+          fi
+          echo "Remote flake changed ($remote_rev) and contains running ''${running:-unknown}; proceeding with rebuild."
           exit 0
         '';
       };

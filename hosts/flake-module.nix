@@ -32,6 +32,8 @@ in {
           modules = [
             ./common/core
             ./nixos/${host}
+            # git-sync compares this against the remote, so a hand deploy ahead of it is not rolled back.
+            {system.configurationRevision = inputs.self.rev or inputs.self.dirtyRev or null;}
           ];
         };
       };
