@@ -2,6 +2,7 @@
 {
   config,
   lib,
+  pkgs,
   ...
 }: let
   inherit (config.stylix) fonts;
@@ -35,6 +36,23 @@ in
 
     # Stylix's own switch for this (kded 6 still reads kded5rc) never reaches the session; left on, gtkconfig overwrites gtkrc and serves Plasma's scale to X11 apps.
     programs.plasma.configFile.kded5rc.Module-gtkconfig.autoload = false;
+
+    # OnlyShowIn=KDE for stylix's store-built autostart entry: plasma-apply-lookandfeel sets Plasma's Xft.dpi in other sessions too.
+    xdg.configFile."systemd/user/app-stylix\\x2dactivate\\x2dkde@autostart.service.d/only-kde.conf".text = ''
+      [Service]
+      ExecCondition=${pkgs.systemd}/lib/systemd/systemd-xdg-autostart-condition "KDE" ""
+    '';
+
+    # Same for its switch-time run, which inherits the session's DISPLAY.
+    home.activation = {
+      stylixHideDisplay = lib.hm.dag.entryBetween ["stylixLookAndFeel"] ["writeBoundary"] ''
+        stylixSavedDisplay=''${DISPLAY-}
+        unset DISPLAY
+      '';
+      stylixRestoreDisplay = lib.hm.dag.entryAfter ["stylixLookAndFeel"] ''
+        if [[ -n $stylixSavedDisplay ]]; then export DISPLAY=$stylixSavedDisplay; fi
+      '';
+    };
 
     # Stylix's qt target exports qtct+kvantum to every session, and plasmashell's QML can't load kvantum.
     xdg.configFile."plasma-workspace/env/qt-theme.sh" = lib.mkIf config.qt.enable {

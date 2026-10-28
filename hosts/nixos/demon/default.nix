@@ -83,6 +83,8 @@
     enable = true;
   };
 
+  programs.kdeconnect.enable = true;
+
   programs.gpu-screen-recorder.enable = true;
 
   services.hardware.openrgb = {

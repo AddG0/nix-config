@@ -19,6 +19,9 @@
   # Symlink timezone-hover plasmoid to XDG data directory so Plasma can find it
   xdg.dataFile."plasma/plasmoids/com.github.timezonehover".source = "${customPkgs.timezone-hover}/share/plasma/plasmoids/com.github.timezonehover";
 
+  # Its plasma-apply-cursortheme runs plasma-setup-xwayland, which pushes kwinrc's Xwayland scale into any session's Xft.dpi.
+  xdg.configFile."autostart/plasma-manager-autostart.desktop".text = lib.mkAfter "OnlyShowIn=KDE;";
+
   # FLAKE-UPDATE: drop once startkde/plasma-shutdown/shutdown.cpp stops graphical-session.target in a mode other than "fail".
   # A D-Bus-activated portal (Requisite=graphical-session.target) cancels that stop, so UWSM then refuses to start.
   xdg.configFile."plasma-workspace/shutdown/stop-graphical-session.sh" = {
