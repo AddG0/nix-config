@@ -13,8 +13,14 @@
   # Inert unless Steam's "Anti-Cheat Disabled" launch option is selected — a
   # manual choice; BakkesMod cannot inject into the EAC executable.
   rocket-league.wrappers = [(requireController "Rocket League") gamemoderun] ++ bakkesLauncher;
-  # I had multiplayer issues with the linux version. So I'm using the windows version.
-  portal-2.compatTool = defaultCompatTool;
+  portal-2 = {
+    # I had multiplayer issues with the linux version. So I'm using the windows version.
+    compatTool = defaultCompatTool;
+    # Had some issues with resolution not being correct or having an option to make it correct
+    wrappers = [gamemoderun] ++ gamescope;
+    # 32-bit D3D9: DXVK's 100 MB texture-mapping budget remaps textures on the main thread mid-game.
+    env.DXVK_CONFIG = "d3d9.textureMemory = 0";
+  };
   # Wouldn't let me install if this wasn't set
   conan-exiles.compatTool = defaultCompatTool;
   # Was not opening with linux version
@@ -26,11 +32,6 @@
   horizon-zero-dawn.wrappers = [gamemoderun] ++ gamescope;
 
   aimlabs.wrappers = mouseDpi 1600 ++ [gamemoderun];
-
-  # Had some issues with resolution not being correct or having an option to make it correct
-  portal-2.wrappers = [gamemoderun] ++ gamescope;
-  # 32-bit D3D9: DXVK's 100 MB texture-mapping budget remaps textures on the main thread mid-game.
-  portal-2.env.DXVK_CONFIG = "d3d9.textureMemory = 0";
 
   # Wrap in gaemscope to fix weird fullscreen behavior
   forza-horizon-4.wrappers = [gamemoderun] ++ gamescopeHdr;
