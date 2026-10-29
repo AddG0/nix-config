@@ -1,19 +1,16 @@
 {
   lib,
   self,
+  flakeDir ? null,
   osConfig ? null,
   ...
 }: let
-  # nixd evaluates these strings itself (lazily) to learn your option set, which
-  # is what makes hovering an option show its type + declared description (the
-  # module comments). They point at THIS flake via `self` — a /nix/store snapshot
-  # of the repo — rather than the editor's workspace dir. The upshot: option and
-  # package hover works in EVERY nix repo you open (nix-secrets, package flakes,
-  # a scratch dir, …), always resolved against your real config's full option
-  # universe, not just files that live inside this repo. Trade-off: it reflects
-  # the last rebuild, not uncommitted edits — fine for docs, and it avoids the
-  # slow "dirty tree" re-copy you'd get pointing at the live working tree.
-  flake = ''builtins.getFlake "${self}"'';
+  # nixd reads THIS flake (any repo you open gets its hover) at its last commit: `self`'s store path changes every edit, rebuilding nvim and the home.
+  rev = self.rev or (lib.removeSuffix "-dirty" (self.dirtyRev or ""));
+  flake =
+    if flakeDir != null && rev != ""
+    then ''builtins.getFlake "git+file://${flakeDir}?rev=${rev}"''
+    else ''builtins.getFlake "${self}"'';
 in {
   plugins.lsp.servers.nixd = {
     enable = true;

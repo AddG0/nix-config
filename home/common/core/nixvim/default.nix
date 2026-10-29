@@ -36,6 +36,8 @@ in {
     nixpkgs.useGlobalPackages = true;
     _module.args = {
       inherit self osConfig customPkgs;
+      # Where `self` is checked out, so nixd can read a commit of it instead of a per-edit store snapshot.
+      flakeDir = "${config.home.homeDirectory}/nix-config";
       colors = config.lib.stylix.colors.withHashtag;
       muted = config.lib.palette.muted;
       fonts = config.stylix.fonts;

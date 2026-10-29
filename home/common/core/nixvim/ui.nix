@@ -4,7 +4,6 @@
   muted,
   pkgs,
   customPkgs,
-  self,
   sshSettings ? {},
   ...
 }: let
@@ -404,7 +403,7 @@ in {
     {
       mode = "n";
       key = "<leader>sK";
-      action.__raw = ''function() vim.ui.open("${self}/docs/guides/nixvim-keybinds.html") end'';
+      action.__raw = ''function() vim.ui.open("${../../../../docs/guides/nixvim-keybinds.html}") end'';
       options.desc = "Keybind guide (browser)";
     }
   ];

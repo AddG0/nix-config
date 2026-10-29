@@ -79,10 +79,11 @@
   nvimFor = system:
     (inputs.nixvim.lib.evalNixvim {
       inherit system;
-      # `self` → nixd's nixpkgs expr; `osConfig = null` → nix.nix skips host hover.
+      # `self` → nixd's nixpkgs expr; `osConfig = null` → nix.nix skips host hover; `flakeDir = null` → nixd reads `self` itself.
       extraSpecialArgs = {
         inherit self;
         osConfig = null;
+        flakeDir = null;
       };
       modules =
         lib.custom.scanPaths ./common/core/nixvim
