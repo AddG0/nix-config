@@ -59,7 +59,7 @@ if [ "${TRACE}" = "true" ]; then
   TRACE_FLAG+=" --show-trace"
   switch_args+="--show-trace "
 fi
-switch_args+="--impure --flake .#${HOST} ${MODE}"
+switch_args+="--flake .#${HOST} ${MODE}"
 
 SUDO="sudo"
 [ "${MODE}" = "build" ] && SUDO=""
@@ -91,7 +91,7 @@ rebuild_darwin() {
       return 1
     fi
     log_debug "Using nh darwin command for rebuild (host: ${HOST})"
-    nh darwin ${MODE} . --hostname "${HOST}" --impure -- $TRACE_FLAG ${EXTRA_NIX_ARGS[@]+"${EXTRA_NIX_ARGS[@]}"}
+    nh darwin ${MODE} . --hostname "${HOST}" -- $TRACE_FLAG ${EXTRA_NIX_ARGS[@]+"${EXTRA_NIX_ARGS[@]}"}
   elif command_exists darwin-rebuild; then
     log_debug "Using darwin-rebuild with arguments: ${switch_args}"
     # Activation needs sudo; a plain build must not, or ./result ends up root-owned.
@@ -123,7 +123,7 @@ rebuild_linux() {
   export SUDO_NOTIFY_HOST="${HOST}"
   if command_exists nh && [ "${USE_NH:-true}" = "true" ]; then
     log_debug "Using nh command for rebuild (host: ${HOST})"
-    nh os ${MODE} . --hostname "${HOST}" -e "${notify_sudo}" --impure -- $TRACE_FLAG ${EXTRA_NIX_ARGS[@]+"${EXTRA_NIX_ARGS[@]}"}
+    nh os ${MODE} . --hostname "${HOST}" -e "${notify_sudo}" -- $TRACE_FLAG ${EXTRA_NIX_ARGS[@]+"${EXTRA_NIX_ARGS[@]}"}
   else
     log_debug "Using sudo nixos-rebuild with arguments: ${switch_args}"
     ${SUDO:+"${notify_sudo}"} nixos-rebuild ${switch_args} ${EXTRA_NIX_ARGS[@]+"${EXTRA_NIX_ARGS[@]}"}
