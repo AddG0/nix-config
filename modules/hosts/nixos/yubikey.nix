@@ -158,6 +158,7 @@ in {
         # Tap-to-auth at tuigreet
         # Disabled for systems that have password login since I don't want to reenter the password on the use session to unlock the keyring
         greetd.u2fAuth = lib.mkIf config.services.greetd.enable false;
+        sddm.u2fAuth = lib.mkIf config.services.displayManager.sddm.enable false;
 
         # Dedicated PAM service used by the autoScreenUnlock helper. Contains
         # only pam_u2f so pamtester can perform a tap-only credential check

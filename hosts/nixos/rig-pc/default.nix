@@ -30,8 +30,8 @@
     ])
     (with lib.custom.optional.hosts.nixos.services; [
       bluetooth # wireless controller pairing
+      display-managers.tuigreet # autologins into Gaming Mode
       earlyoom
-      greetd # autologins into Gaming Mode
       openssh
     ])
   ];

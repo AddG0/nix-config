@@ -55,8 +55,8 @@
       automatic-timezoned
       bluetooth
       # bt-proximity
+      display-managers.tuigreet
       earlyoom
-      greetd
       ollama
       openssh # allow remote SSH access
       openvpn

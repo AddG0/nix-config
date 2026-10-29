@@ -1,17 +1,12 @@
-#
-# greeter -> tuigreet https://github.com/apognu/tuigreet?tab=readme-ov-file
-# display manager -> greetd https://man.sr.ht/~kennylevinsen/greetd/
-#
+# greetd for the greeter modules that import it; each sets default_session.command. https://man.sr.ht/~kennylevinsen/greetd/
 {
   config,
-  pkgs,
   lib,
   ...
 }: let
   dm = config.services.displayManager;
   # greetd ignores defaultSession and autoLogin, so they reach it as a start-session command.
   session = dm.sessionData.autologinSession;
-  sessionCommand = "${lib.getExe config.desktops.startSession} ${session}";
 in {
   config = {
     assertions = [
@@ -34,16 +29,10 @@ in {
 
       restart = true;
       settings = {
-        # tuigreet is the fallback greeter, set at mkOptionDefault (weaker than
-        # mkDefault) so any imported greeter module (e.g. noctalia-greeter,
-        # whose command is at mkDefault) wins without touching this file.
-        default_session = {
-          command = lib.mkOptionDefault "${pkgs.tuigreet}/bin/tuigreet --asterisks --remember --time --time-format '%I:%M %p | %a • %h | %F' --cmd '${sessionCommand}'";
-          user = config.hostSpec.primaryUsername;
-        };
+        default_session.user = config.hostSpec.primaryUsername;
 
         initial_session = lib.mkIf dm.autoLogin.enable {
-          command = sessionCommand;
+          command = "${lib.getExe config.desktops.startSession} ${session}";
           inherit (dm.autoLogin) user;
         };
       };

@@ -56,8 +56,8 @@
       automatic-timezoned
       bluetooth
       bt-proximity
+      display-managers.tuigreet
       earlyoom
-      greetd
       # home-assistant
       openssh # allow remote SSH access
       # openvpn # home VPN

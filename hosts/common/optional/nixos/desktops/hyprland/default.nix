@@ -57,11 +57,14 @@ in {
   services.gnome.gnome-keyring.enable = true;
   # The keyring drags gcr's agent in, which set-environments over 1Password for non-shell apps.
   services.gnome.gcr-ssh-agent.enable = false;
-  security.pam.services.greetd.enableGnomeKeyring = lib.mkIf config.services.greetd.enable true;
-  # Have hyprlock release the keyring on unlock, mirroring greetd at login.
-  # Without this the keyring stays locked across screen lock cycles and any
-  # app holding a secret (1Password, network secrets, etc.) silently fails
-  # until the user opens seahorse to type the password again.
-  #   https://discourse.nixos.org/t/automatically-unlock-gnome-keyring-with-hyprlock/54166
-  security.pam.services.hyprlock.enableGnomeKeyring = true;
+  security.pam.services = {
+    greetd.enableGnomeKeyring = lib.mkIf config.services.greetd.enable true;
+    sddm.enableGnomeKeyring = lib.mkIf config.services.displayManager.sddm.enable true;
+    # Have hyprlock release the keyring on unlock, mirroring greetd at login.
+    # Without this the keyring stays locked across screen lock cycles and any
+    # app holding a secret (1Password, network secrets, etc.) silently fails
+    # until the user opens seahorse to type the password again.
+    #   https://discourse.nixos.org/t/automatically-unlock-gnome-keyring-with-hyprlock/54166
+    hyprlock.enableGnomeKeyring = true;
+  };
 }

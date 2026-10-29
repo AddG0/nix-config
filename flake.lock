@@ -3336,6 +3336,7 @@
         "pterodactyl-addons": "pterodactyl-addons",
         "queued-build-hook": "queued-build-hook",
         "rust-overlay": "rust-overlay_4",
+        "silent-sddm": "silent-sddm",
         "sops-nix": "sops-nix",
         "spicetify-nix": "spicetify-nix",
         "steam-config-nix": "steam-config-nix",
@@ -3584,6 +3585,26 @@
         "ref": "develop",
         "type": "git",
         "url": "ssh://git@gitlab.com/ShipperHQ/internal-tooling-2026/dev-environments/shq-env.git"
+      }
+    },
+    "silent-sddm": {
+      "inputs": {
+        "nixpkgs": [
+          "nixpkgs"
+        ]
+      },
+      "locked": {
+        "lastModified": 1791819358,
+        "narHash": "sha256-dFDDy25he3SkDOck7hG8AKY82SpnagW7o2sPJA6VBXQ=",
+        "owner": "uiriansan",
+        "repo": "SilentSDDM",
+        "rev": "d477613b07ca13729af20cb4699b308ac7348d2f",
+        "type": "github"
+      },
+      "original": {
+        "owner": "uiriansan",
+        "repo": "SilentSDDM",
+        "type": "github"
       }
     },
     "sops-nix": {

@@ -68,11 +68,10 @@
     (with lib.custom.optional.hosts.nixos.services; [
       bluetooth
       clamav
+      display-managers.silent-sddm
       earlyoom
       gpu-worker
-      greetd
       lact # GPU overclocking/monitoring
-      noctalia-greeter
       ollama
       openssh # allow remote SSH access
       tailscale # mesh VPN for secure remote access

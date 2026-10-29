@@ -1,13 +1,7 @@
-# noctalia-greeter — greetd login screen matching the Noctalia shell.
-#
-# greetd is a generic dependency (./greetd.nix), so importing *this* module is
-# itself the signal that you want the noctalia greeter — there's no separate
-# toggle. The upstream module builds default_session.command from the options
-# below (at mkDefault); ./greetd.nix sets tuigreet's command at the weaker
-# mkOptionDefault, so importing this lets the greeter's command win.
+# noctalia-greeter on greetd as the login screen, matching the Noctalia shell.
 #
 # We only override default_session.user: upstream reads it but doesn't set it,
-# and tuigreet runs as the primary user — the greeter must run as `greeter`.
+# and ./_greetd.nix defaults it to the primary user — the greeter must run as `greeter`.
 #
 # Wallpaper / output layout / default_user live in
 # /var/lib/noctalia-greeter/greeter.conf, populated by the shell's "Sync Now"
@@ -25,7 +19,10 @@
     then systemCursor
     else config.home-manager.users.${config.hostSpec.primaryUsername}.stylix.cursor or null;
 in {
-  imports = [inputs.noctalia-greeter.nixosModules.default];
+  imports = [
+    inputs.noctalia-greeter.nixosModules.default
+    ./_greetd.nix
+  ];
 
   services.displayManager.noctalia-greeter = {
     enable = true;
