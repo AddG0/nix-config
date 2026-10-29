@@ -22,7 +22,7 @@ in {
   pluginDir = dir:
     if enabled && lib.hasPrefix "${builtins.storeDir}/" (toString dir)
     then
-      pkgs.runCommand "claude-plugin-${lib.strings.sanitizeDerivationName (baseNameOf (toString dir))}" {} ''
+      pkgs.runCommandLocal "claude-plugin-${lib.strings.sanitizeDerivationName (baseNameOf (toString dir))}" {} ''
         ${validate dir}
         ln -s ${dir} "$out"
       ''

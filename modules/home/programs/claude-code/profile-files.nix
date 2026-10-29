@@ -5,7 +5,11 @@
   pluginCheck,
   resolvedProfiles,
 }: let
-  jsonFormat = pkgs.formats.json {};
+  # Rendered config embeds this home's own values, so asking binary caches for it only waits on misses.
+  jsonFormat = let
+    json = pkgs.formats.json {};
+  in
+    json // {generate = name: value: (json.generate name value).overrideAttrs {allowSubstitutes = false;};};
 
   renderSettings = settings: let
     hooks = claudeSettingsHooks.render (settings.hooks or {});
@@ -17,7 +21,7 @@
     json = jsonFormat.generate "claude-settings.json" (
       settings // {"$schema" = "https://json.schemastore.org/claude-code-settings.json";}
     );
-  in "${pkgs.runCommand "claude-settings" {} "mkdir $out && cp ${json} $out/settings.json"}/settings.json";
+  in "${pkgs.runCommandLocal "claude-settings" {} "mkdir $out && cp ${json} $out/settings.json"}/settings.json";
 
   mkFileEntry = content:
     if lib.isPath content || lib.isDerivation content
@@ -31,7 +35,7 @@
       description = "Language servers declared in Nix.";
     };
   in
-    pkgs.runCommand "claude-lsp-plugin-${name}.json" {} ''
+    pkgs.runCommandLocal "claude-lsp-plugin-${name}.json" {} ''
       mkdir -p plugin/.claude-plugin
       cp ${jsonFormat.generate "claude-lsp.json" servers} plugin/.lsp.json
       cp ${manifest} plugin/.claude-plugin/plugin.json

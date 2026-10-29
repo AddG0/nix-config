@@ -72,7 +72,11 @@
     lspServers = {};
   };
 
-  tomlFormat = pkgs.formats.toml {};
+  # Rendered agents embed this home's own values, so asking binary caches for them only waits on misses.
+  tomlFormat = let
+    toml = pkgs.formats.toml {};
+  in
+    toml // {generate = name: value: (toml.generate name value).overrideAttrs {allowSubstitutes = false;};};
 
   withExtra = withExtraFor "codex";
 

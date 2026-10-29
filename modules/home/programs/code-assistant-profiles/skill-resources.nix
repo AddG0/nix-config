@@ -31,7 +31,7 @@ in {
     skillMd,
     extraCommands ? "",
   }:
-    pkgs.runCommand "${tool}-skill-${lib.strings.sanitizeDerivationName name}" {} (''
+    pkgs.runCommandLocal "${tool}-skill-${lib.strings.sanitizeDerivationName name}" {} (''
         mkdir -p "$out"
       ''
       + lib.optionalString (resourcesRoot != null) ''

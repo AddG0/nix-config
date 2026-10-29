@@ -83,7 +83,7 @@
     resourcesRoot =
       if hasExtras
       then
-        pkgs.runCommand "claude-skill-resources" {} ''
+        pkgs.runCommandLocal "claude-skill-resources" {} ''
           mkdir -p "$out"
           cp -R "${source'}/." "$out/"
           rm -f "$out/SKILL.md"
