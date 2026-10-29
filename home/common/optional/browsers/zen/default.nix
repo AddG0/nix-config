@@ -31,6 +31,8 @@ in {
       settings = {
         # Without this, quitting Zen can wipe zen-live-folders.jsonlz4 on save.
         "zen.window-sync.enabled" = true;
+        # This syncs all my tabs again like it used to
+        "zen.window-sync.sync-only-pinned-tabs" = false;
         # Workspaces
         "zen.workspaces.disabled_for_testing" = false;
         "zen.workspaces.hide-deactivated-workspaces" = false;

@@ -44,9 +44,6 @@
   # 2000 DPI + in-game sens 2 reproduces the Aim Lab cm/360 (0.52% off).
   cyberpunk-2077.wrappers = mouseDpi 2000 ++ [gamemoderun];
 
-  lethal-company.keepHdr = true;
-  repo.keepHdr = true;
-
   # Bigscreen Beyond Utility — Windows-only app for adjusting the
   # headset's fan, brightness, refresh rate, and LED color.
   # Intentionally minimal: PROTON_ENABLE_HIDRAW is documented but
