@@ -13,6 +13,7 @@ source "$(dirname "${BASH_SOURCE[0]}")/helpers.sh"
 #  host           Host name; if not provided, defaults to the output of hostname.
 #  nix args...    Any positional args after the host are forwarded verbatim to
 #                 nixos-rebuild/nh (e.g. --option substitute false, --fast).
+#  NOM=true       Show nh's nom build tree; off by default, its log parsing throttles chatty builds.
 
 usage() {
   echo "Usage: $0 [-h] [-t] [-v] [-m mode] [host] [-- nix args...]"
@@ -91,7 +92,9 @@ rebuild_darwin() {
       return 1
     fi
     log_debug "Using nh darwin command for rebuild (host: ${HOST})"
-    nh darwin ${MODE} . --hostname "${HOST}" -- $TRACE_FLAG ${EXTRA_NIX_ARGS[@]+"${EXTRA_NIX_ARGS[@]}"}
+    local nom_args=(--no-nom)
+    [ "${NOM:-false}" = "true" ] && nom_args=()
+    nh darwin ${MODE} . --hostname "${HOST}" ${nom_args[@]+"${nom_args[@]}"} -- $TRACE_FLAG ${EXTRA_NIX_ARGS[@]+"${EXTRA_NIX_ARGS[@]}"}
   elif command_exists darwin-rebuild; then
     log_debug "Using darwin-rebuild with arguments: ${switch_args}"
     # Activation needs sudo; a plain build must not, or ./result ends up root-owned.
@@ -118,19 +121,38 @@ max-jobs = auto" nix run nix-darwin -- ${switch_args} ${EXTRA_NIX_ARGS[@]+"${EXT
 rebuild_linux() {
   log_info "Starting Linux rebuild"
   log_info "====== REBUILD ======"
-  local notify_sudo
-  notify_sudo="$(realpath "$(dirname "${BASH_SOURCE[0]}")")/sudo-notify/sudo"
+  local notify_dir
+  notify_dir="$(realpath "$(dirname "${BASH_SOURCE[0]}")")/sudo-notify"
   export SUDO_NOTIFY_HOST="${HOST}"
-  if command_exists nh && [ "${USE_NH:-true}" = "true" ]; then
-    log_debug "Using nh command for rebuild (host: ${HOST})"
-    nh os ${MODE} . --hostname "${HOST}" -e "${notify_sudo}" -- $TRACE_FLAG ${EXTRA_NIX_ARGS[@]+"${EXTRA_NIX_ARGS[@]}"}
-  else
-    log_debug "Using sudo nixos-rebuild with arguments: ${switch_args}"
-    ${SUDO:+"${notify_sudo}"} nixos-rebuild ${switch_args} ${EXTRA_NIX_ARGS[@]+"${EXTRA_NIX_ARGS[@]}"}
+  if [ "${NOM:-false}" = "true" ] && command_exists nh && [ "${USE_NH:-true}" = "true" ]; then
+    log_debug "Using nh with nom for rebuild (host: ${HOST})"
+    nh os ${MODE} . --hostname "${HOST}" -e "${notify_dir}/sudo" -- $TRACE_FLAG ${EXTRA_NIX_ARGS[@]+"${EXTRA_NIX_ARGS[@]}"}
+    return
   fi
+
+  # --fast only stops nixos-rebuild re-executing itself, which --store-path never does.
+  local nix_args=() arg
+  for arg in ${EXTRA_NIX_ARGS[@]+"${EXTRA_NIX_ARGS[@]}"}; do
+    [ "$arg" = "--fast" ] || nix_args+=("$arg")
+  done
+
+  local built=$SECONDS out
+  out=$(nix build --no-link --print-out-paths ".#nixosConfigurations.${HOST}.config.system.build.toplevel" $TRACE_FLAG ${nix_args[@]+"${nix_args[@]}"})
+  log_info "Built in $((SECONDS - built))s"
+  if [ "${MODE}" = "build" ]; then
+    log_info "Built ${out}"
+    return
+  fi
+
+  if ! nix run nixpkgs#dix -- /run/current-system "${out}"; then
+    log_warning "Could not diff /run/current-system against ${out}; activating anyway"
+  fi
+  # nixos-rebuild elevates with the first sudo on PATH; sudo-notify pings the desktop while its prompt waits.
+  PATH="${notify_dir}:${PATH}" nixos-rebuild "${MODE}" --store-path "${out}" --elevate sudo
 }
 
 # Execute the rebuild command
+REBUILD_START=$SECONDS
 if [ "$(uname -s)" == "Darwin" ]; then
   rebuild_darwin
 else
@@ -138,7 +160,7 @@ else
 fi
 
 is_git_repo && log_info "====== POST‑REBUILD ======"
-log_info "Rebuilt successfully"
+log_info "Rebuilt successfully in $((SECONDS - REBUILD_START))s"
 
 # Check for pending git changes before tagging the commit as buildable.
 if is_git_repo && git diff --exit-code >/dev/null && git diff --staged --exit-code >/dev/null; then

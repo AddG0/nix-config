@@ -84,20 +84,21 @@ alias r := rebuild
 # one has moved, pulls upstream commits that trigger rebuilds you did not ask for.
 [script]
 [group('system')]
-[doc("Rebuild system configuration (--boot to only set next boot, --test for temporary, --show-trace for debug, --fast to skip rebuilding nixos-rebuild, --verbose for debug output, -u to refresh personal flake inputs first; extra nix flags after `--`)")]
+[doc("Rebuild system configuration (--boot to only set next boot, --test for temporary, --show-trace for debug, --fast to skip rebuilding nixos-rebuild, --verbose for debug output, --nom for nh's build tree, -u to refresh personal flake inputs first; extra nix flags after `--`)")]
 [arg("boot", long, value="boot")]
 [arg("test", long, value="test")]
 [arg("show-trace", long, value="true")]
 [arg("fast", long, value="true")]
 [arg("verbose", long, value="true")]
 [arg("use-nh", long="no-nh", value="false")]
+[arg("nom", long, value="true")]
 [arg("update-inputs", short="u", long="update-inputs", value="true")]
-rebuild hostname="" boot="switch" test="false" show-trace="false" fast="false" verbose="false" use-nh=USE_NH_DEFAULT update-inputs="false" *nix_args="": pre
+rebuild hostname="" boot="switch" test="false" show-trace="false" fast="false" verbose="false" use-nh=USE_NH_DEFAULT nom="false" update-inputs="false" *nix_args="": pre
   set -euo pipefail
   if [ "{{update-inputs}}" = "true" ]; then
     just rebuild-pre
   fi
-  USE_NH={{use-nh}} scripts/rebuild.sh {{ if show-trace == "true" { "-t" } else { "" } }} {{ if verbose == "true" { "-v" } else { "" } }} -m {{ if test == "test" { "test" } else { boot } }} "{{hostname}}" {{ if fast == "true" { "--fast" } else { "" } }} {{nix_args}}
+  USE_NH={{use-nh}} NOM={{nom}} scripts/rebuild.sh {{ if show-trace == "true" { "-t" } else { "" } }} {{ if verbose == "true" { "-v" } else { "" } }} -m {{ if test == "test" { "test" } else { boot } }} "{{hostname}}" {{ if fast == "true" { "--fast" } else { "" } }} {{nix_args}}
 
 [script]
 [group('system')]
@@ -106,13 +107,14 @@ rebuild hostname="" boot="switch" test="false" show-trace="false" fast="false" v
 [arg("fast", long, value="true")]
 [arg("verbose", long, value="true")]
 [arg("use-nh", long="no-nh", value="false")]
+[arg("nom", long, value="true")]
 [arg("update-inputs", short="u", long="update-inputs", value="true")]
-build hostname="" show-trace="false" fast="false" verbose="false" use-nh=USE_NH_DEFAULT update-inputs="false" *nix_args="": pre
+build hostname="" show-trace="false" fast="false" verbose="false" use-nh=USE_NH_DEFAULT nom="false" update-inputs="false" *nix_args="": pre
   set -euo pipefail
   if [ "{{update-inputs}}" = "true" ]; then
     just rebuild-pre
   fi
-  USE_NH={{use-nh}} scripts/rebuild.sh {{ if show-trace == "true" { "-t" } else { "" } }} {{ if verbose == "true" { "-v" } else { "" } }} -m build "{{hostname}}" {{ if fast == "true" { "--fast" } else { "" } }} {{nix_args}}
+  USE_NH={{use-nh}} NOM={{nom}} scripts/rebuild.sh {{ if show-trace == "true" { "-t" } else { "" } }} {{ if verbose == "true" { "-v" } else { "" } }} -m build "{{hostname}}" {{ if fast == "true" { "--fast" } else { "" } }} {{nix_args}}
 
 alias hm := home
 
