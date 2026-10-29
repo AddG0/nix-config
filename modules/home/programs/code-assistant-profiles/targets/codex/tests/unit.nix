@@ -5,7 +5,7 @@
   pkgs,
   ...
 }: let
-  inherit (import ./_cases.nix {inherit harness lib pkgs;}) ownVersions ownVersionsProfile takenVariantName variantSkill clashingEntries codexAgents codexAgentsConfig codexEvents evalCodingConfig codexHookConfig codexHookTargets codexHooked codexMcp codexProfiles codexSkills disabledWithHooks disabledWithoutHooks evalProfiles failedOf fixtureBody fixtureFile forced invocationProfile multiParent ownEntries sameAsDefault scopedProfileOverBudget spec toCodex;
+  inherit (import ./_cases.nix {inherit harness lib pkgs;}) ownVersions ownVersionsProfile takenVariantName variantSkill clashingEntries codexAgents codexAgentsConfig codexEvents codexHookConfig codexHookTargets codexHooked codexMcp codexProfiles codexSkills disabledWithHooks disabledWithoutHooks evalProfiles failedOf fixtureBody fixtureFile forced invocationProfile multiParent ownEntries sameAsDefault scopedProfileOverBudget spec toCodex;
 in {
   "test codex writes an inline skill under ~/.agents/skills" = {
     expr = codexSkills.home.file ? ".agents/skills/inline";

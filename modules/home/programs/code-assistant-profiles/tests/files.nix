@@ -10,7 +10,12 @@
   clean = validatorRun "clean" {};
 
   # writableConfig merges config.toml and each profile's file at activation; the check must still run over all of them.
-  mutableClean = validatorRun "codex-mutable-clean" {programs.codex.writableConfig = true;};
+  mutableClean = validatorRun "codex-mutable-clean" {
+    programs.codex = {
+      writableConfig = true;
+      settings.approval_policy = "on-request"; # without settings upstream declares no config.toml to merge (ADR 0009)
+    };
+  };
 
   # A disabled file reaches the fake $HOME only when its validator lists it as merged; the build fails otherwise.
   mergedProbe = let

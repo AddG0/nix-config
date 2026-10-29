@@ -8,24 +8,43 @@
   # Activation scripts bake in absolute paths, so the test rewrites this prefix to its build dir.
   home = "/codex-test-home";
 
+  homeModules = preferXdgDirectories: codexConfig: [
+    ../default.nix
+    {
+      home = {
+        username = "t";
+        homeDirectory = home;
+        stateVersion = "25.05";
+        inherit preferXdgDirectories;
+      };
+      programs.codex = {enable = true;} // codexConfig;
+    }
+  ];
   evalHomeWith = preferXdgDirectories: codexConfig:
     (self.inputs.home-manager.lib.homeManagerConfiguration {
       inherit pkgs;
-      modules = [
-        ../default.nix
-        {
-          home = {
-            username = "t";
-            homeDirectory = home;
-            stateVersion = "25.05";
-            inherit preferXdgDirectories;
-          };
-          programs.codex = {enable = true;} // codexConfig;
-        }
-      ];
+      modules = homeModules preferXdgDirectories codexConfig;
     })
     .config;
   evalHome = evalHomeWith true;
+
+  # homeManagerConfiguration throws on a failed assertion as soon as .config is read; this is its evaluation without that check.
+  evalHomeUnchecked = codexConfig: let
+    hm = "${self.inputs.home-manager}/modules";
+    hmLib = import "${hm}/lib/stdlib-extended.nix" lib;
+  in
+    (hmLib.evalModules {
+      class = "homeManager";
+      specialArgs.modulesPath = hm;
+      modules =
+        homeModules true codexConfig
+        ++ import "${hm}/modules.nix" {
+          inherit pkgs;
+          lib = hmLib;
+          check = true;
+        };
+    })
+    .config;
 
   # Upstream's own CODEX_HOME, read off the AGENTS.md key it writes, against ours, for each XDG preference and config format.
   codexHomeCases = lib.cartesianProduct {
@@ -64,7 +83,7 @@
     profiles.alt.model_reasoning_effort = "high";
   };
 
-  bothMutable = evalHome {
+  bothMutable = evalHomeUnchecked {
     writableConfig = true;
     mutableSettings = true;
     settings = declared;
@@ -120,7 +139,8 @@ in
         expected = false;
       };
       "test the config.toml merge reads the source home.file declares" = {
-        expr = lib.hasInfix (toString configured.home.file.${configKey}.source) baseMerge.data;
+        # hasInfix builds a regex from its needle, and Nix refuses a regex carrying store-path context.
+        expr = lib.hasInfix (builtins.unsafeDiscardStringContext (toString configured.home.file.${configKey}.source)) baseMerge.data;
         expected = true;
       };
       "test writableConfig with upstream mutableSettings fails an assertion" = {

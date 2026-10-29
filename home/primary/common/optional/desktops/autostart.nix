@@ -1,7 +1,6 @@
 # Apps that start with every desktop session on any host; hosts add their own on top.
 {
   config,
-  lib,
   options,
   pkgs,
   ...
