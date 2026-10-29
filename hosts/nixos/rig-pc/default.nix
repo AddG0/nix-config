@@ -31,7 +31,7 @@
     (with lib.custom.optional.hosts.nixos.services; [
       bluetooth # wireless controller pairing
       earlyoom
-      greetd # gamescope-session hangs off greetd
+      greetd # autologins into Gaming Mode
       openssh
     ])
   ];

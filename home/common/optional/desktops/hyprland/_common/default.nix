@@ -32,7 +32,7 @@
   };
 
   lib.hyprland = let
-    # UWSM names it after the desktop ID; greetd and the hyprland-uwsm.desktop entry both start hyprland.desktop.
+    # UWSM names it after the desktop ID; the hyprland-uwsm session starts hyprland.desktop.
     sessionUnit = "wayland-wm@hyprland.desktop.service";
   in {
     inherit sessionUnit;

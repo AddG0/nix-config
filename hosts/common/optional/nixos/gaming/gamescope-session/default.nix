@@ -3,11 +3,11 @@
 #   standalone — the host's only session: autologin straight into gamescope,
 #                relaunched on exit. "Switch to Desktop" drops to the greeter.
 #
-#   otherwise  — greetd-native desktop <-> gamescope switching (SteamOS's SDDM
-#                swap has no greetd backend). A dispatcher runs one session at a
-#                time; a marker file picks the next after the current exits
-#                (none -> greeter). Desktop half is
-#                services.greetd.desktopCommand, not a hardcoded compositor.
+#   otherwise  — desktop <-> gamescope switching under any display manager
+#                (ADR 0010). Every desktop session runs through a dispatcher
+#                that runs one half at a time; a marker file picks the next
+#                after the current exits (none -> greeter). The desktop half is
+#                whichever desktop the session started.
 #                  desktop->gaming: "Gaming Mode" app launcher writes `gamescope`, stops the desktop
 #                  gaming->desktop: Steam "Switch to Desktop" -> steamos-session-select
 #                  gaming->greeter: quit Steam, no marker
@@ -37,9 +37,11 @@
     inherit lib pkgs cfg steamBin marker sessionFlag;
     displayFlagsCommand = lib.getExe display.displayFlags;
     watchDisplayCommand = lib.getExe display.watchDisplay;
-    # Not a hardcoded compositor: whatever the host set as its desktop.
-    desktopCmd = config.services.greetd.desktopCommand;
+    desktopSessions = config.desktops.sessions;
   };
+
+  inherit (config.desktops) primarySession;
+  gamingSessionKey = "gaming-mode";
 in {
   options.gaming.gamescopeSession = {
     standalone = lib.mkEnableOption "gamescope as the host's only session — autologin straight into it, no desktop to switch to";
@@ -69,7 +71,7 @@ in {
 
   # Both shapes go through mkIf, never a bare `if` on cfg.standalone — reading
   # config to pick the shape of config is infinite recursion.
-  config = lib.mkIf config.services.greetd.enable (lib.mkMerge [
+  config = lib.mkMerge [
     {
       systemd.tmpfiles.rules = [
         "L+ /usr/bin/steamos-session-select - - - - ${lib.getExe session.sessionSelect}"
@@ -77,19 +79,37 @@ in {
     }
 
     (lib.mkIf cfg.standalone {
-      environment.systemPackages = [session.standaloneSession];
-      services.greetd = {
-        autoLogin.enable = lib.mkDefault true;
-        sessionCommand = "gamescope-session";
+      desktops = {
+        sessions.${gamingSessionKey} = {
+          displayName = "Gaming Mode";
+          command = lib.getExe session.standaloneSession;
+          desktop = false;
+        };
+        # The default prefers any desktop, which would take autologin away from gamescope.
+        primarySession = lib.mkDefault gamingSessionKey;
+      };
+      services.displayManager.autoLogin = {
+        enable = lib.mkDefault true;
+        user = lib.mkDefault config.hostSpec.primaryUsername;
       };
     })
     (lib.mkIf (!cfg.standalone) {
-      services.displayManager.sessionPackages = [session.gamingSession];
-      environment.systemPackages = [session.enterGamingApp session.dispatcher];
+      assertions = [
+        {
+          assertion = primarySession != null && primarySession != gamingSessionKey;
+          message = "gaming.gamescopeSession: Switch to Desktop needs a desktop session, but desktops.primarySession is ${builtins.toJSON primarySession}. Import a desktop, or set standalone = true.";
+        }
+      ];
 
-      # Covers both greetd slots at once — autologin's initial_session and the
-      # greeter's --cmd both derive from sessionCommand.
-      services.greetd.sessionCommand = "session-dispatcher desktop";
+      desktops = {
+        sessionWrapper = "${lib.getExe session.dispatcher} desktop";
+        sessions.${gamingSessionKey} = {
+          displayName = "Gaming Mode";
+          command = "${lib.getExe session.dispatcher} gamescope ${lib.optionalString (primarySession != null) config.desktops.sessions.${primarySession}.command}";
+          desktop = false;
+        };
+      };
+      environment.systemPackages = [session.enterGamingApp];
     })
-  ]);
+  ];
 }

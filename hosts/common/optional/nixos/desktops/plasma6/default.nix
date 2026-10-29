@@ -14,7 +14,12 @@
     # xserver.enable = true;
   };
 
-  services.greetd.desktops.plasma = "startplasma-wayland";
+  desktops.sessions.plasma = {
+    displayName = "Plasma (Wayland)";
+    desktopNames = ["KDE"];
+    command = "${pkgs.kdePackages.plasma-workspace}/libexec/plasma-dbus-run-session-if-needed ${pkgs.kdePackages.plasma-workspace}/bin/startplasma-wayland";
+    stop = "busctl --user call org.kde.Shutdown /Shutdown org.kde.Shutdown logout";
+  };
 
   # nixpkgs sets this with mkDefault, so another desktop's plain definition would drop Plasma's portals.conf.
   xdg.portal.configPackages = [pkgs.kdePackages.plasma-workspace];

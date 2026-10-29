@@ -8,13 +8,23 @@
   lib,
   ...
 }: let
-  cfg = config.services.greetd;
+  dm = config.services.displayManager;
+  # greetd ignores defaultSession and autoLogin, so they reach it as a start-session command.
+  session = dm.sessionData.autologinSession;
+  sessionCommand = "${lib.getExe config.desktops.startSession} ${session}";
 in {
   config = {
+    assertions = [
+      {
+        assertion = session != null;
+        message = "greetd: no session to log into; import a desktop or Gaming Mode, which register one under desktops.sessions.";
+      }
+    ];
+
     # Type=idle holds ExecStart until the job queue drains, capped at 5s -- it keeps
     # a greeter off the console mid-boot, which autologin to a compositor doesn't need.
     systemd.services.greetd.serviceConfig.Type = lib.mkForce (
-      if cfg.autoLogin.enable
+      if dm.autoLogin.enable
       then "simple"
       else "idle"
     );
@@ -28,13 +38,13 @@ in {
         # mkDefault) so any imported greeter module (e.g. noctalia-greeter,
         # whose command is at mkDefault) wins without touching this file.
         default_session = {
-          command = lib.mkOptionDefault "${pkgs.tuigreet}/bin/tuigreet --asterisks --remember --time --time-format '%I:%M %p | %a • %h | %F' --cmd '${cfg.sessionCommand}'";
-          user = cfg.username;
+          command = lib.mkOptionDefault "${pkgs.tuigreet}/bin/tuigreet --asterisks --remember --time --time-format '%I:%M %p | %a • %h | %F' --cmd '${sessionCommand}'";
+          user = config.hostSpec.primaryUsername;
         };
 
-        initial_session = lib.mkIf cfg.autoLogin.enable {
-          command = cfg.sessionCommand;
-          user = cfg.autoLogin.username;
+        initial_session = lib.mkIf dm.autoLogin.enable {
+          command = sessionCommand;
+          inherit (dm.autoLogin) user;
         };
       };
     };

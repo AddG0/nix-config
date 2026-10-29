@@ -10,8 +10,12 @@
   sessionFlag,
   displayFlagsCommand,
   watchDisplayCommand,
-  desktopCmd,
+  desktopSessions,
 }: let
+  # Held by the dispatcher for as long as it runs, so the launcher can tell a wrapped desktop from a bare one.
+  dispatcherFlag = ''"''${XDG_RUNTIME_DIR:-/run/user/$(id -u)}/session-dispatcher-active"'';
+  flock = "${pkgs.util-linux}/bin/flock";
+
   # mangoapp is an X11 client on gamescope's Xwayland, but gamescope exports
   # WAYLAND_DISPLAY to children — GLFW then inits Wayland and segfaults in
   # XInternAtom, and the reaper respawns it forever. GAMESCOPE_WAYLAND_DISPLAY stays.
@@ -89,7 +93,6 @@
   # A `desktop` marker means "Switch to Desktop" was pressed: end the session for
   # the greeter instead, the only way off this host's gamescope short of a TTY.
   # A `gamescope` marker is an output switch — round again, skipping the backoff.
-  # On PATH, not a store path: the greeter puts the session command on screen.
   standaloneSession = pkgs.writeShellScriptBin "gamescope-session" ''
     ${toJournal}
     while :; do
@@ -105,11 +108,18 @@
     ${restoreVT}
   '';
 
-  # On PATH for the same reason as standaloneSession.
+  # The rest of the arguments start the desktop the session returns to.
   dispatcher = pkgs.writeShellScriptBin "session-dispatcher" ''
     set -u
     ${toJournal}
-    current="''${1:-desktop}"
+    current="''${1:?usage: session-dispatcher desktop|gamescope DESKTOP-COMMAND...}"
+    shift
+    if (($# == 0)); then
+      echo "session-dispatcher: no desktop command after '$current'" >&2
+      exit 2
+    fi
+    exec 8>${dispatcherFlag}
+    ${flock} -n 8 || true
     while :; do
       rm -f ${marker}
       ${clearVT}
@@ -120,7 +130,7 @@
           ${readDisplay}
           ${runGamescope}
           ;;
-        *) ${desktopCmd} || true ;;
+        *) "$@" || true ;;
       esac
       case "$(cat ${marker} 2>/dev/null || true)" in
         gamescope) current=gamescope ;;
@@ -137,12 +147,33 @@
     exec ${steamBin} -shutdown
   '';
 
-  # App-launcher counterpart to Steam's "Switch to Desktop": `uwsm stop` ends the
-  # desktop (paired with the `uwsm start` in desktopCommand) so the dispatcher
-  # loops into gamescope.
+  # Launcher counterpart to Steam's "Switch to Desktop": stops the current desktop so the dispatcher loops into gamescope.
+  stopArms = lib.concatStrings (lib.mapAttrsToList (_: desktop:
+    lib.concatMapStrings (desktopName: ''
+      *:${desktopName}:*) stop() { ${desktop.stop}; } ;;
+    '')
+    desktop.desktopNames)
+  (lib.filterAttrs (_: desktop: desktop.stop != null) desktopSessions));
   enterGaming = pkgs.writeShellScript "enter-gaming-mode" ''
+    # $1 is shown to the user; $2, when given, is the journal's more technical reason.
+    refuse() {
+      ${pkgs.libnotify}/bin/notify-send -a "Gaming Mode" "Gaming Mode" "$1" || true
+      echo "enter-gaming-mode: ''${2:-$1}" >&2
+      exit 1
+    }
+    if ${flock} -n ${dispatcherFlag} true 2>/dev/null; then
+      refuse "Gaming Mode can't switch from this session. Log out and pick your desktop from the login screen's session list." \
+        "session-dispatcher is not running in this session, so nothing would start gamescope"
+    fi
+    case ":''${XDG_CURRENT_DESKTOP:-}:" in
+    ${stopArms}
+      *) refuse "No stop command for desktop ''${XDG_CURRENT_DESKTOP:-unknown}." ;;
+    esac
     echo gamescope > ${marker}
-    exec ${lib.getExe pkgs.uwsm} stop
+    if ! stop; then
+      rm -f ${marker}
+      refuse "Stopping ''${XDG_CURRENT_DESKTOP} failed, so Gaming Mode did not start."
+    fi
   '';
   enterGamingApp = pkgs.makeDesktopItem {
     name = "gaming-mode";
@@ -152,15 +183,6 @@
     exec = "${enterGaming}";
     categories = ["Game"];
   };
-
-  gamingSession =
-    (pkgs.writeTextDir "share/wayland-sessions/gaming-mode.desktop" ''
-      [Desktop Entry]
-      Name=Gaming Mode
-      Exec=${lib.getExe dispatcher} gamescope
-      Type=Application
-    '')
-    .overrideAttrs (_: {passthru.providedSessions = ["gaming-mode"];});
 in {
-  inherit dispatcher standaloneSession sessionSelect enterGamingApp gamingSession;
+  inherit dispatcher standaloneSession sessionSelect enterGamingApp;
 }

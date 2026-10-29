@@ -28,13 +28,13 @@ in {
         common
         ++ [
           ./hosts/nixos/decky-plugins.nix
+          ./hosts/nixos/desktop-sessions
           (importWithLocal ./hosts/nixos/nix/git-sync.nix)
           ./hosts/nixos/security/allow-poweroff.nix
           ./hosts/nixos/security/allow-suspend.nix
           ./hosts/nixos/semi-active-av.nix
           (importWithLocal ./hosts/nixos/services/bt-proximity.nix)
           ./hosts/nixos/services/deskflow.nix
-          ./hosts/nixos/services/greetd.nix
           (importWithLocal ./hosts/nixos/services/ip-timezone.nix)
           ./hosts/nixos/services/jellyfin.nix
           (importWithLocal ./hosts/nixos/services/k3s/coredns.nix)

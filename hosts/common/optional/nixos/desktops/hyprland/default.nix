@@ -30,7 +30,23 @@ in {
     trusted-public-keys = ["hyprland.cachix.org-1:a7pgxzMz7+chwVL3/pzj6jIBMioiJM7ypFP8PwtkuGc="];
   };
 
-  services.greetd.desktops.hyprland = "uwsm start hyprland.desktop";
+  desktops.sessions = {
+    hyprland = {
+      sessionName = "hyprland-uwsm";
+      displayName = "Hyprland";
+      desktopNames = ["Hyprland"];
+      command = "uwsm start -e -D Hyprland hyprland.desktop";
+      stop = "uwsm stop";
+    };
+    # The entry `uwsm start` above launches; kept off greeter lists, where it would skip uwsm and Gaming Mode.
+    hyprland-compositor = {
+      sessionName = "hyprland";
+      displayName = "Hyprland";
+      desktopNames = ["Hyprland"];
+      command = lib.getExe' config.programs.hyprland.package "start-hyprland";
+      noDisplay = true;
+    };
+  };
 
   services.dbus.enable = true;
 
