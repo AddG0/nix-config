@@ -50,6 +50,13 @@
   specialisation.battery-saver.configuration = {
     system.nixos.tags = ["battery-saver" "integrated-only"];
 
+    # Homes come out identical here, so reuse the parent's activation units instead of evaluating them again.
+    home-manager.users = lib.mkForce {};
+    systemd.services = lib.mapAttrs (_: unit: {
+      inherit (unit) description stopIfChanged serviceConfig wantedBy wants after before unitConfig;
+      environment = removeAttrs unit.environment ["PATH"];
+    }) (lib.filterAttrs (name: _: lib.hasPrefix "home-manager-" name) config.systemd.services);
+
     # Blacklist all NVIDIA kernel modules
     boot.blacklistedKernelModules = [
       "nouveau"
