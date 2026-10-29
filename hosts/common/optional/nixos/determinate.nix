@@ -2,6 +2,10 @@
 {inputs, ...}: {
   imports = [inputs.determinate.nixosModules.default];
 
-  # Determinate Nix evaluates on one core unless told otherwise.
-  nix.settings.eval-cores = 0;
+  nix.settings = {
+    # Determinate Nix evaluates on one core unless told otherwise.
+    eval-cores = 0;
+    # Determinate's managed nix.conf turns this on, so every unit and etc derivation waited on all caches' misses.
+    always-allow-substitutes = false;
+  };
 }
