@@ -7,7 +7,8 @@
   writeShellApplication,
   curl,
   jq,
-}: {
+  openssl,
+}: args @ {
   pname,
   version,
   repo,
@@ -19,7 +20,7 @@
 }: let
   updateScript = writeShellApplication {
     name = "obsidian-plugin-update";
-    runtimeInputs = [curl jq];
+    runtimeInputs = [curl jq openssl];
     text = builtins.readFile ./update.sh;
   };
 in
@@ -30,7 +31,7 @@ in
       passthru
       // {
         inherit manifestId;
-        updateScript = [(lib.getExe updateScript) pname repo (./package.nix)];
+        updateScript = [(lib.getExe updateScript) pname repo (builtins.unsafeGetAttrPos "version" args).file];
       };
 
     dontUnpack = true;

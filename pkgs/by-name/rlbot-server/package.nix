@@ -15,11 +15,11 @@
 }:
 stdenvNoCC.mkDerivation (finalAttrs: {
   pname = "rlbot-server";
-  version = "5.0.0-rc17";
+  version = "5.0.0-rc18";
 
   src = fetchurl {
     url = "https://github.com/RLBot/core/releases/download/v${finalAttrs.version}/RLBotServer";
-    hash = "sha256-bs9JBed32qTRwL0J6YK8NEkIPBaXeJQL51L/I7P6EVQ=";
+    hash = "sha256-M6fmP+Oo2XgsHiBiARjr+GjR8GEMj0IRl5/MitcRR7M=";
   };
 
   dontUnpack = true;

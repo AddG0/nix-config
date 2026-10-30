@@ -10,11 +10,11 @@
 # vendor is pure PHP, so php-fpm may run it on a different 8.x at runtime.
 php83.buildComposerProject (finalAttrs: {
   pname = "pterodactyl-panel";
-  version = "1.15.1";
+  version = "1.15.2";
 
   src = fetchurl {
     url = "https://github.com/pterodactyl/panel/releases/download/v${finalAttrs.version}/panel.tar.gz";
-    hash = "sha256-YsiMA1s+Dzw93Qa8PvEiSdCHrw52X0mHi2MnoGbthgs=";
+    hash = "sha256-Vyqs34luLbzj30xC8FXneh5BlZiyJLfW6/O/QUYq+M8=";
   };
 
   # Release tarball unpacks its files at the top level (no wrapping directory).

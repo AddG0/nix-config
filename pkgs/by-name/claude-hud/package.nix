@@ -5,7 +5,7 @@
 }:
 stdenvNoCC.mkDerivation {
   pname = "claude-hud";
-  version = "0.11.3";
+  version = "0.14.0";
 
   src = fetchFromGitHub {
     owner = "jarrodwatts";

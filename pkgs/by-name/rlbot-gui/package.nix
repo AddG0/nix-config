@@ -18,11 +18,11 @@
 }:
 stdenvNoCC.mkDerivation (finalAttrs: {
   pname = "rlbot-gui";
-  version = "beat24";
+  version = "beta26";
 
   src = fetchurl {
     url = "https://github.com/RLBot/gui/releases/download/${finalAttrs.version}/rlbotgui";
-    hash = "sha256-PMTZTk736aFoNZeRDNVBVBFamd9YKfat/YEN6JmZVns=";
+    hash = "sha256-DQNPBnr0ygo7w3nAUpo6hDFJwPQHR1E4mkWVw4RtcTo=";
   };
 
   dontUnpack = true;

@@ -17,6 +17,8 @@ mkPlugin {
     "styles.css" = "sha256-4PExkKtAdimEHIjqzQ0P4AAy9Wy7L5DJjY/AU9wIlEs=";
   };
 
+  passthru.nixUpdate.version = "skip";
+
   meta = {
     description = "Self-hosted live synchronisation between Obsidian vaults";
     homepage = "https://github.com/vrtmrz/obsidian-livesync";

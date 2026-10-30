@@ -26,6 +26,8 @@ stdenvNoCC.mkDerivation rec {
     runHook postInstall
   '';
 
+  passthru.updateScript = ["nix-update" "--flake" "ck" "--url=https://github.com/mauricioaniche/ck" "--version-regex" "ck-(\\d+\\.\\d+\\.\\d+)$"];
+
   meta = {
     description = "Code metrics for Java using static analysis (CK suite)";
     homepage = "https://github.com/mauricioaniche/ck";

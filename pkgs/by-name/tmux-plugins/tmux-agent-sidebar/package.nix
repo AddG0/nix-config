@@ -36,7 +36,7 @@
   # repo doesn't have. --subpackage keeps bin's cargoHash in step with the bump.
   extraPassthru = {
     inherit bin;
-    updateScript = ["nix-update" "--flake" "tmuxPlugins-tmux-agent-sidebar" "--subpackage" "bin"];
+    updateScript = ["nix-update" "--flake" "tmux-plugins-tmux-agent-sidebar" "--subpackage" "bin"];
   };
 
   plugin = tmuxPlugins.mkTmuxPlugin {
