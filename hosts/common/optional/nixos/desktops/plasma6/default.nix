@@ -15,7 +15,7 @@
   };
 
   desktops.sessions.plasma = {
-    displayName = "Plasma (Wayland)";
+    displayName = "Plasma";
     desktopNames = ["KDE"];
     command = "${pkgs.kdePackages.plasma-workspace}/libexec/plasma-dbus-run-session-if-needed ${pkgs.kdePackages.plasma-workspace}/bin/startplasma-wayland";
     stop = "busctl --user call org.kde.Shutdown /Shutdown org.kde.Shutdown logout";

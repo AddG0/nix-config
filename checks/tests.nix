@@ -17,6 +17,10 @@
         path = ../home;
         qualifier = "home";
       };
+      hosts = {
+        path = ../hosts;
+        qualifier = "hosts";
+      };
       lib = {
         path = ../lib;
         qualifier = "lib";
