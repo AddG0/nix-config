@@ -1,10 +1,24 @@
 {
+  config,
+  osConfig ? null,
   lib,
   pkgs,
   customPkgs,
   self,
   ...
-}: {
+}: let
+  installed = map lib.getName (config.home.packages ++ osConfig.environment.systemPackages or []);
+  # [pname desktop-file]; a pin is dropped when no installed package has that pname.
+  pins = [
+    ["ghostty" "com.mitchellh.ghostty.desktop"]
+    ["dolphin" "org.kde.dolphin.desktop"]
+    ["zen-beta" "zen-beta.desktop"]
+    ["discord" "discord.desktop"]
+    ["spotify" "spotify.desktop"]
+    ["steam" "steam.desktop"]
+    ["vscode" "code.desktop"]
+  ];
+in {
   assertions = [(lib.hm.assertions.assertPlatform "home.desktops.plasma6" pkgs lib.platforms.linux)];
 
   imports = [
@@ -82,15 +96,7 @@
           {
             iconTasks = {
               iconsOnly = true;
-              launchers = [
-                "applications:com.mitchellh.ghostty.desktop"
-                "applications:org.kde.dolphin.desktop"
-                "applications:zen-beta.desktop"
-                "applications:discord.desktop"
-                "applications:spotify.desktop"
-                "applications:steam.desktop"
-                "applications:code.desktop"
-              ];
+              launchers = map (p: "applications:${lib.last p}") (lib.filter (p: lib.elem (lib.head p) installed) pins);
               appearance = {
                 showTooltips = true;
                 highlightWindows = true;
