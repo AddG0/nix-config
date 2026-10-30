@@ -13,15 +13,19 @@
       mine.home = ["primary-only"];
     })
   ];
-  # The home-manager users a host import of `suite` configures, on a host with these accounts.
-  homesOn = accounts: suite:
+  # The home-manager users a host import of `suite` configures, on a host with these hostSpec users and accounts.
+  homesFor = hostUsers: accounts: suite:
     lib.mapAttrs (_: home: home.imports)
     ((lib.last (useSuite suite)) {
       config = {
-        hostSpec.primaryUsername = "u";
+        hostSpec = {
+          primaryUsername = "u";
+          users = hostUsers;
+        };
         users.users = lib.genAttrs accounts (_: {});
       };
     }).home-manager.users;
+  homesOn = homesFor ["u"];
   homeImports = suite: (homesOn ["u"] suite).u;
   twoUsers = (suitesFromDeclarations {} [(declared "primary" {desk.home = ["a"];}) (declared "guest" {desk.home = ["b"];})]).desk;
 in {
@@ -42,6 +46,14 @@ in {
   testImportsHomeAndPrimaryHalvesIntoThePrimaryUser = {
     expr = homeImports suites.desk;
     expected = ["home-desk" "primary-desk"];
+  };
+
+  testImportsTheSharedHomeHalfIntoEveryHostUser = {
+    expr = homesFor ["u" "d"] ["u" "d"] suites.desk;
+    expected = {
+      u = ["home-desk" "primary-desk"];
+      d = ["home-desk"];
+    };
   };
 
   testKeepsTheNixosHalfOnTheHost = {

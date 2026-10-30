@@ -45,7 +45,6 @@
     ])
     (with lib.custom.optional.hosts.nixos.hardware; [
       cachyos-kernel
-      moza # MOZA R5 wheelbase (boxflat + udev)
       openrazer # openrazer
       wacom-dial-scroll
       wooting # wooting keyboard
@@ -118,6 +117,32 @@
       fi
     done
   '';
+
+  # Host-specific Monitor Spec
+  # --------
+  # | eDP-1 |
+  # | 2560x1600@240Hz |
+  # | Samsung built-in |
+  # --------
+  display = {
+    defaultMonitor.enable = false;
+    monitors = [
+      {
+        output = "eDP-1";
+        width = 2560;
+        height = 1600;
+        refreshRate = 240;
+        x = 0;
+        y = 0;
+        scale = 1.25;
+        primary = true;
+        oled = true;
+        vrr = "on";
+        hdr = true;
+        bitdepth = 10;
+      }
+    ];
+  };
 
   hostSpec = {
     hostName = "freya";

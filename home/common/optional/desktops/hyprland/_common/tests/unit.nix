@@ -19,7 +19,7 @@
   declared = monitor:
     builtins.head
     (harness.eval [
-      (harness.root + "/modules/home/monitors.nix")
+      (harness.root + "/modules/common/monitors.nix")
       {display.monitors = [monitor];}
     ])
     .display

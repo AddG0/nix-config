@@ -6,7 +6,7 @@
   pkgs,
   ...
 }: let
-  monitors = config.home-manager.users.${config.hostSpec.primaryUsername}.display.monitors or [];
+  inherit (config.display) monitors;
   kwinOutputs = import ./_kwin-outputs.nix {inherit lib pkgs;} monitors;
 in {
   imports = [inputs.silent-sddm.nixosModules.default];

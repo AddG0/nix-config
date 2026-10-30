@@ -1,9 +1,6 @@
 # noctalia-greeter on greetd as the login screen, matching the Noctalia shell.
 #
-# We only override default_session.user: upstream reads it but doesn't set it,
-# and ./_greetd.nix defaults it to the primary user — the greeter must run as `greeter`.
-#
-# Cursor comes from stylix and the output layout from the primary user's
+# Cursor comes from stylix and the output layout from the host's
 # display.monitors; wallpaper and default_user come from the shell's "Sync Now".
 {
   inputs,
@@ -18,7 +15,7 @@
     then systemCursor
     else primaryUser.stylix.cursor or null;
   primaryUser = config.home-manager.users.${config.hostSpec.primaryUsername};
-  monitors = lib.filter (m: m.enabled) (primaryUser.display.monitors or []);
+  monitors = lib.filter (m: m.enabled) config.display.monitors;
   perOutput = f: lib.concatMapStringsSep "; " (m: "${m.output}:${f m}") monitors;
 in {
   imports = [
@@ -41,6 +38,4 @@ in {
       };
     };
   };
-
-  services.greetd.settings.default_session.user = lib.mkForce "greeter";
 }

@@ -5,18 +5,19 @@ set -eou pipefail
 # Source helpers
 source "$(dirname "${BASH_SOURCE[0]}")/helpers.sh"
 
-# Usage: $0 [-h] [-t] [-v] [-m mode] [host] [-- nix args...]
+# Usage: $0 [-h] [-t] [-v] [-m mode] [-r target] [host] [-- nix args...]
 #  -h             Display this help message.
 #  -t             Enable trace mode (adds --show-trace flag).
 #  -v             Enable verbose/debug output.
 #  -m mode        Rebuild mode: switch (default), boot, test, or build.
+#  -r target      Activate on this ssh host (user@host) instead of locally; still builds here.
 #  host           Host name; if not provided, defaults to the output of hostname.
 #  nix args...    Any positional args after the host are forwarded verbatim to
 #                 nixos-rebuild/nh (e.g. --option substitute false, --fast).
 #  NOM=true       Show nh's nom build tree; off by default, its log parsing throttles chatty builds.
 
 usage() {
-  echo "Usage: $0 [-h] [-t] [-v] [-m mode] [host] [-- nix args...]"
+  echo "Usage: $0 [-h] [-t] [-v] [-m mode] [-r target] [host] [-- nix args...]"
   exit 1
 }
 
@@ -28,14 +29,16 @@ command_exists() {
 # Default configuration values
 TRACE="false"
 MODE="switch"
+TARGET=""
 
 # Parse options
-while getopts "hvtm:" opt; do
+while getopts "hvtm:r:" opt; do
   case "$opt" in
   h) usage ;;
   v) DEBUG_MODE=true ;;
   t) TRACE="true" ;;
   m) MODE="$OPTARG" ;;
+  r) TARGET="$OPTARG" ;;
   *) usage ;;
   esac
 done
@@ -125,8 +128,11 @@ rebuild_linux() {
   notify_dir="$(realpath "$(dirname "${BASH_SOURCE[0]}")")/sudo-notify"
   export SUDO_NOTIFY_HOST="${HOST}"
   if [ "${NOM:-false}" = "true" ] && command_exists nh && [ "${USE_NH:-true}" = "true" ]; then
-    log_debug "Using nh with nom for rebuild (host: ${HOST})"
-    nh os ${MODE} . --hostname "${HOST}" -e "${notify_dir}/sudo" -- $TRACE_FLAG ${EXTRA_NIX_ARGS[@]+"${EXTRA_NIX_ARGS[@]}"}
+    log_debug "Using nh with nom for rebuild (host: ${HOST}, target: ${TARGET:-local})"
+    # sudo-notify is a local path, so a remote target keeps nh's own sudo prompt.
+    local nh_args=(-e "${notify_dir}/sudo")
+    [ -n "${TARGET}" ] && nh_args=(--target-host "${TARGET}")
+    nh os ${MODE} . --hostname "${HOST}" "${nh_args[@]}" -- $TRACE_FLAG ${EXTRA_NIX_ARGS[@]+"${EXTRA_NIX_ARGS[@]}"}
     return
   fi
 
@@ -141,6 +147,17 @@ rebuild_linux() {
   log_info "Built in $((SECONDS - built))s"
   if [ "${MODE}" = "build" ]; then
     log_info "Built ${out}"
+    return
+  fi
+
+  if [ -n "${TARGET}" ]; then
+    # Copied up front so dix can diff on the target, where its current system lives.
+    # Unsigned local builds; the target's trusted-users gates this, as with nh's own copy.
+    nix copy --no-check-sigs --to "ssh-ng://${TARGET}" "${out}"
+    if ! ssh "${TARGET}" nix run nixpkgs#dix -- /run/current-system "${out}"; then
+      log_warning "Could not diff ${TARGET}'s /run/current-system against ${out}; activating anyway"
+    fi
+    nixos-rebuild "${MODE}" --store-path "${out}" --target-host "${TARGET}" --elevate sudo --ask-elevate-password
     return
   fi
 

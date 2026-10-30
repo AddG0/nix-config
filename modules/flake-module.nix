@@ -20,6 +20,7 @@
   common = [
     ./common/desktops.nix
     ./common/host-spec.nix
+    ./common/monitors.nix
   ];
 in {
   flake = {
@@ -76,7 +77,6 @@ in {
             ./home/gradle
             ./home/jetbrains
             ./home/lnav.nix
-            ./home/monitors.nix
             (importWithLocal ./home/nixos/rlbot.nix)
             ./home/nixos/services/gpu-screen-recorder.nix
             ./home/nixos/services/hass-agent.nix

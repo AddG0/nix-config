@@ -88,16 +88,17 @@
 in {
   inherit optional suites suitesFromDeclarations;
 
-  # A host import for a suite: its nixos half, its home half for the primary user, and each user
+  # A host import for a suite: its nixos half, its home half for every hostSpec user, and each user
   # tree's half for that user. `primary` names a role (hostSpec.primaryUsername); any other tree
   # names a user, and is skipped on hosts without that user so it can't conjure a home for one.
   useSuite = suite:
     (suite.nixos or [])
     ++ lib.optional (suite ? home || suite ? users) ({config, ...}: let
-      primary = config.hostSpec.primaryUsername;
       others = lib.filterAttrs (tree: _: tree != "primary" && config.users.users ? ${tree}) (suite.users or {});
       # A tree named after the primary user adds to that user's imports rather than replacing them.
-      byUser = lib.zipAttrs ([{${primary} = (suite.home or []) ++ (suite.users.primary or []);}] ++ lib.mapAttrsToList (tree: modules: {${tree} = modules;}) others);
+      byUser = lib.zipAttrs (map (user: {${user} = suite.home or [];}) config.hostSpec.users
+        ++ [{${config.hostSpec.primaryUsername} = suite.users.primary or [];}]
+        ++ lib.mapAttrsToList (tree: modules: {${tree} = modules;}) others);
     in {
       home-manager.users = lib.mapAttrs (_: lists: {imports = lib.concatLists lists;}) byUser;
     });

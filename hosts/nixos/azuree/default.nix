@@ -65,6 +65,45 @@
 
   yubikey.enable = true;
 
+  # Host-specific Monitor Spec
+  # If on hyprland, use `hyprctl monitors` to get monitor info.
+  # https://wiki.hyprland.org/Configuring/Monitors/
+  #           ------
+  #        | HDMI-A-1 |
+  #           ------
+  #  ------   ------   ------
+  # | DP-2 | | DP-1 | | DP-3 |
+  #  ------   ------   ------
+  display.monitors = [
+    {
+      output = "DP-1";
+      width = 3440;
+      height = 1440;
+      refreshRate = 180;
+      x = 3840;
+      y = 218;
+      vrr = "on";
+      primary = true;
+    }
+    {
+      output = "DP-2";
+      width = 3840;
+      height = 2160;
+      refreshRate = 144;
+      x = 0;
+      y = 0;
+    }
+    {
+      output = "DP-3";
+      width = 1920;
+      height = 1080;
+      refreshRate = 60;
+      transform = "270";
+      x = 7280;
+      y = 0;
+    }
+  ];
+
   hostSpec = {
     hostName = "azuree";
     hostPlatform = "x86_64-linux";

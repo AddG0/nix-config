@@ -35,7 +35,7 @@
     '';
 in {
   boot.plymouth = {
-    theme = lib.mkOverride 49 "logo";
+    theme = "logo";
     themePackages = [logo-theme];
   };
 

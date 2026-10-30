@@ -83,14 +83,6 @@
     };
   }) (builtins.filter (m: m.oled or false) config.display.monitors));
 
-  # Host-specific Monitor Spec
-  # --------
-  # | eDP-1 |
-  # | 2560x1600@240Hz |
-  # | Samsung built-in |
-  # --------
-  display.defaultMonitor.enable = false;
-
   wayland.windowManager.hyprland.settings = {
     # Razer Blade 16 macro keys (remapped in hosts/nixos/freya). xkb's us
     # layout does not produce the F13/F14/F15 keysyms for those kernel
@@ -108,22 +100,5 @@
   # On top of the shared list in primary/common/optional/desktops/autostart.nix.
   xdg.autostart.entries = [
     "${config.programs.zen-browser.package}/share/applications/zen-beta.desktop"
-  ];
-
-  display.monitors = [
-    {
-      output = "eDP-1";
-      width = 2560;
-      height = 1600;
-      refreshRate = 240;
-      x = 0;
-      y = 0;
-      scale = 1.25;
-      primary = true;
-      oled = true;
-      vrr = "on";
-      hdr = true;
-      bitdepth = 10;
-    }
   ];
 }

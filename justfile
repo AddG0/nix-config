@@ -84,7 +84,7 @@ alias r := rebuild
 # one has moved, pulls upstream commits that trigger rebuilds you did not ask for.
 [script]
 [group('system')]
-[doc("Rebuild system configuration (--boot to only set next boot, --test for temporary, --show-trace for debug, --fast to skip rebuilding nixos-rebuild, --verbose for debug output, --nom for nh's build tree, -u to refresh personal flake inputs first; extra nix flags after `--`)")]
+[doc("Rebuild system configuration (--boot to only set next boot, --test for temporary, --show-trace for debug, --fast to skip rebuilding nixos-rebuild, --verbose for debug output, --nom for nh's build tree, --target [user@]host to activate over ssh, -u to refresh personal flake inputs first; extra nix flags after `--`)")]
 [arg("boot", long, value="boot")]
 [arg("test", long, value="test")]
 [arg("show-trace", long, value="true")]
@@ -93,12 +93,19 @@ alias r := rebuild
 [arg("use-nh", long="no-nh", value="false")]
 [arg("nom", long, value="true")]
 [arg("update-inputs", short="u", long="update-inputs", value="true")]
-rebuild hostname="" boot="switch" test="false" show-trace="false" fast="false" verbose="false" use-nh=USE_NH_DEFAULT nom="false" update-inputs="false" *nix_args="": pre
+[arg("target", long)]
+rebuild hostname="" boot="switch" test="false" show-trace="false" fast="false" verbose="false" use-nh=USE_NH_DEFAULT nom="false" update-inputs="false" target="" *nix_args="": pre
   set -euo pipefail
   if [ "{{update-inputs}}" = "true" ]; then
     just rebuild-pre
   fi
-  USE_NH={{use-nh}} NOM={{nom}} scripts/rebuild.sh {{ if show-trace == "true" { "-t" } else { "" } }} {{ if verbose == "true" { "-v" } else { "" } }} -m {{ if test == "test" { "test" } else { boot } }} "{{hostname}}" {{ if fast == "true" { "--fast" } else { "" } }} {{nix_args}}
+  target="{{target}}"
+  if [ -n "$target" ]; then
+    case "$target" in *@*) ;; *) target="{{DEFAULT_USER}}@$target" ;; esac
+    just trust-remote "${target%%@*}" "${target#*@}"
+    set -- -r "$target"
+  fi
+  USE_NH={{use-nh}} NOM={{nom}} scripts/rebuild.sh {{ if show-trace == "true" { "-t" } else { "" } }} {{ if verbose == "true" { "-v" } else { "" } }} -m {{ if test == "test" { "test" } else { boot } }} "$@" "{{hostname}}" {{ if fast == "true" { "--fast" } else { "" } }} {{nix_args}}
 
 [script]
 [group('system')]
@@ -388,19 +395,6 @@ trust-remote USER HOST:
   echo "{{USER}} is not a trusted Nix user on {{HOST}}; trusting it until the next activation (sudo needed)"
   # activation re-links /etc/nix/nix.conf, so this copy reverts on its own
   ssh -t '{{USER}}@{{HOST}}' "sudo sh -c 'cp --remove-destination \$(readlink -f /etc/nix/nix.conf) /etc/nix/nix.conf && echo extra-trusted-users = {{USER}} >> /etc/nix/nix.conf && systemctl restart nix-daemon'"
-
-[group('deployment')]
-[doc("Build locally and push to a remote host with nixos-rebuild, no colmena (IP defaults to HOST, --boot to activate on next boot, -u to refresh personal flake inputs first)")]
-[arg("boot", long, value="boot")]
-[arg("update-inputs", short="u", long="update-inputs", value="true")]
-deploy-remote HOST IP="" USER=DEFAULT_USER boot="switch" update-inputs="false":
-  @{{ if HOST == "" { error("HOST parameter is required") } else { "" } }}
-  @{{ if update-inputs == "true" { "just rebuild-pre" } else { "true" } }}
-  @just trust-remote {{USER}} {{ if IP != "" { IP } else { HOST } }}
-  nixos-rebuild {{boot}} --flake .#{{HOST}} \
-    --build-host localhost \
-    --target-host {{USER}}@{{ if IP != "" { IP } else { HOST } }} \
-    --elevate sudo --ask-elevate-password
 
 [group('deployment')]
 [doc("Build configuration without deploying (specify hostnames or builds all)")]

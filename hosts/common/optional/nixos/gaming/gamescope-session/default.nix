@@ -88,10 +88,7 @@ in {
         # The default prefers any desktop, which would take autologin away from gamescope.
         primarySession = lib.mkDefault gamingSessionKey;
       };
-      services.displayManager.autoLogin = {
-        enable = lib.mkDefault true;
-        user = lib.mkDefault config.hostSpec.primaryUsername;
-      };
+      services.displayManager.autoLogin.enable = true;
     })
     (lib.mkIf (!cfg.standalone) {
       assertions = [

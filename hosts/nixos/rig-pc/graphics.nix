@@ -13,7 +13,7 @@
   };
 
   hardware.nvidia = {
-    package = config.boot.kernelPackages.nvidiaPackages.stable;
+    package = config.boot.kernelPackages.nvidiaPackages.latest;
   };
 
   # The 7900X's Raphael iGPU is a second DRM card the session's gamescope can pick

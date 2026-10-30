@@ -32,7 +32,7 @@
 in {
   # CSS Loader writes into the theme folder, so it cannot be a store symlink.
   systemd.tmpfiles.rules = [
-    "d ${themeDir} 0755 ${config.hostSpec.primaryUsername} users -"
+    "d ${themeDir} 0755 ${config.jovian.decky-loader.user} users -"
     "L+ ${themeDir}/theme.json - - - - ${manifest}"
     "L+ ${themeDir}/bigpicture.css - - - - ${css}"
     "L+ ${themeDir}/config_USER.json - - - - ${enabledState}"

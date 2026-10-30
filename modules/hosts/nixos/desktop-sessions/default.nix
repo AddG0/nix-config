@@ -82,7 +82,15 @@ in {
         else if cfg.sessions != {}
         then lib.head (lib.attrNames cfg.sessions)
         else null;
-      description = "Key of the session logged into by default: the first of preferredSessions registered, else the first desktop.";
+      description = "Key of the host's main session, which Gaming Mode's Switch to Desktop returns to: the first of preferredSessions registered, else the first desktop.";
+    };
+
+    loginSession = lib.mkOption {
+      type = lib.types.nullOr lib.types.str;
+      default = cfg.primarySession;
+      defaultText = lib.literalExpression "config.desktops.primarySession";
+      example = "gaming-mode";
+      description = "Key of the session the display manager starts by default, autologin included.";
     };
 
     sessionWrapper = lib.mkOption {
@@ -110,8 +118,8 @@ in {
     services.displayManager = {
       # The session list keeps the first entry of a name, so ours, placed first, replace upstream's.
       sessionPackages = lib.mkBefore (map (render.entry cfg.sessionWrapper) (lib.attrValues cfg.sessions));
-      # Plain priority: plasma6 and niri each mkDefault their own; primarySession is where a host picks.
-      defaultSession = lib.mkIf (cfg.primarySession != null) cfg.sessions.${cfg.primarySession}.sessionName;
+      # Plain priority: plasma6 and niri each mkDefault their own; loginSession is where a host picks.
+      defaultSession = lib.mkIf (cfg.loginSession != null) cfg.sessions.${cfg.loginSession}.sessionName;
     };
   };
 }

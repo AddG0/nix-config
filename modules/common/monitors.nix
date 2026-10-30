@@ -1,3 +1,4 @@
+# Set per host; home/common/core/monitors.nix hands the host's values to home-manager.
 {
   lib,
   config,

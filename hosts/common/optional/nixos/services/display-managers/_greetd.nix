@@ -29,7 +29,8 @@ in {
 
       restart = true;
       settings = {
-        default_session.user = config.hostSpec.primaryUsername;
+        # tuigreet's --remember writes /var/cache/tuigreet, which only `greeter` owns.
+        default_session.user = "greeter";
 
         initial_session = lib.mkIf dm.autoLogin.enable {
           command = "${lib.getExe config.desktops.startSession} ${session}";

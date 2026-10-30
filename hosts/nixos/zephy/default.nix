@@ -91,6 +91,37 @@
 
   yubikey.enable = true;
 
+  # Host-specific Monitor Spec
+  # If on hyprland, use `hyprctl monitors` to get monitor info.
+  # https://wiki.hyprland.org/Configuring/Monitors/
+  #           ------
+  #        | HDMI-A-1 |
+  #           ------
+  #  ------   ------   ------
+  # | DP-2 | | DP-1 | | DP-3 |
+  #  ------   ------   ------
+  display.monitors = [
+    {
+      output = "desc:AU Optronics 0x8E9D";
+      width = 2560;
+      height = 1600;
+      refreshRate = 165;
+      x = 555;
+      y = 0;
+      vrr = "on";
+      primary = true;
+      bitdepth = 10;
+    }
+    {
+      output = "desc:BOE 0x0A68";
+      width = 3840;
+      height = 1100;
+      refreshRate = 60;
+      x = 0;
+      y = 1600;
+    }
+  ];
+
   hostSpec = {
     hostName = "zephy";
     hostPlatform = "x86_64-linux";

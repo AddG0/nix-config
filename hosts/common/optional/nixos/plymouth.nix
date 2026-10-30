@@ -6,7 +6,7 @@
   boot = {
     plymouth = {
       enable = true;
-      theme = lib.mkForce "flame";
+      theme = lib.mkDefault "flame";
       themePackages = [
         (pkgs.adi1090x-plymouth-themes.override {selected_themes = ["flame"];})
       ];

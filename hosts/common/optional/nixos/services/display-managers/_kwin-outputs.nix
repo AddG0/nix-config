@@ -65,7 +65,8 @@ in
       shopt -s nullglob
       emptyMd5=d41d8cd98f00b204e9800998ecf8427e
       hashes=()
-      for connector in ${lib.escapeShellArgs (map (m: m.output) monitors)}; do
+      connectors=(${lib.escapeShellArgs (map (m: m.output) monitors)})
+      for connector in "''${connectors[@]}"; do
         hash=""
         # Several GPUs can share a connector name; a disconnected one has an empty edid.
         for edid in "$drm"/card*-"$connector"/edid; do

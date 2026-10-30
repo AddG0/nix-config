@@ -10,9 +10,25 @@
 
   jovian.decky-loader = {
     enable = true;
-    # Run as the logged-in user so plugins reach their session — Deckcord's voice
-    # backend hardcodes /run/user/1000 (dbus/pipewire). Plugins run as you.
-    user = config.hostSpec.primaryUsername;
+    # Retargets the injector to the debugger port gaming/steam.nix launches Steam with, and gives plugins the user's groups.
+    package = pkgs.jovianPackages.decky-loader.overrideAttrs (o: {
+      postFixup =
+        (o.postFixup or "")
+        + ''
+          for site in $out/lib/python*/site-packages/decky_loader; do
+            substituteInPlace "$site/injector.py" \
+              --replace-fail "http://localhost:8080" "http://localhost:21379"
+            # Plugins drop to the user without its supplementary groups, so a Steam they launch can't reach a group-only library.
+            substituteInPlace "$site/localplatform/localplatformlinux.py" \
+              --replace-fail "-iTCP:8080" "-iTCP:21379" \
+              --replace-fail "os.setgid(host_user_group_id)" "os.initgroups(_get_user(), host_user_group_id); os.setgid(host_user_group_id)"
+          done
+          # drop stale bytecode so the edits take effect at runtime
+          find "$out" -name __pycache__ -type d -exec rm -rf {} + 2>/dev/null || true
+        '';
+    });
+    # Run as the autologin user so plugins reach its session's dbus/pipewire.
+    user = config.hostSpec.primaryDesktopUsername;
     extraPackages = [
       pkgs.systemd # decky shells out to `systemctl`
       config.gaming.gamescopeSession.displayTool

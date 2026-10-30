@@ -7,7 +7,7 @@
 }: let
   monitors =
     (harness.eval [
-      (harness.root + "/modules/home/monitors.nix")
+      (harness.root + "/modules/common/monitors.nix")
       {
         display.monitors = [
           {
@@ -39,6 +39,7 @@
     .monitors;
 
   kwinOutputs = lib.getExe (import ../_kwin-outputs.nix {inherit lib pkgs;} monitors);
+  kwinOutputsSingle = lib.getExe (import ../_kwin-outputs.nix {inherit lib pkgs;} [(lib.last monitors)]);
   jq = lib.getExe pkgs.jq;
 in
   harness.check "display-managers" ''
@@ -65,6 +66,10 @@ in
     ${kwinOutputs} drm out/kwinoutputconfig.json
     [ "$(${jq} -r '.[0].data[1].edidHash' out/kwinoutputconfig.json)" = "$(printf main | md5sum | cut -d' ' -f1)" ] \
       || { echo "FAIL a disconnected connector of the same name on another GPU does not hide the connected one's EDID" >&2; exit 1; }
+
+    ${kwinOutputsSingle} drm out/single.json
+    [ "$(${jq} -c '[.[0].data[] | [.connectorName, .edidHash]]' out/single.json)" = "[[\"HDMI-A-1\",\"$(printf right | md5sum | cut -d' ' -f1)\"]]" ] \
+      || { echo "FAIL a single-monitor layout builds and carries its connector's EDID md5" >&2; exit 1; }
 
     : > drm/card1-HDMI-A-1/edid
     ${kwinOutputs} drm out/kwinoutputconfig.json 2>err.log

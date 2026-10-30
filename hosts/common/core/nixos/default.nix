@@ -23,5 +23,11 @@
   systemd.services.NetworkManager-wait-online.enable =
     lib.mkIf (config.hostSpec.hostType != "server") false;
 
+  services.displayManager.autoLogin = {
+    # nixpkgs enables autologin whenever a user is set, so the default user can't imply it.
+    enable = lib.mkDefault false;
+    user = lib.mkDefault config.hostSpec.primaryDesktopUsername;
+  };
+
   documentation.nixos.enable = false;
 }

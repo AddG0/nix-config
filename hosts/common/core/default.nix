@@ -28,6 +28,7 @@ in {
   # Core Host Specifications
   hostSpec = {
     primaryUsername = lib.mkDefault "addg";
+    users = [config.hostSpec.primaryUsername];
     handle = lib.mkDefault "addg";
 
     system.stateVersion = lib.mkDefault "26.05";

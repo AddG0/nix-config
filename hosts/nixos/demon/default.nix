@@ -56,7 +56,6 @@
     (with lib.custom.optional.hosts.nixos.hardware; [
       cachyos-kernel # CachyOS kernel
       flipperzero # flipper zero udev rules + qFlipper
-      moza # MOZA R5 wheelbase (boxflat + udev)
       openrazer # openrazer
       openrgb # OpenRGB (motherboard SMBus set below)
       wacom-dial-scroll
@@ -175,6 +174,54 @@
     autoScreenActivate = true;
     autoScreenUnlock = true;
     autoScreenLock = true;
+  };
+
+  # Host-specific Monitor Spec
+  #  ------   ------
+  # | DP-2 | | DP-3 | ----
+  # | ASUS | |  LG  | |HDMI-A-1|
+  #  ------   ------  |(rot)|
+  #                    ----
+  display = {
+    defaultMonitor.enable = false;
+    monitors = [
+      {
+        output = "DP-2";
+        name = "left";
+        width = 3840;
+        height = 2160;
+        refreshRate = 144;
+        x = 0;
+        y = 0;
+        bitdepth = 10;
+        hdr = true;
+      }
+      {
+        output = "DP-3";
+        name = "main";
+        width = 3840;
+        height = 2160;
+        refreshRate = 240;
+        x = 3840;
+        y = 0;
+        primary = true;
+        bitdepth = 10;
+        hdr = true;
+        # BT.2408 reference white; Hyprland's 80 makes SDR games dim next to HDR.
+        sdrMaxLuminance = 203;
+      }
+      {
+        output = "HDMI-A-1";
+        name = "right";
+        width = 3840;
+        height = 2160;
+        refreshRate = 120;
+        scale = 1.2; # matches DP-3's logical px/mm so the portrait spans its true physical height
+        transform = "270";
+        x = 7680;
+        y = -732; # 597mm panel overhangs the 392mm DP-3 by 205mm; ~56mm of that below its bottom edge
+      }
+    ];
   };
 
   hostSpec = {
