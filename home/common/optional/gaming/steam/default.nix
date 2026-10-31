@@ -43,6 +43,7 @@
   mkGamescope = import ./gamescope.nix {inherit lib pkgs;};
   gamescope = mkGamescope {hdr = false;} [];
   gamescopeHdr = mkGamescope {hdr = true;} [];
+  gameDefaults = import ./game-defaults.nix {inherit lib pkgs gameOutput gamemoderun gamescope gpuOffload;};
 
   mouseDpi = import ./mouse-dpi.nix {inherit lib pkgs razerEnabled;};
 
@@ -94,6 +95,8 @@ in {
       ))
     games;
   };
+
+  home.packages = [gameDefaults];
 
   # Enable multi-threaded Vulkan shader compilation for Steam
   # By default Steam uses only 1 thread, causing slow shader processing

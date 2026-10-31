@@ -34,6 +34,7 @@
   fps-chess = 2021910;
   cyberpunk-2077 = 1091500;
   valheim = 892970;
+  automobilista-2 = 1066890;
 
   # VR
   bigscreen-beyond-utility = 2467050;

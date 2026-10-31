@@ -44,6 +44,12 @@
   # 2000 DPI + in-game sens 2 reproduces the Aim Lab cm/360 (0.52% off).
   cyberpunk-2077.wrappers = mouseDpi 2000 ++ [gamemoderun];
 
+  automobilista-2 = {
+    # Steam's appinfo lists Linux but ships only AMS2.exe, so it would run the .exe natively.
+    compatTool = defaultCompatTool;
+    wrappers = [gamemoderun] ++ gamescope;
+  };
+
   # Bigscreen Beyond Utility — Windows-only app for adjusting the
   # headset's fan, brightness, refresh rate, and LED color.
   # Intentionally minimal: PROTON_ENABLE_HIDRAW is documented but

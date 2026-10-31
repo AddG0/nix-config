@@ -26,6 +26,15 @@
       steam = os.path.expanduser("~/.local/share/Steam")
       # The same id in every user's entry, so Steam sees one library rather than one per user.
       contentid = str(int(hashlib.sha256(library.encode()).hexdigest()[:15], 16))
+      # Unlabelled, Steam names a library after its filesystem, the same as the home library's when they share one.
+      label = "Shared"
+
+
+      def write(path, data):
+          with open(path + ".tmp", "w") as f:
+              vdf.dump(data, f, pretty=True)
+          os.replace(path + ".tmp", path)
+
 
       # Steam reads config/ once it has run; steamapps/ is seeded before the first run so a new user starts with both.
       for rel in ("config", "steamapps"):
@@ -39,14 +48,26 @@
           else:
               continue
           folders = data["libraryfolders"]
-          if any(isinstance(v, dict) and v.get("path") == library for v in folders.values()):
+          entry = next((v for v in folders.values() if isinstance(v, dict) and v.get("path") == library), None)
+          if entry is None:
+              key = str(max((int(k) for k in folders if k.isdigit()), default=-1) + 1)
+              folders[key] = {"path": library, "label": label, "contentid": contentid, "apps": {}}
+              print(f"steam-library: registered {library} in {path}")
+          elif not entry.get("label"):
+              entry["label"] = label
+              print(f"steam-library: labelled {library} in {path}")
+          else:
               continue
-          key = str(max((int(k) for k in folders if k.isdigit()), default=-1) + 1)
-          folders[key] = {"path": library, "label": "", "contentid": contentid, "apps": {}}
-          with open(path + ".tmp", "w") as f:
-              vdf.dump(data, f, pretty=True)
-          os.replace(path + ".tmp", path)
-          print(f"steam-library: registered {library} in {path}")
+          write(path, data)
+
+      # Steam also keeps the label in the library itself; a rename in Steam's Storage page is left alone.
+      marker = f"{library}/libraryfolder.vdf"
+      if os.path.exists(marker):
+          with open(marker) as f:
+              data = vdf.load(f)
+          if not data["libraryfolder"].get("label"):
+              data["libraryfolder"]["label"] = label
+              write(marker, data)
     '';
 in {
   options.gaming.steam.sharedLibrary = lib.mkOption {
