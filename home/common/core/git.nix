@@ -5,15 +5,6 @@
   config,
   ...
 }: let
-  inherit (config.hostSpec) handle;
-  publicGitEmail = config.hostSpec.githubEmail;
-  personalSigningKey =
-    lib.removeSuffix "\n" (builtins.readFile
-      (lib.custom.relativeToHosts "common/users/primary/keys/primary.pub"));
-  allowedSigners = pkgs.writeText "git-allowed-signers" ''
-    ${publicGitEmail} ${personalSigningKey}
-  '';
-
   # `gtar [<file>] [<ref>]` — git archive HEAD → tar.gz.
   # Defaults: filename = repo basename + .tar.gz, ref = HEAD.
   # Respects .gitattributes export-ignore; only tracked files included.
@@ -43,15 +34,7 @@ in {
     lfs.enable = true;
 
     settings = {
-      user = {
-        name = handle;
-        email = publicGitEmail;
-        signingkey = personalSigningKey;
-        useConfigOnly = true;
-      };
-
-      commit.gpgSign = true;
-      tag.gpgSign = true;
+      user.useConfigOnly = true;
 
       log.showSignature = "true";
       trim.bases = "develop,master,main"; # for git-trim
@@ -68,11 +51,6 @@ in {
         renameLimit = 3000; # raised so big restructures don't exceed the detection cap
         colorMoved = "default";
         algorithm = "histogram";
-      };
-
-      gpg = {
-        format = "ssh";
-        ssh.allowedSignersFile = toString allowedSigners;
       };
 
       alias = {

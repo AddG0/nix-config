@@ -8,8 +8,7 @@
 
   noctaliaPkg = pkgs.noctalia;
 in {
-  # Each plugin module installs, enables and places itself; drop it from ./plugins to remove it.
-  imports = [./plugins ./_hyprland.nix ./_niri.nix];
+  imports = [./_hyprland.nix ./_niri.nix];
 
   programs.noctalia = {
     enable = true;

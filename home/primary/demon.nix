@@ -53,7 +53,7 @@
       # mouseshare.lan-mouse
       # rustdesk
     ])
-    (with lib.custom.optional.home.secrets; [ai buf sops elevenlabs kubeconfig])
+    (with lib.custom.optional.home.secrets; [ai buf sops elevenlabs])
     (with lib.custom.optional.home.services; [gpu-screen-recorder hass-agent safeeyes])
     (with lib.custom.optional.home.tools; [
       bottles
@@ -66,7 +66,7 @@
     ])
     (with lib.custom.optional.primary; [stylix work])
     (with lib.custom.optional.primary.development; [node])
-    (with lib.custom.optional.primary.secrets; [onepassword-ssh])
+    (with lib.custom.optional.primary.secrets; [kubeconfig onepassword-ssh])
     (with lib.custom.optional.primary.services; [rclone])
   ];
 

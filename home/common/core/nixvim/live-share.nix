@@ -8,7 +8,7 @@
 
   extraConfigLua = ''
     require("live-share").setup({
-      username = vim.env.USER or "addg",
+      username = vim.env.USER or vim.uv.os_get_passwd().username,
     })
   '';
 

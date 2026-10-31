@@ -29,8 +29,6 @@ in {
   };
 
   config = {
-    polyrepo.drydock.views.ddp = ["gitlab.com/addg09" "github.com" "scratch"];
-
     home.packages = [customPkgs.drydock];
 
     home.shellAliases = lib.mapAttrs (_: roots: "drydock ${rootFlags roots}") cfg.views;

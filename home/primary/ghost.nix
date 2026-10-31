@@ -18,7 +18,7 @@
       virtualization.kubernetes
       virtualization.lens
     ])
-    (with lib.custom.optional.home.secrets; [ai buf sops elevenlabs kubeconfig])
+    (with lib.custom.optional.home.secrets; [ai buf sops elevenlabs])
     (with lib.custom.optional.primary.development; [node])
 
     (with lib.custom.optional.home; [helper-scripts])
@@ -28,7 +28,7 @@
       spicetify
     ])
     (with lib.custom.optional.primary; [stylix work])
-    (with lib.custom.optional.primary.secrets; [onepassword-ssh])
+    (with lib.custom.optional.primary.secrets; [kubeconfig onepassword-ssh])
   ];
 
   # Headless: no console login, so there is no gui/<uid> domain to bootstrap into.

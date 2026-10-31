@@ -49,7 +49,7 @@
       # mouseshare.lan-mouse
       # rustdesk
     ])
-    (with lib.custom.optional.home.secrets; [ai buf sops elevenlabs kubeconfig])
+    (with lib.custom.optional.home.secrets; [ai buf sops elevenlabs])
     (with lib.custom.optional.home.tools; [
       # freecad
       # gromit-mpx
@@ -59,7 +59,7 @@
       wayscriber
     ])
     (with lib.custom.optional.primary; [stylix work])
-    (with lib.custom.optional.primary.secrets; [onepassword-ssh])
+    (with lib.custom.optional.primary.secrets; [kubeconfig onepassword-ssh])
   ];
 
   dolphin.extraPlaces = [
