@@ -101,6 +101,7 @@ in {
       DECKIFY_SPOTIFY_CLIENT_ID = "5495bd441a014dbc8ea6391baf1d670b";
       # librespot's Spotify Connect discovery server, otherwise on a random port the firewall drops.
       DECKIFY_ZEROCONF_PORT = "39283";
+      DECKIFY_ZEROCONF_BACKEND = lib.mkIf config.services.avahi.enable "avahi";
     };
   };
 

@@ -4,8 +4,11 @@
   fetchzip,
   librespot,
   openssl,
+  pulseaudio,
 }: let
   version = "0.2.1";
+  # libmdns stays the default for hosts without avahi.
+  librespotWithAvahi = librespot.override {withAvahi = true;};
 in
   stdenvNoCC.mkDerivation {
     pname = "deckify";
@@ -26,7 +29,7 @@ in
       # Bundled librespot is the same 0.8.0, but linked against /usr libpulse+libssl.
       rm -rf "$out/bin"
       substituteInPlace "$out/main.py" \
-        --replace-fail 'os.path.join(decky.DECKY_PLUGIN_DIR, "bin", "librespot")' '"${lib.getExe librespot}"' \
+        --replace-fail 'os.path.join(decky.DECKY_PLUGIN_DIR, "bin", "librespot")' '"${lib.getExe librespotWithAvahi}"' \
         --replace-fail '"openssl", "req"' '"${lib.getExe' openssl "openssl"}", "req"'
 
       # SAN because Chrome ignores CN and would reject the name outright.
@@ -39,10 +42,10 @@ in
       # NavigateToExternalWeb — leave nothing dismissable over a running game.
       substituteInPlace "$out/dist/index.js" \
         --replace-fail 'DFL.Navigation.NavigateToExternalWeb(res.url);' 'DFL.showModal(window.SP_REACT.createElement(DFL.ModalRoot, null, window.SP_REACT.createElement("iframe", { src: res.url, style: { width: "100%", height: "70vh", border: "none" } })));'
-      # Upstream's SteamOS deck user is uid 1000; DECKIFY_ZEROCONF_PORT pins discovery to a port the firewall opens.
+      # Upstream's deck user is uid 1000; the env pins discovery's port, and its backend to avahi so libmdns can't rename the host.
       substituteInPlace "$out/main.py" \
         --replace-fail 'PULSE_SERVER = "unix:/run/user/1000/pulse/native"' 'PULSE_SERVER = f"unix:/run/user/{os.getuid()}/pulse/native"' \
-        --replace-fail '"--system-cache", CACHE_DIR,' '"--system-cache", CACHE_DIR, *(["--zeroconf-port", os.environ["DECKIFY_ZEROCONF_PORT"]] if os.environ.get("DECKIFY_ZEROCONF_PORT") else []),'
+        --replace-fail '"--system-cache", CACHE_DIR,' '"--system-cache", CACHE_DIR, *(["--zeroconf-port", os.environ["DECKIFY_ZEROCONF_PORT"]] if os.environ.get("DECKIFY_ZEROCONF_PORT") else []), *(["--zeroconf-backend", os.environ["DECKIFY_ZEROCONF_BACKEND"]] if os.environ.get("DECKIFY_ZEROCONF_BACKEND") else []),'
       # DECKIFY_SPOTIFY_CLIENT_ID (public under PKCE) skips the client-ID form; logout clears the stored ID, so every read falls back to it.
       substituteInPlace "$out/main.py" \
         --replace-fail 'self._settings.get("spotify_client_id", "").strip()' '(self._settings.get("spotify_client_id", "").strip() or _SPOTIFY_CLIENT_ID)' \
@@ -50,6 +53,11 @@ in
               if _SPOTIFY_CLIENT_ID:
                   return await self._redirect_to_spotify(_SPOTIFY_CLIENT_ID, writer)'
       echo '_SPOTIFY_CLIENT_ID = os.environ.get("DECKIFY_SPOTIFY_CLIENT_ID", "")' >>"$out/main.py"
+      cat ${./rate-limit.py} >>"$out/main.py"
+      # Volume boost for librespot's sink input; plugins run with the loader's PATH, which has no pactl.
+      substituteInPlace "$out/main.py" \
+        --replace-fail '["pactl", "list", "sink-inputs"]' '["${lib.getExe' pulseaudio "pactl"}", "list", "sink-inputs"]' \
+        --replace-fail '["pactl", "set-sink-input-volume",' '["${lib.getExe' pulseaudio "pactl"}", "set-sink-input-volume",'
       runHook postInstall
     '';
 
