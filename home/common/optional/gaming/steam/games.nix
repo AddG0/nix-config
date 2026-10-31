@@ -7,6 +7,7 @@
   mouseDpi,
   requireController,
   bakkesLauncher,
+  requireFile,
 }: {
   # Rocket League has a linux build, but it's not maintained so we need to use the windows version
   rocket-league.compatTool = defaultCompatTool;
@@ -45,6 +46,22 @@
   cyberpunk-2077.wrappers = mouseDpi 2000 ++ [gamemoderun];
 
   automobilista-2 = {
+    reshade = {
+      # H3RUS's preset ships with no license, so only its hash lives here and hosts opt in via gaming.steam.reshade.
+      optIn = true;
+      preset = requireFile {
+        name = "ams2-realistic.ini";
+        hash = "sha256-7MSR3LwgyDD56cVT/mVH47ex2ADYfrZ67wzcrM111xo=";
+        message = ''
+          Download "AMS2 Realistic Reshade" from
+          https://www.overtake.gg/downloads/ams2-realistic-reshade-preset.82647/
+          then rename "AMS2 Realistic.ini" to ams2-realistic.ini and run:
+            nix-store --add-fixed sha256 ams2-realistic.ini
+        '';
+      };
+      presetName = "AMS2 Realistic.ini";
+      packs = ["SweetFX-by-CeeJay.dk"];
+    };
     # Steam's appinfo lists Linux but ships only AMS2.exe, so it would run the .exe natively.
     compatTool = defaultCompatTool;
     wrappers = [gamemoderun] ++ gamescope;

@@ -170,6 +170,12 @@
       inputs.nixpkgs.follows = "nixpkgs";
     };
 
+    nix-reshade = {
+      url = "github:LovingMelody/nix-reshade";
+      inputs.nixpkgs.follows = "nixpkgs";
+      inputs.treefmt-nix.follows = "treefmt-nix";
+    };
+
     # Jovian-NixOS — we only use its decky-loader module.
     jovian = {
       url = "github:Jovian-Experiments/Jovian-NixOS";

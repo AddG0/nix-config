@@ -42,7 +42,10 @@
     ])
   ];
 
-  gaming.steam.sharedLibrary = "/srv/steam-library";
+  gaming.steam = {
+    sharedLibrary = "/srv/steam-library";
+    reshade = ["automobilista-2"];
+  };
 
   # Boot into Gaming Mode; Switch to Desktop still opens Plasma.
   desktops.loginSession = "gaming-mode";

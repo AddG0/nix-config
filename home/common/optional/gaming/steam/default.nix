@@ -52,13 +52,29 @@
 
   requireController = import ./require-controller.nix {inherit lib pkgs;};
 
+  mkApps = import ./apps.nix {
+    inherit lib;
+    reshade = import ./reshade.nix {
+      inherit lib;
+      inherit (pkgs) runCommand;
+      reshadePkgs = inputs.nix-reshade.packages.${pkgs.stdenv.hostPlatform.system};
+    };
+  };
+
   ids = import ./ids.nix;
-  settings = import ./games.nix {inherit defaultCompatTool gamemoderun gamescope gamescopeHdr mouseDpi requireController bakkesLauncher;};
+  settings = import ./games.nix {
+    inherit defaultCompatTool gamemoderun gamescope gamescopeHdr mouseDpi requireController bakkesLauncher;
+    inherit (pkgs) requireFile;
+  };
   unknownSlugs = lib.attrNames (removeAttrs settings (lib.attrNames ids));
   games =
     if unknownSlugs != []
     then throw "steam/games.nix: no app ID in steam/ids.nix for ${lib.concatStringsSep ", " unknownSlugs}"
-    else lib.recursiveUpdate (lib.mapAttrs (_: id: {inherit id;}) ids) settings;
+    else
+      mkApps {
+        games = lib.recursiveUpdate (lib.mapAttrs (_: id: {inherit id;}) ids) settings;
+        reshadeGames = osConfig.gaming.steam.reshade or [];
+      };
 in {
   imports = [
     inputs.steam-config-nix.homeModules.default

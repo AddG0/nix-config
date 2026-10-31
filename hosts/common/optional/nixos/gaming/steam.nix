@@ -70,11 +70,19 @@
               write(marker, data)
     '';
 in {
-  options.gaming.steam.sharedLibrary = lib.mkOption {
-    type = lib.types.nullOr lib.types.str;
-    default = null;
-    example = "/srv/steam-library";
-    description = "A Steam library every hostSpec user installs into, registered in each user's Steam at launch.";
+  options.gaming.steam = {
+    sharedLibrary = lib.mkOption {
+      type = lib.types.nullOr lib.types.str;
+      default = null;
+      example = "/srv/steam-library";
+      description = "A Steam library every hostSpec user installs into, registered in each user's Steam at launch.";
+    };
+    reshade = lib.mkOption {
+      type = lib.types.listOf lib.types.str;
+      default = [];
+      example = ["automobilista-2"];
+      description = "steam/games.nix games whose opt-in ReShade setup this host applies; their presets may need adding to the Nix store by hand.";
+    };
   };
 
   config = lib.mkMerge [

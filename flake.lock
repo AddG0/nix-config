@@ -2503,6 +2503,29 @@
         "type": "github"
       }
     },
+    "nix-reshade": {
+      "inputs": {
+        "nixpkgs": [
+          "nixpkgs"
+        ],
+        "treefmt-nix": [
+          "treefmt-nix"
+        ]
+      },
+      "locked": {
+        "lastModified": 1788559340,
+        "narHash": "sha256-OJpjfpSuWUjqrwEjclpjBx2Yy7iLkGNBd/Hed0APLKY=",
+        "owner": "LovingMelody",
+        "repo": "nix-reshade",
+        "rev": "d848cb9895d698f4ce815ca95b5fa6fe1d449acf",
+        "type": "github"
+      },
+      "original": {
+        "owner": "LovingMelody",
+        "repo": "nix-reshade",
+        "type": "github"
+      }
+    },
     "nix-secrets": {
       "inputs": {
         "flake-parts": "flake-parts_5",
@@ -3317,6 +3340,7 @@
         "nix-homebrew": "nix-homebrew",
         "nix-index-database": "nix-index-database",
         "nix-jetbrains-plugins": "nix-jetbrains-plugins",
+        "nix-reshade": "nix-reshade",
         "nix-secrets": "nix-secrets_2",
         "nix-unit": "nix-unit",
         "nix-vscode-extensions": "nix-vscode-extensions",
