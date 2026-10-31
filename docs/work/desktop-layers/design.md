@@ -202,7 +202,7 @@ Phases 1–6 are in the config. The live niri test (phase 6) is still to be done
 ### Remaining risks
 
 - niri's config is validated only at build time (`niri validate`), so the new adapters haven't been through it yet.
-- The ai-usage check is now named `script:home:wayland-wm:ai-usage`.
+- The ai-usage check is now named `script:home:ai-usage` (plugins live in the primary tree since 091cf2f6).
 
 ## Addendum: Plasma on the same host (2026-10-24)
 
