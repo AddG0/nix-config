@@ -27,6 +27,7 @@
     (lib.custom.useSuite lib.custom.suites.plasma6)
     (with lib.custom.optional.hosts.nixos; [
       audio # pipewire
+      onepassword
       plymouth
     ])
     (with lib.custom.optional.hosts.nixos.hardware; [
@@ -86,6 +87,8 @@
       height = 1440;
       refreshRate = 144;
       primary = true;
+      bitdepth = 10;
+      hdr = true;
     }
   ];
 
