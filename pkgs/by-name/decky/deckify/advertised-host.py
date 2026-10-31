@@ -7,7 +7,8 @@
 import fcntl
 import struct
 
-_ADVERTISED_HOST = ""  # baked in by the package when advertisedHost is set
+# The Spotify redirect URI is built from this, so it must match the app's dashboard exactly.
+_ADVERTISED_HOST = os.environ.get("DECKIFY_ADVERTISED_HOST", "")
 
 _SKIP_IFACE = ("tun", "tap", "tailscale", "docker", "br-", "veth", "virbr")
 _SIOCGIFADDR = 0x8915

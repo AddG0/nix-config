@@ -40,11 +40,7 @@
     ])
   ];
 
-  gaming = {
-    steam.sharedLibrary = "/srv/steam-library";
-    # Turns on the GBM scan-out patch in overlays/flake-update-workarounds/gamescope-nvidia-gbm-scanout.nix.
-    gamescopeSession.extraEnv.gamescope_drm_gbm_scanout = "1";
-  };
+  gaming.steam.sharedLibrary = "/srv/steam-library";
 
   # Boot into Gaming Mode; Switch to Desktop still opens Plasma.
   desktops.loginSession = "gaming-mode";
@@ -66,6 +62,8 @@
     };
     # Early KMS, or plymouth draws on the EFI framebuffer the 4080 takes over moments later.
     initrd.kernelModules = ["nvidia" "nvidia_modeset" "nvidia_uvm" "nvidia_drm"];
+    # Plymouth skips simpledrm unless told, leaving it nothing to draw on until nvidia-drm's mode switch.
+    kernelParams = ["plymouth.use-simpledrm"];
 
     loader = {
       systemd-boot = {

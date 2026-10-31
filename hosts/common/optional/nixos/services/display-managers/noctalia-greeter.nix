@@ -21,6 +21,7 @@ in {
   imports = [
     inputs.noctalia-greeter.nixosModules.default
     ./_greetd.nix
+    (import ./_retain-splash.nix {})
   ];
 
   services.displayManager.noctalia-greeter = {

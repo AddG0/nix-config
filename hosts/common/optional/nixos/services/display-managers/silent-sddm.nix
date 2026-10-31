@@ -9,7 +9,10 @@
   inherit (config.display) monitors;
   kwinOutputs = import ./_kwin-outputs.nix {inherit lib pkgs;} monitors;
 in {
-  imports = [inputs.silent-sddm.nixosModules.default];
+  imports = [
+    inputs.silent-sddm.nixosModules.default
+    (import ./_retain-splash.nix {})
+  ];
 
   assertions = [
     {

@@ -42,9 +42,7 @@
     # Keys are the store's own folder names, so a UI install wouldn't duplicate.
     plugins = {
       Deckcord = customPkgs.decky.deckcord;
-      # Bare hostname the LAN's DNS already answers for; set networking.domain
-      # to advertise an FQDN instead.
-      Deckify = customPkgs.decky.deckify.override {advertisedHost = config.networking.fqdnOrHostName;};
+      Deckify = customPkgs.decky.deckify;
       decky-steamgriddb = customPkgs.decky.steamgriddb;
       protondb-decky = customPkgs.decky.protondb-badges;
       TabMaster = customPkgs.decky.tabmaster;
@@ -54,10 +52,15 @@
     };
   };
 
-  # Doubles up on extraPackages above: a plugin subprocess may get a narrower
-  # environment than the loader's PATH.
-  systemd.services.decky-loader.environment.GAMESCOPE_SET_DISPLAY =
-    lib.getExe config.gaming.gamescopeSession.displayTool;
+  systemd.services.decky-loader.environment = {
+    # Doubles up on extraPackages above: a plugin subprocess may get a narrower
+    # environment than the loader's PATH.
+    GAMESCOPE_SET_DISPLAY = lib.getExe config.gaming.gamescopeSession.displayTool;
+    # Bare hostname the LAN's DNS already answers for; set networking.domain to advertise an FQDN instead.
+    DECKIFY_ADVERTISED_HOST = config.networking.fqdnOrHostName;
+    # One household Spotify app; its dashboard lists https://<host>:39281/callback for each host.
+    DECKIFY_SPOTIFY_CLIENT_ID = "5495bd441a014dbc8ea6391baf1d670b";
+  };
 
   # Deckify's Spotify OAuth page, so its login QR code reaches a phone.
   networking.firewall.allowedTCPPorts = [39281];

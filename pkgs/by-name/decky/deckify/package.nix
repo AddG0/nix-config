@@ -4,9 +4,6 @@
   fetchzip,
   librespot,
   openssl,
-  # Host the OAuth page is served at, and so the Spotify redirect URI — it must
-  # match the dashboard exactly. Null falls back to detecting the LAN address.
-  advertisedHost ? null,
 }: let
   version = "0.2.1";
 in
@@ -42,10 +39,13 @@ in
       # NavigateToExternalWeb — leave nothing dismissable over a running game.
       substituteInPlace "$out/dist/index.js" \
         --replace-fail 'DFL.Navigation.NavigateToExternalWeb(res.url);' 'DFL.showModal(window.SP_REACT.createElement(DFL.ModalRoot, null, window.SP_REACT.createElement("iframe", { src: res.url, style: { width: "100%", height: "70vh", border: "none" } })));'
-      ${lib.optionalString (advertisedHost != null) ''
-        substituteInPlace "$out/main.py" \
-          --replace-fail '_ADVERTISED_HOST = ""' '_ADVERTISED_HOST = "${advertisedHost}"'
-      ''}
+      # DECKIFY_SPOTIFY_CLIENT_ID (public under PKCE) skips the client-ID form; logout clears the stored ID, so every read falls back to it.
+      substituteInPlace "$out/main.py" \
+        --replace-fail 'self._settings.get("spotify_client_id", "").strip()' '(self._settings.get("spotify_client_id", "").strip() or _SPOTIFY_CLIENT_ID)' \
+        --replace-fail '    async def _send_landing_page(self, writer: asyncio.StreamWriter):' '    async def _send_landing_page(self, writer: asyncio.StreamWriter):
+              if _SPOTIFY_CLIENT_ID:
+                  return await self._redirect_to_spotify(_SPOTIFY_CLIENT_ID, writer)'
+      echo '_SPOTIFY_CLIENT_ID = os.environ.get("DECKIFY_SPOTIFY_CLIENT_ID", "")' >>"$out/main.py"
       runHook postInstall
     '';
 

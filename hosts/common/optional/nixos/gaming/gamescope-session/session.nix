@@ -15,6 +15,7 @@
   # Held by the dispatcher for as long as it runs, so the launcher can tell a wrapped desktop from a bare one.
   dispatcherFlag = ''"''${XDG_RUNTIME_DIR:-/run/user/$(id -u)}/session-dispatcher-active"'';
   flock = "${pkgs.util-linux}/bin/flock";
+  pgrep = "${pkgs.procps}/bin/pgrep";
 
   # mangoapp is an X11 client on gamescope's Xwayland, but gamescope exports
   # WAYLAND_DISPLAY to children — GLFW then inits Wayland and segfaults in
@@ -70,8 +71,21 @@
     ${pkgs.util-linux}/bin/flock -n 9 || true
     ${watchDisplayCommand} &
     watcher=$!
-    ${gamescopeCmd} || true
-    kill "$watcher" 2>/dev/null || true
+    ${gamescopeCmd} &
+    gamescope=$!
+    # Like gamescope-session-plus: SIGKILL gamescope 5s after Steam exits; its logind device release can block 25s.
+    (
+      until ${pgrep} -P "$gamescope" -f "gamescopereaper -- ${steamBin}" >/dev/null || ! kill -0 "$gamescope" 2>/dev/null; do sleep 1; done
+      while ${pgrep} -P "$gamescope" -f "gamescopereaper -- ${steamBin}" >/dev/null; do sleep 1; done
+      sleep 5
+      if kill -0 "$gamescope" 2>/dev/null; then
+        echo "gamescope timed out while exiting, killing" >&2
+        kill -9 "$gamescope"
+      fi
+    ) &
+    teardown=$!
+    wait "$gamescope" || true
+    kill "$teardown" "$watcher" 2>/dev/null || true
     exec 9>&-
     rm -f ${sessionFlag}
   '';
