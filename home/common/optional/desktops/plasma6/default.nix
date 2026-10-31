@@ -48,6 +48,12 @@ in {
     '';
   };
 
+  # Mirrors plasma-workspace MR 7046: a restart mid-startup leaves plasmashell ignoring SIGTERM (KDE bug 525573).
+  xdg.configFile."systemd/user/plasma-plasmashell.service.d/stop-timeout.conf".text = ''
+    [Service]
+    TimeoutStopSec=5s
+  '';
+
   programs.plasma = {
     enable = true;
 
@@ -85,7 +91,11 @@ in {
       # Windows-like taskbar at the bottom
       {
         location = "bottom";
-        screen = "all";
+        # Any `screen` makes plasma-manager restart plasmashell on a panel change; one monitor needs none.
+        screen =
+          if lib.length config.display.monitors == 1
+          then null
+          else "all";
         floating = true;
         opacity = "translucent";
         widgets = [
