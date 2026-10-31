@@ -1,8 +1,4 @@
-{
-  lib,
-  pkgs,
-  ...
-}: let
+{pkgs, ...}: let
   logo-theme =
     pkgs.runCommand "plymouth-theme-logo" {
       nativeBuildInputs = [pkgs.librsvg];
