@@ -1,4 +1,8 @@
-{lib, ...}: {
+{
+  lib,
+  pkgs,
+  ...
+}: {
   imports = lib.flatten [
     (with lib.custom.optional.home; [browsers comms ghostty])
     (with lib.custom.optional.home.desktops; [hyprland.nvidia])
@@ -9,4 +13,7 @@
   ];
 
   desktops.defaultSession = "hyprland";
+
+  # On top of the shared list in primary/common/optional/desktops/autostart.nix.
+  xdg.autostart.entries = ["${pkgs.steam}/share/applications/steam.desktop"];
 }
