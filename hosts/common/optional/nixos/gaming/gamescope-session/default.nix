@@ -76,6 +76,8 @@ in {
       systemd.tmpfiles.rules = [
         "L+ /usr/bin/steamos-session-select - - - - ${lib.getExe session.sessionSelect}"
       ];
+      # -steamos3 makes Steam call SteamOS's update and branch helpers; Jovian's stubs answer them inside its FHS env.
+      programs.steam.extraPackages = [pkgs.jovianPackages.jovian-stubs];
     }
 
     (lib.mkIf cfg.standalone {
