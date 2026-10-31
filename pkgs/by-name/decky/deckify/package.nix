@@ -39,6 +39,10 @@ in
       # NavigateToExternalWeb — leave nothing dismissable over a running game.
       substituteInPlace "$out/dist/index.js" \
         --replace-fail 'DFL.Navigation.NavigateToExternalWeb(res.url);' 'DFL.showModal(window.SP_REACT.createElement(DFL.ModalRoot, null, window.SP_REACT.createElement("iframe", { src: res.url, style: { width: "100%", height: "70vh", border: "none" } })));'
+      # Upstream's SteamOS deck user is uid 1000; DECKIFY_ZEROCONF_PORT pins discovery to a port the firewall opens.
+      substituteInPlace "$out/main.py" \
+        --replace-fail 'PULSE_SERVER = "unix:/run/user/1000/pulse/native"' 'PULSE_SERVER = f"unix:/run/user/{os.getuid()}/pulse/native"' \
+        --replace-fail '"--system-cache", CACHE_DIR,' '"--system-cache", CACHE_DIR, *(["--zeroconf-port", os.environ["DECKIFY_ZEROCONF_PORT"]] if os.environ.get("DECKIFY_ZEROCONF_PORT") else []),'
       # DECKIFY_SPOTIFY_CLIENT_ID (public under PKCE) skips the client-ID form; logout clears the stored ID, so every read falls back to it.
       substituteInPlace "$out/main.py" \
         --replace-fail 'self._settings.get("spotify_client_id", "").strip()' '(self._settings.get("spotify_client_id", "").strip() or _SPOTIFY_CLIENT_ID)' \

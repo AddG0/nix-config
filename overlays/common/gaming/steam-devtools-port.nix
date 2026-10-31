@@ -1,6 +1,6 @@
 # Everything that talks to Steam's CEF debugger hardcodes CEF's default 8080,
 # so each one has to be retargeted to the port gaming/steam.nix launches with.
-# Decky itself is patched in gaming/decky.nix: Jovian's overlay, applied after
+# Decky itself is patched in gaming/decky: Jovian's overlay, applied after
 # this one, supplies the jovianPackages.decky-loader its service runs.
 #
 # `--replace-fail` on purpose: a future release that renames or moves one of

@@ -1,11 +1,10 @@
 # A CSS Loader theme; the plugin picks up any folder under its themes dir.
 {
   config,
+  lib,
   pkgs,
   ...
 }: let
-  themeDir = "/var/lib/decky-loader/themes/UltrawidePlayButton";
-
   manifest = pkgs.writeText "theme.json" (builtins.toJSON {
     name = "Ultrawide Play Button";
     version = "v1.0.0";
@@ -27,14 +26,25 @@
   '';
   # Read once at theme load and only rewritten by a UI toggle, so a store
   # symlink holds. _USER rather than _ROOT because decky runs as the login
-  # user (jovian.decky-loader.user in gaming/decky.nix).
+  # user (decky-follow-user in gaming/decky).
   enabledState = pkgs.writeText "config_USER.json" (builtins.toJSON {active = true;});
-in {
-  # CSS Loader writes into the theme folder, so it cannot be a store symlink.
-  systemd.tmpfiles.rules = [
-    "d ${themeDir} 0755 ${config.jovian.decky-loader.user} users -"
+
+  # Each user's DECKY_HOME, whose decky dir gaming/decky creates.
+  rulesFor = user: let
+    inherit (config.users.users.${user}) home group;
+    themes = "${home}/.local/share/decky/themes";
+    themeDir = "${themes}/UltrawidePlayButton";
+  in [
+    "d ${themes} 0755 ${user} ${group} -"
+    "d ${themeDir} 0755 ${user} ${group} -"
     "L+ ${themeDir}/theme.json - - - - ${manifest}"
     "L+ ${themeDir}/bigpicture.css - - - - ${css}"
     "L+ ${themeDir}/config_USER.json - - - - ${enabledState}"
   ];
+in {
+  # CSS Loader writes into the theme folder, so it cannot be a store symlink.
+  systemd.tmpfiles.rules =
+    lib.concatMap rulesFor config.hostSpec.users
+    # The copy from when themes were shared; any other theme there moves to the boot user's.
+    ++ ["R ${config.jovian.decky-loader.stateDir}/themes/UltrawidePlayButton"];
 }
