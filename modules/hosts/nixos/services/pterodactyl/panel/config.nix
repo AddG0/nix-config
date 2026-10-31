@@ -82,9 +82,7 @@ in
         APP_ENV_PATH = "${cfg.stateDir}";
         APP_STORAGE_PATH = "${cfg.stateDir}/storage";
       };
-      phpOptions = ''
-        variables_order = "EGPCS"
-      '';
+      phpOptions.variables_order = "EGPCS";
       settings = {
         listen = "/run/phpfpm/pterodactyl.sock";
         "listen.owner" = cfg.user;
