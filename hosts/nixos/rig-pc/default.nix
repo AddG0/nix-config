@@ -23,6 +23,7 @@
 
     #################### Misc Inputs ####################
     (lib.custom.useSuite lib.custom.suites.gaming)
+    (lib.custom.useSuite lib.custom.suites.hyprland)
     (lib.custom.useSuite lib.custom.suites.plasma6)
     (with lib.custom.optional.hosts.nixos; [
       audio # pipewire
