@@ -24,10 +24,6 @@
       overflow: hidden;
     }
   '';
-  # Read once at theme load and only rewritten by a UI toggle, so a store
-  # symlink holds. _USER rather than _ROOT because decky runs as the login
-  # user (decky-follow-user in gaming/decky).
-  enabledState = pkgs.writeText "config_USER.json" (builtins.toJSON {active = true;});
 
   # Each user's DECKY_HOME, whose decky dir gaming/decky creates.
   rulesFor = user: let
@@ -39,7 +35,9 @@
     "d ${themeDir} 0755 ${user} ${group} -"
     "L+ ${themeDir}/theme.json - - - - ${manifest}"
     "L+ ${themeDir}/bigpicture.css - - - - ${css}"
-    "L+ ${themeDir}/config_USER.json - - - - ${enabledState}"
+    # CSS Loader writes this, so it is a real file, re-enabled at each boot and switch. _USER: plugins run as the login user.
+    "r ${themeDir}/config_USER.json"
+    "f ${themeDir}/config_USER.json 0644 ${user} ${group} - ${builtins.toJSON {active = true;}}"
   ];
 in {
   # CSS Loader writes into the theme folder, so it cannot be a store symlink.
