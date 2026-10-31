@@ -23,7 +23,7 @@ in {
 
   programs.silentSDDM = {
     enable = true;
-    theme = lib.mkDefault "catppuccin-${config.desktops.catppuccin.flavor}";
+    theme = lib.mkDefault "default";
   };
 
   # Rewritten every boot, so "Apply Plasma Settings" in the SDDM KCM lasts one boot only.
