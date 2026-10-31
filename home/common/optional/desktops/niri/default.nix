@@ -32,6 +32,8 @@ in {
     ./btop.nix
   ];
 
+  desktops.defaultSession = lib.mkDefault "niri";
+
   systemd.user.targets.bare-compositor-session.Install.WantedBy = ["niri.service"];
 
   desktop.session.dpms.niri = let

@@ -18,6 +18,8 @@
     ./recovery.nix
   ];
 
+  desktops.defaultSession = lib.mkDefault "hyprland";
+
   # wayland session entry for greetd
   home.file.".wayland-session" = {
     source = "${pkgs.hyprland}/bin/Hyprland";

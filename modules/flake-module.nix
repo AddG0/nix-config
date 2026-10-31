@@ -69,6 +69,7 @@ in {
           common
           ++ [
             ./home/copyq.nix
+            ./home/desktops.nix
             ./home/directory-env
             ./home/direnv/1password-direnv
             ./home/direnv/lastpass-direnv

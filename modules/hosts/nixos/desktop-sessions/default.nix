@@ -7,7 +7,25 @@
 }: let
   cfg = config.desktops;
   render = import ./_render.nix {inherit lib pkgs;};
-  desktopKeys = lib.attrNames (lib.filterAttrs (_: session: session.desktop) cfg.sessions);
+  plan = render.plan {inherit (cfg) sessions primarySession;};
+  inherit (plan) desktops desktopKeys hasLauncher primaryDesktop;
+
+  # Rendered beside desktops.sessions rather than in it: whether it exists depends on the sessions there.
+  launcherKey = "desktop";
+  launcher = render.launcher {
+    inherit desktops;
+    fallback = primaryDesktop;
+  };
+  launcherEntry = render.entry cfg.sessionWrapper {
+    sessionName = launcherKey;
+    displayName = "Desktop";
+    desktopNames = [];
+    command = lib.getExe launcher;
+    noDisplay = false;
+    desktop = true;
+  };
+
+  homeDefaults = lib.filterAttrs (_: key: key != null) (lib.mapAttrs (_: home: home.desktops.defaultSession or null) (config.home-manager.users or {}));
 in {
   options.desktops = {
     sessions = lib.mkOption {
@@ -87,10 +105,22 @@ in {
 
     loginSession = lib.mkOption {
       type = lib.types.nullOr lib.types.str;
-      default = cfg.primarySession;
-      defaultText = lib.literalExpression "config.desktops.primarySession";
+      default = plan.loginSession;
+      defaultText = lib.literalExpression ''"desktop" with several desktops and a desktop as primarySession, else config.desktops.primarySession'';
       example = "gaming-mode";
-      description = "Key of the session the display manager starts by default, autologin included.";
+      description = "Key of the session the display manager starts by default, autologin included; \"desktop\" is the launcher into each user's desktops.defaultSession.";
+    };
+
+    defaultDesktopCommand = lib.mkOption {
+      type = lib.types.nullOr lib.types.str;
+      readOnly = true;
+      default =
+        if hasLauncher
+        then lib.getExe launcher
+        else if primaryDesktop != null
+        then desktops.${primaryDesktop}.command
+        else null;
+      description = "Command that starts the logged-in user's desktop: the launcher with several desktops, else the primary one.";
     };
 
     sessionWrapper = lib.mkOption {
@@ -113,13 +143,30 @@ in {
         assertion = session.stop == null || session.desktopNames != [];
         message = "desktops.sessions.${key}: stop is matched through desktopNames, which is empty, so it would never run.";
       })
-      cfg.sessions;
+      cfg.sessions
+      ++ [
+        {
+          assertion = !(hasLauncher && cfg.sessions ? ${launcherKey});
+          message = "desktops.sessions.${launcherKey}: the key is taken by the launcher into each user's default desktop.";
+        }
+      ]
+      ++ lib.mapAttrsToList (user: key: {
+        assertion = desktops ? ${key};
+        message = "home-manager.users.${user}.desktops.defaultSession is \"${key}\", but this host's desktops are: ${lib.concatStringsSep ", " desktopKeys}.";
+      })
+      homeDefaults;
 
     services.displayManager = {
       # The session list keeps the first entry of a name, so ours, placed first, replace upstream's.
-      sessionPackages = lib.mkBefore (map (render.entry cfg.sessionWrapper) (lib.attrValues cfg.sessions));
+      sessionPackages =
+        lib.mkBefore (map (render.entry cfg.sessionWrapper) (lib.attrValues cfg.sessions)
+          ++ lib.optional hasLauncher launcherEntry);
       # Plain priority: plasma6 and niri each mkDefault their own; loginSession is where a host picks.
-      defaultSession = lib.mkIf (cfg.loginSession != null) cfg.sessions.${cfg.loginSession}.sessionName;
+      defaultSession = lib.mkIf (cfg.loginSession != null) (
+        if hasLauncher && cfg.loginSession == launcherKey
+        then launcherKey
+        else cfg.sessions.${cfg.loginSession}.sessionName
+      );
     };
   };
 }

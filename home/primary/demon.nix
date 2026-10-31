@@ -70,6 +70,9 @@
     (with lib.custom.optional.primary.services; [rclone])
   ];
 
+  # Hyprland, niri and Plasma are all installed; this is the one autologin and Switch to Desktop land in.
+  desktops.defaultSession = "hyprland";
+
   # Record from the never-muted direct_input node (demon audio/virtual-devices.nix),
   # so Claude Code keeps hearing me when I hit mic-mute.
   programs.claude-code-profiles.captureNode = "direct_input";

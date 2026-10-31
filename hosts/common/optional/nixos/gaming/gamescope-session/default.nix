@@ -102,7 +102,7 @@ in {
         sessionWrapper = "${lib.getExe session.dispatcher} desktop";
         sessions.${gamingSessionKey} = {
           displayName = "Gaming Mode";
-          command = "${lib.getExe session.dispatcher} gamescope ${lib.optionalString (primarySession != null) config.desktops.sessions.${primarySession}.command}";
+          command = "${lib.getExe session.dispatcher} gamescope ${lib.optionalString (config.desktops.defaultDesktopCommand != null) config.desktops.defaultDesktopCommand}";
           desktop = false;
         };
       };

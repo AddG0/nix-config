@@ -26,6 +26,8 @@ in {
     ./stylix.nix
   ];
 
+  desktops.defaultSession = lib.mkDefault "plasma";
+
   # Plasma Monitor Configuration:
   # - Use `kscreen-doctor -o` to list monitors
   # - Set primary monitor: `kscreen-doctor output.3.primary` (replace 3 with output number)
