@@ -167,7 +167,7 @@
         wrapProgram "$exe" \
           --prefix PATH : "${pkgs.kdePackages.plasma-desktop}/bin" \
           --prefix QT_PLUGIN_PATH : "${qtPluginPaths}" \
-          --prefix XDG_DATA_DIRS : "${iconThemePkg}/share:${dataDirs}" \
+          --prefix XDG_DATA_DIRS : "${lib.optionalString (iconThemePkg != null) "${iconThemePkg}/share:"}${dataDirs}" \
           --prefix LD_LIBRARY_PATH : "${pkgs.pipewire}/lib"
       done
     '';
@@ -201,7 +201,7 @@ in {
     xdg.configFile."kservices5/ServiceMenus/extracthere.desktop".text = extractHereDesktop;
 
     # Plasma owns kdeglobals where it is installed, and its icon theme follows stylix there.
-    xdg.configFile."kdeglobals" = lib.mkIf (!(osConfig.services.desktopManager.plasma6.enable or false)) {
+    xdg.configFile."kdeglobals" = lib.mkIf (!(osConfig.services.desktopManager.plasma6.enable or false) && config.stylix.icons.dark != null) {
       text = ''
         [Icons]
         Theme=${config.stylix.icons.dark}

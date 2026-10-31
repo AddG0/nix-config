@@ -98,7 +98,8 @@
   #   marker + file + diff → stylix theme changed, re-point the symlink
   #   marker + file + same → no-op
   # Delete the marker to force an unconditional re-seed.
-  seedScriptText = lib.optionalString config.wallpapers.defaultSeed.enable ''
+  # Without a stylix image there is nothing to seed.
+  seedScriptText = lib.optionalString (config.wallpapers.defaultSeed.enable && config.stylix.image != null) ''
     mkdir -p ${lib.escapeShellArg defaultDir}
     marker=${lib.escapeShellArg "${defaultDir}/.stylix-seeded"}
     file=${lib.escapeShellArg "${defaultDir}/_stylix-default.png"}

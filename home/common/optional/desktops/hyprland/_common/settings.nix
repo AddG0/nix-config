@@ -133,8 +133,10 @@ in {
   # HYPRCURSOR_* intentionally not set: Bibata is xcursor-only, and pointing
   # HYPRCURSOR_THEME at a non-hyprcursor theme caused inconsistent sizing
   # on native Wayland apps.
-  xdg.configFile."environment.d/10-cursor.conf".text = ''
-    XCURSOR_THEME=${config.stylix.cursor.name}
-    XCURSOR_SIZE=${toString config.stylix.cursor.size}
-  '';
+  xdg.configFile."environment.d/10-cursor.conf" = lib.mkIf (config.stylix.cursor != null) {
+    text = ''
+      XCURSOR_THEME=${config.stylix.cursor.name}
+      XCURSOR_SIZE=${toString config.stylix.cursor.size}
+    '';
+  };
 }
