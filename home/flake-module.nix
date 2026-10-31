@@ -134,8 +134,8 @@
           (lib.custom.relativeToHome "common/core")
           # Same import set hosts/common/users/default.nix builds for the
           # primary user; without it primary-only modules vanish standalone.
-          (lib.custom.relativeToHome "primary/common/core")
-          ./primary/${file}
+          (lib.custom.importUserHome "primary" (lib.custom.relativeToHome "primary/common/core"))
+          (lib.custom.importUserHome "primary" ./primary/${file})
           # NixOS/darwin hosts pass this via home-manager.extraSpecialArgs instead.
           ({pkgs, ...}: {_module.args.customPkgs = pkgs.addg;})
         ];

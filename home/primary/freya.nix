@@ -59,7 +59,6 @@
       wayscriber
     ])
     (with lib.custom.optional.primary; [stylix work])
-    (with lib.custom.optional.primary.development; [aws])
     (with lib.custom.optional.primary.secrets; [onepassword-ssh])
   ];
 

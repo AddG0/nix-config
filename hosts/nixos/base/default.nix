@@ -19,6 +19,9 @@
 #          ];
 #        };
 #
+#  Wrap such imports in `lib.custom.withUserExtras "<tree>"` to bring user
+#  halves along with shared home modules (ADR 0012).
+#
 #  Override base's hostSpec/networking/etc. with lib.mkForce — everything
 #  here is lib.mkDefault so downstream wins without ceremony.
 #

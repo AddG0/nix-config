@@ -36,7 +36,6 @@
     (with lib.custom.optional.home.secrets; [ai buf sops elevenlabs kubeconfig])
     (with lib.custom.optional.home.tools; [wayscriber])
     (with lib.custom.optional.primary; [stylix work])
-    (with lib.custom.optional.primary.development; [aws])
     (with lib.custom.optional.primary.secrets; [onepassword-ssh])
   ];
 

@@ -65,7 +65,7 @@
       wayscriber
     ])
     (with lib.custom.optional.primary; [stylix work])
-    (with lib.custom.optional.primary.development; [aws node])
+    (with lib.custom.optional.primary.development; [node])
     (with lib.custom.optional.primary.secrets; [onepassword-ssh])
     (with lib.custom.optional.primary.services; [rclone])
   ];

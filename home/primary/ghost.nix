@@ -19,7 +19,7 @@
       virtualization.lens
     ])
     (with lib.custom.optional.home.secrets; [ai buf sops elevenlabs kubeconfig])
-    (with lib.custom.optional.primary.development; [aws node])
+    (with lib.custom.optional.primary.development; [node])
 
     (with lib.custom.optional.home; [helper-scripts])
     (with lib.custom.optional.home.secrets; [sops])

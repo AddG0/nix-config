@@ -85,8 +85,45 @@
       declare = import f;
     }) (suiteFiles dir))
   trees));
+
+  treeOf = hostSpec: user:
+    if user == hostSpec.primaryUsername
+    then "primary"
+    else user;
+
+  # A user tree's module at the same place as a shared home module rides along with it.
+  withUserExtras = optional: tree: imports: let
+    root = toString trees.home + "/";
+    extrasOf = m: let
+      path = lib.splitString "/" (lib.removeSuffix ".nix" (lib.removePrefix root (toString m)));
+      extra = lib.attrByPath path null (optional.${tree} or {});
+    in
+      lib.optional (builtins.isPath m && lib.hasPrefix root (toString m) && builtins.isPath extra) extra;
+  in
+    imports ++ lib.concatMap extrasOf imports;
 in {
   inherit optional suites suitesFromDeclarations;
+
+  withUserExtras = withUserExtras optional;
+
+  # The tree holding a user's own modules: `primary` for the host's primary user, else their name.
+  inherit treeOf;
+
+  # A user's home file as a module, its imports gaining that user tree's extras (withUserExtras).
+  importUserHome = tree: file: let
+    module = import file;
+    # `key` keeps the module where importing the path itself would put it.
+    expand = m:
+      m
+      // {
+        _file = toString file;
+        key = toString file;
+      }
+      // lib.optionalAttrs (m ? imports) {imports = withUserExtras optional tree (lib.flatten m.imports);};
+  in
+    if builtins.isFunction module
+    then lib.mirrorFunctionArgs module (args: expand (module args))
+    else expand module;
 
   # A host import for a suite: its nixos half, its home half for every hostSpec user, and each user
   # tree's half for that user. `primary` names a role (hostSpec.primaryUsername); any other tree
@@ -100,7 +137,11 @@ in {
         ++ [{${config.hostSpec.primaryUsername} = suite.users.primary or [];}]
         ++ lib.mapAttrsToList (tree: modules: {${tree} = modules;}) others);
     in {
-      home-manager.users = lib.mapAttrs (_: lists: {imports = lib.concatLists lists;}) byUser;
+      home-manager.users =
+        lib.mapAttrs (user: lists: {
+          imports = withUserExtras optional (treeOf config.hostSpec user) (lib.concatLists lists);
+        })
+        byUser;
     });
 
   # home-manager activation text (uses its `run`) that installs a darwin

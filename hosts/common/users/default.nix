@@ -13,10 +13,7 @@
     then "darwin"
     else "nixos";
 
-  userDir = user:
-    if user == hostSpec.primaryUsername
-    then "primary"
-    else user;
+  userDir = lib.custom.treeOf hostSpec;
 
   genPubKeyList = user: let
     keyPath = lib.custom.relativeToRoot "hosts/common/users/${userDir user}/keys";
@@ -69,11 +66,13 @@ in {
     };
     users = lib.mergeAttrsList (map (user: {
         ${user}.imports = lib.flatten [
-          (lib.optional (!hostSpec.isMinimal) (map fullPathIfExists [
-            "home/${userDir user}/${hostSpec.hostName}.nix"
-            "home/${userDir user}/common/core"
-            "home/common/core"
-          ]))
+          (lib.optional (!hostSpec.isMinimal) [
+            (map (lib.custom.importUserHome (userDir user)) (lib.concatMap fullPathIfExists [
+              "home/${userDir user}/${hostSpec.hostName}.nix"
+              "home/${userDir user}/common/core"
+            ]))
+            (fullPathIfExists "home/common/core")
+          ])
           {
             programs.home-manager.enable = true;
             home = {
