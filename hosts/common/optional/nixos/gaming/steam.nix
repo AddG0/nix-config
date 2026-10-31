@@ -1,12 +1,25 @@
 # Desktop Steam inherits Gaming Mode's -steamdeck; greyed-out Friends/Chat = oobe_stage_2_completed unset.
 {
   config,
+  inputs,
   lib,
   pkgs,
   ...
 }: let
   library = config.gaming.steam.sharedLibrary;
   group = "steam-library";
+
+  # Game-folder files in the shared library get one writer, so its records survive whichever users sign in.
+  libraryFiles = import ./_library-files.nix {inherit lib;} (lib.attrValues (config.home-manager.users or {}));
+  steamConfigPatcher = pkgs.python3Packages.toPythonModule (
+    pkgs.python3Packages.callPackage "${inputs.steam-config-nix}/pkgs/steam-config-patcher/package.nix" {}
+  );
+  placeLibraryFiles = pkgs.writers.writePython3 "library-files" {
+    libraries = [steamConfigPatcher];
+    flakeIgnore = ["E501"];
+  } (builtins.readFile ./library-files.py);
+  libraryFilesJson = pkgs.writeText "library-files.json" (builtins.toJSON libraryFiles.ops);
+  libraryFilesState = "steam-library-files";
   # Wine refuses another uid's prefix, so Steam's sandbox swaps in the launching user's own compatdata.
   ownCompatdata = "$HOME/.local/share/steam-library-compatdata";
 
@@ -152,6 +165,43 @@ in {
         # Only the empty mount point; outside Steam's sandbox nobody's prefixes show here.
         "d ${library}/steamapps/compatdata 0755 root root -"
       ];
+
+      assertions = [
+        {
+          assertion = libraryFiles.conflicts == [];
+          message = "gaming.steam: users declare different contents for ${lib.concatStringsSep ", " libraryFiles.conflicts} in the shared library ${library}.";
+        }
+      ];
+
+      users.users.steam-library = {
+        isSystemUser = true;
+        inherit group;
+      };
+
+      # Runs even with nothing declared, so files that left the config are reverted.
+      systemd.services.steam-library-files = {
+        description = "Place declared game files in the shared Steam library";
+        wantedBy = ["multi-user.target"];
+        after = ["systemd-tmpfiles-setup.service"];
+        # Steam rewrites appmanifest files throughout a download; a tripped start limit would fail the path unit.
+        startLimitIntervalSec = 0;
+        environment.XDG_DATA_HOME = "/var/lib/${libraryFilesState}";
+        serviceConfig = {
+          Type = "oneshot";
+          User = "steam-library";
+          Group = group;
+          UMask = "0002";
+          StateDirectory = libraryFilesState;
+          ExecStart = "${placeLibraryFiles} ${lib.escapeShellArg library} ${libraryFilesJson}";
+        };
+      };
+
+      # Steam writes appmanifest_<id>.acf into steamapps on install and update.
+      systemd.paths.steam-library-files = {
+        description = "Place declared game files when a shared-library game is installed or updated";
+        wantedBy = ["multi-user.target"];
+        pathConfig.PathChanged = "${library}/steamapps";
+      };
     })
   ];
 }

@@ -54,6 +54,7 @@
 
   mkApps = import ./apps.nix {
     inherit lib;
+    inherit (pkgs) writeText;
     reshade = import ./reshade.nix {
       inherit lib;
       inherit (pkgs) runCommand;
@@ -67,13 +68,14 @@
     inherit (pkgs) requireFile;
   };
   unknownSlugs = lib.attrNames (removeAttrs settings (lib.attrNames ids));
-  games =
+  steamApps =
     if unknownSlugs != []
     then throw "steam/games.nix: no app ID in steam/ids.nix for ${lib.concatStringsSep ", " unknownSlugs}"
     else
       mkApps {
         games = lib.recursiveUpdate (lib.mapAttrs (_: id: {inherit id;}) ids) settings;
         reshadeGames = osConfig.gaming.steam.reshade or [];
+        sharedLibrary = (osConfig.gaming.steam.sharedLibrary or null) != null;
       };
 in {
   imports = [
@@ -93,8 +95,16 @@ in {
           ];
         });
       };
+      options.gaming.steam.libraryFiles = lib.mkOption {
+        type = lib.types.listOf (lib.types.attrsOf lib.types.anything);
+        default = [];
+        internal = true;
+        description = "Operations for files in game folders of the host's shared Steam library, which the host places instead of this user's steam-config-nix.";
+      };
     }
   ];
+
+  gaming.steam.libraryFiles = steamApps.libraryFiles;
 
   programs.steam.config = {
     enable = true;
@@ -109,7 +119,7 @@ in {
           wrappers = [gameOutput] ++ (app.wrappers or [gamemoderun]) ++ gpuOffload;
         }
       ))
-    games;
+    steamApps.apps;
   };
 
   home.packages = [gameDefaults];
