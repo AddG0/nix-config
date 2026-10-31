@@ -27,7 +27,8 @@ expr='
       tree;
   in {
     leaves = lib.concatMapAttrs (root: tree: flatten "${root}." tree) lib.custom.optional;
-    suites = lib.mapAttrs (_: lib.mapAttrs (_: map toString)) lib.custom.suites;
+    # A user tree half sits under users.<tree>; it is listed beside nixos and home, named for the tree.
+    suites = lib.mapAttrs (_: suite: lib.mapAttrs (_: map toString) (removeAttrs suite ["users"] // suite.users or {})) lib.custom.suites;
   }'
 
 nix eval --json --impure --expr "${expr//FLAKE/\"$FLAKE_DIR\"}" |

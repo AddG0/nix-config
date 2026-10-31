@@ -1,4 +1,4 @@
-# Input: {leaves: {"<tree>.<path>": storePath}, suites: {<suite>: {<nixos|home>: [storePath]}}}
+# Input: {leaves: {"<tree>.<path>": storePath}, suites: {<suite>: {<nixos|home|user tree>: [storePath]}}}
 # Args: $filter (prefix), $color ("1" to colour).
 def esc($c): if $color == "1" then "\u001b[\($c)m" else "" end;
 def paint($c): esc($c) + . + esc("0");
