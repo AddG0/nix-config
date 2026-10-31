@@ -27,6 +27,7 @@ in {
         time_format = "{:%I:%M %p}";
         date_format = "%A, %x";
         avatar_path = "/var/lib/AccountsService/icons/${config.home.username}";
+        setup_wizard_enabled = false;
       };
 
       # Widgets are named instance tokens; per-instance settings live in
