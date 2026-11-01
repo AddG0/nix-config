@@ -24,11 +24,7 @@ in {
       mkNixOSConfig = host: {
         name = host;
         value = inputs.nixpkgs.lib.nixosSystem {
-          specialArgs =
-            commonSpecialArgs
-            // {
-              inherit (inputs) nixvirt;
-            };
+          specialArgs = import ./nixos-special-args.nix inputs;
           modules = [
             ./common/core
             ./nixos/${host}

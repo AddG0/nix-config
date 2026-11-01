@@ -30,6 +30,10 @@
         path = ./.;
         qualifier = "checks";
       };
+      scripts = {
+        path = ../scripts;
+        qualifier = "scripts";
+      };
     };
   };
 

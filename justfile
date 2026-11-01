@@ -292,24 +292,16 @@ build-image hostname="" variant="iso":
   nixos-rebuild build-image --image-variant {{variant}} --flake .#{{ if hostname != "" { hostname } else { "$(hostname)" } }}
 
 [group('installation')]
-[confirm("This will overwrite the target drive. Continue?")]
-[doc("Install ISO to specified drive")]
-iso-install DRIVE hostname="": (build-image hostname "iso")
-  sudo dd if=$(echo result/iso/*.iso) of={{DRIVE}} bs=4M status=progress oflag=sync
+[doc("Build the installer stick's ISO and write it to DRIVE, or a USB drive you pick")]
+iso-install DRIVE="":
+  nix build .#nixosConfigurations.installer.config.system.build.isoImage
+  scripts/write-iso.sh {{DRIVE}}
 
 [group('installation')]
-[confirm("This will partition and encrypt the drive. All data will be lost. Continue?")]
-[doc("Partition and encrypt drive using disko")]
-disko DRIVE PASSWORD:
-  @{{ if DRIVE == "" { error("Drive parameter cannot be empty") } else { "" } }}
-  @{{ if PASSWORD == "" { error("Password parameter cannot be empty") } else { "" } }}
-  echo "{{PASSWORD}}" > /tmp/disko-password
-  sudo nix --experimental-features "nix-command flakes" run github:nix-community/disko -- \
-    --mode disko \
-    disks/btrfs-luks-impermanence-disko.nix \
-    --arg disk '"{{DRIVE}}"' \
-    --arg password '"{{PASSWORD}}"'
-  rm /tmp/disko-password
+[doc("Install HOST onto a machine booted from the installer stick at IP")]
+[positional-arguments]
+bootstrap HOST IP *ARGS:
+  scripts/bootstrap/bootstrap-nixos.sh "$@"
 
 [group('deployment')]
 [doc("Sync configuration to remote host")]

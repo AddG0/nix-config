@@ -57,6 +57,60 @@
       }
     ];
   };
+
+  # A host as `just bootstrap` writes it, with the hardware it would fetch from the target stubbed.
+  bootstrappedHost = modules:
+    inputs.nixpkgs.lib.nixosSystem {
+      specialArgs = import ../hosts/nixos-special-args.nix inputs;
+      modules =
+        [
+          ../hosts/common/core
+          ../scripts/bootstrap/scaffold/host
+          ({config, ...}: {
+            assertions = [
+              {
+                assertion = config.networking.hostName == "host";
+                message = "a bootstrapped host takes its hostName from its folder; got ${config.networking.hostName}";
+              }
+            ];
+          })
+        ]
+        ++ modules;
+    };
+  bootstrappedDisko = bootstrappedHost [
+    ../scripts/bootstrap/scaffold/disko.nix
+    {
+      hardware.facter = {
+        reportPath = lib.mkForce null;
+        report = {
+          version = 1;
+          system = "x86_64-linux";
+        };
+      };
+    }
+    ({config, ...}: {
+      assertions = [
+        {
+          assertion = config.fileSystems."/".device == "/dev/mapper/crypted" && config.boot.initrd.luks.devices ? crypted;
+          message = "the disko template must mount / from the LUKS device it unlocks in initrd; got ${config.fileSystems."/".device}";
+        }
+      ];
+    })
+  ];
+  bootstrappedExisting = bootstrappedHost [
+    {
+      fileSystems = {
+        "/" = {
+          device = "/dev/disk/by-uuid/00000000-0000-0000-0000-000000000000";
+          fsType = "btrfs";
+        };
+        "/boot" = {
+          device = "/dev/disk/by-uuid/0000-0000";
+          fsType = "vfat";
+        };
+      };
+    }
+  ];
 in {
   perSystem = {pkgs, ...}: let
     guard = name: drv: pkgs.runCommand name {forced = builtins.seq drv.drvPath "ok";} "touch $out";
@@ -68,6 +122,8 @@ in {
       // {
         base-extension-evals = guard "base-extension-evals" baseExtended.config.system.build.toplevel;
         exported-modules-stock-lib-evals = guard "exported-modules-stock-lib-evals" stockLibImporter.config.system.build.toplevel;
+        bootstrap-disko-template-evals = guard "bootstrap-disko-template-evals" bootstrappedDisko.config.system.build.toplevel;
+        bootstrap-existing-template-evals = guard "bootstrap-existing-template-evals" bootstrappedExisting.config.system.build.toplevel;
       };
   };
 }

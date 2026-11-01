@@ -175,25 +175,33 @@ Updates all SOPS encryption keys. **This affects all encrypted secrets and requi
 ### 💿 Installation
 System installation and deployment commands.
 
-#### `just iso`
-**Description**: Build NixOS ISO image
-**Usage**: `just iso`
-
-Builds a NixOS ISO installer image. The resulting ISO will be in the `result/iso/` directory.
+#### `just build-image [hostname] [variant]`
+**Description**: Build a NixOS image of a host
+**Usage**: `just build-image gce google-compute`
 
 #### `just iso-install [drive]` ⚠️
-**Description**: Install ISO to specified drive
-**Usage**: `just iso-install /dev/sdX`
+**Description**: Build the installer stick's ISO and write it to a drive
+**Usage**: `just iso-install` lists USB drives to pick from; `just iso-install /dev/sdX` skips the list
+
+The stick (`hosts/nixos/installer`): Plasma logged in as addg with your home config (gparted, KDE Partition Manager, Konsole), root ssh by key.
 **Confirmation**: Required
 
 **⚠️ DANGEROUS**: Writes the built ISO to the specified drive. **This will overwrite all data on the target drive.**
 
-#### `just disko [drive] [password]` ⚠️
-**Description**: Partition and encrypt drive using disko
-**Usage**: `just disko /dev/nvme0n1 mypassword`
-**Confirmation**: Required
+#### `just bootstrap [host] [ip]` ⚠️
+**Description**: Install a host onto a machine booted from the installer stick
+**Usage**: `just bootstrap newbox 192.168.1.50 [--port <port>] [-k <ssh_key>] [--debug]`
+**Confirmation**: disko mode asks for the last 6 characters of the disk id before wiping it
 
-**⚠️ EXTREMELY DANGEROUS**: Partitions and encrypts a drive using disko configuration. **ALL DATA ON THE DRIVE WILL BE PERMANENTLY LOST.**
+Run from demon. A new host is created from the scaffold in `scripts/bootstrap/scaffold` in one of two ways:
+- **disko**: pick a disk on the target; it is wiped to LUKS + btrfs, and `facter.json` comes from nixos-facter.
+- **mounted**: partition and mount at `/mnt` (and `/mnt/boot`) on the stick first; `hardware-configuration.nix` comes from nixos-generate-config.
+
+An existing host keeps its own layout. New hosts start with `disableSops = true` and password `changeme`.
+A host using sops gets a new ssh host key: its key in nix-secrets is replaced, every secret re-encrypted, committed, and pushed after you confirm, then `flake.lock` moves to it. No old key is reused.
+It builds the host before asking for the disk, passphrase or wipe confirmation, so a build failure needs none of them again.
+To boot an encrypted host without the passphrase afterwards, see [Secure Boot and TPM unlock](../guides/secure-boot-tpm.md).
+A rerun after a failed install resumes: the key waits in `~/.local/state/bootstrap/<host>/` until an install with it succeeds, so nix-secrets is not re-encrypted, committed or pushed again.
 
 ### 🚀 Deployment
 Remote deployment and synchronization.
@@ -250,15 +258,11 @@ just update && just rebuild
 
 ### Setting up a New Machine
 ```bash
-# Generate age key for secrets
-just age-key
+# Build the installer stick once
+just iso-install
 
-# Build and install ISO
-just iso
-just iso-install /dev/sdX
-
-# After installation, deploy configuration
-just nixos-anywhere hostname ip.address
+# Boot the machine from it, read its IP with `ip -br a` in Konsole, then on demon:
+just bootstrap newbox 192.168.1.50
 ```
 
 ### Secrets Management
