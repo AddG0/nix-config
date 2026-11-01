@@ -138,17 +138,25 @@
           base=$(basename "$f")
           out=${lib.escapeShellArg dst}/"$base"
           if [ ! -e "$out" ] || [ "$f" -nt "$out" ]; then
-            magick "$f" -resize "x400>" -quality 80 "$out"
+            # Renamed into place, so the picker's live folder watch never shows a half-written file.
+            magick "$f" -resize "x400>" -quality 80 ${lib.escapeShellArg dst}/".$base"
+            mv ${lib.escapeShellArg dst}/".$base" "$out"
           fi
         done
       fi
     '')
     thumbFolders;
 
-  prepPkg = pkgs.writeShellApplication {
-    name = "wpaperd-prepare";
+  seedPkg = pkgs.writeShellApplication {
+    name = "wpaperd-seed";
+    runtimeInputs = [pkgs.coreutils];
+    text = seedScriptText;
+  };
+
+  thumbsPkg = pkgs.writeShellApplication {
+    name = "wallpaper-thumbs";
     runtimeInputs = with pkgs; [imagemagick coreutils];
-    text = lib.concatStringsSep "\n" [seedScriptText thumbScriptText];
+    text = thumbScriptText;
   };
 
   # Output -> { display, apply } per monitor. The picker reads thumbnails
@@ -244,13 +252,29 @@ in {
     # Stylix's Hyprland target turns hyprpaper on too, which drew a second wallpaper under wpaperd.
     stylix.targets.hyprland.hyprpaper.enable = false;
 
-    # ExecStartPre handles the default-folder seed and the picker thumbnails.
-    # Doing this in HM activation would race wpaperd's restart on the
-    # X-Restart-Triggers reload; here systemd guarantees ordering.
-    systemd.user.services.wpaperd.Service.ExecStartPre = "${lib.getExe prepPkg}";
+    systemd.user.services = {
+      # Only the seed gates wpaperd: in HM activation it would race wpaperd's X-Restart-Triggers restart.
+      wpaperd.Service.ExecStartPre = "${lib.getExe seedPkg}";
+
+      # Picker thumbnails, off the wallpaper's start path; a host with no thumb cache resizes every image.
+      wallpaper-thumbs = {
+        Unit = {
+          Description = "Wallpaper picker thumbnails";
+          After = ["wpaperd.service"];
+          PartOf = config.systemd.user.services.wpaperd.Unit.PartOf;
+        };
+        Service = {
+          Type = "oneshot";
+          ExecStart = lib.getExe thumbsPkg;
+          Nice = 19;
+          IOSchedulingClass = "idle";
+        };
+        Install.WantedBy = config.systemd.user.services.wpaperd.Install.WantedBy;
+      };
+    };
 
     # A manual reload also re-seeds the default and refreshes the thumbnails.
-    desktop.session.reload.commands.wpaperd = "systemctl --user try-restart wpaperd.service";
+    desktop.session.reload.commands.wpaperd = "systemctl --user try-restart wpaperd.service; systemctl --user start wallpaper-thumbs.service";
 
     services.wpaperd.settings =
       monitorSettings
