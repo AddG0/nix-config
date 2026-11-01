@@ -106,6 +106,13 @@ in {
 
   gaming.steam.libraryFiles = steamApps.libraryFiles;
 
+  # The patcher reads <steam dir>/userdata, which Steam only creates on its first run; until then it crashes.
+  systemd.user.services.steam-config-patcher.Unit.ConditionPathExists = map (dir: "|%h/${dir}/userdata") [
+    ".steam/root"
+    ".steam/steam"
+    ".local/share/Steam"
+  ];
+
   programs.steam.config = {
     enable = true;
     onSteamRunning = "close";
