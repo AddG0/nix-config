@@ -10,7 +10,7 @@
 }: let
   hdrCase =
     lib.concatMapStrings (m: ''
-      ${m.output}) hdr=${
+      ${lib.escapeShellArg m.output}) hdr=${
         if m.hdr
         then "1"
         else "0"

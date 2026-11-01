@@ -1,5 +1,6 @@
 # game-defaults runs a game through the listed-game wrapper chain, adding gamescope only on request;
 # a ReShade preset's effect file names are lowercased to match nix-reshade's shader files.
+# game-output reads HDR from a declared output whose name has spaces, as laptop panels' desc: names do.
 {
   pkgs,
   lib,
@@ -23,6 +24,24 @@
     gamescope = [(stub "gamescope")];
     gpuOffload = ["env" "OFFLOAD=1"];
   };
+
+  panel = {
+    output = "desc:AU Optronics 0x8E9D";
+    hdr = true;
+    width = 2560;
+    height = 1600;
+    refreshRate = 165;
+  };
+  gameOutput = import ../game-output.nix {
+    inherit lib pkgs;
+    # No compositor to ask, so the declared primary is the target.
+    hyprctl = pkgs.writeShellScript "hyprctl" "exit 1";
+    monitors = [panel];
+    primaryMonitor = panel;
+  };
+  reportHdr = pkgs.writeShellScript "report-hdr" ''
+    echo "$GAME_OUTPUT_HDR" >"$HDR_SEEN"
+  '';
 
   # Presets ship with Windows line endings, as AMS2 Realistic's does.
   crlf = lines: pkgs.writeText "preset.ini" (lib.concatMapStrings (line: "${line}\r\n") lines);
@@ -79,6 +98,10 @@ in
     [ "$(paste -sd' ' "$CHAIN")" = "game-output gamemoderun gamescope" ] \
       || fail "chain with --gamescope: $(paste -sd' ' "$CHAIN")"
     [ "$(cat "$ARGV")" = "-novr" ] || fail "--gamescope leaked into the game's arguments: $(cat "$ARGV")"
+
+    HDR_SEEN=$PWD/hdr ${gameOutput} ${reportHdr} 2>/dev/null \
+      || fail "game-output with a declared output name containing spaces did not run"
+    [ "$(cat "$PWD/hdr")" = 1 ] || fail "HDR of a declared output named with spaces was not read: $(cat "$PWD/hdr")"
 
     cmp -s ${presetOut} ${presetWant} \
       || fail "preset effect names not lowercased to match the shader files: $(cat -v ${presetOut})"
