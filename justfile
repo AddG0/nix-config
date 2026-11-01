@@ -195,12 +195,30 @@ eval attr="" hostname="$(hostname)"  :
   fi
 
 [group('development')]
-[doc("Boot HOST's configuration in a QEMU window; --fresh discards the VM's disk first")]
+[script]
+[doc("Boot HOST's configuration in a QEMU window; --fresh discards the VM's disk first, --disk-size SIZE (e.g. 80G) grows it")]
 [arg("fresh", long, value="true")]
-vm hostname fresh="false":
+[arg("disk-size", long)]
+vm hostname fresh="false" disk-size="":
+  set -euo pipefail
+  img=.data/vm/{{hostname}}.qcow2
   mkdir -p .data/vm
-  {{ if fresh == "true" { "rm -f .data/vm/" + hostname + ".qcow2" } else { "true" } }}
-  NIX_DISK_IMAGE=.data/vm/{{hostname}}.qcow2 nix run .#nixosConfigurations.{{hostname}}.config.system.build.vm
+  if [ "{{fresh}}" = "true" ]; then rm -f "$img"; fi
+  size="{{disk-size}}"
+  if [ -n "$size" ]; then
+    if [ -e "$img" ]; then
+      # qemu-img refuses to shrink; the guest's autoResize grows the filesystem on boot.
+      nix shell nixpkgs#qemu-utils -c qemu-img resize "$img" "$size"
+    else
+      # Formatted here like the VM's own run script, which only knows the configured diskSize.
+      raw=$(mktemp)
+      trap 'rm -f "$raw"' EXIT
+      truncate -s "$size" "$raw"
+      nix shell nixpkgs#e2fsprogs -c mkfs.ext4 -q -L nixos "$raw"
+      nix shell nixpkgs#qemu-utils -c qemu-img convert -f raw -O qcow2 "$raw" "$img"
+    fi
+  fi
+  NIX_DISK_IMAGE="$img" nix run .#nixosConfigurations.{{hostname}}.config.system.build.vm
 
 alias cs := closure
 
