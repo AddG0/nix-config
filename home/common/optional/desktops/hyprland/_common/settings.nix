@@ -54,6 +54,12 @@ in {
         disable_splash_rendering = true;
       };
 
+      # This always shows up after updates, and on impermanent systems
+      ecosystem = {
+        no_update_news = true;
+        no_donation_nag = true;
+      };
+
       debug.disable_logs = false;
 
       # Input
