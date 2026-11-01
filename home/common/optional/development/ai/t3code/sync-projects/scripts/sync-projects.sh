@@ -9,6 +9,8 @@
 set -euo pipefail
 
 state_db="${T3CODE_STATE_DB:-$HOME/.t3/userdata/statev2.sqlite}"
+# A hand-registered checkout outside the ghq tree, never pruned as stale.
+unmanaged="${T3CODE_SYNC_UNMANAGED:-}"
 
 if [ ! -f "$state_db" ]; then
   echo "t3code-sync-projects: no state db at $state_db — start t3code once first" >&2
@@ -24,9 +26,7 @@ gwq list -g --json | jq -r '.[] | select(.is_main) | .path' |
 
 printf '%s\n' "$known" | while IFS= read -r workspace_root; do
   [ -z "$workspace_root" ] && continue
-  # This checkout lives outside the ghq tree by convention and is hand
-  # registered, not gwq-managed — never let a scan treat it as stale.
-  [ "$workspace_root" = "$HOME/nix-config" ] && continue
+  [ "$workspace_root" = "$unmanaged" ] && continue
   if [ ! -d "$workspace_root" ]; then
     echo "t3code-sync-projects: removing $workspace_root (missing)" >&2
     t3 project remove "$workspace_root"

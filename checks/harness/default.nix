@@ -99,10 +99,22 @@
       ${script}
       touch "$out"
     '';
+
+  # A script: check: the .bats files run with bats-support, bats-assert and bats-file loadable; attrs become their environment.
+  bats = name: files: attrs:
+    pkgs.runCommand name (attrs
+      // {
+        nativeBuildInputs =
+          [(pkgs.bats.withLibraries (p: [p.bats-support p.bats-assert p.bats-file]))]
+          ++ attrs.nativeBuildInputs or [];
+      }) ''
+      bats ${lib.escapeShellArgs (map (f: "${f}") files)}
+      touch "$out"
+    '';
 in {
   lib = libWithCustom;
   # The repo, for a test reaching a module outside its own tree.
   root = ../..;
-  inherit stubs module evaluate files paths values check;
+  inherit stubs module evaluate files paths values check bats;
   eval = modules: (evaluate modules).config;
 }

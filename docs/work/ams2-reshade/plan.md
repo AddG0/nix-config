@@ -17,7 +17,7 @@ public repo.
 ## Already staged
 
 - `game-defaults [--gamescope] %command%`: the listed-game wrapper chain for
-  unlisted games (`steam/game-defaults.nix`, test in `steam/tests/script.nix`).
+  unlisted games (`steam/game-defaults.nix`, test in `steam/tests/game-defaults.bats`).
 - `automobilista-2 = 1066890` in `ids.nix`. `games.nix` sets
   `compatTool = defaultCompatTool`, because Steam's appinfo claims Linux and
   would run `AMS2.exe` natively, plus `wrappers = [gamemoderun] ++ gamescope`.

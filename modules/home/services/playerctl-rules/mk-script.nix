@@ -1,5 +1,5 @@
 # Builds the watcher script for a single player. Pure (no module/config
-# dependency) so it can be exercised directly from tests/script.nix with a stub
+# dependency) so tests/playerctl-rules.bats can run it directly with a stub
 # playerctl. `package` and `audioTools` (pactl + jq) only seed the script's PATH.
 {
   lib,

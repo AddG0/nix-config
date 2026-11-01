@@ -1,6 +1,7 @@
-# Behavioural tests for codeq against small fixture projects. The sandbox has no
-# git, so these also cover the `find` fallback in source_files.
+# Behavioural tests for codeq against small fixture projects: ./codeq.bats. The
+# fixtures are no git repos, so these also cover the `find` fallback in source_files.
 {
+  harness,
   pkgs,
   self,
   ...
@@ -85,53 +86,8 @@
     paths = [javaCore javaApp];
   };
 in
-  pkgs.runCommand "codeq-tests" {nativeBuildInputs = [codeq pkgs.jdk pkgs.zsh pkgs.nushell];} ''
-    fail() { echo "FAIL: $*" >&2; exit 1; }
-    # Graphviz wants a writable font cache.
-    export HOME=$PWD
-
-    cp -r ${pythonFixture}/proj py && chmod -R u+w py
-    cp ${generatedFixture}/proj/app/client_pb.py py/app/
-    mkdir -p py/src/gen && cp py/app/logic.py py/src/gen/copy.py
-    cd py
-
-    codeq >help.txt
-    grep -q "complexity" help.txt || fail "help does not list commands"
-    grep -q "JVM commands *no" help.txt || fail "python-only project reported as JVM"
-
-    codeq -o out loc >/dev/null
-    grep -q Python out/loc.txt || fail "loc missed the Python file"
-
-    codeq -o out complexity >/dev/null
-    grep -q "classify@" out/complexity.txt || fail "complexity did not flag classify"
-    if grep -q "first@" out/complexity.txt; then fail "complexity flagged a simple function"; fi
-
-    codeq -o out dup 20 >/dev/null
-    grep -q "^Found a" out/dup.txt || fail "dup missed the pasted block"
-    if grep -q "client_pb.py" out/dup.txt; then fail "dup measured a file marked @generated"; fi
-    if grep -q "src/gen/" out/dup.txt; then fail "dup measured a file under gen/"; fi
-
-    if codeq -o out coupling 2>err.txt; then fail "coupling ran on a non-JVM project"; fi
-    grep -q "JVM-only" err.txt || fail "coupling gave no reason for refusing"
-
-    if codeq nonsense 2>err.txt >/dev/null; then fail "unknown command succeeded"; fi
-    grep -q "unknown command: nonsense" err.txt || fail "unknown command not named"
-
-    cd ..
-    mkdir java && cd java
-    cp -rL ${javaFixture}/src . && chmod -R u+w src
-    mkdir -p build/classes/java/main
-    javac -d build/classes/java/main $(find src -name '*.java')
-
-    codeq -o out coupling >/dev/null
-    grep -q "root package: com.example" out/coupling.txt || fail "coupling did not find the root package"
-    grep -Eq "^core +1 +1 +0 +0.00" out/coupling.txt || fail "core should have Ca=1 Ce=0 I=0"
-    grep -Eq "^app +1 +0 +1 +1.00" out/coupling.txt || fail "app should have Ca=0 Ce=1 I=1"
-    [ -s out/coupling/packages.svg ] || fail "coupling graph not rendered"
-
-    zsh -n ${codeq}/share/zsh/site-functions/_codeq || fail "zsh completion does not parse"
-    nu --no-config-file -c "use ${codeq}/share/nushell/vendor/autoload/codeq.nu *" ||
-      fail "nushell completion does not parse"
-
-    echo ok >$out
-  ''
+  harness.bats "codeq-tests" [./codeq.bats] {
+    nativeBuildInputs = [codeq pkgs.jdk pkgs.zsh pkgs.nushell];
+    codeqShare = "${codeq}/share";
+    inherit pythonFixture generatedFixture javaFixture;
+  }

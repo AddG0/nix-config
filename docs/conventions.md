@@ -97,3 +97,17 @@ Home trees split by domain (`desktops/`, `services/`), never by platform; a
 platform-bound home module says so with `lib.hm.assertions.assertPlatform`. Only
 `hosts/common/optional` has `nixos/` and `darwin/`, because those are different
 module systems. Why: ADR 0001.
+
+## Tests
+
+A test checks something we built, not a value we picked. The tmux agent link,
+the zsh hook choosing an agent, and `hostsAddr` becoming ssh `Host` blocks get
+tests. Which key file comes first, which hosts count as forges, or which
+monitor a host has do not. Changing a personal choice never turns a test red.
+
+Feed fixtures (a fake `hostSpec`, keys, monitors, games) into the real code, as
+the Steam ReShade tests do. When an expected value has to come from config, read
+it from the evaluated config instead of writing the literal. A test that only
+says "my config is X" gets deleted, not rewritten.
+
+Script tests are `.bats` files run by `harness.bats`. Why: ADR 0019.

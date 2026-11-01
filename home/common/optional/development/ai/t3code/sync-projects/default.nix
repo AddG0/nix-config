@@ -8,6 +8,7 @@
   t3code-sync-projects = pkgs.writeShellApplication {
     name = "t3code-sync-projects";
     runtimeInputs = [pkgs.sqlite pkgs.jq customPkgs.gwq config.programs.t3code.package];
+    runtimeEnv.T3CODE_SYNC_UNMANAGED = lib.replaceStrings ["$HOME"] [config.home.homeDirectory] config.home.sessionVariables.NH_FLAKE;
     text = builtins.readFile ./scripts/sync-projects.sh;
   };
 in {

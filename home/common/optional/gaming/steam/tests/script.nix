@@ -1,7 +1,7 @@
-# game-defaults runs a game through the listed-game wrapper chain, adding gamescope only on request;
-# a ReShade preset's effect file names are lowercased to match nix-reshade's shader files.
-# game-output reads HDR from a declared output whose name has spaces, as laptop panels' desc: names do.
+# game-defaults' wrapper chain, game-output's HDR lookup and ReShade preset
+# rewriting, each against stubs; the cases live in the .bats files beside this.
 {
+  harness,
   pkgs,
   lib,
   ...
@@ -26,7 +26,7 @@
   };
 
   panel = {
-    output = "desc:AU Optronics 0x8E9D";
+    output = "desc:Test Panel 0x0000";
     hdr = true;
     width = 2560;
     height = 1600;
@@ -40,7 +40,7 @@
     primaryMonitor = panel;
   };
   reportHdr = pkgs.writeShellScript "report-hdr" ''
-    echo "$GAME_OUTPUT_HDR" >"$HDR_SEEN"
+    echo "GAME_OUTPUT_HDR=$GAME_OUTPUT_HDR"
   '';
 
   # Presets ship with Windows line endings, as AMS2 Realistic's does.
@@ -82,29 +82,7 @@
     ."Look.ini"
     .source;
 in
-  pkgs.runCommand "steam-game-defaults" {} ''
-    fail() { echo "FAIL: $*" >&2; exit 1; }
-    export CHAIN=$PWD/chain ARGV=$PWD/argv OFFLOAD_SEEN=$PWD/offload
-    run() { rm -f "$CHAIN" "$ARGV" "$OFFLOAD_SEEN"; ${lib.getExe gameDefaults} "$@"; }
-
-    run ${game} "Steam App" -novr --gamescope
-    [ "$(paste -sd' ' "$CHAIN")" = "game-output gamemoderun" ] \
-      || fail "default chain without --gamescope: $(paste -sd' ' "$CHAIN")"
-    [ "$(cat "$ARGV")" = "$(printf '%s\n' "Steam App" -novr --gamescope)" ] \
-      || fail "game arguments altered: $(cat "$ARGV")"
-    [ "$(cat "$OFFLOAD_SEEN")" = 1 ] || fail "GPU offload env did not reach the game"
-
-    run --gamescope ${game} -novr
-    [ "$(paste -sd' ' "$CHAIN")" = "game-output gamemoderun gamescope" ] \
-      || fail "chain with --gamescope: $(paste -sd' ' "$CHAIN")"
-    [ "$(cat "$ARGV")" = "-novr" ] || fail "--gamescope leaked into the game's arguments: $(cat "$ARGV")"
-
-    HDR_SEEN=$PWD/hdr ${gameOutput} ${reportHdr} 2>/dev/null \
-      || fail "game-output with a declared output name containing spaces did not run"
-    [ "$(cat "$PWD/hdr")" = 1 ] || fail "HDR of a declared output named with spaces was not read: $(cat "$PWD/hdr")"
-
-    cmp -s ${presetOut} ${presetWant} \
-      || fail "preset effect names not lowercased to match the shader files: $(cat -v ${presetOut})"
-
-    touch "$out"
-  ''
+  harness.bats "steam-game-defaults" [./game-defaults.bats ./game-output.bats ./reshade.bats] {
+    gameDefaults = lib.getExe gameDefaults;
+    inherit game gameOutput reportHdr presetOut presetWant;
+  }

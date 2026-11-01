@@ -1,4 +1,4 @@
-# Session entries as display managers read them, and start-session run against rendered entries.
+# Session entries as display managers read them; start-session and the launcher run in ./desktop-sessions.bats.
 {
   pkgs,
   lib,
@@ -57,7 +57,8 @@
     name = "sessions";
     paths = [unwrapped withAction];
   };
-  startSession = lib.getExe (render.startSession "${sessions}/share/wayland-sessions");
+  sessionsDir = "${sessions}/share/wayland-sessions";
+  startSession = lib.getExe (render.startSession sessionsDir);
   entryOf = pkg: key: "${pkg}/share/wayland-sessions/${key}.desktop";
 
   # The plan for a host with these desktops beside a Gaming Mode session that is not one.
@@ -83,8 +84,8 @@
     };
     fallback = "plasma";
   });
-in
-  harness.check "desktop-sessions" ''
+
+  entries = harness.check "desktop-session-entries" ''
     ${(harness.paths.content "a wrapped desktop runs through the wrapper and keeps its desktop names" (entryOf wrapped "hyprland-uwsm") ''
       [Desktop Entry]
       Name=Hyprland
@@ -156,48 +157,8 @@ in
         };
       };
     }}
-
-    export OUT_LOG=$PWD/args.log
-    ${startSession} hyprland-uwsm
-    printf 'start\nhyprland.desktop\n' | diff -u - "$OUT_LOG" \
-      || { echo "FAIL start-session runs the named session's Exec= with its arguments" >&2; exit 1; }
-
-    ${startSession} with-action
-    printf 'main\n' | diff -u - "$OUT_LOG" \
-      || { echo "FAIL start-session runs only the entry's first Exec=, not a desktop action's" >&2; exit 1; }
-
-    if ${startSession} niri 2>err.log; then
-      echo "FAIL start-session refuses a session with no entry: it exited 0" >&2; exit 1
-    fi
-    grep -q "no session 'niri' in ${sessions}/share/wayland-sessions" err.log \
-      || { cat err.log >&2; echo "FAIL start-session names the missing session and where it looked" >&2; exit 1; }
-
-    export HOME=$PWD/home
-    unset XDG_CONFIG_HOME
-    choice=$HOME/.config/desktops/default-session
-    mkdir -p "$(dirname "$choice")"
-
-    printf 'niri\n' > "$choice"
-    ${launcher} 2>err.log
-    printf 'niri niri niri\n' | diff -u - "$OUT_LOG" \
-      || { echo "FAIL the launcher starts the user's default desktop with its session variables" >&2; exit 1; }
-
-    rm "$choice"
-    ${launcher} 2>err.log
-    printf 'plasma KDE plasma\n' | diff -u - "$OUT_LOG" \
-      || { echo "FAIL the launcher falls back to the host's desktop when the user has no default" >&2; exit 1; }
-    grep -q "no default session in $choice; starting plasma" err.log \
-      || { cat err.log >&2; echo "FAIL the launcher says why it fell back on a missing file" >&2; exit 1; }
-
-    : > "$choice"
-    ${launcher} 2>err.log
-    printf 'plasma KDE plasma\n' | diff -u - "$OUT_LOG" \
-      || { echo "FAIL the launcher treats an empty default like a missing one" >&2; exit 1; }
-
-    printf 'gnome\n' > "$choice"
-    ${launcher} 2>err.log
-    printf 'plasma KDE plasma\n' | diff -u - "$OUT_LOG" \
-      || { echo "FAIL the launcher falls back when the default names no desktop on this host" >&2; exit 1; }
-    grep -q "names 'gnome', not a desktop here (niri, plasma); starting plasma" err.log \
-      || { cat err.log >&2; echo "FAIL the launcher names the unknown default and this host's desktops" >&2; exit 1; }
-  ''
+  '';
+in
+  harness.bats "desktop-sessions" [./desktop-sessions.bats] {
+    inherit entries startSession sessionsDir launcher;
+  }
