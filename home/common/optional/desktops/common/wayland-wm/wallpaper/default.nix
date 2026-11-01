@@ -269,7 +269,8 @@ in {
           Nice = 19;
           IOSchedulingClass = "idle";
         };
-        Install.WantedBy = config.systemd.user.services.wpaperd.Install.WantedBy;
+        # Not the session target: a target orders itself after what it wants, which cycles with wpaperd's After=target.
+        Install.WantedBy = ["wpaperd.service"];
       };
     };
 
