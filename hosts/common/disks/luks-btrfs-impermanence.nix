@@ -61,6 +61,9 @@ in {
 
   fileSystems.${config.hostSpec.persistFolder}.neededForBoot = true;
 
+  # The VM boots without the LUKS disk, so this would wait out the device timeout.
+  virtualisation.vmVariant.boot.initrd.systemd.services.rollback-root.enable = false;
+
   boot.initrd.systemd = {
     initrdBin = [pkgs.findutils];
     services.rollback-root = {

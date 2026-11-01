@@ -17,5 +17,8 @@ trace.log
 # Package update logs
 .update-logs/
 
+# Local state: `just vm` disks
+.data/
+
 # nixos build-vm artifacts
 *.qcow2

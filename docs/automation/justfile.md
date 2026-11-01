@@ -116,6 +116,12 @@ just eval config.services.nginx odin    # Show nginx config
 just eval config.users                  # Show user config for current host
 ```
 
+#### `just vm [hostname] [--fresh]`
+**Description**: Boot a host's configuration in a QEMU window on this machine
+**Usage**: `just vm zephy`, or `just vm zephy --fresh` to start from an empty disk
+
+Runs the host's `system.build.vm`: same packages and services, but no real bootloader or disk layout. Secrets don't decrypt, so the primary user's password is `vm`; `ssh -p 2222 addg@localhost` reaches it. The disk lives in `.data/vm/<host>.qcow2`; `--fresh` deletes it first.
+
 #### `just diff`
 **Description**: Show git diff excluding flake.lock
 **Usage**: `just diff`

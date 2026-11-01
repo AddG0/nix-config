@@ -194,6 +194,14 @@ eval attr="" hostname="$(hostname)"  :
     nix eval .#nixosConfigurations.{{hostname}}.{{attr}} --json | jq; \
   fi
 
+[group('development')]
+[doc("Boot HOST's configuration in a QEMU window; --fresh discards the VM's disk first")]
+[arg("fresh", long, value="true")]
+vm hostname fresh="false":
+  mkdir -p .data/vm
+  {{ if fresh == "true" { "rm -f .data/vm/" + hostname + ".qcow2" } else { "true" } }}
+  NIX_DISK_IMAGE=.data/vm/{{hostname}}.qcow2 nix run .#nixosConfigurations.{{hostname}}.config.system.build.vm
+
 alias cs := closure
 
 [group('development')]
