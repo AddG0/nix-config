@@ -23,8 +23,11 @@
     disableSops = true;
   };
 
-  # The installer profile adds ZFS support; nothing here boots a ZFS root.
-  boot.zfs.forceImportRoot = false;
+  boot = {
+    # The installer profile adds ZFS support; nothing here boots a ZFS root.
+    zfs.forceImportRoot = false;
+    loader.grub.memtest86.enable = true;
+  };
 
   networking.networkmanager.enable = true;
 
@@ -56,7 +59,31 @@
     calamares-nixos-extensions
     glibcLocales
     gparted
+    gsmartcontrol
     nixos-facter
+
+    # Reinstalling and secrets
+    age
+    disko
+    nixos-anywhere
+    sbctl
+    sops
+    ssh-to-age
+    tmux
+
+    # Hardware checks
+    dmidecode
+    iperf3
+    lshw
+    mtr
+    stress-ng
+
+    # Disks
+    bcachefs-tools
+    chntpw
+    exfatprogs
+    nwipe
+    partclone
   ];
 
   time.timeZone = "America/Chicago";
