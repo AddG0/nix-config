@@ -1,46 +1,16 @@
 {lib, ...}: {
   imports = lib.flatten [
-    # lib.custom.suites.virtualization.home
-    lib.custom.suites.development.home
-    lib.custom.suites.ai.home
-    (with lib.custom.optional.home; [browsers comms ghostty helper-scripts librepods])
-    (with lib.custom.optional.home.desktops; [
-      # hyprland.nvidia
-      # hyprland.personal
-      # hyprland.sunshine
-    ])
-    (with lib.custom.optional.home.development; [
-      aws
-      gcloud
-      grpc
-      ide.jetbrains-remote
-      ide.vscode-server
-      jupyter-notebook
-      postman
-      terraform
-      virtualization.kubernetes
-      virtualization.lens
-      virtualization.nixos-shell
-    ])
+    (with lib.custom.optional.home; [browsers comms ghostty librepods])
     (with lib.custom.optional.home.gaming; [heroic minecraft r2modman rocket-league])
-    (with lib.custom.optional.home.media; [
-      core
-      spicetify
-      # tidal
-      vlc
-    ])
-    (with lib.custom.optional.home.remote-desktop; [
-      # mouseshare.lan-mouse
-      # rustdesk
-    ])
-    (with lib.custom.optional.home.secrets; [ai buf sops elevenlabs])
-    (with lib.custom.optional.home.tools; [wayscriber])
-    (with lib.custom.optional.primary; [stylix work])
-    (with lib.custom.optional.primary.secrets; [kubeconfig onepassword-ssh])
+    (with lib.custom.optional.home.media; [core spicetify vlc])
+    (with lib.custom.optional.primary; [stylix])
+    (with lib.custom.optional.primary.secrets; [onepassword-ssh])
   ];
 
-  # Doesn't work on plasma saddly
-  stylix.enable = lib.mkForce false;
+  desktops.defaultSession = "hyprland";
+
+  # The connector, not desc:, since recovery.nix passes the monitor to hyprctl unquoted.
+  wayland.windowManager.hyprland.settings.workspace = ["3, monitor:DP-3, default:true"];
 
   # programs.plasma.input.mice = [
   #   {

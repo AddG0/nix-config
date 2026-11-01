@@ -15,6 +15,7 @@
     ./hardware-configuration.nix
     ./battery.nix
     ./amd-performance.nix
+    ./persistence.nix
 
     #################### Hardware ####################
     inputs.hardware.nixosModules.common-cpu-amd
@@ -23,50 +24,43 @@
     inputs.asus-numberpad-driver.nixosModules.default
 
     #################### Disk Layout ####################
-    # inputs.disko.nixosModules.disko
-    # (lib.custom.relativeToHosts "common/disks/dual-boot-disk.nix")
-    # {
-    #   _module.args = {
-    #     # Use the full model name disk ID
-    #     disk = "/dev/disk/by-id/nvme-SAMSUNG_MZVL22T0HBLB-00B00_S677NF0RC06854";
-    #     withSwap = false;
-    #   };
-    # }
+    inputs.disko.nixosModules.disko
+    (lib.custom.relativeToHosts "common/disks/luks-btrfs-impermanence.nix")
+    {_module.args.disk = "/dev/disk/by-id/nvme-Samsung_SSD_9100_PRO_2TB_S7YCNJ0L505492Y";}
 
     #################### Misc Inputs ####################
 
-    (lib.custom.useSuite lib.custom.suites.docker)
-    (lib.custom.useSuite lib.custom.suites.awsvpnclient)
-    (lib.custom.useSuite lib.custom.suites.plasma6)
     (lib.custom.useSuite lib.custom.suites.gaming)
+    (lib.custom.useSuite lib.custom.suites.hyprland)
+    (lib.custom.useSuite lib.custom.suites.niri)
+    (lib.custom.useSuite lib.custom.suites.plasma6)
     (with lib.custom.optional.hosts.nixos; [
       audio # pipewire and cli controls
+      impermanence
       # nvtop # GPU monitor (not available in home-manager)
       onepassword
       # plymouth # fancy boot screen
+      secureboot
     ])
-    (with lib.custom.optional.hosts.nixos.development; [mysql])
     (with lib.custom.optional.hosts.nixos.hardware; [
       cachyos-kernel # CachyOS kernel
       openrazer # openrazer
       wooting # wooting keyboard
     ])
-    (with lib.custom.optional.hosts.nixos.remote-desktop; [sunshine])
     (with lib.custom.optional.hosts.nixos.services; [
       automatic-timezoned
       bluetooth
       bt-proximity
-      display-managers.tuigreet
+      display-managers.silent-sddm
       earlyoom
       # home-assistant
       openssh # allow remote SSH access
       # openvpn # home VPN
       tailscale
     ])
-    (with lib.custom.optional.hosts.nixos.virtualisation; [
-      # docker
-    ])
   ];
+
+  gaming.steam.sharedLibrary = "/srv/steam-library";
 
   programs.kdeconnect.enable = true;
 
@@ -80,11 +74,15 @@
     interface = "wlp4s0";
   };
 
-  boot.loader = {
-    systemd-boot.enable = true;
-    systemd-boot.configurationLimit = 20;
-    efi.canTouchEfiVariables = true;
-    timeout = 3;
+  boot = {
+    loader = {
+      systemd-boot.enable = true;
+      systemd-boot.configurationLimit = 20;
+      efi.canTouchEfiVariables = true;
+      timeout = 3;
+    };
+    # Tries the TPM first, then falls back to the passphrase; enrolled with systemd-cryptenroll.
+    initrd.luks.devices.crypted.crypttabExtraOpts = ["tpm2-device=auto"];
   };
 
   security.allow-suspend.enable = true;
@@ -126,6 +124,9 @@
     hostName = "zephy";
     hostPlatform = "x86_64-linux";
     hostType = "laptop";
+    # Decky and the console session run as gamer; addg stays the admin.
+    primaryDesktopUsername = "gamer";
+    users = ["gamer"];
   };
 
   # Fix bluetooth headphone disconnections - disable USB autosuspend for bluetooth adapter

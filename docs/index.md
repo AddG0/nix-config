@@ -50,6 +50,12 @@ Agent-aware terminal multiplexer (tmux-like):
 - CLI socket helpers for scripting and agents
 - Update behavior on Nix and tmux divergences
 
+### 🔐 [Secure Boot and TPM unlock](guides/secure-boot-tpm.md)
+Boot a LUKS host without the passphrase:
+- lanzaboote keys, firmware enrollment, and TPM binding to PCR 7, in the order that works
+- Why `sbctl verify`'s one ✗ is expected, and never deleting from `/boot`
+- Re-binding after a firmware update, and reinstalling the bootloader from the installer stick
+
 ### 🤖 [Automation](automation/justfile.md)
 Comprehensive guide to project automation with detailed recipe documentation:
 - **🔍 Validation** - Configuration checking and validation

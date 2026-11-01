@@ -11,17 +11,6 @@
     inputs.hardware.nixosModules.common-cpu-intel
     inputs.hardware.nixosModules.common-pc-ssd
 
-    #################### disk layout ####################
-    #    inputs.disko.nixosmodules.disko
-    #    (lib.custom.relativetohosts "common/disks/btrfs-disk.nix")
-    #    {
-    #      _module.args = {
-    #        # use the full model name disk id for the 2tb nvme drive
-    #        disk = "/dev/disk/by-id/nvme-acer_ssd_n5000_2tb_asbj53410202076";
-    #        withswap = false;
-    #      };
-    #    }
-
     #################### misc inputs ####################
 
     (with lib.custom.optional.hosts.nixos.services; [

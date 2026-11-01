@@ -38,6 +38,13 @@
       inputs.nixpkgs.follows = "nixpkgs";
     };
 
+    # Its nixpkgs and home-manager inputs are dev-only.
+    impermanence = {
+      url = "github:nix-community/impermanence";
+      inputs.nixpkgs.follows = "";
+      inputs.home-manager.follows = "";
+    };
+
     # makeHive must match the colmena CLI, which comes from nixpkgs.
     colmena = {
       url = "github:nix-community/colmena/v0.5.0";

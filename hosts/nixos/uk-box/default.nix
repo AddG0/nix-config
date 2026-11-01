@@ -18,17 +18,6 @@
     inputs.hardware.nixosModules.common-cpu-intel
     inputs.hardware.nixosModules.common-pc-ssd
 
-    #################### Disk Layout ####################
-    # inputs.disko.nixosModules.disko
-    # (lib.custom.relativeToHosts "common/disks/dual-boot-disk.nix")
-    # {
-    #   _module.args = {
-    #     # Use the full model name disk ID
-    #     disk = "/dev/disk/by-id/nvme-SAMSUNG_MZVL22T0HBLB-00B00_S677NF0RC06854";
-    #     withSwap = false;
-    #   };
-    # }
-
     #################### Misc Inputs ####################
 
     (with lib.custom.optional.hosts.nixos.services; [

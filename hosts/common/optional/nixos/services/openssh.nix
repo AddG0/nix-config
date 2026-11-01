@@ -5,11 +5,6 @@
   ...
 }: let
   sshPort = config.hostSpec.networking.ports.tcp.ssh;
-
-  # Sops needs access to the keys before the persist dirs are even mounted; so
-  # just persisting the keys won't work, we must point at /persist
-  #FIXME-impermanence refactor this to how fb did it
-  hasOptinPersistence = false;
 in {
   services.openssh = {
     enable = true;
@@ -97,16 +92,9 @@ in {
     # - To restore legacy-client reach, add a second entry with
     #   `type = "rsa"; bits = 4096;` — accepting a weaker host key in
     #   exchange for compatibility.
-    #
-    # Path note: when `hasOptinPersistence` is true the key sits under
-    # `/persist/etc/ssh/...` so it survives an ephemeral root (impermanence).
-    # Currently false (see FIXME above) — key lives at the standard
-    # `/etc/ssh/...` location, which means it's regenerated if the disk is
-    # wiped. Mitigation: known_hosts churn on rebuild. Acceptable for now;
-    # the FIXME tracks moving to /persist properly.
     hostKeys = [
       {
-        path = "${lib.optionalString hasOptinPersistence "/persist"}/etc/ssh/ssh_host_ed25519_key";
+        path = "/etc/ssh/ssh_host_ed25519_key";
         type = "ed25519";
       }
     ];

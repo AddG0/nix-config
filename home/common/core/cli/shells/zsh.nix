@@ -1,10 +1,17 @@
-{pkgs, ...}: let
+{
+  config,
+  lib,
+  pkgs,
+  ...
+}: let
   profile-zsh = pkgs.writeShellScriptBin "profile-zsh" ''
     zsh -c 'zmodload zsh/zprof; source ~/.zshrc; zprof' 2>/dev/null | head -40
   '';
 in {
   programs.zsh = {
     enable = true;
+    # A directory, not a file at $HOME, so impermanence can persist it; zsh saves by rename.
+    history.path = "${config.xdg.stateHome}/zsh/history";
     shellAliases = {
       urldecode = "${pkgs.python3Packages.urllib3}/bin/urllib3 -c 'import sys, urllib.parse as ul; print(ul.unquote_plus(sys.stdin.read()))'";
       urlencode = "${pkgs.python3Packages.urllib3}/bin/urllib3 -c 'import sys, urllib.parse as ul; print(ul.quote_plus(sys.stdin.read()))'";
@@ -101,7 +108,20 @@ in {
     '';
   };
 
-  home.packages = [
-    profile-zsh
-  ];
+  home = {
+    packages = [
+      profile-zsh
+    ];
+
+    # TODO: delete after 2026-12-01, once every host has switched and moved its ~/.zsh_history.
+    activation.zshHistoryToXdg = lib.hm.dag.entryAfter ["writeBoundary"] (let
+      old = "${config.home.homeDirectory}/.zsh_history";
+      new = config.programs.zsh.history.path;
+    in ''
+      if [ -f "${old}" ] && [ ! -L "${old}" ] && [ ! -e "${new}" ]; then
+        run mkdir -p "$(dirname "${new}")"
+        run mv "${old}" "${new}"
+      fi
+    '');
+  };
 }
