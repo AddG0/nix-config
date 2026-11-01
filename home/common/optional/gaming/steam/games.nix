@@ -32,6 +32,8 @@
   # Gamescope forces a sane fullscreen surface and fixes it.
   horizon-zero-dawn.wrappers = [gamemoderun] ++ gamescope;
 
+  repo.wrappers = [gamemoderun] ++ gamescope;
+
   aimlabs.wrappers = mouseDpi 1600 ++ [gamemoderun];
 
   # Wrap in gaemscope to fix weird fullscreen behavior
