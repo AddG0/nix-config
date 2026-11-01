@@ -1,56 +1,65 @@
-# Change-request prose autolinks `#123` and bare shas, but GitLab's client
-# definition opts out: its project routes sit under `/-/`, and it numbers merge
-# requests with `!`, which the plugin never matches. Returning `<repo>/-` as the
-# autolink base fixes issues and commits; `!123` links only under such a base.
+# Change-request prose autolinks references through each host's definition, but
+# GitLab's defines no `referenceAutolinks`, so nothing links: its project routes
+# sit under `/-/`, and it numbers merge requests with `!`. This one links `#123`
+# to the issue, `!123` to the merge request and a full SHA to its commit.
 # Drop once t3code autolinks GitLab itself.
 #
 # Patched in `unwrapped`: see README.md.
 _: _final: prev: let
   inherit (prev.lib) escapeShellArg;
 
-  definitionAnchor = "  referenceAutolinkRepositoryUrl: () => null,\n  reviewSummaryRequired: () => false,\n  checkoutCommandArgument: (input) => CHECKOUT_COMMAND.exec(input)?.[1]?.trim() ?? null,";
-  definitionPatch = "  referenceAutolinkRepositoryUrl: (repositoryUrl) => `\${repositoryUrl.replace(/\\/+$/u, \"\")}/-`,\n  reviewSummaryRequired: () => false,\n  checkoutCommandArgument: (input) => CHECKOUT_COMMAND.exec(input)?.[1]?.trim() ?? null,";
+  importAnchor = "  projectChangeRequestHost,\n} from \"@t3tools/source-control-core/shared/definition\";";
+  importPatch = "  projectChangeRequestHost,\n  type ReferenceAutolink,\n} from \"@t3tools/source-control-core/shared/definition\";";
 
-  patternAnchor = "const AUTOLINK_CANDIDATE_PATTERN = /#[1-9]\\d*|[0-9a-f]{40}/giu;";
-  patternPatch = "const AUTOLINK_CANDIDATE_PATTERN = /[#!][1-9]\\d*|[0-9a-f]{40}/giu;";
+  kindAnchor = "const KIND = SourceControlProviderKind.make(\"gitlab\");";
+  kindPatch = ''
+    // `#12` names an issue, `!12` a merge request; GitLab links only full-length SHAs.
+    const REFERENCE = /(?<![\w./\\-])(?:([#!])([1-9]\d*)|([a-f\d]{40}))(?![\w])/giu;
+    const SHORT_SHA_LENGTH = 8;
 
-  matchAnchor = builtins.concatStringsSep "\n" [
-    "      (matched: string, match: TextMatch) => {"
-    "        const reference = matched.startsWith(\"#\");"
-  ];
-  matchPatch = builtins.concatStringsSep "\n" [
-    "      (matched: string, match: TextMatch) => {"
-    "        const mergeRequest = matched.startsWith(\"!\");"
-    "        // Only GitLab's definition hands out a `/-` base."
-    "        if (mergeRequest && !repositoryUrl.endsWith(\"/-\")) return false;"
-    "        const reference = mergeRequest || matched.startsWith(\"#\");"
-  ];
+    function gitLabReferenceAutolinks(
+      text: string,
+      repositoryUrl: string,
+    ): ReadonlyArray<ReferenceAutolink> {
+      const base = `''${repositoryUrl.replace(/\/+$/u, "")}/-`;
+      const links: ReferenceAutolink[] = [];
+      for (const match of text.matchAll(REFERENCE)) {
+        const [matched, sigil, number, sha] = match;
+        if (number) {
+          links.push({
+            index: match.index,
+            text: matched,
+            label: matched,
+            url: `''${base}/''${sigil === "!" ? "merge_requests" : "issues"}/''${number}`,
+            kind: "reference",
+          });
+        } else if (sha && /[a-f]/iu.test(sha)) {
+          links.push({
+            index: match.index,
+            text: matched,
+            label: sha.slice(0, SHORT_SHA_LENGTH),
+            url: `''${base}/commit/''${sha}`,
+            kind: "commit",
+          });
+        }
+      }
+      return links;
+    }
 
-  urlAnchor = builtins.concatStringsSep "\n" [
-    "          url: reference"
-    "            ? `\${repositoryUrl}/issues/\${matched.slice(1)}`"
-    "            : `\${repositoryUrl}/commit/\${matched}`,"
-  ];
-  urlPatch = builtins.concatStringsSep "\n" [
-    "          url: mergeRequest"
-    "            ? `\${repositoryUrl}/merge_requests/\${matched.slice(1)}`"
-    "            : reference"
-    "              ? `\${repositoryUrl}/issues/\${matched.slice(1)}`"
-    "              : `\${repositoryUrl}/commit/\${matched}`,"
-  ];
+    ${kindAnchor}'';
+
+  definitionAnchor = "  authorProfileUrl: () => null,\n  reviewSummaryRequired: () => false,";
+  definitionPatch = "  authorProfileUrl: () => null,\n  referenceAutolinks: gitLabReferenceAutolinks,\n  reviewSummaryRequired: () => false,";
 in {
   t3code = prev.t3code.override {
     t3code-unwrapped = prev.t3code.unwrapped.overrideAttrs (old: {
       postPatch =
         (old.postPatch or "")
         + ''
-          substituteInPlace packages/source-control-gitlab/src/client/definition.ts \
+          substituteInPlace packages/source-control-gitlab/src/shared/definition.ts \
+            --replace-fail ${escapeShellArg importAnchor} ${escapeShellArg importPatch} \
+            --replace-fail ${escapeShellArg kindAnchor} ${escapeShellArg kindPatch} \
             --replace-fail ${escapeShellArg definitionAnchor} ${escapeShellArg definitionPatch}
-
-          substituteInPlace apps/web/src/components/pullRequest/pullRequestMarkdown.logic.ts \
-            --replace-fail ${escapeShellArg patternAnchor} ${escapeShellArg patternPatch} \
-            --replace-fail ${escapeShellArg matchAnchor} ${escapeShellArg matchPatch} \
-            --replace-fail ${escapeShellArg urlAnchor} ${escapeShellArg urlPatch}
         '';
     });
     # Pinned to avoid a Rust rebuild for an identical binary.

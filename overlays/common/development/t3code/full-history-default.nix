@@ -11,6 +11,7 @@ _: _final: prev: let
   inherit (prev.lib) escapeShellArg;
 
   file = "apps/web/src/components/ChatView.tsx";
+  sendFile = "apps/web/src/components/chat/useComposerSend.ts";
 
   readAnchor = "const keepFullHistory = fullHistoryThreadKeys.has(routeThreadKey);";
   readPatch = "const keepFullHistory = !fullHistoryThreadKeys.has(routeThreadKey);";
@@ -36,7 +37,8 @@ in {
           substituteInPlace ${file} \
             --replace-fail ${escapeShellArg readAnchor} ${escapeShellArg readPatch} \
             --replace-fail ${escapeShellArg noopAnchor} ${escapeShellArg noopPatch} \
-            --replace-fail ${escapeShellArg writeAnchor} ${escapeShellArg writePatch} \
+            --replace-fail ${escapeShellArg writeAnchor} ${escapeShellArg writePatch}
+          substituteInPlace ${sendFile} \
             --replace-fail ${escapeShellArg resetAnchor} ${escapeShellArg resetPatch}
         '';
     });

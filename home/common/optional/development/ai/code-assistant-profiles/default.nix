@@ -89,7 +89,7 @@ in {
       skills."frontend-design" =
         lib.custom.ai.fromClaudeSkillDir {
           inherit pkgs;
-          source = "${inputs.claude-code}/plugins/frontend-design/skills/frontend-design";
+          source = "${inputs.claude-plugins-official}/plugins/frontend-design/skills/frontend-design";
         }
         // {description = "Guides distinctive visual design when building or reshaping UI: aesthetic direction, typography, and choices that avoid templated defaults. Use when designing how a page, component or app looks.";};
 

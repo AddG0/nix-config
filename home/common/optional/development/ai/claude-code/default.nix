@@ -66,8 +66,8 @@ in {
     baseConfig = {
       # Rewrite #!/bin/bash shebangs; NixOS doesn't ship /bin/bash.
       pluginDirs = [
-        (pkgs.runCommand "ralph-wiggum-patched" {} ''
-          cp -r ${inputs.claude-code}/plugins/ralph-wiggum $out
+        (pkgs.runCommand "ralph-loop-patched" {} ''
+          cp -r ${inputs.claude-plugins-official}/plugins/ralph-loop $out
           chmod -R u+w $out
           find $out -type f \( -name '*.sh' -o -name '*-hook' \) \
             -exec sed -i "1s|^#!/bin/bash|#!${pkgs.bash}/bin/bash|" {} \;

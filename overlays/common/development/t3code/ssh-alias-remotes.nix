@@ -64,7 +64,11 @@ _: _final: prev: let
   identityRemoteAnchor = builtins.concatStringsSep "\n" [
     "  const remote = pickPrimaryRemote(remotes);"
     "  return remote"
-    "    ? buildRepositoryIdentity({ ...remote, originUrl: remotes.get(\"origin\"), rootPath: cacheKey })"
+    "    ? buildRepositoryIdentity({"
+    "        ...remote,"
+    "        originUrl: remotes.get(\"origin\"),"
+    "        rootPath: cacheKey.rootPath,"
+    "      })"
     "    : null;"
   ];
   identityRemotePatch = builtins.concatStringsSep "\n" [
@@ -73,7 +77,7 @@ _: _final: prev: let
     "  const remoteUrl = yield* canonicalizeRemoteHost(remote.remoteUrl);"
     "  const origin = remotes.get(\"origin\");"
     "  const originUrl = origin === undefined ? undefined : yield* canonicalizeRemoteHost(origin);"
-    "  return buildRepositoryIdentity({ ...remote, remoteUrl, originUrl, rootPath: cacheKey });"
+    "  return buildRepositoryIdentity({ ...remote, remoteUrl, originUrl, rootPath: cacheKey.rootPath });"
   ];
 
   driverImportAnchor = "import * as NodeBuffer from \"node:buffer\";";

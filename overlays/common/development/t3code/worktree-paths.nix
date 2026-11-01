@@ -8,7 +8,7 @@ _: _final: prev: let
 
   # Anchors carry real indentation: '' blocks strip the common indent and stop
   # matching.
-  repoNameAnchor = "    const repoName = path.basename(input.cwd);\n";
+  repoNameAnchor = "    // Resolve sub/.. before taking the basename.\n    const repoName = path.basename(path.resolve(input.cwd));\n";
 
   # gitCommonDir-to-worktree and the GitCommandError handling both mirror
   # upstream's invalidateStatusStaticCaches. The cwd fallback keeps a resolution
@@ -21,7 +21,7 @@ _: _final: prev: let
     "      const primaryWorktree ="
     "        repositoryPaths && path.basename(repositoryPaths.gitCommonDir) === \".git\""
     "          ? path.dirname(repositoryPaths.gitCommonDir)"
-    "          : input.cwd;"
+    "          : path.resolve(input.cwd);"
     "      worktreePath = `\${primaryWorktree}--\${sanitizedBranch}`;"
   ];
 in {

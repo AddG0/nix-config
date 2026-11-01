@@ -289,8 +289,8 @@
 
     #################### AI / Claude Code Sources ####################
 
-    claude-code = {
-      url = "github:anthropics/claude-code";
+    claude-plugins-official = {
+      url = "github:anthropics/claude-plugins-official";
       flake = false;
     };
 

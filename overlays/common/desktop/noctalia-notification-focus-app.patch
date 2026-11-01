@@ -1,15 +1,15 @@
 --- a/src/shell/notification/notification_toast.cpp
 +++ b/src/shell/notification/notification_toast.cpp
-@@ -2289,7 +2289,21 @@
+@@ -2446,7 +2446,24 @@
+                             hasNotificationAction(entry.actions, "default")](const InputArea::PointerData& data) {
      if (data.button == BTN_RIGHT) {
        requestClose(id, CloseReason::Dismissed);
--    } else if (data.button == BTN_LEFT && hasDefaultAction) {
--      if (m_notifications != nullptr) {
-+    } else if (data.button == BTN_LEFT) {
+-    } else if (data.button == BTN_LEFT && hasDefaultAction && m_notifications != nullptr) {
++    } else if (data.button == BTN_LEFT && m_notifications != nullptr) {
 +      // nix-config: focus the originating app via the wlr foreign-toplevel
 +      // protocol (same path as the dock), so the click jumps to the app
 +      // regardless of xdg-activation / Hyprland focus_on_activate.
-+      if (m_notifications != nullptr && m_platform != nullptr) {
++      if (m_platform != nullptr) {
 +        for (const auto& n : m_notifications->all()) {
 +          if (n.id == id) {
 +            const std::string appId = n.desktopEntry.value_or(n.appName);
@@ -20,7 +20,9 @@
 +          }
 +        }
 +      }
-+      if (hasDefaultAction && m_notifications != nullptr) {
-         const std::string activationToken =
-             m_wayland != nullptr ? m_wayland->requestActivationToken(sourceSurface) : std::string{};
-         if (!m_notifications->invokeAction(id, "default", activationToken, true)) {
++      if (!hasDefaultAction) {
++        return;
++      }
+       const std::string activationToken =
+           m_wayland != nullptr ? m_wayland->requestActivationToken(sourceSurface) : std::string{};
+       if (!m_notifications->invokeAction(id, "default", activationToken, true)) {
