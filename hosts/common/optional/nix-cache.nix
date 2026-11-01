@@ -24,93 +24,96 @@ in {
     inputs.queued-build-hook.nixosModules.queued-build-hook
   ];
 
-  sops = {
-    secrets = {
-      nix_cache_signing_key = {
-        sopsFile = nixCacheSops;
-        key = "signing_key";
+  # Pulls, signing and upload all authenticate with sops secrets.
+  config = lib.mkIf (!config.hostSpec.disableSops) {
+    sops = {
+      secrets = {
+        nix_cache_signing_key = {
+          sopsFile = nixCacheSops;
+          key = "signing_key";
+        };
+        nix_cache_hmac_access_key = {
+          sopsFile = nixCacheSops;
+          key = "hmac_access_key";
+        };
+        nix_cache_hmac_secret_key = {
+          sopsFile = nixCacheSops;
+          key = "hmac_secret_key";
+        };
       };
-      nix_cache_hmac_access_key = {
-        sopsFile = nixCacheSops;
-        key = "hmac_access_key";
-      };
-      nix_cache_hmac_secret_key = {
-        sopsFile = nixCacheSops;
-        key = "hmac_secret_key";
+
+      templates."nix-cache-aws-credentials" = {
+        path = awsCredentialsPath;
+        mode = "0400";
+        owner = "root";
+        content = ''
+          [personal-nix-cache]
+          aws_access_key_id = ${config.sops.placeholder.nix_cache_hmac_access_key}
+          aws_secret_access_key = ${config.sops.placeholder.nix_cache_hmac_secret_key}
+        '';
       };
     };
 
-    templates."nix-cache-aws-credentials" = {
-      path = awsCredentialsPath;
-      mode = "0400";
-      owner = "root";
-      content = ''
-        [personal-nix-cache]
-        aws_access_key_id = ${config.sops.placeholder.nix_cache_hmac_access_key}
-        aws_secret_access_key = ${config.sops.placeholder.nix_cache_hmac_secret_key}
+    systemd.tmpfiles.rules = lib.mkIf pkgs.stdenv.hostPlatform.isLinux [
+      "d ${rootHome}/.aws 0700 root root -"
+    ];
+
+    system.activationScripts.nixCacheAwsDir = lib.mkIf pkgs.stdenv.hostPlatform.isDarwin {
+      text = ''
+        mkdir -p ${rootHome}/.aws
+        chmod 700 ${rootHome}/.aws
       '';
     };
-  };
 
-  systemd.tmpfiles.rules = lib.mkIf pkgs.stdenv.hostPlatform.isLinux [
-    "d ${rootHome}/.aws 0700 root root -"
-  ];
+    nix.settings = {
+      substituters = [substituterUrl];
+      trusted-public-keys = [cachePublicKey];
+      # A stalled cache fetch shouldn't wedge a rebuild for the 300s default.
+      stalled-download-timeout = 20;
+    };
 
-  system.activationScripts.nixCacheAwsDir = lib.mkIf pkgs.stdenv.hostPlatform.isDarwin {
-    text = ''
-      mkdir -p ${rootHome}/.aws
-      chmod 700 ${rootHome}/.aws
-    '';
-  };
+    services.queued-build-hook = {
+      enable = true;
+      concurrency = 1; # one nix copy at a time so xz compression doesn't peg every core
+      retries = 3;
+      retryIntervalSecs = 30;
+      # Module defaults already yield to everything else (nice=19,
+      # cpuSchedulingPolicy=idle, ioSchedulingClass=idle, cpuWeight=10,
+      # ioWeight=10), so no overrides here.
 
-  nix.settings = {
-    substituters = [substituterUrl];
-    trusted-public-keys = [cachePublicKey];
-    # A stalled cache fetch shouldn't wedge a rebuild for the 300s default.
-    stalled-download-timeout = 20;
-  };
+      # Daemon subscribes to NetworkManager's Metered D-Bus property. Pulled
+      # jobs park (queue keeps growing) until the connection is unmetered;
+      # nothing dropped. No busctl polling, no dispatcher script.
+      pauseOnMetered = config.networking.networkmanager.enable;
 
-  services.queued-build-hook = {
-    enable = true;
-    concurrency = 1; # one nix copy at a time so xz compression doesn't peg every core
-    retries = 3;
-    retryIntervalSecs = 30;
-    # Module defaults already yield to everything else (nice=19,
-    # cpuSchedulingPolicy=idle, ioSchedulingClass=idle, cpuWeight=10,
-    # ioWeight=10), so no overrides here.
+      # Control-only socket (pause/resume/status, never enqueue) driven by the
+      # per-user queued-build-cache-game-pause service to stop hogging bandwidth
+      # while a game runs. Path must match that service
+      # (home/common/optional/gaming/queued-build-cache-pause.nix). Group-owned by
+      # `gamemode` — the set of users allowed to game — so any gamer's session can
+      # pause; `others` get nothing (0660) and the daemon refuses Enqueue here.
+      controlSocketPath = lib.mkIf config.programs.gamemode.enable "/var/lib/nix/queued-build-hook-control.sock";
+      controlSocketGroup = lib.mkIf config.programs.gamemode.enable "gamemode";
 
-    # Daemon subscribes to NetworkManager's Metered D-Bus property. Pulled
-    # jobs park (queue keeps growing) until the connection is unmetered;
-    # nothing dropped. No busctl polling, no dispatcher script.
-    pauseOnMetered = config.networking.networkmanager.enable;
+      # Runs in the queue daemon (DynamicUser). Sign + upload — both keys arrive
+      # via systemd LoadCredential so DynamicUser doesn't need filesystem access
+      # to /run/secrets.
+      workerScript = ''
+        set -euo pipefail
+        export AWS_SHARED_CREDENTIALS_FILE="$CREDENTIALS_DIRECTORY/aws-credentials"
+        # -r signs the full closure, not just $OUT_PATHS — otherwise nix copy
+        # uploads dependencies unsigned and substituters reject them.
+        ${pkgs.nix}/bin/nix store sign --recursive \
+          --key-file "$CREDENTIALS_DIRECTORY/signing-key" $OUT_PATHS
+        exec ${pkgs.nix}/bin/nix copy --to "${cacheUrl}" $OUT_PATHS
+      '';
 
-    # Control-only socket (pause/resume/status, never enqueue) driven by the
-    # per-user queued-build-cache-game-pause service to stop hogging bandwidth
-    # while a game runs. Path must match that service
-    # (home/common/optional/gaming/queued-build-cache-pause.nix). Group-owned by
-    # `gamemode` — the set of users allowed to game — so any gamer's session can
-    # pause; `others` get nothing (0660) and the daemon refuses Enqueue here.
-    controlSocketPath = lib.mkIf config.programs.gamemode.enable "/var/lib/nix/queued-build-hook-control.sock";
-    controlSocketGroup = lib.mkIf config.programs.gamemode.enable "gamemode";
-
-    # Runs in the queue daemon (DynamicUser). Sign + upload — both keys arrive
-    # via systemd LoadCredential so DynamicUser doesn't need filesystem access
-    # to /run/secrets.
-    workerScript = ''
-      set -euo pipefail
-      export AWS_SHARED_CREDENTIALS_FILE="$CREDENTIALS_DIRECTORY/aws-credentials"
-      # -r signs the full closure, not just $OUT_PATHS — otherwise nix copy
-      # uploads dependencies unsigned and substituters reject them.
-      ${pkgs.nix}/bin/nix store sign --recursive \
-        --key-file "$CREDENTIALS_DIRECTORY/signing-key" $OUT_PATHS
-      exec ${pkgs.nix}/bin/nix copy --to "${cacheUrl}" $OUT_PATHS
-    '';
-
-    credentials = {
-      # Lowercase names so the upstream module's UPPER_SNAKE auto-export skips
-      # them — both are read-as-file inside workerScript, not env vars.
-      aws-credentials = awsCredentialsPath;
-      signing-key = config.sops.secrets.nix_cache_signing_key.path;
+      credentials = {
+        # Lowercase names so the upstream module's UPPER_SNAKE auto-export skips
+        # them — both are read-as-file inside workerScript, not env vars.
+        aws-credentials = awsCredentialsPath;
+        signing-key = config.sops.secrets.nix_cache_signing_key.path;
+      };
     };
   };
 }

@@ -1,10 +1,14 @@
 {
   config,
+  lib,
   nix-secrets,
   pkgs,
   ...
-}: {
-  sops.secrets = {
+}: let
+  # The share's credentials are a sops secret.
+  mountNas = !config.hostSpec.disableSops;
+in {
+  sops.secrets = lib.mkIf mountNas {
     "nas-credentials" = {
       sopsFile = "${nix-secrets}/users/${config.hostSpec.primaryUsername}/nas-credentials.enc";
       format = "binary";
@@ -17,7 +21,7 @@
   users.users.${config.hostSpec.primaryUsername}.extraGroups = ["media"];
   users.users.jellyfin.extraGroups = ["media"];
 
-  fileSystems."/mnt/videos" = {
+  fileSystems."/mnt/videos" = lib.mkIf mountNas {
     device = "//10.61.60.49/videos";
     fsType = "cifs";
     options = [
@@ -44,7 +48,7 @@
 
   # network-online.target doesn't mean the NAS answers, so poll it directly.
   # Pull from the mount only -- via jellyfin it lands Before=multi-user.target.
-  systemd.services.wait-for-nas = {
+  systemd.services.wait-for-nas = lib.mkIf mountNas {
     description = "Wait for NAS (10.61.60.49) to be reachable";
     after = ["network-online.target"];
     wants = ["network-online.target"];

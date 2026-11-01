@@ -76,14 +76,8 @@ in {
     };
   };
 
-  config = {
-    assertions = [
-      {
-        assertion = !config.hostSpec.disableSops;
-        message = "nix-builders: ${host} imports nix-builders.client, which needs sops (builder key) and hostsAddr; both are absent with hostSpec.disableSops";
-      }
-    ];
-
+  # The builder key and hostsAddr both come from sops.
+  config = lib.mkIf (!config.hostSpec.disableSops) {
     sops.secrets.nix-builder-key = {
       sopsFile = "${inputs.nix-secrets}/global/nix-builder-key.enc";
       format = "binary";

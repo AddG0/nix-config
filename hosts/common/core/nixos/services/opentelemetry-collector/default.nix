@@ -16,7 +16,8 @@
     text = builtins.readFile ./otlp-ingest.sh;
   };
 in {
-  config = lib.mkIf cfg.enabled {
+  # Its OAuth client secret is a sops secret.
+  config = lib.mkIf (cfg.enabled && !config.hostSpec.disableSops) {
     environment.systemPackages = [otlp-ingest];
 
     # Takes 90 seconds by default and can wait for that whole time. I don't mind the lost data so we lower to 10s.
