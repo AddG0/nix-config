@@ -104,7 +104,8 @@
       width = 2560;
       height = 1600;
       refreshRate = 165;
-      x = 555;
+      # Centred over the bottom panel: (3840 / 1.333333 - 2560) / 2.
+      x = 160;
       y = 0;
       vrr = "on";
       primary = true;
@@ -115,6 +116,8 @@
       width = 3840;
       height = 1100;
       refreshRate = 60;
+      # 3840 px on the same 344 mm as the top panel's 2560; 160/120 is a scale Hyprland divides cleanly.
+      scale = 1.333333;
       x = 0;
       y = 1600;
     }
