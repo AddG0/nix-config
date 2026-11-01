@@ -46,18 +46,20 @@
         -f ${./report.jq}
     '';
   };
-in {
-  xdg.dataFile = mkPlugin {
-    dir = ./.;
-    files = ["service.luau" "widget.luau" "panel.luau"];
-    templates."service.luau" = {usageQuery = lib.getExe queryUsage;};
-  };
+in
+  # Only beside the ai suite, whose code-assistant-profiles this reports usage for.
+  lib.mkIf config.programs.code-assistant-profiles.enable {
+    xdg.dataFile = mkPlugin {
+      dir = ./.;
+      files = ["service.luau" "widget.luau" "panel.luau"];
+      templates."service.luau" = {usageQuery = lib.getExe queryUsage;};
+    };
 
-  sops.secrets."ai/grafana-token" = {};
+    sops.secrets."ai/grafana-token" = {};
 
-  programs.noctalia.settings = {
-    plugins.enabled = ["addg/ai-usage"];
-    bar.main.end = lib.mkBefore ["ai_usage"];
-    widget.ai_usage.type = "addg/ai-usage:limits";
-  };
-}
+    programs.noctalia.settings = {
+      plugins.enabled = ["addg/ai-usage"];
+      bar.main.end = lib.mkBefore ["ai_usage"];
+      widget.ai_usage.type = "addg/ai-usage:limits";
+    };
+  }

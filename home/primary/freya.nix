@@ -1,10 +1,12 @@
 {
   config,
+  inputs,
   pkgs,
   lib,
   ...
 }: {
   imports = lib.flatten [
+    inputs.nix-secrets.homeModules.dd
     lib.custom.suites.development.home
     lib.custom.suites.ai.home
     lib.custom.suites.virtualization.home
