@@ -9,7 +9,7 @@
 # it only evaluates packages for the system running the check.
 {self, ...}: {
   perSystem = {pkgs, ...}: {
-    checks.nvim-aarch64-darwin-evals = pkgs.runCommand "nvim-aarch64-darwin-evals" {
+    checks.nvim-aarch64-darwin-evals = pkgs.runCommandLocal "nvim-aarch64-darwin-evals" {
       forced = builtins.seq self.packages.aarch64-darwin.nvim.drvPath "ok";
     } "touch $out";
   };

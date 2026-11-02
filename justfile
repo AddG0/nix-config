@@ -28,10 +28,19 @@ check-pre:
 [doc("Update personal repositories and dependencies")]
 rebuild-pre: update-personal-repos
 
+[script]
 [group('validation')]
 [doc("Check flake configuration with pre-validation warnings")]
 check: check-pre && pre
-  nix flake check --keep-going
+  source scripts/helpers.sh
+  start=$SECONDS status=0
+  nix flake check --keep-going || status=$?
+  if [ "$status" -eq 0 ]; then
+    log_info "Checks passed in $((SECONDS - start))s"
+  else
+    log_error "Checks failed (exit $status) after $((SECONDS - start))s"
+  fi
+  exit "$status"
 
 [group('validation')]
 [doc("Check flake configuration with detailed trace output")]

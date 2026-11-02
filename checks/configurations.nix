@@ -113,7 +113,7 @@
   ];
 in {
   perSystem = {pkgs, ...}: let
-    guard = name: drv: pkgs.runCommand name {forced = builtins.seq drv.drvPath "ok";} "touch $out";
+    guard = name: drv: pkgs.runCommandLocal name {forced = builtins.seq drv.drvPath "ok";} "touch $out";
     guards = prefix: f: configs: lib.mapAttrs' (n: c: lib.nameValuePair "${prefix}-${n}-evals" (guard "${prefix}-${n}-evals" (f c))) configs;
   in {
     checks =

@@ -82,22 +82,26 @@ in {
       '';
 
     unitCheck = test:
-      builtins.seq (withTests test (import test.file (unitArgs pkgs))) (pkgs.runCommand (lib.replaceStrings [":"] ["-"] test.name) {nativeBuildInputs = [inputs.nix-unit.packages.${system}.nix-unit];} ''
-        export HOME="$(realpath .)"
-        unset NIX_STORE
-        export NIX_STORE_DIR=${builtins.storeDir}
-        export NIX_REMOTE="$HOME/storedata"
-        nix-unit --show-trace ${suiteFile test} 2>&1 | tee "$out"
-        test "''${PIPESTATUS[0]}" -eq 0
-      '');
+      builtins.seq (withTests test (import test.file (unitArgs pkgs))) (pkgs.runCommand (lib.replaceStrings [":"] ["-"] test.name) {
+          nativeBuildInputs = [inputs.nix-unit.packages.${system}.nix-unit];
+          preferLocalBuild = true;
+        } ''
+          export HOME="$(realpath .)"
+          unset NIX_STORE
+          export NIX_STORE_DIR=${builtins.storeDir}
+          export NIX_REMOTE="$HOME/storedata"
+          nix-unit --show-trace ${suiteFile test} 2>&1 | tee "$out"
+          test "''${PIPESTATUS[0]}" -eq 0
+        '');
 
     harness = import ./harness {inherit pkgs lib;};
     derivationCheck = test:
-      import test.file {
+      (import test.file {
         inherit pkgs harness self;
         inherit (harness) lib;
-      };
+      }).overrideAttrs {preferLocalBuild = true;};
   in {
+    # Run here: offloading a check ships the repo and nixpkgs sources to a builder, which costs more than the check.
     checks = lib.listToAttrs (map (test:
       lib.nameValuePair test.name (
         if test.kind == "unit"
