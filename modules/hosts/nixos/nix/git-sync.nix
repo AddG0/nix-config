@@ -194,7 +194,7 @@ in {
           fi
 
           # Exits 1 for a system built without a revision: then only the narHash above decides.
-          running=$(/run/current-system/sw/bin/nixos-version --configuration-revision 2>/dev/null) || running=""
+          running=$("''${CURRENT_SYSTEM:-/run/current-system}/sw/bin/nixos-version" --configuration-revision 2>/dev/null) || running=""
           base=''${running%-dirty}
           if [ -n "$base" ] && [ -n "$remote_rev" ]; then
             if [ "$base" = "$remote_rev" ]; then
