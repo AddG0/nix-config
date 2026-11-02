@@ -57,7 +57,6 @@
     "dist"
     "build"
     "bin"
-    "result"
     ".next"
     ".nuxt"
     ".turbo"
