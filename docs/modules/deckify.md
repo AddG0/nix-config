@@ -30,7 +30,7 @@ resulting FQDN at its LAN address in DNS, and register that instead.
 **Certificate has the wrong name** — only regenerated when absent:
 
 ```bash
-rm /var/lib/decky-loader/data/Deckify/{cert.pem,key.pem}
+rm ~/.local/share/decky/data/Deckify/{cert.pem,key.pem}
 ```
 
 **URL doesn't resolve on the phone** — the phone uses the router's DNS:
@@ -39,7 +39,7 @@ rm /var/lib/decky-loader/data/Deckify/{cert.pem,key.pem}
 dig +short @<router-ip> <hostname> A
 ```
 
-**Backend errors** — `/var/lib/decky-loader/logs/Deckify`.
+**Backend errors** — `~/.local/share/decky/logs/Deckify`.
 
 ## See Also
 
