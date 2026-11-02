@@ -13,7 +13,7 @@ _: {
         "vm-" # Skip VM images in checks as they're large
       ];
 
-      packageChecks = lib.mapAttrs' (n: lib.nameValuePair "package-${n}") (
+      checkedPackages =
         lib.filterAttrs (
           n: v:
             !(builtins.any (blacklist: lib.hasPrefix blacklist n) blacklistPackages)
@@ -21,9 +21,13 @@ _: {
             && (v.meta.available or true)
             && !(v.meta.broken or false)
         )
-        self'.packages
-      );
+        self'.packages;
+
+      packageChecks = lib.mapAttrs' (n: lib.nameValuePair "package-${n}") checkedPackages;
+
+      # A package's passthru.tests cover what building it cannot, such as the result running.
+      testChecks = lib.concatMapAttrs (n: pkg: lib.mapAttrs' (t: lib.nameValuePair "package-${n}-test-${t}") (pkg.passthru.tests or {})) checkedPackages;
     in
-      packageChecks;
+      packageChecks // testChecks;
   };
 }

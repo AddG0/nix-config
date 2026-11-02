@@ -1,6 +1,7 @@
 {
   lib,
   appimageTools,
+  callPackage,
   fetchurl,
 }: let
   pname = "wooting-bg-service";
@@ -17,6 +18,9 @@ in
   appimageTools.wrapType2 {
     inherit pname version src;
 
+    # The bundled libgcrypt and webkit2gtk link it, and appimageTools no longer provides it by default.
+    extraPkgs = pkgs: [pkgs.libgpg-error];
+
     extraInstallCommands = ''
       install -Dm644 "${appimageContents}/usr/share/applications/Wooting Background Service.desktop" \
         $out/share/applications/${pname}.desktop
@@ -29,8 +33,11 @@ in
       done
     '';
 
-    # skip: version is a download-URL query param and upstream's releases are private.
-    passthru.nixUpdate.version = "skip";
+    passthru = {
+      # skip: version is a download-URL query param and upstream's releases are private.
+      nixUpdate.version = "skip";
+      tests.starts = callPackage ./tests/starts.nix {};
+    };
 
     meta = {
       description = "Wooting Background Service - keeps a connection to Wooting keyboards open for Wootility";
