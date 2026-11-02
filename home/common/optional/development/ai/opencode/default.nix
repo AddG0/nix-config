@@ -32,7 +32,11 @@ in {
     contextLength = toString contextLength;
   };
 
-  programs.code-assistant-profiles.targets.opencode.enable = true;
+  programs.code-assistant-profiles = {
+    targets.opencode.enable = true;
+    # The wrapper's OTLP flush retries for 3s on every call where no collector listens, as in the check's sandbox.
+    validators.opencode.package = lib.mkForce pkgs.opencode;
+  };
 
   programs.opencode = {
     enable = true;
