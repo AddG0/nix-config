@@ -37,8 +37,10 @@
     };
   };
 
-  # Repo-relative, so the runner imports the test from the sandbox's copy of self.
+  # Repo-relative, so the runner imports the test from the sandbox's copy of the repo.
   relative = file: lib.path.removePrefix ../. file;
+  # A path, not `self`: interpolating it gives the suite file a store reference, so the repo is in the sandbox.
+  repo = ../.;
 
   byKind = kind: lib.filter (test: test.kind == kind) tests;
 
@@ -72,9 +74,9 @@ in {
         let
           lib = import ${inputs.nixpkgs}/lib;
           pkgs = import ${inputs.nixpkgs} {system = "${system}";};
-          harness = import ${self}/checks/harness {inherit pkgs lib;};
+          harness = import ${repo}/checks/harness {inherit pkgs lib;};
         in
-          import ${self}/${relative test.file} {
+          import ${repo}/${relative test.file} {
             inherit harness pkgs;
             inherit (harness) lib;
             inherit (import ${inputs.nix-unit}/lib {inherit (harness) lib;}) coverage;
