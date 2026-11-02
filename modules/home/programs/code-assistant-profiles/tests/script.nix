@@ -4,7 +4,6 @@
   harness,
   lib,
   pkgs,
-  self,
   ...
 }: let
   launcherModule = import ../launcher.nix {inherit lib pkgs;};
@@ -13,15 +12,10 @@
     ${(import ../skill-resources.nix {inherit lib;}).rejectReserved "codex" "demo"}
   '';
 
-  # The packages the home config installs for each target, from the pins and overlays the hosts use.
-  hostPkgs = import self.inputs.nixpkgs {
-    inherit (pkgs.stdenv.hostPlatform) system;
-    overlays = [self.overlays.default];
-    config.allowUnfree = true;
-  };
+  # The packages the home config installs for each target; checks' pkgs carry the hosts' overlays.
   installed = {
-    claude-code = hostPkgs.unstable.claude-code;
-    inherit (hostPkgs) codex opencode;
+    claude-code = pkgs.unstable.claude-code;
+    inherit (pkgs) codex opencode;
   };
 
   # Every word the launcher passes as a flag or flag value must still appear in the tool's --help.

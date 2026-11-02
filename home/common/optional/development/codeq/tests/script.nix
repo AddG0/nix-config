@@ -3,11 +3,10 @@
 {
   harness,
   pkgs,
-  self,
   ...
 }: let
   codeq = pkgs.callPackage ../package.nix {
-    customPkgs = self.legacyPackages.${pkgs.stdenv.hostPlatform.system};
+    customPkgs = pkgs.addg;
   };
 
   # One deeply branching function and one block pasted twice.
