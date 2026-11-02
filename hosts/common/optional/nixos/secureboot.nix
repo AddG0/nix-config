@@ -20,5 +20,7 @@
   boot.lanzaboote = {
     enable = true;
     pkiBundle = "/var/lib/sbctl";
+    # Enrolls only in firmware Setup Mode, so enrolled hosts are untouched.
+    autoEnrollKeys.enable = true;
   };
 }

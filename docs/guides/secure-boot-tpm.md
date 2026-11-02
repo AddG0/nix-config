@@ -15,19 +15,22 @@ LUKS device `crypted` on `/dev/disk/by-partlabel/disk-main-luks`.
 | 1 | config | import `secureboot`; set `boot.initrd.luks.devices.crypted.crypttabExtraOpts = ["tpm2-device=auto"]`; impermanent: persist `/var/lib/sbctl` | — |
 | 2 | host | `sudo nix run nixpkgs#sbctl -- create-keys` | keys in `/var/lib/sbctl` |
 | 2b | host, impermanent | `sudo mkdir -p /persist/var/lib && sudo cp -a /var/lib/sbctl /persist/var/lib/` | — |
-| 3 | demon | rebuild the host | "Successfully installed Lanzaboote" |
-| 4 | host | `sudo sbctl verify` | all ✓ but `/EFI/nixos/kernel-*.efi` |
-| 5 | firmware | `systemctl reboot --firmware-setup` → Key Management → **Clear Secure Boot Keys** | `bootctl status`: `disabled (setup)` |
-| 6 | host | `sudo sbctl enroll-keys --microsoft` | "Enrolled keys" |
+| 3 | host | `just rebuild` (after `boot`, reboot before step 4) | "Successfully installed Lanzaboote" |
+| 4 | host | `sudo sbctl verify`; `sudo ls /boot/loader/keys/auto` | all ✓ but `/EFI/nixos/kernel-*.efi`; `PK.auth KEK.auth db.auth` |
+| 5 | firmware | `systemctl reboot --firmware-setup` → Key Management → **Clear Secure Boot Keys** | 15 s "Enrolling in…" countdown, any key aborts; then "successfully enrolled, rebooting" |
+| 6 | host | `bootctl status` | `disabled`, not `(setup)`; still `(setup)`: `sudo sbctl enroll-keys --microsoft` |
 | 7 | firmware | Secure Boot → **Enabled** | `bootctl status`: `enabled (user)` |
 | 8 | host | `sudo systemd-cryptenroll --tpm2-device=auto --tpm2-pcrs=7 /dev/disk/by-partlabel/disk-main-luks` | next boot: no prompt |
 
 Order matters: keys before rebuild (else `db.pem` not found), clear before
-enroll, Secure Boot on before the TPM (turning it on changes PCR 7).
+enroll, Secure Boot on before the TPM (turning it on changes PCR 7). The
+`secureboot` module stages the keys on `/boot` at step 3; systemd-boot enrolls
+them only while the firmware is in Setup Mode. After new keys, `sudo rm -r
+/boot/loader/keys/auto` and switch, or Setup Mode enrolls the old ones.
 
 ## Don't
 
-- **Delete anything in `/boot`.** The ✗ on `/EFI/nixos/kernel-*.efi` is
+- **Delete anything in `/boot/EFI`.** The ✗ on `/EFI/nixos/kernel-*.efi` is
   expected: lanzaboote's signed stub loads it by hash. Without `/EFI/nixos` every
   generation fails with "Failed to read kernel file into memory".
 - **Enable Secure Boot before step 6.** "Invalid signature detected"; disable it
