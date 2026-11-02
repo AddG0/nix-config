@@ -16,9 +16,9 @@
 
   probe = pkgs.writeShellApplication {
     name = "nix-builder-probe";
-    runtimeInputs = with pkgs; [coreutils netcat];
+    runtimeInputs = with pkgs; [coreutils diffutils netcat];
     text = ''
-      out=${activeMachines}
+      out=''${ACTIVE_MACHINES:-${activeMachines}}
       port=${toString config.hostSpec.networking.ports.tcp.ssh}
 
       # Best of three TCP connects to sshd, in microseconds; fails if all three time out.
@@ -55,7 +55,7 @@
           summary+=" $addr $((us / 1000))ms"
           printf '%s %s\n' "$uri" "$rest" >> "$tmp"
         fi
-      done < /etc/nix/machines
+      done < "''${CONFIGURED_MACHINES:-/etc/nix/machines}"
 
       chmod 644 "$tmp"
       if [[ -f $out ]] && cmp -s "$tmp" "$out"; then
