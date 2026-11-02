@@ -8,6 +8,8 @@
 }: let
   inherit (config.display) monitors;
   kwinOutputs = import ./_kwin-outputs.nix {inherit lib pkgs;} monitors;
+  # The bundled smoky.jpg is 1920x1080, so a 32:9 panel crops it to 1920x540 and upscales.
+  wallpaper = lib.custom.relativeToRoot "assets/wallpapers/mist-winter-trees.jpg";
 in {
   imports = [
     inputs.silent-sddm.nixosModules.default
@@ -24,6 +26,11 @@ in {
   programs.silentSDDM = {
     enable = true;
     theme = lib.mkDefault "default";
+    backgrounds.wallpaper = wallpaper;
+    settings = {
+      LoginScreen.background = baseNameOf wallpaper;
+      LockScreen.background = baseNameOf wallpaper;
+    };
   };
 
   # Rewritten every boot, so "Apply Plasma Settings" in the SDDM KCM lasts one boot only.

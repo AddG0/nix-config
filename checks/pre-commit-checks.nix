@@ -12,7 +12,7 @@
         hooks = {
           check-added-large-files = {
             enable = true;
-            excludes = ["^assets/avatars/"];
+            excludes = ["^assets/avatars/" "^assets/wallpapers/"];
           };
           check-case-conflicts.enable = true;
           check-executables-have-shebangs.enable = true;
