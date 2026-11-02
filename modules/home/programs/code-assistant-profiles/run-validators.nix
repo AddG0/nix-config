@@ -32,7 +32,7 @@
     # A layout change that selects nothing would otherwise pass on an empty $HOME.
     emptyTools = lib.filter (validator: !(lib.any (file: under validator.configDirs file.target) files)) enabled;
 
-    fakeHome = pkgs.runCommand "assistant-config-home-${name}-${user}" {} (''
+    fakeHome = pkgs.runCommandLocal "assistant-config-home-${name}-${user}" {} (''
         mkdir -p "$out"
       ''
       + lib.concatMapStrings (file: let
@@ -46,15 +46,32 @@
     lib.throwIf (emptyTools != []) "${name}: ${lib.concatMapStringsSep ", " (validator: validator.option) emptyTools} enabled for user ${user}, but no home.file entry lands under ${lib.concatMapStringsSep ", " (validator: lib.concatStringsSep " " validator.configDirs) emptyTools}"
     (''
         subject=${lib.escapeShellArg (name + lib.optionalString (lib.length (lib.attrNames homes) > 1) " (${user})")}
-        export HOME="$TMPDIR/home-"${lib.escapeShellArg user}
-        cp -rL --no-preserve=mode ${fakeHome} "$HOME"
-        export XDG_CONFIG_HOME="$HOME/"${lib.escapeShellArg xdgConfig}
+        home="$TMPDIR/home-"${lib.escapeShellArg user}
+        cp -rL --no-preserve=mode ${fakeHome} "$home"
       ''
-      + lib.concatMapStrings (validator: validator.script (checkedPackage user validator)) enabled);
+      # Each tool runs as its own job with a private $HOME, $TMPDIR and tallies, so tools that write state never share a file.
+      + lib.concatImapStrings (i: validator: ''
+        job="$TMPDIR/jobs/"${lib.escapeShellArg "${user}-${toString i}"}
+        mkdir -p "$job/tmp" "$job/cwd"
+        cp -r "$home" "$job/home"
+        (
+          cd "$job/cwd"
+          export HOME="$job/home"
+          export XDG_CONFIG_HOME="$HOME/"${lib.escapeShellArg xdgConfig}
+          export TMPDIR="$job/tmp"
+          ran="$job/ran"
+          failed=0
+          : >"$ran"
+          ${validator.script (checkedPackage user validator)}
+          echo "$failed" >"$job/failed"
+        ) 2>"$job/stderr" &
+        jobs+=("$job" "$!")
+      '')
+      enabled);
 
   setups = lib.unique (lib.concatMap (hm: map (validator: validator.setup) (validatorsOf hm)) (lib.attrValues homes));
 in
-  pkgs.runCommand "assistant-config-check-${name}" {env.NO_COLOR = "1";} ''
+  pkgs.runCommandLocal "assistant-config-check-${name}" {env.NO_COLOR = "1";} ''
     failed=0
     limit=${toString validatorTimeoutSeconds}
     ran="$TMPDIR/ran"
@@ -83,8 +100,24 @@ in
       fi
     }
 
+    jobs=()
     ${lib.concatStrings setups}
     ${lib.concatStrings (lib.mapAttrsToList forUser homes)}
+
+    # Collected in launch order, so the report reads the same whatever order the jobs finish in.
+    for ((i = 0; i < ''${#jobs[@]}; i += 2)); do
+      job=''${jobs[i]}
+      status=0
+      wait "''${jobs[i + 1]}" || status=$?
+      cat "$job/stderr" >&2
+      cat "$job/ran" >>"$ran"
+      if [[ $status -ne 0 || ! -f $job/failed ]]; then
+        failed=$((failed + 1))
+        echo "${name}: validator job ''${job##*/} exited $status before reporting its result" >&2
+      else
+        failed=$((failed + $(cat "$job/failed")))
+      fi
+    done
 
     if [[ $failed -ne 0 ]]; then
       echo "${name}: $failed validator run(s) rejected the generated assistant config; see above" >&2

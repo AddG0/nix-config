@@ -85,6 +85,35 @@
       xdg.configHome = "/home/t/.config";
     };
   });
+
+  # A validator that dies after one passing run, before it can report its tally.
+  crashed = pkgs.testers.testBuildFailure (import ../run-validators.nix {inherit pkgs lib;} {
+    name = "fixture-crashed";
+    homes.t = {
+      programs.code-assistant-profiles.validators.crashing = {
+        option = "programs.crashing";
+        enable = true;
+        package = pkgs.hello;
+        configDirs = ["crashing"];
+        extraDirs = [];
+        mergedFiles = [];
+        setup = "";
+        script = _: ''
+          validate crashing crashing/x true
+          exit 3
+        '';
+      };
+      home = {
+        homeDirectory = "/home/t";
+        file.x = {
+          enable = true;
+          target = "crashing/x";
+          source = pkgs.writeText "x" "x";
+        };
+      };
+      xdg.configHome = "/home/t/.config";
+    };
+  });
 in
   pkgs.runCommand "code-assistant-profiles-files" {} ''
     ${harness.values {
@@ -135,6 +164,11 @@ in
     if ! grep -qF "fixture-silent: no validator ran over the generated assistant config" ${silent}/testBuildFailure.log; then
       echo "FAIL: a validator run that ran nothing passed:" >&2
       cat ${silent}/testBuildFailure.log >&2
+      exit 1
+    fi
+    if ! grep -qF "fixture-crashed: validator job t-1 exited 3 before reporting its result" ${crashed}/testBuildFailure.log; then
+      echo "FAIL: a validator that died before reporting passed:" >&2
+      cat ${crashed}/testBuildFailure.log >&2
       exit 1
     fi
     # A bad config.toml reaches every codex run, so this asserts the first rather than a count.
