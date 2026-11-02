@@ -14,6 +14,7 @@
     ./nwg-displays.nix
     ./pip.nix
     ./btop.nix
+    ./hyprtoolkit.nix
     ./monitor-control.nix
     ./recovery.nix
   ];
