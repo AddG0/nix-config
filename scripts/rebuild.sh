@@ -154,14 +154,14 @@ rebuild_linux() {
     # Copied up front so dix can diff on the target, where its current system lives.
     # Unsigned local builds; the target's trusted-users gates this, as with nh's own copy.
     nix copy --no-check-sigs --to "ssh-ng://${TARGET}" "${out}"
-    if ! ssh "${TARGET}" nix run nixpkgs#dix -- /run/current-system "${out}"; then
+    if ! ssh "${TARGET}" nix run nixpkgs#dix -- diff /run/current-system "${out}"; then
       log_warning "Could not diff ${TARGET}'s /run/current-system against ${out}; activating anyway"
     fi
     nixos-rebuild "${MODE}" --store-path "${out}" --target-host "${TARGET}" --elevate sudo --ask-elevate-password
     return
   fi
 
-  if ! nix run nixpkgs#dix -- /run/current-system "${out}"; then
+  if ! nix run nixpkgs#dix -- diff /run/current-system "${out}"; then
     log_warning "Could not diff /run/current-system against ${out}; activating anyway"
   fi
   # nixos-rebuild elevates with the first sudo on PATH; sudo-notify pings the desktop while its prompt waits.
