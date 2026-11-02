@@ -8,6 +8,7 @@ _: {
       comments.content.source = ./rules/comments.md;
       change-scope.content.source = ./rules/change-scope.md;
       quality-standards.content.source = ./rules/quality-standards.md;
+      self-documenting.content.source = ./rules/self-documenting.md;
     };
 
     skills."domain-language-steward" = {
