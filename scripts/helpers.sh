@@ -54,6 +54,18 @@ function log_error() {
   fi
 }
 
+# format_duration <seconds>: 3589 -> "59m 49s", 3725 -> "1h 2m 5s", 42 -> "42s".
+function format_duration() {
+  local h=$(($1 / 3600)) m=$(($1 % 3600 / 60)) s=$(($1 % 60))
+  if [ "$h" -gt 0 ]; then
+    echo "${h}h ${m}m ${s}s"
+  elif [ "$m" -gt 0 ]; then
+    echo "${m}m ${s}s"
+  else
+    echo "${s}s"
+  fi
+}
+
 ### UX helpers
 
 function red() {

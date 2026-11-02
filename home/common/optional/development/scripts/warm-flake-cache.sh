@@ -38,9 +38,9 @@ fmt_duration() {
   if [ "$s" -lt 60 ]; then
     printf "%ds" "$s"
   elif [ "$s" -lt 3600 ]; then
-    printf "%dm%02ds" $((s / 60)) $((s % 60))
+    printf "%dm %ds" $((s / 60)) $((s % 60))
   else
-    printf "%dh%02dm%02ds" $((s / 3600)) $(((s % 3600) / 60)) $((s % 60))
+    printf "%dh %dm %ds" $((s / 3600)) $(((s % 3600) / 60)) $((s % 60))
   fi
 }
 

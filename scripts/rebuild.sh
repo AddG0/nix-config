@@ -144,7 +144,7 @@ rebuild_linux() {
 
   local built=$SECONDS out
   out=$(nix build --no-link --print-out-paths ".#nixosConfigurations.${HOST}.config.system.build.toplevel" $TRACE_FLAG ${nix_args[@]+"${nix_args[@]}"})
-  log_info "Built in $((SECONDS - built))s"
+  log_info "Built in $(format_duration $((SECONDS - built)))"
   if [ "${MODE}" = "build" ]; then
     log_info "Built ${out}"
     return
@@ -177,7 +177,7 @@ else
 fi
 
 is_git_repo && log_info "====== POST‑REBUILD ======"
-log_info "Rebuilt successfully in $((SECONDS - REBUILD_START))s"
+log_info "Rebuilt successfully in $(format_duration $((SECONDS - REBUILD_START)))"
 
 # Check for pending git changes before tagging the commit as buildable.
 if is_git_repo && git diff --exit-code >/dev/null && git diff --staged --exit-code >/dev/null; then

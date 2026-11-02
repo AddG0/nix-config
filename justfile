@@ -36,9 +36,9 @@ check: check-pre && pre
   start=$SECONDS status=0
   nix flake check --keep-going || status=$?
   if [ "$status" -eq 0 ]; then
-    log_info "Checks passed in $((SECONDS - start))s"
+    log_info "Checks passed in $(format_duration $((SECONDS - start)))"
   else
-    log_error "Checks failed (exit $status) after $((SECONDS - start))s"
+    log_error "Checks failed (exit $status) after $(format_duration $((SECONDS - start)))"
   fi
   exit "$status"
 
