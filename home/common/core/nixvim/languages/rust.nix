@@ -1,41 +1,47 @@
-{pkgs, ...}: let
+{
+  config,
+  lib,
+  pkgs,
+  ...
+}: let
   # codelldb adapter binary shipped inside the vscode-lldb extension.
   codelldb = "${pkgs.vscode-extensions.vadimcn.vscode-lldb}/share/vscode/extensions/vadimcn.vscode-lldb/adapter/codelldb";
-in {
-  plugins.lsp.servers.rust_analyzer = {
-    # rust-analyzer needs cargo + rustc on PATH to analyze projects; let
-    # nixvim provide them (silences the install warnings too).
-    enable = true;
-    installCargo = true;
-    installRustc = true;
-    # inline #[cfg(test)] mods share the file they test, so no path filter reaches them
-    settings.references.excludeTests = true;
-  };
-  plugins.conform-nvim.settings.formatters_by_ft.rust = ["rustfmt"];
-  plugins.neotest.adapters.rust.enable = true; # cargo test runner (framework: ../testing.nix)
-
-  # Debugging via codelldb (the DAP framework lives in ../dap.nix).
-  plugins.dap = {
-    adapters.servers.codelldb = {
-      port = "\${port}";
-      executable = {
-        command = codelldb;
-        args = ["--port" "\${port}"];
-      };
+in
+  lib.mkIf config.languages.rust.enable {
+    plugins.lsp.servers.rust_analyzer = {
+      # rust-analyzer needs cargo + rustc on PATH to analyze projects; let
+      # nixvim provide them (silences the install warnings too).
+      enable = true;
+      installCargo = true;
+      installRustc = true;
+      # inline #[cfg(test)] mods share the file they test, so no path filter reaches them
+      settings.references.excludeTests = true;
     };
-    configurations.rust = [
-      {
-        name = "Launch";
-        type = "codelldb";
-        request = "launch";
-        program.__raw = ''
-          function()
-            return vim.fn.input("Path to executable: ", vim.fn.getcwd() .. "/target/debug/", "file")
-          end
-        '';
-        cwd = "\${workspaceFolder}";
-        stopOnEntry = false;
-      }
-    ];
-  };
-}
+    plugins.conform-nvim.settings.formatters_by_ft.rust = ["rustfmt"];
+    plugins.neotest.adapters.rust.enable = true; # cargo test runner (framework: ../testing.nix)
+
+    # Debugging via codelldb (the DAP framework lives in ../dap.nix).
+    plugins.dap = {
+      adapters.servers.codelldb = {
+        port = "\${port}";
+        executable = {
+          command = codelldb;
+          args = ["--port" "\${port}"];
+        };
+      };
+      configurations.rust = [
+        {
+          name = "Launch";
+          type = "codelldb";
+          request = "launch";
+          program.__raw = ''
+            function()
+              return vim.fn.input("Path to executable: ", vim.fn.getcwd() .. "/target/debug/", "file")
+            end
+          '';
+          cwd = "\${workspaceFolder}";
+          stopOnEntry = false;
+        }
+      ];
+    };
+  }

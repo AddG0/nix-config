@@ -1,4 +1,9 @@
 {
+  config,
+  lib,
+  ...
+}:
+lib.mkIf config.languages.yaml.enable {
   # yamlls auto-wires to SchemaStore.nvim (../lsp.nix) — that's what gives
   # .gitlab-ci.yml, k8s, GitHub Actions, etc. their schemas. yamllint comes
   # from lint's autoInstall.

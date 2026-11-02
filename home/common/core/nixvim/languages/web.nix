@@ -1,4 +1,10 @@
-{customPkgs, ...}: {
+{
+  config,
+  customPkgs,
+  lib,
+  ...
+}:
+lib.mkIf config.languages.web.enable {
   # TypeScript / JavaScript.
   plugins = {
     lsp.servers.html.enable = true;

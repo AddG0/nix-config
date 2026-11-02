@@ -1,4 +1,9 @@
 {
+  config,
+  lib,
+  ...
+}:
+lib.mkIf config.languages.helm.enable {
   # vim-helm gives chart templates the `helm` filetype so yamlls stops choking
   # on the {{ }} Go templates; helm_ls is the LSP.
   plugins = {

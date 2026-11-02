@@ -1,9 +1,11 @@
 {
+  config,
   pkgs,
   customPkgs,
   lib,
   ...
-}: {
+}:
+lib.mkIf config.languages.kotlin.enable {
   # Official JetBrains Kotlin LSP (pkgs/by-name/kotlin-lsp, our custom package) instead
   # of the flaky/unmaintained fwcd kotlin-language-server. nixvim has the
   # lspconfig `kotlin_lsp` preset; we point cmd at our packaged launcher in

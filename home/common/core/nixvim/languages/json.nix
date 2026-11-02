@@ -1,4 +1,9 @@
 {
+  config,
+  lib,
+  ...
+}:
+lib.mkIf config.languages.json.enable {
   # jsonls auto-wires its `schemas` to SchemaStore.nvim (enabled in ../lsp.nix).
   plugins.lsp.servers.jsonls.enable = true;
 

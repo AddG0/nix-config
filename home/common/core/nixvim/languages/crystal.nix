@@ -1,4 +1,9 @@
-{pkgs, ...}: let
+{
+  config,
+  lib,
+  pkgs,
+  ...
+}: let
   tsCrystal = pkgs.tree-sitter-grammars.tree-sitter-crystal;
 
   # Not an nvim-treesitter language; its nvim queries sit in queries/nvim/, a
@@ -10,19 +15,20 @@
       ln -s ${tsCrystal}/queries/nvim/*.scm $out/queries/crystal/
     ''
   );
-in {
-  # vim-crystal for indent + commentstring: no indents.scm, no ts-comments entry.
-  extraPlugins = [crystalGrammar pkgs.vimPlugins.vim-crystal];
-  globals.crystal_define_mappings = 0; # its ftplugin rebinds gd over the LSP map
+in
+  lib.mkIf config.languages.crystal.enable {
+    # vim-crystal for indent + commentstring: no indents.scm, no ts-comments entry.
+    extraPlugins = [crystalGrammar pkgs.vimPlugins.vim-crystal];
+    globals.crystal_define_mappings = 0; # its ftplugin rebinds gd over the LSP map
 
-  # crystalline execs `crystal env` at startup and dies without it.
-  extraPackages = [pkgs.crystal pkgs.pkg-config];
+    # crystalline execs `crystal env` at startup and dies without it.
+    extraPackages = [pkgs.crystal pkgs.pkg-config];
 
-  plugins.lsp.servers.crystalline.enable = true;
-  plugins.conform-nvim.settings.formatters_by_ft.crystal = ["crystal"];
+    plugins.lsp.servers.crystalline.enable = true;
+    plugins.conform-nvim.settings.formatters_by_ft.crystal = ["crystal"];
 
-  plugins.lint = {
-    lintersByFt.crystal = ["ameba"];
-    linters.ameba.cmd = "ameba"; # nvim-lint defaults to shards' vendored bin/ameba
-  };
-}
+    plugins.lint = {
+      lintersByFt.crystal = ["ameba"];
+      linters.ameba.cmd = "ameba"; # nvim-lint defaults to shards' vendored bin/ameba
+    };
+  }

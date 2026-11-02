@@ -1,4 +1,9 @@
-_: {
+{
+  config,
+  lib,
+  ...
+}:
+lib.mkIf config.languages.qml.enable {
   plugins.lsp.servers.qmlls = {
     enable = true;
     # -E: read QML_IMPORT_PATH; qmlls otherwise sees only its own Qt prefix.

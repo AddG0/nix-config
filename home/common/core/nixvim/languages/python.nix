@@ -1,4 +1,9 @@
 {
+  config,
+  lib,
+  ...
+}:
+lib.mkIf config.languages.python.enable {
   # basedpyright for types, ruff as the lint/format LSP, ruff_format via conform.
   # dap-python's adapterPythonPath defaults to python3 + debugpy, so debugging
   # works with no extra config (framework lives in ../dap.nix).

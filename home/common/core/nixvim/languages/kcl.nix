@@ -1,8 +1,10 @@
 {
+  config,
   pkgs,
   lib,
   ...
-}: {
+}:
+lib.mkIf config.languages.kcl.enable {
   # Neovim's builtin detection maps `.k` to `kwt` (Kimwitu++), not KCL — force it.
   extraConfigLua = ''
     vim.filetype.add({ extension = { k = "kcl" } })

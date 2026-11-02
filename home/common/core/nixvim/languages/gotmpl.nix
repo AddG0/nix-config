@@ -1,4 +1,9 @@
-_: {
+{
+  config,
+  lib,
+  ...
+}:
+lib.mkIf config.languages.gotmpl.enable {
   # Neovim maps `.tmpl` to the generic `template` ft, which has no highlighting.
   # The outer language comes from the name before `.tmpl`: `values.yaml.tmpl`
   # injects YAML around the {{ }} actions, `alert-message.tmpl` injects nothing.

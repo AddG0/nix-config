@@ -1,4 +1,10 @@
-{pkgs, ...}: {
+{
+  config,
+  lib,
+  pkgs,
+  ...
+}:
+lib.mkIf config.languages.tiltfile.enable {
   # Tiltfile is Starlark, but nvim ships no detection for it. Map the filename to
   # the `tiltfile` ft (what tilt_ls expects), alias the starlark TS parser to it
   # for highlighting, and start treesitter on open (nixvim's highlight autocmd

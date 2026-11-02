@@ -1,25 +1,11 @@
-_: {
-  imports = [
-    ./crystal.nix
-    ./docker.nix
-    ./go.nix
-    ./gotmpl.nix
-    ./helm.nix
-    ./java.nix
-    ./json.nix
-    ./kcl.nix
-    ./kotlin.nix
-    ./lua.nix
-    ./markdown
-    ./nix.nix
-    ./proto.nix
-    ./python.nix
-    ./qml.nix
-    ./rust.nix
-    ./shell.nix
-    ./tailwind.nix
-    ./tiltfile.nix
-    ./web.nix
-    ./yaml.nix
-  ];
+{lib, ...}: let
+  # Every sibling `<name>.nix` or `<name>/` is a language and must gate itself on `languages.<name>.enable`.
+  modules = lib.filterAttrs (entry: _: entry != "default.nix" && entry != "tests") (builtins.readDir ./.);
+  languages = map (lib.removeSuffix ".nix") (lib.attrNames modules);
+in {
+  imports = map (entry: ./. + "/${entry}") (lib.attrNames modules);
+
+  options.languages = lib.genAttrs languages (name: {
+    enable = lib.mkEnableOption "${name} support in nvim" // {default = true;};
+  });
 }

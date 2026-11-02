@@ -37,6 +37,11 @@ in {
   };
 
   programs = {
+    # Their toolchains and servers are most of the closure, and nobody codes on the stick.
+    nixvim = {options, ...}: {
+      languages = lib.mapAttrs (name: _: {enable = lib.elem name ["json" "lua" "nix" "shell" "yaml"];}) options.languages;
+    };
+
     # Plain Zen; the browsers module is the configured one.
     zen-browser = {
       enable = true;
