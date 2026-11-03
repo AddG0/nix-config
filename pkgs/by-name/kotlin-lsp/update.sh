@@ -11,7 +11,7 @@ set -euo pipefail
 
 FLAKE_ROOT=$(git rev-parse --show-toplevel)
 DEFAULT_NIX="$FLAKE_ROOT/pkgs/by-name/kotlin-lsp/package.nix"
-CDN="https://download-cdn.jetbrains.com/language-server/kotlin-server"
+CDN="https://download.jetbrains.com/language-server/kotlin-server"
 
 tags=$(
   curl -sfL "https://api.github.com/repos/Kotlin/kotlin-lsp/tags?per_page=100" |
@@ -61,5 +61,5 @@ sed -i "s|^  version = \".*\";|  version = \"$new_version\";|" "$DEFAULT_NIX"
 
 # Each arch's hash line is matched by the distinct `suffix` line right above it,
 # since both otherwise share the same `hash = "sha256-...";` shape.
-perl -0777 -pi -e "s/(suffix = \"\";\\s*\\n\\s*hash = \")sha256-[^\"]*(\";)/\${1}$x86_64_sri\${2}/" "$DEFAULT_NIX"
-perl -0777 -pi -e "s/(suffix = \"-aarch64\";\\s*\\n\\s*hash = \")sha256-[^\"]*(\";)/\${1}$aarch64_sri\${2}/" "$DEFAULT_NIX"
+perl -0777 -pi -e "s|(suffix = \"\";\\s*\\n\\s*hash = \")sha256-[^\"]*(\";)|\${1}$x86_64_sri\${2}|" "$DEFAULT_NIX"
+perl -0777 -pi -e "s|(suffix = \"-aarch64\";\\s*\\n\\s*hash = \")sha256-[^\"]*(\";)|\${1}$aarch64_sri\${2}|" "$DEFAULT_NIX"
