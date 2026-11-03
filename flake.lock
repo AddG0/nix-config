@@ -663,6 +663,31 @@
         "url": "https://install.determinate.systems/determinate-nixd/tag/v3.24.1/x86_64-linux"
       }
     },
+    "dev-cloud": {
+      "inputs": {
+        "flake-parts": [
+          "flake-parts"
+        ],
+        "git-hooks-nix": "git-hooks-nix_6",
+        "nix2container": "nix2container",
+        "nixpkgs": [
+          "nixpkgs"
+        ]
+      },
+      "locked": {
+        "lastModified": 1793677532,
+        "narHash": "sha256-F5aBbVe4yTvWtf0AD1dsMvlxUijW9hFZQaWs0djwjJ4=",
+        "ref": "refs/heads/main",
+        "rev": "d49a1716e523f308ce5ff5232c264418302a2e05",
+        "revCount": 16,
+        "type": "git",
+        "url": "ssh://git@gitlab.com/addg09/projects/dev-cloud/control-plane.git"
+      },
+      "original": {
+        "type": "git",
+        "url": "ssh://git@gitlab.com/addg09/projects/dev-cloud/control-plane.git"
+      }
+    },
     "disko": {
       "inputs": {
         "nixpkgs": [
@@ -874,6 +899,22 @@
         "type": "github"
       }
     },
+    "flake-compat_17": {
+      "flake": false,
+      "locked": {
+        "lastModified": 1767039857,
+        "narHash": "sha256-vNpUSpF5Nuw8xvDLj2KCwwksIbjua2LZCqhV1LNRDns=",
+        "owner": "NixOS",
+        "repo": "flake-compat",
+        "rev": "5edf11c44bc78a0d334f6334cdaf7d60d732daab",
+        "type": "github"
+      },
+      "original": {
+        "owner": "NixOS",
+        "repo": "flake-compat",
+        "type": "github"
+      }
+    },
     "flake-compat_2": {
       "flake": false,
       "locked": {
@@ -975,13 +1016,13 @@
       "locked": {
         "lastModified": 1767039857,
         "narHash": "sha256-vNpUSpF5Nuw8xvDLj2KCwwksIbjua2LZCqhV1LNRDns=",
-        "owner": "edolstra",
+        "owner": "NixOS",
         "repo": "flake-compat",
         "rev": "5edf11c44bc78a0d334f6334cdaf7d60d732daab",
         "type": "github"
       },
       "original": {
-        "owner": "edolstra",
+        "owner": "NixOS",
         "repo": "flake-compat",
         "type": "github"
       }
@@ -991,13 +1032,13 @@
       "locked": {
         "lastModified": 1767039857,
         "narHash": "sha256-vNpUSpF5Nuw8xvDLj2KCwwksIbjua2LZCqhV1LNRDns=",
-        "owner": "NixOS",
+        "owner": "edolstra",
         "repo": "flake-compat",
         "rev": "5edf11c44bc78a0d334f6334cdaf7d60d732daab",
         "type": "github"
       },
       "original": {
-        "owner": "NixOS",
+        "owner": "edolstra",
         "repo": "flake-compat",
         "type": "github"
       }
@@ -1300,7 +1341,7 @@
     },
     "ghostty": {
       "inputs": {
-        "flake-compat": "flake-compat_8",
+        "flake-compat": "flake-compat_9",
         "home-manager": "home-manager_3",
         "nixpkgs": [
           "nixpkgs"
@@ -1325,7 +1366,7 @@
     },
     "git-hooks": {
       "inputs": {
-        "flake-compat": "flake-compat_14",
+        "flake-compat": "flake-compat_15",
         "nixpkgs": [
           "nur-ataraxiasjel",
           "nixpkgs"
@@ -1462,7 +1503,29 @@
     },
     "git-hooks-nix_6": {
       "inputs": {
-        "flake-compat": "flake-compat_16",
+        "flake-compat": "flake-compat_8",
+        "nixpkgs": [
+          "dev-cloud",
+          "nixpkgs"
+        ]
+      },
+      "locked": {
+        "lastModified": 1791909798,
+        "narHash": "sha256-VAhpCOmrun/KXimYfR8NM88bciKCui7CqHHhThSzgag=",
+        "owner": "cachix",
+        "repo": "git-hooks.nix",
+        "rev": "1ba1dbfe28738c9a71c266be6efa5b89e75491a9",
+        "type": "github"
+      },
+      "original": {
+        "owner": "cachix",
+        "repo": "git-hooks.nix",
+        "type": "github"
+      }
+    },
+    "git-hooks-nix_7": {
+      "inputs": {
+        "flake-compat": "flake-compat_17",
         "nixpkgs": [
           "queued-build-hook",
           "nixpkgs"
@@ -2358,7 +2421,7 @@
     },
     "nix-cachyos-kernel": {
       "inputs": {
-        "flake-compat": "flake-compat_11",
+        "flake-compat": "flake-compat_12",
         "flake-parts": "flake-parts_9",
         "nixpkgs": [
           "nixpkgs"
@@ -2502,7 +2565,7 @@
     },
     "nix-jetbrains-plugins": {
       "inputs": {
-        "flake-compat": "flake-compat_12",
+        "flake-compat": "flake-compat_13",
         "nixpkgs": [
           "nixpkgs"
         ],
@@ -2636,6 +2699,27 @@
       "original": {
         "owner": "nix-community",
         "repo": "nix-vscode-extensions",
+        "type": "github"
+      }
+    },
+    "nix2container": {
+      "inputs": {
+        "nixpkgs": [
+          "dev-cloud",
+          "nixpkgs"
+        ]
+      },
+      "locked": {
+        "lastModified": 1793342482,
+        "narHash": "sha256-poBaF2bJUH3yGMav3TSOi7k84jy8BnU8HD6PONQAwak=",
+        "owner": "nlewo",
+        "repo": "nix2container",
+        "rev": "42d1df94f001a9416ef08be7b305144074aca9d2",
+        "type": "github"
+      },
+      "original": {
+        "owner": "nlewo",
+        "repo": "nix2container",
         "type": "github"
       }
     },
@@ -3173,7 +3257,7 @@
     },
     "pre-commit": {
       "inputs": {
-        "flake-compat": "flake-compat_10",
+        "flake-compat": "flake-compat_11",
         "nixpkgs": [
           "lanzaboote",
           "nixpkgs"
@@ -3217,7 +3301,7 @@
     },
     "pre-commit-hooks_2": {
       "inputs": {
-        "flake-compat": "flake-compat_9",
+        "flake-compat": "flake-compat_10",
         "nixpkgs": [
           "hy3",
           "hyprland",
@@ -3240,7 +3324,7 @@
     },
     "pre-commit-hooks_3": {
       "inputs": {
-        "flake-compat": "flake-compat_13",
+        "flake-compat": "flake-compat_14",
         "gitignore": "gitignore_4",
         "nixpkgs": "nixpkgs_6"
       },
@@ -3260,7 +3344,7 @@
     },
     "pre-commit-hooks_4": {
       "inputs": {
-        "flake-compat": "flake-compat_15",
+        "flake-compat": "flake-compat_16",
         "nixpkgs": [
           "nixpkgs"
         ]
@@ -3302,7 +3386,7 @@
         "flake-parts": [
           "flake-parts"
         ],
-        "git-hooks-nix": "git-hooks-nix_6",
+        "git-hooks-nix": "git-hooks-nix_7",
         "nixpkgs": [
           "nixpkgs"
         ],
@@ -3339,6 +3423,7 @@
         "colmena": "colmena",
         "context-engineering-kit": "context-engineering-kit",
         "determinate": "determinate",
+        "dev-cloud": "dev-cloud",
         "disko": "disko",
         "firefox-addons": "firefox-addons",
         "flake-parts": "flake-parts_8",

@@ -318,7 +318,7 @@ check-cve *ARGS:
 [private]
 [doc("Update personal repositories and flake inputs")]
 update-personal-repos:
-  nix flake update nix-secrets pterodactyl-addons lumenboard-player ai-toolkit awsvpnclient-nix nitrox-nix queued-build-hook || true
+  nix flake update nix-secrets pterodactyl-addons lumenboard-player ai-toolkit awsvpnclient-nix nitrox-nix queued-build-hook dev-cloud || true
 
 [group('installation')]
 [doc("Build NixOS image (iso, gce, amazon, etc.)")]

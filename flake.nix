@@ -335,6 +335,12 @@
       inputs.flake-parts.follows = "flake-parts";
     };
 
+    dev-cloud = {
+      url = "git+ssh://git@gitlab.com/addg09/projects/dev-cloud/control-plane.git";
+      inputs.nixpkgs.follows = "nixpkgs";
+      inputs.flake-parts.follows = "flake-parts";
+    };
+
     ai-toolkit = {
       url = "git+ssh://git@github.com/addg0/ai-toolkit.git";
       # url = "path:/home/addg/Projects/code/github.com/AddG0/ai-toolkit";
