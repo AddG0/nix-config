@@ -45,12 +45,21 @@ in {
     # Plain Zen; the browsers module is the configured one.
     zen-browser = {
       enable = true;
-      profiles.default.settings."zen.welcome-screen.seen" = true;
+      profiles.default.settings = {
+        "zen.welcome-screen.seen" = true;
+        "browser.startup.homepage_override.mstone" = "ignore";
+        "zen.updates.show-update-notification" = false;
+      };
     };
 
     plasma = {
       enable = true;
       workspace.lookAndFeel = "org.kde.breezedark.desktop";
+      powerdevil = lib.genAttrs ["AC" "battery" "lowBattery"] (_: {
+        autoSuspend.action = "nothing";
+        whenLaptopLidClosed = "turnOffScreen";
+        turnOffDisplay.idleTimeout = 300;
+      });
       # Terminal apps on the desktop, like btop, open in this.
       configFile.kdeglobals.General = {
         TerminalApplication = "ghostty";

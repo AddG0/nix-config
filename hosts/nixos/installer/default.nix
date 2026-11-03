@@ -31,6 +31,12 @@
 
   networking.networkmanager.enable = true;
 
+  # An install or a disk re-encrypt runs for an hour; sleeping mid-way would stall it.
+  systemd.sleep.settings.Sleep = {
+    AllowSuspend = false;
+    AllowHibernation = false;
+  };
+
   services = {
     # nixos-anywhere installs as root, run from demon by `just bootstrap`.
     openssh.settings.PermitRootLogin = "prohibit-password";
