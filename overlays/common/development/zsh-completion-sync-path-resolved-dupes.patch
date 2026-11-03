@@ -1,0 +1,43 @@
+Fix the first-run PATH and XDG_DATA_DIRS scans re-adding directories already on $fpath.
+
+Both scans canonicalize candidates with :A (find_fpaths_from_path, and
+functions_from_xdg_data's ${^candidates:A}), but their init checks look them up
+in $fpath as written, where NixOS puts the profile symlinks
+(/etc/profiles/per-user/$USER/..., /run/current-system/sw/...). They never
+match, so every new shell prepends the resolved twins and fast-add re-reads and
+re-registers ~1,400 completion files: ~38 ms per shell. Look up in the resolved
+fpath, with (Ie) for an exact match rather than a pattern. Fixing one branch
+alone just moves the re-add to the other.
+
+Applies on top of the path-firstrun and path-order patches.
+
+--- a/zsh-completion-sync.plugin.zsh
++++ b/zsh-completion-sync.plugin.zsh
+@@ -330,11 +330,13 @@
+     # Detect current fpaths from path and read it into the variable
+     _completion_sync:find_fpaths_from_path
+
++    # elem is resolved but fpath holds profile symlinks, so compare resolved or every shell re-adds them
++    local -a resolved_fpath=( ${fpath:A} )
+     # Prepend in reverse order to maintain their order in the final path
+     for idx in {${#completion_sync_fpaths_from_path}..1} ; do
+       local elem=${completion_sync_fpaths_from_path[$idx]}
+       # First time around, only add relevant XDG_DATA_DIRs, which are not on the FPATH yet
+-      if (( ! ${fpath[(I)"$elem"]} )); then
++      if (( ! ${resolved_fpath[(Ie)$elem]} )); then
+
+         _completion_sync:debug_log ':completion-sync:path:init:diff' "from path: $elem"
+
+@@ -405,9 +407,11 @@
+
+       _completion_sync:debug_log ':completion-sync:xdg:init:diff' "adding from XDG"
+
++      # elem is resolved but fpath holds profile symlinks, so compare resolved or every shell re-adds them
++      local -a resolved_fpath=( ${fpath:A} )
+       # Prepend in reverse order to maintain their order in the final path
+       for idx in {${#completion_sync_old_xdg_fpaths}..1} ; do
+         local elem="${completion_sync_old_xdg_fpaths[$idx]}"
+-        if (( ! ${fpath[(I)$elem]} )); then
++        if (( ! ${resolved_fpath[(Ie)$elem]} )); then
+
+           _completion_sync:debug_log ':completion-sync:xdg:init:diff' $elem
