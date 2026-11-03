@@ -32,6 +32,8 @@
     services.keyd.enable = lib.mkVMOverride false;
     # Its loadModels pull tens of GB on first boot.
     services.ollama.enable = lib.mkVMOverride false;
+    # qemu-vm drops swapDevices but not this, so the initrd waits forever for the host's real disk.
+    boot.resumeDevice = lib.mkVMOverride "";
     # The VM has its own host key, so no sops secret can decrypt.
     hostSpec.disableSops = lib.mkVMOverride true;
     users.users.${config.hostSpec.primaryUsername}.initialPassword = lib.mkVMOverride "vm";
