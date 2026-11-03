@@ -172,7 +172,7 @@ in {
     };
 
     profiles = {
-      default.include = [addons.design-notes addons.code-standards addons.blind-choices];
+      default.include = [addons.design-notes addons.code-standards addons.blind-choices addons.documentation];
 
       grafana = {
         description = "Default with Grafana";

@@ -8,6 +8,8 @@
   skillsCollection = "${inputs.claude-code-skills-collection}/skills";
   inherit (lib.custom.ai) fromClaudeSkillDir fromClaudeSkillFile;
 in {
+  imports = [./claude-code.nix];
+
   programs.code-assistant-profiles.addons.documentation = {
     agents."doc-reviewer".prompt.source = ./agents/doc-reviewer.md;
 
