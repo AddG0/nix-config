@@ -54,7 +54,7 @@
       automatic-timezoned
       bluetooth
       # bt-proximity
-      display-managers.tuigreet
+      display-managers.noctalia-greeter
       earlyoom
       ollama
       openssh # allow remote SSH access

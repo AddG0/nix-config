@@ -56,6 +56,9 @@
       inherit (unit) description stopIfChanged serviceConfig wantedBy wants after before unitConfig;
       environment = removeAttrs unit.environment ["PATH"];
     }) (lib.filterAttrs (name: _: lib.hasPrefix "home-manager-" name) config.systemd.services);
+    # The greeter's palette and font are read from those homes.
+    services.displayManager.noctalia-greeter.settings = lib.mkForce config.services.displayManager.noctalia-greeter.settings;
+    fonts.packages = lib.mkForce config.fonts.packages;
 
     # Blacklist all NVIDIA kernel modules
     boot.blacklistedKernelModules = [
