@@ -36,7 +36,7 @@
   # Deciseconds (Hyprland's unit), a step under M3's 200/300/400 scale: the
   # spec targets touch, where longer reads as considered rather than as lag.
   short = 1; # 100ms
-  medium = 2; # 200ms
+  medium = 1; # 100ms
   long = 3; # 300ms
   edgeGap = 8;
 in {
