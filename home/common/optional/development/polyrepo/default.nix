@@ -16,7 +16,7 @@
     ./gwq.nix
     ./mani.nix
     ./scratch.nix
-    ./sesh.nix
+    ./sesh
     ./dev-stacks.nix
     ./glmr.nix
     ./drydock.nix

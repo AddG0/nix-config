@@ -1,6 +1,14 @@
-_: {
+{pkgs, ...}: {
   programs.sesh = {
     enable = true;
+    package = pkgs.symlinkJoin {
+      name = "sesh-with-tmuxinator-shim";
+      paths = [pkgs.sesh];
+      nativeBuildInputs = [pkgs.makeWrapper];
+      postBuild = ''
+        wrapProgram $out/bin/sesh --prefix PATH : ${pkgs.callPackage ./tmuxinator-shim.nix {}}/bin
+      '';
+    };
     enableAlias = true;
     enableTmuxIntegration = true;
     tmuxKey = "T";
