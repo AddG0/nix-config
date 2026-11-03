@@ -31,7 +31,7 @@ rebuild-pre: update-personal-repos
 [script]
 [group('validation')]
 [doc("Check flake configuration with pre-validation warnings")]
-check: check-pre && pre
+check: check-pre pre
   source scripts/helpers.sh
   start=$SECONDS status=0
   nix flake check --keep-going || status=$?
@@ -44,7 +44,7 @@ check: check-pre && pre
 
 [group('validation')]
 [doc("Check flake configuration with detailed trace output")]
-check-trace: check-pre && pre
+check-trace: check-pre pre
   nix flake check --show-trace
 
 [script]
