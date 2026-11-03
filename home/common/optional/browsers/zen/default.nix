@@ -41,8 +41,11 @@ in {
         # UI
         "zen.view.sidebar-expanded" = true; # Full expanded sidebar when visible
         "zen.view.use-single-toolbar" = false;
-        "zen.welcome-screen.seen" = true;
         "zen.urlbar.behavior" = "float";
+        # No welcome or what's-new tabs
+        "zen.welcome-screen.seen" = true;
+        "browser.startup.homepage_override.mstone" = "ignore";
+        "zen.updates.show-update-notification" = false;
         # Tab switching (MRU Ctrl+Tab)
         "browser.ctrlTab.sortByRecentlyUsed" = true;
         # Scrolling
