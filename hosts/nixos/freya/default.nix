@@ -36,7 +36,7 @@
       # nix-builders.client
       onepassword
       plymouth # fancy boot screen
-      # secureboot
+      secureboot-shim
     ])
     (with lib.custom.optional.hosts.nixos.development; [
       # mysql

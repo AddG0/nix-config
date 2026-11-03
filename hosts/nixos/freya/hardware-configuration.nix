@@ -16,6 +16,13 @@
   boot.kernelModules = ["kvm-intel"];
   boot.extraModulePackages = [];
 
+  boot.initrd.luks.devices.cryptroot = {
+    device = "/dev/disk/by-uuid/6f6ae2e1-bdc1-4b81-b066-f5c7f7142aac";
+    allowDiscards = true;
+    bypassWorkqueues = true;
+    crypttabExtraOpts = ["tpm2-device=auto"];
+  };
+
   fileSystems."/" = {
     device = "/dev/disk/by-uuid/8d35d53d-c3c1-4ed0-8a09-513992136532";
     fsType = "ext4";

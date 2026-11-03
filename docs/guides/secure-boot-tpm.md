@@ -28,6 +28,25 @@ enroll, Secure Boot on before the TPM (turning it on changes PCR 7). The
 them only while the firmware is in Setup Mode. After new keys, `sudo rm -r
 /boot/loader/keys/auto` and switch, or Setup Mode enrolls the old ones.
 
+## Firmware without Setup Mode (freya)
+
+Razer hides key management, so our key goes in shim's MOK list instead of the
+firmware db. Import `secureboot` and `secureboot-shim`; the chain is factory keys
+→ Ubuntu's Microsoft-signed shim → lanzaboote's systemd-boot as
+`\EFI\shim\grubx64.efi`. Steps 1–4 as above, then:
+
+| # | Where | Do | Expect |
+|---|-------|----|--------|
+| 5 | host | `efibootmgr` | `NixOS (shim)` first in `BootOrder` |
+| 6 | host | `sudo openssl x509 -in /var/lib/sbctl/keys/db/db.pem -outform DER -out /tmp/db.der && sudo mokutil --import /tmp/db.der` | asks for a one-time password |
+| 7 | firmware | reboot → blue MokManager → **Enroll MOK** → Continue → password | reboots |
+| 8 | host | `mokutil --list-enrolled` | our db cert listed |
+| 9 | firmware | Secure Boot → **Enabled**, Microsoft UEFI CA left on | `bootctl status`: `enabled (user)` |
+
+Then step 8 of the table above for the TPM. If the firmware drops the
+`NixOS (shim)` entry (BIOS update, CMOS reset), turn Secure Boot off, boot, and
+`secureboot-shim.service` recreates it.
+
 ## Don't
 
 - **Delete anything in `/boot/EFI`.** The ✗ on `/EFI/nixos/kernel-*.efi` is
