@@ -14,7 +14,10 @@
       let
         entries = builtins.readDir dir;
         importEntry = name:
-          if entries.${name} == "directory"
+        # tests/ belongs to checks/discovery.nix, never an overlay.
+          if name == "tests"
+          then []
+          else if entries.${name} == "directory"
           then importOverlays (dir + "/${name}")
           else if lib.hasSuffix ".nix" name
           then [(import (dir + "/${name}") {inherit inputs;})]

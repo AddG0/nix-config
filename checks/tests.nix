@@ -34,6 +34,10 @@
         path = ../scripts;
         qualifier = "scripts";
       };
+      overlays = {
+        path = ../overlays;
+        qualifier = "overlays";
+      };
     };
   };
 
