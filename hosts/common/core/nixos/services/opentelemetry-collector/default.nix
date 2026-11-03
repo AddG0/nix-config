@@ -41,6 +41,12 @@ in {
       package = pkgs.opentelemetry-collector-contrib;
       settings = {
         extensions = {
+          # Keeps each journald receiver's cursor across restarts, so entries are neither lost nor re-sent.
+          file_storage = {
+            directory = "/var/lib/opentelemetry-collector/journald";
+            create_directory = true;
+          };
+
           oauth2client = {
             client_id = "otlp";
             client_secret_file = config.sops.secrets."otlp/client_secret".path;
@@ -55,6 +61,27 @@ in {
               grpc.endpoint = "127.0.0.1:4317";
               http.endpoint = "127.0.0.1:4318";
             };
+          };
+
+          # System units only: user managers are out of reach of the collector's user.
+          systemd = {
+            scope = "system";
+            collection_interval = "30s";
+            metrics."systemd.service.restarts".enabled = true;
+          };
+
+          "journald/warnings" = {
+            priority = "warning";
+            storage = "file_storage";
+            journalctl_path = "${config.systemd.package}/bin/journalctl";
+          };
+
+          # systemd logs every automatic restart, for user units as well as system ones.
+          "journald/restarts" = {
+            matches = [{SYSLOG_IDENTIFIER = "systemd";}];
+            grep = "Scheduled restart job";
+            storage = "file_storage";
+            journalctl_path = "${config.systemd.package}/bin/journalctl";
           };
 
           # Host metrics collector for system telemetry
@@ -82,6 +109,38 @@ in {
         };
 
         processors = {
+          # Ships the message and the unit it concerns, not every raw journal field such as _CMDLINE.
+          "transform/journald" = {
+            error_mode = "propagate";
+            log_statements = [
+              {
+                context = "log";
+                statements = [
+                  ''set(log.attributes["systemd.unit.name"], log.body["_SYSTEMD_UNIT"]) where log.body["_SYSTEMD_UNIT"] != nil''
+                  ''set(log.attributes["systemd.unit.name"], log.body["_SYSTEMD_USER_UNIT"]) where log.body["_SYSTEMD_USER_UNIT"] != nil''
+                  ''set(log.attributes["systemd.unit.name"], log.body["UNIT"]) where log.body["UNIT"] != nil''
+                  ''set(log.attributes["systemd.unit.name"], log.body["USER_UNIT"]) where log.body["USER_UNIT"] != nil''
+                  ''set(log.attributes["systemd.unit.scope"], "user") where log.body["USER_UNIT"] != nil or log.body["_SYSTEMD_USER_UNIT"] != nil''
+                  ''set(log.attributes["systemd.unit.scope"], "system") where log.attributes["systemd.unit.scope"] == nil''
+                  ''set(log.attributes["syslog.identifier"], log.body["SYSLOG_IDENTIFIER"]) where log.body["SYSLOG_IDENTIFIER"] != nil''
+                  ''set(log.attributes["journald.priority"], log.body["PRIORITY"]) where log.body["PRIORITY"] != nil''
+                  ''set(log.severity_number, SEVERITY_NUMBER_FATAL) where log.body["PRIORITY"] == "0" or log.body["PRIORITY"] == "1" or log.body["PRIORITY"] == "2"''
+                  ''set(log.severity_number, SEVERITY_NUMBER_ERROR) where log.body["PRIORITY"] == "3"''
+                  ''set(log.severity_number, SEVERITY_NUMBER_WARN) where log.body["PRIORITY"] == "4"''
+                  ''set(log.severity_number, SEVERITY_NUMBER_INFO2) where log.body["PRIORITY"] == "5"''
+                  ''set(log.severity_number, SEVERITY_NUMBER_INFO) where log.body["PRIORITY"] == "6"''
+                  ''set(log.severity_number, SEVERITY_NUMBER_DEBUG) where log.body["PRIORITY"] == "7"''
+                  ''set(log.severity_text, "FATAL") where log.severity_number == SEVERITY_NUMBER_FATAL''
+                  ''set(log.severity_text, "ERROR") where log.severity_number == SEVERITY_NUMBER_ERROR''
+                  ''set(log.severity_text, "WARN") where log.severity_number == SEVERITY_NUMBER_WARN''
+                  ''set(log.severity_text, "INFO") where log.severity_number == SEVERITY_NUMBER_INFO2 or log.severity_number == SEVERITY_NUMBER_INFO''
+                  ''set(log.severity_text, "DEBUG") where log.severity_number == SEVERITY_NUMBER_DEBUG''
+                  ''set(log.body, log.body["MESSAGE"])''
+                ];
+              }
+            ];
+          };
+
           # Add host metadata to all telemetry
           resourcedetection = {
             detectors = ["system"];
@@ -95,10 +154,23 @@ in {
             };
           };
 
+          # The count connector emits deltas; Mimir stores cumulative counters.
+          deltatocumulative = {};
+
           # Batch telemetry for efficiency
           batch = {
             timeout = "10s";
             send_batch_size = 1000;
+          };
+        };
+
+        connectors = {
+          count.logs."systemd.unit.restarts.scheduled" = {
+            description = "Automatic restarts systemd scheduled, per unit.";
+            attributes = [
+              {key = "systemd.unit.name";}
+              {key = "systemd.unit.scope";}
+            ];
           };
         };
 
@@ -139,7 +211,7 @@ in {
               ];
             };
           };
-          extensions = ["oauth2client"];
+          extensions = ["file_storage" "oauth2client"];
           pipelines = {
             traces = {
               receivers = ["otlp"];
@@ -151,8 +223,23 @@ in {
               processors = ["resourcedetection" "batch"];
               exporters = ["otlphttp"];
             };
+            "logs/journald" = {
+              receivers = ["journald/warnings"];
+              processors = ["transform/journald" "resourcedetection" "batch"];
+              exporters = ["otlphttp"];
+            };
+            "metrics/restarts" = {
+              receivers = ["count"];
+              processors = ["deltatocumulative" "resourcedetection" "batch"];
+              exporters = ["otlphttp"];
+            };
+            "logs/restarts" = {
+              receivers = ["journald/restarts"];
+              processors = ["transform/journald"];
+              exporters = ["count"];
+            };
             metrics = {
-              receivers = ["otlp" "hostmetrics"];
+              receivers = ["otlp" "hostmetrics" "systemd"];
               processors = ["resourcedetection" "batch"];
               exporters = ["otlphttp"];
             };
