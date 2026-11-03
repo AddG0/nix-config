@@ -7,5 +7,8 @@
   programs.zsh = {
     enable = true;
     enableCompletion = true;
+    # Home Manager's oh-my-zsh runs compinit and oh-my-posh draws the prompt; doing both here costs ~20 ms per shell.
+    enableGlobalCompInit = false;
+    promptInit = "";
   };
 }
