@@ -35,8 +35,8 @@
 in {
   programs.ssh.settings =
     {
-      # Mine, then whatever else the agent holds. Never a deny: a host
-      # that knows any of my keys gets in. IdentityFile accumulates across
+      # Mine, then whatever else the agent holds. Never a deny, gitlab.com
+      # aside: a host that knows any of my keys gets in. IdentityFile accumulates across
       # matching blocks, so a block naming its own key is tried ahead of this
       # one rather than instead of it.
       "*".IdentityFile = "~/.ssh/primary.pub";
@@ -50,6 +50,12 @@ in {
       "git" = {
         header = "Host gitlab.com github.com";
         User = "git";
+      };
+      # Only mine: the shared mux socket keeps whichever account logs in first.
+      "gitlab" = {
+        header = "Host gitlab.com";
+        IdentityFile = "~/.ssh/primary.pub";
+        IdentitiesOnly = true;
       };
     }
     // hostsAddrConfig;

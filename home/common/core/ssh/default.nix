@@ -37,8 +37,7 @@ in {
         AddKeysToAgent yes
       '';
 
-      # Transport mechanics; which of *my* keys a host may use is per-user
-      # policy (mine: home/primary/common/core/ssh.nix).
+      # Transport mechanics; which keys a host may use is each user's own policy.
       settings."*" = {
         ControlMaster = "auto";
         # %n (alias as typed) instead of %h (resolved hostname) so two

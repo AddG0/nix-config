@@ -10,7 +10,8 @@
 
   isHelper = name: lib.hasPrefix "_" name;
 
-  # roots: name to {path, qualifier}; a null qualifier is the module tree, whose areas are bare.
+  # roots: name to {path, qualifier, exclude?}; a null qualifier is the module tree, whose areas are bare.
+  # `exclude` names subdirectories another root owns, so no test is found twice.
   # readDir is injected so the rules can be tested on an in-memory tree.
   discover = {
     roots,
@@ -90,14 +91,17 @@
       path,
       qualifier,
       flat ? false,
-    }:
+      exclude ? [],
+    }: let
+      subdirs = entries: lib.filter (name: entries.${name} == "directory" && name != "tests" && !lib.hasPrefix "." name && !lib.elem name exclude) (lib.attrNames entries);
+    in
       if flat
       then let
         dir = path + "/tests";
         entries = readDir dir;
         files = lib.filter (name: entries.${name} == "regular" && lib.hasSuffix ".nix" name && !isHelper name) (lib.attrNames entries);
         rootEntries = readDir path;
-        rest = lib.filter (name: rootEntries.${name} == "directory" && name != "tests" && !lib.hasPrefix "." name) (lib.attrNames rootEntries);
+        rest = subdirs rootEntries;
       in
         builtins.seq (testsKind path rootEntries) (suitesOrThrow dir (map (file: {
             name = "unit:${qualifier}:${lib.removeSuffix ".nix" file}";
@@ -108,7 +112,7 @@
         ++ lib.concatMap (name: walk (path + "/${name}") [qualifier]) rest
       else let
         entries = readDir path;
-        children = lib.filter (name: entries.${name} == "directory" && name != "tests" && !lib.hasPrefix "." name) (lib.attrNames entries);
+        children = subdirs entries;
         base = lib.optional (qualifier != null) qualifier;
       in
         lib.optionals (testsKind path entries) (testsIn (path + "/tests") base)

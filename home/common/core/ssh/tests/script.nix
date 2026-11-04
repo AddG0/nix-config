@@ -1,10 +1,8 @@
 # Suites over the REAL tmux-ssh-auth-sock-link script: logic against a stub
-# tmux, behaviour against a live one, and the zsh ordering it relies on. Routing
-# through the rendered ssh config is in ./_credentials.nix.
+# tmux, behaviour against a live one, and the zsh ordering it relies on.
 {
   harness,
   pkgs,
-  lib,
   self,
   ...
 }: let
@@ -56,7 +54,13 @@
         ;;
     esac
   '';
-  credentials = import ./_credentials.nix {inherit harness pkgs lib self;};
+  # Apps outside a shell (t3code) get their agent from this, not the zsh hook.
+  sessionAgent = harness.check "ssh-default-agent" (harness.values {
+    "test apps outside a shell follow the tmux-attached client's agent" = {
+      expr = sshConfig.programs.ssh.defaultAgent;
+      expected = "/home/tester/.ssh/ssh_auth_sock";
+    };
+  });
 in
   harness.bats "tmux-ssh-auth-sock-link-tests" [./link.bats ./link-tmux.bats ./zshrc.bats] {
     nativeBuildInputs = [coreutils gnugrep gawk python3 tmux util-linux ncurses zsh];
@@ -64,5 +68,5 @@ in
     tmuxStub = "${stub}/bin/tmux-stub";
     hooks = pkgs.writeText "hooks.conf" (import ../hooks.nix "${script}/bin/tmux-ssh-auth-sock-link");
     zshrc = pkgs.writeText "zshrc" sshConfig.programs.zsh.initContent;
-    inherit (credentials) onePasswordZshrc onePasswordAgent routing sessionAgent;
+    inherit sessionAgent;
   }

@@ -7,38 +7,50 @@
 }: let
   inherit ((import ./discovery.nix {inherit lib;})) discover withTests;
 
+  # home/<user> mirrors home/common, so a user's tests are named under the user.
+  homeUsers = lib.attrNames (lib.filterAttrs (name: type: type == "directory" && name != "common") (builtins.readDir ../home));
+  userRoots = lib.listToAttrs (map (user:
+    lib.nameValuePair "home-${user}" {
+      path = ../home + "/${user}";
+      qualifier = "home:${user}";
+    })
+  homeUsers);
+
   tests = discover {
-    roots = {
-      modules = {
-        path = ../modules;
-        qualifier = null;
+    roots =
+      userRoots
+      // {
+        modules = {
+          path = ../modules;
+          qualifier = null;
+        };
+        home = {
+          path = ../home;
+          qualifier = "home";
+          exclude = homeUsers;
+        };
+        hosts = {
+          path = ../hosts;
+          qualifier = "hosts";
+        };
+        lib = {
+          path = ../lib;
+          qualifier = "lib";
+          flat = true;
+        };
+        checks = {
+          path = ./.;
+          qualifier = "checks";
+        };
+        scripts = {
+          path = ../scripts;
+          qualifier = "scripts";
+        };
+        overlays = {
+          path = ../overlays;
+          qualifier = "overlays";
+        };
       };
-      home = {
-        path = ../home;
-        qualifier = "home";
-      };
-      hosts = {
-        path = ../hosts;
-        qualifier = "hosts";
-      };
-      lib = {
-        path = ../lib;
-        qualifier = "lib";
-        flat = true;
-      };
-      checks = {
-        path = ./.;
-        qualifier = "checks";
-      };
-      scripts = {
-        path = ../scripts;
-        qualifier = "scripts";
-      };
-      overlays = {
-        path = ../overlays;
-        qualifier = "overlays";
-      };
-    };
   };
 
   # Repo-relative, so the runner imports the test from the sandbox's copy of the repo.

@@ -80,6 +80,31 @@ in {
     });
     expected = ["files:home:gradle" "script:home:profiles" "unit:home:profiles" "unit:home:profiles:codex" "unit:home:profiles:structure" "vm:home:profiles"];
   };
+  "test a subtree excluded from one root is named only by the root that owns it" = {
+    expr = lib.sort (a: b: a < b) (namesOf {
+        "/fake/home" = {
+          common = "directory";
+          primary = "directory";
+        };
+        "/fake/home/common" = {ssh = "directory";};
+        "/fake/home/common/ssh" = {tests = "directory";};
+        "/fake/home/common/ssh/tests" = {"script.nix" = "regular";};
+        "/fake/home/primary" = {ssh = "directory";};
+        "/fake/home/primary/ssh" = {tests = "directory";};
+        "/fake/home/primary/ssh/tests" = {"script.nix" = "regular";};
+      } {
+        home = {
+          path = /fake/home;
+          qualifier = "home";
+          exclude = ["primary"];
+        };
+        home-primary = {
+          path = /fake/home/primary;
+          qualifier = "home:primary";
+        };
+      });
+    expected = ["script:home:primary:ssh" "script:home:ssh"];
+  };
   "test a flat root names each tests file as a unit area" = {
     expr =
       namesOf {
