@@ -39,6 +39,10 @@ in {
       # worktrees. New threads only — the composer still picks per thread.
       defaultThreadEnvMode = "local";
 
+      # Only usage-limit stops with a reported reset time; provider errors still stop.
+      autoResumeLimitedThreads = true;
+      snoozeLimitedThreads = true;
+
       # Any binaryPath containing a separator makes t3code treat the CLI as
       # manually managed, removing the one-click update button (it only knows how
       # to run npm/brew/pnpm). The separate "update available" banner is
