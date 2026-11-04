@@ -51,6 +51,12 @@
   desktops.loginSession = "gaming-mode";
   services.displayManager.autoLogin.enable = true;
 
+  # Usually off or suspended, so the RTC alarm wakes it for the scheduled check.
+  nix.git-sync = {
+    enable = true;
+    wakeForSchedule = true;
+  };
+
   networking = {
     networkmanager.enable = true;
     interfaces.enp8s0.wakeOnLan.enable = true;
