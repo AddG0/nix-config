@@ -20,15 +20,39 @@ fi
 known=$(sqlite3 "$state_db" \
   "select workspace_root from projection_projects where deleted_at is null;")
 
-gwq list -g --json | jq -r '.[] | select(.is_main) | .path' |
-  grep -vFxf <(printf '%s\n' "$known") |
-  xargs -I{} t3 project add {}
+clones=$(gwq list -g --json | jq -r '.[] | select(.is_main) | .path')
+unregistered=$(grep -vFxf <(printf '%s\n' "$known") <<<"$clones") || {
+  grep_status=$?
+  [ "$grep_status" -eq 1 ] || exit "$grep_status"
+}
+added=0
+if [ -n "$unregistered" ]; then
+  while IFS= read -r workspace_root; do
+    t3 project add "$workspace_root"
+    printf 'Added: %q\n' "$workspace_root"
+    ((added += 1))
+  done <<<"$unregistered"
+fi
 
-printf '%s\n' "$known" | while IFS= read -r workspace_root; do
+registered=0
+removed=0
+while IFS= read -r workspace_root; do
   [ -z "$workspace_root" ] && continue
+  ((registered += 1))
   [ "$workspace_root" = "$unmanaged" ] && continue
   if [ ! -d "$workspace_root" ]; then
-    echo "t3code-sync-projects: removing $workspace_root (missing)" >&2
     t3 project remove "$workspace_root"
+    printf 'Removed: %q\n' "$workspace_root"
+    ((removed += 1))
   fi
-done
+done <<<"$known"
+
+registered=$((registered + added - removed))
+project_noun=projects
+[ "$registered" -eq 1 ] && project_noun=project
+if [ "$added" -gt 0 ] || [ "$removed" -gt 0 ]; then
+  printf '%d %s synced (%d added, %d removed)\n' \
+    "$registered" "$project_noun" "$added" "$removed"
+elif [ -t 1 ]; then
+  printf '%d %s already in sync\n' "$registered" "$project_noun"
+fi
