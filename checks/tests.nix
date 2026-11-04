@@ -101,19 +101,24 @@ in {
         '');
 
     harness = import ./harness {inherit pkgs lib;};
-    derivationCheck = test:
-      (import test.file {
+    suiteOf = test:
+      import test.file {
         inherit pkgs harness self;
         inherit (harness) lib;
-      }).overrideAttrs {preferLocalBuild = true;};
+      };
+    derivationCheck = test: (suiteOf test).overrideAttrs {preferLocalBuild = true;};
   in {
     # Run here: offloading a check ships the repo and nixpkgs sources to a builder, which costs more than the check.
     checks = lib.listToAttrs (map (test:
-      lib.nameValuePair test.name (
-        if test.kind == "unit"
-        then unitCheck test
-        else derivationCheck test
-      ))
-    tests);
+        lib.nameValuePair test.name (
+          if test.kind == "unit"
+          then unitCheck test
+          # A NixOS test is no mkDerivation, so it has no overrideAttrs.
+          else if test.kind == "vm"
+          then suiteOf test
+          else derivationCheck test
+        ))
+      # A vm suite boots NixOS, which only a Linux builder can run.
+      (lib.filter (test: test.kind != "vm" || pkgs.stdenv.hostPlatform.isLinux) tests));
   };
 }

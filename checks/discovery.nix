@@ -5,6 +5,7 @@
     "structure.nix" = "unit";
     "files.nix" = "files";
     "script.nix" = "script";
+    "vm.nix" = "vm";
   };
 
   isHelper = name: lib.hasPrefix "_" name;
@@ -47,7 +48,7 @@
     suitesOrThrow = dir: suites:
       builtins.deepSeq (unreadable dir) (
         if suites == []
-        then stray dir "a tests dir yields no suite, only helpers and data; add a unit.nix, structure.nix, files.nix or script.nix"
+        then stray dir "a tests dir yields no suite, only helpers and data; add a unit.nix, structure.nix, files.nix, script.nix or vm.nix"
         else suites
       );
 
@@ -62,7 +63,7 @@
           kind = kindOf.${file};
           file = dir + "/${file}";
         }
-        else stray (dir + "/${file}") "a tests dir holds only unit.nix, structure.nix, files.nix, script.nix, `_` helpers and data")
+        else stray (dir + "/${file}") "a tests dir holds only unit.nix, structure.nix, files.nix, script.nix, vm.nix, `_` helpers and data")
       nixFiles);
 
     testsKind = dir: entries:

@@ -60,6 +60,7 @@
       "unit.nix" = "regular";
       "structure.nix" = "regular";
       "script.nix" = "regular";
+      "vm.nix" = "regular";
     };
     "/fake/modules/profiles/targets" = {codex = "directory";};
     "/fake/modules/profiles/targets/codex" = {tests = "directory";};
@@ -68,7 +69,7 @@
 in {
   "test each kind file is named by its kind and its module, nested under the tested module above it" = {
     expr = lib.sort (a: b: a < b) (namesOf tree moduleRoot);
-    expected = ["files:gradle" "script:profiles" "unit:profiles" "unit:profiles:codex" "unit:profiles:structure"];
+    expected = ["files:gradle" "script:profiles" "unit:profiles" "unit:profiles:codex" "unit:profiles:structure" "vm:profiles"];
   };
   "test a root outside modules/ qualifies its areas" = {
     expr = lib.sort (a: b: a < b) (namesOf tree {
@@ -77,7 +78,7 @@ in {
         qualifier = "home";
       };
     });
-    expected = ["files:home:gradle" "script:home:profiles" "unit:home:profiles" "unit:home:profiles:codex" "unit:home:profiles:structure"];
+    expected = ["files:home:gradle" "script:home:profiles" "unit:home:profiles" "unit:home:profiles:codex" "unit:home:profiles:structure" "vm:home:profiles"];
   };
   "test a flat root names each tests file as a unit area" = {
     expr =
@@ -147,7 +148,7 @@ in {
         "/fake/modules/gradle/tests/fixtures" = {clean = "directory";};
         "/fake/modules/gradle/tests/fixtures/clean" = {"SKILL.md" = "regular";};
       });
-    expected = ["files:gradle" "script:profiles" "unit:profiles" "unit:profiles:codex" "unit:profiles:structure"];
+    expected = ["files:gradle" "script:profiles" "unit:profiles" "unit:profiles:codex" "unit:profiles:structure" "vm:profiles"];
   };
   "test a tests dir holding only helpers and data fails evaluation, naming it" = {
     expr = gradleTests {
