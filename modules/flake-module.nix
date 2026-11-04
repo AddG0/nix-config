@@ -30,7 +30,7 @@ in {
         ++ [
           ./hosts/nixos/decky-plugins.nix
           ./hosts/nixos/desktop-sessions
-          (importWithLocal ./hosts/nixos/nix/git-sync.nix)
+          (importWithLocal ./hosts/nixos/nix/git-sync)
           ./hosts/nixos/security/allow-poweroff.nix
           ./hosts/nixos/security/allow-suspend.nix
           ./hosts/nixos/semi-active-av.nix

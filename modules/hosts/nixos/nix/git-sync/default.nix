@@ -1,3 +1,4 @@
+# git-sync: rebuilds the host from its remote flake on a schedule; ./wake.nix wakes a sleeping host for the run.
 {customLib, ...}: {
   config,
   lib,
@@ -7,6 +8,8 @@
 with lib; let
   cfg = config.nix.git-sync;
 in {
+  imports = [./wake.nix];
+
   options.nix.git-sync = {
     enable = mkEnableOption "Automatic NixOS rebuild from a remote flake";
 

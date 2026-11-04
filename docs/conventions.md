@@ -98,6 +98,27 @@ platform-bound home module says so with `lib.hm.assertions.assertPlatform`. Only
 `hosts/common/optional` has `nixos/` and `darwin/`, because those are different
 module systems. Why: ADR 0001.
 
+## Module folders
+
+A module stays one `.nix` file until it needs a second one: another part, a
+script, a patch or tests. Then it becomes a folder named for it, with
+`default.nix` as the module importing its parts and its tests in `tests/`:
+
+```
+modules/hosts/nixos/nix/git-sync/
+├── default.nix   # the module; imports ./wake.nix
+├── wake.nix
+└── tests/
+    ├── script.nix
+    ├── check-newer.bats
+    └── wake.bats
+```
+
+Importers then name the folder once (`(importWithLocal ./hosts/nixos/nix/git-sync)`),
+and under `optional/` the import path stays the same, since `foo.nix` and
+`foo/default.nix` are the same module. Don't give a new module's tests to a
+namespace's `tests/`: a tests dir is one check, so it would mix suites.
+
 ## Tests
 
 A test checks something we built, not a value we picked. The tmux agent link,
