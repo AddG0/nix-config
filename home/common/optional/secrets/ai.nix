@@ -2,7 +2,10 @@
   config,
   inputs,
   ...
-}: {
+}: let
+  # opencode reads the file itself, so it gets the key however it was launched.
+  opencodeKey = secret: "{file:${config.sops.secrets.${secret}.path}}";
+in {
   sops.secrets = {
     "openai/api_key" = {
       sopsFile = "${inputs.nix-secrets}/global/api-keys/ai.yaml";
@@ -19,6 +22,12 @@
     "gemini/api_key" = {
       sopsFile = "${inputs.nix-secrets}/global/api-keys/ai.yaml";
     };
+  };
+
+  programs.opencode.settings.provider = {
+    openai.options.apiKey = opencodeKey "openai/api_key";
+    anthropic.options.apiKey = opencodeKey "anthropic/api_key";
+    google.options.apiKey = opencodeKey "gemini/api_key";
   };
 
   programs.zsh.initContent = ''
