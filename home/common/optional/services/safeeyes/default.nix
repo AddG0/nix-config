@@ -84,6 +84,7 @@ in {
     ./niri-game-guard.nix
     ./screenshare-guard.nix
     ./media-guard.nix
+    ./hyprland-break-fullscreen.nix
   ];
 
   services.safeeyes.enable = true;
