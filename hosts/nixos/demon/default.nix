@@ -19,6 +19,7 @@
     #################### Misc Inputs ####################
     ./graphics.nix
     ./hardware-configuration.nix
+    ./memory.nix
     ./performance.nix
     ./sensors.nix
     # ./ai.nix
@@ -144,10 +145,6 @@
   # The board sets the staggered-spinup flag; without this the kernel probes all
   # 8 (empty) SATA ports serially at ~310ms each, inside the initrd.
   boot.kernelParams = ["libahci.ignore_sss=1"];
-
-  boot.tmp.useTmpfs = true;
-  # builds to disk-backed /var/tmp so a large one can't exhaust RAM (no swap here)
-  systemd.services.nix-daemon.environment.TMPDIR = "/var/tmp";
 
   services.obsbot-camera = {
     enable = true;
