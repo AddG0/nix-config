@@ -341,6 +341,14 @@
       inputs.flake-parts.follows = "flake-parts";
     };
 
+    ks-agent = {
+      url = "git+ssh://git@gitlab.com/addg09/projects/ai-assistant/ks-agent.git";
+      inputs = {
+        nixpkgs.follows = "nixpkgs";
+        flake-parts.follows = "flake-parts";
+      };
+    };
+
     ai-toolkit = {
       url = "git+ssh://git@github.com/addg0/ai-toolkit.git";
       # url = "path:/home/addg/Projects/code/github.com/AddG0/ai-toolkit";
