@@ -231,7 +231,7 @@ in {
         options = {
           command = lib.mkOption {
             type = lib.types.str;
-            description = "Shell command that exits successfully when the session settings should apply.";
+            description = "Shell command that exits successfully when the session settings should apply. A JSON object it prints is merged over `file`.";
           };
           file = lib.mkOption {
             type = lib.types.path;

@@ -1,4 +1,4 @@
-# The claude wrapper: conditional proxy settings, a caller's --settings, and its PATH.
+# The claude wrapper: conditional settings, a caller's --settings, and its PATH.
 {
   harness,
   lib,
@@ -6,7 +6,7 @@
   ...
 }: let
   fakeClaude = harness.stubs.claude;
-  proxySettings = pkgs.writeText "proxy-settings.json" ''{"apiKeyHelper":"proxy-token"}'';
+  settingsFile = pkgs.writeText "conditional-settings.json" ''{"apiKeyHelper":"helper-token"}'';
   wrapper = command:
     (import ../wrapper-script.nix rec {
       baseDir = ".config/claude-code/profiles";
@@ -22,8 +22,8 @@
         profiles.default = {};
         package = fakeClaude;
         conditionalSettings = {
-          command = lib.getExe (pkgs.writeShellScriptBin "proxy-ready" command);
-          file = proxySettings;
+          command = lib.getExe (pkgs.writeShellScriptBin "settings-check" command);
+          file = settingsFile;
         };
       };
     }).wrapperScript;
@@ -47,8 +47,10 @@
     }).wrapperScript;
 in
   harness.bats "claude-code-conditional-settings-test" [./wrapper.bats] {
-    reachableWrapper = "${wrapper "exit 0"}/bin/claude";
-    unreachableWrapper = "${wrapper "exit 1"}/bin/claude";
+    passingWrapper = "${wrapper "exit 0"}/bin/claude";
+    failingWrapper = "${wrapper "exit 1"}/bin/claude";
+    unparsableWrapper = "${wrapper "echo '{not json'"}/bin/claude";
+    printingWrapper = "${wrapper "echo '{\"env\":{\"EXAMPLE\":\"printed\"}}'"}/bin/claude";
     slowWrapper = "${wrapper "sleep 6"}/bin/claude";
     pathWrapper = "${pathWrapper}/bin/claude";
     shadowedTool = "${shadowedTool}/bin/shadowed-tool";

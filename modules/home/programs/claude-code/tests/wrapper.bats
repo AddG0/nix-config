@@ -1,6 +1,4 @@
-# The claude wrapper against a claude stub that prints its arguments one per
-# line: proxy settings added only when the probe succeeds, a caller's
-# --settings merged into them, and the wrapper's PATH.
+# The claude wrapper over a stub printing its arguments: conditional settings, what the check prints, a caller's --settings, and PATH.
 
 bats_require_minimum_version 1.5.0
 
@@ -13,42 +11,61 @@ setup() {
   cd "$BATS_TEST_TMPDIR" || return
 }
 
-@test "a reachable proxy adds its settings to the session" {
-  run "$reachableWrapper"
+@test "a passing check adds the settings file to the session" {
+  run "$passingWrapper"
   assert_success
   assert_line -- --settings
-  assert_line '{"apiKeyHelper":"proxy-token"}'
+  assert_line '{"apiKeyHelper":"helper-token"}'
 }
 
-@test "a caller's inline --settings is merged into the proxy settings, not passed twice" {
-  run --separate-stderr "$reachableWrapper" --settings '{"showThinkingSummaries":true}' -p hi
+@test "a caller's inline --settings is merged over the settings file, not passed twice" {
+  run --separate-stderr "$passingWrapper" --settings '{"showThinkingSummaries":true}' -p hi
   assert_success
   assert_equal "$(grep -cx -- --settings <<<"$output")" 1
-  assert_line '{"apiKeyHelper":"proxy-token","showThinkingSummaries":true}'
+  assert_line '{"apiKeyHelper":"helper-token","showThinkingSummaries":true}'
   assert_line -- -p
 }
 
-@test "a caller's --settings=file is merged into the proxy settings" {
+@test "a caller's --settings=file is merged over the settings file" {
   echo '{"model":"opus"}' >caller.json
-  run --separate-stderr "$reachableWrapper" --settings=caller.json
+  run --separate-stderr "$passingWrapper" --settings=caller.json
   assert_success
-  assert_line '{"apiKeyHelper":"proxy-token","model":"opus"}'
+  assert_line '{"apiKeyHelper":"helper-token","model":"opus"}'
+}
+
+@test "settings the check prints are merged over the settings file" {
+  run --separate-stderr "$printingWrapper"
+  assert_success
+  assert_equal "$(grep -cx -- --settings <<<"$output")" 1
+  assert_line '{"apiKeyHelper":"helper-token","env":{"EXAMPLE":"printed"}}'
+}
+
+@test "a caller's --settings outranks what the check prints" {
+  run --separate-stderr "$printingWrapper" --settings '{"env":{"EXAMPLE":"caller"}}'
+  assert_success
+  assert_line '{"apiKeyHelper":"helper-token","env":{"EXAMPLE":"caller"}}'
+}
+
+@test "check output that is not JSON aborts and names the check" {
+  run "$unparsableWrapper"
+  assert_failure
+  assert_output --partial "settings-check: {not json"
 }
 
 @test "an unreadable caller --settings aborts instead of dropping it" {
-  run "$reachableWrapper" --settings missing.json
+  run "$passingWrapper" --settings missing.json
   assert_failure
   assert_output --partial 'cannot merge --settings missing.json'
 }
 
-@test "an unreachable proxy passes the caller's --settings through unchanged" {
-  run --separate-stderr "$unreachableWrapper" --settings '{"showThinkingSummaries":true}'
+@test "a failing check passes the caller's --settings through unchanged" {
+  run --separate-stderr "$failingWrapper" --settings '{"showThinkingSummaries":true}'
   assert_success
   assert_line '{"showThinkingSummaries":true}'
 }
 
-@test "an unreachable proxy adds no session settings" {
-  run --separate-stderr "$unreachableWrapper"
+@test "a failing check adds no session settings" {
+  run --separate-stderr "$failingWrapper"
   assert_success
   assert_output ""
 }
@@ -63,8 +80,8 @@ setup() {
   assert_output "$shadowedTool"
 }
 
-@test "--version skips the proxy probe" {
-  # The probe sleeps 6s, so only a skipped probe beats the timeout.
+@test "--version skips the check" {
+  # The check sleeps 6s, so only a skipped check beats the timeout.
   run --separate-stderr timeout 4s "$slowWrapper" --version 3>&-
   assert_success
   assert_line -- --version
