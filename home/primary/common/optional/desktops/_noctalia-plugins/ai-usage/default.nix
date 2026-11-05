@@ -10,7 +10,7 @@
     runtimeInputs = [pkgs.curl pkgs.jq];
     text = ''
       token=$(cat ${config.sops.secrets."ai/grafana-token".path})
-      endpoint='https://grafana.addg0.com/api/datasources/proxy/uid/mimir/api/v1/query'
+      endpoint='https://grafana.${config.hostSpec.domain}/api/datasources/proxy/uid/mimir/api/v1/query'
 
       # Header via stdin config, so the token stays out of curl's argv.
       query() {

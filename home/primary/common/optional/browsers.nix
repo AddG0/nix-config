@@ -56,7 +56,7 @@
       };
       "Home Assistant" = {
         id = "e9509332-f744-4346-b83a-571592a064c1";
-        url = "https://home-assistant.addg0.com";
+        url = "https://home-assistant.${config.hostSpec.domain}";
         position = 6000;
         workspace = spaces."Main".id;
         container = containers."Personal".id;
