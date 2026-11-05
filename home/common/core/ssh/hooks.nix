@@ -5,6 +5,8 @@
 # a plain `set-hook -g` overwrites index 0 instead of adding an entry.
 script: ''
   set-hook -ag client-attached 'run-shell -b "${script} attach #{client_name}"'
+  # `new-session` fires no client-attached when it creates the session; -d has no client to record.
+  set-hook -ag session-created 'if-shell -F "#{client_name}" "run-shell -b \"${script} attach #{client_name}\""'
   set-hook -ag client-active 'run-shell -b "${script} active"'
   set-hook -ag client-detached 'run-shell -b "${script} detach"'
 ''

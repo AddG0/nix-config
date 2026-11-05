@@ -21,7 +21,8 @@
       AI_PROXY_CLIENT_ID = clientId;
       AI_PROXY_URL = baseUrl;
       AI_PROXY_CLAUDE_DEFAULT_URL = claudeUrl "personal";
-      AI_PROXY_CLAUDE_ROUTES = builtins.toJSON (lib.mapAttrs (_: claudeUrl) config.ai-proxy.claude.routes);
+      # A file, not the JSON itself: writeShellApplication shellchecks its env lines, and quotes in a value fail SC2089.
+      AI_PROXY_CLAUDE_ROUTES_FILE = (pkgs.formats.json {}).generate "ai-proxy-claude-routes.json" (lib.mapAttrs (_: claudeUrl) config.ai-proxy.claude.routes);
       # The project audience is what the gateway checks, offline_access yields a refresh token, and profile/email name you in `ai-proxy status`.
       AI_PROXY_SCOPE = "openid profile email offline_access urn:zitadel:iam:org:project:id:${projectId}:aud";
     };

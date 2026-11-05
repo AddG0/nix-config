@@ -1,4 +1,4 @@
-# Where the agent-link lines land in the zshrc the module renders, relative to oh-my-zsh.
+# The agent-link lines in the zshrc the module renders.
 
 setup() {
   bats_load_library bats-support
@@ -22,4 +22,22 @@ line() {
   claim=$(line "$zshrc" 'export SSH_AUTH_SOCK="\$HOME/.ssh/ssh_auth_sock"')
   assert [ "$clear" -lt "$omz" ]
   assert [ "$claim" -gt "$omz" ]
+}
+
+# A pane's shell starting with a live inherited agent, against a link aimed at $1.
+pane_start() {
+  mkdir -p "$BATS_TEST_TMPDIR/.ssh"
+  python3 -c 'import socket,sys; socket.socket(socket.AF_UNIX).bind(sys.argv[1])' "$BATS_TEST_TMPDIR/inherited"
+  ln -sfn "$1" "$BATS_TEST_TMPDIR/.ssh/ssh_auth_sock"
+  HOME=$BATS_TEST_TMPDIR TMUX=test SSH_AUTH_SOCK=$BATS_TEST_TMPDIR/inherited zsh -fc 'source "$1" 2>/dev/null' _ "$zshrc"
+}
+
+@test "a pane's shell re-seeds a link whose agent is merely gone" {
+  pane_start "$BATS_TEST_TMPDIR/gone"
+  assert_equal "$(readlink "$BATS_TEST_TMPDIR/.ssh/ssh_auth_sock")" "$BATS_TEST_TMPDIR/inherited"
+}
+
+@test "a pane's shell leaves a refused link alone" {
+  pane_start "$BATS_TEST_TMPDIR/.ssh/agent-by-client/.no-agent"
+  assert_equal "$(readlink "$BATS_TEST_TMPDIR/.ssh/ssh_auth_sock")" "$BATS_TEST_TMPDIR/.ssh/agent-by-client/.no-agent"
 }

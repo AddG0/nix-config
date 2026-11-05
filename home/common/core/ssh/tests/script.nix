@@ -6,7 +6,7 @@
   self,
   ...
 }: let
-  inherit (pkgs) writeShellScriptBin coreutils python3 tmux util-linux gnugrep gawk ncurses zsh;
+  inherit (pkgs) writeShellScriptBin coreutils flock python3 tmux util-linux gnugrep gawk ncurses openssh zsh;
   testLib = self.lib.extend (_: _: {inherit (self.inputs.home-manager.lib) hm;});
   sshConfig =
     (self.inputs.home-manager.lib.homeManagerConfiguration {
@@ -32,12 +32,12 @@
         ../default.nix
       ];
     }).config;
-
   script = pkgs.callPackage ../agent-link.nix {};
   # Stand-in for tmux; ./link.bats documents what it answers.
   stub = writeShellScriptBin "tmux-stub" ''
     case "$1" in
       list-clients)
+        if [ -n "''${CLIENTS_FAIL:-}" ]; then echo "server exited unexpectedly" >&2; exit 1; fi
         # -F '#{client_name}' asks for names only; anything else wants both.
         if [ "$*" = "list-clients -F #{client_name}" ]; then
           cut -d' ' -f2- "$CLIENTS" 2>/dev/null || true
@@ -46,6 +46,7 @@
         fi
         ;;
       show-environment)
+        if [ -n "''${ENV_FAIL:-}" ]; then echo "lost server" >&2; exit 1; fi
         if [ -n "''${SESSION_SOCK:-}" ]; then echo "SSH_AUTH_SOCK=$SESSION_SOCK"; fi
         ;;
       set-environment)
@@ -54,19 +55,11 @@
         ;;
     esac
   '';
-  # Apps outside a shell (t3code) get their agent from this, not the zsh hook.
-  sessionAgent = harness.check "ssh-default-agent" (harness.values {
-    "test apps outside a shell follow the tmux-attached client's agent" = {
-      expr = sshConfig.programs.ssh.defaultAgent;
-      expected = "/home/tester/.ssh/ssh_auth_sock";
-    };
-  });
 in
   harness.bats "tmux-ssh-auth-sock-link-tests" [./link.bats ./link-tmux.bats ./zshrc.bats] {
-    nativeBuildInputs = [coreutils gnugrep gawk python3 tmux util-linux ncurses zsh];
+    nativeBuildInputs = [coreutils flock gnugrep gawk openssh python3 tmux util-linux ncurses zsh];
     linkScript = "${script}/bin/tmux-ssh-auth-sock-link";
     tmuxStub = "${stub}/bin/tmux-stub";
     hooks = pkgs.writeText "hooks.conf" (import ../hooks.nix "${script}/bin/tmux-ssh-auth-sock-link");
     zshrc = pkgs.writeText "zshrc" sshConfig.programs.zsh.initContent;
-    inherit sessionAgent;
   }

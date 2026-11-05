@@ -12,8 +12,8 @@ setup() {
   link=$HOME/.ssh/ssh_auth_sock
   tm=(tmux -L "itest-$BATS_TEST_NUMBER")
 
-  mksock agentA
-  mksock agentB
+  mkagent agentA
+  mkagent agentB
   mkfifo "$work/fifoA" "$work/fifoB"
 
   # Anything left holding fd 3 keeps bats waiting forever.
@@ -28,10 +28,19 @@ setup() {
 teardown() {
   exec 5>&- 6>&-
   "${tm[@]}" kill-server 2>/dev/null || true
+  kill "${agents[@]}" 2>/dev/null || true
 }
 
-mksock() {
-  python3 -c 'import socket,sys; socket.socket(socket.AF_UNIX).bind(sys.argv[1])' "$work/$1"
+# Live agents, since the link probes a forwarded socket before aiming at it.
+agents=()
+mkagent() {
+  ssh-agent -D -a "$work/$1" >/dev/null 2>&1 3>&- &
+  agents+=("$!")
+  for _ in $(seq 50); do
+    [ -S "$work/$1" ] && return 0
+    sleep 0.1
+  done
+  fail "ssh-agent never created $work/$1"
 }
 
 # script(1) only hands its child a pty when its own stdin is not /dev/null.
@@ -65,6 +74,13 @@ wait_link() {
 
 @test "a second client takes the link" {
   attach agentB fifoB
+  exec 6>"$work/fifoB"
+  wait_link "$work/agentB"
+}
+
+@test "a client that creates its own session takes the link" {
+  SSH_AUTH_SOCK=$work/agentB script -q -c "${tm[*]} new-session -A -s fresh" /dev/null \
+    <"$work/fifoB" >/dev/null 2>&1 3>&- &
   exec 6>"$work/fifoB"
   wait_link "$work/agentB"
 }

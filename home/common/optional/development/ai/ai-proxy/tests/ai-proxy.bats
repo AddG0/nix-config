@@ -17,12 +17,12 @@ setup() {
   export AI_PROXY_CLIENT_ID=test
   export AI_PROXY_URL=https://proxy.example
   export AI_PROXY_CLAUDE_DEFAULT_URL=https://claude-personal.example
-  AI_PROXY_CLAUDE_ROUTES=$(jq -cn --arg tmp "$BATS_TEST_TMPDIR" '{
+  export AI_PROXY_CLAUDE_ROUTES_FILE=$BATS_TEST_TMPDIR/routes.json
+  jq -n --arg tmp "$BATS_TEST_TMPDIR" '{
     "\($tmp)/missing": "https://claude-other.example",
     "\($tmp)/work": "https://claude-work.example",
     "\($tmp)/work/repo/personal": "https://claude-personal.example"
-  }')
-  export AI_PROXY_CLAUDE_ROUTES
+  }' >"$AI_PROXY_CLAUDE_ROUTES_FILE"
   export AI_PROXY_SCOPE=test
   token=$XDG_STATE_HOME/ai-proxy/token.json
   mkdir -p "$BATS_TEST_TMPDIR/personal/repo" "$BATS_TEST_TMPDIR/work-other/repo" "$BATS_TEST_TMPDIR/work/repo/personal"
@@ -112,7 +112,7 @@ logged_in() {
 @test "with no routes every claude session goes to the default host" {
   logged_in
   cd "$BATS_TEST_TMPDIR/work/repo"
-  AI_PROXY_CLAUDE_ROUTES="{}" run --separate-stderr bash "$aiProxy" ready claude
+  AI_PROXY_CLAUDE_ROUTES_FILE="" run --separate-stderr bash "$aiProxy" ready claude
   assert_success
   assert_output '{"env":{"ANTHROPIC_BASE_URL":"https://claude-personal.example"}}'
   run cat "$CURL_LOG"
@@ -130,12 +130,13 @@ logged_in() {
   refute_line --partial claude-personal.example
 }
 
-@test "malformed routes fail ready and name the variable" {
+@test "a malformed routes file fails ready and names the file" {
   logged_in
-  AI_PROXY_CLAUDE_ROUTES="{not json" run --separate-stderr bash "$aiProxy" ready claude
+  printf '%s' '{not json' >"$AI_PROXY_CLAUDE_ROUTES_FILE"
+  run --separate-stderr bash "$aiProxy" ready claude
   assert_failure
   assert_output ""
-  assert_regex "$stderr" "ai-proxy: AI_PROXY_CLAUDE_ROUTES is not a JSON object of directory to host: \\{not json$"
+  assert_regex "$stderr" "ai-proxy: $AI_PROXY_CLAUDE_ROUTES_FILE is not a JSON object of directory to host$"
 }
 
 @test "status checks the default claude host and every routed one once" {

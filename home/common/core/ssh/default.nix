@@ -5,20 +5,9 @@
   ...
 }: let
   cfg = config.programs.ssh;
-
-  sshAuthSockLink = "${pkgs.callPackage ./agent-link.nix {}}/bin/tmux-ssh-auth-sock-link";
+  agentLink = pkgs.callPackage ./agent-link.nix {};
+  sshAuthSockLink = lib.getExe agentLink;
 in {
-  options.programs.ssh.defaultAgent = lib.mkOption {
-    type = lib.types.nullOr lib.types.str;
-    # The tmux link, so a remote session signs with the forwarded agent, not this host's locked vault.
-    default = "${config.home.homeDirectory}/.ssh/ssh_auth_sock";
-    defaultText = lib.literalExpression ''"''${config.home.homeDirectory}/.ssh/ssh_auth_sock"'';
-    description = ''
-      Agent socket for apps that start with no SSH_AUTH_SOCK of their own.
-      Opt-in per app, so the path is not advertised to the whole session.
-    '';
-  };
-
   options.programs.ssh.enableTraditionalAgent = lib.mkOption {
     type = lib.types.bool;
     default = true;
@@ -73,10 +62,11 @@ in {
         fi
       '')
       # mkAfter so a locally started agent is what gets linked when none was forwarded.
-      # Exported even while dangling: the next attach repairs a symlink, not a baked-in path.
+      # Exported even while dangling; a refused link is left alone, as re-seeding would fall back.
       (lib.mkAfter ''
         if [[ -n "$TMUX" ]]; then
-          if [[ ! -S "$HOME/.ssh/ssh_auth_sock" && -S "$SSH_AUTH_SOCK" ]]; then
+          if [[ ! -S "$HOME/.ssh/ssh_auth_sock" && -S "$SSH_AUTH_SOCK" &&
+            "$(readlink "$HOME/.ssh/ssh_auth_sock")" != */.no-agent ]]; then
             ln -sfn "$SSH_AUTH_SOCK" "$HOME/.ssh/ssh_auth_sock"
           fi
           export SSH_AUTH_SOCK="$HOME/.ssh/ssh_auth_sock"

@@ -174,8 +174,9 @@ check_proxy() {
 
 # Prints one route per line: its root directory, a tab, its Claude host.
 claude_routes() {
-  jq -r 'to_entries[] | "\(.key)\t\(.value)"' <<<"${AI_PROXY_CLAUDE_ROUTES:-"{}"}" ||
-    fail "AI_PROXY_CLAUDE_ROUTES is not a JSON object of directory to host: $AI_PROXY_CLAUDE_ROUTES"
+  [[ -n ${AI_PROXY_CLAUDE_ROUTES_FILE:-} ]] || return 0
+  jq -r 'to_entries[] | "\(.key)\t\(.value)"' "$AI_PROXY_CLAUDE_ROUTES_FILE" ||
+    fail "$AI_PROXY_CLAUDE_ROUTES_FILE is not a JSON object of directory to host"
 }
 
 # Prints this directory's Claude host, a tab, and the route root that chose it, empty for the default (gitops ADR-0040).
