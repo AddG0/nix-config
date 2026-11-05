@@ -7,6 +7,7 @@
   mockCurl = pkgs.writeShellScriptBin "curl" ''
     printf '%s\n' "$*" >>"$CURL_LOG"
     [[ ''${CURL_RESULT:-200} != fail ]] || exit 1
+    [[ -z ''${CURL_FAIL_URL:-} || $* != *"$CURL_FAIL_URL"* ]] || exit 1
     printf '%s' "''${CURL_RESULT:-200}"
   '';
   mockFlock = pkgs.writeShellScriptBin "flock" "exit 0";

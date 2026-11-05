@@ -17,11 +17,12 @@ usage() {
   cat <<EOF
 Usage: ai-proxy [command]
 
-  status   who you are logged in as, and whether $AI_PROXY_URL and $AI_PROXY_CLAUDE_URL accept you (the default)
+  status   who you are logged in as, and whether $AI_PROXY_URL and the Claude hosts accept you (the default)
   login    sign in through $AI_PROXY_ISSUER in a browser
   logout   end the session and forget it on this machine
   token    print an access token (what Codex and Claude Code run)
-  ready    exit successfully when the named proxy is ready (general or claude)
+  ready    exit successfully when the named proxy is ready (general or claude); for claude, print
+           the settings that send the session to this directory's host
 EOF
 }
 
@@ -171,28 +172,57 @@ check_proxy() {
   esac
 }
 
-ready() {
-  local url agent access code
+# Prints one route per line: its root directory, a tab, its Claude host.
+claude_routes() {
+  jq -r 'to_entries[] | "\(.key)\t\(.value)"' <<<"${AI_PROXY_CLAUDE_ROUTES:-"{}"}" ||
+    fail "AI_PROXY_CLAUDE_ROUTES is not a JSON object of directory to host: $AI_PROXY_CLAUDE_ROUTES"
+}
 
-  case "${1:-}" in
-  general)
-    url=$AI_PROXY_URL
-    agent=ai-proxy-ready
-    ;;
-  claude)
-    url=$AI_PROXY_CLAUDE_URL
-    agent=claude-cli/ai-proxy-ready
-    ;;
-  *) fail "ready expects general or claude" ;;
-  esac
+# Prints this directory's Claude host, a tab, and the route root that chose it, empty for the default (gitops ADR-0040).
+claude_host() {
+  local dir routes root url matched_root="" host=$AI_PROXY_CLAUDE_DEFAULT_URL
+  dir=$(realpath -m -- "$PWD")
+  routes=$(claude_routes) || return 1
+  while IFS=$'\t' read -r root url; do
+    [[ -n $root ]] || continue
+    root=$(realpath -m -- "$root")
+    if [[ ($dir == "$root" || $dir == "$root"/*) && ${#root} -gt ${#matched_root} ]]; then
+      matched_root=$root
+      host=$url
+    fi
+  done <<<"$routes"
+  printf '%s\t%s\n' "$host" "$matched_root"
+}
 
-  access=$(AI_PROXY_TIMEOUT=2 token 2 2>/dev/null) || return 1
+proxy_accepts() {
+  local url=$1 agent=$2 access=$3 code
   code=$(curl -s -o /dev/null -w '%{http_code}' --connect-timeout 2 --max-time 2 -A "$agent" -H "Authorization: Bearer $access" "$url/v1/models") || return 1
   [[ $code == 200 ]]
 }
 
+# The claude wrapper merges what this prints over its settings, so it prints nothing but that JSON.
+ready() {
+  local access route host
+
+  case "${1:-}" in
+  general | claude) ;;
+  *) fail "ready expects general or claude" ;;
+  esac
+
+  access=$(AI_PROXY_TIMEOUT=2 token 2 2>/dev/null) || return 1
+  if [[ $1 == general ]]; then
+    proxy_accepts "$AI_PROXY_URL" ai-proxy-ready "$access"
+    return
+  fi
+
+  route=$(claude_host) || return 1
+  IFS=$'\t' read -r host _ <<<"$route"
+  proxy_accepts "$host" claude-cli/ai-proxy-ready "$access" || return 1
+  jq -cn --arg url "$host" '{env: {ANTHROPIC_BASE_URL: $url}}'
+}
+
 status() {
-  local access minutes failed=0
+  local access minutes routes hosts url route host root failed=0
 
   if [[ ! -s "$state/refresh_token" ]]; then
     echo "Not logged in. Run: ai-proxy login"
@@ -209,8 +239,16 @@ status() {
   echo "  token    good for $minutes more minutes, then renewed on its own"
 
   check_proxy "$AI_PROXY_URL" "$access" "ai-proxy-status" || failed=1
-  # The Claude host admits only a claude-cli/ User-Agent (gitops ADR-0010), answering anything else as it would a bad token.
-  check_proxy "$AI_PROXY_CLAUDE_URL" "$access" "claude-cli/ai-proxy-status" || failed=1
+  # The Claude hosts admit only a claude-cli/ User-Agent (gitops ADR-0010), answering anything else as they would a bad token.
+  routes=$(claude_routes) || return 1
+  hosts=$(printf '%s\n' "$AI_PROXY_CLAUDE_DEFAULT_URL" "$(cut -f2 <<<"$routes")" | sort -u)
+  while read -r url; do
+    [[ -n $url ]] || continue
+    check_proxy "$url" "$access" "claude-cli/ai-proxy-status" || failed=1
+  done <<<"$hosts"
+  route=$(claude_host) || return 1
+  IFS=$'\t' read -r host root <<<"$route"
+  echo "  claude   here: $host${root:+, under $root}"
   return "$failed"
 }
 
