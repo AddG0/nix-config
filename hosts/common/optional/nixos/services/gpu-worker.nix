@@ -1,4 +1,4 @@
-# Runs dev-cloud's GPU Jobs on this host; enroll it once with `sudo gpu-worker-enroll <join string>`.
+# Runs dev-cloud's GPU Jobs on this host; join it once with `dev-cloud workers join`.
 {
   inputs,
   config,
