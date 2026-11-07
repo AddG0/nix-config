@@ -6,11 +6,18 @@ state="${XDG_STATE_HOME:-$HOME/.local/state}/ai-proxy"
 mkdir -p "$state"
 
 body=$(mktemp)
-trap 'rm -f "$body"' EXIT
+git_errors=$(mktemp)
+trap 'rm -f "$body" "$git_errors"' EXIT
 
 fail() {
   echo "ai-proxy: $*" >&2
   exit 1
+}
+
+# Exit 2 tells the claude wrapper to abort the session, where 1 only means the proxy is not ready.
+broken_config() {
+  echo "ai-proxy: $*" >&2
+  exit 2
 }
 
 usage() {
@@ -22,7 +29,10 @@ Usage: ai-proxy [command]
   logout   end the session and forget it on this machine
   token    print an access token (what Codex and Claude Code run)
   ready    exit successfully when the named proxy is ready (general or claude); for claude, print
-           the settings that send the session to this directory's host
+           the settings that send the session to the host of this repo's or folder's pool, and
+           exit 2 rather than 1 when the config that picks that pool is broken
+  attributes claude
+           print the OpenTelemetry resource attributes naming a Claude Code session's pool
 EOF
 }
 
@@ -172,27 +182,97 @@ check_proxy() {
   esac
 }
 
-# Prints one route per line: its root directory, a tab, its Claude host.
-claude_routes() {
-  [[ -n ${AI_PROXY_CLAUDE_ROUTES_FILE:-} ]] || return 0
-  jq -r 'to_entries[] | "\(.key)\t\(.value)"' "$AI_PROXY_CLAUDE_ROUTES_FILE" ||
-    fail "$AI_PROXY_CLAUDE_ROUTES_FILE is not a JSON object of directory to host"
+# A Claude pool's host: its account's instance (gitops ADR-0040).
+claude_url() {
+  printf '%s\n' "${AI_PROXY_CLAUDE_URL//\{pool\}/$1}"
 }
 
-# Prints this directory's Claude host, a tab, and the route root that chose it, empty for the default (gitops ADR-0040).
-claude_host() {
-  local dir routes root url matched_root="" host=$AI_PROXY_CLAUDE_DEFAULT_URL
+is_pool() {
+  local pool
+  for pool in $AI_PROXY_CLAUDE_POOLS; do
+    [[ $1 == "$pool" ]] && return 0
+  done
+  return 1
+}
+
+# Prints one route per line: its root directory, a tab, its Claude pool.
+claude_routes() {
+  local routes root pool
+  [[ -n ${AI_PROXY_CLAUDE_ROUTES_FILE:-} ]] || return 0
+  routes=$(jq -r 'to_entries[] | "\(.key)\t\(.value)"' "$AI_PROXY_CLAUDE_ROUTES_FILE") ||
+    broken_config "$AI_PROXY_CLAUDE_ROUTES_FILE is not a JSON object of directory to pool"
+  while IFS=$'\t' read -r root pool; do
+    [[ -n $root ]] || continue
+    is_pool "$pool" || broken_config "$AI_PROXY_CLAUDE_ROUTES_FILE routes $root to \"$pool\", but a pool must be one of: $AI_PROXY_CLAUDE_POOLS"
+  done <<<"$routes"
+  printf '%s\n' "$routes"
+}
+
+# Prints the git dir of the repo holding this directory, whether a work tree, its .git folder or a bare repo; nothing outside any repo.
+git_dir() {
+  local dir status=0
+  # The C locale pins the message matched below.
+  dir=$(LC_ALL=C git -C "$PWD" rev-parse --absolute-git-dir 2>"$git_errors") || status=$?
+  if ((status == 0)); then
+    printf '%s\n' "$dir"
+  elif [[ $(<"$git_errors") != "fatal: not a git repository (or any"* ]]; then
+    broken_config "cannot tell whether $PWD is in a git repo, so cannot tell its Claude pool: $(<"$git_errors")"
+  fi
+}
+
+# Prints the pool git config names for the repo at git dir $1, a tab, and the rule that chose it.
+repo_pool() {
+  local repo=$1 pool status=0 origin origin_status=0
+  pool=$(git -C "$PWD" config --get ai-proxy.pool 2>"$git_errors") || status=$?
+  case $status in
+  0) ;;
+  1)
+    # Names the origin, so a work remote spelled in a way no include matches shows here.
+    origin="origin $(git -C "$PWD" config --get remote.origin.url 2>"$git_errors")" || origin_status=$?
+    case $origin_status in
+    0) ;;
+    1) origin="no origin" ;;
+    *) broken_config "cannot read the origin of $repo (git config exited $origin_status): $(<"$git_errors")" ;;
+    esac
+    printf '%s\tby default, as git config sets no ai-proxy.pool (%s)\n' "$AI_PROXY_CLAUDE_DEFAULT_POOL" "$origin"
+    return 0
+    ;;
+  *) broken_config "cannot read git config ai-proxy.pool in $repo (git config exited $status), so cannot tell its Claude pool: $(<"$git_errors")" ;;
+  esac
+  [[ -n $pool ]] || broken_config "git config ai-proxy.pool is empty in $repo, but must be one of: $AI_PROXY_CLAUDE_POOLS"
+  is_pool "$pool" || broken_config "git config ai-proxy.pool is \"$pool\" in $repo, but must be one of: $AI_PROXY_CLAUDE_POOLS"
+  printf '%s\tfrom git config (ai-proxy.pool)\n' "$pool"
+}
+
+# Prints the pool of the deepest folder route holding this directory, a tab, and that route; the default under none.
+folder_pool() {
+  local dir routes root route_pool matched_root="" pool=$AI_PROXY_CLAUDE_DEFAULT_POOL
   dir=$(realpath -m -- "$PWD")
-  routes=$(claude_routes) || return 1
-  while IFS=$'\t' read -r root url; do
+  routes=$(claude_routes) || return
+  while IFS=$'\t' read -r root route_pool; do
     [[ -n $root ]] || continue
     root=$(realpath -m -- "$root")
     if [[ ($dir == "$root" || $dir == "$root"/*) && ${#root} -gt ${#matched_root} ]]; then
       matched_root=$root
-      host=$url
+      pool=$route_pool
     fi
   done <<<"$routes"
-  printf '%s\t%s\n' "$host" "$matched_root"
+  if [[ -n $matched_root ]]; then
+    printf '%s\tfrom folder route %s\n' "$pool" "$matched_root"
+  else
+    printf '%s\tby default, outside any repo and folder route\n' "$pool"
+  fi
+}
+
+# Prints this directory's Claude pool, a tab, and the rule that chose it: inside a git repo its git config, outside one the folder routes (ADR 0023).
+claude_route() {
+  local repo
+  repo=$(git_dir) || return
+  if [[ -n $repo ]]; then
+    repo_pool "$repo"
+  else
+    folder_pool
+  fi
 }
 
 proxy_accepts() {
@@ -203,7 +283,7 @@ proxy_accepts() {
 
 # The claude wrapper merges what this prints over its settings, so it prints nothing but that JSON.
 ready() {
-  local access route host
+  local access route pool host
 
   case "${1:-}" in
   general | claude) ;;
@@ -216,14 +296,33 @@ ready() {
     return
   fi
 
-  route=$(claude_host) || return 1
-  IFS=$'\t' read -r host _ <<<"$route"
+  route=$(claude_route) || return
+  IFS=$'\t' read -r pool _ <<<"$route"
+  host=$(claude_url "$pool")
   proxy_accepts "$host" claude-cli/ai-proxy-ready "$access" || return 1
   jq -cn --arg url "$host" '{env: {ANTHROPIC_BASE_URL: $url}}'
 }
 
+# Tags a Claude Code session: the pool it reached, or direct when the wrapper applied no proxy settings, and its directory's pool.
+attributes() {
+  local route pool login domain=none
+  [[ ${1:-} == claude ]] || fail "attributes expects claude"
+  route=$(claude_route) || return
+  IFS=$'\t' read -r pool _ <<<"$route"
+  if [[ ${CLAUDE_SESSION_SETTINGS:-} == applied ]]; then
+    printf 'ai_proxy.pool=%s,ai_proxy.context=%s\n' "$pool" "$pool"
+    return 0
+  fi
+  # Off the proxy the session runs on its profile's own login; its email's domain says whose.
+  login=${CLAUDE_CONFIG_DIR:-$HOME/.claude}/.claude.json
+  if [[ -e $login ]]; then
+    domain=$(jq -r '.oauthAccount.emailAddress // "" | split("@")[1] // "none"' "$login") || fail "cannot read the login in $login"
+  fi
+  printf 'ai_proxy.pool=direct,ai_proxy.context=%s,ai_proxy.login_domain=%s\n' "$pool" "$domain"
+}
+
 status() {
-  local access minutes routes hosts url route host root failed=0
+  local access minutes pool route why failed=0
 
   if [[ ! -s "$state/refresh_token" ]]; then
     echo "Not logged in. Run: ai-proxy login"
@@ -241,15 +340,14 @@ status() {
 
   check_proxy "$AI_PROXY_URL" "$access" "ai-proxy-status" || failed=1
   # The Claude hosts admit only a claude-cli/ User-Agent (gitops ADR-0010), answering anything else as they would a bad token.
-  routes=$(claude_routes) || return 1
-  hosts=$(printf '%s\n' "$AI_PROXY_CLAUDE_DEFAULT_URL" "$(cut -f2 <<<"$routes")" | sort -u)
-  while read -r url; do
-    [[ -n $url ]] || continue
-    check_proxy "$url" "$access" "claude-cli/ai-proxy-status" || failed=1
-  done <<<"$hosts"
-  route=$(claude_host) || return 1
-  IFS=$'\t' read -r host root <<<"$route"
-  echo "  claude   here: $host${root:+, under $root}"
+  for pool in $AI_PROXY_CLAUDE_POOLS; do
+    check_proxy "$(claude_url "$pool")" "$access" "claude-cli/ai-proxy-status" || failed=1
+  done
+  # Inside a repo no session reads the routes, so status is where a broken routes file shows.
+  claude_routes >/dev/null || return
+  route=$(claude_route) || return
+  IFS=$'\t' read -r pool why <<<"$route"
+  echo "  claude   here: $(claude_url "$pool"), pool $pool $why"
   return "$failed"
 }
 
@@ -287,6 +385,7 @@ login) login ;;
 logout) logout ;;
 token) token ;;
 ready) ready "${2:-}" ;;
+attributes) attributes "${2:-}" ;;
 help | -h | --help) usage ;;
 *)
   usage >&2

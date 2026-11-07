@@ -28,7 +28,7 @@
     };
 in
   harness.bats "codex-ai-proxy-fallback-test" [./ai-proxy.bats] {
-    nativeBuildInputs = [pkgs.jq];
+    nativeBuildInputs = [pkgs.git pkgs.jq];
     readyCodex = "${wrapper true}/bin/codex";
     unreadyCodex = "${wrapper false}/bin/codex";
     aiProxy = ../ai-proxy.sh;
