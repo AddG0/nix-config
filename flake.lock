@@ -674,11 +674,11 @@
         ]
       },
       "locked": {
-        "lastModified": 1793846887,
-        "narHash": "sha256-Fxx/M67T8xoeDRsneI9MGWzdrSpisfVN3P8ec7tpaSY=",
+        "lastModified": 1793967122,
+        "narHash": "sha256-ui1GNJgvVfL98z7nOTKZMIPPFI8IdKnGBLACePaiJk4=",
         "ref": "refs/heads/main",
-        "rev": "1155a2bbb3b30626d78efadd7d44a3bc2174d0d3",
-        "revCount": 28,
+        "rev": "69edd45a541f7cedb3e98a50ab2b748ce1f800a1",
+        "revCount": 33,
         "type": "git",
         "url": "ssh://git@gitlab.com/addg09/projects/dev-cloud/control-plane.git"
       },
@@ -2619,11 +2619,11 @@
         "pre-commit-hooks": "pre-commit-hooks_3"
       },
       "locked": {
-        "lastModified": 1793843917,
-        "narHash": "sha256-T4lzjaJDBKDT3aGkw8q2dg7Avbtm0EZm/Sil5u4Rwuk=",
+        "lastModified": 1794009114,
+        "narHash": "sha256-wYeeUqsjzYS9FlDsA4XxtW60stqJzbvMN1xBagSnWCk=",
         "ref": "main",
-        "rev": "44a0216eb8648ebd13797287e02ee0441ecc38f5",
-        "revCount": 377,
+        "rev": "ec77f0039f43418f62f7ce4bef429d7f1722340d",
+        "revCount": 394,
         "type": "git",
         "url": "ssh://git@github.com/addg0/nix-secrets.git"
       },
