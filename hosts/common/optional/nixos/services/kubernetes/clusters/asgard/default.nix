@@ -126,6 +126,12 @@ in {
   # Restart=always never fires. Minutes, not seconds: etcd catch-up is slow.
   systemd.services.k3s.serviceConfig.TimeoutStartSec = lib.mkForce "15m";
 
+  # git-sync reboots the servers for a new kernel; only they hold the admin kubeconfig k3s kubectl reads.
+  nix.git-sync.drainKubernetesNode = lib.mkIf isServer {
+    enable = true;
+    kubectl = "${config.services.k3s.package}/bin/k3s kubectl";
+  };
+
   # flannel takes the first address on its interface after sorting with IFA_F_PERMANENT
   # preferred (compareAddrs, flannel pkg/ip/iface.go), so kube-vip's permanent VIP beats
   # a DHCP lease. A reservation does not help -- the lease is still flagged dynamic.

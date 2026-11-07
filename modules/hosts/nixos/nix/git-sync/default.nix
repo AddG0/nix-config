@@ -1,4 +1,4 @@
-# git-sync: rebuilds the host from its remote flake on a schedule; ./wake.nix wakes a sleeping host for the run.
+# git-sync: rebuilds the host from its remote flake on a schedule; ./wake.nix wakes a sleeping host for the run, ./drain.nix drains its Kubernetes node before a reboot.
 {customLib, ...}: {
   config,
   lib,
@@ -8,7 +8,7 @@
 with lib; let
   cfg = config.nix.git-sync;
 in {
-  imports = [./wake.nix];
+  imports = [./wake.nix ./drain.nix];
 
   options.nix.git-sync = {
     enable = mkEnableOption "Automatic NixOS rebuild from a remote flake";
@@ -121,6 +121,13 @@ in {
       description = "Shell commands to run after successful rebuild";
     };
 
+    preRebootHook = mkOption {
+      type = types.lines;
+      default = "";
+      internal = true;
+      description = "Shell commands ./drain.nix runs before a reboot git-sync starts; a failure is logged and the reboot goes ahead.";
+    };
+
     allowedSigners = mkOption {
       type = types.listOf types.str;
       default = [];
@@ -226,16 +233,22 @@ in {
         '';
       };
       rebootAction =
-        if cfg.notifications.enable
-        then ''
-          log "Scheduling reboot in 2 minutes..."
-          notify -u critical "NixOS Remote Rebuild" "Configuration updated. Rebooting in 2 minutes. Run 'sudo shutdown -c' to cancel."
-          shutdown --reboot +2 "NixOS remote rebuild complete. Rebooting in 2 minutes. Run 'sudo shutdown -c' to cancel."
+        optionalString (cfg.preRebootHook != "") ''
+          log "Running pre-reboot hook..."
+          (${cfg.preRebootHook}) || log "WARNING: pre-reboot hook failed (exit $?); rebooting anyway."
         ''
-        else ''
-          log "Rebooting now..."
-          systemctl reboot
-        '';
+        + (
+          if cfg.notifications.enable
+          then ''
+            log "Scheduling reboot in 2 minutes..."
+            notify -u critical "NixOS Remote Rebuild" "Configuration updated. Rebooting in 2 minutes. Run 'sudo shutdown -c' to cancel."
+            shutdown --reboot +2 "NixOS remote rebuild complete. Rebooting in 2 minutes. Run 'sudo shutdown -c' to cancel."
+          ''
+          else ''
+            log "Rebooting now..."
+            systemctl reboot
+          ''
+        );
       rebuild-script = pkgs.writeShellApplication {
         name = "nix-remote-rebuild";
         runtimeInputs = with pkgs;
