@@ -70,6 +70,14 @@ setup() {
   assert_output ""
 }
 
+@test "a check reporting a broken config (exit 2) aborts the session with its message instead of starting without the settings" {
+  run --separate-stderr "$misconfiguredWrapper"
+  assert_equal "$status" 2
+  assert_output ""
+  assert_regex "$stderr" 'check: the config is broken'
+  assert_regex "$stderr" 'claude wrapper: .*settings-check reported a broken config, so the session does not start'
+}
+
 @test "extraPath tools come before PATH, shadowing a same-named tool" {
   mkdir -p "$BATS_TEST_TMPDIR/bin"
   printf '#!/bin/sh\n' >"$BATS_TEST_TMPDIR/bin/shadowed-tool"
@@ -85,4 +93,37 @@ setup() {
   run --separate-stderr timeout 4s "$slowWrapper" --version 3>&-
   assert_success
   assert_line -- --version
+}
+
+@test "session attributes are appended to the resource attributes Claude Code already had" {
+  OTEL_RESOURCE_ATTRIBUTES=host.name=demon run --separate-stderr "$taggedWrapper"
+  assert_success
+  assert_output 'OTEL_RESOURCE_ATTRIBUTES=host.name=demon,ai_proxy.pool=applied'
+}
+
+@test "session attributes stand alone where Claude Code had none, and hear the check failed" {
+  run --separate-stderr env -u OTEL_RESOURCE_ATTRIBUTES "$taggedFailingWrapper"
+  assert_success
+  assert_output 'OTEL_RESOURCE_ATTRIBUTES=ai_proxy.pool=skipped'
+}
+
+@test "a failing attributes command starts the session untagged, saying so" {
+  run --separate-stderr env -u OTEL_RESOURCE_ATTRIBUTES "$untaggableWrapper"
+  assert_success
+  assert_output 'OTEL_RESOURCE_ATTRIBUTES=unset'
+  assert_regex "$stderr" 'session-attributes gave no session attributes'
+}
+
+@test "an attributes command reporting a broken config (exit 2) aborts the session with its message" {
+  run --separate-stderr env -u OTEL_RESOURCE_ATTRIBUTES "$misconfiguredTaggingWrapper"
+  assert_equal "$status" 2
+  assert_output ""
+  assert_regex "$stderr" 'tagger: the config is broken'
+  assert_regex "$stderr" 'claude wrapper: .*session-attributes reported a broken config, so the session does not start'
+}
+
+@test "--version is not tagged" {
+  run --separate-stderr env -u OTEL_RESOURCE_ATTRIBUTES "$taggedWrapper" --version
+  assert_success
+  assert_output 'OTEL_RESOURCE_ATTRIBUTES=unset'
 }

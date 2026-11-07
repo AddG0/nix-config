@@ -82,9 +82,21 @@
       PLUGIN_ARGS+=(--plugin-dir "$PROFILE_DIR/plugins/lsp")
     fi
 
+    SESSION_SETTINGS=skipped
     ${lib.optionalString (cfg.conditionalSettings != null) ''
+      CONDITIONAL_STATUS=1
+      if [[ ''${#ARGS[@]} -ne 1 || ''${ARGS[0]} != --version ]]; then
+        CONDITIONAL_STATUS=0
+        CONDITIONAL=$(${cfg.conditionalSettings.command}) || CONDITIONAL_STATUS=$?
+      fi
+      # 2 is a broken config, which starting without the settings would hide.
+      if [[ $CONDITIONAL_STATUS == 2 ]]; then
+        echo "claude wrapper: ${cfg.conditionalSettings.command} reported a broken config, so the session does not start" >&2
+        exit 2
+      fi
       # Claude keeps only the last --settings, so a caller's (the Agent SDK passes one) would drop ours.
-      if [[ ''${#ARGS[@]} -ne 1 || ''${ARGS[0]} != --version ]] && CONDITIONAL=$(${cfg.conditionalSettings.command}); then
+      if [[ $CONDITIONAL_STATUS == 0 ]]; then
+        SESSION_SETTINGS=applied
         SOURCES=(${lib.escapeShellArg cfg.conditionalSettings.file})
         [[ -z $CONDITIONAL ]] || SOURCES+=("$CONDITIONAL")
         MERGED=$(set -o pipefail; for s in "''${SOURCES[@]}" "''${CALLER_SETTINGS[@]}"; do
@@ -98,6 +110,21 @@
         for s in "''${CALLER_SETTINGS[@]}"; do
           SESSION_ARGS+=(--settings "$s")
         done
+      fi
+    ''}
+
+    ${lib.optionalString (cfg.sessionAttributes != null) ''
+      if [[ ''${#ARGS[@]} -ne 1 || ''${ARGS[0]} != --version ]]; then
+        ATTRIBUTES_STATUS=0
+        ATTRIBUTES=$(CLAUDE_SESSION_SETTINGS=$SESSION_SETTINGS ${cfg.sessionAttributes}) || ATTRIBUTES_STATUS=$?
+        if [[ $ATTRIBUTES_STATUS == 2 ]]; then
+          echo "claude wrapper: ${cfg.sessionAttributes} reported a broken config, so the session does not start" >&2
+          exit 2
+        elif [[ $ATTRIBUTES_STATUS == 0 && -n $ATTRIBUTES ]]; then
+          export OTEL_RESOURCE_ATTRIBUTES="''${OTEL_RESOURCE_ATTRIBUTES:+$OTEL_RESOURCE_ATTRIBUTES,}$ATTRIBUTES"
+        else
+          echo "claude wrapper: ${cfg.sessionAttributes} gave no session attributes, so this session's telemetry is untagged" >&2
+        fi
       fi
     ''}
 

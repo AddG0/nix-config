@@ -3,7 +3,6 @@
   inputs,
   lib,
   pkgs,
-  customPkgs,
   ...
 }: let
   jsonFormat = pkgs.formats.json {};
@@ -34,6 +33,7 @@
   inherit (config.programs.claude-code-profiles) addons;
 in {
   imports = [
+    ./hud-status-line.nix
     inputs.ai-toolkit.homeModules.default
     ./git-push-guard
     ./glab-permissions.nix
@@ -153,11 +153,6 @@ in {
             "Read(./.env.development.local)"
             "Read(**/terraform.tfvars)"
           ];
-        };
-        statusLine = {
-          command = "${pkgs.nodejs}/bin/node ${customPkgs.claude-hud}/share/claude-code/plugins/claude-hud/dist/index.js";
-          padding = 0;
-          type = "command";
         };
         theme = "dark";
         tui = "fullscreen";

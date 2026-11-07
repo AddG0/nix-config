@@ -231,7 +231,7 @@ in {
         options = {
           command = lib.mkOption {
             type = lib.types.str;
-            description = "Shell command that exits successfully when the session settings should apply. A JSON object it prints is merged over `file`.";
+            description = "Shell command that exits successfully when the session settings should apply, and 1 when they should not. Exit 2 means its own config is broken, and aborts the session rather than starting it without the settings. A JSON object it prints is merged over `file`.";
           };
           file = lib.mkOption {
             type = lib.types.path;
@@ -241,6 +241,21 @@ in {
       });
       default = null;
       description = "Settings applied to a session only when a readiness command succeeds.";
+    };
+
+    sessionAttributes = lib.mkOption {
+      type = lib.types.nullOr lib.types.str;
+      default = null;
+      description = ''
+        Shell command printing OpenTelemetry resource attributes for the
+        session (`key=value` pairs joined by commas), which the wrapped
+        `claude` appends to any `OTEL_RESOURCE_ATTRIBUTES` before it starts,
+        since Claude Code's telemetry reads its environment before settings
+        load. It runs after the conditional settings check, with
+        `CLAUDE_SESSION_SETTINGS` set to `applied` or `skipped`; when it fails
+        the session starts untagged, with a warning, except that exit 2 (its
+        config is broken) aborts the session.
+      '';
     };
 
     defaultProfile = lib.mkOption {
