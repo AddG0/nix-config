@@ -31,6 +31,9 @@ in {
   programs.t3code = {
     enable = true;
 
+    # Any non-null time keeps the desktop's first-run wizard from opening.
+    clientSettings.onboardingCompletedAt = "1970-01-01T00:00:00.000Z";
+
     userSettings = {
       # Otherwise the browser opens at ~/, a long walk to a nested subgroup.
       addProjectBaseDirectory = config.polyrepo.ghqRoot;

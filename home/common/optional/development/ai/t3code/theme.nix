@@ -2,7 +2,7 @@
   c = config.lib.stylix.colors.withHashtag;
 in {
   # Families only: t3code sizes are CSS pixels, stylix's are toolkit points.
-  programs.t3code.clientSettings.settings = {
+  programs.t3code.clientSettings = {
     fontFamilySans = config.stylix.fonts.sansSerif.name;
     fontFamilyCode = config.stylix.fonts.monospace.name;
     fontFamilyComposer = config.stylix.fonts.sansSerif.name;
