@@ -40,6 +40,7 @@
       display-managers.silent-sddm
       earlyoom
       openssh
+      tailscale
     ])
   ];
 
