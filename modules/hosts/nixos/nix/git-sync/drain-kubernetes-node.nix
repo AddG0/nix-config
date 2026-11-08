@@ -8,10 +8,10 @@
   cfg = config.nix.git-sync;
   inherit (cfg.drainKubernetesNode) kubectl;
   node = config.networking.hostName;
-  stateDirectory = "nix-remote-rebuild";
+  inherit (cfg) stateDirectory;
 
-  nodeScript = pkgs.writeShellApplication {
-    name = "nix-remote-rebuild-node";
+  kubernetesNode = pkgs.writeShellApplication {
+    name = "nix-remote-rebuild-kubernetes-node";
     runtimeInputs = [pkgs.coreutils];
     text = ''
       # Only a cordon git-sync made is undone after the boot, so a node a person cordoned stays cordoned.
@@ -60,7 +60,7 @@
         drain) drain ;;
         uncordon) uncordon ;;
         *)
-          echo "Usage: nix-remote-rebuild-node drain|uncordon" >&2
+          echo "Usage: nix-remote-rebuild-kubernetes-node drain|uncordon" >&2
           exit 2
           ;;
       esac
@@ -69,19 +69,20 @@
 in {
   options.nix.git-sync.drainKubernetesNode = {
     enable = lib.mkEnableOption ''
-      cordoning and draining the host's Kubernetes node, named for its hostname, before a reboot
-      git-sync starts, and uncordoning it once the host is back. A drain that fails or outlasts
-      5 minutes is logged and the reboot goes ahead'';
+      draining the host's Kubernetes node, named for its hostname, before each reboot git-sync
+      starts, and uncordoning it once the host is back. A reboot started by hand drains nothing.
+      A drain that fails or outlasts 5 minutes is logged and the reboot goes ahead, and a node
+      someone had cordoned stays cordoned after the boot'';
 
     kubectl = lib.mkOption {
       type = lib.types.str;
-      description = "The kubectl command, run as root with credentials the node already holds that may cordon it and evict its pods.";
+      description = "The kubectl command, run as root, with credentials that may cordon this node and evict its pods.";
       example = lib.literalExpression ''"''${config.services.k3s.package}/bin/k3s kubectl"'';
     };
   };
 
   config = lib.mkIf (cfg.enable && cfg.drainKubernetesNode.enable) {
-    nix.git-sync.preRebootHook = "${nodeScript}/bin/nix-remote-rebuild-node drain";
+    nix.git-sync.preRebootHook = "${lib.getExe kubernetesNode} drain";
 
     systemd.services.nix-remote-rebuild-uncordon = {
       description = "Uncordon the Kubernetes node git-sync drained before its reboot";
@@ -92,7 +93,7 @@ in {
         # Not oneshot: multi-user.target must not wait the minutes the API server can take to answer.
         Type = "exec";
         StateDirectory = stateDirectory;
-        ExecStart = "${nodeScript}/bin/nix-remote-rebuild-node uncordon";
+        ExecStart = "${lib.getExe kubernetesNode} uncordon";
       };
     };
   };

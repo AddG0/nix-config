@@ -15,13 +15,13 @@ kubectl_calls() {
   cut -d' ' -f1 "$KUBECTL_LOG" | paste -sd' '
 }
 
-@test "drains the node before the reboot and uncordons it after the boot" {
+@test "drains the node in the step a reboot runs first, and uncordons it after the boot" {
   run $beforeReboot
   assert_success
   assert_equal "$(kubectl_calls)" "get drain"
   assert_equal "$(sed -n 2p "$KUBECTL_LOG")" "drain t --ignore-daemonsets --delete-emptydir-data --force"
 
-  run "$node" uncordon
+  run $uncordonAfterBoot
   assert_success
   assert_equal "$(kubectl_calls)" "get drain uncordon"
   assert [ ! -e "$STATE_DIRECTORY/cordoned-node" ]
@@ -32,7 +32,7 @@ kubectl_calls() {
   assert_success
   assert_output --partial "Draining t failed or timed out (exit 1); rebooting anyway."
 
-  run "$node" uncordon
+  run $uncordonAfterBoot
   assert_success
   assert_equal "$(kubectl_calls)" "get drain uncordon"
 }
@@ -57,7 +57,7 @@ kubectl_calls() {
   assert_success
   assert_equal "$(kubectl_calls)" "get drain"
 
-  run "$node" uncordon
+  run $uncordonAfterBoot
   assert_success
   assert_output "git-sync cordoned no node before this boot; nothing to uncordon."
   assert_equal "$(kubectl_calls)" "get drain"
@@ -65,7 +65,7 @@ kubectl_calls() {
 
 @test "keeps trying to uncordon until the API server answers after the boot" {
   echo t >"$STATE_DIRECTORY/cordoned-node"
-  UNCORDON_FAILURES=2 run "$node" uncordon
+  UNCORDON_FAILURES=2 run $uncordonAfterBoot
   assert_success
   assert_equal "$(kubectl_calls)" "uncordon uncordon uncordon"
   assert [ ! -e "$STATE_DIRECTORY/cordoned-node" ]
@@ -73,7 +73,7 @@ kubectl_calls() {
 
 @test "fails, naming the node and how to retry, when the API server never answers, keeping the cordon on record" {
   echo t >"$STATE_DIRECTORY/cordoned-node"
-  UNCORDON_FAILURES=1000 run "$node" uncordon
+  UNCORDON_FAILURES=1000 run $uncordonAfterBoot
   assert_failure
   assert_output --partial "Could not uncordon Kubernetes node t; it stays cordoned until 'systemctl start nix-remote-rebuild-uncordon' succeeds."
   assert [ -e "$STATE_DIRECTORY/cordoned-node" ]

@@ -11,26 +11,9 @@ setup() {
   : >"$WAKEALARM"
   export SYSTEMCTL_LOG=$BATS_TEST_TMPDIR/systemctl.log
 
-  export BOOTED_SYSTEM=$BATS_TEST_TMPDIR/booted BUILT_SYSTEM=$BATS_TEST_TMPDIR/built
-  mkdir -p "$BATS_TEST_TMPDIR/store"
-  for part in kernel initrd kernel-modules; do
-    touch "$BATS_TEST_TMPDIR/store/$part"
-  done
-  generation "$BOOTED_SYSTEM"
+  load "$generations"
+  generations_setup
   generation "$BUILT_SYSTEM"
-}
-
-# A generation linking the shared fixture kernel, initrd and modules, except $2 which gets its own.
-generation() {
-  mkdir -p "$1"
-  for part in kernel initrd kernel-modules; do
-    if [ "$part" = "${2:-}" ]; then
-      touch "$1/$part-new"
-      ln -s "$1/$part-new" "$1/$part"
-    else
-      ln -s "$BATS_TEST_TMPDIR/store/$part" "$1/$part"
-    fi
-  done
 }
 
 systemctl_calls() {
@@ -95,13 +78,13 @@ record_alarm_at() {
 }
 
 @test "powers off again after the update check when the alarm booted it" {
-  run "$syncThenReturnTo" poweroff
+  run $returnAfterAlarmBoot
   assert_success
   assert_equal "$(systemctl_calls)" "$(printf 'start nix-remote-rebuild.service\npoweroff')"
 }
 
 @test "suspends again after the update check when the alarm resumed it" {
-  run "$syncThenReturnTo" suspend
+  run $returnAfterAlarmResume
   assert_success
   assert_equal "$(systemctl_calls)" "$(printf 'start nix-remote-rebuild.service\nsuspend')"
 }
@@ -109,22 +92,22 @@ record_alarm_at() {
 @test "powers off instead of suspending when the rebuild changed the kernel" {
   rm -r "$BUILT_SYSTEM"
   generation "$BUILT_SYSTEM" kernel
-  run "$syncThenReturnTo" suspend
+  run $returnAfterAlarmResume
   assert_success
-  assert_output --partial "changed the kernel"
+  assert_output --partial "The kernel differs from the booted system's."
   assert_equal "$(tail -1 "$SYSTEMCTL_LOG")" "poweroff"
 }
 
 @test "powers off instead of suspending when the rebuild changed the kernel modules" {
   rm -r "$BUILT_SYSTEM"
   generation "$BUILT_SYSTEM" kernel-modules
-  run "$syncThenReturnTo" suspend
+  run $returnAfterAlarmResume
   assert_success
   assert_equal "$(tail -1 "$SYSTEMCTL_LOG")" "poweroff"
 }
 
 @test "still returns to suspend when the rebuild fails, naming the failure" {
-  SYSTEMCTL_START_EXIT=3 run "$syncThenReturnTo" suspend
+  SYSTEMCTL_START_EXIT=3 run $returnAfterAlarmResume
   assert_success
   assert_output --partial "nix-remote-rebuild failed (exit 3)"
   assert_equal "$(tail -1 "$SYSTEMCTL_LOG")" "suspend"

@@ -35,7 +35,7 @@
   nix.git-sync = {
     enable = true;
     schedule = "03:00";
-    rebootAfterBuild = true;
+    reboot = "always";
   };
 
   networking = {

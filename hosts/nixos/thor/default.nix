@@ -33,7 +33,7 @@
     enable = true;
     # We stagger the schedule across thor odin and loki to keep the k3s cluster alive
     schedule = "03:40";
-    rebootIfNeeded = true;
+    reboot = "onKernelChange";
   };
 
   # Root-owned: the runner is a DynamicUser, and its configure step reads this as root (`!` ExecStartPre).

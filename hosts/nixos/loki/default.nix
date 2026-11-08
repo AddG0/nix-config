@@ -34,7 +34,7 @@
     enable = true;
     # We stagger the schedule across thor odin and loki to keep the k3s cluster alive
     schedule = "03:00";
-    rebootIfNeeded = true;
+    reboot = "onKernelChange";
   };
 
   services.tailscale = {
