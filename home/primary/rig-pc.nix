@@ -10,6 +10,11 @@
     (with lib.custom.optional.home.media; [core spicetify vlc])
     (with lib.custom.optional.primary; [stylix])
     (with lib.custom.optional.primary.secrets; [onepassword-ssh])
+    lib.custom.suites.development.home
+    lib.custom.suites.ai.home
+    (with lib.custom.optional.home.development; [
+      ai.ai-proxy
+    ])
   ];
 
   desktops.defaultSession = "hyprland";
