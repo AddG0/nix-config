@@ -3,9 +3,12 @@
   inputs,
   lib,
   pkgs,
+  hostSpec,
   ...
 }: let
   inherit (config.programs.code-assistant-profiles) addons;
+  # The hostSpec specialArg, since imports resolve before config; jira's Atlassian credentials are sops secrets.
+  withJira = !hostSpec.disableSops;
   # jdtls derives its workspace from sha1(basename(cwd)), so a bare launch shares
   # nvim's Eclipse workspace and the two corrupt each other's index. Without the
   # lombok agent, generated members read as errors.
@@ -17,9 +20,7 @@
 in {
   imports = lib.flatten [
     (lib.custom.scanPaths ./addons)
-    (map (f: "${inputs.ai-toolkit}/home/claude-code/addons/${f}") [
-      "jira"
-    ])
+    (lib.optional withJira "${inputs.ai-toolkit}/home/claude-code/addons/jira")
   ];
 
   programs.code-assistant-profiles = {
@@ -65,26 +66,27 @@ in {
 
     profiles.default = {
       description = "Everyday development";
-      include = with addons; [
-        nix
-        context7
-        code-review
-        code-standards
-        documentation
-        architecture
-        design-notes
-        tmux-dev
-        jira
-        crash-capture
-        sqry
-        archify
-        i-have-adhd
-        blind-choices
-        code-assistant-configurator
-        handoff
-        mattpocock-skills
-        teach
-      ];
+      include = with addons;
+        [
+          nix
+          context7
+          code-review
+          code-standards
+          documentation
+          architecture
+          design-notes
+          tmux-dev
+          crash-capture
+          sqry
+          archify
+          i-have-adhd
+          blind-choices
+          code-assistant-configurator
+          handoff
+          mattpocock-skills
+          teach
+        ]
+        ++ lib.optional withJira jira;
 
       skills."frontend-design" =
         lib.custom.ai.fromClaudeSkillDir {
