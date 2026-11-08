@@ -18,7 +18,11 @@
           check-executables-have-shebangs.enable = true;
           check-shebang-scripts-are-executable.enable = true;
           check-merge-conflicts.enable = true;
-          detect-private-keys.enable = true;
+          detect-private-keys = {
+            enable = true;
+            # A test-only key that signs git-sync's fixture commits; no host trusts it.
+            excludes = ["^modules/hosts/nixos/nix/git-sync/tests/signing-key$"];
+          };
           fix-byte-order-marker.enable = true;
           mixed-line-endings.enable = true;
           trim-trailing-whitespace.enable = true;
