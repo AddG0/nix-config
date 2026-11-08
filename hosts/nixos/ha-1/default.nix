@@ -13,6 +13,7 @@
 
     #################### misc inputs ####################
 
+    (with lib.custom.optional.hosts.nixos; [nix-secrets-deploy-key])
     (with lib.custom.optional.hosts.nixos.services; [
       home-assistant-oci
       nginx # nginx
@@ -23,6 +24,11 @@
   services.homeAssistantOci = {
     autoUpdate.enable = true;
     hostName = "home-assistant-1.${config.hostSpec.domain}";
+  };
+
+  nix.git-sync = {
+    enable = true;
+    reboot = "onKernelChange";
   };
 
   networking = {
