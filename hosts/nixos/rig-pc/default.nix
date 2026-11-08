@@ -16,6 +16,7 @@
     ./gamepadui-theme.nix
     ./graphics.nix
     ./hardware-configuration.nix
+    ./moza-media-keys.nix
 
     #################### Hardware ####################
     inputs.hardware.nixosModules.common-cpu-amd
