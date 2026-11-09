@@ -1,16 +1,18 @@
 # t3code shows an "update available" banner when a provider CLI (codex,
 # claude-code, opencode) is behind the latest npm release. We pin those CLIs by
 # path (home .../development/ai/t3code), so the banner is noise with no
-# actionable update. Forcing packageName to null skips the npm version fetch, so
-# the advisory stays "unknown" and the banner never renders. Upstream's
-# enableProviderUpdateChecks toggle would also stop model-catalog fetches.
+# actionable update. Gating the latest-version lookup off skips both the npm
+# registry fetch and the `npm view` probe, so the advisory stays "unknown".
+# Upstream's enableProviderUpdateChecks would also stop the model-manifest fetch.
+#
+# Drop once a setting turns off provider version checks alone.
 #
 # Patched in `unwrapped`: see README.md.
 _: _final: prev: let
   inherit (prev.lib) escapeShellArg;
 
-  versionFetchAnchor = "const packageName = maintenanceCapabilities.packageName;";
-  versionFetchPatch = "const packageName = null;";
+  latestVersionGateAnchor = "options?.enableProviderUpdateChecks !== false &&";
+  latestVersionGatePatch = "false &&";
 in {
   t3code = prev.t3code.override {
     t3code-unwrapped = prev.t3code.unwrapped.overrideAttrs (old: {
@@ -18,7 +20,7 @@ in {
         (old.postPatch or "")
         + ''
           substituteInPlace packages/provider-core/src/server/maintenanceResolver.ts \
-            --replace-fail ${escapeShellArg versionFetchAnchor} ${escapeShellArg versionFetchPatch}
+            --replace-fail ${escapeShellArg latestVersionGateAnchor} ${escapeShellArg latestVersionGatePatch}
         '';
     });
     # Pinned to avoid a Rust rebuild for an identical binary.
