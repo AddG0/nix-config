@@ -9,24 +9,29 @@
 # RECONCILES: it verifies the rule is actually present, re-adds it if a reload
 # wiped it, and (re)arms the timer. Re-running an already-open port renews it.
 #
+# Each --interface opening has its own close timer, so it never touches an all-interface opening of the same port.
+#
 # For a long-lived opening, declare the port in your NixOS config
-# (security.firewall.allowedTCPPorts) instead of this tool.
+# (networking.firewall.allowedTCPPorts, or .interfaces.<name>) instead of this tool.
 
 usage() {
   cat <<EOF
 Usage:
-  open-port <port> <duration> [tcp|udp]   open (or renew) a port
-  open-port --close <port> [tcp|udp]      close a port now
-  open-port --status [<port>] [tcp|udp]   show scheduled closes
+  open-port <port> <duration> [tcp|udp] [-i <interface>]   open (or renew) a port
+  open-port --close <port> [tcp|udp] [-i <interface>]      close a port now
+  open-port --status [<port>] [tcp|udp] [-i <interface>]   show scheduled closes
 
-  port      1-65535
-  duration  e.g. 30s, 10m, 1h, 2h30m, 1d
-  protocol  tcp (default) or udp
+  port       1-65535
+  duration   e.g. 30s, 10m, 1h, 2h30m, 1d
+  protocol   tcp (default) or udp
+  interface  -i/--interface: only this interface (tailscale0, or a wildcard like wl+);
+             every interface when left out
 
 Examples:
   open-port 8080 10m
+  open-port 8080 1h --interface tailscale0
   open-port 5353 30s udp
-  open-port --close 8080
+  open-port --close 8080 --interface tailscale0
 EOF
 }
 
@@ -41,22 +46,56 @@ have_chain() {
   sudo "$1" -w 5 -L "$FW_CHAIN" -n >/dev/null 2>&1
 }
 
-rule_present() { # <ipt> <proto> <port>
-  sudo "$1" -w 5 -C "$FW_CHAIN" -p "$2" --dport "$3" -j "$FW_ACCEPT" 2>/dev/null
+# The rule's match, set once the arguments are parsed: RULE=([-i <if>] -p <proto> --dport <port> -j <accept>).
+RULE=()
+
+rule_present() { # <ipt>
+  sudo "$1" -w 5 -C "$FW_CHAIN" "${RULE[@]}" 2>/dev/null
 }
 
 # Insert only if absent, so repeated runs never stack duplicate rules.
-ensure_rule() { # <ipt> <proto> <port>
-  rule_present "$@" || sudo "$1" -w 5 -I "$FW_CHAIN" 1 -p "$2" --dport "$3" -j "$FW_ACCEPT"
+ensure_rule() { # <ipt>
+  rule_present "$1" || sudo "$1" -w 5 -I "$FW_CHAIN" 1 "${RULE[@]}"
 }
 
 # Delete every matching rule, not just the first -- guards against duplicates
 # left by an earlier buggy run or a partial close.
-delete_rules() { # <ipt> <proto> <port>
-  while rule_present "$@"; do
-    sudo "$1" -w 5 -D "$FW_CHAIN" -p "$2" --dport "$3" -j "$FW_ACCEPT" || break
+delete_rules() { # <ipt>
+  while rule_present "$1"; do
+    sudo "$1" -w 5 -D "$FW_CHAIN" "${RULE[@]}" || break
   done
 }
+
+# -i/--interface may come anywhere, so pull it out before reading the positional arguments.
+IFACE=""
+POSITIONAL=()
+while [ "$#" -gt 0 ]; do
+  case "$1" in
+  -i | --interface)
+    if [ "$#" -lt 2 ]; then
+      echo "Error: $1 needs an interface name" >&2
+      exit 1
+    fi
+    IFACE="$2"
+    shift 2
+    ;;
+  --interface=*)
+    IFACE="${1#--interface=}"
+    shift
+    ;;
+  *)
+    POSITIONAL+=("$1")
+    shift
+    ;;
+  esac
+done
+set -- "${POSITIONAL[@]}"
+
+# At most 15 characters, an iptables wildcard's trailing + included, and never a leading - that reads as an option.
+if [ -n "$IFACE" ] && { ! [[ $IFACE =~ ^[A-Za-z0-9_.:][A-Za-z0-9_.:-]*\+?$ ]] || [ "${#IFACE}" -gt 15 ]; }; then
+  echo "Error: invalid interface '$IFACE'" >&2
+  exit 1
+fi
 
 ACTION="open"
 case "${1:-}" in
@@ -122,21 +161,35 @@ if [ "$ACTION" = "open" ]; then
   DURATION=$(echo "$DURATION_RAW" | sed -E 's/([0-9])m($|[^i])/\1min\2/g')
 fi
 
+# An interface opening gets its own timer; systemd-escape keeps a wildcard's + valid in a unit name.
+ON_IFACE=""
+IFACE_UNIT=""
+if [ -n "$IFACE" ]; then
+  ON_IFACE=" on ${IFACE}"
+  IFACE_UNIT="-on-$(systemd-escape -- "$IFACE")"
+fi
+
 if [ "$ACTION" = "status" ]; then
-  PATTERN="close-port-*.timer"
-  [ -n "$PORT" ] && PATTERN="close-port-${PROTO}-${PORT}.timer"
+  PATTERNS=("close-port-*${IFACE_UNIT}.timer")
+  if [ -n "$PORT" ] && [ -n "$IFACE" ]; then
+    PATTERNS=("close-port-${PROTO}-${PORT}${IFACE_UNIT}.timer")
+  elif [ -n "$PORT" ]; then
+    PATTERNS=("close-port-${PROTO}-${PORT}.timer" "close-port-${PROTO}-${PORT}-on-*.timer")
+  fi
   echo "Scheduled closes:"
-  sudo systemctl list-timers --all --no-pager "$PATTERN" 2>/dev/null || true
+  sudo systemctl list-timers --all --no-pager "${PATTERNS[@]}" 2>/dev/null || true
   exit 0
 fi
 
-UNIT="close-port-${PROTO}-${PORT}"
+UNIT="close-port-${PROTO}-${PORT}${IFACE_UNIT}"
+RULE=(-p "$PROTO" --dport "$PORT" -j "$FW_ACCEPT")
+[ -z "$IFACE" ] || RULE=(-i "$IFACE" "${RULE[@]}")
 
 # Fail loudly rather than pretend to open a port the firewall will ignore.
 if ! have_chain iptables; then
   echo "Error: '$FW_CHAIN' chain not found." >&2
   echo "The firewall is disabled, or uses the nftables backend (networking.nftables.enable)." >&2
-  echo "In the nftables case, open the port with nft, or declare it in security.firewall.allowedTCPPorts." >&2
+  echo "In the nftables case, open the port with nft, or declare it in networking.firewall.allowedTCPPorts." >&2
   exit 1
 fi
 
@@ -151,30 +204,31 @@ if [ "$ACTION" = "close" ]; then
   sudo systemctl reset-failed "${UNIT}.timer" "${UNIT}.service" >/dev/null 2>&1 || true
 
   removed=0
-  if rule_present iptables "$PROTO" "$PORT"; then removed=1; fi
-  delete_rules iptables "$PROTO" "$PORT"
-  [ "$HAVE_V6" = 1 ] && delete_rules ip6tables "$PROTO" "$PORT"
+  if rule_present iptables; then removed=1; fi
+  delete_rules iptables
+  [ "$HAVE_V6" = 1 ] && delete_rules ip6tables
 
   if [ "$removed" = 1 ]; then
-    echo "Closed ${PROTO}/${PORT}."
+    echo "Closed ${PROTO}/${PORT}${ON_IFACE}."
   else
-    echo "${PROTO}/${PORT} was not open; cleared any leftover timer."
+    echo "${PROTO}/${PORT}${ON_IFACE} was not open; cleared any leftover timer."
   fi
   exit 0
 fi
 
 # Detect prior state so we can report accurately and reconcile drift.
 TIMER_EXISTS=0
-if sudo systemctl list-units --all --no-legend "${UNIT}.timer" 2>/dev/null | grep -q "${UNIT}.timer"; then
+# -F: a wildcard interface's unit name holds systemd-escape's \x2b, which a regex would misread.
+if sudo systemctl list-units --all --no-legend "${UNIT}.timer" 2>/dev/null | grep -qF "${UNIT}.timer"; then
   TIMER_EXISTS=1
 fi
 RULE_EXISTS=0
-rule_present iptables "$PROTO" "$PORT" && RULE_EXISTS=1
+rule_present iptables && RULE_EXISTS=1
 
 if [ "$TIMER_EXISTS" = 1 ] && [ "$RULE_EXISTS" = 0 ]; then
   echo "Note: a close timer existed but the rule was gone (firewall reloaded?). Re-adding and renewing." >&2
 elif [ "$TIMER_EXISTS" = 1 ]; then
-  echo "Renewing existing opening for ${PROTO}/${PORT} to ${DURATION}."
+  echo "Renewing existing opening for ${PROTO}/${PORT}${ON_IFACE} to ${DURATION}."
 fi
 
 # Clear the old timer/service so systemd-run can reuse the unit name, and clean
@@ -182,13 +236,13 @@ fi
 sudo systemctl stop "${UNIT}.timer" "${UNIT}.service" >/dev/null 2>&1 || true
 sudo systemctl reset-failed "${UNIT}.timer" "${UNIT}.service" >/dev/null 2>&1 || true
 
-echo "Opening ${PROTO}/${PORT} for ${DURATION}..."
-if ! ensure_rule iptables "$PROTO" "$PORT"; then
+echo "Opening ${PROTO}/${PORT}${ON_IFACE} for ${DURATION}..."
+if ! ensure_rule iptables; then
   echo "Error: failed to insert IPv4 rule" >&2
   exit 1
 fi
 if [ "$HAVE_V6" = 1 ]; then
-  if ! ensure_rule ip6tables "$PROTO" "$PORT"; then
+  if ! ensure_rule ip6tables; then
     echo "Warning: failed to insert IPv6 rule (continuing with IPv4 only)" >&2
     HAVE_V6=0
   fi
@@ -196,8 +250,8 @@ fi
 
 rollback() {
   echo "Rolling back firewall rules..." >&2
-  delete_rules iptables "$PROTO" "$PORT"
-  [ "$HAVE_V6" = 1 ] && delete_rules ip6tables "$PROTO" "$PORT"
+  delete_rules iptables
+  [ "$HAVE_V6" = 1 ] && delete_rules ip6tables
 }
 
 # The deferred close runs with a minimal PATH and must survive duplicate rules
@@ -205,8 +259,8 @@ rollback() {
 # because systemd-run transient units don't inherit ours.
 IPT_BIN="$(command -v iptables)"
 close_snippet() { # <bin>
-  printf 'while %s -w 5 -C %s -p %s --dport %s -j %s 2>/dev/null; do %s -w 5 -D %s -p %s --dport %s -j %s; done' \
-    "$1" "$FW_CHAIN" "$PROTO" "$PORT" "$FW_ACCEPT" "$1" "$FW_CHAIN" "$PROTO" "$PORT" "$FW_ACCEPT"
+  printf 'while %s -w 5 -C %s %s 2>/dev/null; do %s -w 5 -D %s %s; done' \
+    "$1" "$FW_CHAIN" "${RULE[*]}" "$1" "$FW_CHAIN" "${RULE[*]}"
 }
 CLOSE_CMD="$(close_snippet "$IPT_BIN")"
 if [ "$HAVE_V6" = 1 ]; then
@@ -217,7 +271,7 @@ CLOSE_CMD="$CLOSE_CMD; true"
 if ! sudo systemd-run \
   --on-active="$DURATION" \
   --unit="$UNIT" \
-  --description="Close ${PROTO}/${PORT} after ${DURATION}" \
+  --description="Close ${PROTO}/${PORT}${ON_IFACE} after ${DURATION}" \
   --collect \
   /bin/sh -c "$CLOSE_CMD" >/dev/null; then
   rollback
@@ -230,5 +284,5 @@ NEXT=$(sudo systemctl list-timers --no-pager --no-legend "${UNIT}.timer" 2>/dev/
 SCOPE="v4"
 [ "$HAVE_V6" = 1 ] && SCOPE="v4+v6"
 echo
-echo "Done. ${PROTO}/${PORT} (${SCOPE}) open until: ${NEXT:-$DURATION from now}"
-echo "Close now: open-port --close ${PORT} ${PROTO}"
+echo "Done. ${PROTO}/${PORT}${ON_IFACE} (${SCOPE}) open until: ${NEXT:-$DURATION from now}"
+echo "Close now: open-port --close ${PORT} ${PROTO}${IFACE:+ --interface ${IFACE}}"

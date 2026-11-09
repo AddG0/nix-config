@@ -32,11 +32,7 @@
       };
     }
     // lib.optionalAttrs (!pkgs.stdenv.hostPlatform.isDarwin) {
-      open-port = pkgs.writeShellApplication {
-        name = "open-port";
-        runtimeInputs = with pkgs; [iptables];
-        text = builtins.readFile ./open-port.sh;
-      };
+      open-port = pkgs.callPackage ./open-port/package.nix {};
       netbond = pkgs.writeShellApplication {
         name = "netbond";
         runtimeInputs = with pkgs; [iproute2 jq gawk curl coreutils iw networkmanager procps xdg-utils findutils];

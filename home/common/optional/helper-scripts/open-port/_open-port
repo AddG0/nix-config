@@ -1,0 +1,72 @@
+#compdef open-port
+
+# Interfaces `ip` lists, plus the iptables wildcards for every Ethernet and every Wi-Fi interface.
+_open-port_interfaces() {
+  local -a interfaces
+  interfaces=(${(f)"$(ip -o link show 2>/dev/null | awk -F': ' '{ sub(/@.*/, "", $2); print $2 }')"})
+  interfaces+=('en+:every Ethernet interface' 'wl+:every Wi-Fi interface')
+  _describe -t interfaces interface interfaces
+}
+
+# Ports something listens on beyond loopback: the ones worth opening.
+_open-port_listening_ports() {
+  local -a ports
+  ports=(${(fu)"$(ss -Hlntu 2>/dev/null | awk '$5 !~ /^(127\.|\[::1\])/ { n = split($5, a, ":"); print a[n] ":" $1 " listener" }')"})
+  _describe -t ports 'port to open (1-65535)' ports
+}
+
+# Ports with a close timer, read from the unit name close-port-<proto>-<port>[-on-<escaped interface>].timer.
+_open-port_open_ports() {
+  local -a ports
+  local unit rest proto port where
+  for unit in ${(f)"$(systemctl list-units --all --no-legend --plain 'close-port-*.timer' 2>/dev/null | awk '{ print $1 }')"}; do
+    rest=${${unit#close-port-}%.timer}
+    proto=${rest%%-*}
+    rest=${rest#*-}
+    port=${rest%%-*}
+    where='every interface'
+    [[ $rest == *-on-* ]] && where=$(systemd-escape --unescape -- "${rest#*-on-}")
+    ports+=("$port:$proto on $where")
+  done
+  _describe -t ports 'open port' ports
+}
+
+_open-port_durations() {
+  local -a durations=('30s:thirty seconds' '10m:ten minutes' '1h:one hour' '2h30m:two and a half hours' '1d:one day')
+  _describe -t durations duration durations
+}
+
+_open-port_protocols() {
+  local -a protocols=('tcp:the default' 'udp')
+  _describe -t protocols protocol protocols
+}
+
+_open-port() {
+  local curcontext=$curcontext state line
+  typeset -A opt_args
+  _arguments -C -s \
+    '(- *)'{-h,--help}'[show usage]' \
+    '(-i --interface)'{-i,--interface=}'[open on this interface only]:interface:_open-port_interfaces' \
+    '(--status)--close[close a port now]' \
+    '(--close)--status[show scheduled closes]' \
+    '(-h --help --close --status)1: :->port' \
+    '2: :->second' \
+    '3: :->third' && return
+
+  # --close and --status name a port that is already open, and take no duration.
+  local existing=0
+  (( $+opt_args[--close] || $+opt_args[--status] )) && existing=1
+  case $state in
+  port)
+    if (( existing )); then _open-port_open_ports; else _open-port_listening_ports; fi
+    ;;
+  second)
+    if (( existing )); then _open-port_protocols; else _open-port_durations; fi
+    ;;
+  third)
+    if (( ! existing )); then _open-port_protocols; fi
+    ;;
+  esac
+}
+
+_open-port "$@"
