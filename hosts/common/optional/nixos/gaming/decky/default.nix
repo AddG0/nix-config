@@ -117,8 +117,8 @@ in {
 
   systemd.tmpfiles.rules = lib.concatMap dataDirRules config.hostSpec.users;
 
-  # Deckify's Spotify login page (its QR code) and librespot's Spotify Connect discovery, reachable from phones.
-  networking.firewall.allowedTCPPorts = [39281 39283];
+  # Deckify's Spotify login page (its QR code) and librespot's Spotify Connect discovery, reachable from phones on the LAN.
+  networking.firewall.interfaces = lib.genAttrs lib.custom.lanInterfaces (_: {allowedTCPPorts = [39281 39283];});
 
   # decky-loader's frontend builds with pnpm (build-time only, not runtime).
   nixpkgs.config.permittedInsecurePackages = ["pnpm-9.15.9"];

@@ -1,4 +1,8 @@
-{pkgs, ...}: let
+{
+  lib,
+  pkgs,
+  ...
+}: let
   # No dmabuf-path patch: vapostproc leaves nothing able to rescale, so
   # pipewiresrc runs out of formats and the stream dies with not-negotiated (-4).
   gnd = pkgs.gnome-network-displays.overrideAttrs (old: {
@@ -45,6 +49,8 @@ in {
 
   services.avahi = {
     enable = true;
+    # Opened on the LAN interfaces below instead of everywhere.
+    openFirewall = false;
     settings.publish = {
       disable-publishing = false;
       disable-user-service-publishing = false;
@@ -72,6 +78,9 @@ in {
   # 7236 must be open there -- exposing an unauthenticated RTSP server while casting.
   networking.firewall = {
     trustedInterfaces = ["p2p-wl+"];
-    allowedTCPPorts = [7236];
+    interfaces = lib.genAttrs lib.custom.lanInterfaces (_: {
+      allowedTCPPorts = [7236];
+      allowedUDPPorts = [5353];
+    });
   };
 }

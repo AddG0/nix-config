@@ -185,6 +185,9 @@ in {
     inherit frontmatter lib;
   };
 
+  # Ethernet and Wi-Fi by iptables wildcard: the LAN, leaving out tailscale0, VPN tunnels and container bridges.
+  lanInterfaces = ["en+" "wl+"];
+
   # use path relative to the root of the project
   relativeToRoot = lib.path.append ../.;
   relativeToHome = lib.path.append ../home;

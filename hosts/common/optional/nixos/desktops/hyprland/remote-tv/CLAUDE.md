@@ -12,7 +12,7 @@ evidence. Read the header before changing one.
 | Discovery | wpa_supplicant P2P peers via NM | mDNS `_display._tcp`, port 7250 |
 | Sink example | Samsung `[TV] Adds tv` | LG `Big Ben` |
 | Transport | `p2p-wl+` group interface | the ordinary LAN |
-| Firewall | `trustedInterfaces` covers it | needs `allowedTCPPorts = [7236]` |
+| Firewall | `trustedInterfaces` covers it | needs 7236 open on the LAN interfaces (`lib.custom.lanInterfaces`) |
 
 RTSP is 7236 either way. MICE has the source listen on 7236 and the **sink dial
 back in**, which is why trusting the P2P interface is not enough — a MICE cast
