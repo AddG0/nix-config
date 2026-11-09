@@ -13,7 +13,7 @@ _: _final: prev: {
     prev.vimPlugins
     // {
       neotest-gradle = prev.vimPlugins.neotest-gradle.overrideAttrs (old: {
-        patches = (old.patches or []) ++ [./neotest-gradle-results-dir.patch];
+        patches = (old.patches or []) ++ [./neotest-gradle-fall-back-to-build-dir.patch];
       });
     };
 }

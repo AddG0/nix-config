@@ -4,6 +4,6 @@
 # Upstream: github.com/nwg-piotr/nwg-displays/issues/91 (0.5.0 still writes monitor=).
 _: _final: prev: {
   nwg-displays = prev.nwg-displays.overridePythonAttrs (old: {
-    patches = (old.patches or []) ++ [./nwg-displays-monitorv2.patch];
+    patches = (old.patches or []) ++ [./nwg-displays-save-monitorv2.patch];
   });
 }

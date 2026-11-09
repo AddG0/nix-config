@@ -11,6 +11,6 @@
 # after removing this overlay.
 _: _final: prev: {
   gamescope = prev.gamescope.overrideAttrs (old: {
-    patches = (old.patches or []) ++ [./gamescope-x11-unix-ownership.patch];
+    patches = (old.patches or []) ++ [./gamescope-allow-unmapped-x11-unix-owner.patch];
   });
 }

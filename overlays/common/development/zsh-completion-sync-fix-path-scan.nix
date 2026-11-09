@@ -6,9 +6,9 @@ _: _final: prev: {
     patches =
       (old.patches or [])
       ++ [
-        ./zsh-completion-sync-path-firstrun.patch
-        ./zsh-completion-sync-path-order.patch
-        ./zsh-completion-sync-path-resolved-dupes.patch
+        ./zsh-completion-sync-add-scanned-dir-on-first-run.patch
+        ./zsh-completion-sync-keep-path-order-and-rescan.patch
+        ./zsh-completion-sync-dedupe-against-resolved-fpath.patch
       ];
   });
 }

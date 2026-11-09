@@ -6,6 +6,6 @@
 _: _final: prev:
 prev.lib.optionalAttrs (prev ? xdg-desktop-portal-hyprland) {
   xdg-desktop-portal-hyprland = prev.xdg-desktop-portal-hyprland.overrideAttrs (old: {
-    patches = (old.patches or []) ++ [./xdph-buffer-pool.patch];
+    patches = (old.patches or []) ++ [./xdg-desktop-portal-hyprland-larger-buffer-pool.patch];
   });
 }

@@ -1,5 +1,5 @@
 # Workarounds for upstream Deckcord bugs on current Steam (drop when fixed):
-#   - retry-init.patch: survive loading before Steam's CEF is ready.
+#   - deckcord-retry-init.patch: survive loading before Steam's CEF is ready.
 #   - postPatch: patchMenu()'s "Discord" Steam-menu item no longer injects (its
 #     MainNavMenuContainer React-tree walk stopped matching), and the logged-out
 #     QAM panel only points there — a first-login dead end. Add an Open-Discord
@@ -9,7 +9,7 @@ _: _final: prev: {
   addg = prev.addg.overrideScope (_: aprev: {
     decky = aprev.decky.overrideScope (_: nprev: {
       deckcord = nprev.deckcord.overrideAttrs (o: {
-        patches = (o.patches or []) ++ [./retry-init.patch];
+        patches = (o.patches or []) ++ [./deckcord-retry-init.patch];
         postPatch =
           (o.postPatch or "")
           + ''

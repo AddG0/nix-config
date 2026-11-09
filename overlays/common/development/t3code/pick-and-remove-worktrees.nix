@@ -6,7 +6,7 @@
 #
 # Settling a thread that is the last one in its worktree now offers to remove
 # the worktree; upstream's settled-days cleanup skips worktrees outside the
-# managed folder, which is where worktree-paths.nix puts them.
+# managed folder, which is where place-worktrees-beside-clone.nix puts them.
 #
 # Drop once t3code ships a worktree picker of its own.
 #
@@ -16,7 +16,7 @@
 _: _final: prev: {
   t3code = prev.t3code.override {
     t3code-unwrapped = prev.t3code.unwrapped.overrideAttrs (old: {
-      patches = (old.patches or []) ++ [./patches/worktree-picker.patch];
+      patches = (old.patches or []) ++ [./patches/pick-and-remove-worktrees.patch];
     });
     # Pinned to avoid a Rust rebuild for an identical binary.
     t3code-resource-monitor = prev.t3code.resourceMonitor;

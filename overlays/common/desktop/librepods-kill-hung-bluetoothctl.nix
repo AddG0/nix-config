@@ -11,6 +11,6 @@
 _: _final: prev:
 prev.lib.optionalAttrs (prev ? librepods) {
   librepods = prev.librepods.overrideAttrs (old: {
-    patches = (old.patches or []) ++ [./librepods-bluetoothctl-timeout.patch];
+    patches = (old.patches or []) ++ [./librepods-kill-hung-bluetoothctl.patch];
   });
 }

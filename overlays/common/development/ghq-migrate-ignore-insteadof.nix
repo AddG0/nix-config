@@ -9,6 +9,6 @@
 # Drop once fixed upstream (x-motemen/ghq).
 _: _final: prev: {
   ghq = prev.ghq.overrideAttrs (old: {
-    patches = (old.patches or []) ++ [./ghq-migrate-insteadof-path.patch];
+    patches = (old.patches or []) ++ [./ghq-migrate-ignore-insteadof.patch];
   });
 }

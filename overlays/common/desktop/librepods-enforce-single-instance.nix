@@ -4,6 +4,6 @@
 _: _final: prev:
 prev.lib.optionalAttrs (prev ? librepods) {
   librepods = prev.librepods.overrideAttrs (old: {
-    patches = (old.patches or []) ++ [./librepods-single-instance.patch];
+    patches = (old.patches or []) ++ [./librepods-enforce-single-instance.patch];
   });
 }

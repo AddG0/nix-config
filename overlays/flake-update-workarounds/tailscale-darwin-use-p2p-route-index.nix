@@ -11,6 +11,6 @@
 _: _final: prev:
 prev.lib.optionalAttrs prev.stdenv.hostPlatform.isDarwin {
   tailscale = prev.tailscale.overrideAttrs (old: {
-    patches = (old.patches or []) ++ [./tailscale-darwin-p2p-route-index.patch];
+    patches = (old.patches or []) ++ [./tailscale-darwin-use-p2p-route-index.patch];
   });
 }

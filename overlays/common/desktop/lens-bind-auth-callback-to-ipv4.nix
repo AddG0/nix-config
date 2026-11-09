@@ -15,7 +15,7 @@ prev.lib.optionalAttrs prev.stdenv.hostPlatform.isLinux {
     contents = prev.appimageTools.extract {
       inherit pname version src;
       postExtract = ''
-        ${prev.python3.interpreter} ${./patch-lens-auth-callback-bind.py} \
+        ${prev.python3.interpreter} ${./lens-bind-auth-callback-to-ipv4.py} \
           "$out/resources/app.asar"
       '';
     };

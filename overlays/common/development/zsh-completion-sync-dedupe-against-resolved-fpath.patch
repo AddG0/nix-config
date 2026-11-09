@@ -9,7 +9,7 @@ re-registers ~1,400 completion files: ~38 ms per shell. Look up in the resolved
 fpath, with (Ie) for an exact match rather than a pattern. Fixing one branch
 alone just moves the re-add to the other.
 
-Applies on top of the path-firstrun and path-order patches.
+Applies on top of the add-scanned-dir-on-first-run and keep-path-order-and-rescan patches.
 
 --- a/zsh-completion-sync.plugin.zsh
 +++ b/zsh-completion-sync.plugin.zsh

@@ -5,6 +5,6 @@
 # lnav popups). Drop once fixed upstream (tstack/lnav).
 _: _final: prev: {
   lnav = prev.lnav.overrideAttrs (old: {
-    patches = (old.patches or []) ++ [./lnav-json-append-oob.patch];
+    patches = (old.patches or []) ++ [./lnav-json-append-bounds-check.patch];
   });
 }

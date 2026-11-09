@@ -127,7 +127,7 @@ in {
             });
 
             # Everything that connects to the debugger is retargeted to match in
-            # overlays/common/gaming/steam-devtools-port.nix.
+            # overlays/common/gaming/css-loader-retarget-steam-devtools-port.nix.
             extraArgs = "-devtools-port 21379";
 
             extraPreBwrapCmds =
