@@ -4,7 +4,7 @@
   boot.kernelPackages = pkgs.cachyosKernels.linuxPackages-cachyos-bore-lto-zen4;
 
   # scx_lavd --performance cost Rocket League ~500 vs ~700 FPS against plain BORE (A/B tested).
-  services.scx.enable = false;
+  services.scx-loader.enable = false;
 
   # V-cache is on only one CCD, but the driver defaults to `frequency` (biases the
   # other, higher-clocking CCD); games want `cache`, and Linux does no automatic

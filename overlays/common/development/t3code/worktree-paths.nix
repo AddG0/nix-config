@@ -13,7 +13,8 @@ _: _final: prev: let
   # gitCommonDir-to-worktree and the GitCommandError handling both mirror
   # upstream's invalidateStatusStaticCaches. The cwd fallback keeps a resolution
   # failure from failing thread creation, which soft-deletes it and strands its id.
-  worktreePathAnchor = "      worktreePath = path.join(parentDir, repoName, sanitizedBranch);";
+  # The full branch, not upstream's hash-shortened directoryName, so names match gwadd's.
+  worktreePathAnchor = "      worktreePath = path.join(parentDir, repoName, directoryName);";
   worktreePathPatch = builtins.concatStringsSep "\n" [
     "      const repositoryPaths = yield* resolveRepositoryPaths(input.cwd).pipe("
     "        Effect.catchTags({ GitCommandError: () => Effect.succeed(null) }),"
@@ -22,7 +23,7 @@ _: _final: prev: let
     "        repositoryPaths && path.basename(repositoryPaths.gitCommonDir) === \".git\""
     "          ? path.dirname(repositoryPaths.gitCommonDir)"
     "          : path.resolve(input.cwd);"
-    "      worktreePath = `\${primaryWorktree}--\${sanitizedBranch}`;"
+    "      worktreePath = `\${primaryWorktree}--\${targetBranch.replace(/\\//g, \"-\")}`;"
   ];
 in {
   t3code = prev.t3code.override {

@@ -34,11 +34,13 @@
 
   # BORE isn't topology- or LLC-aware (hybrid P/E, dual-CCD V-cache); scx_lavd
   # keeps latency-critical game threads on the fast cores.
-  services.scx = {
+  services.scx-loader = {
     enable = lib.mkDefault true;
-    scheduler = lib.mkDefault "scx_lavd";
-    # Autopilot, the default, core-compacts: it packs threads onto fewer cores.
-    extraArgs = ["--performance"];
+    config = {
+      default_sched = lib.mkDefault "scx_lavd";
+      # Autopilot, the default, core-compacts: it packs threads onto fewer cores.
+      scheds.scx_lavd.auto_mode = ["--performance"];
+    };
   };
 
   # Auto-renice launched games above background tasks; pairs with scx (scx picks
