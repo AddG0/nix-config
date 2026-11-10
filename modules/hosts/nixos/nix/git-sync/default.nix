@@ -12,14 +12,15 @@
   # callPackageWith, not pkgs.callPackage: the tests hand this module a pkgs with fake nix and systemd.
   script = path: args: lib.getExe (lib.callPackageWith pkgs path args);
 
+  waitForNetwork = customLib.mkNetworkWaitScript {host = "github.com";};
+
   checkNewer = script ./check-newer.nix {
     inherit (cfg) flakeRef;
-    inherit lastBuiltRecord;
+    inherit lastBuiltRecord waitForNetwork;
   };
 
   rebuild = script ./rebuild.nix {
-    inherit cfg hostName lastBuiltRecord;
-    waitForNetwork = customLib.mkNetworkWaitScript {host = "github.com";};
+    inherit cfg hostName lastBuiltRecord waitForNetwork;
     allowedSignersFile = pkgs.writeText "git-sync-allowed-signers" (
       lib.concatMapStrings (key: "git-sync namespaces=\"git\" ${key}\n") cfg.allowedSigners
     );

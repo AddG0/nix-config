@@ -76,6 +76,22 @@ remote_moved_past_running() {
   assert_failure 255
 }
 
+@test "waits for the network before asking nix for the remote" {
+  generation_built_from "$rev"
+  export NIX_LOG=$BATS_TEST_TMPDIR/calls PING_LOG=$BATS_TEST_TMPDIR/calls PING_FAILURES=1
+  run "$checkNewer"
+  assert_equal "$(cut -d' ' -f1 "$NIX_LOG" | paste -sd' ')" "ping ping flake"
+  assert_output --partial "Network connectivity confirmed (reached github.com)"
+}
+
+@test "fails the unit, rather than skipping, when the network never comes up" {
+  export NIX_LOG=$BATS_TEST_TMPDIR/nix.log PING_LOG=$BATS_TEST_TMPDIR/ping.log PING_FAILURES=1
+  run "$checkNewerTryingNetworkOnce"
+  assert_failure 255
+  assert_output --partial "Network connectivity timeout"
+  assert [ ! -e "$NIX_LOG" ]
+}
+
 @test "rebuilds when a git remote's history moves past the running commit" {
   remote_moved_past_running
   generation_built_from "$running"

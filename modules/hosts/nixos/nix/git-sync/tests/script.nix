@@ -30,9 +30,14 @@
     exit "''${exits[$((call - 1))]:-0}"
   '';
 
-  # The build sandbox has no syslog socket for logger, nor a network for the rebuild's ping.
+  # The build sandbox has no syslog socket for logger, nor a network for ping.
   fakeLogger = pkgs.writeShellScriptBin "logger" ":";
-  fakePing = pkgs.writeShellScriptBin "ping" ":";
+  # Answers every ping, unless $PING_FAILURES is set: then it logs each call to $PING_LOG and fails the first that many.
+  fakePing = pkgs.writeShellScriptBin "ping" ''
+    [ -n "''${PING_FAILURES:-}" ] || exit 0
+    echo "ping $*" >>"$PING_LOG"
+    [ "$(${pkgs.gnugrep}/bin/grep -c '^ping ' "$PING_LOG")" -gt "$PING_FAILURES" ]
+  '';
 
   # systemd whose systemctl logs each action to $SYSTEMCTL_LOG, failing `start` and `reboot` with $SYSTEMCTL_*_EXIT. Queries
   # go unlogged: `list-units` lists $FAILED_UNITS or $RESTARTING_UNITS by --state, and `show` prints $EXEC_MAIN_STATUS.
@@ -80,18 +85,20 @@
     esac
   '';
 
+  fakedPkgs =
+    pkgs
+    // {
+      nix = fakeNix;
+      nixos-rebuild = fakeNixosRebuild;
+      systemd = fakeSystemd;
+      util-linux = fakeLogger;
+      iputils = fakePing;
+    };
+
   # The module over only the NixOS options it reads or writes, with its tools faked, for one host's settings.
   gitSyncOn = settings:
     (lib.evalModules {
-      specialArgs.pkgs =
-        pkgs
-        // {
-          nix = fakeNix;
-          nixos-rebuild = fakeNixosRebuild;
-          systemd = fakeSystemd;
-          util-linux = fakeLogger;
-          iputils = fakePing;
-        };
+      specialArgs.pkgs = fakedPkgs;
       modules = [
         (harness.module ../default.nix)
         {
@@ -138,6 +145,16 @@
       (lib.removeSuffix "\n" (builtins.readFile ./signing-key.pub))
     ];
   };
+  # The check giving the network one instant try, so the never-online case skips the real wait's minute of retries.
+  checkNewerTryingNetworkOnce = lib.getExe (lib.callPackageWith fakedPkgs ../check-newer.nix {
+    flakeRef = "github:o/r";
+    lastBuiltRecord = "$STATE_DIRECTORY/last-built-narhash";
+    waitForNetwork = lib.custom.mkNetworkWaitScript {
+      host = "github.com";
+      maxAttempts = 1;
+      waitSeconds = 0;
+    };
+  });
   rebuildOn = host: host.systemd.services.nix-remote-rebuild.serviceConfig.ExecStart;
   unitCommand = host: name: host.systemd.services.${name}.serviceConfig.ExecStart;
 
@@ -188,6 +205,7 @@ in
     rebuildHooked = rebuildOn hookedHost;
     rebuildSigned = rebuildOn signedHost;
     checkNewer = sleepingHost.systemd.services.nix-remote-rebuild.serviceConfig.ExecCondition;
+    inherit checkNewerTryingNetworkOnce;
     needsReboot = lib.getExe (pkgs.callPackage ../needs-reboot.nix {});
     verifySignature = lib.getExe (pkgs.callPackage ../verify-signature.nix {});
     armWake = sleepingHost.systemd.services.nix-remote-rebuild-arm-wake.serviceConfig.ExecStop;

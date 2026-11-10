@@ -3,18 +3,26 @@
   writeShellApplication,
   coreutils,
   git,
+  iputils,
   jq,
   nix,
   openssh,
   flakeRef,
   lastBuiltRecord,
+  waitForNetwork,
 }:
 writeShellApplication {
   name = "nix-remote-rebuild-check-newer";
-  runtimeInputs = [coreutils git jq nix openssh];
+  runtimeInputs = [coreutils git iputils jq nix openssh];
   text = ''
     # Exit 1 would skip the run, so a failure nobody expected fails the unit instead.
     trap 'exit 255' ERR
+
+    # Offline, nix answers from its cache, which passes for "nothing new"; the subshell turns a timeout into 255.
+    (
+      log() { echo "$*"; }
+      ${waitForNetwork}
+    )
 
     metadata=$(nix flake metadata "${flakeRef}" --refresh --json)
     remote=$(jq -r '.locked.narHash' <<<"$metadata")
