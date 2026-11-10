@@ -1,18 +1,15 @@
-# t3code shows an "update available" banner when a provider CLI (codex,
-# claude-code, opencode) is behind the latest npm release. We pin those CLIs by
-# path (home .../development/ai/t3code), so the banner is noise with no
-# actionable update. Gating the latest-version lookup off skips both the npm
-# registry fetch and the `npm view` probe, so the advisory stays "unknown".
-# Upstream's enableProviderUpdateChecks would also stop the model-manifest fetch.
-#
-# Drop once a setting turns off provider version checks alone.
+# Stops t3code offering updates for what Nix pins here: the app, servers and provider CLIs.
+# Drop each patch once a setting turns it off alone.
 #
 # Patched in `unwrapped`: see README.md.
 _: _final: prev: let
   inherit (prev.lib) escapeShellArg;
 
+  # Not enableProviderUpdateChecks: that would also stop the model-manifest fetch.
   latestVersionGateAnchor = "options?.enableProviderUpdateChecks !== false &&";
   latestVersionGatePatch = "false &&";
+  # Also holds "Update everything" for connected servers.
+  updateButtonAnchor = "      <SidebarUpdatePill />\n";
 in {
   t3code = prev.t3code.override {
     t3code-unwrapped = prev.t3code.unwrapped.overrideAttrs (old: {
@@ -21,6 +18,9 @@ in {
         + ''
           substituteInPlace packages/provider-core/src/server/maintenanceResolver.ts \
             --replace-fail ${escapeShellArg latestVersionGateAnchor} ${escapeShellArg latestVersionGatePatch}
+
+          substituteInPlace apps/web/src/components/sidebar/SidebarChrome.tsx \
+            --replace-fail ${escapeShellArg updateButtonAnchor} ""
         '';
     });
     # Pinned to avoid a Rust rebuild for an identical binary.

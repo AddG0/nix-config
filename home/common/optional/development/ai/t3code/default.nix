@@ -47,7 +47,7 @@ in {
       snoozeLimitedThreads = true;
 
       # The update banner and its button stay away from these pinned CLIs:
-      # overlays/common/development/t3code/disable-provider-version-checks.nix.
+      # overlays/common/development/t3code/disable-update-offers.nix.
       #
       # Each points at the same build the shell gets, so t3code inherits the
       # telemetry wrappers and the code-assistant-profiles content.
