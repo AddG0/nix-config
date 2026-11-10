@@ -260,6 +260,11 @@ check-markers:
 eval-skills profile="default":
   scripts/skill-trigger-evals.sh {{profile}}
 
+[group('validation')]
+[doc("List the private repos a host's build fetches over SSH, e.g. `just private-inputs rig-pc`")]
+private-inputs host:
+  @scripts/private-inputs/private-inputs.sh {{host}}
+
 [group('system')]
 [doc("Update dependencies then rebuild system")]
 rebuild-update: update && rebuild
