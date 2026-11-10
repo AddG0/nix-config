@@ -1,6 +1,6 @@
 {lib, ...}: {
   imports = lib.flatten [
-    (with lib.custom.optional.home; [browsers comms ghostty librepods])
+    (with lib.custom.optional.home; [browsers comms.discord comms.slack ghostty librepods])
     (with lib.custom.optional.home.gaming; [heroic minecraft r2modman rocket-league])
     (with lib.custom.optional.home.media; [core spicetify vlc])
     (with lib.custom.optional.primary; [stylix])
