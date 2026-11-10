@@ -59,5 +59,5 @@ glab mr note list <N> -R <repo> -F json | jq -r '.[] | .notes[] | select(.author
 
 - Edit or delete your note: `glab mr note update <N> <note-id> -R <repo> < body.md`, `glab mr note delete <N> <note-id> -R <repo>`. The MR comes first despite what `--help` says; the documented order 404s. Delete only notes the user asked to remove.
 - Reply in a thread: `--reply <discussion-id prefix, 8+ chars>`; find ids with `glab mr note list <N> -R <repo> -F json | jq -r '.[].id'`.
-- Resolve or reopen a thread: `glab mr note resolve <discussion-id> <N> -R <repo>` / `reopen`.
+- Resolve or reopen a thread: `glab mr note resolve <N> <discussion-id> -R <repo>` / `reopen`.
 - If the user deleted a note in the UI, re-list before acting; never re-post a removed note unless asked.
