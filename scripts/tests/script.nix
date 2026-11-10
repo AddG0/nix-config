@@ -1,5 +1,11 @@
-# The shared helpers.sh the scripts and justfile source.
-{harness, ...}:
-harness.bats "scripts-helpers" [./helpers.bats] {
+# The scripts' shell logic: the shared helpers.sh, and build-overlaid-packages.sh's verdict.
+{
+  harness,
+  pkgs,
+  ...
+}:
+harness.bats "scripts" [./helpers.bats ./build-overlaid-packages.bats] {
+  nativeBuildInputs = [pkgs.jq];
   helpers = ../helpers.sh;
+  buildOverlaidPackages = ../build-overlaid-packages.sh;
 }

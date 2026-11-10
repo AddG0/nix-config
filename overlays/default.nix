@@ -4,30 +4,8 @@
 {inputs, ...}: let
   inherit (inputs.nixpkgs) lib;
 
-  # Recursively import every .nix file under `dir` as an overlay. Returns []
-  # for a missing directory so platform folders can be empty (only .gitkeep).
-  # An `input-packages` subdir is composed before its siblings so overlays that
-  # override input-derived packages (e.g. desktop patches on `noctalia`) see
-  # those packages in `prev`.
-  importOverlays = dir:
-    lib.optionals (builtins.pathExists dir) (
-      let
-        entries = builtins.readDir dir;
-        importEntry = name:
-        # tests/ belongs to checks/discovery.nix, never an overlay.
-          if name == "tests"
-          then []
-          else if entries.${name} == "directory"
-          then importOverlays (dir + "/${name}")
-          else if lib.hasSuffix ".nix" name
-          then [(import (dir + "/${name}") {inherit inputs;})]
-          else [];
-        ordered =
-          lib.optional (entries ? input-packages) "input-packages"
-          ++ builtins.filter (n: n != "input-packages") (builtins.attrNames entries);
-      in
-        lib.concatLists (map importEntry ordered)
-    );
+  overlayFiles = import ./overlay-files.nix {inherit lib;};
+  importAll = map (file: import file {inherit inputs;});
 
   # Wrap platform-specific overlays (nixos/darwin) so their attributes only
   # apply on the matching platform. Files in those folders can then stay
@@ -45,12 +23,12 @@ in {
       (import ./sets.nix {inherit inputs;})
       (import ./packages.nix {inherit inputs;})
     ]
-    ++ importOverlays ./common
-    ++ guardPlatform (stdenv: stdenv.hostPlatform.isLinux) (importOverlays ./nixos)
-    ++ guardPlatform (stdenv: stdenv.hostPlatform.isDarwin) (importOverlays ./darwin)
+    ++ importAll overlayFiles.common
+    ++ guardPlatform (stdenv: stdenv.hostPlatform.isLinux) (importAll overlayFiles.nixos)
+    ++ guardPlatform (stdenv: stdenv.hostPlatform.isDarwin) (importAll overlayFiles.darwin)
     # Temporary workarounds for nixpkgs builds broken on the current pin. Comment
     # this line out to disable them all — e.g. to check whether a `nix flake
     # update` has made them redundant.
-    ++ importOverlays ./flake-update-workarounds
+    ++ importAll overlayFiles.workarounds
   );
 }

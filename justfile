@@ -279,6 +279,11 @@ update-packages *ARGS:
 check-workarounds *ARGS: && check-markers
   @scripts/check-flake-workarounds.sh {{ARGS}}
 
+[group('dependencies')]
+[doc("Build every package our overlays define or patch, as this host builds it. Optional args filter by overlay path, e.g. `just check-overlays t3code`")]
+check-overlays *ARGS:
+  @scripts/build-overlaid-packages.sh {{ARGS}}
+
 [group('development')]
 [doc("Show git diff excluding flake.lock")]
 diff:
