@@ -11,6 +11,9 @@ _: {
       self-documenting.content.source = ./rules/self-documenting.md;
     };
 
+    # Advisory judgment at hand-off; the gate in self-documenting-gate/ checks only what a script can.
+    agents."self-documenting-reviewer".prompt.source = ./agents/self-documenting-reviewer.md;
+
     skills."domain-language-steward" = {
       prompt.source = ./skills/domain-language-steward/prompt.md;
       resourcesRoot = ./skills/domain-language-steward/resources;

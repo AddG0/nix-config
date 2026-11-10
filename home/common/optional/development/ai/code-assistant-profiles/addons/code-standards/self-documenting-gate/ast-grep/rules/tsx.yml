@@ -1,0 +1,9 @@
+id: function-tsx
+language: Tsx
+severity: hint
+rule:
+  any:
+    - kind: function_declaration
+    - kind: method_definition
+    - kind: arrow_function
+    - kind: function_expression

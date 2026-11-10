@@ -1,0 +1,6 @@
+id: function-lua
+language: Lua
+severity: hint
+rule:
+  any:
+    - kind: function_declaration

@@ -1,0 +1,7 @@
+id: function-java
+language: Java
+severity: hint
+rule:
+  any:
+    - kind: method_declaration
+    - kind: constructor_declaration

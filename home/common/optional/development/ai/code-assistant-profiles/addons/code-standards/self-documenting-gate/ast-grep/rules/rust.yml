@@ -1,0 +1,6 @@
+id: function-rust
+language: Rust
+severity: hint
+rule:
+  any:
+    - kind: function_item

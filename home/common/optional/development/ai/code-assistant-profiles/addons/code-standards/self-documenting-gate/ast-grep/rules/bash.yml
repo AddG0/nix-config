@@ -1,0 +1,6 @@
+id: function-bash
+language: Bash
+severity: hint
+rule:
+  any:
+    - kind: function_definition

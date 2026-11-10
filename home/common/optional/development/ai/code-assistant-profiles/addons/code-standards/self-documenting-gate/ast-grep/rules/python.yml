@@ -1,0 +1,6 @@
+id: function-python
+language: Python
+severity: hint
+rule:
+  any:
+    - kind: function_definition
