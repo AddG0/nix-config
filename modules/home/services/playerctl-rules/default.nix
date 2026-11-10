@@ -40,10 +40,11 @@ in {
               type = lib.types.enum allActions;
               default = "next";
               description = ''
-                What to do on a match. One-shot actions (next, previous, pause,
-                stop, play-pause) fire once per matching track. "mute" is held:
-                the source is muted while a matching track plays and unmuted when
-                it stops matching. Ignored if `command` is set (for non-mute actions).
+                What to do on a match. "mute" mutes the player's audio stream
+                while a matching track plays. "next" and "previous" mute it too,
+                then skip; if the player ignores the skips, the track stays muted
+                until it ends. pause, stop and play-pause fire once per matching
+                track. Ignored if `command` is set (for non-mute actions).
               '';
             };
 
@@ -67,6 +68,36 @@ in {
                 Counterpart to `command` for action = "mute": run when a matching
                 track stops matching, and on service exit. Required when a custom
                 mute `command` is set, otherwise the source would stay muted.
+              '';
+            };
+
+            announcedTrack = lib.mkOption {
+              type = lib.types.nullOr (lib.types.submodule {
+                options = {
+                  from = lib.mkOption {
+                    type = lib.types.str;
+                    description = "Part of a matching track's mpris:trackid that marks it as announcing a track.";
+                  };
+                  to = lib.mkOption {
+                    type = lib.types.str;
+                    description = "What `from` becomes in the announced track's trackid; the rest of the id is shared.";
+                  };
+                };
+              });
+              default = null;
+              description = ''
+                For players whose matching track introduces the next one: the
+                announced track's trackid is the matching track's with `from`
+                swapped for `to`. If a skip carries past it, the watcher presses
+                Previous to land on it, still muted. A trackid whose id is all
+                zeros announces nothing. Only for action = "next".
+              '';
+              example = lib.literalExpression ''
+                {
+                  # Spotify DJ X: "Up next" /media/<id> announces /track/<id>.
+                  from = "/media/";
+                  to = "/track/";
+                }
               '';
             };
 
@@ -109,6 +140,10 @@ in {
         {
           assertion = !(pcfg.action == "mute" && pcfg.command != null && pcfg.unmuteCommand == null);
           message = "services.playerctlRules.players.${player}: a custom mute `command` requires a matching `unmuteCommand`, otherwise the source stays muted.";
+        }
+        {
+          assertion = pcfg.announcedTrack == null || (pcfg.action == "next" && pcfg.command == null);
+          message = "services.playerctlRules.players.${player}: announcedTrack only applies to action = \"next\" without a custom `command`.";
         }
       ])
       cfg.players

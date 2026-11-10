@@ -1,7 +1,5 @@
-# Behavioral tests for the playerctl-rules watcher script. Runs the REAL script
-# produced by mk-script.nix against a stub `playerctl` that simulates a player:
-# `--follow` replays a trigger stream, `metadata` returns the current track
-# (which advances as `next` is called), and actions are recorded. The cases are
+# Runs the REAL watcher from mk-script.nix against stand-ins for playerctl and
+# pactl that replay Spotify DJ X sessions copied from real logs. The cases are
 # in ./playerctl-rules.bats.
 {
   pkgs,
@@ -24,21 +22,46 @@
     command = null;
     unmuteCommand = null;
     format = "{{artist}} - {{title}}";
+    announcedTrack = null;
   };
 
-  skipScript = mkScript basePcfg;
+  # The rule from home/primary/common/core/playerctl-rules.nix.
+  spotifyScript = mkScript (basePcfg
+    // {
+      announcedTrack = {
+        from = "/media/";
+        to = "/track/";
+      };
+    });
+  # The same skip without Spotify's announced-track rule, as any other player gets it.
+  plainSkipScript = mkScript basePcfg;
   muteScript = mkScript (basePcfg // {action = "mute";});
 
-  # Stand-in for playerctl:
-  #   --follow      -> replay $FOLLOW_FIXTURE (the trigger stream), then exit
-  #   metadata      -> print the current line of $STATES. Models Spotify's MPRIS
-  #                    lag: after a skip, $LAGSTEPS metadata reads keep returning
-  #                    the pre-skip row ($SPOS) before catching up to $POS.
-  #   next/previous -> record the verb and advance the $POS cursor into $STATES,
-  #                    unless $DROP > 0 (record but ignore, simulating Spotify
-  #                    dropping a skip at a segment boundary), decrementing $DROP
-  #   volume        -> bare = query (0.7); with a value = record VOLUME=<value>
+  # Stand-in for playerctl, playing the queue in $STATES (one "<title>\t<trackid>" row each):
+  #   --follow      -> print $FOLLOW_FIXTURE, the events the watcher reacts to, then exit
+  #   metadata      -> the row at $POS; for $LAGSTEPS reads after a skip, still the row before it ($SPOS)
+  #   next/previous -> record the verb and move $POS by `step`; while $DROP > 0, record but ignore it
+  # /media/<id> rows are DJ X segments; "Up next" announces the /track/<id> after it.
   stub = pkgs.writeShellScriptBin "playerctl" ''
+    id_at() { local r; r=$(sed -n "$(($1 + 1))p" "$STATES"); echo "''${r#*$'\t'}"; }
+    step() {
+      local pos=$1 verb=$2 cur to
+      cur=$(id_at "$pos")
+      if [ "$verb" = next ]; then
+        to=$((pos + 1))
+        # Next on "Up next" either skips the song it announces too or lands on it.
+        if [ "''${NEXT_ON_UP_NEXT:-skips-announced}" = skips-announced ] && [[ "$cur" == */media/* && "$(id_at "$to")" == */track/"''${cur##*/media/}" ]]; then to=$((to + 1)); fi
+        # A DJ segment plays once; Next passes over one already left.
+        if grep -qx "$to" "$CONSUMED" 2>/dev/null; then to=$((to + 1)); fi
+      else
+        to=$((pos - 1))
+        # Previous never re-enters a DJ segment; it restarts the song instead.
+        if [ "$to" -lt 0 ] || [[ "$(id_at "$to")" == */media/* ]]; then to=$pos; fi
+      fi
+      if [[ "$cur" == */media/* && "$to" != "$pos" ]]; then echo "$pos" >>"$CONSUMED"; fi
+      echo "$to"
+    }
+
     if [[ "$*" == *--follow* ]]; then
       cat "$FOLLOW_FIXTURE"
       exit 0
@@ -57,7 +80,6 @@
     all="$*"
     last=''${all##* }
     case "$last" in
-      volume) echo "0.7" ;;
       next | previous | pause | stop | play-pause)
         echo "$last" >>"$ACTIONS"
         drops=$(cat "$DROP" 2>/dev/null || echo 0)
@@ -66,11 +88,11 @@
         else
           pos=$(cat "$POS" 2>/dev/null || echo 0)
           echo "$pos" >"$SPOS"
-          echo "$((pos + 1))" >"$POS"
+          if [ "$last" = previous ]; then to=$(step "$pos" previous); else to=$(step "$pos" next); fi
+          echo "$to" >"$POS"
           if [ "''${LAGSTEPS:-0}" -gt 0 ]; then echo "$LAGSTEPS" >"$LAG"; fi
         fi
         ;;
-      *) if [[ "$last" =~ ^[0-9.]+$ ]]; then echo "VOLUME=$last" >>"$ACTIONS"; fi ;;
     esac
     exit 0
   '';
@@ -78,7 +100,12 @@
   # Stand-in for pactl: $LOCAL=1 reports an uncorked spotify stream on this host;
   # anything else reports it corked, as on a Connect client mirroring another device.
   # The first $CORK reads report corked anyway, as Spotify does across a track change.
+  # `set-sink-input-mute <index> 1|0` records "stream muted" / "stream unmuted".
   pactlStub = pkgs.writeShellScriptBin "pactl" ''
+    if [ "$1" = set-sink-input-mute ]; then
+      if [ "$3" = 1 ]; then echo "stream muted" >>"$ACTIONS"; else echo "stream unmuted" >>"$ACTIONS"; fi
+      exit 0
+    fi
     corked=true
     if [ "''${LOCAL:-1}" = 1 ]; then corked=false; fi
     cork=$(cat "$CORK" 2>/dev/null || echo 0)
@@ -89,58 +116,61 @@
     echo '[{"index":1,"corked":'"$corked"',"properties":{"application.name":"spotify"}}]'
   '';
 
-  # Skip trigger: two back-to-back DJ X segments then a real song, each its own
-  # --follow event (distinct trackid) as real playerctl emits them. The first
-  # event must skip THROUGH both segments to the song in one reaction (the poll
-  # reads the second DJ segment from STATES and re-skips it); the replayed djx2
-  # event must then be ignored, and the real song never skipped.
-  skipFollow = pkgs.writeText "skip-follow" ''
-    DJ X - Up next	/id/djx1
-    DJ X - Up next	/id/djx2
-    Real Artist - Real Song	/id/song1
-  '';
-  skipStates = pkgs.writeText "skip-states" ''
-    DJ X - Up next	/id/djx1
-    DJ X - Up next	/id/djx2
-    Real Artist - Real Song	/id/song1
-  '';
+  queue = name: rows: pkgs.writeText name (lib.concatMapStrings (r: r + "\n") rows);
 
-  # Retry trigger: a single DJ X event whose first skip is dropped (DROP=1). The
-  # watcher must retry until the track leaves DJ X and land exactly on the song —
-  # not over-skip past it.
-  retryFollow = pkgs.writeText "retry-follow" ''
-    DJ X - Up next	/id/djx1
-  '';
-  retryStates = pkgs.writeText "retry-states" ''
-    DJ X - Up next	/id/djx1
-    Real Artist - Real Song	/id/song1
-  '';
+  # Made-up songs: real titles and trackids would publish listening history.
+  # A Spotify trackid's id is 22 characters; DJ X segments use /media/, songs /track/.
+  id = name: lib.fixedWidthString 22 "0" name;
+  song = title: name: "${title}\t/com/spotify/track/${id name}";
+  upNext = name: "DJ X - Up next\t/com/spotify/media/${id name}";
+  welcome = "DJ X - Welcome\t/com/spotify/media/${id ""}";
 
-  # Over-skip regression: a single DJ X event with a transient metadata lag
-  # (3 stale reads) after the skip, as right after Spotify launches. The settle
-  # poll must drain the stale reads and see the real song, so exactly one `next`
-  # fires — it must not skip again on a stale DJ read and blow past the song.
-  lagFollow = pkgs.writeText "lag-follow" ''
-    DJ X - Welcome	/id/djx1
-  '';
-  lagStates = pkgs.writeText "lag-states" ''
-    DJ X - Welcome	/id/djx1
-    Real One - A	/id/s1
-    Real Two - B	/id/s2
-    Real Three - C	/id/s3
-  '';
+  songBefore = song "Song Before - Played Last" "SongBefore";
+  announcedSong = song "Announced Song - DJ Pick" "AnnouncedSong";
+  songAfter = song "Song After - Skipped Past" "SongAfter";
+  firstSong = song "First Song - After Welcome" "FirstSong";
 
-  # Mute trigger: the held-mute path reconciles directly off the follow stream
-  # (trackid appended so the two DJ X rows are distinct events).
-  muteFollow = pkgs.writeText "mute-follow" ''
-    OR3O - Still Dancing	/id/song1
-    DJ X - Up next	/id/djx1
-    DJ X - Up next	/id/djx2
-    Imagine - Clair de Lune	/id/song2
-  '';
+  # An Up next segment, the song it announces, then the next song.
+  upNextQueue = queue "up-next-queue" [songBefore (upNext "AnnouncedSong") announcedSong songAfter];
+  upNextFollow = queue "up-next-follow" [(upNext "AnnouncedSong")];
+
+  # A Welcome (every one has the all-zero id) announces no song.
+  welcomeQueue = queue "welcome-queue" [songBefore welcome firstSong songAfter];
+  welcomeFollow = queue "welcome-follow" [welcome];
+
+  # Two Welcomes hours apart, both with the all-zero id.
+  reusedIdFollow = queue "reused-id-follow" [welcome firstSong welcome];
+  reusedIdQueue = queue "reused-id-queue" [welcome firstSong songAfter];
+
+  # Two Up next segments back to back (rare: once in two weeks).
+  backToBackQueue = queue "back-to-back-queue" [
+    (upNext "FirstAnnounced")
+    (upNext "AnnouncedSong")
+    announcedSong
+    songAfter
+  ];
+  backToBackFollow = queue "back-to-back-follow" [(upNext "FirstAnnounced") (upNext "AnnouncedSong")];
+
+  # Spotify ignores the first Next (72 of 74 re-skips in two weeks looked like this).
+  ignoredSkipQueue = queue "ignored-skip-queue" [(upNext "AnnouncedSong") announcedSong songAfter];
+  ignoredSkipFollow = queue "ignored-skip-follow" [(upNext "AnnouncedSong")];
+
+  # Spotify refuses all four skips, so the segment played out into its song.
+  refusedSkipsFollow = queue "refused-skips-follow" [(upNext "AnnouncedSong") announcedSong];
+
+  # The Welcome retitles itself "Up next" under the same id, then a song.
+  muteFollow = queue "mute-follow" [
+    songBefore
+    welcome
+    "DJ X - Up next\t/com/spotify/media/${id ""}"
+    firstSong
+  ];
 in
   harness.bats "playerctl-rules-test" [./playerctl-rules.bats] {
-    skipScript = lib.getExe skipScript;
+    spotifyScript = lib.getExe spotifyScript;
+    plainSkipScript = lib.getExe plainSkipScript;
     muteScript = lib.getExe muteScript;
-    inherit skipFollow skipStates retryFollow retryStates lagFollow lagStates muteFollow;
+    playerctl = "${stub}/bin/playerctl";
+    inherit upNextQueue upNextFollow welcomeQueue welcomeFollow reusedIdQueue reusedIdFollow;
+    inherit backToBackQueue backToBackFollow ignoredSkipQueue ignoredSkipFollow refusedSkipsFollow muteFollow;
   }
