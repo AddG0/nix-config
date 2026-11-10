@@ -203,9 +203,8 @@
 
     # CachyOS kernel - optimized for desktop performance
     nix-cachyos-kernel = {
+      # Not following our nixpkgs: its own pin is what the binary cache was built against.
       url = "github:xddxdd/nix-cachyos-kernel/release";
-      # Its own older nixpkgs builds a module tree without the modules.cer ours requires.
-      inputs.nixpkgs.follows = "nixpkgs";
     };
 
     #################### Desktop Environments ####################

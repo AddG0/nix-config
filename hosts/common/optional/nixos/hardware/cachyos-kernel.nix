@@ -26,11 +26,10 @@
 }: {
   boot.kernelPackages = lib.mkDefault pkgs.cachyosKernels.linuxPackages-cachyos-bore;
 
-  # TODO: restore once upstream clears its compromised cache: https://github.com/xddxdd/nix-cachyos-kernel/issues/110
-  # nix.settings = {
-  #   substituters = ["https://attic.xuyh0120.win/lantian"];
-  #   trusted-public-keys = ["lantian:EeAUQ+W+6r7EtwnmYjeVwx5kOGEBpjlBfPlzGlTNvHc="];
-  # };
+  nix.settings = {
+    substituters = ["https://cache.lantian.pub/lantian"];
+    trusted-public-keys = ["lantian:WVGO7vsRMSEN+h7Lp7kv6SAmrkEXgUGbbXm7jMDjBuQ="];
+  };
 
   # BORE isn't topology- or LLC-aware (hybrid P/E, dual-CCD V-cache); scx_lavd
   # keeps latency-critical game threads on the fast cores.
