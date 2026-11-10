@@ -12,7 +12,9 @@
     lib.custom.suites.virtualization.home
     (with lib.custom.optional.home; [
       browsers
-      comms
+      comms.clickup
+      comms.discord
+      comms.slack
       ghostty
       helper-scripts
       librepods

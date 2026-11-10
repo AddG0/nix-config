@@ -8,7 +8,7 @@
     # lib.custom.suites.virtualization.home
     lib.custom.suites.development.home
     lib.custom.suites.ai.home
-    (with lib.custom.optional.home; [browsers comms ghostty helper-scripts mic-mute-sound])
+    (with lib.custom.optional.home; [browsers comms.clickup comms.discord comms.slack ghostty helper-scripts mic-mute-sound])
     (with lib.custom.optional.home.desktops; [
       hyprland.nvidia
       hyprland.software-dimming

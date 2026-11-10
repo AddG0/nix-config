@@ -9,7 +9,7 @@
     # lib.custom.suites.ai.home
     # lib.custom.suites.virtualization.home
     lib.custom.suites.ide.home
-    (with lib.custom.optional.home; [browsers comms ghostty helper-scripts])
+    (with lib.custom.optional.home; [browsers comms.discord comms.slack ghostty helper-scripts])
     (with lib.custom.optional.home.development; [
       gcloud
       # jupyter-notebook

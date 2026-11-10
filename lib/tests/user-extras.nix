@@ -41,8 +41,8 @@ in {
   };
 
   testAddsNothingWhenTheUserTreeHasNoModuleThere = {
-    expr = withUserExtras "primary" [optional.home.comms];
-    expected = [optional.home.comms];
+    expr = withUserExtras "primary" [optional.home.comms.discord];
+    expected = [optional.home.comms.discord];
   };
 
   testAddsNothingForAUserWithoutATree = {
@@ -57,7 +57,7 @@ in {
 
   testExpandsTheNestedImportListOfAUserHomeFile = {
     expr = userHomeImports "primary" ./_user-home.nix;
-    expected = [optional.home.browsers optional.home.comms optional.primary.browsers];
+    expected = [optional.home.browsers optional.home.comms.discord optional.primary.browsers];
   };
 
   testExpandsAUserHomeFileWrittenAsAPlainAttrset = {
