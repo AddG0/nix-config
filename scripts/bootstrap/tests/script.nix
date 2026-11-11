@@ -76,7 +76,8 @@
       *hostSpec.disableSops) echo "$FAKE_DISABLE_SOPS" ;;
       *.options) [ -e "$REPO/hosts/nixos/$HOST/disko.nix" ] && echo true || echo false ;;
       *disko.devices.disk) echo '["main"]' ;;
-      *disko.devices.disk.main.content.partitions) echo "[\"$FAKE_PASSWORD_FILE\"]" ;;
+      *disko.devices.disk.main.content.partitions)
+        grep -q luks-btrfs "$REPO/hosts/nixos/$HOST/disko.nix" && echo "[\"$FAKE_PASSWORD_FILE\"]" || echo '[]' ;;
       *disko.devices.disk.main.device) sed -n 's/.*disk = "\(.*\)";/\1/p' "$REPO/hosts/nixos/$HOST/disko.nix" ;;
       *boot.initrd.luks.devices) echo '["crypted"]' ;;
       *sops.age.sshKeyPaths) echo /persist/etc/ssh/ssh_host_ed25519_key ;;

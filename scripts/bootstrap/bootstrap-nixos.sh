@@ -147,11 +147,10 @@ function require_mnt() {
   done
 }
 
-# Builds a new host from the scaffold in a temp dir, then moves it into place whole.
-function scaffold_host() {
-  local scaffold="scripts/bootstrap/scaffold" answer
-  blue "$host is a new host."
-  echo "  d) wipe a disk with the standard LUKS + btrfs layout"
+# Sets partitioning, and layout when a disk is wiped: the common/disks file the new host imports.
+function ask_partitioning() {
+  local answer
+  echo "  d) wipe a disk with disko (btrfs)"
   echo "  m) install onto what is already mounted at /mnt on the target"
   partitioning=""
   while [[ -z $partitioning ]]; do
@@ -164,13 +163,32 @@ function scaffold_host() {
     m) partitioning=premounted ;;
     esac
   done
+  [[ $partitioning == disko ]] || return 0
+  layout=""
+  while [[ -z $layout ]]; do
+    if ! read -rp "Encrypt it with LUKS? [Y/n] " answer; then
+      red "No answer given."
+      exit 1
+    fi
+    case $answer in
+    "" | y | Y) layout=luks-btrfs ;;
+    n | N) layout=btrfs ;;
+    esac
+  done
+}
+
+# Builds a new host from the scaffold in a temp dir, then moves it into place whole.
+function scaffold_host() {
+  local scaffold="scripts/bootstrap/scaffold"
+  blue "$host is a new host."
+  ask_partitioning
 
   staging=$(mktemp -d)
   chmod 755 "$staging"
   cp "$scaffold/host/default.nix" "$staging/default.nix"
   if [[ $partitioning == disko ]]; then
     pick_disk
-    sed "s|@DISK@|$disk_id|" "$scaffold/disko.nix" >"$staging/disko.nix"
+    sed -e "s|@DISK@|$disk_id|" -e "s|@LAYOUT@|$layout|" "$scaffold/disko.nix" >"$staging/disko.nix"
     green "Generating facter.json on $target"
     if ! on_target nixos-facter >"$staging/facter.json"; then
       red "nixos-facter failed on $target."

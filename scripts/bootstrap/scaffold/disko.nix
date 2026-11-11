@@ -6,7 +6,7 @@
 }: {
   imports = [
     inputs.disko.nixosModules.disko
-    (lib.custom.relativeToHosts "common/disks/luks-btrfs.nix")
+    (lib.custom.relativeToHosts "common/disks/@LAYOUT@.nix")
   ];
 
   _module.args.disk = "@DISK@";

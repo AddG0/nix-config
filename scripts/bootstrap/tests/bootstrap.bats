@@ -39,7 +39,7 @@ bootstrap() {
 sops_host() {
   export HOST=oldhost FAKE_DISABLE_SOPS=false
   mkdir -p "$REPO/hosts/nixos/oldhost"
-  printf '{...}: {imports = [inputs.disko.nixosModules.disko];}\n_module.args.disk = "/dev/disk/by-id/nvme-OLD_DISK_ABCDEF";\n' >"$REPO/hosts/nixos/oldhost/disko.nix"
+  printf '{...}: {imports = [inputs.disko.nixosModules.disko ./luks-btrfs.nix];}\n_module.args.disk = "/dev/disk/by-id/nvme-OLD_DISK_ABCDEF";\n' >"$REPO/hosts/nixos/oldhost/disko.nix"
 }
 
 secrets_commits() { "$realgit" -C "$NIX_SECRETS_DIR" rev-list --count HEAD; }
@@ -69,9 +69,10 @@ installed_key() { ssh-to-age <"$OUT/extra/persist/etc/ssh/ssh_host_ed25519_key.p
 }
 
 @test "a new disko host is scaffolded on the picked disk and installed with its passphrase" {
-  bootstrap 'd\n1\nhunter2\nhunter2\nIAL123\n' newbox 10.0.0.9
+  bootstrap 'd\n\n1\nhunter2\nhunter2\nIAL123\n' newbox 10.0.0.9
   assert_success
   assert_file_contains "$REPO/hosts/nixos/newbox/disko.nix" 'disk = "/dev/disk/by-id/nvme-FAKE_SSD_SERIAL123"'
+  assert_file_contains "$REPO/hosts/nixos/newbox/disko.nix" 'common/disks/luks-btrfs.nix'
   assert_equal "$(jq .version "$REPO/hosts/nixos/newbox/facter.json")" 1
   assert_equal "$(stat -c %a "$REPO/hosts/nixos/newbox")" 755
   assert_line "  - Log in as tester with password 'changeme' and run passwd."
@@ -93,8 +94,18 @@ installed_key() { ssh-to-age <"$OUT/extra/persist/etc/ssh/ssh_host_ed25519_key.p
   assert_output --partial "system.build.diskoScript"
 }
 
+@test "a new plain btrfs host is installed without asking for a passphrase" {
+  bootstrap 'd\nn\n1\nIAL123\n' newbox 10.0.0.9
+  assert_success
+  assert_file_contains "$REPO/hosts/nixos/newbox/disko.nix" 'common/disks/btrfs.nix'
+  refute_output --partial "LUKS passphrase"
+  run cat "$OUT/anywhere-args"
+  assert_output --partial -- "--phases disko,install,reboot"
+  refute_output --partial -- "--disk-encryption-keys"
+}
+
 @test "typing the hostname instead of the disk id wipes nothing and leaves no host folder" {
-  bootstrap 'd\n1\nhunter2\nhunter2\nnewbox\n' newbox 10.0.0.9
+  bootstrap 'd\n\n1\nhunter2\nhunter2\nnewbox\n' newbox 10.0.0.9
   assert_failure
   assert_output --partial "Got 'newbox', not 'IAL123'; nothing was changed."
   assert_not_exists "$OUT/anywhere-args"
@@ -103,7 +114,7 @@ installed_key() { ssh-to-age <"$OUT/extra/persist/etc/ssh/ssh_host_ed25519_key.p
 
 @test "a failed nixos-facter stops the install without a half-made host folder" {
   export FAKE_FACTER=fail
-  bootstrap 'd\n1\n' newbox 10.0.0.9
+  bootstrap 'd\n\n1\n' newbox 10.0.0.9
   assert_failure
   assert_output --partial "nixos-facter failed on 10.0.0.9."
   assert_not_exists "$REPO/hosts/nixos/newbox"
@@ -111,7 +122,7 @@ installed_key() { ssh-to-age <"$OUT/extra/persist/etc/ssh/ssh_host_ed25519_key.p
 
 @test "a disk resolving to the installer stick is refused" {
   export FAKE_DISK_DEV=/dev/sdz
-  bootstrap 'd\n1\n' newbox 10.0.0.9
+  bootstrap 'd\n\n1\n' newbox 10.0.0.9
   assert_failure
   assert_output --partial "is the installer stick"
 }
@@ -135,7 +146,7 @@ installed_key() { ssh-to-age <"$OUT/extra/persist/etc/ssh/ssh_host_ed25519_key.p
 }
 
 @test "--debug traces the install but never the LUKS passphrase" {
-  bootstrap 'd\n1\nhunter2\nhunter2\nIAL123\n' newbox 10.0.0.9 --debug
+  bootstrap 'd\n\n1\nhunter2\nhunter2\nIAL123\n' newbox 10.0.0.9 --debug
   assert_success
   assert_line "+ ask_luks_passphrase"
   assert_line "+ confirm_wipe"
@@ -154,7 +165,7 @@ installed_key() { ssh-to-age <"$OUT/extra/persist/etc/ssh/ssh_host_ed25519_key.p
 
 @test "a failed install warns the disk may be wiped and keeps the host" {
   export FAKE_ANYWHERE_EXIT=1
-  bootstrap 'd\n1\nhunter2\nhunter2\nIAL123\n' newbox 10.0.0.9
+  bootstrap 'd\n\n1\nhunter2\nhunter2\nIAL123\n' newbox 10.0.0.9
   assert_failure
   assert_output --partial "may already be wiped"
   assert_exists "$REPO/hosts/nixos/newbox/disko.nix"

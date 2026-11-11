@@ -77,26 +77,28 @@
         ]
         ++ modules;
     };
-  bootstrappedDisko = bootstrappedHost [
-    ../scripts/bootstrap/scaffold/disko.nix
-    {
-      hardware.facter = {
-        reportPath = lib.mkForce null;
-        report = {
-          version = 1;
-          system = "x86_64-linux";
+  # The disko template as `just bootstrap` fills it in for the chosen common/disks layout.
+  bootstrappedDisko = layout: rootIsEncrypted:
+    bootstrappedHost [
+      (builtins.toFile "disko.nix" (builtins.replaceStrings ["@LAYOUT@"] [layout] (builtins.readFile ../scripts/bootstrap/scaffold/disko.nix)))
+      {
+        hardware.facter = {
+          reportPath = lib.mkForce null;
+          report = {
+            version = 1;
+            system = "x86_64-linux";
+          };
         };
-      };
-    }
-    ({config, ...}: {
-      assertions = [
-        {
-          assertion = config.fileSystems."/".device == "/dev/mapper/crypted" && config.boot.initrd.luks.devices ? crypted;
-          message = "the disko template must mount / from the LUKS device it unlocks in initrd; got ${config.fileSystems."/".device}";
-        }
-      ];
-    })
-  ];
+      }
+      ({config, ...}: {
+        assertions = [
+          {
+            assertion = (config.fileSystems."/".device == "/dev/mapper/crypted" && config.boot.initrd.luks.devices ? crypted) == rootIsEncrypted;
+            message = "the ${layout} disko template must ${lib.optionalString (!rootIsEncrypted) "not "}mount / from a LUKS device unlocked in initrd; got ${config.fileSystems."/".device}";
+          }
+        ];
+      })
+    ];
   bootstrappedExisting = bootstrappedHost [
     {
       fileSystems = {
@@ -122,7 +124,8 @@ in {
       // {
         base-extension-evals = guard "base-extension-evals" baseExtended.config.system.build.toplevel;
         exported-modules-stock-lib-evals = guard "exported-modules-stock-lib-evals" stockLibImporter.config.system.build.toplevel;
-        bootstrap-disko-template-evals = guard "bootstrap-disko-template-evals" bootstrappedDisko.config.system.build.toplevel;
+        bootstrap-disko-template-evals = guard "bootstrap-disko-template-evals" (bootstrappedDisko "luks-btrfs" true).config.system.build.toplevel;
+        bootstrap-plain-disko-template-evals = guard "bootstrap-plain-disko-template-evals" (bootstrappedDisko "btrfs" false).config.system.build.toplevel;
         bootstrap-existing-template-evals = guard "bootstrap-existing-template-evals" bootstrappedExisting.config.system.build.toplevel;
       };
   };
