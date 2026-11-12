@@ -275,9 +275,12 @@ claude_route() {
   fi
 }
 
+# Per network step of ready: the VPN's DNS, connect and TLS take seconds when the link is busy.
+ready_timeout=5
+
 proxy_accepts() {
   local url=$1 agent=$2 access=$3 code
-  code=$(curl -s -o /dev/null -w '%{http_code}' --connect-timeout 2 --max-time 2 -A "$agent" -H "Authorization: Bearer $access" "$url/v1/models") || return 1
+  code=$(curl -s -o /dev/null -w '%{http_code}' --max-time "$ready_timeout" -A "$agent" -H "Authorization: Bearer $access" "$url/v1/models") || return 1
   [[ $code == 200 ]]
 }
 
@@ -290,7 +293,7 @@ ready() {
   *) fail "ready expects general or claude" ;;
   esac
 
-  access=$(AI_PROXY_TIMEOUT=2 token 2 2>/dev/null) || return 1
+  access=$(AI_PROXY_TIMEOUT=$ready_timeout token "$ready_timeout" 2>/dev/null) || return 1
   if [[ $1 == general ]]; then
     proxy_accepts "$AI_PROXY_URL" ai-proxy-ready "$access"
     return
