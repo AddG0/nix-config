@@ -13,6 +13,7 @@
 
   # Default configuration: Hybrid mode (NVIDIA available when needed)
   hardware.nvidia = {
+    package = config.boot.kernelPackages.nvidiaPackages.latest;
     # Use open-source NVIDIA drivers for better power management
     # Specifically added to fix errors around closing the laptop lid erroring, preventing the displays from loading back up correctly
     open = true;
