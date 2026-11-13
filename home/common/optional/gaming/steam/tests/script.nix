@@ -1,5 +1,5 @@
-# game-defaults' wrapper chain, game-output's HDR lookup and ReShade preset
-# rewriting, each against stubs; the cases live in the .bats files beside this.
+# game-defaults' wrapper chain, focused-output's compositor queries, game-output's HDR lookup and
+# ReShade preset rewriting, each against stubs; the cases live in the .bats files beside this.
 {
   harness,
   pkgs,
@@ -32,15 +32,65 @@
     height = 1600;
     refreshRate = 165;
   };
+  # KWin reports DP-2 focused; its current mode is the second of its two.
+  kscreenJson = pkgs.writeText "kscreen.json" (builtins.toJSON {
+    outputs = [
+      {
+        name = "eDP-1";
+        currentModeId = "1";
+        modes = [
+          {
+            id = "1";
+            size = {
+              width = 1920;
+              height = 1200;
+            };
+            refreshRate = 120.0;
+          }
+        ];
+      }
+      {
+        name = "DP-2";
+        currentModeId = "3";
+        modes = [
+          {
+            id = "2";
+            size = {
+              width = 1920;
+              height = 1080;
+            };
+            refreshRate = 60.0;
+          }
+          {
+            id = "3";
+            size = {
+              width = 3440;
+              height = 1440;
+            };
+            refreshRate = 143.981;
+          }
+        ];
+      }
+    ];
+  });
+  focusedOutput = import ../focused-output.nix {
+    inherit lib pkgs;
+    hyprctl = pkgs.writeShellScript "hyprctl" "exit 1";
+    busctl = pkgs.writeShellScript "busctl" ''echo '{"type":"s","data":["DP-2"]}' '';
+    kscreenDoctor = pkgs.writeShellScript "kscreen-doctor" "cat ${kscreenJson}";
+  };
   gameOutput = import ../game-output.nix {
     inherit lib pkgs;
-    # No compositor to ask, so the declared primary is the target.
-    hyprctl = pkgs.writeShellScript "hyprctl" "exit 1";
+    # Prints $FOCUSED as the focused output, or fails when it is unset.
+    focusedOutput = pkgs.writeShellScript "focused-output" ''[ -n "''${FOCUSED:-}" ] && echo "$FOCUSED"'';
     monitors = [panel];
     primaryMonitor = panel;
   };
   reportHdr = pkgs.writeShellScript "report-hdr" ''
     echo "GAME_OUTPUT_HDR=$GAME_OUTPUT_HDR"
+  '';
+  reportMode = pkgs.writeShellScript "report-mode" ''
+    echo "$GAME_OUTPUT_W $GAME_OUTPUT_H $GAME_OUTPUT_R"
   '';
 
   # Presets ship with Windows line endings, as AMS2 Realistic's does.
@@ -82,7 +132,7 @@
     ."Look.ini"
     .source;
 in
-  harness.bats "steam-game-defaults" [./game-defaults.bats ./game-output.bats ./reshade.bats] {
+  harness.bats "steam-game-defaults" [./game-defaults.bats ./focused-output.bats ./game-output.bats ./reshade.bats] {
     gameDefaults = lib.getExe gameDefaults;
-    inherit game gameOutput reportHdr presetOut presetWant;
+    inherit game focusedOutput gameOutput reportHdr reportMode presetOut presetWant;
   }

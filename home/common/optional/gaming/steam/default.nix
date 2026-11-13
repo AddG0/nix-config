@@ -36,8 +36,13 @@
 
   # hyprctl of the running compositor — reused from its closure, no second copy.
   hyprctl = lib.getExe' config.wayland.windowManager.hyprland.package "hyprctl";
+  focusedOutput = import ./focused-output.nix {
+    inherit lib pkgs hyprctl;
+    busctl = lib.getExe' pkgs.systemd "busctl";
+    kscreenDoctor = lib.getExe' pkgs.kdePackages.libkscreen "kscreen-doctor";
+  };
   gameOutput = import ./game-output.nix {
-    inherit lib pkgs hyprctl primaryMonitor;
+    inherit lib pkgs focusedOutput primaryMonitor;
     inherit (config.display) monitors;
   };
   mkGamescope = import ./gamescope.nix {inherit lib pkgs;};

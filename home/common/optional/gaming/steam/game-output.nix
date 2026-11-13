@@ -1,10 +1,8 @@
-# Outermost Steam wrapper: resolves the output a game will land on once, at
-# launch, and exports GAME_OUTPUT_{W,H,R,HDR} for the wrappers inside it
-# (gamescope). GAME_OUTPUT_OVERRIDE=<connector> skips detection.
+# Outermost Steam wrapper: exports GAME_OUTPUT_{W,H,R,HDR} of the output a game lands on, for gamescope inside it.
 {
   lib,
   pkgs,
-  hyprctl,
+  focusedOutput,
   monitors,
   primaryMonitor,
 }: let
@@ -20,7 +18,6 @@
 in
   lib.getExe (pkgs.writeShellApplication {
     name = "game-output";
-    runtimeInputs = [pkgs.jq];
     text = ''
       # Inside the gamescope session, its own gamescope picks the output and HDR.
       [ -z "''${GAMESCOPE_WAYLAND_DISPLAY:-}" ] || exec "$@"
@@ -33,35 +30,26 @@ in
       [ -z "''${LD_PRELOAD:-}" ] || steam_env+=("LD_PRELOAD=$LD_PRELOAD")
       unset LD_LIBRARY_PATH LD_PRELOAD
 
-      target=${lib.escapeShellArg primaryMonitor.output}
+      output=${lib.escapeShellArg primaryMonitor.output}
       W=${toString primaryMonitor.width}
       H=${toString primaryMonitor.height}
       R=${toString primaryMonitor.refreshRate}
 
-      if mons=$("${hyprctl}" monitors -j); then
-        want=''${GAME_OUTPUT_OVERRIDE:-}
-        # The active workspace's monitor is where the window lands; .focused can disagree.
-        [ -n "$want" ] || want=$("${hyprctl}" activeworkspace -j | jq -r '.monitor // empty') || want=""
-        if mode=$(jq -er --arg n "$want" '
-            (if $n == "" then map(select(.focused)) else map(select(.name == $n)) end)[0] // empty
-            | "\(.name) \(.width) \(.height) \(.refreshRate | round)"' <<<"$mons"); then
-          read -r target W H R <<<"$mode"
-        else
-          log "output '$want' not found; using declared primary $target"
-        fi
+      if focused=$("${focusedOutput}"); then
+        read -r output W H R <<<"$focused"
       else
-        log "hyprctl monitors failed; using declared primary $target"
+        log "using declared primary $output"
       fi
 
-      case "$target" in
+      case "$output" in
       ${hdrCase}
         *)
-          log "output $target is not declared in display.monitors; assuming SDR"
+          log "output $output is not declared in display.monitors; assuming SDR"
           hdr=0
           ;;
       esac
 
-      log "output=$target mode=''${W}x''${H}@''${R} hdr=$hdr"
+      log "output=$output mode=''${W}x''${H}@''${R} hdr=$hdr"
       exec env "''${steam_env[@]}" \
         GAME_OUTPUT_W="$W" GAME_OUTPUT_H="$H" GAME_OUTPUT_R="$R" GAME_OUTPUT_HDR="$hdr" "$@"
     '';
