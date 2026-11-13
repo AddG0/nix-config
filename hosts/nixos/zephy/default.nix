@@ -43,6 +43,7 @@
       secureboot
     ])
     (with lib.custom.optional.hosts.nixos.hardware; [
+      attack-shark
       cachyos-kernel # CachyOS kernel
       openrazer # openrazer
       wooting # wooting keyboard
@@ -50,7 +51,6 @@
     (with lib.custom.optional.hosts.nixos.services; [
       automatic-timezoned
       bluetooth
-      bt-proximity
       display-managers.silent-sddm
       earlyoom
       # home-assistant
