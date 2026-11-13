@@ -3,6 +3,10 @@
   rocket-league = 252950;
   satisfactory = 526870;
   ark-survival-ascended = 2399830;
+  ark-survival-evolved = 346110;
+  chained-together = 2567870;
+  peak = 3527290;
+  bombanana = 4656000;
   conan-exiles = 440900;
   repo = 3241660;
   lethal-company = 1966720;

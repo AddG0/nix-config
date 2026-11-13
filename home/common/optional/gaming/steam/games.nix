@@ -26,6 +26,8 @@
   conan-exiles.compatTool = defaultCompatTool;
   # Was not opening with linux version
   aimlabs.compatTool = defaultCompatTool;
+  # Steam's appinfo lists Linux but ships no Linux depot, so it installs nothing.
+  ark-survival-evolved.compatTool = defaultCompatTool;
 
   # Gamescope wrap: HZD's native fullscreen on Linux/Proton is broken
   # (wrong resolution, multi-monitor misbehavior, alt-tab loss).
