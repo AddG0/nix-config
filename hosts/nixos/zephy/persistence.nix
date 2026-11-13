@@ -22,6 +22,8 @@
     ".local/share/Steam"
     # Each user's Proton prefixes for the shared library: saves and settings of those games.
     ".local/share/steam-library-compatdata"
+    # umu's Steam Runtime for Heroic's Proton games; 175 MB re-downloaded otherwise.
+    ".local/share/umu"
     ".local/state/wireplumber"
     ".steam"
   ];
@@ -43,7 +45,23 @@ in {
       config.gaming.steam.sharedLibrary
     ];
 
-    users.gamer.directories = everyUser;
+    users.gamer = {
+      directories =
+        everyUser
+        ++ [
+          ".config/discord"
+          ".config/spotify"
+          ".local/share/wallpapers"
+        ];
+      # Plasma's own state; plasma-manager only rewrites the keys it declares.
+      files = [
+        ".config/kwinoutputconfig.json"
+        ".config/kscreenlockerrc"
+        ".config/kwinrc"
+        ".config/plasma-org.kde.plasma.desktop-appletsrc"
+        ".config/plasmashellrc"
+      ];
+    };
 
     users.${config.hostSpec.primaryUsername}.directories =
       everyUser
