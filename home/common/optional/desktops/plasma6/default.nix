@@ -246,7 +246,7 @@ in {
     # Power management settings
     powerdevil = {
       AC = {
-        powerButtonAction = "lockScreen";
+        powerButtonAction = "shutDown";
         autoSuspend = {
           action = "nothing";
           idleTimeout = null;
@@ -260,7 +260,7 @@ in {
         };
       };
       battery = {
-        powerButtonAction = "sleep";
+        powerButtonAction = "shutDown";
         autoSuspend = {
           action = "nothing";
           idleTimeout = null;
@@ -274,7 +274,7 @@ in {
         };
       };
       lowBattery = {
-        powerButtonAction = "sleep";
+        powerButtonAction = "shutDown";
         autoSuspend = {
           action = "nothing";
         };
