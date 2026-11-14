@@ -123,6 +123,7 @@ in {
                 libkrb5
                 keyutils
                 gperftools
+                libGLU # Level Devil's native build
                 ;
             });
 
