@@ -29,6 +29,12 @@
 
   services.homeAssistantOci.hostName = "home-assistant-eu.${config.hostSpec.domain}";
 
+  nix.git-sync = {
+    enable = true;
+    schedule = "05:00";
+    reboot = "onKernelChange";
+  };
+
   networking = {
     networkmanager.enable = true;
     enableIPv6 = false;
