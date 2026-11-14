@@ -320,6 +320,7 @@ in {
     kwin = {
       edgeBarrier = 0; # Disables the edge-barriers introduced in plasma 6.1
       cornerBarrier = false;
+      effects.shakeCursor.enable = false;
       scripts = {
         geometryChange.enable = true;
         squash.enable = true;
