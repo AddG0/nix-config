@@ -52,15 +52,21 @@ in {
           ".config/discord"
           ".config/spotify"
           ".local/share/wallpapers"
+          # Its last-run markers; without them it reruns the panel script, deleting appletsrc, every login.
+          ".local/share/plasma-manager"
         ];
-      # Plasma's own state; plasma-manager only rewrites the keys it declares.
-      files = [
-        ".config/kwinoutputconfig.json"
-        ".config/kscreenlockerrc"
-        ".config/kwinrc"
-        ".config/plasma-org.kde.plasma.desktop-appletsrc"
-        ".config/plasmashellrc"
-      ];
+      # Symlinks: KConfig saves by renaming over the file, which a bind-mounted file refuses.
+      files =
+        map (file: {
+          inherit file;
+          method = "symlink";
+        }) [
+          ".config/kwinoutputconfig.json"
+          ".config/kscreenlockerrc"
+          ".config/kwinrc"
+          ".config/plasma-org.kde.plasma.desktop-appletsrc"
+          ".config/plasmashellrc"
+        ];
     };
 
     users.${config.hostSpec.primaryUsername}.directories =
