@@ -20,6 +20,7 @@
 
     #################### Misc Inputs ####################
 
+    (with lib.custom.optional.hosts.nixos; [nix-secrets-deploy-key])
     (with lib.custom.optional.hosts.nixos.services; [
       home-assistant-oci
       nginx # nginx
