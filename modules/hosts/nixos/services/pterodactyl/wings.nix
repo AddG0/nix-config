@@ -55,6 +55,12 @@ in {
         default = null;
         type = lib.types.nullOr lib.types.path;
       };
+      allowedMounts = lib.mkOption {
+        default = [];
+        type = lib.types.listOf lib.types.str;
+        example = ["/var/lib/ark-cluster"];
+        description = "Host paths servers may bind-mount via panel Mounts; rewritten into wings.yaml on every start.";
+      };
       settings = lib.mkOption {
         default = {};
         type = lib.types.nullOr (lib.types.submodule {
@@ -183,6 +189,7 @@ in {
               ${pkgs.yq-go}/bin/yq -i '.api.host = "${cfg.settings.api.host}"' "${cfg.settings.system.root_directory}/wings.yaml"
               ${pkgs.yq-go}/bin/yq -i '.api.port = ${toString cfg.settings.api.port}' "${cfg.settings.system.root_directory}/wings.yaml"
               ${pkgs.yq-go}/bin/yq -i '.api.ssl.enabled = false' "${cfg.settings.system.root_directory}/wings.yaml"
+              ${pkgs.yq-go}/bin/yq -i '.allowed_mounts = ${builtins.toJSON cfg.allowedMounts}' "${cfg.settings.system.root_directory}/wings.yaml"
             fi
           ''
         ];
