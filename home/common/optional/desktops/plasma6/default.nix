@@ -23,6 +23,7 @@ in {
 
   imports = [
     self.homeModules.plasma6
+    ./panel-screens.nix
     ./stylix.nix
   ];
 
