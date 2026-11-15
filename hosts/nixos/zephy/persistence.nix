@@ -19,6 +19,8 @@
     ".local/share/decky"
     ".local/share/PrismLauncher"
     ".config/heroic"
+    ".config/r2modman"
+    ".config/r2modmanPlus-local"
     ".local/share/Steam"
     # Each user's Proton prefixes for the shared library: saves and settings of those games.
     ".local/share/steam-library-compatdata"
@@ -96,8 +98,6 @@ in {
 
         # Media and gaming
         ".config/spotify"
-        ".config/r2modman"
-        ".config/r2modmanPlus-local"
         ".config/openrazer"
         ".config/wootility"
         ".local/share/RLBot5"

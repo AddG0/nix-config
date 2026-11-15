@@ -5,7 +5,7 @@
 }: {
   imports = lib.flatten [
     (with lib.custom.optional.home; [browsers comms.discord])
-    (with lib.custom.optional.home.gaming; [heroic minecraft])
+    (with lib.custom.optional.home.gaming; [heroic minecraft r2modman])
     (with lib.custom.optional.home.media; [spicetify])
   ];
 
