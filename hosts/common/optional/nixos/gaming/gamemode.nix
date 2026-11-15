@@ -4,41 +4,52 @@
   lib,
   ...
 }: let
-  gamemodeStartScript = pkgs.writeShellScript "gamemode-start" ''
-    ${lib.optionalString config.services.power-profiles-daemon.enable ''
-      # Save current power profile and switch to performance
-      ${pkgs.power-profiles-daemon}/bin/powerprofilesctl get > /tmp/gamemode-power-profile
-      ${pkgs.power-profiles-daemon}/bin/powerprofilesctl set performance
-    ''}
-    ${lib.optionalString (config.services.asusd.enable or false) ''
-      # Save current ASUS profile
-      ${pkgs.asusctl}/bin/asusctl profile -p | grep "Active profile" | awk '{print $4}' > /tmp/gamemode-asus-profile
+  # nixpkgs pins gamemoded's PATH to just pkexec, so the scripts bring their own tools.
+  runtimeInputs = with pkgs; [coreutils gnugrep gawk];
 
-      # Set to Performance mode
-      ${pkgs.asusctl}/bin/asusctl profile -P Performance
-    ''}
-  '';
+  gamemodeStartScript = lib.getExe (pkgs.writeShellApplication {
+    name = "gamemode-start";
+    inherit runtimeInputs;
+    text = ''
+      ${lib.optionalString config.services.power-profiles-daemon.enable ''
+        # Save current power profile and switch to performance
+        ${pkgs.power-profiles-daemon}/bin/powerprofilesctl get > /tmp/gamemode-power-profile
+        ${pkgs.power-profiles-daemon}/bin/powerprofilesctl set performance
+      ''}
+      ${lib.optionalString (config.services.asusd.enable or false) ''
+        # Save current ASUS profile
+        ${pkgs.asusctl}/bin/asusctl profile -p | grep "Active profile" | awk '{print $4}' > /tmp/gamemode-asus-profile
 
-  gamemodeEndScript = pkgs.writeShellScript "gamemode-end" ''
-    ${lib.optionalString config.services.power-profiles-daemon.enable ''
-      # Restore previous power profile
-      PREVIOUS_POWER="balanced"
-      if [ -f /tmp/gamemode-power-profile ]; then
-        PREVIOUS_POWER=$(cat /tmp/gamemode-power-profile)
-        rm /tmp/gamemode-power-profile
-      fi
-      ${pkgs.power-profiles-daemon}/bin/powerprofilesctl set "$PREVIOUS_POWER"
-    ''}
-    ${lib.optionalString (config.services.asusd.enable or false) ''
-      # Restore previous ASUS profile
-      PREVIOUS_PROFILE="Balanced"
-      if [ -f /tmp/gamemode-asus-profile ]; then
-        PREVIOUS_PROFILE=$(cat /tmp/gamemode-asus-profile)
-        ${pkgs.asusctl}/bin/asusctl profile -P "$PREVIOUS_PROFILE"
-        rm /tmp/gamemode-asus-profile
-      fi
-    ''}
-  '';
+        # Set to Performance mode
+        ${pkgs.asusctl}/bin/asusctl profile -P Performance
+      ''}
+    '';
+  });
+
+  gamemodeEndScript = lib.getExe (pkgs.writeShellApplication {
+    name = "gamemode-end";
+    inherit runtimeInputs;
+    text = ''
+      ${lib.optionalString config.services.power-profiles-daemon.enable ''
+        # Restore previous power profile
+        PREVIOUS_POWER="balanced"
+        if [ -f /tmp/gamemode-power-profile ]; then
+          PREVIOUS_POWER=$(cat /tmp/gamemode-power-profile)
+          rm /tmp/gamemode-power-profile
+        fi
+        ${pkgs.power-profiles-daemon}/bin/powerprofilesctl set "$PREVIOUS_POWER"
+      ''}
+      ${lib.optionalString (config.services.asusd.enable or false) ''
+        # Restore previous ASUS profile
+        PREVIOUS_PROFILE="Balanced"
+        if [ -f /tmp/gamemode-asus-profile ]; then
+          PREVIOUS_PROFILE=$(cat /tmp/gamemode-asus-profile)
+          ${pkgs.asusctl}/bin/asusctl profile -P "$PREVIOUS_PROFILE"
+          rm /tmp/gamemode-asus-profile
+        fi
+      ''}
+    '';
+  });
 in {
   # Allow gamemode's privileged helpers to run without a polkit prompt.
   #
