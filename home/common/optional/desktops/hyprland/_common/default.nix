@@ -11,7 +11,7 @@
     ./binds.nix
     ./screenshots.nix
     ./plugins
-    ./nwg-displays.nix
+    ./hyprmoncfg.nix
     ./pip.nix
     ./btop.nix
     ./hyprtoolkit.nix
