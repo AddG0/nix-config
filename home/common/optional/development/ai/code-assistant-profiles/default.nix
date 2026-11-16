@@ -59,6 +59,7 @@ in {
       };
 
       instructions.text = ''
+        The user is ${hostSpec.userPreferredName}; use that name when a file or message refers to them.
         Proactively invoke available skills when relevant.
         Prefer `-C`/path args over `cd &&` (e.g. `git -C /path status`, `nix develop /path`).
       '';
@@ -120,6 +121,12 @@ in {
           - Work clones sit under `gitlab.com/ShipperHQ/…`, but their stored remote is `git@gitlab-work:…` — an ssh alias, not a resolvable hostname. Derive web and clone URLs from the ghq path, or map the alias back to `gitlab.com`; `insteadOf` rewrites only at transport time, so the alias stays in `.git/config`.
           - Worktrees are siblings of their clone with a `--<branch>` suffix and show up in `ghq list`; `gwq list` shows only worktrees.
           - `~/nix-config` lives outside the ghq root.
+        '';
+
+        scratch.content.text = ''
+          Scratch projects are local git repos at `scratch/<name>` under the ghq root, shown by `ghq list` as `scratch/<name>`. `scratch <name>` creates one (mkdir, `git init`, prints the path; the zsh wrapper also cds), `scratch -l` lists them. They stay local: never add a remote or push one.
+
+          Use one for anything that belongs to no existing repo; a change to an existing repo is a branch or worktree there. Create one yourself when work needs a home, and tell the user the path.
         '';
 
         "multi-agent".content.text = ''

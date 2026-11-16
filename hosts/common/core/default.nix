@@ -30,6 +30,7 @@ in {
     primaryUsername = lib.mkDefault "addg";
     users = [config.hostSpec.primaryUsername];
     handle = lib.mkDefault "addg";
+    userPreferredName = lib.mkDefault "Add";
 
     system.stateVersion = lib.mkDefault "26.05";
 

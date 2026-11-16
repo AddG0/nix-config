@@ -29,6 +29,12 @@
       description = "The full name of the user";
     };
 
+    userPreferredName = lib.mkOption {
+      type = lib.types.str;
+      description = "What the user is called day to day, e.g. by coding assistants";
+      default = config.hostSpec.userFullName;
+    };
+
     handle = lib.mkOption {
       type = lib.types.str;
       description = "The handle of the user (eg: github user)";

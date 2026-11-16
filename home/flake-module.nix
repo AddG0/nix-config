@@ -48,6 +48,7 @@
       work = "user@work.example.com";
     };
     userFullName = "Example User";
+    userPreferredName = "Example";
     githubEmail = "user@example.com";
     networking = {
       prefixLength = 24;
