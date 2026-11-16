@@ -1,0 +1,1332 @@
+diff --git a/apps/server/package.json b/apps/server/package.json
+index 364358d1..06773552 100644
+--- a/apps/server/package.json
++++ b/apps/server/package.json
+@@ -85,6 +85,7 @@
+     "@opencode-ai/sdk": "^1.3.15",
+     "@t3tools/contracts": "workspace:*",
+     "@t3tools/provider-testing": "workspace:*",
++    "@t3tools/secret-provider-command": "workspace:*",
+     "@t3tools/secret-provider-core": "workspace:*",
+     "@t3tools/secret-provider-definitions": "workspace:*",
+     "@t3tools/secret-provider-onepassword": "workspace:*",
+diff --git a/apps/server/src/secrets/secretProviderDefinitions.ts b/apps/server/src/secrets/secretProviderDefinitions.ts
+index 409df40b..f3a84c98 100644
+--- a/apps/server/src/secrets/secretProviderDefinitions.ts
++++ b/apps/server/src/secrets/secretProviderDefinitions.ts
+@@ -1,7 +1,11 @@
++import * as CommandDriver from "@t3tools/secret-provider-command/server/driver";
+ import { builtInSecretProviderDefinitions } from "@t3tools/secret-provider-definitions/registry";
+ import * as OnePasswordDriver from "@t3tools/secret-provider-onepassword/server/driver";
+
+ /** In the shared registry's order. */
+-export const BUILT_IN_SECRET_PROVIDER_DRIVER_LIST = [OnePasswordDriver.driver] as const;
++export const BUILT_IN_SECRET_PROVIDER_DRIVER_LIST = [
++  OnePasswordDriver.driver,
++  CommandDriver.driver,
++] as const;
+
+ export const secretProviderDefinitions = builtInSecretProviderDefinitions;
+diff --git a/apps/server/src/usage/UsageLimitSources.test.ts b/apps/server/src/usage/UsageLimitSources.test.ts
+index 274e63b4..5260008d 100644
+--- a/apps/server/src/usage/UsageLimitSources.test.ts
++++ b/apps/server/src/usage/UsageLimitSources.test.ts
+@@ -108,7 +108,8 @@ it.effect("reads a management key from its secret provider", () => {
+       { id: "resolved-hub", error: undefined },
+       {
+         id: "unresolved-hub",
+-        error: "Could not read the management key from its secret provider.",
++        error:
++          'Could not read the management key from the secret provider "homelab". Unlock or fix it in Settings, then try again.',
+       },
+     ]);
+     expect(authorizations).toEqual(["Bearer resolved-key"]);
+diff --git a/apps/server/src/usage/UsageLimitSources.ts b/apps/server/src/usage/UsageLimitSources.ts
+index 7d40b0fb..dbd86ab8 100644
+--- a/apps/server/src/usage/UsageLimitSources.ts
++++ b/apps/server/src/usage/UsageLimitSources.ts
+@@ -53,7 +53,7 @@ function sourceLabel(id: string, config: UsageLimitSourceConfig): string {
+ function missingManagementKey(config: UsageLimitSourceConfig): string {
+   return typeof config.managementKey === "string"
+     ? "No management key configured."
+-    : "Could not read the management key from its secret provider.";
++    : `Could not read the management key from the secret provider "${config.managementKey.provider}". Unlock or fix it in Settings, then try again.`;
+ }
+
+ /** @public */
+diff --git a/apps/web/package.json b/apps/web/package.json
+index 33946544..28f0b159 100644
+--- a/apps/web/package.json
++++ b/apps/web/package.json
+@@ -34,6 +34,7 @@
+     "@t3tools/client-runtime": "workspace:*",
+     "@t3tools/contracts": "workspace:*",
+     "@t3tools/provider-core": "workspace:*",
++    "@t3tools/secret-provider-command": "workspace:*",
+     "@t3tools/secret-provider-definitions": "workspace:*",
+     "@t3tools/secret-provider-onepassword": "workspace:*",
+     "@t3tools/shared": "workspace:*",
+diff --git a/apps/web/src/components/settings/SecretProviderDialog.logic.test.ts b/apps/web/src/components/settings/SecretProviderDialog.logic.test.ts
+index a23ea149..b2f8503f 100644
+--- a/apps/web/src/components/settings/SecretProviderDialog.logic.test.ts
++++ b/apps/web/src/components/settings/SecretProviderDialog.logic.test.ts
+@@ -1,15 +1,21 @@
+-import { SecretProviderId } from "@t3tools/contracts";
++import { SecretProviderId, SecretProviderKind } from "@t3tools/contracts";
+ import * as Result from "effect/Result";
+ import { describe, expect, it } from "vite-plus/test";
+
+-import { secretProviderFromDraft } from "./SecretProviderDialog.logic";
++import {
++  draftFromSecretProvider,
++  emptySecretProviderDraft,
++  secretProviderFromDraft,
++} from "./SecretProviderDialog.logic";
+
+ describe("secretProviderFromDraft", () => {
+   it("adds a provider keyed by its name and reports every field that blocks it", () => {
+     expect(
+-      secretProviderFromDraft({ name: "  1Password!  ", account: "my.1password.com" }, new Set(), {
+-        mode: "add",
+-      }),
++      secretProviderFromDraft(
++        { ...emptySecretProviderDraft, name: "  1Password!  ", account: "my.1password.com" },
++        new Set(),
++        { mode: "add" },
++      ),
+     ).toEqual(
+       Result.succeed({
+         id: "1password",
+@@ -22,7 +28,7 @@ describe("secretProviderFromDraft", () => {
+     );
+
+     const blocked = secretProviderFromDraft(
+-      { name: "1Password", account: "--help" },
++      { ...emptySecretProviderDraft, name: "1Password", account: "--help" },
+       new Set(["1password"]),
+       { mode: "add" },
+     );
+@@ -35,7 +41,7 @@ describe("secretProviderFromDraft", () => {
+   it("keeps the id when an edit renames the provider", () => {
+     const id = SecretProviderId.make("personal");
+     const result = secretProviderFromDraft(
+-      { name: "Personal (team)", account: "team.1password.com" },
++      { ...emptySecretProviderDraft, name: "Personal (team)", account: "team.1password.com" },
+       new Set(["personal"]),
+       { mode: "edit", id },
+     );
+@@ -48,4 +54,48 @@ describe("secretProviderFromDraft", () => {
+       },
+     });
+   });
++
++  it("adds a command provider with the default timeout when none is entered", () => {
++    expect(
++      secretProviderFromDraft(
++        { ...emptySecretProviderDraft, kind: "command", name: "Gateway token" },
++        new Set(),
++        { mode: "add" },
++      ),
++    ).toEqual(
++      Result.succeed({
++        id: "gateway-token",
++        config: { kind: "command", label: "Gateway token", config: {} },
++      }),
++    );
++  });
++
++  it("keeps a command provider's timeout, and rejects one that is not whole seconds in range", () => {
++    const draft = { ...emptySecretProviderDraft, kind: "command" as const, name: "Gateway" };
++    const result = secretProviderFromDraft({ ...draft, timeoutSeconds: " 30 " }, new Set(), {
++      mode: "add",
++    });
++    expect(Result.isSuccess(result) && result.success.config.config).toEqual({
++      timeoutSeconds: 30,
++    });
++
++    for (const timeoutSeconds of ["0", "2.5", "121", "soon", "1e1", "0x10", "+5", "0b11"]) {
++      const blocked = secretProviderFromDraft({ ...draft, timeoutSeconds }, new Set(), {
++        mode: "add",
++      });
++      expect(Result.isFailure(blocked) && Object.keys(blocked.failure), timeoutSeconds).toEqual([
++        "timeoutSeconds",
++      ]);
++    }
++  });
++
++  it("edits a command provider from its saved timeout", () => {
++    expect(
++      draftFromSecretProvider({
++        kind: SecretProviderKind.make("command"),
++        label: "Gateway",
++        config: { timeoutSeconds: 20 },
++      }),
++    ).toEqual({ kind: "command", name: "Gateway", account: "", timeoutSeconds: "20" });
++  });
+ });
+diff --git a/apps/web/src/components/settings/SecretProviderDialog.logic.ts b/apps/web/src/components/settings/SecretProviderDialog.logic.ts
+index ab587295..0fed422a 100644
+--- a/apps/web/src/components/settings/SecretProviderDialog.logic.ts
++++ b/apps/web/src/components/settings/SecretProviderDialog.logic.ts
+@@ -4,6 +4,11 @@ import {
+   SecretProviderLabel,
+   type SecretProviderConfig,
+ } from "@t3tools/contracts";
++import {
++  CommandSecretProviderConfig,
++  CommandTimeoutSeconds,
++  MAX_COMMAND_TIMEOUT_SECONDS,
++} from "@t3tools/secret-provider-command/shared/definition";
+ import {
+   OnePasswordSecretProviderConfig,
+   type OnePasswordAccount,
+@@ -14,13 +19,22 @@ import * as Schema from "effect/Schema";
+
+ const decodeSecretProviderId = Schema.decodeOption(SecretProviderId);
+ const decodeOnePasswordConfig = Schema.decodeUnknownOption(OnePasswordSecretProviderConfig);
++const decodeCommandConfig = Schema.decodeUnknownOption(CommandSecretProviderConfig);
++const decodeCommandTimeout = Schema.decodeResult(CommandTimeoutSeconds);
+
+ export type ClassifiedSecretProvider =
+   | { readonly kind: "one_password"; readonly account: OnePasswordAccount }
++  | { readonly kind: "command"; readonly timeoutSeconds: number | undefined }
+   | { readonly kind: "unsupported" };
+
+ /** Unknown kinds and configs that no longer decode are shown read-only; removal stays available. */
+ export function classifySecretProvider(provider: SecretProviderConfig): ClassifiedSecretProvider {
++  if (provider.kind === "command") {
++    const decoded = decodeCommandConfig(provider.config);
++    return decoded._tag === "Some"
++      ? { kind: "command", timeoutSeconds: decoded.value.timeoutSeconds }
++      : { kind: "unsupported" };
++  }
+   if (provider.kind !== "one_password") return { kind: "unsupported" };
+   const decoded = decodeOnePasswordConfig(provider.config);
+   return decoded._tag === "Some"
+@@ -39,16 +53,33 @@ function secretProviderIdFromName(name: string): SecretProviderId | null {
+   return Option.getOrNull(decodeSecretProviderId(slug));
+ }
+
++export type SecretProviderDraftKind = "one_password" | "command";
++
+ export interface SecretProviderDraft {
++  readonly kind: SecretProviderDraftKind;
+   readonly name: string;
+   readonly account: string;
++  /** Blank keeps the command kind's default. */
++  readonly timeoutSeconds: string;
+ }
+
++export const emptySecretProviderDraft: SecretProviderDraft = {
++  kind: "one_password",
++  name: "",
++  account: "",
++  timeoutSeconds: "",
++};
++
+ export function draftFromSecretProvider(provider: SecretProviderConfig): SecretProviderDraft {
+   const classified = classifySecretProvider(provider);
+   return {
++    kind: classified.kind === "command" ? "command" : "one_password",
+     name: provider.label,
+     account: classified.kind === "one_password" ? classified.account : "",
++    timeoutSeconds:
++      classified.kind === "command" && classified.timeoutSeconds !== undefined
++        ? String(classified.timeoutSeconds)
++        : "",
+   };
+ }
+
+@@ -70,6 +101,34 @@ function decodeField<S extends Schema.ConstraintDecoder<unknown>>(
+   return Result.mapError(Schema.decodeResult(schema)(trimmed), (error) => error.message);
+ }
+
++function decodeTimeout(value: string): Result.Result<number | undefined, string> {
++  const trimmed = value.trim();
++  if (trimmed.length === 0) return Result.succeed(undefined);
++  const message = `Enter whole seconds from 1 to ${MAX_COMMAND_TIMEOUT_SECONDS}, or leave it blank.`;
++  // Digits only: Number() would read "1e1" or "0x10" as a timeout the user never typed.
++  if (!/^\d+$/u.test(trimmed)) return Result.fail(message);
++  return Result.mapError(decodeCommandTimeout(Number(trimmed)), () => message);
++}
++
++/** The kind's own config, or the message for its field that blocks it. */
++function configFromDraft(
++  draft: SecretProviderDraft,
++): Result.Result<SecretProviderConfig["config"], SecretProviderDraftIssues> {
++  if (draft.kind === "command") {
++    const timeout = decodeTimeout(draft.timeoutSeconds);
++    if (Result.isFailure(timeout)) return Result.fail({ timeoutSeconds: timeout.failure });
++    return Result.succeed(timeout.success === undefined ? {} : { timeoutSeconds: timeout.success });
++  }
++  const account = decodeField(
++    OnePasswordSecretProviderConfig.fields.account,
++    draft.account,
++    "Enter the 1Password account.",
++  );
++  return Result.isFailure(account)
++    ? Result.fail({ account: account.failure })
++    : Result.succeed({ account: account.success });
++}
++
+ /** The settings entry a draft adds or replaces, or every field that blocks it, one message each. */
+ export function secretProviderFromDraft(
+   draft: SecretProviderDraft,
+@@ -80,11 +139,7 @@ export function secretProviderFromDraft(
+   SecretProviderDraftIssues
+ > {
+   const label = decodeField(SecretProviderLabel, draft.name, "Enter a name.");
+-  const account = decodeField(
+-    OnePasswordSecretProviderConfig.fields.account,
+-    draft.account,
+-    "Enter the 1Password account.",
+-  );
++  const config = configFromDraft(draft);
+
+   let id: SecretProviderId | null = null;
+   let nameIssue: string | undefined;
+@@ -101,19 +156,19 @@ export function secretProviderFromDraft(
+     id === null ||
+     nameIssue !== undefined ||
+     Result.isFailure(label) ||
+-    Result.isFailure(account)
++    Result.isFailure(config)
+   ) {
+     return Result.fail({
+       ...(nameIssue === undefined ? {} : { name: nameIssue }),
+-      ...(Result.isFailure(account) ? { account: account.failure } : {}),
++      ...(Result.isFailure(config) ? config.failure : {}),
+     });
+   }
+   return Result.succeed({
+     id,
+     config: {
+-      kind: SecretProviderKind.make("one_password"),
++      kind: SecretProviderKind.make(draft.kind),
+       label: label.success,
+-      config: { account: account.success },
++      config: config.success,
+     },
+   });
+ }
+diff --git a/apps/web/src/components/settings/SecretProviderDialog.tsx b/apps/web/src/components/settings/SecretProviderDialog.tsx
+index 9370fcc6..a9bdb945 100644
+--- a/apps/web/src/components/settings/SecretProviderDialog.tsx
++++ b/apps/web/src/components/settings/SecretProviderDialog.tsx
+@@ -1,4 +1,5 @@
+ import type { EnvironmentId, SecretProviderConfig, SecretProviderId } from "@t3tools/contracts";
++import { DEFAULT_COMMAND_TIMEOUT_SECONDS } from "@t3tools/secret-provider-command/shared/definition";
+ import * as Result from "effect/Result";
+ import { useState } from "react";
+
+@@ -15,12 +16,20 @@ import {
+ } from "../ui/dialog";
+ import { Input } from "../ui/input";
+ import { Label } from "../ui/label";
++import { Select, SelectItem, SelectPopup, SelectTrigger, SelectValue } from "../ui/select";
+ import {
+   draftFromSecretProvider,
++  emptySecretProviderDraft,
+   secretProviderFromDraft,
+   type SecretProviderDraft,
++  type SecretProviderDraftKind,
+ } from "./SecretProviderDialog.logic";
+
++const KIND_LABELS: Readonly<Record<SecretProviderDraftKind, string>> = {
++  one_password: "1Password",
++  command: "Command",
++};
++
+ /** Mounted per open, so each open starts from a fresh draft. */
+ export function SecretProviderDialog({
+   onClose,
+@@ -37,7 +46,7 @@ export function SecretProviderDialog({
+ }) {
+   const updateSettings = useUpdateEnvironmentSettings(environmentId);
+   const [draft, setDraft] = useState<SecretProviderDraft>(
+-    existing ? draftFromSecretProvider(existing.config) : { name: "", account: "" },
++    existing ? draftFromSecretProvider(existing.config) : emptySecretProviderDraft,
+   );
+   const [submitted, setSubmitted] = useState(false);
+   const result = secretProviderFromDraft(
+@@ -48,6 +57,7 @@ export function SecretProviderDialog({
+   const issues = Result.isFailure(result) ? result.failure : {};
+   const nameError = submitted ? issues.name : undefined;
+   const accountError = submitted ? issues.account : undefined;
++  const timeoutError = submitted ? issues.timeoutSeconds : undefined;
+
+   const update = (patch: Partial<SecretProviderDraft>) => setDraft({ ...draft, ...patch });
+   const save = () => {
+@@ -67,11 +77,12 @@ export function SecretProviderDialog({
+       <DialogPopup className="max-w-md">
+         <DialogHeader>
+           <DialogTitle>
+-            {existing ? `Edit ${existing.config.label}` : "Add a 1Password provider"}
++            {existing ? `Edit ${existing.config.label}` : "Add a secret provider"}
+           </DialogTitle>
+           <DialogDescription>
+-            Provider variables on {environmentLabel} can read values from it by name. Values are
+-            read with the op CLI on that server when a provider starts.
++            {draft.kind === "command"
++              ? `Secret settings on ${environmentLabel} can read from it by naming a command. It runs on that server, without a shell, every time the value is read, and what it prints is the value.`
++              : `Provider variables on ${environmentLabel} can read values from it by name. Values are read with the op CLI on that server when a provider starts.`}
+           </DialogDescription>
+         </DialogHeader>
+         <DialogPanel>
+@@ -83,6 +94,28 @@ export function SecretProviderDialog({
+               save();
+             }}
+           >
++            {existing ? null : (
++              <div className="grid gap-1.5">
++                <Label htmlFor="secret-provider-kind">Kind</Label>
++                <Select
++                  value={draft.kind}
++                  onValueChange={(kind) => {
++                    if (kind !== null) update({ kind });
++                  }}
++                >
++                  <SelectTrigger id="secret-provider-kind" aria-label="Kind" size="sm">
++                    <SelectValue>{KIND_LABELS[draft.kind]}</SelectValue>
++                  </SelectTrigger>
++                  <SelectPopup>
++                    {(Object.keys(KIND_LABELS) as Array<SecretProviderDraftKind>).map((kind) => (
++                      <SelectItem key={kind} value={kind}>
++                        {KIND_LABELS[kind]}
++                      </SelectItem>
++                    ))}
++                  </SelectPopup>
++                </Select>
++              </div>
++            )}
+             <div className="grid gap-1.5">
+               <Label htmlFor="secret-provider-name">Name</Label>
+               <Input
+@@ -107,34 +140,63 @@ export function SecretProviderDialog({
+                 </p>
+               ) : null}
+             </div>
+-            <div className="grid gap-1.5">
+-              <Label htmlFor="secret-provider-account">Account</Label>
+-              <Input
+-                id="secret-provider-account"
+-                placeholder="my.1password.com"
+-                value={draft.account}
+-                onChange={(event) => update({ account: event.target.value })}
+-                maxLength={253}
+-                spellCheck={false}
+-                aria-invalid={accountError !== undefined}
+-                aria-describedby={
+-                  accountError !== undefined ? "secret-provider-account-error" : undefined
+-                }
+-              />
+-              {accountError !== undefined ? (
+-                <p
+-                  id="secret-provider-account-error"
+-                  role="alert"
+-                  className="text-xs text-destructive"
+-                >
+-                  {accountError}
++            {draft.kind === "command" ? (
++              <div className="grid gap-1.5">
++                <Label htmlFor="secret-provider-timeout">Timeout (seconds)</Label>
++                <Input
++                  id="secret-provider-timeout"
++                  inputMode="numeric"
++                  placeholder={String(DEFAULT_COMMAND_TIMEOUT_SECONDS)}
++                  value={draft.timeoutSeconds}
++                  onChange={(event) => update({ timeoutSeconds: event.target.value })}
++                  aria-invalid={timeoutError !== undefined}
++                  aria-describedby={
++                    timeoutError !== undefined ? "secret-provider-timeout-error" : undefined
++                  }
++                />
++                {timeoutError !== undefined ? (
++                  <p
++                    id="secret-provider-timeout-error"
++                    role="alert"
++                    className="text-xs text-destructive"
++                  >
++                    {timeoutError}
++                  </p>
++                ) : null}
++                <p className="text-xs text-muted-foreground">
++                  A command still running after this reads as unset.
+                 </p>
+-              ) : null}
+-              <p className="text-xs text-muted-foreground">
+-                The account shorthand, sign-in address without https://, or ID that op account list
+-                shows.
+-              </p>
+-            </div>
++              </div>
++            ) : (
++              <div className="grid gap-1.5">
++                <Label htmlFor="secret-provider-account">Account</Label>
++                <Input
++                  id="secret-provider-account"
++                  placeholder="my.1password.com"
++                  value={draft.account}
++                  onChange={(event) => update({ account: event.target.value })}
++                  maxLength={253}
++                  spellCheck={false}
++                  aria-invalid={accountError !== undefined}
++                  aria-describedby={
++                    accountError !== undefined ? "secret-provider-account-error" : undefined
++                  }
++                />
++                {accountError !== undefined ? (
++                  <p
++                    id="secret-provider-account-error"
++                    role="alert"
++                    className="text-xs text-destructive"
++                  >
++                    {accountError}
++                  </p>
++                ) : null}
++                <p className="text-xs text-muted-foreground">
++                  The account shorthand, sign-in address without https://, or ID that op account
++                  list shows.
++                </p>
++              </div>
++            )}
+           </form>
+         </DialogPanel>
+         <DialogFooter variant="bare">
+diff --git a/apps/web/src/components/settings/SecretSourceInput.tsx b/apps/web/src/components/settings/SecretSourceInput.tsx
+index 56723508..527b4c39 100644
+--- a/apps/web/src/components/settings/SecretSourceInput.tsx
++++ b/apps/web/src/components/settings/SecretSourceInput.tsx
+@@ -9,7 +9,7 @@ import { builtInSecretProviderDefinitions } from "@t3tools/secret-provider-defin
+ import { useAtomValue } from "@effect/atom-react";
+ import * as Option from "effect/Option";
+ import * as Schema from "effect/Schema";
+-import { KeyRoundIcon, TypeIcon } from "lucide-react";
++import { KeyRoundIcon, TerminalIcon, TypeIcon } from "lucide-react";
+ import { useState, type ComponentProps, type ComponentType, type ReactNode } from "react";
+
+ import { isSecretsFeatureEnabled } from "../../env";
+@@ -44,6 +44,10 @@ export function useSecretSources(environmentId: EnvironmentId): ReadonlyArray<Se
+     .map(([id, config]) => ({ id, kind: config.kind, label: config.label }));
+ }
+
++function sourceIcon(kind: SecretProviderKind | undefined) {
++  return kind === "command" ? TerminalIcon : OnePasswordIcon;
++}
++
+ function SourceIcon(props: { readonly icon: ComponentType<{ readonly className?: string }> }) {
+   return <props.icon className="size-3.5 shrink-0" />;
+ }
+@@ -63,15 +67,17 @@ function SourceLabel(props: {
+ /** Picks Value (`null`) or one of `sources`; a `value` no longer among them stays listed. */
+ export function SecretSourceSelect(props: {
+   readonly value: SecretProviderId | null;
+-  readonly sources: ReadonlyArray<Pick<SecretSource, "id" | "label">>;
++  readonly sources: ReadonlyArray<
++    Pick<SecretSource, "id" | "label"> & { readonly kind?: SecretProviderKind }
++  >;
+   readonly label: string;
+   readonly disabled?: boolean;
+   readonly onValueChange: (provider: SecretProviderId | null) => void;
+ }) {
+   const { value, sources } = props;
+-  const known = value === null || sources.some((source) => source.id === value);
+-  const title =
+-    value === null ? "Value" : (sources.find((source) => source.id === value)?.label ?? value);
++  const selected = sources.find((source) => source.id === value);
++  const known = value === null || selected !== undefined;
++  const title = value === null ? "Value" : (selected?.label ?? value);
+   return (
+     <Select
+       value={value ?? STORED_VALUE}
+@@ -89,7 +95,9 @@ export function SecretSourceSelect(props: {
+         title={title}
+       >
+         <SelectValue>
+-          <SourceIcon icon={value === null ? TypeIcon : known ? OnePasswordIcon : KeyRoundIcon} />
++          <SourceIcon
++            icon={value === null ? TypeIcon : known ? sourceIcon(selected?.kind) : KeyRoundIcon}
++          />
+         </SelectValue>
+       </SelectTrigger>
+       <SelectPopup align="start" alignItemWithTrigger={false}>
+@@ -98,7 +106,7 @@ export function SecretSourceSelect(props: {
+         </SelectItem>
+         {sources.map((source) => (
+           <SelectItem key={source.id} value={source.id}>
+-            <SourceLabel icon={OnePasswordIcon} label={source.label} />
++            <SourceLabel icon={sourceIcon(source.kind)} label={source.label} />
+           </SelectItem>
+         ))}
+         {known ? null : (
+diff --git a/apps/web/src/components/settings/SecretsSettings.tsx b/apps/web/src/components/settings/SecretsSettings.tsx
+index 9555e257..1d5d0979 100644
+--- a/apps/web/src/components/settings/SecretsSettings.tsx
++++ b/apps/web/src/components/settings/SecretsSettings.tsx
+@@ -1,5 +1,6 @@
+ import type { EnvironmentId, SecretProviderConfig, SecretProviderId } from "@t3tools/contracts";
+-import { PlusIcon } from "lucide-react";
++import { DEFAULT_COMMAND_TIMEOUT_SECONDS } from "@t3tools/secret-provider-command/shared/definition";
++import { PlusIcon, TerminalIcon } from "lucide-react";
+ import { useState } from "react";
+
+ import { useEnvironmentSettings, useUpdateEnvironmentSettings } from "../../hooks/useSettings";
+@@ -32,6 +33,7 @@ const SECRET_PROVIDER_KINDS: Readonly<
+   Record<string, { readonly name: string; readonly icon: Icon }>
+ > = {
+   one_password: { name: "1Password", icon: OnePasswordIcon },
++  command: { name: "Command", icon: TerminalIcon },
+ };
+
+ export function SecretsSettingsPanel() {
+@@ -116,7 +118,7 @@ function EnvironmentSecretProviders({
+         {entries.length === 0 ? (
+           <SettingsRow
+             title="No secret providers configured."
+-            description="Add a 1Password account, then pick it as the source of a provider variable."
++            description="Add a 1Password account or a command, then pick it as the source of a secret setting."
+           />
+         ) : (
+           entries.map(([id, config]) => {
+@@ -148,6 +150,8 @@ function EnvironmentSecretProviders({
+                         className="max-w-full truncate"
+                       />
+                     </span>
++                  ) : classified.kind === "command" && kind ? (
++                    `${kind.name} · times out after ${classified.timeoutSeconds ?? DEFAULT_COMMAND_TIMEOUT_SECONDS} s`
+                   ) : (
+                     `Unsupported provider (${config.kind})`
+                   )
+diff --git a/docs/user/secrets.md b/docs/user/secrets.md
+index 0e02c813..0531fce7 100644
+--- a/docs/user/secrets.md
++++ b/docs/user/secrets.md
+@@ -9,7 +9,7 @@ work everywhere.
+
+ ## Secret providers
+
+-1Password is the supported provider. T3 Code reads secrets with the
++1Password is one supported provider. T3 Code reads its secrets with the
+ [1Password CLI](https://developer.1password.com/docs/cli/) (`op`), so `op` must be installed and
+ signed in on the machine that runs the T3 Code server. When you use T3 Code on another machine or
+ from your phone, that is the remote machine, not the device in front of you.
+@@ -18,11 +18,18 @@ A desktop sign-in asks for approval on that machine, which a remote user cannot
+ or headless server, sign `op` in with a [service account](./secrets-1password-service-account.md) or a
+ [Connect server](./secrets-1password-connect.md) instead.
+
+-To add one, open **Settings → Secrets**, select **Add provider**, and enter a name and the
+-1Password account: the shorthand, sign-in address (without `https://`), or ID that
++To add one, open **Settings → Secrets**, select **Add provider**, choose **1Password**, and enter a
++name and the 1Password account: the shorthand, sign-in address (without `https://`), or ID that
+ `op account list` shows. Secret providers belong to the environment you are connected to. Each
+ environment keeps its own list.
+
++A **Command** provider runs a program on the server's machine instead, and its output, without
++surrounding whitespace, is the secret. Use it for a tool that prints a short-lived token, such as
++`gh auth token`: T3 Code runs it every time it needs the secret, so the token stays current. The
++reference is the command itself. Its words are split on spaces and run without a shell, so quotes,
++pipes and `~` do not work. A command that fails, prints nothing, or runs past the provider's
++timeout (10 seconds unless you set one) leaves the field unset.
++
+ ## Use a secret reference
+
+ Credential fields in Settings, such as provider environment variables and credentials, source
+diff --git a/package.json b/package.json
+index c43ef19c..974b44d4 100644
+--- a/package.json
++++ b/package.json
+@@ -34,7 +34,7 @@
+     "knip": "knip --preprocessor ./scripts/knip-schemas.ts",
+     "knip:check": "vp run knip:check:all",
+     "knip:check:files": "knip --include files,dependencies --no-config-hints",
+-    "knip:check:exports": "knip --workspace apps/server --workspace apps/desktop --workspace apps/web --workspace packages/client-runtime --workspace packages/contracts --workspace packages/effect-acp --workspace packages/effect-codex-app-server --workspace packages/shared --workspace packages/ssh --workspace packages/tailscale --workspace packages/provider-core --workspace packages/provider-acp --workspace packages/provider-acp-registry --workspace packages/provider-testing --workspace packages/provider-pi --workspace packages/provider-muse --workspace packages/provider-opencode --workspace packages/provider-cursor --workspace packages/provider-fx --workspace packages/provider-grok --workspace packages/provider-kiro --workspace packages/secret-provider-core --workspace packages/secret-provider-definitions --workspace packages/secret-provider-onepassword --workspace packages/source-control-core --workspace packages/source-control-cursor-origin --workspace packages/source-control-definitions --workspace packages/source-control-azure-devops --workspace packages/source-control-bitbucket --workspace packages/source-control-forgejo --workspace packages/source-control-gitcafe --workspace packages/source-control-github --workspace packages/source-control-gitlab --workspace packages/source-control-testing --exports --preprocessor ./scripts/knip-schemas.ts --no-config-hints",
++    "knip:check:exports": "knip --workspace apps/server --workspace apps/desktop --workspace apps/web --workspace packages/client-runtime --workspace packages/contracts --workspace packages/effect-acp --workspace packages/effect-codex-app-server --workspace packages/shared --workspace packages/ssh --workspace packages/tailscale --workspace packages/provider-core --workspace packages/provider-acp --workspace packages/provider-acp-registry --workspace packages/provider-testing --workspace packages/provider-pi --workspace packages/provider-muse --workspace packages/provider-opencode --workspace packages/provider-cursor --workspace packages/provider-fx --workspace packages/provider-grok --workspace packages/provider-kiro --workspace packages/secret-provider-command --workspace packages/secret-provider-core --workspace packages/secret-provider-definitions --workspace packages/secret-provider-onepassword --workspace packages/source-control-core --workspace packages/source-control-cursor-origin --workspace packages/source-control-definitions --workspace packages/source-control-azure-devops --workspace packages/source-control-bitbucket --workspace packages/source-control-forgejo --workspace packages/source-control-gitcafe --workspace packages/source-control-github --workspace packages/source-control-gitlab --workspace packages/source-control-testing --exports --preprocessor ./scripts/knip-schemas.ts --no-config-hints",
+     "knip:production": "knip --production --preprocessor ./scripts/knip-schemas.ts",
+     "lint:mobile": "node scripts/mobile-native-static-check.ts",
+     "mobile:install": "node scripts/mobile-native-client.ts ensure",
+diff --git a/packages/secret-provider-command/package.json b/packages/secret-provider-command/package.json
+new file mode 100644
+index 00000000..64d9a5b4
+--- /dev/null
++++ b/packages/secret-provider-command/package.json
+@@ -0,0 +1,32 @@
++{
++  "name": "@t3tools/secret-provider-command",
++  "private": true,
++  "type": "module",
++  "exports": {
++    "./shared/definition": {
++      "types": "./src/shared/definition.ts",
++      "import": "./src/shared/definition.ts"
++    },
++    "./server/driver": {
++      "types": "./src/server/driver.ts",
++      "import": "./src/server/driver.ts"
++    }
++  },
++  "scripts": {
++    "typecheck": "effect-tsgo tsrs --noEmit",
++    "test": "vp test run --config ../../vite.config.ts --dir ."
++  },
++  "dependencies": {
++    "@t3tools/contracts": "workspace:*",
++    "@t3tools/provider-core": "workspace:*",
++    "@t3tools/secret-provider-core": "workspace:*",
++    "@t3tools/shared": "workspace:*",
++    "effect": "catalog:"
++  },
++  "devDependencies": {
++    "@effect/platform-node": "catalog:",
++    "@effect/vitest": "catalog:",
++    "@types/node": "catalog:",
++    "vite-plus": "catalog:"
++  }
++}
+diff --git a/packages/secret-provider-command/src/server/driver.test.ts b/packages/secret-provider-command/src/server/driver.test.ts
+new file mode 100644
+index 00000000..dcd1b40d
+--- /dev/null
++++ b/packages/secret-provider-command/src/server/driver.test.ts
+@@ -0,0 +1,219 @@
++import * as NodeCrypto from "@effect/platform-node/NodeCrypto";
++import * as NodeFileSystem from "@effect/platform-node/NodeFileSystem";
++import { assert, describe, it } from "@effect/vitest";
++import { SecretProviderId, type SecretReference } from "@t3tools/contracts";
++import * as SecretResolver from "@t3tools/secret-provider-core/server/SecretResolver";
++import * as Deferred from "effect/Deferred";
++import * as Effect from "effect/Effect";
++import * as Fiber from "effect/Fiber";
++import * as Layer from "effect/Layer";
++import * as Logger from "effect/Logger";
++import * as PlatformError from "effect/PlatformError";
++import * as Sink from "effect/Sink";
++import * as Stream from "effect/Stream";
++import * as TestClock from "effect/testing/TestClock";
++import { ChildProcessSpawner } from "effect/process";
++
++import { definition } from "../shared/definition.ts";
++import { driver } from "./driver.ts";
++
++const encoder = new TextEncoder();
++
++type CommandOutcome =
++  | {
++      readonly stdout?: string;
++      readonly stderr?: string;
++      readonly code?: number;
++      readonly hang?: boolean;
++    }
++  | { readonly missing: true };
++
++interface Invocation {
++  readonly command: string;
++  readonly args: ReadonlyArray<string>;
++  readonly shell: unknown;
++  readonly forceKillAfter: unknown;
++}
++
++function fakeCommands(answer: (invocation: Invocation) => CommandOutcome) {
++  const invocations: Array<Invocation> = [];
++  const spawned = Deferred.makeUnsafe<void>();
++  // The driver contract offers every driver the file system and randomness too.
++  const layer = Layer.mergeAll(
++    Layer.succeed(
++      ChildProcessSpawner.ChildProcessSpawner,
++      ChildProcessSpawner.make((command) => {
++        const {
++          command: program,
++          args,
++          options,
++        } = command as unknown as {
++          readonly command: string;
++          readonly args: ReadonlyArray<string>;
++          readonly options: { readonly shell?: unknown; readonly forceKillAfter?: unknown };
++        };
++        const invocation = {
++          command: program,
++          args,
++          shell: options.shell,
++          forceKillAfter: options.forceKillAfter,
++        };
++        invocations.push(invocation);
++        Deferred.doneUnsafe(spawned, Effect.void);
++        const outcome = answer(invocation);
++        if ("missing" in outcome) {
++          return Effect.fail(
++            PlatformError.systemError({
++              _tag: "NotFound",
++              module: "ChildProcess",
++              method: "spawn",
++            }),
++          );
++        }
++        return Effect.succeed(
++          ChildProcessSpawner.makeHandle({
++            pid: ChildProcessSpawner.ProcessId(1),
++            exitCode: outcome.hang
++              ? Effect.never
++              : Effect.succeed(ChildProcessSpawner.ExitCode(outcome.code ?? 0)),
++            isRunning: Effect.succeed(false),
++            kill: () => Effect.void,
++            unref: Effect.succeed(Effect.void),
++            stdin: Sink.drain,
++            stdout: Stream.make(encoder.encode(outcome.stdout ?? "")),
++            stderr: Stream.make(encoder.encode(outcome.stderr ?? "")),
++            all: Stream.empty,
++            getInputFd: () => Sink.drain,
++            getOutputFd: () => Stream.empty,
++          }),
++        );
++      }),
++    ),
++    NodeFileSystem.layer,
++    NodeCrypto.layer,
++  );
++  return { layer, invocations, spawned };
++}
++
++/** Each warning the driver logs, as text, so a test can say what a reader of the log would learn. */
++function capturedWarnings() {
++  const warnings: Array<string> = [];
++  const layer = Logger.layer(
++    [Logger.make(({ message }) => void warnings.push(JSON.stringify(message)))],
++    { mergeWithExisting: false },
++  );
++  return { warnings, layer };
++}
++
++describe("Command driver", () => {
++  it.effect("runs the command line as words, without a shell, and trims its output", () => {
++    const commands = fakeCommands(() => ({ stdout: "  eyJ0b2tlbiI6dHJ1ZX0\n" }));
++    return Effect.gen(function* () {
++      assert.deepStrictEqual(yield* driver.read({}, ["gh  auth token"]), ["eyJ0b2tlbiI6dHJ1ZX0"]);
++      assert.deepStrictEqual(commands.invocations, [
++        { command: "gh", args: ["auth", "token"], shell: false, forceKillAfter: "1 second" },
++      ]);
++    }).pipe(Effect.provide(commands.layer));
++  });
++
++  it.effect(
++    "reads a command that exits non-zero as undefined, logging its last stderr line",
++    () => {
++      const commands = fakeCommands(() => ({
++        code: 1,
++        stdout: "partial",
++        stderr: "checking session\nnot logged in: run gh auth login\n",
++      }));
++      const log = capturedWarnings();
++      return Effect.gen(function* () {
++        assert.deepStrictEqual(yield* driver.read({}, ["gh auth token"]), [undefined]);
++        assert.deepStrictEqual(log.warnings, [
++          JSON.stringify([
++            "Secret command failed",
++            { program: "gh", exitCode: 1, stderr: "not logged in: run gh auth login" },
++          ]),
++        ]);
++      }).pipe(Effect.provide(Layer.mergeAll(commands.layer, log.layer)));
++    },
++  );
++
++  it.effect("logs at most 200 characters of a failed command's stderr", () => {
++    const commands = fakeCommands(() => ({ code: 2, stderr: "x".repeat(500) }));
++    const log = capturedWarnings();
++    return Effect.gen(function* () {
++      yield* driver.read({}, ["gh auth token"]);
++      assert.include(log.warnings[0], `"stderr":"${"x".repeat(200)}"`);
++      assert.notInclude(log.warnings[0], "x".repeat(201));
++    }).pipe(Effect.provide(Layer.mergeAll(commands.layer, log.layer)));
++  });
++
++  it.effect("reads blank output as undefined", () => {
++    const commands = fakeCommands(() => ({ stdout: " \n\t\n" }));
++    return Effect.gen(function* () {
++      assert.deepStrictEqual(yield* driver.read({}, ["gh auth token"]), [undefined]);
++    }).pipe(Effect.provide(commands.layer));
++  });
++
++  it.effect("reads a program that cannot start as undefined, logging why it could not", () => {
++    const commands = fakeCommands(() => ({ missing: true }));
++    const log = capturedWarnings();
++    return Effect.gen(function* () {
++      assert.deepStrictEqual(yield* driver.read({}, ["no-such-program"]), [undefined]);
++      assert.deepStrictEqual(log.warnings, [
++        JSON.stringify([
++          "Could not run secret command",
++          { program: "no-such-program", error: "NotFound" },
++        ]),
++      ]);
++    }).pipe(Effect.provide(Layer.mergeAll(commands.layer, log.layer)));
++  });
++
++  it.effect("gives up on a command after ten seconds by default", () => {
++    const commands = fakeCommands(() => ({ hang: true }));
++    return Effect.gen(function* () {
++      const reading = yield* driver.read({}, ["gh auth token"]).pipe(Effect.forkChild);
++      yield* Deferred.await(commands.spawned);
++      yield* TestClock.adjust("9 seconds");
++      assert.isUndefined(reading.pollUnsafe());
++      yield* TestClock.adjust("1 second");
++
++      assert.deepStrictEqual(yield* Fiber.join(reading), [undefined]);
++    }).pipe(Effect.provide(commands.layer));
++  });
++
++  it.effect("gives up on a command at its provider's timeout", () => {
++    const commands = fakeCommands(() => ({ hang: true }));
++    return Effect.gen(function* () {
++      const reading = yield* driver
++        .read({ timeoutSeconds: 2 }, ["gh auth token"])
++        .pipe(Effect.forkChild);
++      yield* Deferred.await(commands.spawned);
++      yield* TestClock.adjust("2 seconds");
++
++      assert.deepStrictEqual(yield* Fiber.join(reading), [undefined]);
++    }).pipe(Effect.provide(commands.layer));
++  });
++
++  it.effect("runs the command again on every resolve, so an expiring token stays current", () => {
++    let issued = 0;
++    const commands = fakeCommands(() => ({ stdout: `token-${++issued}\n` }));
++    const provider = SecretProviderId.make("gateway");
++    const token: SecretReference = { provider, reference: "gh auth token" };
++    return Effect.gen(function* () {
++      const resolver = yield* SecretResolver.SecretResolver;
++
++      assert.deepStrictEqual(yield* resolver.read([token]), ["token-1"]);
++      assert.deepStrictEqual(yield* resolver.read([token]), ["token-2"]);
++      assert.strictEqual(commands.invocations.length, 2);
++    }).pipe(
++      Effect.provide(
++        SecretResolver.layer({
++          drivers: [driver],
++          secretProviders: Effect.succeed({
++            [provider]: { kind: definition.kind, label: "Gateway", config: {} },
++          }),
++        }).pipe(Layer.provide(commands.layer)),
++      ),
++    );
++  });
++});
+diff --git a/packages/secret-provider-command/src/server/driver.ts b/packages/secret-provider-command/src/server/driver.ts
+new file mode 100644
+index 00000000..f3203527
+--- /dev/null
++++ b/packages/secret-provider-command/src/server/driver.ts
+@@ -0,0 +1,82 @@
++import { spawnAndCollect } from "@t3tools/provider-core/server/snapshotProbe";
++import { defineSecretProviderDriver } from "@t3tools/secret-provider-core/server/driver";
++import { resolveSpawnCommand } from "@t3tools/shared/shell";
++import * as Duration from "effect/Duration";
++import * as Effect from "effect/Effect";
++import * as Option from "effect/Option";
++import * as PlatformError from "effect/PlatformError";
++import { ChildProcess } from "effect/process";
++
++import { commandWords, DEFAULT_COMMAND_TIMEOUT_SECONDS, definition } from "../shared/definition.ts";
++
++const FORCE_KILL_AFTER = "1 second";
++
++const runCommand = Effect.fn("CommandSecretDriver.runCommand")(function* (
++  program: string,
++  args: ReadonlyArray<string>,
++) {
++  const spawnCommand = yield* resolveSpawnCommand(program, args);
++  return yield* spawnAndCollect(
++    program,
++    // A command that ignores SIGTERM would otherwise hold the read, and the resolver, past its timeout.
++    ChildProcess.make(spawnCommand.command, spawnCommand.args, {
++      shell: spawnCommand.shell,
++      forceKillAfter: FORCE_KILL_AFTER,
++    }),
++  );
++});
++
++// Enough of stderr's last line to say why ("not logged in"), without echoing whatever else a command prints.
++const STDERR_EXCERPT = 200;
++
++const lastLine = (stderr: string) =>
++  stderr.trim().split("\n").at(-1)?.trim().slice(0, STDERR_EXCERPT) ?? "";
++
++// Logs name the program only: arguments can carry an account or a vault path.
++const readOne = Effect.fn("CommandSecretDriver.readOne")(function* (
++  reference: string,
++  timeoutSeconds: number,
++) {
++  const [program = "", ...args] = commandWords(reference);
++  const outcome = yield* runCommand(program, args).pipe(
++    Effect.timeoutOption(Duration.seconds(timeoutSeconds)),
++    Effect.result,
++  );
++  if (outcome._tag === "Failure") {
++    yield* Effect.logWarning("Could not run secret command", {
++      program,
++      error:
++        outcome.failure instanceof PlatformError.PlatformError
++          ? outcome.failure.reason._tag
++          : outcome.failure._tag,
++    });
++    return undefined;
++  }
++  if (Option.isNone(outcome.success)) {
++    yield* Effect.logWarning("Secret command did not finish in time", { program, timeoutSeconds });
++    return undefined;
++  }
++  const { code, stdout, stderr } = outcome.success.value;
++  if (code !== 0) {
++    yield* Effect.logWarning("Secret command failed", {
++      program,
++      exitCode: code,
++      stderr: lastLine(stderr),
++    });
++    return undefined;
++  }
++  // Unlike a stored secret, command output ends in a newline that is never part of the value.
++  const value = stdout.trim();
++  if (value.length === 0) {
++    yield* Effect.logWarning("Secret command printed nothing", { program });
++    return undefined;
++  }
++  return value;
++});
++
++export const driver = defineSecretProviderDriver({
++  kind: definition.kind,
++  definition,
++  read: ({ timeoutSeconds = DEFAULT_COMMAND_TIMEOUT_SECONDS }, references) =>
++    Effect.forEach(references, (reference) => readOne(reference, timeoutSeconds)),
++});
+diff --git a/packages/secret-provider-command/src/shared/definition.test.ts b/packages/secret-provider-command/src/shared/definition.test.ts
+new file mode 100644
+index 00000000..6fda0899
+--- /dev/null
++++ b/packages/secret-provider-command/src/shared/definition.test.ts
+@@ -0,0 +1,36 @@
++import { describe, expect, it } from "@effect/vitest";
++import * as Schema from "effect/Schema";
++
++import { CommandSecretProviderConfig, commandWords, definition } from "./definition.ts";
++
++const isConfig = Schema.is(CommandSecretProviderConfig);
++
++describe("Command definition", () => {
++  it("accepts a command line with or without arguments", () => {
++    for (const reference of [
++      "gh auth token",
++      "/usr/local/bin/print-token",
++      "pass  show  api/key",
++    ]) {
++      expect(definition.isReference(reference), reference).toBe(true);
++    }
++  });
++
++  it("rejects a blank, multi-line, or overlong command", () => {
++    for (const reference of ["", "   ", "gh auth token\nrm -rf ~", `print ${"x".repeat(1024)}`]) {
++      expect(definition.isReference(reference), reference).toBe(false);
++    }
++  });
++
++  it("splits a command line into its program and arguments on any run of whitespace", () => {
++    expect(commandWords("  pass \t show  api/key ")).toEqual(["pass", "show", "api/key"]);
++  });
++
++  it("takes a timeout of whole seconds up to two minutes, or none", () => {
++    expect(isConfig({})).toBe(true);
++    expect(isConfig({ timeoutSeconds: 30 })).toBe(true);
++    for (const timeoutSeconds of [0, 1.5, 121]) {
++      expect(isConfig({ timeoutSeconds }), String(timeoutSeconds)).toBe(false);
++    }
++  });
++});
+diff --git a/packages/secret-provider-command/src/shared/definition.ts b/packages/secret-provider-command/src/shared/definition.ts
+new file mode 100644
+index 00000000..ea7dea58
+--- /dev/null
++++ b/packages/secret-provider-command/src/shared/definition.ts
+@@ -0,0 +1,36 @@
++import { SecretProviderKind } from "@t3tools/contracts";
++import { defineSecretProvider } from "@t3tools/secret-provider-core/shared/definition";
++import * as Schema from "effect/Schema";
++
++export const DEFAULT_COMMAND_TIMEOUT_SECONDS = 10;
++// The resolver reads one provider at a time, so a hung command holds up every other uncached read.
++export const MAX_COMMAND_TIMEOUT_SECONDS = 120;
++
++export const CommandTimeoutSeconds = Schema.Int.check(
++  Schema.isBetween({ minimum: 1, maximum: MAX_COMMAND_TIMEOUT_SECONDS }),
++);
++
++export const CommandSecretProviderConfig = Schema.Struct({
++  timeoutSeconds: Schema.optionalKey(CommandTimeoutSeconds),
++});
++export type CommandSecretProviderConfig = typeof CommandSecretProviderConfig.Type;
++
++const MAX_REFERENCE_LENGTH = 1024;
++
++/** A reference is a program and its arguments, split on whitespace; no shell ever reads it. */
++export const commandWords = (reference: string): ReadonlyArray<string> =>
++  reference.trim().split(/\s+/u);
++
++export const definition = defineSecretProvider({
++  kind: SecretProviderKind.make("command"),
++  label: "Command",
++  configSchema: CommandSecretProviderConfig,
++  isReference: (reference) =>
++    reference.trim().length > 0 &&
++    reference.length <= MAX_REFERENCE_LENGTH &&
++    !/[\r\n]/u.test(reference),
++  referencePlaceholder: "gh auth token",
++  invalidReferenceMessage: "Enter a command on one line, like gh auth token.",
++  // Token helpers print short-lived values and keep their own cache against the expiry.
++  cacheable: false,
++});
+diff --git a/packages/secret-provider-command/tsconfig.json b/packages/secret-provider-command/tsconfig.json
+new file mode 100644
+index 00000000..374bac55
+--- /dev/null
++++ b/packages/secret-provider-command/tsconfig.json
+@@ -0,0 +1,7 @@
++{
++  "extends": "../../tsconfig.base.json",
++  "compilerOptions": {
++    "types": ["node"]
++  },
++  "include": ["src"]
++}
+diff --git a/packages/secret-provider-core/src/server/SecretResolver.test.ts b/packages/secret-provider-core/src/server/SecretResolver.test.ts
+index d654a1c9..c31f8943 100644
+--- a/packages/secret-provider-core/src/server/SecretResolver.test.ts
++++ b/packages/secret-provider-core/src/server/SecretResolver.test.ts
+@@ -79,6 +79,46 @@ describe("SecretResolver", () => {
+     }).pipe(Effect.provide(resolverLayer(driver)));
+   });
+
++  it.effect("reads a kind that is not cacheable on every call, and still holds the others", () => {
++    const TOKEN_KIND = SecretProviderKind.make("fake_token");
++    const tokens = SecretProviderId.make("tokens");
++    let issued = 0;
++    const tokenDriver = defineSecretProviderDriver({
++      kind: TOKEN_KIND,
++      definition: defineSecretProvider({
++        kind: TOKEN_KIND,
++        label: "Fake token",
++        configSchema: Schema.Struct({}),
++        isReference: (reference) => reference.startsWith("token://"),
++        referencePlaceholder: "token://name",
++        invalidReferenceMessage: "Use token://name.",
++        cacheable: false,
++      }),
++      read: (_, references) => Effect.sync(() => references.map(() => `token-${++issued}`)),
++    });
++    const { driver, reads } = fakeDriver(() => "sk-live");
++    return Effect.gen(function* () {
++      const resolver = yield* SecretResolver.SecretResolver;
++      const token = ref("token://hub", tokens);
++      const both = [ref("fake://openai"), token];
++
++      assert.deepStrictEqual(yield* resolver.read(both), ["sk-live", "token-1"]);
++      assert.deepStrictEqual(yield* resolver.read(both), ["sk-live", "token-2"]);
++      assert.deepStrictEqual(yield* resolver.read([token]), ["token-3"]);
++      assert.strictEqual(reads.length, 1);
++    }).pipe(
++      Effect.provide(
++        SecretResolver.layer({
++          drivers: [driver, tokenDriver],
++          secretProviders: Effect.succeed({
++            [personal]: fake("a"),
++            [tokens]: { kind: TOKEN_KIND, label: "Tokens", config: {} },
++          }),
++        }).pipe(Layer.provide(Layer.mergeAll(NodeServices.layer, NodeCrypto.layer))),
++      ),
++    );
++  });
++
+   it.effect("holds a failed read until invalidated, then reads again", () => {
+     let locked = true;
+     const { driver, reads } = fakeDriver(() => (locked ? undefined : "sk-live"));
+diff --git a/packages/secret-provider-core/src/server/SecretResolver.ts b/packages/secret-provider-core/src/server/SecretResolver.ts
+index e3f64dbb..748cb723 100644
+--- a/packages/secret-provider-core/src/server/SecretResolver.ts
++++ b/packages/secret-provider-core/src/server/SecretResolver.ts
+@@ -1,6 +1,7 @@
+ // Reads secrets that settings point at through a configured secret provider. Each read, including
+ // a failed one, is held for the server's life so rebuilds never re-prompt an unlock; `invalidate`
+-// (the Settings refresh) is the only way to read again.
++// (the Settings refresh) is the only way to read again. A kind that is not `cacheable` is never
++// held, so every call reads it again.
+ import type { SecretReference, ServerSettings } from "@t3tools/contracts";
+ import * as Context from "effect/Context";
+ import * as Effect from "effect/Effect";
+@@ -73,18 +74,23 @@ export const make = Effect.fn("SecretResolver.make")(function* (options: {
+       : { driver, config: config.value, configKey: JSON.stringify(config.value) };
+   };
+
+-  const isCached = (reference: SecretReference, plan: ReadablePlan) =>
+-    cache.get(cacheKey(reference))?.config === plan.configKey;
++  const isCacheable = (plan: ReadablePlan) => plan.driver.definition.cacheable !== false;
+
++  const isCached = (reference: SecretReference, plan: ReadablePlan) =>
++    isCacheable(plan) && cache.get(cacheKey(reference))?.config === plan.configKey;
++
++  // `fresh` holds what this call read, so a value that is never cached still reaches its caller.
+   const answer = (
+     references: ReadonlyArray<SecretReference>,
+     plans: ReadonlyArray<ReadablePlan | undefined>,
++    fresh: ReadonlyMap<string, string | undefined> = new Map(),
+   ) =>
+     references.map((reference, index) => {
+       const plan = plans[index];
+-      return plan !== undefined && isCached(reference, plan)
+-        ? cache.get(cacheKey(reference))?.value
+-        : undefined;
++      const key = cacheKey(reference);
++      if (plan === undefined) return undefined;
++      if (fresh.has(key)) return fresh.get(key);
++      return isCached(reference, plan) ? cache.get(key)?.value : undefined;
+     });
+
+   // Cache hits answer without the lock, so a read waiting on an unlock never stalls a cached one.
+@@ -118,15 +124,20 @@ export const make = Effect.fn("SecretResolver.make")(function* (options: {
+           ]);
+           wanted.set(reference.provider, group);
+         });
++        const fresh = new Map<string, string | undefined>();
+         for (const { plan, byReference } of wanted.values()) {
+           const values = yield* plan.driver.read(plan.config, [...byReference.keys()]);
+           [...byReference.values()].forEach((sameReference, index) => {
+             for (const reference of sameReference) {
+-              cache.set(cacheKey(reference), { config: plan.configKey, value: values[index] });
++              const key = cacheKey(reference);
++              fresh.set(key, values[index]);
++              if (isCacheable(plan)) {
++                cache.set(key, { config: plan.configKey, value: values[index] });
++              }
+             }
+           });
+         }
+-        return answer(references, plans);
++        return answer(references, plans, fresh);
+       }),
+     );
+   }, Effect.provideContext(context));
+diff --git a/packages/secret-provider-core/src/shared/definition.ts b/packages/secret-provider-core/src/shared/definition.ts
+index 7f4320dd..2509f237 100644
+--- a/packages/secret-provider-core/src/shared/definition.ts
++++ b/packages/secret-provider-core/src/shared/definition.ts
+@@ -10,6 +10,8 @@ export interface SecretProviderDefinition<Config = unknown> {
+   readonly isReference: (reference: string) => boolean;
+   readonly referencePlaceholder: string;
+   readonly invalidReferenceMessage: string;
++  /** `false` for values that expire: the resolver then reads them on every call. Defaults to `true`. */
++  readonly cacheable?: boolean;
+ }
+
+ export const defineSecretProvider = <Config>(
+diff --git a/packages/secret-provider-definitions/package.json b/packages/secret-provider-definitions/package.json
+index bc585045..8762c930 100644
+--- a/packages/secret-provider-definitions/package.json
++++ b/packages/secret-provider-definitions/package.json
+@@ -12,6 +12,7 @@
+     "typecheck": "effect-tsgo tsrs --noEmit"
+   },
+   "dependencies": {
++    "@t3tools/secret-provider-command": "workspace:*",
+     "@t3tools/secret-provider-core": "workspace:*",
+     "@t3tools/secret-provider-onepassword": "workspace:*"
+   }
+diff --git a/packages/secret-provider-definitions/src/registry.ts b/packages/secret-provider-definitions/src/registry.ts
+index 70df74e1..61975024 100644
+--- a/packages/secret-provider-definitions/src/registry.ts
++++ b/packages/secret-provider-definitions/src/registry.ts
+@@ -1,6 +1,8 @@
++import * as Command from "@t3tools/secret-provider-command/shared/definition";
+ import { makeSecretProviderDefinitionRegistry } from "@t3tools/secret-provider-core/shared/definition";
+ import * as OnePassword from "@t3tools/secret-provider-onepassword/shared/definition";
+
+ export const builtInSecretProviderDefinitions = makeSecretProviderDefinitionRegistry([
+   OnePassword.definition,
++  Command.definition,
+ ]);
+diff --git a/pnpm-lock.yaml b/pnpm-lock.yaml
+index 40d85e33..cf2be420 100644
+--- a/pnpm-lock.yaml
++++ b/pnpm-lock.yaml
+@@ -959,6 +959,9 @@ importers:
+       '@t3tools/provider-testing':
+         specifier: workspace:*
+         version: link:../../packages/provider-testing
++      '@t3tools/secret-provider-command':
++        specifier: workspace:*
++        version: link:../../packages/secret-provider-command
+       '@t3tools/secret-provider-core':
+         specifier: workspace:*
+         version: link:../../packages/secret-provider-core
+@@ -1073,6 +1076,9 @@ importers:
+       '@t3tools/provider-core':
+         specifier: workspace:*
+         version: link:../../packages/provider-core
++      '@t3tools/secret-provider-command':
++        specifier: workspace:*
++        version: link:../../packages/secret-provider-command
+       '@t3tools/secret-provider-definitions':
+         specifier: workspace:*
+         version: link:../../packages/secret-provider-definitions
+@@ -1967,6 +1973,37 @@ importers:
+         specifier: 24.12.4
+         version: 24.12.4
+
++  packages/secret-provider-command:
++    dependencies:
++      '@t3tools/contracts':
++        specifier: workspace:*
++        version: link:../contracts
++      '@t3tools/provider-core':
++        specifier: workspace:*
++        version: link:../provider-core
++      '@t3tools/secret-provider-core':
++        specifier: workspace:*
++        version: link:../secret-provider-core
++      '@t3tools/shared':
++        specifier: workspace:*
++        version: link:../shared
++      effect:
++        specifier: 4.1.2
++        version: 4.1.2
++    devDependencies:
++      '@effect/platform-node':
++        specifier: 4.1.2
++        version: 4.1.2(bufferutil@4.1.0)(effect@4.1.2)(redis@6.2.1)(utf-8-validate@6.0.6)
++      '@effect/vitest':
++        specifier: 4.1.2
++        version: 4.1.2(patch_hash=299510b71c36537a832a67e9d160a5f112a5f326a29e95c41cb45fc8234e47c7)(@astrojs/compiler-rs@0.5.1)(@types/node@24.12.4)(@vitest/browser-playwright@5.0.5)(@vitest/ui@5.0.5)(@volar/typescript@2.4.28(typescript@6.0.3))(bufferutil@4.1.0)(effect@4.1.2)(esbuild@0.28.2)(jiti@2.7.0)(jsdom@30.1.0(@noble/hashes@1.8.0))(playwright@1.60.0)(terser@5.48.0)(typescript@6.0.3)(unrun@0.2.39)(utf-8-validate@6.0.6)(yaml@2.9.0)
++      '@types/node':
++        specifier: 24.12.4
++        version: 24.12.4
++      vite-plus:
++        specifier: 1.4.0
++        version: 1.4.0(@astrojs/compiler-rs@0.5.1)(@types/node@24.12.4)(@vitest/browser-playwright@5.0.5)(@vitest/ui@5.0.5)(@volar/typescript@2.4.28(typescript@6.0.3))(bufferutil@4.1.0)(esbuild@0.28.2)(jiti@2.7.0)(jsdom@30.1.0(@noble/hashes@1.8.0))(playwright@1.60.0)(terser@5.48.0)(typescript@6.0.3)(unrun@0.2.39)(utf-8-validate@6.0.6)(yaml@2.9.0)
++
+   packages/secret-provider-core:
+     dependencies:
+       '@t3tools/contracts':
+@@ -1991,6 +2028,9 @@ importers:
+
+   packages/secret-provider-definitions:
+     dependencies:
++      '@t3tools/secret-provider-command':
++        specifier: workspace:*
++        version: link:../secret-provider-command
+       '@t3tools/secret-provider-core':
+         specifier: workspace:*
+         version: link:../secret-provider-core
+diff --git a/scripts/release-smoke.ts b/scripts/release-smoke.ts
+index 9a97563e..07eda8ec 100644
+--- a/scripts/release-smoke.ts
++++ b/scripts/release-smoke.ts
+@@ -40,6 +40,7 @@ const workspaceFiles = [
+   "packages/provider-kiro/package.json",
+   "packages/provider-muse/package.json",
+   "packages/provider-opencode/package.json",
++  "packages/secret-provider-command/package.json",
+   "packages/secret-provider-core/package.json",
+   "packages/secret-provider-definitions/package.json",
+   "packages/secret-provider-onepassword/package.json",

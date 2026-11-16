@@ -1,7 +1,8 @@
 # t3code overlays
 
 One file per change, each a standalone overlay that layers another
-`prev.t3code.override` onto the last.
+`prev.t3code.override` onto the last. A change that needs several files gets a
+folder named for it, holding its overlays and patch.
 
 Source patches land in `unwrapped`, never on the `t3code` symlinkJoin: stdenv
 skips fixupPhase when `buildCommand` is set, so postFixup on the join is a silent
