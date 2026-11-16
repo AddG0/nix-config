@@ -1,10 +1,10 @@
 diff --git a/apps/server/src/orchestration-v2/ThreadLaunchService.test.ts b/apps/server/src/orchestration-v2/ThreadLaunchService.test.ts
-index d3c62a7e..fe643aa9 100644
+index fb7a2ffc..1d2f4896 100644
 --- a/apps/server/src/orchestration-v2/ThreadLaunchService.test.ts
 +++ b/apps/server/src/orchestration-v2/ThreadLaunchService.test.ts
-@@ -1114,6 +1114,43 @@ it.effect.each(["stable", "upstream/release"])(
-     ),
- );
+@@ -1177,6 +1177,43 @@ it.effect("fetches the origin base from the remote it already resolved", () => {
+   }).pipe(Effect.provide(harness.layer));
+ });
 
 +it.effect("checks out the base branch when the requested branch names it", () => {
 +  const harness = makeHarness({
@@ -47,10 +47,10 @@ index d3c62a7e..fe643aa9 100644
    const detail =
      "Git could not authenticate with the remote. Check Git credentials or SSH access on the server, then retry.";
 diff --git a/apps/server/src/orchestration-v2/ThreadLaunchService.ts b/apps/server/src/orchestration-v2/ThreadLaunchService.ts
-index b68eef4b..346bd0a6 100644
+index 7e7829ba..75ed401f 100644
 --- a/apps/server/src/orchestration-v2/ThreadLaunchService.ts
 +++ b/apps/server/src/orchestration-v2/ThreadLaunchService.ts
-@@ -371,6 +371,10 @@ const make = Effect.gen(function* () {
+@@ -372,6 +372,10 @@ const make = Effect.gen(function* () {
        );
 
        const requestedBranch = input.workspaceStrategy.branch;
@@ -61,15 +61,16 @@ index b68eef4b..346bd0a6 100644
        let branch: string | null;
        if (input.workspaceStrategy.type === "worktree" && requestedBranch === undefined) {
          const uuid = yield* randomUuidV4;
-@@ -397,6 +401,7 @@ const make = Effect.gen(function* () {
+@@ -398,7 +402,7 @@ const make = Effect.gen(function* () {
          let startRef = input.workspaceStrategy.baseRef;
          let baseRefName = input.workspaceStrategy.baseRef;
-         const shouldFetch =
-+          !checksOutBase &&
-           input.workspaceStrategy.startFromOrigin === true &&
-           (yield* git
-             .resolveWorktreeBaseRemote({
-@@ -419,6 +424,7 @@ const make = Effect.gen(function* () {
+         const remote =
+-          input.workspaceStrategy.startFromOrigin === true
++          !checksOutBase && input.workspaceStrategy.startFromOrigin === true
+             ? yield* git
+                 .resolveWorktreeBaseRemote({
+                   cwd: project.workspaceRoot,
+@@ -423,6 +427,7 @@ const make = Effect.gen(function* () {
          }
          if (shouldFetch) yield* setupTracker.stageStatus(threadId, "fetch", "done");
          if (
@@ -77,7 +78,7 @@ index b68eef4b..346bd0a6 100644
            branch !== null &&
            isTemporaryWorktreeBranch(branch) &&
            (yield* git
-@@ -436,8 +442,7 @@ const make = Effect.gen(function* () {
+@@ -440,8 +445,7 @@ const make = Effect.gen(function* () {
              {
                cwd: project.workspaceRoot,
                refName: startRef,
@@ -87,7 +88,7 @@ index b68eef4b..346bd0a6 100644
                path: null,
              },
              {
-@@ -475,6 +480,7 @@ const make = Effect.gen(function* () {
+@@ -481,6 +485,7 @@ const make = Effect.gen(function* () {
 
        if (
          reused === undefined &&
@@ -96,7 +97,7 @@ index b68eef4b..346bd0a6 100644
          branch !== null &&
          initialMessage !== undefined &&
 diff --git a/apps/web/src/components/BranchToolbar.logic.test.ts b/apps/web/src/components/BranchToolbar.logic.test.ts
-index 08e6f763..7278dbb9 100644
+index 8b2222c4..a727925b 100644
 --- a/apps/web/src/components/BranchToolbar.logic.test.ts
 +++ b/apps/web/src/components/BranchToolbar.logic.test.ts
 @@ -2,8 +2,14 @@ import { type VcsRef } from "@t3tools/contracts";
@@ -114,7 +115,7 @@ index 08e6f763..7278dbb9 100644
    resolveDraftEnvModeAfterBranchChange,
    resolveEffectiveEnvMode,
    resolveBranchToolbarPrBranch,
-@@ -254,3 +260,209 @@ describe("sanitizeNewRefName", () => {
+@@ -286,3 +292,209 @@ describe("sanitizeNewRefName", () => {
      expect(sanitizeNewRefName("foo--bar")).toBe("foo--bar");
    });
  });
@@ -325,21 +326,22 @@ index 08e6f763..7278dbb9 100644
 +  });
 +});
 diff --git a/apps/web/src/components/BranchToolbar.logic.ts b/apps/web/src/components/BranchToolbar.logic.ts
-index e22dcfad..55f23974 100644
+index a967c317..6e741c8b 100644
 --- a/apps/web/src/components/BranchToolbar.logic.ts
 +++ b/apps/web/src/components/BranchToolbar.logic.ts
-@@ -6,8 +6,9 @@ import type {
+@@ -6,9 +6,10 @@ import type {
    WorktreeSubmodules,
  } from "@t3tools/contracts";
  import * as Schema from "effect/Schema";
 -import { sanitizeNewRefName } from "@t3tools/shared/git";
 +import { deriveLocalBranchNameFromRemoteRef, sanitizeNewRefName } from "@t3tools/shared/git";
+ import { workspaceRelativeFilePath } from "@t3tools/shared/path";
  import { toSortableTimestamp } from "@t3tools/client-runtime/state/thread-sort";
 +import { formatWorktreePathForDisplay } from "../worktreeCleanup";
  export { deriveLocalBranchNameFromRemoteRef, sanitizeNewRefName } from "@t3tools/shared/git";
 
  export interface EnvironmentOption {
-@@ -152,6 +153,80 @@ export function resolvePreviousWorktreeLabel(seed: PreviousWorktreeSeed): string
+@@ -153,6 +154,80 @@ export function resolvePreviousWorktreeLabel(seed: PreviousWorktreeSeed): string
    return seed.branch ? `Previous worktree (${seed.branch})` : "Previous worktree";
  }
 
@@ -420,7 +422,7 @@ index e22dcfad..55f23974 100644
  export function resolveEffectiveEnvMode(input: {
    activeWorktreePath: string | null;
    hasServerThread: boolean;
-@@ -202,6 +277,7 @@ export function resolveBranchTriggerLabel(input: {
+@@ -203,6 +278,7 @@ export function resolveBranchTriggerLabel(input: {
    resolvedActiveBranch: string | null;
    resolvedActiveBranchIsRemote: boolean | null;
    startFromOrigin: boolean;
@@ -428,7 +430,7 @@ index e22dcfad..55f23974 100644
  }): string {
    const {
      activeWorktreePath,
-@@ -209,15 +285,21 @@ export function resolveBranchTriggerLabel(input: {
+@@ -210,15 +286,21 @@ export function resolveBranchTriggerLabel(input: {
      resolvedActiveBranch,
      resolvedActiveBranchIsRemote,
      startFromOrigin,
@@ -867,10 +869,10 @@ index 93249bcf..17aaee49 100644
            {...(onComposerFocusRequest ? { onComposerFocusRequest } : {})}
          />
 diff --git a/apps/web/src/components/BranchToolbarBranchSelector.tsx b/apps/web/src/components/BranchToolbarBranchSelector.tsx
-index 95848c20..c4e50d7d 100644
+index 9782f258..f1ff724e 100644
 --- a/apps/web/src/components/BranchToolbarBranchSelector.tsx
 +++ b/apps/web/src/components/BranchToolbarBranchSelector.tsx
-@@ -22,6 +22,7 @@ import {
+@@ -21,6 +21,7 @@ import {
    useEffect,
    useImperativeHandle,
    useOptimistic,
@@ -878,7 +880,7 @@ index 95848c20..c4e50d7d 100644
    useState,
    useTransition,
    type MouseEvent as ReactMouseEvent,
-@@ -46,8 +47,11 @@ import { parsePullRequestReference } from "@t3tools/client-runtime/pull-request-
+@@ -45,8 +46,11 @@ import { parsePullRequestReference } from "@t3tools/client-runtime/pull-request-
  import { getSourceControlPresentation } from "../sourceControlPresentation";
  import { useComposerMenuProps } from "./chat/composerEventScope";
  import {
@@ -890,7 +892,7 @@ index 95848c20..c4e50d7d 100644
    resolveBranchToolbarPrBranch,
    resolveBranchSelectionTarget,
    resolveBranchToolbarValue,
-@@ -87,6 +91,10 @@ interface BranchToolbarBranchSelectorProps {
+@@ -86,6 +90,10 @@ interface BranchToolbarBranchSelectorProps {
    onActiveThreadBranchOverrideChange?: (refName: string | null) => void;
    startFromOrigin: boolean;
    onStartFromOriginChange: (startFromOrigin: boolean) => void;
@@ -901,7 +903,7 @@ index 95848c20..c4e50d7d 100644
    onCheckoutPullRequestRequest?: (reference: string) => void;
    onComposerFocusRequest?: () => void;
  }
-@@ -109,6 +117,9 @@ export function BranchToolbarBranchSelector({
+@@ -108,6 +116,9 @@ export function BranchToolbarBranchSelector({
    onActiveThreadBranchOverrideChange,
    startFromOrigin,
    onStartFromOriginChange,
@@ -911,17 +913,17 @@ index 95848c20..c4e50d7d 100644
    onCheckoutPullRequestRequest,
    onComposerFocusRequest,
  }: BranchToolbarBranchSelectorProps) {
-@@ -237,6 +248,9 @@ export function BranchToolbarBranchSelector({
-   const deferredTrimmedBranchQuery = deferredBranchQuery.trim();
+@@ -240,6 +251,9 @@ export function BranchToolbarBranchSelector({
+   });
    const refs = branchRefState.refs;
    const branchByName = new Map(refs.map((refName) => [refName.name, refName] as const));
 +  const localBranchNames = new Set(
 +    refs.filter((refName) => refName.isRemote !== true).map((refName) => refName.name),
 +  );
-   const normalizedDeferredBranchQuery = deferredTrimmedBranchQuery.toLowerCase();
+   const normalizedBranchQuery = trimmedBranchQuery.toLowerCase();
    const prReference = parsePullRequestReference(trimmedBranchQuery);
    const isSelectingWorktreeBase =
-@@ -245,8 +259,7 @@ export function BranchToolbarBranchSelector({
+@@ -248,8 +262,7 @@ export function BranchToolbarBranchSelector({
      canChangeThreadBranch && prReference && onCheckoutPullRequestRequest
        ? `__checkout_pull_request__:${prReference}`
        : null;
@@ -931,7 +933,7 @@ index 95848c20..c4e50d7d 100644
    const newRefName = sanitizeNewRefName(trimmedBranchQuery);
    const hasExactBranchMatch = branchByName.has(newRefName);
    const createBranchItemValue = canCreateBranch
-@@ -384,7 +397,17 @@ export function BranchToolbarBranchSelector({
+@@ -387,7 +400,17 @@ export function BranchToolbarBranchSelector({
      if (!canUpdateThreadBranch || !branchCwd || !activeProjectCwd || isBranchActionPending) return;
 
      if (isSelectingWorktreeBase) {
@@ -950,7 +952,7 @@ index 95848c20..c4e50d7d 100644
        setIsBranchMenuOpen(false);
        onComposerFocusRequest?.();
        return;
-@@ -449,6 +472,13 @@ export function BranchToolbarBranchSelector({
+@@ -453,6 +476,13 @@ export function BranchToolbarBranchSelector({
      setIsBranchMenuOpen(false);
      onComposerFocusRequest?.();
 
@@ -964,7 +966,7 @@ index 95848c20..c4e50d7d 100644
      runBranchAction(async () => {
        const previousBranch = resolvedActiveBranch;
        setOptimisticBranch(name);
-@@ -478,9 +508,10 @@ export function BranchToolbarBranchSelector({
+@@ -482,9 +512,10 @@ export function BranchToolbarBranchSelector({
      });
    };
 
@@ -976,7 +978,7 @@ index 95848c20..c4e50d7d 100644
 
    // The server sets started threads' branches; defaulting here would detach the agent from its worktree.
    const threadStarted = serverSession !== null;
-@@ -515,6 +546,14 @@ export function BranchToolbarBranchSelector({
+@@ -519,6 +550,14 @@ export function BranchToolbarBranchSelector({
      }
    };
 
@@ -991,7 +993,7 @@ index 95848c20..c4e50d7d 100644
    useImperativeHandle(
      ref,
      () => ({
-@@ -532,6 +571,7 @@ export function BranchToolbarBranchSelector({
+@@ -536,6 +575,7 @@ export function BranchToolbarBranchSelector({
      resolvedActiveBranch,
      resolvedActiveBranchIsRemote,
      startFromOrigin,
@@ -999,7 +1001,7 @@ index 95848c20..c4e50d7d 100644
    });
 
    const branchPrBranch = resolveBranchToolbarPrBranch({
-@@ -613,7 +653,11 @@ export function BranchToolbarBranchSelector({
+@@ -617,7 +657,11 @@ export function BranchToolbarBranchSelector({
            value={itemValue}
            onClick={() => selectPickerItem(itemValue)}
          >
@@ -1012,7 +1014,7 @@ index 95848c20..c4e50d7d 100644
          </ComboboxItem>
        );
      }
-@@ -667,7 +711,7 @@ export function BranchToolbarBranchSelector({
+@@ -672,7 +716,7 @@ export function BranchToolbarBranchSelector({
              : "branch"
        }
        originControl={
@@ -1022,7 +1024,7 @@ index 95848c20..c4e50d7d 100644
            : undefined
        }
 diff --git a/apps/web/src/components/BranchToolbarEnvModeSelector.tsx b/apps/web/src/components/BranchToolbarEnvModeSelector.tsx
-index 41bd2b00..8f8eddba 100644
+index ca511de4..e684021e 100644
 --- a/apps/web/src/components/BranchToolbarEnvModeSelector.tsx
 +++ b/apps/web/src/components/BranchToolbarEnvModeSelector.tsx
 @@ -4,13 +4,16 @@ import { FolderGit2Icon, FolderGitIcon, FolderIcon } from "lucide-react";
@@ -1111,7 +1113,7 @@ index 41bd2b00..8f8eddba 100644
 +      resolveLockedWorkspaceLabel(activeWorktreePath, effectiveEnvMode);
      const lockedRow = (
        <span
-         className="inline-flex h-7 min-w-0 items-center gap-1 border border-transparent px-1.75 font-normal text-muted-foreground/70 text-sm sm:h-6 sm:text-xs"
+         className="inline-flex h-7 min-w-0 items-center gap-1.5 border border-transparent px-1.75 font-normal text-muted-foreground/70 text-sm sm:h-6 sm:text-xs"
 @@ -84,9 +89,7 @@ export const BranchToolbarEnvModeSelector = memo(function BranchToolbarEnvModeSe
            <FolderIcon className="size-3" />
          )}
@@ -1228,10 +1230,10 @@ index 41bd2b00..8f8eddba 100644
        </SelectPopup>
      </Select>
 diff --git a/apps/web/src/components/ChatView.tsx b/apps/web/src/components/ChatView.tsx
-index e15424cf..0c76e56a 100644
+index 6daf189f..875f89f5 100644
 --- a/apps/web/src/components/ChatView.tsx
 +++ b/apps/web/src/components/ChatView.tsx
-@@ -291,6 +291,8 @@ import type { ExpandedImagePreview } from "./chat/ExpandedImagePreview";
+@@ -292,6 +292,8 @@ import type { ExpandedImagePreview } from "./chat/ExpandedImagePreview";
  import { ThreadDetailsPanel } from "./chat/ThreadDetailsPanel";
  import { NoActiveThreadState } from "./NoActiveThreadState";
  import {
@@ -1240,7 +1242,7 @@ index e15424cf..0c76e56a 100644
    resolveEffectiveEnvMode,
    resolveLocalCheckoutBranchMismatch,
    shouldShowComposerContextStrip,
-@@ -711,6 +713,10 @@ export default function ChatView(props: ChatViewProps) {
+@@ -698,6 +700,10 @@ export default function ChatView(props: ChatViewProps) {
      readonly threadId: ThreadId;
      readonly branch: string | null;
    } | null>(null);
@@ -1251,7 +1253,7 @@ index e15424cf..0c76e56a 100644
    const [
      pendingServerThreadStartFromOriginByThreadId,
      setPendingServerThreadStartFromOriginByThreadId,
-@@ -2221,6 +2227,13 @@ export default function ChatView(props: ChatViewProps) {
+@@ -2189,6 +2195,13 @@ export default function ChatView(props: ChatViewProps) {
    const setPendingServerThreadBranch = (branch: string | null) => {
      if (activeThread) setPendingServerThreadBranchEntry({ threadId: activeThread.id, branch });
    };
@@ -1265,7 +1267,7 @@ index e15424cf..0c76e56a 100644
    const envMode: DraftThreadEnvMode = canOverrideServerThreadEnvMode
      ? (pendingServerThreadEnvMode ?? draftThread?.envMode ?? derivedEnvMode)
      : derivedEnvMode;
-@@ -2863,6 +2876,7 @@ export default function ChatView(props: ChatViewProps) {
+@@ -2843,6 +2856,7 @@ export default function ChatView(props: ChatViewProps) {
      canOverrideServerThreadEnvMode,
      setPendingServerThreadEnvModeEntry,
      setPendingServerThreadStartFromOriginByThreadId,
@@ -1273,7 +1275,7 @@ index e15424cf..0c76e56a 100644
      scheduleComposerFocus,
    });
    const { onResume, isResuming } = useComposerResume({
-@@ -2920,6 +2934,7 @@ export default function ChatView(props: ChatViewProps) {
+@@ -2883,6 +2897,7 @@ export default function ChatView(props: ChatViewProps) {
      runtimeMode,
      sendEnvMode,
      startFromOrigin,
@@ -1281,16 +1283,16 @@ index e15424cf..0c76e56a 100644
      localCheckoutBranchMismatch,
      logicalProjectEnvironments,
      providerInstanceEntries,
-@@ -3756,6 +3771,8 @@ export default function ChatView(props: ChatViewProps) {
-                                 onEnvModeChange={onEnvModeChangeStable}
-                                 startFromOrigin={startFromOrigin}
-                                 onStartFromOriginChange={onStartFromOriginChange}
-+                                newWorktreeBranchPlan={newWorktreeBranchPlan}
-+                                onNewWorktreeBranchPlanChange={setNewWorktreeBranchPlan}
-                                 envMode={envMode}
-                                 {...(canOverrideServerThreadEnvMode
-                                   ? {
-@@ -3889,6 +3906,8 @@ export default function ChatView(props: ChatViewProps) {
+@@ -3733,6 +3748,8 @@ export default function ChatView(props: ChatViewProps) {
+                                   onEnvModeChange={onEnvModeChangeStable}
+                                   startFromOrigin={startFromOrigin}
+                                   onStartFromOriginChange={onStartFromOriginChange}
++                                  newWorktreeBranchPlan={newWorktreeBranchPlan}
++                                  onNewWorktreeBranchPlanChange={setNewWorktreeBranchPlan}
+                                   envMode={envMode}
+                                   {...(canOverrideServerThreadEnvMode
+                                     ? {
+@@ -3868,6 +3885,8 @@ export default function ChatView(props: ChatViewProps) {
                      : {})}
                    startFromOrigin={startFromOrigin}
                    onStartFromOriginChange={onStartFromOriginChange}
@@ -1346,7 +1348,7 @@ index 5c648016..77ea9ef6 100644
      ...(props.activeThreadBranchOverride !== undefined
        ? { activeThreadBranchOverride: props.activeThreadBranchOverride }
 diff --git a/apps/web/src/components/chat/useComposerSelection.ts b/apps/web/src/components/chat/useComposerSelection.ts
-index a6312466..0b1f6262 100644
+index 1563c8c5..138816d5 100644
 --- a/apps/web/src/components/chat/useComposerSelection.ts
 +++ b/apps/web/src/components/chat/useComposerSelection.ts
 @@ -20,6 +20,7 @@ import { toastManager } from "../ui/toast";
@@ -1357,7 +1359,7 @@ index a6312466..0b1f6262 100644
  import {
    getStartedThreadModelChangeBlockReason,
    deriveLockedProvider,
-@@ -50,6 +51,7 @@ interface ComposerSelectionInput {
+@@ -48,6 +49,7 @@ interface ComposerSelectionInput {
    readonly setPendingServerThreadStartFromOriginByThreadId: Dispatch<
      SetStateAction<Record<string, boolean>>
    >;
@@ -1365,7 +1367,7 @@ index a6312466..0b1f6262 100644
    readonly scheduleComposerFocus: () => void;
  }
 
-@@ -77,6 +79,7 @@ export function useComposerSelection(input: ComposerSelectionInput) {
+@@ -73,6 +75,7 @@ export function useComposerSelection(input: ComposerSelectionInput) {
      canOverrideServerThreadEnvMode,
      setPendingServerThreadEnvModeEntry,
      setPendingServerThreadStartFromOriginByThreadId,
@@ -1373,7 +1375,7 @@ index a6312466..0b1f6262 100644
      scheduleComposerFocus,
    } = input;
    const navigate = useNavigate();
-@@ -216,6 +219,7 @@ export function useComposerSelection(input: ComposerSelectionInput) {
+@@ -196,6 +199,7 @@ export function useComposerSelection(input: ComposerSelectionInput) {
    const onProviderModelSelectStable = useStableCallback(onProviderModelSelect);
    const onEnvModeChange = (mode: DraftThreadEnvMode) => {
      if (multipleModelSelections !== null) return;
@@ -1381,7 +1383,7 @@ index a6312466..0b1f6262 100644
      if (canOverrideServerThreadEnvMode) {
        if (activeThread) setPendingServerThreadEnvModeEntry({ threadId: activeThread.id, mode });
        scheduleComposerFocus();
-@@ -228,7 +232,8 @@ export function useComposerSelection(input: ComposerSelectionInput) {
+@@ -208,7 +212,8 @@ export function useComposerSelection(input: ComposerSelectionInput) {
            envMode: mode,
            newWorktreesStartFromOrigin: activeProjectSettings.settings.newWorktreesStartFromOrigin,
          }),
@@ -1392,18 +1394,18 @@ index a6312466..0b1f6262 100644
      }
      scheduleComposerFocus();
 diff --git a/apps/web/src/components/chat/useComposerSend.ts b/apps/web/src/components/chat/useComposerSend.ts
-index b22c313f..f8b01ae7 100644
+index 1371324a..a9f3f1cd 100644
 --- a/apps/web/src/components/chat/useComposerSend.ts
 +++ b/apps/web/src/components/chat/useComposerSend.ts
-@@ -58,6 +58,7 @@ import {
-   parseStandaloneComposerSlashCommand,
+@@ -56,6 +56,7 @@ import {
+   type ComposerSubmissionIntent,
+   collapseExpandedComposerCursor,
  } from "../../composer-logic";
- import { resolvePlanFollowUpSubmission } from "../../proposedPlan";
 +import { type NewWorktreeBranchPlan } from "../BranchToolbar.logic";
- import { type ChatMessage } from "../../types";
+ import { type ChatMessage, DEFAULT_INTERACTION_MODE } from "../../types";
  import { recordPromptSent } from "../GitHubStarPrompt";
  import { stackedThreadToast, toastManager } from "../ui/toast";
-@@ -184,6 +185,7 @@ interface ComposerSendInput {
+@@ -176,6 +177,7 @@ interface ComposerSendInput {
    readonly runtimeMode: RuntimeMode;
    readonly sendEnvMode: DraftThreadEnvMode;
    readonly startFromOrigin: boolean;
@@ -1411,7 +1413,7 @@ index b22c313f..f8b01ae7 100644
    readonly localCheckoutBranchMismatch: {
      readonly threadBranch: string;
      readonly currentBranch: string;
-@@ -282,6 +284,7 @@ export function useComposerSend(input: ComposerSendInput) {
+@@ -273,6 +275,7 @@ export function useComposerSend(input: ComposerSendInput) {
      runtimeMode,
      sendEnvMode,
      startFromOrigin,
@@ -1419,7 +1421,7 @@ index b22c313f..f8b01ae7 100644
      localCheckoutBranchMismatch,
      logicalProjectEnvironments,
      providerInstanceEntries,
-@@ -1326,7 +1329,15 @@ export function useComposerSend(input: ComposerSendInput) {
+@@ -1207,7 +1210,15 @@ export function useComposerSend(input: ComposerSendInput) {
                      prepareWorktree: {
                        projectCwd: activeProject.workspaceRoot,
                        baseBranch: baseBranchForWorktree,
@@ -1437,7 +1439,7 @@ index b22c313f..f8b01ae7 100644
                      runSetupScript: true,
                    }
 diff --git a/apps/web/src/hooks/useThreadActions.ts b/apps/web/src/hooks/useThreadActions.ts
-index c41873d5..c9a11721 100644
+index e91f1706..2beb91be 100644
 --- a/apps/web/src/hooks/useThreadActions.ts
 +++ b/apps/web/src/hooks/useThreadActions.ts
 @@ -4,7 +4,11 @@ import {
@@ -1453,8 +1455,8 @@ index c41873d5..c9a11721 100644
  import { canSnooze, threadWokeAt } from "@t3tools/client-runtime/state/thread-settled";
  import { threadRuntimeCanArchive } from "@t3tools/client-runtime/state/models";
  import {
-@@ -48,7 +52,12 @@ import { useUiStateStore } from "../uiStateStore";
- import { clearThreadPreviewState } from "../previewStateStore";
+@@ -51,7 +55,12 @@ import { clearThreadPreviewState } from "../previewStateStore";
+ import { useRightPanelStore } from "../rightPanelStore";
  import { useTerminalUiStateStore } from "../terminalUiStateStore";
  import { buildThreadRouteParams, resolveThreadRouteRef } from "../threadRoutes";
 -import { formatWorktreePathForDisplay, getOrphanedWorktreePathForThread } from "../worktreeCleanup";
@@ -1467,7 +1469,7 @@ index c41873d5..c9a11721 100644
  import { stackedThreadToast, toastManager } from "../components/ui/toast";
  import { useClientSettings } from "./useSettings";
  import * as ThreadUndo from "@t3tools/client-runtime/state/thread-undo";
-@@ -318,6 +327,9 @@ export function useThreadActions() {
+@@ -332,6 +341,9 @@ export function useThreadActions() {
    const refreshVcsStatus = useAtomCommand(vcsEnvironment.refreshStatus, {
      reportFailure: false,
    });
@@ -1477,7 +1479,7 @@ index c41873d5..c9a11721 100644
    const sidebarThreadSortOrder = useClientSettings((settings) => settings.sidebarThreadSortOrder);
    const confirmThreadDelete = useClientSettings((settings) => settings.confirmThreadDelete);
    const confirmThreadUnpin = useClientSettings((settings) => settings.confirmThreadUnpin);
-@@ -732,6 +744,138 @@ export function useThreadActions() {
+@@ -783,6 +795,138 @@ export function useThreadActions() {
      return result;
    };
 
@@ -1616,7 +1618,7 @@ index c41873d5..c9a11721 100644
    const settleThread = async (target: ScopedThreadRef) => {
      if (!readEnvironmentServerConfigLoaded(target.environmentId)) {
        return AsyncResult.failure(
-@@ -770,6 +914,40 @@ export function useThreadActions() {
+@@ -821,6 +965,40 @@ export function useThreadActions() {
        undo: () => runUndoPlan(target, undoPlan),
        failureTitle: "Failed to undo settle",
      });
