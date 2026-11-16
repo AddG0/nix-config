@@ -7,6 +7,7 @@
 }: let
   issuer = "https://auth.${config.hostSpec.domain}";
   baseUrl = "https://ai-proxy.${config.hostSpec.domain}";
+  claudeUrl = pool: "https://ai-proxy-claude-${pool}.${config.hostSpec.domain}";
 
   # infra-live's `tofu output ai_proxy`; prevent_destroy there keeps both from changing.
   projectId = "393364980939882573";
@@ -22,7 +23,7 @@
       AI_PROXY_ISSUER = issuer;
       AI_PROXY_CLIENT_ID = clientId;
       AI_PROXY_URL = baseUrl;
-      AI_PROXY_CLAUDE_URL = "https://ai-proxy-claude-{pool}.${config.hostSpec.domain}";
+      AI_PROXY_CLAUDE_URL = claudeUrl "{pool}";
       AI_PROXY_CLAUDE_DEFAULT_POOL = "personal";
       AI_PROXY_CLAUDE_POOLS = lib.concatStringsSep " " pools;
       # A file, not the JSON itself: writeShellApplication shellchecks its env lines, and quotes in a value fail SC2089.
@@ -104,6 +105,11 @@ in {
     xdg.configFile."opencode/plugins/ai-proxy.js".source = pkgs.replaceVars ./opencode-plugin.js {
       helper = lib.getExe ai-proxy;
       provider = opencodeProvider;
+    };
+
+    programs.t3code.userSettings = import ./t3code-hubs.nix {
+      inherit lib baseUrl claudeUrl pools;
+      helper = lib.getExe ai-proxy;
     };
   };
 }
