@@ -54,6 +54,9 @@ in {
       # Only mine: the shared mux socket keeps whichever account logs in first.
       "gitlab" = {
         header = "Host gitlab.com";
+        # gitlab.com:22 drops intermittently; altssh:443 is the same SSH.
+        HostName = "altssh.gitlab.com";
+        Port = 443;
         IdentityFile = "~/.ssh/primary.pub";
         IdentitiesOnly = true;
       };
