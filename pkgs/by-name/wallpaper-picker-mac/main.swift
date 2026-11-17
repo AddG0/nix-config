@@ -86,8 +86,9 @@ struct GridCell: View {
   @ObservedObject var thumbnails: Thumbnails
   let url: URL
   let selected: Bool
+  let hovered: Bool
+  let onHover: (Bool) -> Void
   let onPick: () -> Void
-  @State private var hovered = false
 
   var body: some View {
     let ring: Color = selected ? Palette.accent : (hovered ? Palette.foreground : .clear)
@@ -95,7 +96,7 @@ struct GridCell: View {
       .aspectRatio(16 / 10, contentMode: .fit)
       .clipShape(RoundedRectangle(cornerRadius: 8))
       .overlay(RoundedRectangle(cornerRadius: 8).stroke(ring, lineWidth: 3))
-      .onHover { hovered = $0 }
+      .onHover(perform: onHover)
       .onTapGesture(perform: onPick)
   }
 }
@@ -122,16 +123,25 @@ struct MonitorTile: View {
   }
 }
 
+// SDK 26+ makes @State a macro whose SwiftUIMacros plugin ships only with Xcode, so view state lives here.
+@MainActor
+final class Selection: ObservableObject {
+  @Published var screenIndex: Int
+  @Published var hovered: URL?
+
+  init(screenIndex: Int) { self.screenIndex = screenIndex }
+}
+
 struct Picker: View {
   @StateObject private var thumbnails = Thumbnails()
-  @State private var screenIndex: Int
-  @State private var current: [URL?]
+  @StateObject private var selection: Selection
   let screens = NSScreen.screens
+  let current: [URL?]
 
   init() {
     let mouse = NSEvent.mouseLocation
-    _screenIndex = State(initialValue: NSScreen.screens.firstIndex { $0.frame.contains(mouse) } ?? 0)
-    _current = State(initialValue: NSScreen.screens.map { matchCurrent(NSWorkspace.shared.desktopImageURL(for: $0), in: images) })
+    _selection = StateObject(wrappedValue: Selection(screenIndex: NSScreen.screens.firstIndex { $0.frame.contains(mouse) } ?? 0))
+    current = NSScreen.screens.map { matchCurrent(NSWorkspace.shared.desktopImageURL(for: $0), in: images) }
   }
 
   var body: some View {
@@ -140,7 +150,13 @@ struct Picker: View {
       ScrollView {
         LazyVGrid(columns: [GridItem(.adaptive(minimum: 220), spacing: 12)], spacing: 12) {
           ForEach(images, id: \.self) { url in
-            GridCell(thumbnails: thumbnails, url: url, selected: current[screenIndex] == url) { apply(url) }
+            GridCell(
+              thumbnails: thumbnails, url: url, selected: current[selection.screenIndex] == url,
+              hovered: selection.hovered == url,
+              onHover: { inside in
+                if inside { selection.hovered = url } else if selection.hovered == url { selection.hovered = nil }
+              }
+            ) { apply(url) }
           }
         }
         .padding(4)
@@ -158,7 +174,7 @@ struct Picker: View {
       return .handled
     }
     .onKeyPress(.tab) {
-      screenIndex = (screenIndex + 1) % screens.count
+      selection.screenIndex = (selection.screenIndex + 1) % screens.count
       return .handled
     }
   }
@@ -170,15 +186,15 @@ struct Picker: View {
       ForEach(rects.indices, id: \.self) { i in
         MonitorTile(
           thumbnails: thumbnails, url: current[i], name: screens[i].localizedName,
-          rect: rects[i], selected: i == screenIndex
-        ) { screenIndex = i }
+          rect: rects[i], selected: i == selection.screenIndex
+        ) { selection.screenIndex = i }
       }
     }
     .frame(width: box.width, height: box.height, alignment: .topLeading)
   }
 
   func apply(_ url: URL) {
-    let screen = screens[screenIndex]
+    let screen = screens[selection.screenIndex]
     do {
       try NSWorkspace.shared.setDesktopImageURL(url, for: screen, options: [:])
     } catch {
