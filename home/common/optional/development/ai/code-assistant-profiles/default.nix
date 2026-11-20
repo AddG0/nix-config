@@ -120,6 +120,8 @@ in {
           - `ghq list <substring>` finds a repo among ~360 clones; `-p` prints absolute paths, `-e` matches exactly. `ghq get <url|owner/repo>` clones a missing one.
           - Work clones sit under `gitlab.com/ShipperHQ/…`, but their stored remote is `git@gitlab-work:…` — an ssh alias, not a resolvable hostname. Derive web and clone URLs from the ghq path, or map the alias back to `gitlab.com`; `insteadOf` rewrites only at transport time, so the alias stays in `.git/config`.
           - Worktrees are siblings of their clone with a `--<branch>` suffix and show up in `ghq list`; `gwq list` shows only worktrees.
+          - Create a worktree with `cd <clone> && gwadd --no-session [-b] <branch>` (`-b` for a new branch from the clone's checkout, else it prompts), never `git worktree add`: a branch started from a remote branch tracks it, so `git push` refuses. gwadd leaves a new branch without upstream; the first push creates `origin/<branch>`.
+          - To start a new branch from the upstream default branch, whatever the repo calls it: `git fetch origin && git branch --no-track <branch> origin/HEAD`, then `gwadd --no-session <branch>`. For any other base, name it in place of `origin/HEAD`.
           - `~/nix-config` lives outside the ghq root.
         '';
 
