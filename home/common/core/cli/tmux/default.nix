@@ -41,6 +41,7 @@
 in {
   imports = [
     ./agent-sidebar.nix
+    ./server
     ./stale-sessions
   ];
 
