@@ -13,6 +13,7 @@
     ./plugins
     ./hyprmoncfg.nix
     ./pip.nix
+    ./popups-under-fullscreen
     ./btop.nix
     ./hyprtoolkit.nix
     ./monitor-control.nix
