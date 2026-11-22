@@ -28,7 +28,10 @@
     ])
   ];
 
-  services.homeAssistantOci.hostName = "home-assistant-eu.${config.hostSpec.domain}";
+  services.homeAssistantOci = {
+    autoUpdate.enable = true;
+    hostName = "home-assistant-eu.${config.hostSpec.domain}";
+  };
 
   nix.git-sync = {
     enable = true;
