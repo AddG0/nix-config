@@ -4,7 +4,7 @@
   ...
 }: {
   imports = lib.flatten [
-    (with lib.custom.optional.home; [browsers])
+    (with lib.custom.optional.home; [browsers.zen.core])
     (with lib.custom.optional.home.gaming; [minecraft])
     (with lib.custom.optional.home.media; [spicetify vlc])
   ];

@@ -11,7 +11,7 @@
     lib.custom.suites.ai.home
     lib.custom.suites.virtualization.home
     (with lib.custom.optional.home; [
-      browsers
+      browsers.zen.core
       comms.clickup
       comms.discord
       comms.slack
@@ -63,6 +63,7 @@
       wayscriber
     ])
     (with lib.custom.optional.primary; [stylix work])
+    (with lib.custom.optional.primary.browsers.zen; [steamdb])
     (with lib.custom.optional.primary.secrets; [kubeconfig onepassword-ssh])
   ];
 

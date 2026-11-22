@@ -8,7 +8,7 @@
     # lib.custom.suites.virtualization.home
     lib.custom.suites.development.home
     lib.custom.suites.ai.home
-    (with lib.custom.optional.home; [browsers comms.clickup comms.discord comms.slack ghostty helper-scripts mic-mute-sound])
+    (with lib.custom.optional.home; [browsers.zen.core comms.clickup comms.discord comms.slack ghostty helper-scripts mic-mute-sound])
     (with lib.custom.optional.home.desktops; [
       hyprland.nvidia
       hyprland.software-dimming
@@ -65,6 +65,7 @@
       wayscriber
     ])
     (with lib.custom.optional.primary; [stylix work])
+    (with lib.custom.optional.primary.browsers.zen; [steamdb])
     (with lib.custom.optional.primary.development; [node])
     (with lib.custom.optional.primary.secrets; [kubeconfig onepassword-ssh])
     (with lib.custom.optional.primary.services; [rclone])

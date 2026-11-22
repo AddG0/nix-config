@@ -1,3 +1,3 @@
 {
-  imports = [../../home/common/optional/browsers];
+  imports = [../../home/common/optional/browsers/zen/core];
 }

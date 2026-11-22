@@ -3,7 +3,7 @@
     lib.custom.suites.development.home
     lib.custom.suites.ai.home
 
-    (with lib.custom.optional.home; [browsers comms.discord comms.slack ghostty helper-scripts tools.obsidian])
+    (with lib.custom.optional.home; [browsers.zen.core comms.discord comms.slack ghostty helper-scripts tools.obsidian])
 
     (with lib.custom.optional.home.development; [
       ai.ai-proxy

@@ -2,7 +2,7 @@
   imports = lib.flatten [
     lib.custom.suites.development.home
     lib.custom.suites.ai.home
-    (with lib.custom.optional.home; [browsers])
+    (with lib.custom.optional.home; [browsers.zen.core])
     (with lib.custom.optional.home.development; [gcloud])
     (with lib.custom.optional.home.secrets; [sops])
     (with lib.custom.optional.primary; [stylix work])

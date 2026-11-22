@@ -85,12 +85,9 @@ in {
 
       extensions.packages = with pkgs.firefox-addons; [
         ublock-origin
-        onepassword-password-manager
         tampermonkey
         stylus # Catppuccin: userstyles.catppuccin.com/getting-started/usage → download import.json → Stylus Settings → Backup → Import
         darkreader
-        steam-database # SteamDB (steamdb.info) price/data overlay on Steam store
-        youtube-auto-hd-fps # Force highest available quality on every YouTube video
       ];
 
       search = import ./search-config.nix {inherit pkgs;};
@@ -173,31 +170,6 @@ in {
   wayland.windowManager.hyprland.settings.windowrule = lib.mkBefore [
     "tag +browser, match:class ^(zen|zen-alpha|zen-beta)$"
   ];
-
-  # 1Password claims Cmd+. (workspace forward) on macOS; back to Ctrl+. as on Linux. Extension "Ctrl" is Command here, "MacCtrl" is Control.
-  home.activation.zenOnePasswordShortcut = lib.mkIf pkgs.stdenv.hostPlatform.isDarwin (lib.hm.dag.entryAfter ["writeBoundary"] (let
-    profileDir = "${config.programs.zen-browser.profilesPath}/${config.programs.zen-browser.profiles.default.path}";
-    settings = "${profileDir}/extension-settings.json";
-  in ''
-    (
-      id=${lib.escapeShellArg pkgs.firefox-addons.onepassword-password-manager.addonId}
-      if /usr/bin/pgrep -xq zen; then echo "zen: quit Zen and switch again, or it keeps 1Password on Cmd+." >&2; fi
-      installDate=$(${lib.getExe pkgs.jq} --arg id "$id" '[.addons[]? | select(.id == $id) | .installDate][0] // 0' ${lib.escapeShellArg "${profileDir}/extensions.json"} 2>/dev/null || echo 0)
-      current='{"version":3}'
-      if [ -s ${lib.escapeShellArg settings} ]; then current=$(cat ${lib.escapeShellArg settings}); fi
-      merged=$(${lib.getExe pkgs.jq} -c --arg id "$id" --argjson date "$installDate" '
-        .commands._execute_browser_action.precedenceList =
-          ([.commands._execute_browser_action.precedenceList[]? | select(.id != $id)]
-           + [{id: $id, installDate: $date, value: {shortcut: "MacCtrl+Period"}, enabled: true}])
-      ' <<<"$current") && [ -n "$merged" ] || { echo "zen: invalid JSON in ${settings}" >&2; exit 1; }
-      if [ "$merged" != "$(${lib.getExe pkgs.jq} -c . <<<"$current")" ]; then
-        tmp=$(mktemp)
-        printf '%s\n' "$merged" >"$tmp"
-        run install -Dm600 -T "$tmp" ${lib.escapeShellArg settings}
-        rm -f "$tmp"
-      fi
-    )
-  ''));
 
   # setAsDefaultBrowser only writes xdg.mimeApps; macOS needs LaunchServices. No-op (no prompt) when already default.
   home.activation.zenDefaultBrowser = lib.mkIf pkgs.stdenv.hostPlatform.isDarwin (lib.hm.dag.entryAfter ["writeBoundary"] ''

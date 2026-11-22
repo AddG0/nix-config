@@ -1,7 +1,7 @@
 # tridactyl
 
 Vim-style keyboard control for Zen. Configured in
-`home/common/optional/browsers/zen/{tridactyl,default}.nix`. **Close Zen before
+`home/common/optional/browsers/zen/core/{tridactyl,default}.nix`. **Close Zen before
 rebuilding**, then restart it (content scripts only inject into pages opened
 after the extension goes live).
 

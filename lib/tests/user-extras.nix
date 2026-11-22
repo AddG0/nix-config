@@ -31,8 +31,8 @@
   userTrees = builtins.attrNames (removeAttrs optional ["hosts" "home"]);
 in {
   testAddsTheUserTreesModuleAtTheSamePlace = {
-    expr = withUserExtras "primary" [optional.home.browsers];
-    expected = [optional.home.browsers optional.primary.browsers];
+    expr = withUserExtras "primary" [optional.home.browsers.zen.core];
+    expected = [optional.home.browsers.zen.core optional.primary.browsers.zen.core];
   };
 
   testFindsTheExtraForANestedModule = {
@@ -46,8 +46,8 @@ in {
   };
 
   testAddsNothingForAUserWithoutATree = {
-    expr = withUserExtras "nobody" [optional.home.browsers];
-    expected = [optional.home.browsers];
+    expr = withUserExtras "nobody" [optional.home.browsers.zen.core];
+    expected = [optional.home.browsers.zen.core];
   };
 
   testLeavesImportsOutsideTheSharedHomeTreeAlone = {
@@ -57,12 +57,12 @@ in {
 
   testExpandsTheNestedImportListOfAUserHomeFile = {
     expr = userHomeImports "primary" ./_user-home.nix;
-    expected = [optional.home.browsers optional.home.comms.discord optional.primary.browsers];
+    expected = [optional.home.browsers.zen.core optional.home.comms.discord optional.primary.browsers.zen.core];
   };
 
   testExpandsAUserHomeFileWrittenAsAPlainAttrset = {
     expr = (importUserHome "primary" ./_user-home-attrs.nix).imports;
-    expected = [optional.home.browsers optional.primary.browsers];
+    expected = [optional.home.browsers.zen.core optional.primary.browsers.zen.core];
   };
 
   testKeysAUserHomeFileByItsPathSoItDedupesWithAPlainImport = {
@@ -71,10 +71,10 @@ in {
   };
 
   testGivesOnlyTheUserWithATreeTheirExtraFromASuitesHomeHalf = {
-    expr = suiteImports ["u" "guest"] {home = [optional.home.browsers];};
+    expr = suiteImports ["u" "guest"] {home = [optional.home.browsers.zen.core];};
     expected = {
-      u = [optional.home.browsers optional.primary.browsers];
-      guest = [optional.home.browsers];
+      u = [optional.home.browsers.zen.core optional.primary.browsers.zen.core];
+      guest = [optional.home.browsers.zen.core];
     };
   };
 

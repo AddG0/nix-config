@@ -74,8 +74,8 @@ to the host's primary user, any other tree to the user it is named after, on hos
 that have that user.
 
 A user tree's module at the same path as a shared home module comes along with
-it: a primary home importing `optional.home.browsers` also gets
-`optional.primary.browsers`. That holds for the user's host file, their
+it: a primary home importing `optional.home.browsers.zen.core` also gets
+`optional.primary.browsers.zen.core`. That holds for the user's host file, their
 `common/core` and suites, not for a shared module importing another, so shared
 modules never import a leaf that has a user half. A path is a module on both
 sides or a namespace on both; a test fails otherwise. Why: ADR 0012.
