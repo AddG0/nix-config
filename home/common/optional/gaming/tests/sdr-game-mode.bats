@@ -126,17 +126,17 @@ expect_commands() {
 
 @test "restores HDR once the game that switched the monitor closes" {
   scenario closed
-  expect_commands "keyword monitor $sdr_rule" reload reload
+  expect_commands "keyword monitor $sdr_rule" reload
 }
 
 @test "restores HDR once the game that switched the monitor moves to another monitor" {
   scenario moved
-  expect_commands "keyword monitor $sdr_rule" reload reload
+  expect_commands "keyword monitor $sdr_rule" reload
 }
 
-@test "reloads to restore HDR once no SDR game is fullscreen" {
-  scenario restore
-  expect_commands reload reload
+@test "leaves a monitor its config puts in sRGB alone instead of reloading on every event" {
+  scenario not-switched
+  expect_commands
 }
 
 @test "never touches a monitor not declared HDR" {

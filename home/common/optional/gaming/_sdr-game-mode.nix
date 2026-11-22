@@ -33,6 +33,8 @@ in {
 
       # Monitor name → addresses of the games holding it in SDR.
       held='{}'
+      # Monitors this daemon switched to sRGB; one in sRGB for any other reason is left alone, or every event reloads.
+      declare -A switched=()
 
       reconcile() {
         local monitors clients workspaces sdr_gamescope pid cmdline paused state mon wants_sdr cm holding specials special other restore=0
@@ -82,14 +84,16 @@ in {
               echo "sdr-game-mode: could not list special workspaces on $mon — direct scanout may stay blocked" >&2
             fi
             if hyprctl_accepted keyword monitor "''${sdr_rule[$mon]}"; then
+              switched[$mon]=1
               echo "sdr-game-mode: SDR game on $mon — switched it to sRGB"
             fi
-          elif [ "$wants_sdr" = false ] && [ "$cm" = srgb ]; then
+          elif [ "$wants_sdr" = false ] && [ "$cm" = srgb ] && [ -n "''${switched[$mon]:-}" ]; then
             restore=1
           fi
         done <<<"$state"
 
         if [ "$restore" = 1 ] && hyprctl_accepted reload; then
+          switched=()
           echo "sdr-game-mode: no SDR game left — reloaded to restore HDR"
         fi
       }
@@ -101,7 +105,7 @@ in {
           return 0
         fi
         for mon in $forced; do
-          if [ -n "''${sdr_rule[$mon]:-}" ]; then
+          if [ -n "''${switched[$mon]:-}" ]; then
             if hyprctl_accepted reload; then
               echo "sdr-game-mode: stopped with $mon forced to sRGB — reloaded to restore HDR"
             fi

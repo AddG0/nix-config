@@ -140,9 +140,10 @@
         ];
       };
     };
-    restore = {
+    not-switched = {
       monitors = monitorsWith "srgb";
       clients = [];
+      after.event = "workspacev2>>3,3";
     };
     sdr-monitor = {
       monitors = [
