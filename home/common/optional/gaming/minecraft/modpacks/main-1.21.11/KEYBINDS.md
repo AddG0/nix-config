@@ -1,11 +1,13 @@
 # Keybind Overrides
 
 Most overrides are in `options.txt` (Minecraft keybind format).
+Too Many Shortcuts stores the live binds in `too_many_shortcuts.json` and ignores `options.txt` once it exists, so change both together.
 Mods with their own config files note the path below.
 
 ## Vanilla
 
 - `loadToolbarActivator` unbound — conflicts with hotbar 6 (X)
+- `quickActions` moved to 9 — defaulted to G, which is drop
 
 ## Iris Shaders
 
@@ -21,6 +23,10 @@ Mods with their own config files note the path below.
 ## Item Name Changer
 
 - `opengui` moved to 0 — defaulted to G, which is drop
+
+## Too Many Shortcuts
+
+- `toggle_auto_jump` unbound — conflicts with Xaero new waypoint (B)
 
 ## ReplayMod
 
@@ -53,6 +59,7 @@ Config: `g4mespeed/cache/hotkeys.cfg`
 - `tps:halve` rebound to ; — conflicts with Xaero's map (J)
 - `tps:double` rebound to ' — conflicts with Iris toggle shaders (K)
 - `gs:opengui` unbound — conflicts with drop (G)
+- `tps:reset` unbound — conflicts with Litematica main menu (M)
 
 ## Elytra Pitch
 

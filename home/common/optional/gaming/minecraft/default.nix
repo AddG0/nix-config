@@ -30,7 +30,7 @@ in {
       };
       "main-1.21.11-smp" = {
         source = mainSource;
-        excludeMods = ["tweakeroo" "tweakermore" "herobot"];
+        excludeMods = ["tweakeroo" "tweakermore" "herobot" "viafabricplus" "item-scroller"];
         icon = mainIcon;
         javaPackage = pkgs.jdk25;
         enableGameMode = true;

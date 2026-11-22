@@ -20,6 +20,13 @@ Copied from live instance with the following changes:
 - `update_checker` set to `false` (default `true`) — mod versions come from packwiz
 - `button_update_badge` set to `false` (default `true`) — hides the update badge
 
+## nvidium-config.json
+
+Defaults with the following changes:
+
+- `automatic_memory` set to `false` (default `true`) — on Linux Nvidium preallocates the whole limit, and auto sizes it to free VRAM minus 1 GB (~23 GB), stalling world join
+- `max_geometry_memory` set to `4096` (default `2048`, ignored while `automatic_memory` is on)
+
 ## replaymod.json
 
 Copied from live instance with the following changes:

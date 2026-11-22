@@ -1,0 +1,13 @@
+{
+  "enable_temporal_coherence": true,
+  "max_geometry_memory": 4096,
+  "automatic_memory": false,
+  "async_bfs": true,
+  "region_keep_distance": 32,
+  "render_fog": true,
+  "use_sodium_vertex_format": false,
+  "cull_degenerate_triangles": true,
+  "use_nv_fragment_shader_barycentric": true,
+  "translucency_sorting_level": "SODIUM",
+  "statistics_level": "NONE"
+}
