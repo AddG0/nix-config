@@ -494,8 +494,13 @@ modpack-refresh name:
 
 [group('minecraft')]
 [doc("Check mod compatibility for a Minecraft version")]
-modpack-compat name version:
-  scripts/modpack.sh compat {{name}} {{version}}
+modpack-compat modpack mc_version:
+  scripts/modpack.sh compat {{modpack}} {{mc_version}}
+
+[group('minecraft')]
+[doc("Find the newest Minecraft version every mod in a modpack supports")]
+modpack-upgrade-target name:
+  scripts/modpack.sh upgrade-target {{name}}
 
 [group('validation')]
 [doc("Check package compatibility of a host against a target platform")]

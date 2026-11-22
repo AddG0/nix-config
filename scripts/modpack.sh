@@ -1,91 +1,137 @@
 #!/usr/bin/env bash
-# Minecraft modpack management script for packwiz
+# Manage the packwiz modpacks under home/common/optional/gaming/minecraft/modpacks.
 set -euo pipefail
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 REPO_DIR="$(dirname "$SCRIPT_DIR")"
-MODPACKS_DIR="$REPO_DIR/home/common/optional/gaming/minecraft/modpacks"
+MODPACKS_DIR="${MODPACKS_DIR:-$REPO_DIR/home/common/optional/gaming/minecraft/modpacks}"
+MODRINTH_API="https://api.modrinth.com/v2"
+MODRINTH_USER_AGENT="User-Agent: nix-config-modpack/1.0"
+# Modrinth requests in flight at once; more trips its rate limit.
+MODRINTH_PARALLEL=10
+GREEN=$'\033[32m'
+RED=$'\033[31m'
+RESET=$'\033[0m'
 
 usage() {
   cat <<EOF
 Usage: $(basename "$0") <command> [args]
 
 Commands:
-  update <name> <mod>      Update a specific mod
-  update-all <name>        Update all mods
-  add <name> <mod>         Add a mod from Modrinth
-  remove <name> <mod>      Remove a mod
-  refresh <name>           Refresh packwiz index
-  serve <name>             Start packwiz dev server
-  list                     List all modpacks
-  compat <name> <version>  Check mod compatibility for a Minecraft version
-
-For development, use: just modpack-serve <name>
-This starts packwiz serve for rapid iteration.
+  update <modpack> <mod>              Update a specific mod
+  update-all <modpack>                Update all mods
+  add <modpack> <mod>                 Add a mod from Modrinth
+  remove <modpack> <mod>              Remove a mod
+  refresh <modpack>                   Refresh packwiz index
+  serve <modpack>                     Start packwiz dev server
+  list                                List all modpacks
+  compat <modpack> <mc-version>       Check mod compatibility for a Minecraft version
+  upgrade-target <modpack>            Find the newest Minecraft version every mod supports
 
 Examples:
-  $(basename "$0") update main-1.20.1 sodium
-  $(basename "$0") add main-1.20.1 "performance mod"
+  $(basename "$0") update main-1.21.11 sodium
+  $(basename "$0") add main-1.21.11 "performance mod"
+  $(basename "$0") compat main-1.21.11 26.2
 EOF
   exit 1
 }
 
-check_modpack() {
-  local name="$1"
-  if [ ! -d "$MODPACKS_DIR/$name" ]; then
-    echo "Error: Modpack '$name' not found in $MODPACKS_DIR"
+require_modpack() {
+  local modpack="$1"
+  if [ ! -d "$MODPACKS_DIR/$modpack" ]; then
+    echo "Error: Modpack '$modpack' not found in $MODPACKS_DIR" >&2
     exit 1
   fi
 }
 
-cmd_update() {
-  local name="$1"
-  local mod="$2"
-  check_modpack "$name"
-  cd "$MODPACKS_DIR/$name"
-  packwiz update "$mod" -y
+# Runs packwiz inside a modpack's directory.
+packwiz_in() {
+  local modpack="$1"
+  shift
+  require_modpack "$modpack"
+  (cd "$MODPACKS_DIR/$modpack" && packwiz "$@")
 }
 
-cmd_update_all() {
-  local name="$1"
-  check_modpack "$name"
-  cd "$MODPACKS_DIR/$name"
-  packwiz update --all -y
+# Prints the first `key = "value"` in a packwiz TOML file.
+pw_field() {
+  local file="$1" key="$2"
+  sed -n "s/^$key *= *\"\\(.*\\)\"/\\1/p" "$file" | head -1
 }
 
-cmd_add() {
-  local name="$1"
-  local mod="$2"
-  check_modpack "$name"
-  cd "$MODPACKS_DIR/$name"
-  packwiz modrinth add "$mod"
+pack_mc_version() {
+  pw_field "$MODPACKS_DIR/$1/pack.toml" minecraft
 }
 
-cmd_remove() {
-  local name="$1"
-  local mod="$2"
-  check_modpack "$name"
-  cd "$MODPACKS_DIR/$name"
-  packwiz remove "$mod"
+pack_loader() {
+  local pack_toml="$MODPACKS_DIR/$1/pack.toml" loader
+  for loader in fabric quilt forge neoforge; do
+    if [ -n "$(pw_field "$pack_toml" "$loader")" ]; then
+      echo "$loader"
+      return
+    fi
+  done
+  echo "Error: no fabric/quilt/forge/neoforge version in $pack_toml" >&2
+  exit 1
 }
 
-cmd_refresh() {
-  local name="$1"
-  check_modpack "$name"
-  cd "$MODPACKS_DIR/$name"
-  packwiz refresh
+modrinth_get() {
+  curl -sf --retry 2 --retry-delay 1 -H "$MODRINTH_USER_AGENT" "$MODRINTH_API/$1"
+}
+
+# Writes Minecraft release versions, newest first; Modrinth's order handles 1.21.x and 26.x alike.
+fetch_releases() {
+  if ! modrinth_get tag/game_version |
+    jq -r '.[] | select(.version_type == "release") | .version' >"$1"; then
+    echo "Error: could not fetch Minecraft releases from Modrinth" >&2
+    exit 1
+  fi
+}
+
+# For every mod in the pack, writes <outdir>/<mod-id>.name and <mod-id>.versions
+# (the Minecraft versions it has builds for on the pack's loader). Exits on any failure.
+fetch_mod_versions() {
+  local modpack="$1" outdir="$2" loader toml mod_id count=0
+  loader=$(pack_loader "$modpack")
+  for toml in "$MODPACKS_DIR/$modpack/mods"/*.pw.toml; do
+    mod_id=$(pw_field "$toml" mod-id)
+    if [ -z "$mod_id" ]; then
+      echo "Error: $(basename "$toml") has no Modrinth mod-id; can't check it" >&2
+      exit 1
+    fi
+    (
+      mod_name=$(pw_field "$toml" name)
+      if ! modrinth_get "project/$mod_id/version?loaders=%5B%22$loader%22%5D" |
+        jq -r '[.[].game_versions[]] | unique | .[]' >"$outdir/$mod_id.versions"; then
+        echo "Error: Modrinth request failed for $mod_name ($mod_id)" >&2
+        exit 1
+      fi
+      echo "$mod_name" >"$outdir/$mod_id.name"
+    ) &
+    count=$((count + 1))
+    [ $((count % MODRINTH_PARALLEL)) -eq 0 ] && wait
+  done
+  wait
+  if [ "$(find "$outdir" -name '*.name' | wc -l)" -ne "$count" ]; then
+    echo "Error: some Modrinth lookups failed (see above); result would be wrong" >&2
+    exit 1
+  fi
+}
+
+# Prints the names of mods with no build for a Minecraft version, sorted.
+mods_missing() {
+  local outdir="$1" mc_version="$2" versions
+  for versions in "$outdir"/*.versions; do
+    grep -qxF "$mc_version" "$versions" || cat "${versions%.versions}.name"
+  done | sort
 }
 
 cmd_serve() {
-  local name="$1"
-  check_modpack "$name"
-  echo "Set Prism Launcher Pre-launch command to:"
-  echo '  "$INST_JAVA" -jar $HOME/.local/share/packwiz/packwiz-installer-bootstrap.jar http://localhost:8080/pack.toml'
-  echo ""
+  local modpack="$1"
+  echo "Point the instance's pre-launch packwiz installer at http://localhost:8080/pack.toml"
+  echo "(the command's form is PreLaunchCommand in modules/home/prismlauncher/default.nix)."
   echo "Starting packwiz serve... (Ctrl+C to stop)"
   echo ""
-  cd "$MODPACKS_DIR/$name"
-  packwiz serve
+  packwiz_in "$modpack" serve
 }
 
 cmd_list() {
@@ -93,137 +139,111 @@ cmd_list() {
 }
 
 cmd_compat() {
-  local name="$1"
-  local target_version="$2"
-  check_modpack "$name"
+  local modpack="$1" mc_version="$2"
+  require_modpack "$modpack"
+  local workdir
+  workdir=$(mktemp -d)
+  trap 'rm -rf "'"$workdir"'"' EXIT
 
-  local mods_dir="$MODPACKS_DIR/$name/mods"
-  local tmpdir
-  tmpdir=$(mktemp -d)
-  trap 'rm -rf "'"$tmpdir"'"' EXIT
+  echo "Checking mod compatibility for Minecraft $mc_version..."
+  fetch_releases "$workdir/releases"
+  fetch_mod_versions "$modpack" "$workdir"
 
-  echo "Checking mod compatibility for Minecraft $target_version..."
-  echo ""
-
-  # Launch API checks in parallel batches (10 at a time to avoid rate limits)
-  local pids=()
-  local batch_size=10
-  local count=0
-  for toml in "$mods_dir"/*.pw.toml; do
-    [ -f "$toml" ] || continue
-    local mod_name mod_id
-    mod_name=$(grep '^name' "$toml" | head -1 | sed 's/.*= *"//;s/".*//')
-    mod_id=$(grep 'mod-id' "$toml" | head -1 | sed 's/.*= *"//;s/".*//')
-    [ -z "$mod_id" ] && continue
-
-    (
-      local response versions
-      response=$(curl -s --retry 2 --retry-delay 1 -H "User-Agent: nix-config-modpack/1.0" \
-        "https://api.modrinth.com/v2/project/$mod_id/version?loaders=%5B%22fabric%22%5D&game_versions=%5B%22$target_version%22%5D")
-      versions=$(echo "$response" | jq -r 'length' 2>/dev/null || echo "0")
-
-      if [ "$versions" -gt 0 ] 2>/dev/null; then
-        echo "supported|$mod_name" >"$tmpdir/$mod_id"
-      else
-        local best_response best
-        best_response=$(curl -s --retry 2 --retry-delay 1 -H "User-Agent: nix-config-modpack/1.0" \
-          "https://api.modrinth.com/v2/project/$mod_id/version?loaders=%5B%22fabric%22%5D")
-        best=$(echo "$best_response" | jq -r '[.[].game_versions[]] | unique | map(select(startswith("1.21"))) | sort_by(split(".") | map(tonumber? // 0)) | last // "none"' 2>/dev/null || echo "unknown")
-        echo "unsupported|$mod_name|$best" >"$tmpdir/$mod_id"
-      fi
-    ) &
-    pids+=($!)
-    count=$((count + 1))
-
-    # Wait for batch to complete before launching more
-    if [ $((count % batch_size)) -eq 0 ]; then
-      for pid in "${pids[@]}"; do
-        wait "$pid" 2>/dev/null || true
-      done
-      pids=()
-    fi
-  done
-
-  # Wait for remaining jobs
-  for pid in "${pids[@]}"; do
-    wait "$pid" 2>/dev/null || true
-  done
-
-  # Collect results
-  local supported=()
-  local unsupported=()
-  local closest=()
-
-  for result in "$tmpdir"/*; do
-    [ -f "$result" ] || continue
-    local line
-    line=$(cat "$result")
-    local status
-    status=$(echo "$line" | cut -d'|' -f1)
-    if [ "$status" = "supported" ]; then
-      supported+=("$(echo "$line" | cut -d'|' -f2)")
+  local versions mod_name newest supported=0
+  local -a missing=()
+  for versions in "$workdir"/*.versions; do
+    mod_name=$(cat "${versions%.versions}.name")
+    if grep -qxF "$mc_version" "$versions"; then
+      supported=$((supported + 1))
     else
-      unsupported+=("$(echo "$line" | cut -d'|' -f2)")
-      closest+=("$(echo "$line" | cut -d'|' -f3)")
+      newest=$(grep -xF -f "$versions" "$workdir/releases" | head -1)
+      missing+=("$mod_name|${newest:-none}")
     fi
   done
 
-  # Sort arrays
-  IFS=$'\n' supported=($(sort <<<"${supported[*]}"))
-  unset IFS
-  IFS=$'\n' unsupported_sorted=($(for i in "${!unsupported[@]}"; do echo "${unsupported[$i]}|${closest[$i]}"; done | sort))
-  unset IFS
-  unsupported=()
-  closest=()
-  for entry in "${unsupported_sorted[@]}"; do
-    unsupported+=("$(echo "$entry" | cut -d'|' -f1)")
-    closest+=("$(echo "$entry" | cut -d'|' -f2)")
-  done
-
-  # Print results
-  echo "=== SUPPORTED ($target_version) ==="
-  if [ ${#supported[@]} -gt 0 ]; then
-    printf '  \033[32m✓\033[0m %s\n' "${supported[@]}"
-  else
-    echo "  (none)"
-  fi
   echo ""
-
-  if [ ${#unsupported[@]} -gt 0 ]; then
-    echo "=== NOT SUPPORTED ==="
-    for i in "${!unsupported[@]}"; do
-      printf '  \033[31m✗\033[0m %-40s (latest 1.21.x: %s)\n' "${unsupported[$i]}" "${closest[$i]}"
-    done
-    echo ""
-    echo "Summary: ${#supported[@]} supported, ${#unsupported[@]} unsupported"
-  else
-    echo "All ${#supported[@]} mods support $target_version!"
+  if [ ${#missing[@]} -eq 0 ]; then
+    echo "All $supported mods support $mc_version!"
+    return
   fi
+  echo "=== NOT SUPPORTED ($mc_version) ==="
+  local entry
+  while IFS= read -r entry; do
+    printf "  ${RED}✗${RESET} %-40s (newest release supported: %s)\n" "${entry%%|*}" "${entry#*|}"
+  done < <(printf '%s\n' "${missing[@]}" | sort)
+  echo ""
+  echo "Summary: $supported supported, ${#missing[@]} unsupported"
 }
 
-# Main
+cmd_upgrade_target() {
+  local modpack="$1"
+  require_modpack "$modpack"
+  local workdir
+  workdir=$(mktemp -d)
+  trap 'rm -rf "'"$workdir"'"' EXIT
+
+  echo "Fetching $(pack_loader "$modpack") versions for every mod in $modpack..."
+  fetch_releases "$workdir/releases"
+  fetch_mod_versions "$modpack" "$workdir"
+  local mod_count
+  mod_count=$(find "$workdir" -name '*.name' | wc -l)
+
+  local current
+  current=$(pack_mc_version "$modpack")
+  local target="" mc_version missing
+  local -a blocked=()
+  while read -r mc_version; do
+    # Mods are known to run on the pack's own version even when not tagged for it.
+    [ "$mc_version" = "$current" ] && break
+    missing=$(mods_missing "$workdir" "$mc_version")
+    if [ -z "$missing" ]; then
+      target="$mc_version"
+      break
+    fi
+    blocked+=("$mc_version|$missing")
+  done <"$workdir/releases"
+
+  if [ -z "$target" ]; then
+    echo -e "\nNo release newer than $current is supported by all $mod_count mods; stay on $GREEN$current$RESET."
+  else
+    echo -e "\nNewest version all $mod_count mods support: $GREEN$target$RESET (pack is on $current)"
+  fi
+  [ ${#blocked[@]} -eq 0 ] && return
+  echo -e "\nBlockers for releases newer than ${target:-$current}:"
+  local entry
+  for entry in "${blocked[@]}"; do
+    mc_version="${entry%%|*}"
+    missing="${entry#*|}"
+    echo -e "\n  $mc_version — $(wc -l <<<"$missing") missing:"
+    local mod_name
+    while IFS= read -r mod_name; do
+      printf "    ${RED}✗${RESET} %s\n" "$mod_name"
+    done <<<"$missing"
+  done
+}
+
 [ $# -lt 1 ] && usage
 
 case "$1" in
 update)
   [ $# -lt 3 ] && usage
-  cmd_update "$2" "$3"
+  packwiz_in "$2" update "$3" -y
   ;;
 update-all)
   [ $# -lt 2 ] && usage
-  cmd_update_all "$2"
+  packwiz_in "$2" update --all -y
   ;;
 add)
   [ $# -lt 3 ] && usage
-  cmd_add "$2" "$3"
+  packwiz_in "$2" modrinth add "$3"
   ;;
 remove)
   [ $# -lt 3 ] && usage
-  cmd_remove "$2" "$3"
+  packwiz_in "$2" remove "$3"
   ;;
 refresh)
   [ $# -lt 2 ] && usage
-  cmd_refresh "$2"
+  packwiz_in "$2" refresh
   ;;
 serve)
   [ $# -lt 2 ] && usage
@@ -235,6 +255,10 @@ list)
 compat)
   [ $# -lt 3 ] && usage
   cmd_compat "$2" "$3"
+  ;;
+upgrade-target)
+  [ $# -lt 2 ] && usage
+  cmd_upgrade_target "$2"
   ;;
 *)
   usage
