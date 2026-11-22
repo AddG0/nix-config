@@ -11,13 +11,14 @@
     lib.custom.suites.ide.home
     (with lib.custom.optional.home; [browsers.zen.core comms.discord comms.slack ghostty helper-scripts])
     (with lib.custom.optional.home.development; [
+      core
       gcloud
       # jupyter-notebook
       postman
       # virtualization.lens
     ])
     (with lib.custom.optional.home.gaming; [heroic minecraft])
-    (with lib.custom.optional.home.media; [core spicetify tidal vlc])
+    (with lib.custom.optional.home.media; [core losslesscut spicetify tidal])
     (with lib.custom.optional.home.remote-desktop; [
       # mouseshare.lan-mouse
       # rustdesk

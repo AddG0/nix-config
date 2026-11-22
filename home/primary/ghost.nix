@@ -25,6 +25,7 @@
     (with lib.custom.optional.home.secrets; [sops])
     (with lib.custom.optional.home.services; [colima ollama])
     (with lib.custom.optional.home.media; [
+      core
       spicetify
     ])
     (with lib.custom.optional.primary; [stylix work])

@@ -45,9 +45,9 @@
     (with lib.custom.optional.home.media; [
       core
       davinci-resolve
+      losslesscut
       spicetify
       # tidal
-      vlc
     ])
     (with lib.custom.optional.home.remote-desktop; [
       # mouseshare.lan-mouse

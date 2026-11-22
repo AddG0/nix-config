@@ -6,7 +6,7 @@
   imports = lib.flatten [
     (with lib.custom.optional.home; [browsers.zen.core])
     (with lib.custom.optional.home.gaming; [minecraft])
-    (with lib.custom.optional.home.media; [spicetify vlc])
+    (with lib.custom.optional.home.media; [core spicetify])
   ];
 
   # The host also installs Hyprland for addg; gamer's console desktop stays Plasma.
