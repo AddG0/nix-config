@@ -91,16 +91,33 @@
     then "primary"
     else user;
 
-  # A user tree's module at the same place as a shared home module rides along with it.
+  # A namespace holding `core` imports as that core; a leaf brings its namespace's core and the
+  # leaf at its place, each from both the shared home tree and the user's tree.
   withUserExtras = optional: tree: imports: let
-    root = toString trees.home + "/";
+    roots = lib.filterAttrs (_: root: root != null) {
+      inherit (trees) home;
+      ${tree} = trees.${tree} or null;
+    };
+    asModule = m:
+      if builtins.isAttrs m && builtins.isPath (m.core or null)
+      then m.core
+      else m;
+    placeOf = m:
+      lib.findFirst (place: place != null) null (lib.mapAttrsToList (_: root: let
+        prefix = toString root + "/";
+      in
+        if builtins.isPath m && lib.hasPrefix prefix (toString m)
+        then lib.splitString "/" (lib.removeSuffix ".nix" (lib.removePrefix prefix (toString m)))
+        else null)
+      roots);
+    leavesAt = place: lib.filter builtins.isPath (map (name: lib.attrByPath place null optional.${name}) (builtins.attrNames roots));
     extrasOf = m: let
-      path = lib.splitString "/" (lib.removeSuffix ".nix" (lib.removePrefix root (toString m)));
-      extra = lib.attrByPath path null (optional.${tree} or {});
+      place = placeOf m;
     in
-      lib.optional (builtins.isPath m && lib.hasPrefix root (toString m) && builtins.isPath extra) extra;
+      lib.optionals (place != null) (leavesAt place ++ leavesAt (lib.init place ++ ["core"]));
+    modules = map asModule imports;
   in
-    imports ++ lib.concatMap extrasOf imports;
+    lib.unique (modules ++ lib.concatMap extrasOf modules);
 in {
   inherit optional suites suitesFromDeclarations;
 

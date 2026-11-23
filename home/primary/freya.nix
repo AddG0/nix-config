@@ -11,7 +11,7 @@
     lib.custom.suites.ai.home
     lib.custom.suites.virtualization.home
     (with lib.custom.optional.home; [
-      browsers.zen.core
+      browsers.zen
       comms.clickup
       comms.discord
       comms.slack
@@ -43,7 +43,6 @@
     ])
     (with lib.custom.optional.home.gaming; [crosshair heroic minecraft nitrox r2modman rocket-league])
     (with lib.custom.optional.home.media; [
-      core
       davinci-resolve
       losslesscut
       spicetify

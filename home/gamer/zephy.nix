@@ -4,9 +4,9 @@
   ...
 }: {
   imports = lib.flatten [
-    (with lib.custom.optional.home; [browsers.zen.core comms.discord])
+    (with lib.custom.optional.home; [browsers.zen comms.discord])
     (with lib.custom.optional.home.gaming; [heroic minecraft r2modman])
-    (with lib.custom.optional.home.media; [core spicetify])
+    (with lib.custom.optional.home.media; [spicetify])
   ];
 
   desktops.defaultSession = "plasma";

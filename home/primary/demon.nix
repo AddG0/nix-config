@@ -8,7 +8,7 @@
     # lib.custom.suites.virtualization.home
     lib.custom.suites.development.home
     lib.custom.suites.ai.home
-    (with lib.custom.optional.home; [browsers.zen.core comms.clickup comms.discord comms.slack ghostty helper-scripts mic-mute-sound])
+    (with lib.custom.optional.home; [browsers.zen comms.clickup comms.discord comms.slack ghostty helper-scripts mic-mute-sound])
     (with lib.custom.optional.home.desktops; [
       hyprland.nvidia
       hyprland.software-dimming
@@ -43,7 +43,6 @@
       rocket-league
     ])
     (with lib.custom.optional.home.media; [
-      core
       davinci-resolve
       losslesscut
       spicetify

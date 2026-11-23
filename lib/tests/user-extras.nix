@@ -40,6 +40,31 @@ in {
     expected = [optional.home.development.aws optional.primary.development.aws];
   };
 
+  testImportsASharedNamespaceAsItsCoreWithTheUserHalf = {
+    expr = withUserExtras "primary" [optional.home.browsers.zen];
+    expected = [optional.home.browsers.zen.core optional.primary.browsers.zen.core];
+  };
+
+  testImportsAUserNamespaceAsItsCoreWithTheSharedHalf = {
+    expr = withUserExtras "primary" [optional.primary.browsers.zen];
+    expected = [optional.primary.browsers.zen.core optional.home.browsers.zen.core];
+  };
+
+  testBringsBothHalvesOfTheCoreAlongWithAUserLeaf = {
+    expr = withUserExtras "primary" [optional.primary.browsers.zen.steamdb];
+    expected = [optional.primary.browsers.zen.steamdb optional.home.browsers.zen.core optional.primary.browsers.zen.core];
+  };
+
+  testBringsTheCoreOfTheLeafsOwnNamespaceOnly = {
+    expr = withUserExtras "nobody" [optional.home.development.ai.claude-code];
+    expected = [optional.home.development.ai.claude-code optional.home.development.ai.core];
+  };
+
+  testLeavesANamespaceWithoutACoreAsItIs = {
+    expr = withUserExtras "primary" [optional.home.comms];
+    expected = [optional.home.comms];
+  };
+
   testAddsNothingWhenTheUserTreeHasNoModuleThere = {
     expr = withUserExtras "primary" [optional.home.comms.discord];
     expected = [optional.home.comms.discord];

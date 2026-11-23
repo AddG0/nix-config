@@ -4,10 +4,10 @@
   ...
 }: {
   imports = lib.flatten [
-    (with lib.custom.optional.home; [browsers.zen.core comms.discord comms.slack ghostty])
+    (with lib.custom.optional.home; [browsers.zen comms.discord comms.slack ghostty])
     (with lib.custom.optional.home.desktops; [hyprland.nvidia])
     (with lib.custom.optional.home.gaming; [minecraft])
-    (with lib.custom.optional.home.media; [core losslesscut spicetify])
+    (with lib.custom.optional.home.media; [losslesscut spicetify])
     (with lib.custom.optional.primary; [stylix])
     (with lib.custom.optional.primary.secrets; [onepassword-ssh])
     lib.custom.suites.development.home

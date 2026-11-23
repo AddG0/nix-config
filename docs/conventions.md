@@ -80,6 +80,12 @@ it: a primary home importing `optional.home.browsers.zen.core` also gets
 modules never import a leaf that has a user half. A path is a module on both
 sides or a namespace on both; a test fails otherwise. Why: ADR 0012.
 
+A namespace holding a `core` module stands for it: importing
+`optional.home.browsers.zen` imports `browsers.zen.core`, and any leaf in that
+namespace, such as `optional.primary.browsers.zen.steamdb`, brings that core
+along, both halves of it. Only the leaf's own namespace counts, never an
+ancestor's, and the same three places expand it. Why: ADR 0026.
+
 Order imports external, then host-local, then ours: suites, the root block, then
 one `with` block per namespace.
 
