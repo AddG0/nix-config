@@ -1,0 +1,30 @@
+--- a/main.cpp
++++ b/main.cpp
+@@ -420,8 +420,7 @@
+     }
+     void onSystemWakingUp()
+     {
+-        LOG_INFO("System is waking up, starting ble scan");
+-        m_bleManager->startScan();
++        LOG_INFO("System is waking up");
+
+         // Check if AirPods are already connected and activate A2DP profile
+         if (areAirpodsConnected() && m_deviceInfo && !m_deviceInfo->bluetoothAddress().isEmpty())
+@@ -520,7 +519,6 @@
+
+         // Clear the device name and model
+         m_deviceInfo->reset();
+-        m_bleManager->startScan();
+         emit airPodsStatusChanged();
+
+         // Show system notification
+@@ -949,9 +947,6 @@
+         connectToPhone();
+
+         m_deviceInfo->loadFromSettings(*m_settings);
+-        if (!areAirpodsConnected()) {
+-            m_bleManager->startScan();
+-        }
+     }
+
+     void loadMainModule() {
