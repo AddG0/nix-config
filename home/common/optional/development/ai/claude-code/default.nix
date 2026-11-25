@@ -35,7 +35,6 @@ in {
   imports = [
     ./hud-status-line.nix
     inputs.ai-toolkit.homeModules.default
-    ./git-push-guard
     ./glab-permissions.nix
     ./manual-skills.nix
     ./prismantis.nix
@@ -132,6 +131,7 @@ in {
 
       settings = {
         env = {
+          DISABLE_TELEMETRY = "1";
           DISABLE_ERROR_REPORTING = "1";
           DISABLE_BUG_COMMAND = "1";
           CLAUDE_CODE_DISABLE_FEEDBACK_SURVEY = "1";
@@ -167,7 +167,7 @@ in {
     };
 
     profiles = {
-      default.include = [addons.design-notes addons.code-standards addons.blind-choices addons.documentation];
+      default.include = [addons.git addons.design-notes addons.code-standards addons.blind-choices addons.documentation];
 
       grafana = {
         description = "Default with Grafana";

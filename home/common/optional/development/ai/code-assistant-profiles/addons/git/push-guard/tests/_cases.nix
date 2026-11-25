@@ -7,7 +7,7 @@
   fakeClaude = harness.stubs.claude;
   libWithCustom = harness.lib;
   claudeModule = harness.root + "/modules/home/programs/claude-code";
-  addonDir = ../../../code-assistant-profiles/addons;
+  addonDir = ../../..;
   pushGuard = ../.;
 
   claudeSettingsHooks = import (claudeModule + "/settings-hooks.nix") {

@@ -69,6 +69,7 @@ in {
       description = "Everyday development";
       include = with addons;
         [
+          git
           nix
           context7
           code-review

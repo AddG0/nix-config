@@ -90,7 +90,7 @@
   scaffoldingUsers = [
     ../../claude-code/tests/unit.nix
     ./_fixtures.nix
-    ../../../../../home/common/optional/development/ai/claude-code/git-push-guard/tests/_cases.nix
+    ../../../../../home/common/optional/development/ai/code-assistant-profiles/addons/git/push-guard/tests/_cases.nix
   ];
 in {
   "test the shared model declares no target's option, and a target only its own" = {
