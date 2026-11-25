@@ -5,8 +5,23 @@
   pkgs,
   ...
 }: let
+  # No setting turns telemetry off; both entry points read this, and the desktop passes it to its server.
+  withoutTelemetry = pkgs.t3code.override {
+    t3code-unwrapped = pkgs.t3code.unwrapped.overrideAttrs (old: {
+      postFixup =
+        (old.postFixup or "")
+        + ''
+          for bin in t3 t3code-desktop; do
+            wrapProgram "$out/bin/$bin" --set T3CODE_TELEMETRY_ENABLED false
+          done
+        '';
+    });
+    # Pinned to avoid a Rust rebuild for an identical binary.
+    t3code-resource-monitor = pkgs.t3code.resourceMonitor;
+  };
+
   # t3code runs glab itself with the server's env, so the per-tree token a shell would export is missing.
-  withScopedGlab = pkgs.t3code.override {
+  withScopedGlab = withoutTelemetry.override {
     glab = config.programs.directoryEnv.wrap (lib.getExe pkgs.glab);
   };
 
@@ -40,7 +55,7 @@
 
   # The "Open in" editor list is closed: the contracts table and the picker both need the entry.
   withNvim = withScopedGlab.override {
-    t3code-unwrapped = pkgs.t3code.unwrapped.overrideAttrs (old: {
+    t3code-unwrapped = withScopedGlab.unwrapped.overrideAttrs (old: {
       postPatch =
         (old.postPatch or "")
         + ''
