@@ -84,5 +84,17 @@
     # Disable NVIDIA power management hooks (not needed without the GPU)
     hardware.nvidia.powerManagement.enable = lib.mkForce false;
     hardware.nvidia.powerManagement.finegrained = lib.mkForce false;
+
+    # 60 Hz saves ~1–3 W on battery.
+    services.powerStateManager = let
+      panel = lib.findFirst (m: m.primary) (throw "freya battery-saver: no primary monitor in display.monitors") config.display.monitors;
+    in {
+      enable = true;
+      hyprland = {
+        outputs = [panel.output];
+        onBattery.refreshRate = 60;
+        onAC.refreshRate = panel.refreshRate;
+      };
+    };
   };
 }

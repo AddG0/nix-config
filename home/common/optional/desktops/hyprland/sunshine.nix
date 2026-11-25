@@ -148,7 +148,7 @@ in {
   home.packages = [sunshine-disconnect];
 
   # Safety keybind for monitor recovery moved to monitor-control.nix
-  # (SUPERSHIFT+S → `monitor recover`). `sunshine-disconnect` is still
+  # (SUPERSHIFT+S → `hypr-monitor-control recover`). `sunshine-disconnect` is still
   # called by Sunshine's own service hook on disconnect, and can be run
   # manually from a shell when headless/noctalia cleanup is also needed.
 }

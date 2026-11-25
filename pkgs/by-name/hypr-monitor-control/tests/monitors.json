@@ -1,0 +1,58 @@
+[
+  {
+    "name": "eDP-1",
+    "description": "Samsung Display Corp. ATNA60HU06-0",
+    "width": 2560,
+    "height": 1600,
+    "refreshRate": 240.00000,
+    "x": 3170,
+    "y": -984,
+    "scale": 1.25,
+    "transform": 0,
+    "vrr": true,
+    "currentFormat": "XRGB2101010",
+    "colorManagementPreset": "hdr",
+    "disabled": false
+  },
+  {
+    "name": "DP-1",
+    "description": "Example rotated SDR external",
+    "width": 1920,
+    "height": 1080,
+    "refreshRate": 119.88000,
+    "x": 5218,
+    "y": -984,
+    "scale": 1.00,
+    "transform": 1,
+    "vrr": false,
+    "currentFormat": "XRGB8888",
+    "colorManagementPreset": "srgb",
+    "disabled": false
+  },
+  {
+    "name": "HDMI-A-2",
+    "description": "Example output reporting no format or colour preset",
+    "width": 1280,
+    "height": 720,
+    "refreshRate": 60.00000,
+    "x": 0,
+    "y": 0,
+    "scale": 1.00,
+    "transform": 0,
+    "vrr": false,
+    "disabled": false
+  },
+  {
+    "name": "DP-2",
+    "description": "Example disabled output",
+    "width": 1920,
+    "height": 1080,
+    "refreshRate": 60.00000,
+    "x": 0,
+    "y": 0,
+    "scale": 1.00,
+    "transform": 0,
+    "vrr": false,
+    "disabled": true
+  }
+]
