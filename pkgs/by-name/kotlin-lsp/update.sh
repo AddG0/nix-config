@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Updates pkgs/kotlin-lsp/default.nix to the latest kotlin-lsp standalone build,
+# Updates pkgs/by-name/kotlin-lsp/package.nix to the latest kotlin-lsp standalone build,
 # for both published Linux architectures (x86_64, aarch64).
 #
 # JetBrains tags many versions on GitHub (kotlin-lsp/v<VERSION>) but only
@@ -13,12 +13,14 @@ FLAKE_ROOT=$(git rev-parse --show-toplevel)
 DEFAULT_NIX="$FLAKE_ROOT/pkgs/by-name/kotlin-lsp/package.nix"
 CDN="https://download.jetbrains.com/language-server/kotlin-server"
 
+# ls-remote, not the tags API: the repo also tags idea/ and pycharm/ releases,
+# which push kotlin-lsp/ tags off the API's first page.
 tags=$(
-  curl -sfL "https://api.github.com/repos/Kotlin/kotlin-lsp/tags?per_page=100" |
-    grep -oE 'kotlin-lsp/v[0-9]+\.[0-9]+\.[0-9]+' |
+  git ls-remote --tags --refs https://github.com/Kotlin/kotlin-lsp 'kotlin-lsp/v*' |
+    grep -oE 'kotlin-lsp/v[0-9]+\.[0-9]+\.[0-9]+$' |
     sed 's|kotlin-lsp/v||' |
     sort -urV
-)
+) || true
 
 if [[ -z $tags ]]; then
   echo "kotlin-lsp: no candidate tags found" >&2

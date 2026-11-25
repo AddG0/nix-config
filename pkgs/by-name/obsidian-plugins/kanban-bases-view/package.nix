@@ -4,14 +4,14 @@
 }:
 mkPlugin {
   pname = "obsidian-kanban-bases-view";
-  version = "0.10.6";
+  version = "0.11.0";
   repo = "xiwcx/obsidian-bases-kanban";
   manifestId = "kanban-bases-view";
 
   hashes = {
-    "main.js" = "sha256-FUzskANsH1gsexrScMXuVkZpCSWd0xu55guR8TnFl+M=";
-    "manifest.json" = "sha256-/mIiWQsA3W2o68YzgREUfABLz4ZXV7UIS9ptI5btPhk=";
-    "styles.css" = "sha256-/kRK9l8Yj1uLv2c5NkFUvkmKYvs5PjlPDLPrI96+Ipk=";
+    "main.js" = "sha256-+n61yPSBUMnHRleFXl+4VqzR4h5FdwTWJs4J7tXuywI=";
+    "manifest.json" = "sha256-m9itrKIway1xOzT93Wtw5B6YVseFhMkT/Hw3kliSZl4=";
+    "styles.css" = "sha256-Z1ytPm50ibPKFrv1GNP9Zb2oGOPIU/pzRgd4rKhKToQ=";
   };
 
   meta = {

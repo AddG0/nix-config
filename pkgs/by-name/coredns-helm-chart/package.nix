@@ -6,11 +6,11 @@
 }:
 stdenvNoCC.mkDerivation (finalAttrs: {
   pname = "coredns-helm-chart";
-  version = "1.49.0";
+  version = "1.50.8";
 
   src = fetchurl {
     url = "https://github.com/coredns/helm/releases/download/coredns-${finalAttrs.version}/coredns-${finalAttrs.version}.tgz";
-    hash = "sha256-OU+XLZr+sKWmxCVSj2HJi8m85rDm2XmKpqs6lUxnIIQ=";
+    hash = "sha256-PfNSjWgmpgs/BJ6HwaEZrT1z3pje7k0/VAaSQGiZsiE=";
   };
 
   dontUnpack = true;

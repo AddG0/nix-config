@@ -8,16 +8,16 @@
 }:
 rustPlatform.buildRustPackage (finalAttrs: {
   pname = "drydock";
-  version = "1.3.0";
+  version = "1.4.2";
 
   src = fetchFromGitHub {
     owner = "yetidevworks";
     repo = "drydock";
     rev = "v${finalAttrs.version}";
-    hash = "sha256-7mYpLUqKSO2AtN9FN4vGg5N8hsqGESYsA2YK7YNPWII=";
+    hash = "sha256-kOxDOQ5pnJFDti+cXCCfJz9jPTRCDgY3kVLhwXm4PME=";
   };
 
-  cargoHash = "sha256-CfAa0vDVqWP768+mQDITIJuWj+TiaXaT4w4vk7kJkWw=";
+  cargoHash = "sha256-7xK+EmE2C5RGYKHvWAWSOKNC97zISPYIR4ebxjTejwQ=";
 
   nativeBuildInputs = [makeWrapper];
 

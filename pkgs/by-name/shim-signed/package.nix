@@ -15,6 +15,8 @@ stdenvNoCC.mkDerivation (finalAttrs: {
     hash = "sha256-+O1xzi2RowS21euEmX+EbzMbVUV4vALb/njhOtisgak=";
   };
 
+  passthru.nixUpdate.version = "skip"; # Launchpad isn't a source nix-update can read
+
   nativeBuildInputs = [dpkg];
 
   unpackPhase = ''

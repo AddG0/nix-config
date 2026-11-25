@@ -40,18 +40,18 @@ stdenvNoCC.mkDerivation (finalAttrs: let
   archs = {
     x86_64-linux = {
       suffix = "";
-      hash = "sha256-Ld04XYQh62ahCzpAzZzwhFtI0apmhZIhQMVRm6ak+eQ=";
+      hash = "sha256-TzJu1YaT1n7FUqX572ykGwkR2DYJxUgkHucKdgOurMU=";
     };
     aarch64-linux = {
       suffix = "-aarch64";
-      hash = "sha256-gxv8v1/zSQO9EPD7S1YA/2igI809uq/tah8AVdCKNds=";
+      hash = "sha256-noXfn0iWYirdMIqamJeyYWXqRS8r+EB0FbpHx1dhPw4=";
     };
   };
   arch = archs.${stdenvNoCC.hostPlatform.system} or (throw "kotlin-lsp: no published build for ${stdenvNoCC.hostPlatform.system}");
 in {
   pname = "kotlin-lsp";
   # EAP build: hard-expires a few months out, then refuses to start. Re-run update.sh.
-  version = "263.7084.0";
+  version = "271.3588.0";
 
   src = fetchzip {
     url = "https://download.jetbrains.com/language-server/kotlin-server/${finalAttrs.version}/kotlin-server-${finalAttrs.version}${arch.suffix}.tar.gz";
