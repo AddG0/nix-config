@@ -78,7 +78,6 @@ in {
           design-notes
           tmux-dev
           crash-capture
-          sqry
           archify
           i-have-adhd
           blind-choices
