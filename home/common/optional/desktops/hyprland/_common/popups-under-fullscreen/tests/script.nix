@@ -36,5 +36,6 @@
   };
 in
   harness.bats "popups-under-fullscreen-test" [./popups-under-fullscreen.bats] {
+    nativeBuildInputs = [pkgs.jq];
     listener = lib.getExe listener;
   }
