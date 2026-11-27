@@ -21,6 +21,5 @@ in
       # Between user slices (100) and systemd-coredump (500): lose a build before a service.
       nix-daemon.serviceConfig.OOMScoreAdjust = lib.mkDefault 250;
       nh-clean.serviceConfig = backgroundPriority;
-      nix-optimise.serviceConfig = backgroundPriority;
     };
   }
