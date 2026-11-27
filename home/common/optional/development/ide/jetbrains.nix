@@ -67,6 +67,9 @@
   # zeppelin's Python modules, zeppelin then satisfies the meta's hard dep.
   ideaBigData = bigDataPlugins ++ pythonPlugins ++ zeppelinPlugins ++ ["com.intellij.bigdatatools"];
 
+  # FLAKE-UPDATE: drop once nix-jetbrains-plugins lists 263.x builds of com.intellij.bigdatatools.
+  withBigData = ide: plugins: lib.optionals (lib.versionOlder ide.version "2026.3") plugins;
+
   # Java LTS releases: 8, 11, 17, then every 4 versions (21, 25, 29, ...).
   # Filter to the ones nixpkgs currently exposes and take the 3 newest, so a
   # nixpkgs bump that adds (e.g.) jdk29 promotes it in without code changes.
@@ -137,12 +140,12 @@
   };
 in {
   programs.jetbrains.ides = with pkgs.jetbrains; {
-    idea = mkIde idea (["nix-idea" "net.ashald.envfile" "org.jetbrains.plugins.go-template"] ++ ideaBigData);
+    idea = mkIde idea (["nix-idea" "net.ashald.envfile" "org.jetbrains.plugins.go-template"] ++ withBigData idea ideaBigData);
     # PyCharm gets the big-data stack too so Zeppelin can sit alongside its
     # dependencies (Spark, Metastore, etc.) — without those the notebook
     # plugin is functional but stranded.
-    pycharm = mkIde pycharm (bigDataPlugins ++ zeppelinPlugins);
-    datagrip = mkIde datagrip bigDataPlugins;
+    pycharm = mkIde pycharm (withBigData pycharm (bigDataPlugins ++ zeppelinPlugins));
+    datagrip = mkIde datagrip (withBigData datagrip bigDataPlugins);
     webstorm = mkIde webstorm [];
   };
 

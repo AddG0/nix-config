@@ -22,7 +22,6 @@ pkgs.writeShellApplication {
     done | sort -u)
 
     log=$(mktemp)
-    reply=$(mktemp)
     port=$((20000 + RANDOM % 20000))
     export OPENCODE_PASSWORD=config-check
     "$opencode" serve --hostname 127.0.0.1 --port "$port" --print-logs --log-level warn >"$log" 2>&1 &
@@ -40,9 +39,7 @@ pkgs.writeShellApplication {
         cat "$log" >&2
         exit 1
       fi
-      # FLAKE-UPDATE: pipe straight to jq again once `opencode api` stops cutting piped replies at a 4 KiB boundary (opencode 2.1.1).
-      "$opencode" api --server "http://127.0.0.1:$port" agent.list >"$reply" 2>/dev/null || continue
-      now=$(jq -r '.data[].id' "$reply" 2>/dev/null | sort) || continue
+      now=$("$opencode" api --server "http://127.0.0.1:$port" agent.list 2>/dev/null | jq -r '.data[].id' 2>/dev/null | sort) || continue
       [[ -n $now ]] || continue
       missing=()
       for id in "''${want[@]}"; do

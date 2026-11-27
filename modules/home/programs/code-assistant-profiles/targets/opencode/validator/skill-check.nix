@@ -17,7 +17,6 @@ pkgs.writeShellApplication {
     [[ ''${#want[@]} -gt 0 ]] || exit 0
 
     log=$(mktemp)
-    reply=$(mktemp)
     port=$((20000 + RANDOM % 20000))
     export OPENCODE_PASSWORD=skill-check
     "$opencode" serve --hostname 127.0.0.1 --port "$port" --print-logs --log-level debug >"$log" 2>&1 &
@@ -32,9 +31,7 @@ pkgs.writeShellApplication {
         cat "$log" >&2
         exit 1
       fi
-      # FLAKE-UPDATE: pipe straight to jq again once `opencode api` stops cutting piped replies at a 4 KiB boundary (opencode 2.1.1).
-      "$opencode" api --server "http://127.0.0.1:$port" skill.list >"$reply" 2>/dev/null || continue
-      listed=$(jq -r '.data[].path' "$reply" 2>/dev/null) || continue
+      listed=$("$opencode" api --server "http://127.0.0.1:$port" skill.list 2>/dev/null | jq -r '.data[].path' 2>/dev/null) || continue
       listed=$(xargs -r realpath -q <<<"$listed" 2>/dev/null || true)
       # "<resolved path> <reason...>" for each skip opencode has logged so far.
       skips=$(grep -F 'message="skill file skipped"' "$log" | sed -E 's/.* filepath=([^ ]+) (.*)/\1 \2/' |

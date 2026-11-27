@@ -157,7 +157,7 @@
     then null
     else permission;
 
-  # FLAKE-UPDATE: unknown agent keys become provider options in opencode 1.19.0 (`v1/config/agent.ts`), which is where reasoningEffort belongs; after a bump, check it still does or map reasoningEffort explicitly.
+  # FLAKE-UPDATE: unknown agent keys become provider options in opencode 2.3.0 (`v1/config/agent.ts`), which is where reasoningEffort belongs; after a bump, check it still does or map reasoningEffort explicitly.
   renderAgent = name: agent:
     frontmatter.toFile {
       attrs = withExtra agent {
