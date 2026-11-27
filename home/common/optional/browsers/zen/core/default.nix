@@ -92,7 +92,6 @@ in {
 
       search = import ./search-config.nix {inherit pkgs;};
 
-      keyboardShortcutsVersion = 21;
       keyboardShortcuts =
         [
           {
