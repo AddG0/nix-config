@@ -13,25 +13,26 @@
         deadnix.enable = true;
         statix.enable = true;
         shellcheck.enable = true;
-        shfmt = {
-          enable = true;
-          useEditorConfig = true;
-        };
+        shfmt.enable = true;
         prettier.enable = true;
         yamlfmt.enable = true;
       };
 
       settings = {
-        formatter.shellcheck.options = [
-          "--external-sources"
-          "--source-path=SCRIPTDIR"
-        ];
-        formatter.shfmt.includes = [
-          "*.envrc"
-          "*.bashrc"
-          "*.bash_profile"
-          "*.zshrc"
-        ];
+        formatter = {
+          shellcheck.options = [
+            "--external-sources"
+            "--source-path=SCRIPTDIR"
+          ];
+          shfmt.includes = [
+            "*.envrc"
+            "*.bashrc"
+            "*.bash_profile"
+            "*.zshrc"
+          ];
+          # Appended to ClickUp's preload.js, so its leading newline and `;` must survive.
+          prettier.excludes = ["overlays/common/desktop/clickup-hide-update-toast.js"];
+        };
         global.excludes = [
           "*.age"
           "*.sops.*"

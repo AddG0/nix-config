@@ -1,3 +1,4 @@
+# shellcheck shell=bash
 # Lowers each new floating window under a fullscreen window on its workspace, so popups wait behind a fullscreen video.
 socket="$XDG_RUNTIME_DIR/hypr/$HYPRLAND_INSTANCE_SIGNATURE/.socket2.sock"
 

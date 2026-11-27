@@ -1,3 +1,4 @@
+# shellcheck shell=bash
 state_dir="${XDG_STATE_HOME:-$HOME/.local/state}/hypr-monitor-control"
 mkdir -p "$state_dir"
 
@@ -124,6 +125,7 @@ do_enable() {
 }
 
 do_recover() {
+  # shellcheck disable=SC2154 # set by package.nix ahead of this script
   if [[ $declared_layout != 1 ]]; then
     err "no monitors declared in config; recover is a no-op"
     echo "  use 'hypr-monitor-control enable <name>' for ad-hoc restore." >&2
@@ -136,6 +138,7 @@ do_recover() {
 
   # Move configured workspaces back to their assigned monitors.
   local rule ws
+  # shellcheck disable=SC2154 # set by package.nix ahead of this script
   for rule in "${workspace_monitors[@]}"; do
     hyprctl dispatch moveworkspacetomonitor "${rule%%:*}" "${rule#*:}"
   done
