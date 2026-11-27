@@ -1,4 +1,4 @@
-# demon RAM pressure: zram swap, and /tmp kept on disk and self-cleaning.
+# demon RAM pressure: zram swap, reclaim order, and /tmp kept on disk and self-cleaning.
 {
   # zswap would intercept pages before they reach zram (CachyOS kernel enables it by default)
   boot.kernelParams = ["zswap.enabled=0"];
@@ -17,6 +17,9 @@
     "vm.watermark_boost_factor" = 0;
     "vm.watermark_scale_factor" = 125;
   };
+
+  # Swappiness 180 swapped out half of Rocket League mid-match; reclaim nix builds and Ollama first.
+  systemd.slices.user.sliceConfig.MemoryLow = "64G";
 
   boot.tmp.cleanOnBoot = true;
   # Agent runs leave GBs of scratch dirs a day; systemd's stock /tmp age is 10d.

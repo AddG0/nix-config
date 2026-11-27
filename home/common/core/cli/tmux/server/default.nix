@@ -17,6 +17,8 @@
         Description = "tmux server";
         Documentation = "man:tmux(1)";
         Requires = ["tmux-server.socket"];
+        # Restarting the server kills every pane; a changed unit applies from the next start.
+        X-SwitchMethod = "keep-old";
       };
       Service = {
         Environment = "TMUX_TMPDIR=%t";

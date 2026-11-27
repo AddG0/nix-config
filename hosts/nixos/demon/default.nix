@@ -54,6 +54,9 @@
       # postgres
       # redis
     ])
+    (with lib.custom.optional.hosts.nixos.gaming; [
+      x3d-game-isolation # game alone on the V-Cache CCD while it runs
+    ])
     (with lib.custom.optional.hosts.nixos.hardware; [
       cachyos-kernel # CachyOS kernel
       flipperzero # flipper zero udev rules + qFlipper
