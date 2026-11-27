@@ -37,7 +37,7 @@ in {
 
   testFindsTheExtraForANestedModule = {
     expr = withUserExtras "primary" [optional.home.development.aws];
-    expected = [optional.home.development.aws optional.primary.development.aws];
+    expected = [optional.home.development.aws optional.primary.development.aws optional.home.development.core];
   };
 
   testImportsASharedNamespaceAsItsCoreWithTheUserHalf = {
