@@ -117,7 +117,8 @@ in {
       trap 'exit 0' INT TERM
 
       reconcile
-      socat -U - UNIX-CONNECT:"$hypr/.socket2.sock" | while IFS= read -r event; do
+      # Not a pipe: the loop must run in this shell so restore_on_exit sees what reconcile switched.
+      while IFS= read -r event; do
         case $event in
           fullscreen'>>'* | workspacev2'>>'* | closewindow'>>'* | movewindowv2'>>'* | monitoradded'>>'* | custom'>>'sdr-game-mode)
             # Drain the burst one action produces, then reconcile once on the settled state.
@@ -125,7 +126,8 @@ in {
             reconcile
             ;;
         esac
-      done
+      done < <(socat -U - UNIX-CONNECT:"$hypr/.socket2.sock")
+      wait "$!"
     '';
   };
 
