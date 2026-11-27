@@ -14,7 +14,8 @@
 
   networking.hostName = config.hostSpec.hostName;
 
-  system.stateVersion = config.hostSpec.system.stateVersion;
+  # Just above mkDefault (1000): outranks the installer ISO's default, yields to a host's plain assignment.
+  system.stateVersion = lib.mkOverride 900 "26.05";
 
   powerManagement.cpuFreqGovernor = lib.mkIf (config.hostSpec.hostType == "desktop") "performance";
 

@@ -16,7 +16,6 @@
     primaryUsername = "addg";
     hostType = "laptop";
     hostPlatform = "aarch64-darwin";
-    system.stateVersion = "25.05";
   };
 
   # Determinate Nix owns nix.conf and understands eval-cores/lazy-trees; no

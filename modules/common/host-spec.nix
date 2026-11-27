@@ -183,12 +183,6 @@
       description = "Used to disable sops for the host";
     };
 
-    # System Configuration
-    system.stateVersion = lib.mkOption {
-      type = lib.types.str;
-      description = "The state version of the host";
-    };
-
     # Telemetry Configuration
     telemetry = {
       enabled = lib.mkOption {

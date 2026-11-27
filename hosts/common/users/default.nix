@@ -76,7 +76,7 @@ in {
           {
             programs.home-manager.enable = true;
             home = {
-              stateVersion = hostSpec.system.stateVersion;
+              stateVersion = "26.11";
               username = user;
               homeDirectory =
                 if isDarwin

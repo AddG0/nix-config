@@ -41,7 +41,6 @@
     isDarwin = lib.hasSuffix "darwin" system;
     disableSops = true;
     hostPlatform = system;
-    system.stateVersion = "24.05";
     domain = "example.com";
     email = {
       personal = "user@example.com";

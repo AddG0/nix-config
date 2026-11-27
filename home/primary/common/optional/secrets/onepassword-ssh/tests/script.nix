@@ -17,7 +17,6 @@
         hostSpec = {
           primaryUsername = "tester";
           home = "/home/tester";
-          system.stateVersion = "24.05";
         };
       };
       modules = [

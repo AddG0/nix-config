@@ -27,7 +27,7 @@ in {
   home = {
     username = lib.mkDefault config.hostSpec.primaryUsername;
     homeDirectory = lib.mkDefault config.hostSpec.home;
-    stateVersion = lib.mkDefault config.hostSpec.system.stateVersion;
+    stateVersion = lib.mkDefault "26.11";
     sessionPath = [
       "$HOME/.local/bin"
       "$HOME/scripts/talon_scripts"
