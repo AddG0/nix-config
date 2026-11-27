@@ -20,8 +20,23 @@
     t3code-resource-monitor = pkgs.t3code.resourceMonitor;
   };
 
+  # Upstream hardcodes ~/.t3/projects; drop once it reads a setting for the new-projects folder.
+  newProjectsAnchor = "  const namedProjectsRoot = path.resolve(config.baseDir, \"projects\");";
+  newProjectsLine = "  const namedProjectsRoot = path.resolve(${builtins.toJSON config.programs.t3code.newProjectsDirectory});";
+
+  withNewProjectsDirectory = withoutTelemetry.override {
+    t3code-unwrapped = withoutTelemetry.unwrapped.overrideAttrs (old: {
+      postPatch =
+        (old.postPatch or "")
+        + ''
+          substituteInPlace apps/server/src/project/ManagedProjectFolders.ts \
+            --replace-fail ${lib.escapeShellArg newProjectsAnchor} ${lib.escapeShellArg newProjectsLine}
+        '';
+    });
+  };
+
   # t3code runs glab itself with the server's env, so the per-tree token a shell would export is missing.
-  withScopedGlab = withoutTelemetry.override {
+  withScopedGlab = withNewProjectsDirectory.override {
     glab = config.programs.directoryEnv.wrap (lib.getExe pkgs.glab);
   };
 
@@ -67,8 +82,6 @@
             --replace-fail ${lib.escapeShellArg pickerAnchor} ${lib.escapeShellArg "${pickerEntry}${pickerAnchor}"}
         '';
     });
-    # Pinned to avoid a Rust rebuild for an identical binary.
-    t3code-resource-monitor = pkgs.t3code.resourceMonitor;
   };
   withoutDesktop = pkg:
     lib.makeOverridable (args:
@@ -86,14 +99,22 @@
     then withNvim
     else withScopedGlab;
 in {
-  options.programs.t3code.desktop = {
-    enable =
-      lib.mkEnableOption "the t3code desktop app"
-      // {default = true;};
+  options.programs.t3code = {
+    newProjectsDirectory = lib.mkOption {
+      type = lib.types.strMatching "/.*";
+      default = config.polyrepo.scratchRoot;
+      description = "Absolute path where T3 Code's New project creates its git repo.";
+    };
 
-    localEnvironment =
-      lib.mkEnableOption "the desktop app's own server over ~/.t3/userdata; turn off when another server owns it"
-      // {default = true;};
+    desktop = {
+      enable =
+        lib.mkEnableOption "the t3code desktop app"
+        // {default = true;};
+
+      localEnvironment =
+        lib.mkEnableOption "the desktop app's own server over ~/.t3/userdata; turn off when another server owns it"
+        // {default = true;};
+    };
   };
 
   config = {

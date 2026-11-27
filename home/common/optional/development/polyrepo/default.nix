@@ -32,6 +32,12 @@
       description = "On-disk root for ghq-managed clones; the anchor every polyrepo tool (ghq, gwq, scratch, dev stacks) builds paths from.";
     };
 
+    scratchRoot = lib.mkOption {
+      type = lib.types.str;
+      default = "${config.polyrepo.ghqRoot}/scratch";
+      description = "Where scratch projects live; under ghqRoot so `ghq list` shows them as scratch/<name>.";
+    };
+
     extraSearchRoots = lib.mkOption {
       type = lib.types.listOf (lib.types.submodule {
         options = {

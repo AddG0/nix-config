@@ -10,7 +10,7 @@
       # Live under ghq's root so scratches show up in `ghq list` and the
       # Alt-G fuzzy picker. The `scratch/` segment plays the part of a
       # sentinel "host" — ghq list will display `scratch/<name>`.
-      root="${config.polyrepo.ghqRoot}/scratch"
+      root="${config.polyrepo.scratchRoot}"
 
       if [[ "''${1:-}" == "-l" ]]; then
         [[ -d "$root" ]] || { echo "no scratches yet" >&2; exit 0; }
